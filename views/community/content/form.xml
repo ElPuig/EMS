@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_content_form">
-            <field name="name">ims.content.form</field>
-            <field name="model">ims.content</field>
+            <field name="name">ems.content.form</field>
+            <field name="model">ems.content</field>
             <field name="arch" type="xml">				
                 <form string="content">                   
                     <sheet>      

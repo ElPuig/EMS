@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+   <t t-name="ems.web.ListView.Buttons" t-inherit="web.ListView.Buttons">
+   <!-- <t t-name="subjectview_create_button.ListView.Buttons" t-inherit="web.ListView"> -->
+       <!-- <xpath expr="//button[hasclass('o_list_button_add')]" position="attributes"> -->
+           <!-- <attribute name="style">display: none</attribute> -->
+       <!-- </xpath> -->
+
+       <xpath expr="//div[hasclass('o_list_buttons')]" position="inside">
+           <button type="button" class="btn btn-primary" t-on-click="onClick">
+               <!-- TODO: localize -->
+               <!-- TODO: permissions (this is a custom button, so the create permission should be used in order to display it or not...) -->
+               New
+           </button>
+       </xpath>
+   </t>  
+</templates>

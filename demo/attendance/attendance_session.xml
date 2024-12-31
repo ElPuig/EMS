@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record id="attendance_session_1" model="ims.attendance_session">
+        <record id="attendance_session_1" model="ems.attendance_session">
             <field name="attendance_schedule_id" ref="attendance_schedule_1"/>            
             <field name="weekday">1</field>
             <field name="start_time">16.00</field>

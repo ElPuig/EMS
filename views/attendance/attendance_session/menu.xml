@@ -3,11 +3,11 @@
     <data>          
         <record model="ir.actions.act_window" id="action_attendance_session_tree">
             <field name="name">Attendance session</field>
-            <field name="res_model">ims.attendance_session</field>
+            <field name="res_model">ems.attendance_session</field>
             <!-- <field name="view_mode">list,form,calendar</field> -->
             <field name="view_mode">list,form</field>
         </record>
-            
+
         <menuitem name="Sessions" sequence="1" id="menu_attendance_sessions" parent="menu_attendance" action="action_attendance_session_tree"/>
     </data>
 </odoo>

@@ -7,7 +7,7 @@
             <field name="name">Providers</field>
             <field name="res_model">res.partner</field>
             <field name="view_mode">kanban,list,form</field>    
-            <field name="search_view_id" ref="ims.view_provider_search"/>                        
+            <field name="search_view_id" ref="ems.view_provider_search"/>                        
             <field name="domain"> [('contact_type', '=', 'provider')] </field>
             <!-- TODO: test if this is used in order to create a new one -->
             <field name="context"> {'default_contact_type': 'provider'} </field>
@@ -17,7 +17,7 @@
             <field name="name">Student</field>
             <field name="res_model">res.partner</field>
             <field name="view_mode">form</field>    
-            <!-- <field name="search_view_id" ref="ims.view_provider_search"/>                         -->
+            <!-- <field name="search_view_id" ref="ems.view_provider_search"/>                         -->
             <field name="domain"> [('contact_type', '=', 'student')] </field>
             <!-- TODO: test if this is used in order to create a new one -->
             <field name="context"> {'default_contact_type': 'student'} </field>

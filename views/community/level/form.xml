@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_level_form">
-            <field name="name">ims.level.form</field>
-            <field name="model">ims.level</field>
+            <field name="name">ems.level.form</field>
+            <field name="model">ems.level</field>
             <field name="arch" type="xml">
                 <form string="Level">
                     <sheet>

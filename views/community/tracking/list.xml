@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_tracking_list">
-            <field name="name">ims.follow.list</field>
-            <field name="model">ims.tracking</field>
+            <field name="name">ems.follow.list</field>
+            <field name="model">ems.tracking</field>
             <field name="arch" type="xml">
                 <list>                    
                     <field name="student_id"/>

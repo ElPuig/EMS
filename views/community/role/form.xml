@@ -1,18 +1,21 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_role_form">
-            <field name="name">ims.role.form</field>
-            <field name="model">ims.role</field>
+            <field name="name">ems.role.form</field>
+            <field name="model">ems.role</field>
             <field name="arch" type="xml">
                 <form string="role">
                     <sheet>
-                        <group string="Main data" col="3">
+                        <group string="Main data" col="4">
                             <group colspan="2">
                                 <field name="name"/>                                
+                                <field name="employee_type" invisible="1"/>
                             </group>
                             <group>
-                                <field name="color" widget="color_picker"/>                                
-                                <field name="employee_type" invisible="1"/>
+                                <field name="color" widget="color_picker"/>
+                            </group>
+                            <group>
+                                <field name="unipersonal" />
                             </group>
                         </group>  
 

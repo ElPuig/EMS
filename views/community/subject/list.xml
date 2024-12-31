@@ -1,48 +1,38 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_subject_view_list">
-            <field name="name">ims.subject_view.list</field>
-            <field name="model">ims.subject_view</field>
+            <field name="name">ems.subject_view.list</field>
+            <field name="model">ems.subject_view</field>
             <field name="arch" type="xml">
                 <list expand="True" default_order="study_id desc, code asc, level asc, acronym asc" 
                     decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3"
                     js_class="subjectview_create_button" create="false"> <!-- custom 'new' button -->
-                    <!--https://www.cybrosys.com/blog/tree-view-decoration-attributes-in-odoo-15 -->                    
-                    <field name="code"/>
+                    <!--https://www.cybrosys.com/blog/tree-view-decoration-attributes-in-odoo-15 -->                                        
                     <field name="acronym"/>
-                    <field name="name" class="w-75"/>
+                    <field name="name" class="w-50"/>
+                    <field name="study_acronym" string="Study"/>
+                    <field name="deprecated" class="text-center"/>
                     <!-- Hidden but needed to filter or display properly -->
-                    <field name="study_id" column_invisible="True"/>  
+                    <field name="code" column_invisible="True"/>
+                    <field name="study_id" column_invisible="True"/>
                     <field name="level" column_invisible="True"/>
                     <field name="subject_id" column_invisible="True"/>  
                 </list>              
             </field>
-        </record>         
-        
-        <record model="ir.ui.view" id="view_subject_search">
-            <field name="name">ims.subject_view.search</field>
-            <field name="model">ims.subject_view</field>            
-            <field name="arch" type="xml">
-                <search string="Study">
-                    <group string="Group By">
-                        <filter string="Study" name="group_by_study" context="{'group_by':'study_id'}" />
-                    </group>
-                </search>
-            </field>
-        </record>  
+        </record>                 
 
         <!-- This one is used on search ('search more' button) -->
         <record model="ir.ui.view" id="view_subject_list">
-            <field name="name">ims.subject.list</field>
-            <field name="model">ims.subject</field>
+            <field name="name">ems.subject.list</field>
+            <field name="model">ems.subject</field>
             <field name="arch" type="xml">
                 <list expand="True" default_order="code asc, level asc, acronym asc" 
                     decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                     <!--https://www.cybrosys.com/blog/tree-view-decoration-attributes-in-odoo-15 -->                    
-                    <field name="code"/>
                     <field name="acronym"/>
                     <field name="name" class="w-75"/>
                     <!-- Hidden but needed to filter or display properly -->
+                    <field name="code" column_invisible="True"/>
                     <field name="level" column_invisible="True"/>
                 </list>              
             </field>

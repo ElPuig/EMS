@@ -6,7 +6,7 @@ from odoo.exceptions import AccessError
 from odoo.http import request
 from odoo.addons.hr_org_chart.controllers.hr_org_chart import HrOrgChartController
 
-class ImsOrgChartController(HrOrgChartController):
+class EmsOrgChartController(HrOrgChartController):
     _managers_level = 5  # FP request
 
     def _check_employee(self, employee_id, **kw):

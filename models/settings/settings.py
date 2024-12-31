@@ -2,12 +2,7 @@
 
 from odoo import models, fields, api
 
-class ims_settings(models.TransientModel):
+class ems_settings(models.TransientModel):
    _inherit = "res.config.settings"
 
-   contract_type = fields.Selection(
-       [("monthly", "Monthly"), ("half_yearly", "6 Months"),
-        ("yearly", "Yearly")],
-       string="Contract Type",
-       config_parameter="ims.contract_type",
-       help="Select contract types from the selection field")
+   course_id = fields.Many2one(string="Current course", comodel_name="ems.course", config_parameter="ems.course_id", help="Use this field to select the current course, which will be used for volatile data assignation (like the student's enrollments or the teacher's schedules).")

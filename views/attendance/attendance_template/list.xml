@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_attendance_template_list">
-            <field name="name">ims.attendance_template.list</field>
-            <field name="model">ims.attendance_template</field>
+            <field name="name">ems.attendance_template.list</field>
+            <field name="model">ems.attendance_template</field>
             <field name="arch" type="xml">
                  <list expand="True" >
                     <field name="teacher_id"/>

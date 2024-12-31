@@ -3,7 +3,7 @@
     <data>          
         <record model="ir.actions.act_window" id="action_teachers_role_tree">
             <field name="name">Roles (for teachers)</field>
-            <field name="res_model">ims.role</field>
+            <field name="res_model">ems.role</field>
             <field name="view_mode">list,form</field>
             <field name="domain"> [('employee_type', '=', 'teacher')] </field>
             <field name="context"> {'default_employee_type': 'teacher'} </field>
@@ -11,7 +11,7 @@
 
         <record model="ir.actions.act_window" id="action_asp_role_tree">
             <field name="name">Roles (for ASP)</field>
-            <field name="res_model">ims.role</field>
+            <field name="res_model">ems.role</field>
             <field name="view_mode">list,form</field>
             <field name="domain"> [('employee_type', '=', 'asp')] </field>
             <field name="context"> {'default_employee_type': 'asp'} </field>

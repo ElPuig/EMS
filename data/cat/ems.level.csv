@@ -1,0 +1,8 @@
+id,acronym,name
+"ems.level_eso","ESO","Educació Secundària Obligatoria"
+"ems.level_btx","BTX","Batxillerat"
+"ems.level_cfgm","CFGM","Cicles Formatius (Grau Mitjà)"
+"ems.level_cfgs","CFGS","Cicles Formatius (Grau Superior)"
+"ems.level_efps","EFPS","Cursos d'especialització (FP)"
+"ems.level_cfpb","CFPB","Cicles Formatius (Grau Bàsic)"
+"ems.level_pfi","PFI","Programes de Formació i Inserció"

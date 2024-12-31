@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_space_type_list">
-            <field name="name">ims.space_type.list</field>
-            <field name="model">ims.space_type</field>
+            <field name="name">ems.space_type.list</field>
+            <field name="model">ems.space_type</field>
             <field name="arch" type="xml">
                 <list expand="True" default_order="name asc">                           
                     <field name="name"/>

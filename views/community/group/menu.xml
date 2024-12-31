@@ -3,7 +3,7 @@
     <data>          
         <record model="ir.actions.act_window" id="action_group_tree">
             <field name="name">Groups (for students)</field>
-            <field name="res_model">ims.group</field>
+            <field name="res_model">ems.group</field>
             <field name="view_mode">list,form</field>
         </record>  
                    

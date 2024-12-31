@@ -8,18 +8,18 @@ employee_types = [
     ("teacher", "Teacher")
 ]
 
-class ims_employee_base(models.AbstractModel):
+class ems_employee_base(models.AbstractModel):
     _inherit = ["hr.employee.base"]
     
     notes = fields.Text(string="Notes")
     employee_type = fields.Selection(string="Employee Type", selection="_get_new_employee_type")
     contract_type_id = fields.Many2one(string="Contract Type", comodel_name="hr.contract.type")
     job_id = fields.Many2one(string="Job Position", comodel_name="hr.job", domain="[('employee_type', '=', employee_type)]")
-    teaching_ids = fields.One2many(string="Teaching", comodel_name="ims.teaching", inverse_name="teacher_id")	
+    teaching_ids = fields.One2many(string="Teaching", comodel_name="ems.teaching", inverse_name="teacher_id")	
    
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
-    role_ids = fields.Many2many(string="Roles", comodel_name="ims.role", relation="hr_employee_public_ims_role_rel", column1="hr_employee_public_id", column2="ims_role_id", domain="[('employee_type', '=', employee_type)]") 
-    tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ims.group", inverse_name="tutor_id")
+    role_ids = fields.Many2many(string="Roles", comodel_name="ems.role", relation="hr_employee_public_ems_role_rel", column1="hr_employee_public_id", column2="ems_role_id", domain="[('employee_type', '=', employee_type)]") 
+    tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ems.group", inverse_name="tutor_id")
 
     #This fields are computed in order to display string data within some views.
     roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
@@ -27,6 +27,16 @@ class ims_employee_base(models.AbstractModel):
 
     def _get_new_employee_type(self):
         return employee_types
+
+    @api.depends("tutorship_ids")
+    @api.onchange('tutorship_ids')
+    def _onchange_tutorship_ids(self):	
+        for rec in self:
+            role_tutor = self.env.ref('ems.role_tutor').ids[0]
+            if len(rec.tutorship_ids) > 0:                
+                rec.write({'role_ids' : [(4, role_tutor)]})
+            else:
+                rec.write({'role_ids' : [(3, role_tutor)]})
 
     @api.onchange('teaching_ids')
     def _onchange_teaching_ids(self):	
@@ -109,7 +119,7 @@ class ims_employee_base(models.AbstractModel):
                 rec.tutorships = "%s, %s" % (rec.tutorships, tutorship.name) 			
             rec.tutorships = rec.tutorships.lstrip(", ")
 
-class ims_employee(models.AbstractModel):
+class ems_employee(models.AbstractModel):
     _inherit = ["hr.employee"]
 
     # Info: groups is needed to avoid warnings

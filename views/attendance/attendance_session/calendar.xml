@@ -2,7 +2,7 @@
     <data>
         <!-- <record id="view_attendance_session_calendar" model="ir.ui.view">
             <field name="name">attendance.session.calendar</field>
-            <field name="model">ims.attendance_session</field>
+            <field name="model">ems.attendance_session</field>
             <field name="arch" type="xml">
                 <calendar string="Attendance Session" date_start="date" date_delay="duration" quick_add="False" mode="week">
                     <field name="start_time"/>

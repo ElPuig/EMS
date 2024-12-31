@@ -1,0 +1,32 @@
+th.o_column_sortable[data-name="code"],
+th.o_column_sortable[data-name="acronym"]{ 
+    width:125px !important; 
+    max-width:125px !important;
+}
+
+th.o_image_cell[data-name="image_1920"]{ 
+    width:100px !important; 
+    max-width:100px !important;
+}
+
+th.o_list_button{ 
+    width:32px !important; 
+    max-width:32px !important;
+}
+
+div[name="attachment_ids"] th.o_list_button{
+    width: 64px !important;
+    max-width: 64px !important;
+}
+
+div.ems-kanban-label > span {
+    font-style: italic;
+}
+
+td.o_radio_cell:has(div.o_field_radio.align-middle){
+    vertical-align: middle;
+}
+
+th[data-name="deprecated"]{
+    text-align: center;
+}

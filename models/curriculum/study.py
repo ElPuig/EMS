@@ -2,8 +2,8 @@
 
 from odoo import models, fields, api
 
-class ims_study(models.Model):
-    _name = "ims.study"
+class ems_study(models.Model):
+    _name = "ems.study"
     _description = "Study: The concrete type of stidy (kind of bachelor, concrete univeristy grade, etc.)"
     
     code = fields.Char(string="Code", required=True)
@@ -13,16 +13,16 @@ class ims_study(models.Model):
     deprecated = fields.Boolean(string="Deprecated", required=True)    
     notes = fields.Text(string="Notes")
     
-    follow_ids = fields.One2many(string="Follow-up", comodel_name="ims.tracking", inverse_name="study_id")
-    subject_ids = fields.Many2many(string="Subjects", comodel_name="ims.subject") 
-    level_id = fields.Many2one(string="Level", comodel_name="ims.level")
+    follow_ids = fields.One2many(string="Follow-up", comodel_name="ems.tracking", inverse_name="study_id")
+    subject_ids = fields.Many2many(string="Subjects", comodel_name="ems.subject") 
+    level_id = fields.Many2one(string="Level", comodel_name="ems.level")
 
-    attachment_ids = fields.Many2many(string="Attached files", comodel_name="ims.attachment", domain="['|',('domain', '=', 'ims.study'),('domain', '=', '')]") # Attachment for this model or for all the models (empty domain). TODO: allow multiple values (if needed).
+    attachment_ids = fields.Many2many(string="Attached files", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.study')]")
     
     @api.depends('acronym', 'name')
     def _compute_display_name(self):              
         for rec in self:
-            rec.display_name = "%s: %s" % (rec.acronym, rec.name)
+            rec.display_name = "%s (%s): %s" % (rec.acronym, rec.date.year, rec.name)
     
     @api.depends("subject_ids")
     def _compute_subject_ids(self):

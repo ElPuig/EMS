@@ -14,6 +14,9 @@
             <field name="active">false</field>
         </record> 
 
+         <record model="ir.ui.menu" id="mail.menu_root_discuss">
+            <field name="active">false</field>
+        </record> 
 
     </data>
 </odoo>

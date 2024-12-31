@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_minute_form">
-            <field name="name">ims.minute.form</field>
-            <field name="model">ims.minute</field>
+            <field name="name">ems.minute.form</field>
+            <field name="model">ems.minute</field>
             <field name="arch" type="xml">
                 <form string="Minute">
                     <sheet>

@@ -3,7 +3,7 @@
     <data>          
         <record model="ir.actions.act_window" id="action_workgroup_tree">
             <field name="name">Workgroups</field>
-            <field name="res_model">ims.workgroup</field>
+            <field name="res_model">ems.workgroup</field>
             <field name="view_mode">list,form</field>
         </record>  
         

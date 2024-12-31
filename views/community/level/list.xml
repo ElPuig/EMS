@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_level_list">
-            <field name="name">ims.level.list</field>
-            <field name="model">ims.level</field>
+            <field name="name">ems.level.list</field>
+            <field name="model">ems.level</field>
             <field name="arch" type="xml">
                 <list expand="True" default_order="acronym asc">      
                     <field name="acronym" class="w-25"/>

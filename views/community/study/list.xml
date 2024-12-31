@@ -1,28 +1,19 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_study_list">
-            <field name="name">ims.study.list</field>
-            <field name="model">ims.study</field>
+            <field name="name">ems.study.list</field>
+            <field name="model">ems.study</field>
             <field name="arch" type="xml">
                 <list expand="True" default_order="level_id asc, code asc">                    
-                    <field name="code"/>
                     <field name="acronym"/>
-                    <field name="name" class="w-75"/>
-                    <field name="level_id" column_invisible="True"/>                                
+                    <field name="name" class="w-50"/>
+                    <field name="date" string="Release"/>
+                    <field name="deprecated" class="text-center"/>                          
+                     <!-- Hidden but needed to filter or display properly -->                    
+                    <field name="code" column_invisible="True"/>  
+                    <field name="level_id" column_invisible="True"/>    
                 </list>
             </field>
         </record>   
-
-        <record model="ir.ui.view" id="view_study_search">
-            <field name="name">ims.study.search</field>
-            <field name="model">ims.study</field>            
-            <field name="arch" type="xml">
-                <search string="Level">
-                    <group expand="True" string="Order By">
-                        <filter string="Level" name="group_by_level" context="{'group_by':'level_id'}" />
-                    </group>
-                </search>
-            </field>
-        </record>  
     </data>
 </odoo>

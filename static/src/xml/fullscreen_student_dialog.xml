@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<templates>
-   <t t-name="ims.web.ActionDialog.header" t-inherit="web.ActionDialog.header" t-inherit-mode="extension" owl="1">   
-        <!-- When opening the student dialog from enrollments, no expand button is displayed (why!?)  -->        
-        <xpath expr="//h4" position="after">           
-           <button type="button" class="fa fa-expand btn o_expand_button" />
-       </xpath>
-   </t>  
-</templates>

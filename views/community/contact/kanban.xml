@@ -1,7 +1,7 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_contact_kanban">
-            <field name="name">ims.contact.kanban</field>
+            <field name="name">ems.contact.kanban</field>
             <field name="model">res.partner</field>           
             <field name="inherit_id" ref="base.res_partner_kanban_view"/> 
             <field name="arch" type="xml">  
@@ -19,14 +19,14 @@
 
                 <xpath expr="//kanban//main/footer" position="before">
                     <span class="text-truncate" t-if="record.main_group_id.raw_value > 0">
-                        <div class="ims-kanban-label">
+                        <div class="ems-kanban-label">
                             Group: <span><field name="main_group_id"/></span>
                         </div> 
                     </span>    
                     
                     <!-- <field name="main_group_id" invisible="context.get('default_contact_type') != 'student'" /> -->
                     <span class="text-truncate" t-if="record.tutor_id.raw_value > 0">
-                        <div class="ims-kanban-label">
+                        <div class="ems-kanban-label">
                             Tutor: <span><field name="tutor_id"/></span>
                         </div> 
                     </span>    

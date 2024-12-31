@@ -1,0 +1,30 @@
+<odoo>
+    <record id="view_absence_bulk_justification_wizard_form" model="ir.ui.view">
+        <field name="name">ems.absence_bulk_justification_wizard.form</field>
+        <field name="model">ems.absence_bulk_justification_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Bulk Justification">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="student_id"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>                            
+                        </group>                        
+                    </group>
+                                                                                                    
+                    <field name="selected_statuses_ids" widget="many2many_checkboxes" 
+                           options="{'no_create': True, 'no_open': True}" 
+                           domain="[('id', 'in', statuses_ids)]"/>
+                    
+                    <footer>
+                        <button name="action_confirm" string="Confirm" type="object" class="oe_highlight"/>
+                        <!-- <button name="action_select_all" type="object" string="Select All"/> -->
+                        <!-- <button name="action_deselect_all" type="object" string="Deselect All"/> -->
+                        <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

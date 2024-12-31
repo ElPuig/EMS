@@ -1,54 +1,54 @@
 <odoo>
     <data>
-       <record id="role_1" model="ims.role">
+       <record id="role_1" model="ems.role">
             <field name="name">Director</field>
             <field name="employee_type">teacher</field>
             <field name="color">9</field>            
             <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_hne')])]"/> 
         </record>
         
-        <record id="role_2" model="ims.role">         
+        <record id="role_2" model="ems.role">         
             <field name="name">Head of studies</field>
             <field name="employee_type">teacher</field>
             <field name="color">1</field>
             <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_fpi')])]"/>                
         </record>
 
-        <record id="role_3" model="ims.role">
+        <record id="role_3" model="ems.role">
             <field name="name">Deputy head of studies</field>
             <field name="employee_type">teacher</field>
             <field name="color">2</field>
         </record>    
 
-        <record id="role_4" model="ims.role">
+        <record id="role_4" model="ems.role">
             <field name="name">Quality coordinator</field>       
             <field name="employee_type">teacher</field>          
             <field name="color">4</field>
             <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_admin')])]"/>             
         </record>
 
-        <record id="role_5" model="ims.role">
+        <record id="role_5" model="ems.role">
             <field name="name">Coexistence coordinator</field>
             <field name="employee_type">teacher</field>
             <field name="color">10</field>
             <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_mit')])]"/>             
         </record>
 
-        <record id="role_6" model="ims.role">
+        <record id="role_6" model="ems.role">
             <field name="name">Occupational risk coordinator</field>
             <field name="employee_type">teacher</field>
             <field name="color">11</field>
             <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_mit')])]"/>             
         </record>
 
-        <record id="role_7" model="ims.role">
+        <record id="role_7" model="ems.role">
             <field name="name">Chieff Secretary</field>
             <field name="employee_type">asp</field>
             <field name="color">1</field>
             <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_lur')])]"/>     
         </record>
         
-        <record id="role_8" model="ims.role">
+        <record id="role_8" model="ems.role">
             <field name="name">Chieff Concierje</field>
             <field name="employee_type">asp</field>
             <field name="color">2</field>

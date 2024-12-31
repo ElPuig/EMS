@@ -5,11 +5,12 @@ from datetime import datetime, time
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 
-class ims_attendance_schedule(models.Model):
-	_name = "ims.attendance_schedule"
+class ems_attendance_schedule(models.Model):
+	_name = "ems.attendance_schedule"
 	_description = "Attendance schedule: concretes the weekdays data."
 	_order = 'name asc'
 	
+	# Note: today.weekday() returns this values, do not alter!
 	weekdays_selection=[
 		("0", "Monday"),
         ("1", "Tuesday"),
@@ -30,9 +31,9 @@ class ims_attendance_schedule(models.Model):
 	start_date = fields.Datetime(required=True)	
 	end_date = fields.Datetime(required=True)
 	
-	space_id = fields.Many2one(string="Space", comodel_name="ims.space", required=True)
-	attendance_template_id = fields.Many2one(string="Template", comodel_name="ims.attendance_template")	
-	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ims.attendance_session", inverse_name="attendance_schedule_id")	
+	space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
+	attendance_template_id = fields.Many2one(string="Template", comodel_name="ems.attendance_template", ondelete='cascade', required=True)	
+	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_session", inverse_name="attendance_schedule_id")	
 		
 	notes = fields.Text(string="Notes")
 

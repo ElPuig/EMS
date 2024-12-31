@@ -1,7 +1,7 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_student_search">
-            <field name="name">ims.student.search</field>
+            <field name="name">ems.student.search</field>
             <field name="model">res.partner</field>            
             <field name="arch" type="xml">                                         
                 <search>                    
@@ -13,7 +13,7 @@
         </record>   
 
         <record model="ir.ui.view" id="view_provider_search">
-            <field name="name">ims.provider.search</field>
+            <field name="name">ems.provider.search</field>
             <field name="model">res.partner</field>            
             <field name="arch" type="xml">                                     
                 <search>                    

@@ -2,7 +2,7 @@
     <data>
         <record model="ir.ui.view" id="view_attendance_template_form">
             <field name="name">ima.attendance_template.form</field>
-            <field name="model">ims.attendance_template</field>
+            <field name="model">ems.attendance_template</field>
             <field name="arch" type="xml">
                 <form string="Template">
                     <sheet>

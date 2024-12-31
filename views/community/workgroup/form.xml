@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_workgroup_form">
-            <field name="name">ims.workgroup.form</field>
-            <field name="model">ims.workgroup</field>
+            <field name="name">ems.workgroup.form</field>
+            <field name="model">ems.workgroup</field>
             <field name="arch" type="xml">
                 <form string="workgroup">
                     <sheet>

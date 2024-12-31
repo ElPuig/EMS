@@ -1,0 +1,10 @@
+id,color,active,name,parent_id/id
+"hr.dep_administration",10,0,"Administration",""
+"department_vet",11,1,"VET",""
+"department_cs",2,1,"Computer Science","department_vet"
+"department_administration",9,1,"Administration and management","department_vet"
+"department_esobtx",1,1,"ESO / BTX",""
+"department_tecno",11,1,"Tecnology","department_esobtx"
+"department_asp",4,1,"ASP",""
+"department_secretariat",6,1,"Secretariat","department_asp"
+"department_conciergerie",7,1,"Conciergerie","department_asp"

@@ -1,8 +1,8 @@
 <odoo>
     <data>    
         <record model="ir.ui.view" id="view_attendance_schedule_form">
-            <field name="name">ims.attendance_schedule.form</field>
-            <field name="model">ims.attendance_schedule</field>
+            <field name="name">ems.attendance_schedule.form</field>
+            <field name="model">ems.attendance_schedule</field>
             <field name="arch" type="xml">
                 <form string="Schedule">
                     <sheet>                        

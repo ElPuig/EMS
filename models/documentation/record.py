@@ -3,13 +3,13 @@
 from odoo import models, fields, api
 
 class record(models.Model):
-	_name = "ims.record"
+	_name = "ems.record"
 	_description = "Record: Defines a record (meeting, evaluacion, etc.)."
 	
 	date = fields.Datetime(string="Date", required=True)
 	nature = fields.Selection(string="Nature", selection=[("Ordinary", "ordinary"), ("Extraordinary", "extraordinary")])
 	modality = fields.Selection(string="Modality", selection=[("In person", "in person"), ("Online", "online"), ("Hybrid", "hybrid")])
-	space_id = fields.Many2one(string="Space", comodel_name="ims.space")
+	space_id = fields.Many2one(string="Space", comodel_name="ems.space")
 	assistant_ids = fields.Many2many(string="Assistants", comodel_name="res.partner") 
 	abstent_ids = fields.Many2many(string="Abstents", comodel_name="res.partner") 
 

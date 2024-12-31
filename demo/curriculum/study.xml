@@ -1,83 +1,83 @@
 <odoo>
     <data>
-       <record id="study_11" model="ims.study">
+       <record id="study_11" model="ems.study">
             <field name="code">1.1</field>
             <field name="acronym">L1F1</field>
             <field name="name">Level 1.1</field>
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_1"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
-        <record id="study_12" model="ims.study">
+        <record id="study_12" model="ems.study">
             <field name="code">1.2</field>
             <field name="acronym">L1F2</field>
             <field name="name">Level 1.2</field>
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_1"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
-        <record id="study_21" model="ims.study">
+        <record id="study_21" model="ems.study">
             <field name="code">2.1</field>
             <field name="acronym">L2F1</field>
             <field name="name">Level 2.1</field>
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_2"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
-        <record id="study_22" model="ims.study">
+        <record id="study_22" model="ems.study">
             <field name="code">2.2</field>
             <field name="acronym">L2F2</field>
             <field name="name">Level 2.2</field>
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_2"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
-        <record id="study_31" model="ims.study">
+        <record id="study_31" model="ems.study">
             <field name="code">3.1</field>
             <field name="acronym">L3F1</field>
             <field name="name">Level 3.1</field>
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_3"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
-        <record id="study_32" model="ims.study">
+        <record id="study_32" model="ems.study">
             <field name="code">3.2</field>
             <field name="acronym">L3F2</field>
             <field name="name">Level 3.2</field>
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_3"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
         
-        <record id="study_41" model="ims.study">
+        <record id="study_41" model="ems.study">
             <field name="code">4.1</field>
             <field name="acronym">L4F1</field>
             <field name="name">Level 4.1</field>
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_4"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
-        <record id="study_42" model="ims.study">
+        <record id="study_42" model="ems.study">
             <field name="code">4.2</field>
             <field name="acronym">L4F2</field>
             <field name="name">Level 4.2</field>
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_4"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
     </data>
 </odoo>

@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_group_list">
-            <field name="name">ims.group.list</field>
-            <field name="model">ims.group</field>
+            <field name="name">ems.group.list</field>
+            <field name="model">ems.group</field>
             <field name="arch" type="xml">
                 <list expand="True" default_order="name asc">      
                     <field name="name" string="Group"/>

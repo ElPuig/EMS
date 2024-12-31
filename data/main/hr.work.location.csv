@@ -1,2 +1,2 @@
 id,name,location_type,address_id:id
-"ims.work_location_main","Main building",office,"base.main_partner"
+"ems.work_location_main","Main building",office,"base.main_partner"

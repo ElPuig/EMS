@@ -2,8 +2,8 @@
 
 from odoo import models, fields, api
 
-class ims_space_type(models.Model):
-	_name = "ims.space_type"
+class ems_space_type(models.Model):
+	_name = "ems.space_type"
 	_description = "Space type: classroom, laboratory, etc."
 		
 	name = fields.Char(string="Name", required=True)

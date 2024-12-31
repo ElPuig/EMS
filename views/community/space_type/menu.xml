@@ -3,7 +3,7 @@
     <data>          
         <record model="ir.actions.act_window" id="action_space_type_tree">
             <field name="name">Space Types</field>
-            <field name="res_model">ims.space_type</field>
+            <field name="res_model">ems.space_type</field>
             <field name="view_mode">list,form</field>
         </record>
         

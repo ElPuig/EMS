@@ -1,7 +1,7 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_employee_list">
-            <field name="name">ims.employee.list</field>
+            <field name="name">ems.employee.list</field>
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_tree"/> 
             <field name="arch" type="xml">                        

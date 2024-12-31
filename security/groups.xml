@@ -3,24 +3,24 @@
     <data noupdate="1">             
         <!-- To get all the groups available, export the list from user/groups including the "name" and the "external ID" fields -->
         
-        <record id="ims_category_main" model="ir.module.category" >
-            <field name="name">IMS</field>
-            <field name="description">Institute Management System</field>
+        <record id="ems_category_main" model="ir.module.category" >
+            <field name="name">EMS</field>
+            <field name="description">Educational Management System</field>
             <field name="sequence">20</field>
         </record>
 
-        <record id="ims_group_user" model="res.groups">
+        <record id="ems_group_user" model="res.groups">
             <field name="name">User</field>
             <field name="comment">Minimal access rights.</field>
-            <field name="category_id" ref="ims.ims_category_main"/>
+            <field name="category_id" ref="ems.ems_category_main"/>
             <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>            
         </record>
 
-        <record id="ims_group_admin" model="res.groups">
+        <record id="ems_group_admin" model="res.groups">
             <field name="name">Administrator</field>
             <field name="comment">All access rights.</field>
-            <field name="category_id" ref="ims.ims_category_main"/>
-            <field name="implied_ids" eval="[(4, ref('ims_group_user'))]"/>    
+            <field name="category_id" ref="ems.ems_category_main"/>
+            <field name="implied_ids" eval="[(4, ref('ems_group_user'))]"/>    
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>   
 

@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_role_list">
-            <field name="name">ims.role.list</field>
-            <field name="model">ims.role</field>
+            <field name="name">ems.role.list</field>
+            <field name="model">ems.role</field>
             <field name="arch" type="xml">
                 <list expand="True" default_order="name asc">      
                     <field name="color" width="50px" widget="color_picker"/>

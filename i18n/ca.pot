@@ -1,6 +1,6 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* ims
+# 	* ems
 #
 msgid ""
 msgstr ""
@@ -15,1096 +15,1096 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
-#. module: ims
-#: model:ir.model.fields.selection,name:ims.selection__res_config_settings__contract_type__half_yearly
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_config_settings__contract_type__half_yearly
 msgid "6 Months"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.res_config_settings_view_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "<span class=\"o_form_label\">Contract Type</span>"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__acronym
-#: model:ir.model.fields,field_description:ims.field_ims_level__acronym
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__acronym
-#: model:ir.model.fields,field_description:ims.field_ims_group__acronym
-#: model:ir.model.fields,field_description:ims.field_ims_study__acronym
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__acronym
+#: model:ir.model.fields,field_description:ems.field_ems_level__acronym
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__acronym
+#: model:ir.model.fields,field_description:ems.field_ems_group__acronym
+#: model:ir.model.fields,field_description:ems.field_ems_study__acronym
 msgid "Acronym"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative_role__administrative
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_administrative_role_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative_role__administrative
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_administrative_role_form
 msgid "Administrative"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_provider_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_student_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_study_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_provider_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_student_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_study_form
 msgid "Administrative data"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_administrative
+#. module: ems
+#: model:ir.model,name:ems.model_ems_administrative
 msgid "Administrative person: Collects personal and corporative data."
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_administrative_role
+#. module: ems
+#: model:ir.model,name:ems.model_ems_administrative_role
 msgid ""
 "Administrative position: The position held by the administration staff."
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_administrative_tree
-#: model:ir.ui.menu,name:ims.menu_administratives
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_administrative_tree
+#: model:ir.ui.menu,name:ems.menu_administratives
 msgid "Administratives"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__attendance_group
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__attendance_group
 msgid "Attendance Group"
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_attendance_group_tree
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_group_tree
 msgid "Attendance Groups"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__attendance_group
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__attendance_group
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__attendance_group
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__attendance_group
 msgid "Attendance Template Group"
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_attendance_template_tree
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_template_tree
 msgid "Attendance Templates"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_attendance_status
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_status
 msgid "Attendance status per student/session"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_attendance_template
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_template
 msgid "Attendance template"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_attendance_group
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_group
 msgid ""
 "Attendance templates linked to a student group that allows template batch "
 "generation"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_status__status__1
-msgid "Attended"
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__status__1
+msgid "a_attended"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_group_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_session_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_status_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_template_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_tracking_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_session_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_status_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_template_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_tracking_form
 msgid "Basic data"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__space
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__space
-#: model:ir.model.fields,field_description:ims.field_ims_group__space
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_space_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__space
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__space
+#: model:ir.model.fields,field_description:ems.field_ems_group__space
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_space_form
 msgid "space"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_space
+#. module: ems
+#: model:ir.model,name:ems.model_ems_space
 msgid "space: where each student group are assigned to."
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_space_tree
-#: model:ir.ui.menu,name:ims.menu_spaces
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_space_tree
+#: model:ir.ui.menu,name:ems.menu_spaces
 msgid "spaces"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__code
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__code
-#: model:ir.model.fields,field_description:ims.field_ims_study__code
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__code
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__code
+#: model:ir.model.fields,field_description:ems.field_ems_study__code
 msgid "Code"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__color
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__color
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__color
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
 msgid "Color"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.ims_report_mp_view
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.ems_report_mp_view
 msgid "Començat:"
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_company_tree
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_company_tree
 msgid "Companies"
 msgstr ""
 
-#. module: ims
-#: model:ir.ui.menu,name:ims.menu_company
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_company
 msgid "Companies (for providers)"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_provider__company
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_provider__company
 msgid "Company"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_company
+#. module: ems
+#: model:ir.model,name:ems.model_ems_company
 msgid "Company: Collects company data."
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_corporate_person_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_corporate_person_form
 msgid "Conact data (corporate)"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_person_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_person_form
 msgid "Conact data (personal)"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_res_config_settings
+#. module: ems
+#: model:ir.model,name:ems.model_res_config_settings
 msgid "Config Settings"
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_settings
-#: model:ir.ui.menu,name:ims.menu_configuration
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_settings
+#: model:ir.ui.menu,name:ems.menu_configuration
 msgid "Configuration"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_company__contacts
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_company_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_company__contacts
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_company_form
 msgid "Contacts"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_res_config_settings__contract_type
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__contract_type
 msgid "Contract Type"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_corporate_person
+#. module: ems
+#: model:ir.model,name:ems.model_ems_corporate_person
 msgid "Corporate person: Collects personal and corporative data."
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_group__course
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__course
 msgid "Course"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_administrative_role__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_status__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_space__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_company__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_level__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_person__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_provider__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_student__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_group__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_study__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_role__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_teaching__create_uid
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__create_uid
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_administrative_role__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_space__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_company__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_level__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_person__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_provider__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_group__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_study__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_role__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__create_uid
 msgid "Created by"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_administrative_role__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_status__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_space__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_company__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_level__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_person__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_provider__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_student__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_group__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_study__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_role__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_teaching__create_date
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__create_date
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_administrative_role__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_space__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_company__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_level__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_person__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_provider__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_student__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_group__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_study__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_role__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__create_date
 msgid "Created on"
 msgstr ""
 
-#. module: ims
-#: model:ir.ui.menu,name:ims.menu_curriculum
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_curriculum
 msgid "Curriculum"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__date
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__date
 msgid "Date"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_status__status__3
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__status__3
 msgid "Delay"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_group__delegate
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__delegate
 msgid "Delegate"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_study__deprecated
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__deprecated
 msgid "Deprecated"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_administrative_role__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_status__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_space__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_company__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_level__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_person__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_provider__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_student__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_group__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_study__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_role__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_teaching__display_name
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__display_name
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_administrative_role__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_space__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_company__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_level__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_person__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_provider__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_student__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_group__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_study__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_role__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__display_name
 msgid "Display Name"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__email
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__email
-#: model:ir.model.fields,field_description:ims.field_ims_person__email
-#: model:ir.model.fields,field_description:ims.field_ims_provider__email
-#: model:ir.model.fields,field_description:ims.field_ims_student__email
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__email
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_corporate_person_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_person_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__email
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__email
+#: model:ir.model.fields,field_description:ems.field_ems_person__email
+#: model:ir.model.fields,field_description:ems.field_ems_provider__email
+#: model:ir.model.fields,field_description:ems.field_ems_student__email
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__email
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_corporate_person_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_person_form
 msgid "Email"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__corporate_email
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__corporate_email
-#: model:ir.model.fields,field_description:ims.field_ims_student__corporate_email
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__corporate_email
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__corporate_email
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__corporate_email
+#: model:ir.model.fields,field_description:ems.field_ems_student__corporate_email
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__corporate_email
 msgid "Email (corporate)"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__end_time
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__end_time
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__end_time
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__end_time
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__end_time
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__end_time
 msgid "End Time"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.ims_report_mp_view
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.ems_report_mp_view
 msgid "End date:"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_attendance_session
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_session
 msgid "Every concrete class session"
 msgstr ""
 
-#. module: ims
-#: model:ir.ui.menu,name:ims.menu_ufs
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_ufs
 msgid "FUs"
 msgstr ""
 
-#. module: ims
-#: model:ir.ui.menu,name:ims.menu_facilities
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_facilities
 msgid "Facilities"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,help:ims.field_ims_attendance_group__color
-#: model:ir.model.fields,help:ims.field_ims_attendance_template__color
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_group__color
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__color
 msgid "Field to store the color that will be used for calendar view"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__trackings
-#: model:ir.model.fields,field_description:ims.field_ims_student__follows
-#: model:ir.model.fields,field_description:ims.field_ims_study__follows
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__trackings
+#: model:ir.model.fields,field_description:ems.field_ems_student__follows
+#: model:ir.model.fields,field_description:ems.field_ems_study__follows
 msgid "Follow-up"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__trackings
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__trackings
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__trackings
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__trackings
 msgid "Follow-ups"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__uf
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__uf
-#: model:ir.model.fields,field_description:ims.field_ims_teaching__formative_unit
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__formative_unit
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__uf
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__uf
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__formative_unit
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__formative_unit
 msgid "Formative Unit"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_formative_unit
+#. module: ems
+#: model:ir.model,name:ems.model_ems_formative_unit
 msgid ""
 "Formative Unit: Is how a set of topics is called in VET studies, a set of "
 "FUs composes a Professional Module but each FU must be evaluated separately."
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_formative_unit_tree
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__formative_units
-#: model_terms:ir.ui.view,arch_db:ims.ims_report_mp_view
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_professional_module_form
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_formative_unit_tree
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__formative_units
+#: model_terms:ir.ui.view,arch_db:ems.ems_report_mp_view
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_professional_module_form
 msgid "Formative Units"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_group__weekday__5
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_template__weekday__5
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_group__weekday__5
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_template__weekday__5
 msgid "Friday"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_session_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_session_form
 msgid "Generate Statuses"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_group_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_group_form
 msgid "Generate Templates"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_student__group
-#: model:ir.model.fields,field_description:ims.field_ims_teaching__group
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_group_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_student_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_teacher_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student__group
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__group
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_student_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_teacher_form
 msgid "Group"
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_group_tree
-#: model:ir.ui.menu,name:ims.menu_groups
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_group_tree
+#: model:ir.ui.menu,name:ems.menu_groups
 msgid "Groups (for students)"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__group
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__group
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__group
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__group
 msgid "Grup"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__hasStatuses
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__hasStatuses
 msgid "has_statuses"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__has_templates
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__has_templates
 msgid "has_templates"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__id
-#: model:ir.model.fields,field_description:ims.field_ims_administrative_role__id
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__id
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__id
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_status__id
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__id
-#: model:ir.model.fields,field_description:ims.field_ims_space__id
-#: model:ir.model.fields,field_description:ims.field_ims_company__id
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__id
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__id
-#: model:ir.model.fields,field_description:ims.field_ims_level__id
-#: model:ir.model.fields,field_description:ims.field_ims_person__id
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__id
-#: model:ir.model.fields,field_description:ims.field_ims_provider__id
-#: model:ir.model.fields,field_description:ims.field_ims_student__id
-#: model:ir.model.fields,field_description:ims.field_ims_group__id
-#: model:ir.model.fields,field_description:ims.field_ims_study__id
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__id
-#: model:ir.model.fields,field_description:ims.field_ims_role__id
-#: model:ir.model.fields,field_description:ims.field_ims_teaching__id
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__id
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__id
+#: model:ir.model.fields,field_description:ems.field_ems_administrative_role__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__id
+#: model:ir.model.fields,field_description:ems.field_ems_space__id
+#: model:ir.model.fields,field_description:ems.field_ems_company__id
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__id
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__id
+#: model:ir.model.fields,field_description:ems.field_ems_level__id
+#: model:ir.model.fields,field_description:ems.field_ems_person__id
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__id
+#: model:ir.model.fields,field_description:ems.field_ems_provider__id
+#: model:ir.model.fields,field_description:ems.field_ems_student__id
+#: model:ir.model.fields,field_description:ems.field_ems_group__id
+#: model:ir.model.fields,field_description:ems.field_ems_study__id
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__id
+#: model:ir.model.fields,field_description:ems.field_ems_role__id
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__id
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__id
 msgid "ID"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.res_config_settings_view_form
-msgid "IMS Settings"
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "EMS Settings"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__image
-#: model:ir.model.fields,field_description:ims.field_ims_company__image
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__image
-#: model:ir.model.fields,field_description:ims.field_ims_person__image
-#: model:ir.model.fields,field_description:ims.field_ims_provider__image
-#: model:ir.model.fields,field_description:ims.field_ims_student__image
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__image
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__image
+#: model:ir.model.fields,field_description:ems.field_ems_company__image
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__image
+#: model:ir.model.fields,field_description:ems.field_ems_person__image
+#: model:ir.model.fields,field_description:ems.field_ems_provider__image
+#: model:ir.model.fields,field_description:ems.field_ems_student__image
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__image
 msgid "Image"
 msgstr ""
 
-#. module: ims
-#: model:ir.ui.menu,name:ims.menu_root
-msgid "Institute Management System"
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_root
+msgid "Educational Management System"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_administrative_role____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_status____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_space____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_company____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_level____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_person____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_provider____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_student____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_group____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_study____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_teacher____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_role____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_teaching____last_update
-#: model:ir.model.fields,field_description:ims.field_ims_tracking____last_update
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_administrative_role____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_space____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_company____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_level____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_person____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_provider____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_student____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_group____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_study____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_teacher____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_role____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_teaching____last_update
+#: model:ir.model.fields,field_description:ems.field_ems_tracking____last_update
 msgid "Last Modified on"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_administrative_role__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_status__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_space__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_company__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_level__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_person__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_provider__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_student__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_group__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_study__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_role__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_teaching__write_uid
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__write_uid
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_administrative_role__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_space__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_company__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_level__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_person__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_provider__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_group__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_study__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_role__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__write_uid
 msgid "Last Updated by"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_administrative_role__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_status__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_space__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_company__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_level__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_person__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_provider__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_student__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_group__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_study__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_role__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_teaching__write_date
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__write_date
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_administrative_role__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_space__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_company__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_level__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_person__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_provider__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_student__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_group__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_study__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_role__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__write_date
 msgid "Last Updated on"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__level
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__level
-#: model:ir.model.fields,field_description:ims.field_ims_study__level
-#: model_terms:ir.ui.view,arch_db:ims.ims_study_search
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_level_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__level
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__level
+#: model:ir.model.fields,field_description:ems.field_ems_study__level
+#: model_terms:ir.ui.view,arch_db:ems.ems_study_search
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_level_form
 msgid "Level"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_level
+#. module: ems
+#: model:ir.model,name:ems.model_ems_level
 msgid "Level: Defines the studies level (University, VET, etc.)."
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_level_tree
-#: model:ir.ui.menu,name:ims.menu_levels
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_level_tree
+#: model:ir.ui.menu,name:ems.menu_levels
 msgid "Levels"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_administrative_role_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_space_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_company_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_formative_unit_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_group_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_level_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_person_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_professional_module_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_study_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_role_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_administrative_role_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_space_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_company_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_formative_unit_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_level_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_person_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_professional_module_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_study_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_role_form
 msgid "Main data"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_study__main_decree
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__main_decree
 msgid "Main decree"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_status__status__2
-msgid "Miss"
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__status__2
+msgid "m_miss"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_group__weekday__1
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_template__weekday__1
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_group__weekday__1
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_template__weekday__1
 msgid "Monday"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields.selection,name:ims.selection__res_config_settings__contract_type__monthly
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_config_settings__contract_type__monthly
 msgid "Monthly"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__name
-#: model:ir.model.fields,field_description:ims.field_ims_administrative_role__name
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__name
-#: model:ir.model.fields,field_description:ims.field_ims_space__name
-#: model:ir.model.fields,field_description:ims.field_ims_company__name
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__name
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__name
-#: model:ir.model.fields,field_description:ims.field_ims_level__name
-#: model:ir.model.fields,field_description:ims.field_ims_person__name
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__name
-#: model:ir.model.fields,field_description:ims.field_ims_provider__name
-#: model:ir.model.fields,field_description:ims.field_ims_student__name
-#: model:ir.model.fields,field_description:ims.field_ims_group__name
-#: model:ir.model.fields,field_description:ims.field_ims_study__name
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__name
-#: model:ir.model.fields,field_description:ims.field_ims_role__name
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__name
+#: model:ir.model.fields,field_description:ems.field_ems_administrative_role__name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__name
+#: model:ir.model.fields,field_description:ems.field_ems_space__name
+#: model:ir.model.fields,field_description:ems.field_ems_company__name
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__name
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__name
+#: model:ir.model.fields,field_description:ems.field_ems_level__name
+#: model:ir.model.fields,field_description:ems.field_ems_person__name
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__name
+#: model:ir.model.fields,field_description:ems.field_ems_provider__name
+#: model:ir.model.fields,field_description:ems.field_ems_student__name
+#: model:ir.model.fields,field_description:ems.field_ems_group__name
+#: model:ir.model.fields,field_description:ems.field_ems_study__name
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__name
+#: model:ir.model.fields,field_description:ems.field_ems_role__name
 msgid "Name"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__notes
-#: model:ir.model.fields,field_description:ims.field_ims_administrative_role__notes
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__notes
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_status__notes
-#: model:ir.model.fields,field_description:ims.field_ims_company__notes
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__notes
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__notes
-#: model:ir.model.fields,field_description:ims.field_ims_level__notes
-#: model:ir.model.fields,field_description:ims.field_ims_person__notes
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__notes
-#: model:ir.model.fields,field_description:ims.field_ims_provider__notes
-#: model:ir.model.fields,field_description:ims.field_ims_student__notes
-#: model:ir.model.fields,field_description:ims.field_ims_group__notes
-#: model:ir.model.fields,field_description:ims.field_ims_study__notes
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__notes
-#: model:ir.model.fields,field_description:ims.field_ims_role__notes
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__notes
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_administrative_role_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_company_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_formative_unit_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_group_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_level_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_person_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_professional_module_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_study_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_role_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_tracking_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__notes
+#: model:ir.model.fields,field_description:ems.field_ems_administrative_role__notes
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__notes
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__notes
+#: model:ir.model.fields,field_description:ems.field_ems_company__notes
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__notes
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__notes
+#: model:ir.model.fields,field_description:ems.field_ems_level__notes
+#: model:ir.model.fields,field_description:ems.field_ems_person__notes
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__notes
+#: model:ir.model.fields,field_description:ems.field_ems_provider__notes
+#: model:ir.model.fields,field_description:ems.field_ems_student__notes
+#: model:ir.model.fields,field_description:ems.field_ems_group__notes
+#: model:ir.model.fields,field_description:ems.field_ems_study__notes
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__notes
+#: model:ir.model.fields,field_description:ems.field_ems_role__notes
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__notes
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_administrative_role_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_company_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_formative_unit_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_level_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_person_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_professional_module_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_study_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_role_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_tracking_form
 msgid "Notes"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_space__code
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space__code
 msgid "Numeric Code"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.mp_search
-#: model_terms:ir.ui.view,arch_db:ims.ims_study_search
-#: model_terms:ir.ui.view,arch_db:ims.uf_search
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mp_search
+#: model_terms:ir.ui.view,arch_db:ems.ems_study_search
+#: model_terms:ir.ui.view,arch_db:ems.uf_search
 msgid "Order By"
 msgstr ""
 
-#. module: ims
-#: model:ir.ui.menu,name:ims.menu_organisation
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_organisation
 msgid "Organization"
 msgstr ""
 
-#. module: ims
-#: model:ir.ui.menu,name:ims.menu_mps
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_mps
 msgid "PMs"
 msgstr ""
 
-#. module: ims
-#: model:ir.ui.menu,name:ims.menu_community
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_community
 msgid "People"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_person_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_person_form
 msgid "Person"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_person
+#. module: ems
+#: model:ir.model,name:ems.model_ems_person
 msgid "Person: Collects just personal data."
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__phone
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__phone
-#: model:ir.model.fields,field_description:ims.field_ims_person__phone
-#: model:ir.model.fields,field_description:ims.field_ims_provider__phone
-#: model:ir.model.fields,field_description:ims.field_ims_student__phone
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__phone
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_corporate_person_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_person_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__phone
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__phone
+#: model:ir.model.fields,field_description:ems.field_ems_person__phone
+#: model:ir.model.fields,field_description:ems.field_ems_provider__phone
+#: model:ir.model.fields,field_description:ems.field_ems_student__phone
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__phone
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_corporate_person_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_person_form
 msgid "Phone"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__corporate_phone
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__corporate_phone
-#: model:ir.model.fields,field_description:ims.field_ims_student__corporate_phone
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__corporate_phone
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__corporate_phone
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__corporate_phone
+#: model:ir.model.fields,field_description:ems.field_ems_student__corporate_phone
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__corporate_phone
 msgid "Phone (corporate)"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.base_kanban_box
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_company_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_company_kanban
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_person_kanban
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.base_kanban_box
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_company_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_company_kanban
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_person_kanban
 msgid "Photo"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__mp
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__mp
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__professional_module
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__professional_module
-#: model_terms:ir.ui.view,arch_db:ims.uf_search
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__mp
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__mp
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__professional_module
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__professional_module
+#: model_terms:ir.ui.view,arch_db:ems.uf_search
 msgid "Professional Module"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_professional_module
+#. module: ems
+#: model:ir.model,name:ems.model_ems_professional_module
 msgid ""
 "Professional Module: Is how a subject is called in VET studies and it\"s "
 "composed by Formative Units so every FU must be passed in order to pass also"
 " the PM."
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_professional_module_tree
-#: model:ir.model.fields,field_description:ims.field_ims_study__professional_modules
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_study_form
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_professional_module_tree
+#: model:ir.model.fields,field_description:ems.field_ems_study__professional_modules
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_study_form
 msgid "Professional Modules"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__teacher
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__teacher
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__teacher
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__teacher
 msgid "Professor"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_provider
+#. module: ems
+#: model:ir.model,name:ems.model_ems_provider
 msgid "Provider: Collects corporative data."
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_provider_tree
-#: model:ir.ui.menu,name:ims.menu_providers
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_provider_tree
+#: model:ir.ui.menu,name:ems.menu_providers
 msgid "Providers"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_study__regional_decree
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__regional_decree
 msgid "Regional decree"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_study__date
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__date
 msgid "Release Date"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__role
-#: model:ir.model.fields,field_description:ims.field_ims_provider__role
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_administrative_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_provider_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_teacher_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__role
+#: model:ir.model.fields,field_description:ems.field_ems_provider__role
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_administrative_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_provider_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_teacher_form
 msgid "Role"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__roles
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_teacher_list
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__roles
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_teacher_list
 msgid "Roles"
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_administrative_role_tree
-#: model:ir.ui.menu,name:ims.menu_administrative_roles
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_administrative_role_tree
+#: model:ir.ui.menu,name:ems.menu_administrative_roles
 msgid "Roles (for administratives)"
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_role_tree
-#: model:ir.ui.menu,name:ims.menu_roles
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_role_tree
+#: model:ir.ui.menu,name:ems.menu_roles
 msgid "Roles (for teachers)"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__roles_str
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__roles_str
 msgid "Roles Str"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,help:ims.field_res_config_settings__contract_type
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_config_settings__contract_type
 msgid "Select contract types from the selection field"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_status__attendance_session
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_session_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__attendance_session
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_session_form
 msgid "Session"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__attendance_sessions
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_group_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__attendance_sessions
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_group_form
 msgid "Sessions"
 msgstr ""
 
-#. module: ims
-#: model:ir.ui.menu,name:ims.menu_settings
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_settings
 msgid "Settings"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__start_time
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__start_time
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__start_time
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__start_time
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__start_time
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__start_time
 msgid "Start Time"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.ims_report_mp_view
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.ems_report_mp_view
 msgid "Start date:"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_status__status
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_status_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__status
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_status_form
 msgid "Status"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_session_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_session_form
 msgid "Statuses"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__student
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_status__student
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__student
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__student
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__student
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__student
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__student
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__student
 msgid "Student"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_group
+#. module: ems
+#: model:ir.model,name:ems.model_ems_group
 msgid "Student Groups: Where the students are assigned to."
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_session__attendance_statuses
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__attendance_statuses
 msgid "Student status"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_student
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student
 msgid "Student: Collects the student\"s data."
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_student_tree
-#: model:ir.model.fields,field_description:ims.field_ims_group__students
-#: model:ir.ui.menu,name:ims.menu_students
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_group_form
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_student_tree
+#: model:ir.model.fields,field_description:ems.field_ems_group__students
+#: model:ir.ui.menu,name:ems.menu_students
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_group_form
 msgid "Students"
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_study_tree
-#: model:ir.model.fields,field_description:ims.field_ims_level__studies
-#: model:ir.ui.menu,name:ims.menu_studies
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_level_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_study_form
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_study_tree
+#: model:ir.model.fields,field_description:ems.field_ems_level__studies
+#: model:ir.ui.menu,name:ems.menu_studies
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_level_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_study_form
 msgid "Studies"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__study
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__study
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__study
-#: model:ir.model.fields,field_description:ims.field_ims_group__study
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__study
-#: model_terms:ir.ui.view,arch_db:ims.mp_search
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__study
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__study
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__study
+#: model:ir.model.fields,field_description:ems.field_ems_group__study
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__study
+#: model_terms:ir.ui.view,arch_db:ems.mp_search
 msgid "Study"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_study
+#. module: ems
+#: model:ir.model,name:ems.model_ems_study
 msgid ""
 "Study: The concrete type of stidy (kind of bachelor, concrete univeristy "
 "grade, etc.)"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_administrative__surname
-#: model:ir.model.fields,field_description:ims.field_ims_corporate_person__surname
-#: model:ir.model.fields,field_description:ims.field_ims_person__surname
-#: model:ir.model.fields,field_description:ims.field_ims_provider__surname
-#: model:ir.model.fields,field_description:ims.field_ims_student__surname
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__surname
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_administrative__surname
+#: model:ir.model.fields,field_description:ems.field_ems_corporate_person__surname
+#: model:ir.model.fields,field_description:ems.field_ems_person__surname
+#: model:ir.model.fields,field_description:ems.field_ems_provider__surname
+#: model:ir.model.fields,field_description:ems.field_ems_student__surname
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__surname
 msgid "Surname"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_formative_unit__teacher
-#: model:ir.model.fields,field_description:ims.field_ims_professional_module__teacher
-#: model:ir.model.fields,field_description:ims.field_ims_role__teacher
-#: model:ir.model.fields,field_description:ims.field_ims_teaching__teacher
-#: model:ir.model.fields,field_description:ims.field_ims_tracking__teacher
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_formative_unit__teacher
+#: model:ir.model.fields,field_description:ems.field_ems_professional_module__teacher
+#: model:ir.model.fields,field_description:ems.field_ems_role__teacher
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__teacher
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__teacher
 msgid "Teacher"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_role
+#. module: ems
+#: model:ir.model,name:ems.model_ems_role
 msgid ""
 "Teacher's position: The coordination position held by the teachers staff."
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.ims_report_mp_view
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.ems_report_mp_view
 msgid "Teacher:"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_teacher
+#. module: ems
+#: model:ir.model,name:ems.model_ems_teacher
 msgid "Teacher: Collects the teacher\"s data."
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_teacher_tree
-#: model:ir.ui.menu,name:ims.menu_teachers
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_teacher_tree
+#: model:ir.ui.menu,name:ems.menu_teachers
 msgid "Teachers"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__teaching
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_teacher_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__teaching
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_teacher_form
 msgid "Teaching"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_teaching
+#. module: ems
+#: model:ir.model,name:ems.model_ems_teaching
 msgid "Teaching: ternary relation between teacher-group-uf."
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_template_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_template_form
 msgid "Template"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_group_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_group_form
 msgid "Template group"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__attendance_templates
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_attendance_group_form
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__attendance_templates
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_attendance_group_form
 msgid "Templates"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_group__weekday__4
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_template__weekday__4
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_group__weekday__4
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_template__weekday__4
 msgid "Thursday"
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.act_window,name:ims.action_tracking_tree
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_tracking_tree
 msgid "Tracking"
 msgstr ""
 
-#. module: ims
-#: model:ir.model,name:ims.model_ims_tracking
+#. module: ems
+#: model:ir.model,name:ems.model_ems_tracking
 msgid ""
 "Tracking: Tutors and teachers can add information about the student "
 "evolution, follow-up, etc."
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_group__weekday__2
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_template__weekday__2
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_group__weekday__2
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_template__weekday__2
 msgid "Tuesday"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_student__tutor
-#: model:ir.model.fields,field_description:ims.field_ims_group__tutor
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student__tutor
+#: model:ir.model.fields,field_description:ems.field_ems_group__tutor
 msgid "Tutor"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__tutorships
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_teacher_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_teacher_list
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__tutorships
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_teacher_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_teacher_list
 msgid "Tutorships"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_teacher__tutorships_str
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_teacher__tutorships_str
 msgid "Tutorships Str"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_company__vat
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_company__vat
 msgid "VAT"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_group__weekday__3
-#: model:ir.model.fields.selection,name:ims.selection__ims_attendance_template__weekday__3
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_group__weekday__3
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_template__weekday__3
 msgid "Wednesday"
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_group__weekday
-#: model:ir.model.fields,field_description:ims.field_ims_attendance_template__weekday
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_group__weekday
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__weekday
 msgid "Weekday"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_administrative_role_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_company_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_formative_unit_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_group_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_level_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_person_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_professional_module_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_study_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_role_form
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_tracking_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_administrative_role_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_company_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_formative_unit_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_level_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_person_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_professional_module_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_study_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_role_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_tracking_form
 msgid "Write down here your notes..."
 msgstr ""
 
-#. module: ims
-#: model:ir.model.fields.selection,name:ims.selection__res_config_settings__contract_type__yearly
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_config_settings__contract_type__yearly
 msgid "Yearly"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_administrative_role_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_administrative_role_form
 msgid "administrative_role"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_company_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_company_form
 msgid "company"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_formative_unit_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_formative_unit_form
 msgid "formative_unit"
 msgstr ""
 
-#. module: ims
-#: model:ir.actions.report,name:ims.view_ims_professional_module_report
-msgid "ims.professional_module.report"
+#. module: ems
+#: model:ir.actions.report,name:ems.view_ems_professional_module_report
+msgid "ems.professional_module.report"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_professional_module_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_professional_module_form
 msgid "professional_module"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_role_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_role_form
 msgid "role"
 msgstr ""
 
-#. module: ims
-#: model_terms:ir.ui.view,arch_db:ims.view_ims_tracking_form
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_tracking_form
 msgid "tracking"
 msgstr ""

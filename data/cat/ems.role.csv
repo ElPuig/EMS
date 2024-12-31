@@ -1,0 +1,11 @@
+id,name,color,employee_type,unipersonal
+"ems.role_director","Director",9,teacher,true
+"ems.role_hos","Head of studies",1,teacher,true
+"ems.role_dhos","Deputy head of studies",2,teacher,true
+"ems.role_quality","Quality coordinator",4,teacher,true
+"ems.role_coexistence","Coexistence coordinator",10,teacher,true
+"ems.role_orc","Occupational risk coordinator",11,teacher,true
+"ems.role_dchieff_cs","Department Chieff (Computer Science)",11,teacher,true
+"ems.role_tutor","Tutor",6,teacher,false
+"ems.role_schieff","Secretary Chieff",1,asp,true
+"ems.role_cchieff","Concierje Chieff",2,asp,true

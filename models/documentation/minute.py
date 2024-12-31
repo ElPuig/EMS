@@ -4,7 +4,7 @@ from odoo import models, fields, api
 from datetime import datetime
 
 class minute(models.Model):
-	_name = "ims.minute"
+	_name = "ems.minute"
 	_description = "Minute: Defines a meeting minute (department meeting, workgroup meeting, evaluation meeting...)."
 	
 	date = fields.Datetime(string="Date", default=datetime.today(), required=True)
@@ -12,13 +12,13 @@ class minute(models.Model):
 	nature = fields.Selection(string="Nature", default="ordinary", selection=[("ordinary", "Ordinary"), ("extraordinary", "Extraordinary")], required=True)
 	modality = fields.Selection(string="Modality", default="in-person", selection=[("in-person", "In-person"), ("online", "Online"), ("hybrid", "Hybrid")], required=True)	
 
-	space_id = fields.Many2one(string="Space", comodel_name="ims.space", required=True)
+	space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
 	department_id = fields.Many2one(string="Department", comodel_name="hr.department")
-	workgroup_id = fields.Many2one(string="Workgroup", comodel_name="ims.workgroup")	
+	workgroup_id = fields.Many2one(string="Workgroup", comodel_name="ems.workgroup")	
 
 	#Note: foreign to the same table should be declared manually
-	assistant_ids = fields.Many2many(string="Assistants", comodel_name="res.partner", relation="ims_minute_assistant_rel", column1="ims_minute_id", column2="res_partner_id", domain="[('type','=','contact')]", required=True) 
-	abstent_ids = fields.Many2many(string="Abstents", comodel_name="res.partner", relation="ims_minute_absetnt_rel", column1="ims_minute_id", column2="res_partner_id", domain="[('type','=','contact')]") 
+	assistant_ids = fields.Many2many(string="Assistants", comodel_name="res.partner", relation="ems_minute_assistant_rel", column1="ems_minute_id", column2="res_partner_id", domain="[('type','=','contact')]", required=True) 
+	abstent_ids = fields.Many2many(string="Abstents", comodel_name="res.partner", relation="ems_minute_absetnt_rel", column1="ems_minute_id", column2="res_partner_id", domain="[('type','=','contact')]") 
 	
 	members = fields.Char(string="Memebers", compute='_compute_members')
 	abstract = fields.Char(string="Abstract or main topic", size=255, required=True)

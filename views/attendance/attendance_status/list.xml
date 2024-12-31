@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <!-- <record model="ir.ui.view" id="view_attendance_status_list">
-            <field name="name">ims.attendance_status.list</field>
-            <field name="model">ims.attendance_status</field>
+            <field name="name">ems.attendance_status.list</field>
+            <field name="model">ems.attendance_status</field>
             <field name="arch" type="xml">
                 <list>                    
                     <field name="student"/>

@@ -1,21 +1,21 @@
 <odoo>
     <data>
-        <record id="level_1" model="ims.level">
+        <record id="level_1" model="ems.level">
             <field name="acronym">1st</field>
             <field name="name">First Educational Level</field>
         </record>
 
-        <record id="level_2" model="ims.level">
+        <record id="level_2" model="ems.level">
             <field name="acronym">2nd</field>
             <field name="name">Second Educational Level</field>
         </record>     
 
-        <record id="level_3" model="ims.level">
+        <record id="level_3" model="ems.level">
             <field name="acronym">3rd</field>
             <field name="name">Third Educational Level</field>
         </record>
 
-        <record id="level_4" model="ims.level">
+        <record id="level_4" model="ems.level">
             <field name="acronym">4th</field>
             <field name="name">Fourth Educational Level</field>
         </record>        

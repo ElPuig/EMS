@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_study_form">
-            <field name="name">ims.study.form</field>
-            <field name="model">ims.study</field>
+            <field name="name">ems.study.form</field>
+            <field name="model">ems.study</field>
             <field name="arch" type="xml">
                 <form string="Studies">
                     <sheet>                        
@@ -35,15 +35,15 @@
                                      <list expand="True" default_order="code asc, level asc, acronym asc"
                                            decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                                         <field name="level" column_invisible="True"/>
-                                        <field name="code"/>
+                                        <field name="code" column_invisible="True"/>
                                         <field name="acronym"/>
                                         <field name="name"/>                                        
                                     </list>
                                 </field>
                             </page>
 
-                             <page string="Attached files">
-                                <field name="attachment_ids" default_order="name asc" context="{'default_domain': 'ims.study'}">
+                            <page string="Attached files">
+                                <field name="attachment_ids" default_order="name asc" context="{'default_res_model': 'ems.study'}">
                                      <list default_order="name asc">
                                         <field name="name" />
                                         <button class="btn btn-secondary fa fa-download" title="Download File" name="download" type="object" />

@@ -3,8 +3,8 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError, MissingError
 
-class ims_subject(models.Model):
-    _name = "ims.subject"
+class ems_subject(models.Model):
+    _name = "ems.subject"
     _description = "Subject: The main item for a student's subject."
     _order = "code asc"
     _sql_constraints = [
@@ -26,19 +26,20 @@ class ims_subject(models.Model):
     
     notes = fields.Text("Notes")
 
-    study_ids = fields.Many2many(string="Studies", comodel_name="ims.study")
-    teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
+    study_ids = fields.Many2many(string="Studies", comodel_name="ems.study")
+    # TODO: the teacher is assigned using the "teaching" model. Remove this field when possible.
+    #teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
-    subject_ids = fields.One2many(string="Composite", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
-    subject_id = fields.Many2one(string="Main subject", comodel_name="ims.subject")
+    subject_ids = fields.One2many(string="Composite", comodel_name="ems.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
+    subject_id = fields.Many2one(string="Main subject", comodel_name="ems.subject")
     
-    outcome_ids = fields.One2many(string="Learning Outcome", comodel_name="ims.outcome", inverse_name="subject_id")
-    content_ids = fields.One2many(string="Content", comodel_name="ims.content", inverse_name="subject_id")    
+    outcome_ids = fields.One2many(string="Learning Outcome", comodel_name="ems.outcome", inverse_name="subject_id")
+    content_ids = fields.One2many(string="Content", comodel_name="ems.content", inverse_name="subject_id")    
 
-    #criteria_ids = fields.One2many(string="Criteria", comodel_name="ims.criteria", inverse_name="subject_id")
+    #criteria_ids = fields.One2many(string="Criteria", comodel_name="ems.criteria", inverse_name="subject_id")
 
     #The subject_view_ids is used as a view for the subject list
-    subject_view_ids = fields.One2many(comodel_name="ims.subject_view", inverse_name="subject_id", compute="_compute_subject_views", store=True)
+    subject_view_ids = fields.One2many(comodel_name="ems.subject_view", inverse_name="subject_id", compute="_compute_subject_views", store=True)
 
     # The following fields are computed and used to display the data correctly within the treeview
     level = fields.Integer(string="Level", default=1)
@@ -46,24 +47,16 @@ class ims_subject(models.Model):
     @api.depends("study_ids")
     def _compute_subject_views(self):	        
         for rec in self:
-            self.env['ims.subject_view'].search([('subject_id', '=', rec.id)]).unlink(True)
+            self.env['ems.subject_view'].search([('subject_id', '=', rec.id)]).unlink(True)
             if len(rec.study_ids) == 0:
-                rec.subject_view_ids.create({
-                    "level": rec.level,
-                    "code": rec.code,
-                    "acronym": rec.acronym,
-                    "name": rec.name,
-                    "subject_id": rec.id,
+                rec.subject_view_ids.create({                    
+                    "subject_id": rec.id
                 })                
             else:
                 for study in rec.study_ids:                
-                    rec.subject_view_ids.create({
-                        "level": rec.level,
-                        "code": rec.code,
-                        "acronym": rec.acronym,
-                        "name": rec.name,                        
+                    rec.subject_view_ids.create({                        
                         "subject_id": rec.id,
-                        "study_id": study.id,
+                        "study_id": study.id
                     })  
                      
             for child in rec.subject_ids:
@@ -113,8 +106,9 @@ class ims_subject(models.Model):
                     raise ValidationError("The code must start as the parent's code.")
         
     def unlink(self):        
-        self.env['ims.subject_view'].search([('subject_id', '=', self.id)]).unlink(True)
-        return super(ims_subject, self).unlink()
+        for rec in self:
+            rec.env['ems.subject_view'].search([('subject_id', '=', rec.id)]).unlink(True)
+        return super(ems_subject, self).unlink()
 
     @api.depends('acronym', 'subject_id', 'name')
     def _compute_display_name(self):       
@@ -139,28 +133,31 @@ class ims_subject(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': self._name,
             'res_id': self.id,						
-            'view_id': self.env.ref('ims.view_%s_form' % (self._name.split('.')[1])).id,
+            'view_id': self.env.ref('ems.view_%s_form' % (self._name.split('.')[1])).id,
             'view_mode': 'form',
             'target': 'new'
         }
     
-class ims_subject_view(models.Model):
-    _name = "ims.subject_view"
+class ems_subject_view(models.Model):
+    _name = "ems.subject_view"
     _description = "View model for displaying subject data within studies (because a subject can be shared along different studies)."
     
-    level = fields.Integer(string="Level")    
-    code = fields.Char(string="Code", required=True)
-    acronym = fields.Char(string="Acronym", required=True)
-    name = fields.Char(string="Name", required=True)
-    study_id = fields.Many2one(string="Study", comodel_name="ims.study")
-    subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required=True)
+    # TODO: FIX --> The view data should be updated if the subject changes, so, should be a related field. 
+    subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", required=True)
+    study_id = fields.Many2one(string="Study", comodel_name="ems.study")
+    level = fields.Integer(string="Level", related="subject_id.level")    
+    code = fields.Char(string="Code", related="subject_id.code")
+    acronym = fields.Char(string="Acronym", related="subject_id.acronym")
+    name = fields.Char(string="Name", related="subject_id.name")    
+    study_acronym = fields.Char(string="Study's acronym", compute='_compute_study_acronym')
+    deprecated = fields.Boolean(string="Deprecated", related="study_id.deprecated")
     
     def unlink(self, avoidCircular=False): 
         # This can be called from the list view, which means the user wants to remove a subject, so both subject_view and subject must be removed.
         # But, this can also be called from subject's internal code, like when computing the subject_view entires, which means that the subject shall NOT be removed.         
         if avoidCircular:
             # The call comes from "subject"
-            return super(ims_subject_view, self).unlink()
+            return super(ems_subject_view, self).unlink()
         else:
             # The call comes from "subject_view"
             try:            
@@ -169,6 +166,11 @@ class ims_subject_view(models.Model):
                 # Maybe, the subject has been already removed (multiple view entries points to the same subject)...
                 return True   
     
+    @api.depends('study_id')
+    def _compute_study_acronym(self):       
+        for rec in self:
+            rec.study_acronym =  "%s (%s)" % (rec.study_id.acronym, (rec.study_id.date.year if rec.study_id.date != False else '???'))   
+
     @api.depends('subject_id', 'study_id', 'name', 'acronym')
     def _compute_display_name(self):       
         acronyms = []           
@@ -191,7 +193,7 @@ class ims_subject_view(models.Model):
         # return {
         #     'name': 'Subject Edit',
         #     'domain': [],
-        #     'res_model': 'ims.subject',
+        #     'res_model': 'ems.subject',
         #     'type': 'ir.actions.act_window',
         #     'view_mode': 'form',
         #     'view_type': 'form',

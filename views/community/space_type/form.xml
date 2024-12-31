@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_space_type_form">
-            <field name="name">ims.space_type.form</field>
-            <field name="model">ims.space_type</field>
+            <field name="name">ems.space_type.form</field>
+            <field name="model">ems.space_type</field>
             <field name="arch" type="xml">
                 <form string="space">
                     <sheet>

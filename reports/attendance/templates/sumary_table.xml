@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="attendance_template_sumary_table">        
+        <table class="table">
+            <thead>
+                <tr>
+                    <t t-set="colspan" t-value="len(data.overall)" />
+                    <th t-att-colspan="colspan">Overall</th>
+
+                    <t t-set="colspan" t-value="len(data.breakdown)" />
+                    <th t-att-colspan="colspan">Breakdown</th>
+                </tr>
+                <tr>
+                    <t t-foreach="data.overall" t-as="s">
+                        <th t-esc="overall_status[s]"/>
+                    </t> 
+                    <t t-foreach="data.breakdown" t-as="s">
+                        <th t-esc="attendance_status[s]"/>
+                    </t> 
+                </tr>                                
+            </thead>
+            <tbody>                                
+                <tr>                                                                       
+                    <t t-foreach="data.overall" t-as="s">
+                        <t t-set="entry" t-value="data.overall[s]"/> 
+                        <td>
+                            <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
+                        </td>
+                    </t>  
+                    <t t-foreach="data.breakdown" t-as="s">
+                        <t t-set="entry" t-value="data.breakdown[s]"/> 
+                        <td>
+                            <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
+                        </td>
+                    </t>     
+                </tr>
+            </tbody>
+
+            <!-- TODO: add pie charts -->
+        </table>                           
+    </template>
+</odoo>

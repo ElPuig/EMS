@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="attendance_report_session">
+        <t t-call="web.html_container">            
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Attendance report: by session</h2>
+                        <p>
+                            <b><span t-field="o.session_teacher_id"/></b><br/>
+                            <span t-field="o.display_name"/>
+                        </p>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width:25%;">Student</th>
+                                    <th style="width:25%;">Status</th>
+                                    <th style="width:50%;">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="status" t-value="o.mapped('attendance_status_ids')"/>
+                                <tr t-foreach="status" t-as="entry">
+                                    <td>
+                                        <span t-field="entry.student_id"/>
+                                    </td>
+                                    <td>                                        
+                                        <t t-if="entry.status == 'a_attended'">
+                                            <t t-set="style" t-value="'color:green;'" />
+                                        </t>
+                                        <t t-elif="entry.status == 'a_delayed'">
+                                            <t t-set="style" t-value="'color:orange;'" />
+                                        </t>
+                                        <t t-elif="entry.status == 'm_miss'">
+                                            <t t-set="style" t-value="'color:red;'" />
+                                        </t>
+                                        <t t-elif="entry.status == 'm_justified'">
+                                            <t t-set="style" t-value="'color:blue;'" />
+                                        </t>
+                                        <t t-elif="entry.status == 'a_issue'">
+                                            <t t-set="style" t-value="'color:purple;'" />
+                                        </t>
+                                        <span t-att-style="style" t-field="entry.status"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="entry.notes"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

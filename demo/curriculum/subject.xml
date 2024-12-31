@@ -1,15 +1,15 @@
 <odoo>
     <data>
-        <record id="subject_1" model="ims.subject">
+        <record id="subject_1" model="ems.subject">
             <field name="code">101</field>
             <field name="acronym">S01</field>
             <field name="name">Subject 1</field>
             <field name="level">1</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
         </record>
 
-        <record id="subject_1_1" model="ims.subject">            
+        <record id="subject_1_1" model="ems.subject">            
             <field name="code">10101</field>
             <field name="acronym">Topic 1</field>
             <field name="name">Installation, configuration and operation of the computer system</field>
@@ -17,11 +17,11 @@
             <field name="internal_hours">66</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
-            <field name="subject_id" ref="ims.subject_1"/>            
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
+            <field name="subject_id" ref="ems.subject_1"/>            
         </record>
 
-        <record id="subject_1_2" model="ims.subject">
+        <record id="subject_1_2" model="ems.subject">
             <field name="code">10102</field>
             <field name="acronym">Topic 2</field>
             <field name="name">Information and resource management in a network</field>
@@ -29,11 +29,11 @@
             <field name="internal_hours">33</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
-            <field name="subject_id" ref="ims.subject_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
+            <field name="subject_id" ref="ems.subject_1"/>
         </record>
 
-        <record id="subject_1_3" model="ims.subject">
+        <record id="subject_1_3" model="ems.subject">
             <field name="code">10103</field>
             <field name="acronym">Topic 3</field>
             <field name="name">Implementation of specific software</field>
@@ -41,20 +41,20 @@
             <field name="internal_hours">66</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
-            <field name="subject_id" ref="ims.subject_1"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
+            <field name="subject_id" ref="ems.subject_1"/>
         </record>
         
-        <record id="subject_2" model="ims.subject">
+        <record id="subject_2" model="ems.subject">
             <field name="code">102</field>
             <field name="acronym">S02</field>
             <field name="name">Subject 2</field>
             <field name="level">1</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
         </record>
 
-        <record id="subject_2_1" model="ims.subject">
+        <record id="subject_2_1" model="ems.subject">
             <field name="code">10201</field>
             <field name="acronym">Topic 1</field>
             <field name="name">Structured programming</field>
@@ -62,11 +62,11 @@
             <field name="internal_hours">99</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
-            <field name="subject_id" ref="ims.subject_2"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
+            <field name="subject_id" ref="ems.subject_2"/>
         </record>
 
-        <record id="subject_2_2" model="ims.subject">
+        <record id="subject_2_2" model="ems.subject">
             <field name="code">10202</field>
             <field name="acronym">Topic 2</field>
             <field name="name">Modular design</field>
@@ -74,11 +74,11 @@
             <field name="internal_hours">66</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
-            <field name="subject_id" ref="ims.subject_2"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
+            <field name="subject_id" ref="ems.subject_2"/>
         </record>
 
-        <record id="subject_2_3" model="ims.subject">
+        <record id="subject_2_3" model="ems.subject">
             <field name="code">10203</field>
             <field name="acronym">Topic 3</field>
             <field name="name">File management basics</field>
@@ -86,11 +86,11 @@
             <field name="internal_hours">33</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
-            <field name="subject_id" ref="ims.subject_2"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
+            <field name="subject_id" ref="ems.subject_2"/>
         </record>
 
-        <record id="subject_2_4" model="ims.subject">
+        <record id="subject_2_4" model="ems.subject">
             <field name="code">10204</field>
             <field name="acronym">Topic 4</field>
             <field name="name">Object-oriented programming (OOP)</field>
@@ -98,11 +98,11 @@
             <field name="internal_hours">66</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
-            <field name="subject_id" ref="ims.subject_2"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
+            <field name="subject_id" ref="ems.subject_2"/>
         </record>
 
-        <record id="subject_2_5" model="ims.subject">
+        <record id="subject_2_5" model="ems.subject">
             <field name="code">10205</field>
             <field name="acronym">Topic 5</field>
             <field name="name">OOP. Fundamental class libraries</field>
@@ -110,11 +110,11 @@
             <field name="internal_hours">33</field>
             <field name="external_hours">0</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
-            <field name="subject_id" ref="ims.subject_2"/>            
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
+            <field name="subject_id" ref="ems.subject_2"/>            
         </record>
 
-        <record id="subject_2_6" model="ims.subject">
+        <record id="subject_2_6" model="ems.subject">
             <field name="code">10206</field>
             <field name="acronym">Topic 6</field>
             <field name="name">OOP. Introduction to persistence in BD</field>
@@ -122,17 +122,17 @@
             <field name="internal_hours">66</field>
             <field name="external_hours">33</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
-            <field name="subject_id" ref="ims.subject_2"/>
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
+            <field name="subject_id" ref="ems.subject_2"/>
         </record>
 
-        <record id="subject_3" model="ims.subject">
+        <record id="subject_3" model="ems.subject">
             <field name="code">103</field>
             <field name="acronym">S03</field>
             <field name="name">Subject 3</field>
             <field name="level">1</field>
             <field name="notes"></field>
-            <field name="study_ids" eval="[(6, 0, [ ref('ims.study_41'), ref('ims.study_42')])]"/>             
+            <field name="study_ids" eval="[(6, 0, [ ref('ems.study_41'), ref('ems.study_42')])]"/>             
         </record>
     </data>
 </odoo>

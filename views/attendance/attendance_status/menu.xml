@@ -3,7 +3,7 @@
     <!-- <data>          
         <record model="ir.actions.act_window" id="action_attendance_status_tree">
             <field name="name">Status</field>
-            <field name="res_model">ims.attendance_status</field>
+            <field name="res_model">ems.attendance_status</field>
             <field name="view_mode">list,form</field>            
         </record>
             

@@ -2,7 +2,7 @@
     <data>
         <!-- Odoo 16 -->
         <!-- <record model="ir.ui.view" id="view_job_list">
-            <field name="name">ims.job.list</field>
+            <field name="name">ems.job.list</field>
             <field name="model">hr.job</field>            
             <field name="inherit_id" ref="hr.view_hr_job_tree"/> 
             <field name="arch" type="xml">                                                      

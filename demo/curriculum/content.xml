@@ -1,24 +1,24 @@
 <odoo>
     <data>
-        <record id="content_1_01" model="ims.content">
+        <record id="content_1_01" model="ems.content">
             <field name="code">101</field>
             <field name="acronym">C1</field>
             <field name="name">Information administration</field>
-            <field name="subject_id" ref="ims.subject_1_1"/>
+            <field name="subject_id" ref="ems.subject_1_1"/>
         </record>
 
-        <record id="content_1_01_01" model="ims.content">
+        <record id="content_1_01_01" model="ems.content">
             <field name="code">10101</field>
             <field name="acronym">C1.1</field>
             <field name="name">File systems</field>
-            <field name="content_id" ref="ims.content_1_01"/>
+            <field name="content_id" ref="ems.content_1_01"/>
         </record>
 
-        <record id="content_1_01_02" model="ims.content">
+        <record id="content_1_01_02" model="ems.content">
             <field name="code">10102</field>
             <field name="acronym">C1.2</field>
             <field name="name">Link management</field>
-            <field name="content_id" ref="ims.content_1_01"/>
+            <field name="content_id" ref="ems.content_1_01"/>
         </record>
     </data>
 </odoo>

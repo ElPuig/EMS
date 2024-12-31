@@ -1,12 +1,12 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_attendance_session_list">
-            <field name="name">ims.attendance_session.list</field>
-            <field name="model">ims.attendance_session</field>
+            <field name="name">ems.attendance_session.list</field>
+            <field name="model">ems.attendance_session</field>
             <field name="arch" type="xml">
                 <list>                    
                     <field name="date" width="125px"/>                    
-                    <field name="session_teacher_id" width="250px"/>
+                    <field name="session_teacher_id" string="Teacher" width="250px"/>
                     <field name="group_id" width="125px"/>
                     <field name="subject_id"/>
                     <field name="weekday" width="125px"/>

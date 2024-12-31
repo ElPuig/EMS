@@ -1,20 +1,21 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_attachment_form">
-            <field name="name">ims.attachment.form</field>
-            <field name="model">ims.attachment</field>
+            <field name="name">ems.attachment.form</field>
+            <field name="model">ir.attachment</field>
             <field name="arch" type="xml">     
+                <!-- TODO: display all the fields (use the original form) when opening from "thecnical / attachments" -->
                 <form string="Attachment">
                     <sheet>                        
                         <group>
                             <field name="name"/>
                         </group>
                         <group>
-                            <field name="file"/>
+                            <field name="datas" string="file"/>
                         </group>
                         <group>
                             <!-- Setup from the origin treeview (like in study's form). -->
-                            <field name="domain" invisible="1"/>
+                            <field name="res_model" invisible="1"/>
                         </group>
                     </sheet>     
                 </form>

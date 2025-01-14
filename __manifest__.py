@@ -62,6 +62,7 @@
             'views/community/group/menu.xml',  
 
             'views/community/enrollment/list.xml',
+            'views/community/enrollment/form.xml',
             'views/community/enrollment/menu.xml',
 
             'views/community/job/list.xml',

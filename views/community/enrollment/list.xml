@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_enrollment_list">
+            <field name="name">ims.enrollment.list</field>
+            <field name="model">ims.enrollment</field>
+            <field name="arch" type="xml">
+                <list expand="True" default_order="student_id asc" >
+                    <field name="student_id" />
+                    <field name="group_id" class="w-25"/>                    
+                    <field name="subject_id" />
+                </list>
+            </field>
+        </record>  
+
+        <record model="ir.ui.view" id="view_enrollment_search">
+            <field name="name">ims.enrollment.search</field>
+            <field name="model">ims.enrollment</field>            
+            <field name="arch" type="xml">
+                <search string="Student">
+                    <group string="Group By">
+                        <filter string="Student" name="group_by_student_id" context="{'group_by':'student_id'}" />
+                    </group>
+                </search>
+            </field>
+        </record>  
+ 
+    </data>
+</odoo>

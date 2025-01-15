@@ -1,3 +1,7 @@
-id,course,acronym,level_id:id,study_id:id,tutor_id:id,space_id:id
-"ims.group_dam1a",1,"A","ims.level_cfgs","ims.study_dam_2024","ims.teacher_40001121Z","ims.space_018"
-"ims.group_dam2a",2,"A","ims.level_cfgs","ims.study_dam_2024","ims.teacher_50004422C","ims.space_019"
+id,course,acronym,level_id:id,study_id:id,space_id:id
+"group_dam1a",1,"A","ims.level_cfgs","ims.study_dam_2024","ims.space_018"
+"group_dam2a",2,"A","ims.level_cfgs","ims.study_dam_2024","ims.space_019"
+"group_dam2b",2,"B","ims.level_cfgs","ims.study_dam_2024","ims.space_019"
+"group_daw1a",1,"A","ims.level_cfgs","ims.study_daw_2024","ims.space_210"
+"group_daw2a",2,"A","ims.level_cfgs","ims.study_daw_2024","ims.space_019"
+"group_daw2b",2,"B","ims.level_cfgs","ims.study_daw_2024","ims.space_208"

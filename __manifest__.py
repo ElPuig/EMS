@@ -152,11 +152,11 @@
         'data/elpuig/hr.department.csv',   
         
         # The following data should be loaded through CSV import using the GUI
-        'data/elpuig/hr.employee.csv',
+        #'data/elpuig/hr.employee.csv',
         #'data/elpuig/res.partner.csv',
         'data/elpuig/ims.group.csv',
         #'data/elpuig/ims.enrollment.csv',
-        'data/elpuig/ims.teaching.csv',
+        #'data/elpuig/ims.teaching.csv',
     ],
     'license': 'AGPL-3',
     'installable': True,

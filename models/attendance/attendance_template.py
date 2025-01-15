@@ -11,7 +11,7 @@ class ims_attendance_template(models.Model):
 	end_date = fields.Date(string="End date", required=True)
 	color = fields.Integer(string="Color", help="Field to store the color that will be used for calendar view")   
 
-	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)
+	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True, ondelete='cascade')
 	level_id = fields.Many2one(string="Level", comodel_name="ims.level", required=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ims.study", domain="[('level_id', '=', level_id)]", required=True)
 	group_id = fields.Many2one(string="Group", comodel_name="ims.group", domain="[('study_id', '=', study_id)]", required=True)

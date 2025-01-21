@@ -111,7 +111,9 @@ class ims_contact(models.Model):
     @api.model_create_multi
     def create(self, values):
         # Fired when the model is created (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
-        self._compute_group_data(values)
+        # Note: values is a list of dicts (method fired only once)
+        for entry in values:
+            self._compute_group_data(entry) 
         contact = super(ims_contact, self).create(values)
 
         #self._compute_enrollment_data(contact)
@@ -119,6 +121,7 @@ class ims_contact(models.Model):
     
     def write(self, values):
         # Fired when the model is updated (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
+        # Note: values is a dict (method fired once per entry)
         self._compute_group_data(values)
         contact =  super(ims_contact, self).write(values)
 

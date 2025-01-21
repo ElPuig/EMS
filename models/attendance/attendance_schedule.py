@@ -31,7 +31,7 @@ class ims_attendance_schedule(models.Model):
 	end_date = fields.Datetime(required=True)
 	
 	space_id = fields.Many2one(string="Space", comodel_name="ims.space", required=True)
-	attendance_template_id = fields.Many2one(string="Template", comodel_name="ims.attendance_template")	
+	attendance_template_id = fields.Many2one(string="Template", comodel_name="ims.attendance_template", ondelete='cascade', required=True)	
 	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ims.attendance_session", inverse_name="attendance_schedule_id")	
 		
 	notes = fields.Text(string="Notes")

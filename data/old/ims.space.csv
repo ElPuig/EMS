@@ -1,6 +1,6 @@
 id,code,name,space_type_id:id
 "space_m103","-1.03","Gym","ims.space_type_equipment"
-"space_003","0.01","Stallman","ims.space_type_classroom"
+"space_001","0.01","Stallman","ims.space_type_classroom"
 "space_013","0.13","Chomsky","ims.space_type_classroom"
 "space_018","0.18","Torvalds","ims.space_type_classroom"
 "space_019","0.19","Tesla","ims.space_type_classroom"

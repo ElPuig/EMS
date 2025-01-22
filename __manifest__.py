@@ -146,15 +146,15 @@
         'data/cat/ims.workgroup.csv',    
         'data/cat/hr.job.csv',
         
-        'data/elpuig/ims.role.csv',
-        'data/elpuig/res.company.csv',    
-        'data/elpuig/ims.space.csv',    
-        'data/elpuig/hr.department.csv',   
+        #'data/elpuig/ims.role.csv',
+        #'data/elpuig/res.company.csv',    
+        #'data/elpuig/ims.space.csv',    
+        #'data/elpuig/hr.department.csv',   
         
         # The following data should be loaded through CSV import using the GUI
         #'data/elpuig/hr.employee.csv',
         #'data/elpuig/res.partner.csv',
-        'data/elpuig/ims.group.csv',
+        #'data/elpuig/ims.group.csv',
         #'data/elpuig/ims.enrollment.csv',
         #'data/elpuig/ims.teaching.csv',
     ],

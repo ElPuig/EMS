@@ -6,14 +6,17 @@
             <field name="arch" type="xml">
                 <form string="space">
                     <sheet>
-                        <group string="Main data" col="4">
+                        <group string="Main data" col="3">
+                            <group> 
+                                <field name="work_location_id"/>
+                            </group>
                             <group>
                                 <field name="code"/>
                             </group>                               
                             <group>
                                 <field name="space_type_id"/>
                             </group>
-                            <group colspan="2">
+                            <group colspan="3">
                                 <field name="name"/>
                             </group>
                         </group>                    

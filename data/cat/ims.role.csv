@@ -6,5 +6,6 @@ id,name,color,employee_type,unipersonal
 "ims.role_coexistence","Coexistence coordinator",10,teacher,true
 "ims.role_orc","Occupational risk coordinator",11,teacher,true
 "ims.role_dchieff_cs","Department Chieff (Computer Science)",11,teacher,true
+"ims.role_tutor","Tutor",6,teacher,false
 "ims.role_schieff","Secretary Chieff",1,asp,true
 "ims.role_cchieff","Concierje Chieff",2,asp,true

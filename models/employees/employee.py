@@ -28,6 +28,15 @@ class ims_employee_base(models.AbstractModel):
     def _get_new_employee_type(self):
         return employee_types
 
+    @api.onchange('tutorship_ids')
+    def _onchange_tutorship_ids(self):	
+        for rec in self:
+            role_tutor = self.env.ref('ims.role_tutor').ids[0]
+            if len(rec.tutorship_ids) > 0:                
+                rec.write({'role_ids' : [(4, role_tutor)]})
+            else:
+                rec.write({'role_ids' : [(3, role_tutor)]})
+
     @api.onchange('teaching_ids')
     def _onchange_teaching_ids(self):	
         # Same as contact's _onchange_enrollment_ids

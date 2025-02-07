@@ -4,35 +4,14 @@
             <field name="name">ims.space.search</field>
             <field name="model">ims.space</field>            
             <field name="arch" type="xml">                                         
-                <search string="Spaces">
-                    <!-- <field name="name" string="Employee" filter_domain="['|', ('work_email', 'ilike', self), ('name', 'ilike', self)]"/>
-                    <field name="category_ids" groups="hr.group_hr_user"/>
-                    <field name="job_id"/>
-                    <field name="parent_id" string="Manager"/> -->
+                <search string="Spaces">                   
                     <field name="work_location_id"/>
-                    <field name="space_type_id"/>
-                    <!-- <separator/>
-                    <filter string="Unread Messages" name="message_needaction" domain="[('message_needaction', '=', True)]"/> -->
-                    <!-- <separator/>
-                    <filter invisible="1" string="Late Activities" name="activities_overdue" domain="[('my_activity_date_deadline', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
-                    <filter invisible="1" string="Today Activities" name="activities_today" domain="[('my_activity_date_deadline', '=', context_today().strftime('%Y-%m-%d'))]"/>
-                    <filter invisible="1" string="Future Activities" name="activities_upcoming_all" domain="[('my_activity_date_deadline', '&gt;', context_today().strftime('%Y-%m-%d'))]"/>
-                    <separator/>
-                    <filter name="my_team" string="My Team" domain="[('parent_id.user_id', '=', uid)]"/>
-                    <filter name="my_department" string="My Department" domain="[('member_of_department', '=', True)]"/>
-                    <separator/>
-                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/> -->
-                    <group expand="0" string="Group By">
-                        <!-- <filter name="group_manager" string="Manager" domain="[]" context="{'group_by': 'parent_id'}"/>
-                        <filter name="group_department" string="Department" domain="[]" context="{'group_by': 'department_id'}"/>
-                        <filter name="group_job" string="Job" domain="[]" context="{'group_by': 'job_id'}"/>
-                        <filter name="group_category_ids" string="Tags" domain="[]" context="{'group_by': 'category_ids'}"/> -->
+                    <field name="space_type_id"/>                    
+                    <group expand="1" string="Group By">                        
                         <filter name="work_location_id" string="Work location" domain="[]" context="{'group_by': 'work_location_id'}"/>
                         <filter name="space_type_id" string="Type" domain="[]" context="{'group_by': 'space_type_id'}"/>
                     </group>
-                    <searchpanel>
-                        <!-- <field name="company_id" groups="base.group_multi_company" icon="fa-building" enable_counters="1"/>
-                        <field name="department_id" icon="fa-users" enable_counters="1"/> -->
+                    <searchpanel>                        
                         <field name="work_location_id" icon="fa-building" enable_counters="1"/>
                         <field name="space_type_id" icon="fa-users" enable_counters="1"/>
                     </searchpanel>

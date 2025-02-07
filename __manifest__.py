@@ -87,6 +87,7 @@
             'views/community/subject/menu.xml',            
 
             'views/community/study/list.xml',
+            'views/community/study/search.xml',
             'views/community/study/form.xml',     
             'views/community/study/menu.xml',        
         
@@ -97,8 +98,8 @@
             'views/community/space/menu.xml',
 
             'views/community/space/list.xml',
-            'views/community/space/form.xml',
             'views/community/space/search.xml',
+            'views/community/space/form.xml',            
 
             'views/community/space_type/list.xml',
             'views/community/space_type/form.xml',

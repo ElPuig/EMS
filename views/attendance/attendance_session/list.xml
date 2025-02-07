@@ -6,7 +6,7 @@
             <field name="arch" type="xml">
                 <list>                    
                     <field name="date" width="125px"/>                    
-                    <field name="session_teacher_id" width="250px"/>
+                    <field name="session_teacher_id" string="Teacher" width="250px"/>
                     <field name="group_id" width="125px"/>
                     <field name="subject_id"/>
                     <field name="weekday" width="125px"/>

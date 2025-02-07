@@ -28,6 +28,7 @@ class ims_employee_base(models.AbstractModel):
     def _get_new_employee_type(self):
         return employee_types
 
+    @api.depends("tutorship_ids")
     @api.onchange('tutorship_ids')
     def _onchange_tutorship_ids(self):	
         for rec in self:

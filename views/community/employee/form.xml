@@ -89,8 +89,9 @@
                                 <list editable="bottom" default_order="subject_id asc, group_id asc"
                                     decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                                     <field name="subject_id" />
-                                    <field name="group_id" />                                
-                                    <field name="level" column_invisible="True"/>                                
+                                    <field name="group_id" domain="[('id','not in', inuse_group_ids)]"/>
+                                    <field name="level" column_invisible="True"/>   
+                                    <field name="inuse_group_ids" column_invisible="True"/>                             
                                 </list>
                             </field>
                         </group>

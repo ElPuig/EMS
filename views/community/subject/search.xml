@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_subject_search">
+            <field name="name">ims.subject.search</field>
+            <field name="model">ims.subject_view</field>            
+            <field name="arch" type="xml">                                         
+                <search string="Studies">                   
+                    <field name="study_id"/>
+                    <group expand="1" string="Group By">                        
+                        <!-- Grouping the studies with its content (child subjects) -->
+                        <filter name="study_id" string="Studies" domain="[]" context="{'group_by': 'study_id'}"/>
+                    </group>
+                    <searchpanel>                        
+                        <field name="study_id" icon="fa-leanpub" enable_counters="1"/>
+                    </searchpanel>
+                </search>           
+            </field>		      
+        </record>   
+    </data>
+</odoo>

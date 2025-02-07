@@ -79,10 +79,13 @@
                 
             'views/community/department/menu.xml',
             'views/community/department/list.xml',
+            'views/community/department/search.xml',
+            
             'views/community/worklocation/menu.xml',
             'views/community/employmenttypes/menu.xml',
 
             'views/community/subject/list.xml',
+            'views/community/subject/search.xml',
             'views/community/subject/form.xml',
             'views/community/subject/menu.xml',            
 

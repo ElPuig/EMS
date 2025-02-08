@@ -140,7 +140,7 @@ class ims_attendance_session(models.Model):
 	@api.depends('attendance_schedule_id', 'date')
 	def _compute_display_name(self):              
 		for rec in self:
-			rec.display_name = "%s | %s" % (rec.attendance_schedule_id.display_name, rec.date)
+			rec.display_name = "%s | %s | %s" % (rec.attendance_schedule_id.display_name, rec.date, rec.space_id.name)
 
 	def convert_to_utc_date(self, local_date):
 		user_time_zone = self.env.context["tz"] # can be fetched form logged in user if it is set 

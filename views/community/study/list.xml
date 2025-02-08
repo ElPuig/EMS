@@ -12,17 +12,5 @@
                 </list>
             </field>
         </record>   
-
-        <record model="ir.ui.view" id="view_study_search">
-            <field name="name">ims.study.search</field>
-            <field name="model">ims.study</field>            
-            <field name="arch" type="xml">
-                <search string="Level">
-                    <group expand="True" string="Order By">
-                        <filter string="Level" name="group_by_level" context="{'group_by':'level_id'}" />
-                    </group>
-                </search>
-            </field>
-        </record>  
     </data>
 </odoo>

@@ -11,3 +11,8 @@ class ims_level(models.Model):
 	study_ids = fields.One2many(string="Studies", comodel_name="ims.study", inverse_name="level_id")
 
 	notes = fields.Text(string="Notes")
+
+	@api.depends('acronym', 'name')
+	def _compute_display_name(self):              
+		for rec in self:
+			rec.display_name = "%s: %s" % (rec.acronym, rec.name)

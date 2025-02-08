@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_study_search">
+            <field name="name">ims.study.search</field>
+            <field name="model">ims.study</field>            
+            <field name="arch" type="xml">                                         
+                <search string="Levels">                   
+                    <searchpanel>                        
+                        <field name="level_id" icon="fa-graduation-cap" enable_counters="1"/>
+                    </searchpanel>
+                </search>           
+            </field>		      
+        </record>   
+    </data>
+</odoo>

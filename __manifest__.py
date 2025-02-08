@@ -59,7 +59,15 @@
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',  
-            'views/community/group/menu.xml',    
+            'views/community/group/menu.xml',  
+
+            'views/community/enrollment/list.xml',
+            'views/community/enrollment/form.xml',
+            'views/community/enrollment/menu.xml',
+
+            'views/community/teaching/list.xml',
+            'views/community/teaching/form.xml',
+            'views/community/teaching/menu.xml',
 
             'views/community/job/list.xml',
             'views/community/job/form.xml', 
@@ -71,14 +79,18 @@
                 
             'views/community/department/menu.xml',
             'views/community/department/list.xml',
+            'views/community/department/search.xml',
+            
             'views/community/worklocation/menu.xml',
             'views/community/employmenttypes/menu.xml',
 
             'views/community/subject/list.xml',
+            'views/community/subject/search.xml',
             'views/community/subject/form.xml',
             'views/community/subject/menu.xml',            
 
             'views/community/study/list.xml',
+            'views/community/study/search.xml',
             'views/community/study/form.xml',     
             'views/community/study/menu.xml',        
         
@@ -89,8 +101,8 @@
             'views/community/space/menu.xml',
 
             'views/community/space/list.xml',
-            'views/community/space/form.xml',
             'views/community/space/search.xml',
+            'views/community/space/form.xml',            
 
             'views/community/space_type/list.xml',
             'views/community/space_type/form.xml',
@@ -141,17 +153,18 @@
         'data/cat/ims.role.csv',    
         'data/cat/ims.workgroup.csv',    
         'data/cat/hr.job.csv',
-
-        'data/elpuig/res.company.csv',    
-        'data/elpuig/ims.space.csv',    
-        'data/elpuig/hr.department.csv',   
-        'data/elpuig/hr.employee.csv',
-        'data/elpuig/res.partner.csv',
-        'data/elpuig/ims.group.csv',
-        'data/elpuig/ims.enrollment.csv',
-        'data/elpuig/ims.teaching.csv',
-
         
+        #'data/elpuig/ims.role.csv',
+        #'data/elpuig/res.company.csv',    
+        #'data/elpuig/ims.space.csv',    
+        #'data/elpuig/hr.department.csv',   
+        
+        # The following data should be loaded through CSV import using the GUI
+        #'data/elpuig/hr.employee.csv',
+        #'data/elpuig/res.partner.csv',
+        #'data/elpuig/ims.group.csv',
+        #'data/elpuig/ims.enrollment.csv',
+        #'data/elpuig/ims.teaching.csv',
     ],
     'license': 'AGPL-3',
     'installable': True,
@@ -160,37 +173,37 @@
     # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [
         # this order is needed due dependencies
-        #'demo/shared/attachment.xml',
+        'demo/shared/attachment.xml',
 
-        #'demo/curriculum/level.xml',
-        #'demo/curriculum/study.xml',
-        #'demo/curriculum/subject.xml',
-        #'demo/curriculum/content.xml',
+        'demo/curriculum/level.xml',
+        'demo/curriculum/study.xml',
+        'demo/curriculum/subject.xml',
+        'demo/curriculum/content.xml',
 
-        #'demo/facilities/space_type.xml',         
-        #'demo/facilities/space.xml',         
+        'demo/facilities/space_type.xml',         
+        'demo/facilities/space.xml',         
 
-        #'demo/contacts/group.xml',        
-        #'demo/contacts/company.xml',        
+        'demo/contacts/group.xml',        
+        'demo/contacts/company.xml',        
         
-        #'demo/employees/teaching.xml',   
-        #'demo/employees/job.xml',
-        #'demo/employees/department.xml',
-        #'demo/employees/work_location.xml',
-        #'demo/employees/teacher.xml',
-        #'demo/employees/pas.xml',
-        #'demo/employees/role.xml', 
-        #'demo/employees/employee.xml',  
-        #'demo/employees/workgroup.xml',   
+        'demo/employees/teaching.xml',   
+        'demo/employees/job.xml',
+        'demo/employees/department.xml',
+        'demo/employees/work_location.xml',
+        'demo/employees/teacher.xml',
+        'demo/employees/pas.xml',
+        'demo/employees/role.xml', 
+        'demo/employees/employee.xml',  
+        'demo/employees/workgroup.xml',   
 
         'demo/contacts/student.xml',
-        #'demo/contacts/provider.xml',
-        #'demo/contacts/enrollment.xml',
+        'demo/contacts/provider.xml',
+        'demo/contacts/enrollment.xml',
 
-        #'demo/attendance/attendance_template.xml',
-        #'demo/attendance/attendance_schedule.xml',
-        #'demo/attendance/attendance_session.xml',
-        #'demo/attendance/attendance_status.xml',
+        # 'demo/attendance/attendance_template.xml',
+        # 'demo/attendance/attendance_schedule.xml',
+        # 'demo/attendance/attendance_session.xml',
+        # 'demo/attendance/attendance_status.xml',
     ],   
     'assets': {       
         'web.assets_backend': [

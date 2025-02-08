@@ -10,38 +10,54 @@
                         <!-- TODO: this should be translated (localization) -->
                         Unable to load the current session, maybe none has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.
                     </div>
-                    <sheet>                   
-                        <group string="Main data" col="6" >
-                            <group colspan="3">      
-                                <field name="attendance_schedule_id" readonly="id != False"/>
-                            </group>    
-                            <group colspan="1">
-                                <field name="date" readonly="id != False"/>
+                    <sheet>     
+                         <group string="Main data" col="3" >
+                            <group>
+                                <field name="guard_mode" readonly="id != False"/>
                             </group>   
-                            <group colspan="2">
+
+                            <group colspan="2">      
+                                <field name="attendance_schedule_id" readonly="id != False"/>
+                            </group>
+
+                            <group>
+                                <field name="date" readonly="id != False"/>
+                            </group> 
+
+                            <group>
+                                <field name="session_teacher_id" string="Teacher"/>                              
+                            </group>   
+                        
+                            <group>
+                                <field name="space_id"/>  
+                            </group>                                             
+                        </group>
+
+                        <!-- <group string="Main data" col="3" >
+                            <group colspan="3">
                                 <field name="guard_mode" readonly="id != False"/>
                             </group>     
-
-                            <group colspan="2">
-                                <field name="level_id"/>                               
-                            </group>
-                            <group colspan="2">
-                                <field name="study_id"/>                               
-                            </group>
-                            <group colspan="2">
-                                <field name="subject_id"/>                               
+                            
+                            <group>
+                                <field name="date" readonly="id != False"/>
                             </group>   
+                            <group colspan="2">      
+                                <field name="attendance_schedule_id" readonly="id != False"/>
+                            </group>                                                   
 
-                            <group colspan="2">
-                                <field name="session_teacher_id"/>                               
-                            </group>                            
-                            <group colspan="2">
-                                <field name="group_id"/>
+                            <group>
+                                <field name="level_id"/>  
+                                <field name="session_teacher_id" string="Teacher"/>                              
                             </group>
-                            <group colspan="2">
-                                <field name="space_id"/>
+                            <group>
+                                <field name="study_id"/>   
+                                <field name="group_id"/>                            
+                            </group>
+                            <group>
+                                <field name="subject_id"/>  
+                                <field name="space_id"/>                             
                             </group>                        
-                        </group>
+                        </group> -->
 
                         <notebook>
                             <page string="Statuses">

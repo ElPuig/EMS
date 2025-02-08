@@ -11,6 +11,7 @@ class ims_role(models.Model):
 	name = fields.Char(string="Name", required=True)	
 	color = fields.Integer(string="Color")
 	notes = fields.Text(string="Notes")
+	unipersonal = fields.Boolean(string="Unipersonal", default=True)
 	
 	#The employee_ids field was a Many2one relation, but kanban view does not work within the form. It will be validated on the fly in order to limit to 1 assignation.
 	#Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
@@ -20,5 +21,5 @@ class ims_role(models.Model):
 	@api.constrains("employee_ids")
 	def check_limit(self):
 		for rec in self:
-			if len(rec.employee_ids) > 1:
-				raise ValidationError("This role is already assigned to another teacher.")
+			if rec.unipersonal and len(rec.employee_ids) > 1:
+				raise ValidationError("This role is already assigned to another one.")

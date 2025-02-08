@@ -1,10 +1,11 @@
-id,name,color,employee_type
-"ims.role_director","Director",9,teacher
-"ims.role_hos","Head of studies",1,teacher
-"ims.role_dhos","Deputy head of studies",2,teacher
-"ims.role_quality","Quality coordinator",4,teacher
-"ims.role_coexistence","Coexistence coordinator",10,teacher
-"ims.role_orc","Occupational risk coordinator",11,teacher
-"ims.role_dchieff_cs","Department Chieff (Computer Science)",11,teacher
-"ims.role_schieff","Secretary Chieff",1,asp
-"ims.role_cchieff","Concierje Chieff",2,asp
+id,name,color,employee_type,unipersonal
+"ims.role_director","Director",9,teacher,true
+"ims.role_hos","Head of studies",1,teacher,true
+"ims.role_dhos","Deputy head of studies",2,teacher,true
+"ims.role_quality","Quality coordinator",4,teacher,true
+"ims.role_coexistence","Coexistence coordinator",10,teacher,true
+"ims.role_orc","Occupational risk coordinator",11,teacher,true
+"ims.role_dchieff_cs","Department Chieff (Computer Science)",11,teacher,true
+"ims.role_tutor","Tutor",6,teacher,false
+"ims.role_schieff","Secretary Chieff",1,asp,true
+"ims.role_cchieff","Concierje Chieff",2,asp,true

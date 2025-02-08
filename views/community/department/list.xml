@@ -5,25 +5,10 @@
             <field name="model">hr.department</field>
             <field name="inherit_id" ref="hr.view_department_tree"/>
             <field name="arch" type="xml">
-                <xpath expr="//list" position="attributes">                      
-                    <field name="parent_id" position="attributes">
-                        <attribute name="expand">True</attribute>
-                    </field>
-                </xpath>                  
+                <xpath expr="//field[@name='parent_id']" position="attributes">                      
+                   <attribute name="column_invisible">True</attribute>
+                </xpath>           
             </field>
         </record> 
-
-        <record model="ir.ui.view" id="view_department_search">
-            <field name="name">ims.department.search</field>
-            <field name="model">hr.department</field>
-            <field name="inherit_id" ref="hr.view_department_filter"/>
-            <field name="arch" type="xml">
-                <xpath expr="//search" position="inside">                      
-                    <group string="Group By">
-                        <filter string="Study" name="group_by_parent_id" context="{'group_by':'parent_id'}" />
-                    </group>    
-                </xpath>                              
-            </field>
-        </record>  
     </data>
 </odoo>

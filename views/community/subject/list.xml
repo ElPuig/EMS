@@ -17,19 +17,7 @@
                     <field name="subject_id" column_invisible="True"/>  
                 </list>              
             </field>
-        </record>         
-        
-        <record model="ir.ui.view" id="view_subject_search">
-            <field name="name">ims.subject_view.search</field>
-            <field name="model">ims.subject_view</field>            
-            <field name="arch" type="xml">
-                <search string="Study">
-                    <group string="Group By">
-                        <filter string="Study" name="group_by_study" context="{'group_by':'study_id'}" />
-                    </group>
-                </search>
-            </field>
-        </record>  
+        </record>                 
 
         <!-- This one is used on search ('search more' button) -->
         <record model="ir.ui.view" id="view_subject_list">

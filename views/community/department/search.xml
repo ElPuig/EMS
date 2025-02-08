@@ -1,0 +1,16 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_department_search">
+            <field name="name">ims.department.search</field>
+            <field name="model">hr.department</field>            
+            <field name="arch" type="xml">                                         
+                <search string="Departments">                                                          
+                    <searchpanel>                        
+                        <field name="parent_id" icon="fa-users" enable_counters="1"/>
+                    </searchpanel>
+                    <filter string="Hide main departments" name="parent_id" domain="[('parent_id', '!=', False)]"/>
+                </search>           
+            </field>		      
+        </record>   
+    </data>
+</odoo>

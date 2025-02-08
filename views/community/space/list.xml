@@ -5,9 +5,10 @@
             <field name="model">ims.space</field>
             <field name="arch" type="xml">
                 <list expand="True" default_order="code asc">                           
-                    <field name="code"/>
+                    <field name="work_location_id" width="100px"  />
+                    <field name="code"/>                    
                     <field name="space_type_id" width="100px"/>
-                    <field name="name"/>                    
+                    <field name="name"/>                       
                 </list>
             </field>
         </record>        

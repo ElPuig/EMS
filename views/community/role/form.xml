@@ -6,13 +6,16 @@
             <field name="arch" type="xml">
                 <form string="role">
                     <sheet>
-                        <group string="Main data" col="3">
+                        <group string="Main data" col="4">
                             <group colspan="2">
                                 <field name="name"/>                                
+                                <field name="employee_type" invisible="1"/>
                             </group>
                             <group>
-                                <field name="color" widget="color_picker"/>                                
-                                <field name="employee_type" invisible="1"/>
+                                <field name="color" widget="color_picker"/>
+                            </group>
+                            <group>
+                                <field name="unipersonal" />
                             </group>
                         </group>  
 

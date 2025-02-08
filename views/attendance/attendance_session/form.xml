@@ -11,7 +11,7 @@
                         Unable to load the current session, maybe none has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.
                     </div>
                     <sheet>     
-                         <group string="Main data" col="3" >
+                         <group string="Main data" col="3">
                             <group>
                                 <field name="guard_mode" readonly="id != False"/>
                             </group>   
@@ -29,7 +29,7 @@
                             </group>   
                         
                             <group>
-                                <field name="space_id"/>  
+                                <field name="space_id" readonly="id != False"/>
                             </group>                                             
                         </group>
 

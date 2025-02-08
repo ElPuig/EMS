@@ -7,7 +7,18 @@
             <!-- <field name="view_mode">list,form,calendar</field> -->
             <field name="view_mode">list,form</field>
         </record>
-            
+        
+        <record model="ir.actions.report" id="report_attendance_session">
+            <field name="name">Attendance Session Report</field>
+            <field name="model">ims.attendance_session</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ims.attendance_test_report</field>
+            <field name="report_file">attendance_session_report</field>
+            <field name="binding_model_id" ref="ims.model_ims_attendance_session"/>
+            <field name="binding_type">report</field>
+        </record>
+
         <menuitem name="Sessions" sequence="1" id="menu_attendance_sessions" parent="menu_attendance" action="action_attendance_session_tree"/>
+        <menuitem name="Reports" sequence="2" id="menu_attendance_reports" parent="menu_attendance" action="report_attendance_session"/>
     </data>
 </odoo>

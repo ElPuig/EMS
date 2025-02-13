@@ -141,7 +141,8 @@
         'views/shared/attachment/form.xml',  
 
         ### Reports entries ###
-        'reports/attendance/attendance_test_report.xml',     
+        'reports/attendance/test_report.xml',     
+        'reports/attendance/by_student_wizard.xml',  
         
         ### Data entries (do not alter the order) ###
         'data/main/ims.space_type.csv',    

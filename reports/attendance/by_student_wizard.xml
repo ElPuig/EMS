@@ -1,0 +1,29 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_report_student_wizard">
+            <field name="name">ims.attendance_report_student.wizard</field>
+            <field name="model">ims.attendance_report_student</field>
+            <field name="arch" type="xml">
+                <form string="Session">                       
+                    <group col="2">                          
+                        <group colspan="2">      
+                            <field name="student_id"/>
+                        </group>
+
+                        <group>
+                            <field name="start_date" />
+                        </group>
+                        <group>
+                            <field name="end_date" />
+                        </group>
+                    </group>
+
+                     <footer>
+                        <button name="print" string="Print" type="object" class="btn-primary" icon="fa-print" />
+                        <button name="cancel" string="Cancel" special="cancel"/>
+                    </footer>
+                </form>              
+            </field>			
+        </record>
+    </data>
+</odoo>

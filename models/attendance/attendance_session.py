@@ -148,3 +148,27 @@ class ims_attendance_session(models.Model):
 		start_date = local.localize(local_date, is_dst=None) # start_date is a naive datetime 
 		start_date = start_date.astimezone(pytz.utc) 
 		return datetime(start_date.year, start_date.month, start_date.day, start_date.hour, start_date.minute, 0, tzinfo=None)
+
+	# def print_sample_report(self):
+	# 	data = {
+	# 		'model_id': self.id,
+	# 		'to_date': self.to_date,
+	# 		'from_date': self.from_date,
+	# 		'vehicle_id': self.vehicle_id.id,
+	# 		'vehicle_name': self.vehicle_id.vehicle_name
+	# 	}
+	# 	# docids = self.env['purchase.order'].search([]).ids
+	# 	return self.env.ref('module_name.action_report_vehicle_order).report_action(None, data=data)
+					  
+	# def action_report_truck_booking(self):
+    #     query = """select pr.name,fv.name as truck,gt.name as goods,tb.from_location,tb.to_location,tb.distance,
+    #             tb.weight,tb.unit,amount,tb.date,tb.state from truck_booking as tb
+    #             inner join res_partner as pr on pr.id = tb.partner_id
+    #             inner join fleet_vehicle_model as fv on fv.id = tb.truck_id
+    #             inner join goods_type as gt on gt.id = tb.goods_type_id """
+    #     if self.from_date:
+    #         query += """ where tb.date >= '%s' and tb.date <= '%s'""" % self.from_date, % self.to_date
+    #     self.env.cr.execute(query)
+    #     report = self.env.cr.dictfetchall()
+    #     data = {'date': self.read()[0],'report': report}
+    #     return self.env.ref('module_name.action_report_booking').report_action(None, data=data)

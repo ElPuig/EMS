@@ -6,7 +6,7 @@ class ims_attendance_status(models.Model):
 	_name = "ims.attendance_status"
 	_description = "Attendance status: information about session per student."
 
-	status = fields.Selection(string="Status", default="1", required=True, selection=
+	status = fields.Selection(string="Status", default="attended", required=True, selection=
         [("attended", "Attended"), ("delayed", "Delayed"), ("miss", "Miss"), ("justified", "Justified Miss"), ("issue", "Issue")]
     )
 

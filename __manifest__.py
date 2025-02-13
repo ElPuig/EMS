@@ -132,6 +132,7 @@
             'views/attendance/attendance_status/form.xml',
             'views/attendance/attendance_status/menu.xml',       
             'views/attendance/attendance_schedule/form.xml',
+            'views/attendance/attendance_reports/menu.xml',
             
         'views/documentation/menu.xml',       
             'views/documentation/minutes/menu.xml',       
@@ -141,7 +142,7 @@
         'views/shared/attachment/form.xml',  
 
         ### Reports entries ###
-        'reports/attendance/test_report.xml',     
+        'reports/attendance/by_session.xml',     
         'reports/attendance/by_student_wizard.xml',  
         
         ### Data entries (do not alter the order) ###

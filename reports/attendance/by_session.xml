@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <template id="attendance_test_report">
+    <template id="attendance_report_session">
         <t t-call="web.html_container">            
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
                     <div class="page">
-                        <h2>Attendance Session's Report</h2>
+                        <h2>Attendance report: by session</h2>
                         <p>
                             <b><span t-field="o.session_teacher_id"/></b><br/>
                             <span t-field="o.display_name"/>

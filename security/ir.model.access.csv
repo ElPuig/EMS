@@ -21,4 +21,4 @@ ims.access_ims_outcome,access_ims_outcome,ims.model_ims_outcome,ims_group_admin,
 ims.access_ims_enrollment_view,access_ims_enrollment_view,ims.model_ims_enrollment_view,ims_group_admin,1,1,1,1
 ims.access_ims_subject_view,access_ims_subject_view,ims.model_ims_subject_view,ims_group_admin,1,1,1,1
 ims.access_ims_attachment,access_ims_attachment,ims.model_ims_attachment,ims_group_admin,1,1,1,1
-ims.access_ims_attendance_report_student,access_ims_attendance_report_student,ims.model_ims_attendance_report_student,ims_group_admin,1,1,1,1
+ims.access_ims_attendance_report_student_wizard,access_ims_attendance_report_student_wizard,ims.model_ims_attendance_report_student_wizard,ims_group_admin,1,1,1,1

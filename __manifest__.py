@@ -124,15 +124,20 @@
             'views/attendance/attendance_template/menu.xml',
             'views/attendance/attendance_template/list.xml',
             'views/attendance/attendance_template/form.xml',
+
             'views/attendance/attendance_session/list.xml',
             'views/attendance/attendance_session/form.xml',
             'views/attendance/attendance_session/calendar.xml',
             'views/attendance/attendance_session/menu.xml',
+
             'views/attendance/attendance_status/list.xml',
             'views/attendance/attendance_status/form.xml',
             'views/attendance/attendance_status/menu.xml',       
+
             'views/attendance/attendance_schedule/form.xml',
+
             'views/attendance/attendance_reports/menu.xml',
+            'views/attendance/attendance_reports/by_student_wizard.xml', 
             
         'views/documentation/menu.xml',       
             'views/documentation/minutes/menu.xml',       
@@ -142,8 +147,8 @@
         'views/shared/attachment/form.xml',  
 
         ### Reports entries ###
-        'reports/attendance/by_session.xml',     
-        'reports/attendance/by_student_wizard.xml',  
+        'reports/attendance/by_session.xml', 
+        'reports/attendance/by_student.xml',              
         
         ### Data entries (do not alter the order) ###
         'data/main/ims.space_type.csv',    

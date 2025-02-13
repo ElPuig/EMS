@@ -20,10 +20,10 @@
 
         <record model="ir.actions.report" id="report_attendance_student">
             <field name="name">Attendance report: by student</field>
-            <field name="model">ims.attendance_report_student</field>
+            <field name="model">report.ims.attendance_report_student</field>
             <field name="report_type">qweb-pdf</field>
-            <field name="report_name">ims.attendance_student_report</field>
-            <field name="report_file">attendance_student_report</field>
+            <field name="report_name">ims.attendance_report_student</field>
+            <field name="report_file">attendance_report_student</field>
             <field name="binding_model_id" ref="ims.model_report_ims_attendance_report_student"/>
             <field name="binding_type">report</field>
         </record>

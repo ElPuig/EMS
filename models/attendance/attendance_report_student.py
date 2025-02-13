@@ -21,16 +21,16 @@ class ims_attendance_report_student_wizard(models.TransientModel):
 				rec.to_date = last.date
 
 	def print(self):
-		query = """SELECT * FROM ims_attendance_status AS status
+		query = """SELECT status.*, session.*  FROM ims_attendance_status AS status
 				LEFT JOIN res_partner AS student on student.id = status.student_id
 				LEFT JOIN ims_attendance_session AS session on session.id = status.attendance_session_id
-				WHERE session.date >= '%s' AND session.date <= '%s'""" % (self.from_date, self.to_date)
+				WHERE student.id=%d AND session.date >= '%s' AND session.date <= '%s'""" % (self.student_id, self.from_date, self.to_date)
 		
 		self.env.cr.execute(query)
-		report = self.env.cr.dictfetchall()
-		data = {'date': self.read()[0],'report': report}
+		lines = self.env.cr.dictfetchall()
+		data = {'student': self.student_id, 'lines': lines}
 
-		return self.env.ref('ims.report_attendance_student').report_action(None, data=data)
+		return self.env.ref('ims.report_attendance_student').report_action([self.student_id.id], data=data)
 	
 class ims_attendance_report_student(models.AbstractModel):
 	_name = 'report.ims.attendance_report_student'
@@ -39,6 +39,7 @@ class ims_attendance_report_student(models.AbstractModel):
 	def _get_report_values(self, docids, data=None):        
 		report = self.env['ir.actions.report']._get_report_from_name('ims.attendance_report_student')
 		# get the records selected for this rendering of the report
+		#docs = self.env[report.model].browse(docids)
 		docs = self.env[report.model].browse(docids)
 		# docs = self.env[truck.booking].browse(docids)
 		# return {
@@ -46,7 +47,7 @@ class ims_attendance_report_student(models.AbstractModel):
 		# }
 		return {
 			'doc_ids': docids,
-			'doc_model': 'truck.booking',
+			'doc_model': 'res.partner',
 			'docs': docs,
 			'data': data,
 		}

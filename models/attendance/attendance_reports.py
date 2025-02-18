@@ -52,27 +52,43 @@ class ims_attendance_report_student(models.AbstractModel):
 			values = grp_by_subject[key]			
 			values.append(s)
 			
-
-		#TODO: The main idea is:
-		#		Group by subject
-		#			Group by status
-		#				amount of this item
-		#				total items
-		#				% over total
+		#	Form content:
+		#		Group by subject:
+		#			Overall:
+		#				- Amount of this item
+		#				- Total items
+		#				- % over total
 		#
-		# 			List of the status entries with comments (abstract)
-		# 			List of all the status entries (list status by date)
+		# 			- List of the status entries with comments (abstract)
+		# 			- List of all the status entries (list status by date)
 
-		grp_by_status = {}
-		for sub in grp_by_subject:
+		lines = {}	
+		for subject in grp_by_subject:
+			counters = {}
+			comments = []
+			entries = []
 			for item in status:
-				grp_by_status[item] = 0
-					
-		
+				counters[item[0]] = 0
+			for s in grp_by_subject[subject]:
+				counters[s.status] += 1
+				
+				if s.notes != False: comments.append(s)
+				entries.append(s)
+			
+			overall = {}
+			total = len(grp_by_subject[subject])
+			for entry in counters:
+				overall[entry] = {
+					'count' : counters[entry],
+					'total' : total,
+					'%'		: counters[entry] / total 
+				}
+
+			lines[subject] = {'overall' : overall, 'comments' : comments, 'entries' : entries}
 
 		return {
 			'doc_ids': docids,
 			'doc_model': 'res.partner',
 			'docs': docs,
-			'lines': grp_by_subject,
+			'lines': lines,
 		}

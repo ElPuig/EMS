@@ -2,14 +2,13 @@
 
 from odoo import models, fields, api
 
+status = [("attended", "Attended"), ("delayed", "Delayed"), ("miss", "Miss"), ("justified", "Justified Miss"), ("issue", "Issue")]
+
 class ims_attendance_status(models.Model):
 	_name = "ims.attendance_status"
 	_description = "Attendance status: information about session per student."
 
-	status = fields.Selection(string="Status", default="attended", required=True, selection=
-        [("attended", "Attended"), ("delayed", "Delayed"), ("miss", "Miss"), ("justified", "Justified Miss"), ("issue", "Issue")]
-    )
-
+	status = fields.Selection(string="Status", default="attended", required=True, selection=status)
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
 	image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
 	attendance_session_id = fields.Many2one(string="Session", comodel_name="ims.attendance_session")

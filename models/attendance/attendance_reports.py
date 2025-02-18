@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from .attendance_status import status
 
 class ims_attendance_report_student_wizard(models.TransientModel):
 	_name = "ims.attendance_report_student_wizard"
@@ -40,25 +41,38 @@ class ims_attendance_report_student(models.AbstractModel):
 	_name = 'report.ims.attendance_report_student'
 	_description = "Attendance report data: by student."
 
-	def _get_report_values(self, docids, data=None):        
-		#report = self.env['ir.actions.report']._get_report_from_name('ims.attendance_report_student')
-		
-		# get the records selected for this rendering of the report
-		#docs = self.env[report.model].browse(docids)
+	def _get_report_values(self, docids, data=None):        		
 		docs = self.env["res.partner"].browse(data['student_id'])
-		lines = self.env["ims.attendance_status"].browse(data['status_ids'])
+		statuses = self.env["ims.attendance_status"].browse(data['status_ids'])
 		
-		#student = self.env["res.partner"].browse(data['data']['student_id']['id'])
-		#lines = self.env["ims.attendance_status"].browse(data['status_ids'])
-		#sessions = self.env["ims.attendance_status"].search([("student_id", "=", self.student_id.id), ("attendance_session_id.date", "<=", self.from_date), ("attendance_session_id.date", ">=", self.to_date)])		
+		grp_by_subject = {}
+		for s in statuses:
+			key = s.attendance_session_id.subject_id
+			if not key in grp_by_subject: grp_by_subject[key] = []
+			values = grp_by_subject[key]			
+			values.append(s)
+			
+
+		#TODO: The main idea is:
+		#		Group by subject
+		#			Group by status
+		#				amount of this item
+		#				total items
+		#				% over total
+		#
+		# 			List of the status entries with comments (abstract)
+		# 			List of all the status entries (list status by date)
+
+		grp_by_status = {}
+		for sub in grp_by_subject:
+			for item in status:
+				grp_by_status[item] = 0
+					
 		
-		# docs = self.env[truck.booking].browse(docids)
-		# return {
-		#     'lines': docids.get_lines()
-		# }
+
 		return {
 			'doc_ids': docids,
 			'doc_model': 'res.partner',
 			'docs': docs,
-			'lines': lines,
+			'lines': grp_by_subject,
 		}

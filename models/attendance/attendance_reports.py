@@ -35,23 +35,13 @@ class ims_attendance_report_student_wizard(models.TransientModel):
 		status_ids = self.env.cr.dictfetchall()
 		data = {'student_id': self.read()[0]['student_id'][0],'status_ids': list(map(lambda x:x['id'], status_ids))}
 
-		return self.env.ref('ims.action_attendance_report_student').report_action(None, data=data)
+		return self.env.ref('ims.action_attendance_report_student').with_context(landscape=True).report_action(None, data=data)
 	
 class ims_attendance_report_student(models.AbstractModel):
 	_name = 'report.ims.attendance_report_student'
 	_description = "Attendance report data: by student."
 
-	def _get_report_values(self, docids, data=None):        		
-		docs = self.env["res.partner"].browse(data['student_id'])
-		statuses = self.env["ims.attendance_status"].browse(data['status_ids'])
-		
-		grp_by_subject = {}
-		for s in statuses:
-			key = s.attendance_session_id.subject_id
-			if not key in grp_by_subject: grp_by_subject[key] = []
-			values = grp_by_subject[key]			
-			values.append(s)
-			
+	def _get_report_values(self, docids, data=None):        						
 		#	Form content:
 		#		Group by subject:
 		#			Overall:
@@ -61,6 +51,16 @@ class ims_attendance_report_student(models.AbstractModel):
 		#
 		# 			- List of the status entries with comments (abstract)
 		# 			- List of all the status entries (list status by date)
+
+		docs = self.env["res.partner"].browse(data['student_id'])		
+		entries = self.env["ims.attendance_status"].browse(data['status_ids'])
+
+		grp_by_subject = {}
+		for s in entries:
+			key = s.attendance_session_id.subject_id
+			if not key in grp_by_subject: grp_by_subject[key] = []
+			values = grp_by_subject[key]			
+			values.append(s)					
 
 		lines = {}	
 		for subject in grp_by_subject:
@@ -81,14 +81,15 @@ class ims_attendance_report_student(models.AbstractModel):
 				overall[entry] = {
 					'count' : counters[entry],
 					'total' : total,
-					'%'		: counters[entry] / total 
+					'%'		: (counters[entry] / total) * 100
 				}
 
 			lines[subject] = {'overall' : overall, 'comments' : comments, 'entries' : entries}
-
+		
 		return {
 			'doc_ids': docids,
 			'doc_model': 'res.partner',
 			'docs': docs,
 			'lines': lines,
+			'status': status
 		}

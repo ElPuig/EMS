@@ -10,11 +10,27 @@
                             <thead>
                                 <tr>
                                     <th style="width:50%;">Subject</th>
-                                    <!-- <t t-foreach="status" t-as="s">
-                                        <th t-field="s[1]"/>
-                                    </t>             -->
-                                </tr>
+                                    <t t-foreach="status" t-as="s">
+                                        <th t-esc="s[1]"/>
+                                    </t>            
+                                </tr>                                
                             </thead>
+                            <tbody>                                
+                                <tr t-foreach="lines" t-as="subject">
+                                    <td>
+                                        <span t-field="subject.display_name"/>
+                                    </td>
+
+                                    <t t-set="data" t-value="lines[subject]"/> 
+                                    <t t-foreach="status" t-as="s">
+                                        <t t-set="overall" t-value="data['overall'][s[0]]"/> 
+                                        <td>
+                                            <span t-esc="overall['%']"/>% (<span t-esc="overall['count']"/> / <span t-esc="overall['total']"/>)
+                                        </td>
+                                        <!-- <t t-set="status" t-value="data['overall'][s]"/> -->
+                                    </t>            
+                                </tr>
+                            </tbody>
                         </table>                        
                         <!-- <table class="table">
                             <thead>

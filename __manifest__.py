@@ -137,7 +137,7 @@
             'views/attendance/attendance_schedule/form.xml',
 
             'views/attendance/attendance_reports/menu.xml',
-            'views/attendance/attendance_reports/by_student_wizard.xml', 
+            'views/attendance/attendance_reports/student_wizard.xml', 
             
         'views/documentation/menu.xml',       
             'views/documentation/minutes/menu.xml',       
@@ -147,8 +147,8 @@
         'views/shared/attachment/form.xml',  
 
         ### Reports entries ###
-        'reports/attendance/by_session.xml', 
-        'reports/attendance/by_student.xml',              
+        'reports/attendance/session.xml', 
+        'reports/attendance/student.xml',              
         
         ### Data entries (do not alter the order) ###
         'data/main/ims.space_type.csv',    

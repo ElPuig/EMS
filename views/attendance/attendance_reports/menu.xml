@@ -8,7 +8,7 @@
             <field name="target">new</field>
         </record>
         
-        <record model="ir.actions.report" id="report_attendance_session">
+        <record model="ir.actions.report" id="action_attendance_report_session">
             <field name="name">Attendance report: by session</field>
             <field name="model">ims.attendance_session</field>
             <field name="report_type">qweb-pdf</field>
@@ -18,7 +18,7 @@
             <field name="binding_type">report</field>
         </record>
 
-        <record model="ir.actions.report" id="report_attendance_student">
+        <record model="ir.actions.report" id="action_attendance_report_student">
             <field name="name">Attendance report: by student</field>
             <field name="model">report.ims.attendance_report_student</field>
             <field name="report_type">qweb-pdf</field>

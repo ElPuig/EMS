@@ -5,12 +5,8 @@
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
                     <div class="page">
-                        <h2>Attendance report: by student</h2>
-                        <p>
-                            <b><span t-field="o.session_teacher_id"/></b><br/>
-                            <span t-field="o.display_name"/>
-                        </p>
-                        <table class="table">
+                        <h2>Attendance report: <span t-field="o.name"/></h2>                        
+                        <!-- <table class="table">
                             <thead>
                                 <tr>
                                     <th style="width:25%;">Student</th>
@@ -47,7 +43,7 @@
                                     </td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </table> -->
                     </div>
                 </t>
             </t>

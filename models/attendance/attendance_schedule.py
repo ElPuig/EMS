@@ -11,13 +11,13 @@ class ims_attendance_schedule(models.Model):
 	_order = 'name asc'
 	
 	weekdays_selection=[
-		("0", "Monday"),
-        ("1", "Tuesday"),
-        ("2", "Wednesday"),
-        ("3", "Thursday"),
-        ("4", "Friday"),
-		("5", "Saturday"),
-		("6", "Sunday")
+		("mon", "Monday"),
+        ("tue", "Tuesday"),
+        ("wed", "Wednesday"),
+        ("thu", "Thursday"),
+        ("fri", "Friday"),
+		("sat", "Saturday"),
+		("sun", "Sunday")
     ]
 
 	name = fields.Char(string="Name", compute="_compute_name", store=True) #Used to sort the dropdown within the session form

@@ -27,7 +27,8 @@ class ims_subject(models.Model):
     notes = fields.Text("Notes")
 
     study_ids = fields.Many2many(string="Studies", comodel_name="ims.study")
-    teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
+    # TODO: the teacher is assigned using the "teaching" model. Remove this field when possible.
+    #teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
     subject_ids = fields.One2many(string="Composite", comodel_name="ims.subject", inverse_name="subject_id", domain="[('id', '!=', id), ('level', '>', level), ('subject_id', '=', False)]")
     subject_id = fields.Many2one(string="Main subject", comodel_name="ims.subject")

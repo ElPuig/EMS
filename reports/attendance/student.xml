@@ -5,11 +5,83 @@
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
                     <div class="page">
-                        <h2>Attendance report: <span t-field="o.display_name"/></h2>
-                        <table class="table">
+                        <h1>Attendance report: <span t-field="o.display_name"/></h1>
+                        <t t-foreach="lines" t-as="subject">
+                            <h2 t-field="subject.display_name"/>
+                            <t t-set="data" t-value="lines[subject]"/> 
+
+                            <h3>Overall</h3>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <t t-foreach="status" t-as="s">
+                                            <th t-esc="s[1]"/>
+                                        </t>            
+                                    </tr>                                
+                                </thead>
+                                <tbody>                                
+                                    <tr>                                         
+                                        <t t-foreach="status" t-as="s">
+                                            <t t-set="overall" t-value="data['overall'][s[0]]"/> 
+                                            <td>
+                                                <span t-esc="overall['%']"/>% (<span t-esc="overall['count']"/> / <span t-esc="overall['total']"/>)
+                                            </td>
+                                        </t>            
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h3>Comments</h3>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:8%">Date</th>
+                                        <th style="width:10%">Status</th>
+                                        <th style="width:20%">Teacher</th>  <!-- Some subjects can be teached by more than one teacher -->
+                                        <th>Comment</th>                                        
+                                    </tr>                                
+                                </thead>
+                                <tbody> 
+                                    <t t-foreach="data['comments']" t-as="c">
+                                        <tr> 
+                                            <td t-esc="c.attendance_session_id.date"/>
+                                            <td t-esc="dict(c.fields_get(allfields=['status'])['status']['selection'])[c.status]"/>
+                                            <td t-esc="c.attendance_session_id.session_teacher_id.display_name"/>
+                                            <td t-esc="c.notes"/>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <h3>Historical</h3>
+                            <!-- TODO: this is the same as "Comments", better calling a template -->
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:8%">Date</th>
+                                        <th style="width:10%">Status</th>
+                                        <th style="width:20%">Teacher</th>  <!-- Some subjects can be teached by more than one teacher -->
+                                        <th>Comment</th>                                        
+                                    </tr>                                
+                                </thead>
+                                <tbody> 
+                                    <t t-foreach="data['entries']" t-as="e">
+                                        <tr> 
+                                            <td t-esc="e.attendance_session_id.date"/>
+                                            <td t-esc="dict(e.fields_get(allfields=['status'])['status']['selection'])[e.status]"/>
+                                            <td t-esc="e.attendance_session_id.session_teacher_id.display_name"/>
+                                            <td t-esc="e.notes"/>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+
+
+                        <!-- <table class="table">
                             <thead>
                                 <tr>
-                                    <th style="width:50%;">Subject</th>
+                                    <th style="width:35%;">Subject</th>
                                     <t t-foreach="status" t-as="s">
                                         <th t-esc="s[1]"/>
                                     </t>            
@@ -27,49 +99,10 @@
                                         <td>
                                             <span t-esc="overall['%']"/>% (<span t-esc="overall['count']"/> / <span t-esc="overall['total']"/>)
                                         </td>
-                                        <!-- <t t-set="status" t-value="data['overall'][s]"/> -->
                                     </t>            
                                 </tr>
                             </tbody>
-                        </table>                        
-                        <!-- <table class="table">
-                            <thead>
-                                <tr>
-                                    <th style="width:25%;">Student</th>
-                                    <th style="width:25%;">Status</th>
-                                    <th style="width:50%;">Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-set="status" t-value="o.mapped('attendance_status_ids')"/>
-                                <tr t-foreach="status" t-as="entry">
-                                    <td>
-                                        <span t-field="entry.student_id"/>
-                                    </td>
-                                    <td>                                        
-                                        <t t-if="entry.status == 'attended'">
-                                            <t t-set="style" t-value="'color:green;'" />
-                                        </t>
-                                        <t t-elif="entry.status == 'delayed'">
-                                            <t t-set="style" t-value="'color:orange;'" />
-                                        </t>
-                                        <t t-elif="entry.status == 'miss'">
-                                            <t t-set="style" t-value="'color:red;'" />
-                                        </t>
-                                        <t t-elif="entry.status == 'justified'">
-                                            <t t-set="style" t-value="'color:blue;'" />
-                                        </t>
-                                        <t t-elif="entry.status == 'issue'">
-                                            <t t-set="style" t-value="'color:purple;'" />
-                                        </t>
-                                        <span t-att-style="style" t-field="entry.status"/>
-                                    </td>
-                                    <td>
-                                        <span t-field="entry.notes"/>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table> -->
+                        </table>         -->                    
                     </div>
                 </t>
             </t>

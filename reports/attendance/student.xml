@@ -14,6 +14,27 @@
                             <table class="table">
                                 <thead>
                                     <tr>
+                                        <t t-foreach="data['overall']" t-as="s">
+                                            <th t-esc="s[1]"/> 
+                                        </t> 
+                                    </tr>                                
+                                </thead>
+                                <tbody>                                
+                                    <tr>      
+                                        <t t-foreach="data['overall']" t-as="s">
+                                            <t t-set="overall" t-value="data['overall'][s]"/> 
+                                            <td>
+                                                <span t-esc="overall['%']"/>% (<span t-esc="overall['count']"/> / <span t-esc="overall['total']"/>)
+                                            </td>
+                                        </t>       
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h3>Breakdown</h3>
+                            <table class="table">
+                                <thead>
+                                    <tr>
                                         <t t-foreach="status" t-as="s">
                                             <th t-esc="s[1]"/>
                                         </t>            
@@ -22,9 +43,9 @@
                                 <tbody>                                
                                     <tr>                                         
                                         <t t-foreach="status" t-as="s">
-                                            <t t-set="overall" t-value="data['overall'][s[0]]"/> 
+                                            <t t-set="breakdown" t-value="data['breakdown'][s[0]]"/> 
                                             <td>
-                                                <span t-esc="overall['%']"/>% (<span t-esc="overall['count']"/> / <span t-esc="overall['total']"/>)
+                                                <span t-esc="breakdown['%']"/>% (<span t-esc="breakdown['count']"/> / <span t-esc="breakdown['total']"/>)
                                             </td>
                                         </t>            
                                     </tr>
@@ -45,7 +66,8 @@
                                     <t t-foreach="data['comments']" t-as="c">
                                         <tr> 
                                             <td t-esc="c.attendance_session_id.date"/>
-                                            <td t-esc="dict(c.fields_get(allfields=['status'])['status']['selection'])[c.status]"/>
+                                            <!-- TODO: if there's any problem with translations: self._fields['state'].convert_to_export(self.state, self) -->
+                                            <td t-esc="dict(c.fields_get(allfields=['status'])['status']['selection'])[c.status]"/> 
                                             <td t-esc="c.attendance_session_id.session_teacher_id.display_name"/>
                                             <td t-esc="c.notes"/>
                                         </tr>

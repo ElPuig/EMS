@@ -75,16 +75,30 @@ class ims_attendance_report_student(models.AbstractModel):
 				if s.notes != False: comments.append(s)
 				entries.append(s)
 			
-			overall = {}
+			breakdown = {}
 			total = len(grp_by_subject[subject])
 			for entry in counters:
-				overall[entry] = {
+				breakdown[entry] = {
 					'count' : counters[entry],
 					'total' : total,
 					'%'		: (counters[entry] / total) * 100
 				}
 
-			lines[subject] = {'overall' : overall, 'comments' : comments, 'entries' : entries}
+			# Warning: this form has been designed to allow custom attendance status, BUT some native status (like 'attended') 
+			# should be 'cooked' because 'delayed' or 'issue' means also 'attended', and 'missed' means also 'justified miss'. 
+			# Overall data will be generated in order to mantain the original breakdown data.		
+
+			# TODO: To improve customizations, everything can be considered as assistance except for miss + justified.
+			#		Map the overall: miss + justified from one side, the rest in the other one. 
+
+			attended = 	list(filter(lambda x: x[0] == 'attended', status))[0]
+			miss = 	list(filter(lambda x: x[0] == 'miss', status))[0]
+			overall = {
+				attended : self._compute_overall(breakdown, total, ['attended', 'delayed', 'issue']),
+				miss : self._compute_overall(breakdown, total, ['miss', 'justified'])
+			}
+						
+			lines[subject] = {'overall' : overall, 'breakdown' : breakdown, 'comments' : comments, 'entries' : entries}		
 		
 		return {
 			'doc_ids': docids,
@@ -93,3 +107,17 @@ class ims_attendance_report_student(models.AbstractModel):
 			'lines': lines,
 			'status': status
 		}
+	
+	def _compute_overall(self, breakdown, total, status):
+		overall = {
+			'count' : 0,
+			'total' : total,
+			'%'		: 0
+		}
+
+		for s in status:
+			overall['count'] += breakdown[s]['count']			
+		
+		overall['%'] = (overall['count'] / overall['total']) * 100
+		return overall
+		

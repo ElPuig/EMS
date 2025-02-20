@@ -104,7 +104,7 @@ msgstr ""
 
 #. module: ims
 #: model:ir.model.fields.selection,name:ims.selection__ims_attendance_status__status__1
-msgid "Attended"
+msgid "a_attended"
 msgstr ""
 
 #. module: ims
@@ -613,7 +613,7 @@ msgstr ""
 
 #. module: ims
 #: model:ir.model.fields.selection,name:ims.selection__ims_attendance_status__status__2
-msgid "Miss"
+msgid "m_miss"
 msgstr ""
 
 #. module: ims

@@ -2,13 +2,15 @@
 
 from odoo import models, fields, api
 
-status = [("attended", "Attended"), ("delayed", "Delayed"), ("miss", "Miss"), ("justified", "Justified Miss"), ("issue", "Issue")]
+# NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
+#		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
+status = [("a_attended", "Attended"), ("a_delayed", "Delayed"), ("m_miss", "Miss"), ("m_justified", "Justified Miss"), ("a_issue", "Issue")]
 
 class ims_attendance_status(models.Model):
 	_name = "ims.attendance_status"
 	_description = "Attendance status: information about session per student."
 
-	status = fields.Selection(string="Status", default="attended", required=True, selection=status)
+	status = fields.Selection(string="Status", default="a_attended", required=True, selection=status)
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
 	image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
 	attendance_session_id = fields.Many2one(string="Session", comodel_name="ims.attendance_session")

@@ -43,81 +43,85 @@ class ims_attendance_report_student(models.AbstractModel):
 
 	def _get_report_values(self, docids, data=None):        						
 		#	Form content:
-		#		Group by subject:
-		#			Overall:
-		#				- Amount of this item
-		#				- Total items
-		#				- % over total
-		#
-		# 			- List of the status entries with comments (abstract)
-		# 			- List of all the status entries (list status by date)
+		#		docs: the current student
+		#		lines: the report data for the current student, one line per subject
+		#			overall: 
+		#				attended: amount, total, %.
+		#				miss: 	  amount, total, %.
+		# 			breakdown:
+		#				for every status -> status_key: amount, total, %.
+		# 			comments:
+		# 				the 'attendande_status' data containing comments (for the current subject).
+		# 			entries:
+		# 				all the 'attendande_status' data (for the current subject).
 
-		docs = self.env["res.partner"].browse(data['student_id'])		
-		entries = self.env["ims.attendance_status"].browse(data['status_ids'])
-
+		# Step 1: group all the status entreis by session's subject.
 		grp_by_subject = {}
-		for s in entries:
-			key = s.attendance_session_id.subject_id
+		for sub in self.env["ims.attendance_status"].browse(data['status_ids']):
+			key = sub.attendance_session_id.subject_id
 			if not key in grp_by_subject: grp_by_subject[key] = []
 			values = grp_by_subject[key]			
-			values.append(s)					
+			values.append(sub)					
 
+		# Step 2: for every subject, compute the overall and its breakdown (details)
 		lines = {}	
 		for subject in grp_by_subject:
+			# Step 2.1: setup init data
 			counters = {}
 			comments = []
 			entries = []
-			for item in status:
-				counters[item[0]] = 0
-			for s in grp_by_subject[subject]:
-				counters[s.status] += 1
-				
-				if s.notes != False: comments.append(s)
-				entries.append(s)
+			for st in status:
+				counters[st[0]] = 0
+
+			for sub in grp_by_subject[subject]:
+				counters[sub.status] += 1				
+				if sub.notes != False: comments.append(sub)
+				entries.append(sub)
 			
+			# Step 2.2: setup breakdown data
 			breakdown = {}
 			total = len(grp_by_subject[subject])
 			for entry in counters:
-				breakdown[entry] = {
-					'count' : counters[entry],
-					'total' : total,
-					'%'		: (counters[entry] / total) * 100
-				}
+				breakdown[entry] = self._setup_overall(counters[entry], total)
 
-			# Warning: this form has been designed to allow custom attendance status, BUT some native status (like 'attended') 
-			# should be 'cooked' because 'delayed' or 'issue' means also 'attended', and 'missed' means also 'justified miss'. 
-			# Overall data will be generated in order to mantain the original breakdown data.		
-
-			# TODO: To improve customizations, everything can be considered as assistance except for miss + justified.
-			#		Map the overall: miss + justified from one side, the rest in the other one. 
-
-			attended = 	list(filter(lambda x: x[0] == 'attended', status))[0]
-			miss = 	list(filter(lambda x: x[0] == 'miss', status))[0]
+			# Steup 2.3: use the breakdown data to setup the overall data
+			attended = 	self._get_status('a_attended')[0]
+			miss = 	self._get_status('m_miss')[0]
 			overall = {
-				attended : self._compute_overall(breakdown, total, ['attended', 'delayed', 'issue']),
-				miss : self._compute_overall(breakdown, total, ['miss', 'justified'])
+				attended : self._setup_overall(0, total),
+				miss : self._setup_overall(0, total),
 			}
-						
+
+			for sub in status:
+				if sub[0][0] == 'a': item = overall[attended]
+				else: item = overall[miss]				
+				item['count'] += breakdown[sub[0]]['count']
+
+			self._compute_overall(overall[attended])
+			self._compute_overall(overall[miss])
+
+			# Step 3: setup all the data for this subject
 			lines[subject] = {'overall' : overall, 'breakdown' : breakdown, 'comments' : comments, 'entries' : entries}		
 		
 		return {
 			'doc_ids': docids,
 			'doc_model': 'res.partner',
-			'docs': docs,
+			'docs': self.env["res.partner"].browse(data['student_id']),
 			'lines': lines,
-			'status': status
+			'status': dict(status)
 		}
 	
-	def _compute_overall(self, breakdown, total, status):
+	def _get_status(self, name):
+		return list(filter(lambda x: x[0] == name, status))[0]
+	
+	def _setup_overall(self, count, total):
 		overall = {
-			'count' : 0,
+			'count' : count,
 			'total' : total,
 			'%'		: 0
 		}
-
-		for s in status:
-			overall['count'] += breakdown[s]['count']			
-		
-		overall['%'] = (overall['count'] / overall['total']) * 100
+		self._compute_overall(overall)
 		return overall
-		
+	
+	def _compute_overall(self, overall):
+		if overall['total'] > 0: overall['%'] = (overall['count'] / overall['total']) * 100		

@@ -25,19 +25,19 @@
                                         <span t-field="entry.student_id"/>
                                     </td>
                                     <td>                                        
-                                        <t t-if="entry.status == 'attended'">
+                                        <t t-if="entry.status == 'a_attended'">
                                             <t t-set="style" t-value="'color:green;'" />
                                         </t>
-                                        <t t-elif="entry.status == 'delayed'">
+                                        <t t-elif="entry.status == 'a_delayed'">
                                             <t t-set="style" t-value="'color:orange;'" />
                                         </t>
-                                        <t t-elif="entry.status == 'miss'">
+                                        <t t-elif="entry.status == 'm_miss'">
                                             <t t-set="style" t-value="'color:red;'" />
                                         </t>
-                                        <t t-elif="entry.status == 'justified'">
+                                        <t t-elif="entry.status == 'm_justified'">
                                             <t t-set="style" t-value="'color:blue;'" />
                                         </t>
-                                        <t t-elif="entry.status == 'issue'">
+                                        <t t-elif="entry.status == 'a_issue'">
                                             <t t-set="style" t-value="'color:purple;'" />
                                         </t>
                                         <span t-att-style="style" t-field="entry.status"/>

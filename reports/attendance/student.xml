@@ -10,44 +10,46 @@
                             <h2 t-field="subject.display_name"/>
                             <t t-set="data" t-value="lines[subject]"/> 
 
+                            <!-- TODO: add charts -->
                             <h3>Overall</h3>
                             <table class="table">
                                 <thead>
                                     <tr>
                                         <t t-foreach="data['overall']" t-as="s">
-                                            <th t-esc="s[1]"/> 
+                                            <th t-esc="status[s]"/>
                                         </t> 
                                     </tr>                                
                                 </thead>
                                 <tbody>                                
                                     <tr>      
                                         <t t-foreach="data['overall']" t-as="s">
-                                            <t t-set="overall" t-value="data['overall'][s]"/> 
+                                            <t t-set="entry" t-value="data['overall'][s]"/> 
                                             <td>
-                                                <span t-esc="overall['%']"/>% (<span t-esc="overall['count']"/> / <span t-esc="overall['total']"/>)
+                                                <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
                                             </td>
                                         </t>       
                                     </tr>
                                 </tbody>
                             </table>
 
+                            <!-- TODO: repeated code, make a template and use it here and in overall -->
                             <h3>Breakdown</h3>
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <t t-foreach="status" t-as="s">
-                                            <th t-esc="s[1]"/>
-                                        </t>            
+                                        <t t-foreach="data['breakdown']" t-as="s">
+                                            <th t-esc="status[s]"/>
+                                        </t> 
                                     </tr>                                
                                 </thead>
                                 <tbody>                                
-                                    <tr>                                         
-                                        <t t-foreach="status" t-as="s">
-                                            <t t-set="breakdown" t-value="data['breakdown'][s[0]]"/> 
+                                    <tr>      
+                                        <t t-foreach="data['breakdown']" t-as="s">
+                                            <t t-set="entry" t-value="data['breakdown'][s]"/> 
                                             <td>
-                                                <span t-esc="breakdown['%']"/>% (<span t-esc="breakdown['count']"/> / <span t-esc="breakdown['total']"/>)
+                                                <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
                                             </td>
-                                        </t>            
+                                        </t>       
                                     </tr>
                                 </tbody>
                             </table>
@@ -97,34 +99,7 @@
                                     </t>
                                 </tbody>
                             </table>
-                        </t>
-
-
-                        <!-- <table class="table">
-                            <thead>
-                                <tr>
-                                    <th style="width:35%;">Subject</th>
-                                    <t t-foreach="status" t-as="s">
-                                        <th t-esc="s[1]"/>
-                                    </t>            
-                                </tr>                                
-                            </thead>
-                            <tbody>                                
-                                <tr t-foreach="lines" t-as="subject">
-                                    <td>
-                                        <span t-field="subject.display_name"/>
-                                    </td>
-
-                                    <t t-set="data" t-value="lines[subject]"/> 
-                                    <t t-foreach="status" t-as="s">
-                                        <t t-set="overall" t-value="data['overall'][s[0]]"/> 
-                                        <td>
-                                            <span t-esc="overall['%']"/>% (<span t-esc="overall['count']"/> / <span t-esc="overall['total']"/>)
-                                        </td>
-                                    </t>            
-                                </tr>
-                            </tbody>
-                        </table>         -->                    
+                        </t>                  
                     </div>
                 </t>
             </t>

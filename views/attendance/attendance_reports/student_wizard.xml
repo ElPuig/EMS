@@ -5,9 +5,19 @@
             <field name="model">ims.attendance_report_student_wizard</field>
             <field name="arch" type="xml">
                 <form string="Session">                       
-                    <group col="2">                          
+                    <group col="2">         
+                        <!-- <group>
+                            <field name="level_id" readonly="False" />
+                            <field name="group_id" readonly="study_id == False" domain="[('study_id','=', study_id)]" />
+                        </group>
+                        <group>
+                            <field name="study_id" readonly="level_id == False" domain="[('level_id','=', level_id)]" />
+                            <field name="tutor_id" />
+                        </group> -->
+
                         <group colspan="2">      
-                            <field name="student_id"/>
+                            <!-- <field name="student_id" readonly="group_id == False"/> -->
+                            <field name="student_id" domain="[('id','in', allowed_student_ids)]"/>
                         </group>
 
                         <group>
@@ -18,7 +28,7 @@
                         </group>
                     </group>
 
-                     <footer>
+                    <footer>
                         <button name="print" string="Print" type="object" class="btn-primary" icon="fa-print" />
                         <button name="cancel" string="Cancel" special="cancel"/>
                     </footer>

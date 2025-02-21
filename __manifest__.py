@@ -138,6 +138,7 @@
 
             'views/attendance/attendance_reports/menu.xml',
             'views/attendance/attendance_reports/student_wizard.xml', 
+            'views/attendance/attendance_reports/subject_wizard.xml', 
             
         'views/documentation/menu.xml',       
             'views/documentation/minutes/menu.xml',       

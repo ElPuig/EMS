@@ -1,0 +1,38 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_report_subject_wizard">
+            <field name="name">ims.attendance_report_subject.wizard</field>
+            <field name="model">ims.attendance_report_subject_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Session">                       
+                    <group col="2">         
+                        <group>
+                            <field name="level_id" readonly="False" />
+                            <field name="group_id" readonly="study_id == False" domain="[('study_id','=', study_id)]" />
+                        </group>
+                        <group>
+                            <field name="study_id" readonly="level_id == False" domain="[('level_id','=', level_id)]" />
+                            <field name="tutor_id" />
+                        </group>
+
+                        <group colspan="2">      
+                            <field name="subject_id" readonly="group_id == False" domain="[('id','in', allowed_subject_ids)]"/>
+                        </group>
+
+                        <group>
+                            <field name="from_date" />
+                        </group>
+                        <group>
+                            <field name="to_date" />
+                        </group>
+                    </group>
+
+                    <footer>
+                        <button name="print" string="Print" type="object" class="btn-primary" icon="fa-print" />
+                        <button name="cancel" string="Cancel" special="cancel"/>
+                    </footer>
+                </form>              
+            </field>			
+        </record>
+    </data>
+</odoo>

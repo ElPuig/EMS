@@ -47,7 +47,7 @@ class ims_attendance_report_student_wizard(models.TransientModel):
 								
 		self.env.cr.execute(query)		
 		status_ids = self.env.cr.dictfetchall()
-		data = {'student_id': self.read()[0]['student_id'][0],'status_ids': list(map(lambda x:x['id'], status_ids))}
+		data = {'doc_ids': [self.read()[0]['id']],'status_ids': list(map(lambda x:x['id'], status_ids))}
 
 		return self.env.ref('ims.action_attendance_report_student').with_context(landscape=True).report_action(None, data=data)
 
@@ -115,92 +115,29 @@ class ims_attendance_report_student(models.AbstractModel):
 	_description = "Attendance report data: by student."
 
 	def _get_report_values(self, docids, data=None):
-		# TODO: docs beeing the wizard model instead of a student? This allows displaying the data used to filter the report.
-		# TODO: add a summary entry as a line but computing all the subject data
-		# This methods setups the form content data:        						
-		#		docs: the current student
-		#		lines: the report data for the current student, one line per subject
-		#			overall: 
-		#				attended: amount, total, %.
-		#				miss: 	  amount, total, %.
-		# 			breakdown:
-		#				for every status -> status_key: amount, total, %.
-		# 			comments:
-		# 				the 'attendande_status' data containing comments (for the current subject).
-		# 			entries:
-		# 				all the 'attendande_status' data (for the current subject).
+		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
+		entries = list(self.env["ims.attendance_status"].browse(data['status_ids']))
+		main = _report_data(entries)
 
-		# Step 1: group all the status entreis by session's subject.
 		grp_by_subject = {}
-		for sub in self.env["ims.attendance_status"].browse(data['status_ids']):
-			key = sub.attendance_session_id.subject_id
+		for e in entries:
+			key = e.attendance_session_id.subject_id
 			if not key in grp_by_subject: grp_by_subject[key] = []
-			values = grp_by_subject[key]			
-			values.append(sub)					
+			values = grp_by_subject[key]
+			values.append(e)
 
-		# Step 2: for every subject, compute the overall and its breakdown (details)
-		lines = {}	
-		for subject in grp_by_subject:
-			# Step 2.1: setup init data
-			counters = {}
-			comments = []
-			entries = []
-			for st in status:
-				counters[st[0]] = 0
-
-			for sub in grp_by_subject[subject]:
-				counters[sub.status] += 1				
-				if sub.notes != False: comments.append(sub)
-				entries.append(sub)
-			
-			# Step 2.2: setup breakdown data
-			breakdown = {}
-			total = len(grp_by_subject[subject])
-			for entry in counters:
-				breakdown[entry] = self._setup_overall(counters[entry], total)
-
-			# Steup 2.3: use the breakdown data to setup the overall data
-			attended = 	self._get_status('a_attended')[0]
-			miss = 	self._get_status('m_miss')[0]
-			overall = {
-				attended : self._setup_overall(0, total),
-				miss : self._setup_overall(0, total),
-			}
-
-			for sub in status:
-				if sub[0][0] == 'a': item = overall[attended]
-				else: item = overall[miss]				
-				item['count'] += breakdown[sub[0]]['count']
-
-			self._compute_overall(overall[attended])
-			self._compute_overall(overall[miss])
-
-			# Step 3: setup all the data for this subject
-			lines[subject] = {'overall' : overall, 'breakdown' : breakdown, 'comments' : comments, 'entries' : entries}		
-		
+		lines = {}
+		for sub in grp_by_subject:
+			lines[sub] = _report_data(grp_by_subject[sub])
+				
 		return {
 			'doc_ids': docids,
-			'doc_model': 'res.partner',
-			'docs': self.env["res.partner"].browse(data['student_id']),
+			'doc_model': 'ims.attendance_report_student_wizard',
+			'docs': self.env["ims.attendance_report_student_wizard"].browse(data['doc_ids']),
+			'main': main,
 			'lines': lines,
 			'status': dict(status)
-		}
-	
-	def _get_status(self, name):
-		return list(filter(lambda x: x[0] == name, status))[0]
-	
-	def _setup_overall(self, count, total):
-		overall = {
-			'count' : count,
-			'total' : total,
-			'%'		: 0
-		}
-		self._compute_overall(overall)
-		return overall
-	
-	def _compute_overall(self, overall):
-		if overall['total'] > 0: overall['%'] = (overall['count'] / overall['total']) * 100		
-
+		}		
 
 class ims_attendance_report_subject(models.AbstractModel):
 	_name = 'report.ims.attendance_report_subject'
@@ -303,4 +240,49 @@ class ims_attendance_report_subject(models.AbstractModel):
 		return overall
 	
 	def _compute_overall(self, overall):
+		if overall['total'] > 0: overall['%'] = (overall['count'] / overall['total']) * 100		
+
+
+class _report_data:
+	def __init__(self, entries):
+		self.entries = entries
+		self.comments = []
+		self.breakdown = {}
+
+		attended = 	self._get_status('a_attended')[0]
+		miss = 	self._get_status('m_miss')[0]		
+		self.overall = {
+			attended : self._setup_counters(0, len(entries)),
+			miss : self._setup_counters(0, len(entries))
+		}
+
+		for s in status:
+			self.breakdown[s[0]] = self._setup_counters(0, len(entries))
+
+		for e in entries:
+			self.breakdown[e.status]['count'] += 1		
+			if e.notes != False: self.comments.append(e)	
+			if e.status[0] == 'a': self.overall[attended]['count'] += 1
+			else: self.overall[miss]['count'] += 1
+
+		for s in status:
+			self._compute_counters(self.breakdown[s[0]])
+		
+		self._compute_counters(self.overall[attended])
+		self._compute_counters(self.overall[miss])
+		
+
+	def _get_status(self, name):
+		return list(filter(lambda x: x[0] == name, status))[0]
+	
+	def _setup_counters(self, count, total):
+		overall = {
+			'count' : count,
+			'total' : total,
+			'%'		: 0
+		}
+		self._compute_counters(overall)
+		return overall
+	
+	def _compute_counters(self, overall):
 		if overall['total'] > 0: overall['%'] = (overall['count'] / overall['total']) * 100		

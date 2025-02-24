@@ -3,6 +3,17 @@
 from odoo import models, fields, api
 from .attendance_status import status
 
+# Reports:
+#	1. Attendance by subject (for the teachers teaching that subject and above)
+#	2. Attendance by student (for tutors and above, teachers can calso use it, but only its teaching subject/students will be displayed)
+#	3. Attendance by group (for tutors and above, teachers can calso use it, but only its teaching subject/students will be displayed)
+
+# TODO: improve the current report (by student) and prepare the new ones
+# A method that, given a student, returns the attendance data (global, overall, comments and details grouped by subject) for all its subjects.
+# A method that, given a subject, returns the attendance data (global, overall, comments and details grouped by student) for all its students.
+# The previous methods must filter the data by requesting user. Only who teachs a subject and a student, can get the data; also,
+# tutors can get the data of all its students and bosses can also get all the data (all subjects, all students).
+
 class ims_attendance_report_student_wizard(models.TransientModel):
 	_name = "ims.attendance_report_student_wizard"
 	_description = "Attendance report wizard: by student."

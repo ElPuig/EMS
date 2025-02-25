@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="attendance_report_subject">
+        <t t-call="web.html_container">            
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h1>Attendance report: <span t-field="o.subject_id.display_name"/> (<span t-field="o.group_id.display_name"/>)</h1>
+                        <h2>From <span t-field="o.from_date"/> to <span t-field="o.to_date"/></h2>
+
+                        <h3>Global</h3>
+                        <h4>Overall</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <t t-foreach="main.overall" t-as="s">
+                                        <th t-esc="status[s]"/>
+                                    </t> 
+                                </tr>                                
+                            </thead>
+                            <tbody>                                
+                                <tr>      
+                                    <t t-foreach="main.overall" t-as="s">
+                                        <t t-set="entry" t-value="main.overall[s]"/> 
+                                        <td>
+                                            <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
+                                        </td>
+                                        <!-- TODO: add a pie chart! -->
+                                    </t>       
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Breakdown</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <t t-foreach="main.breakdown" t-as="s">
+                                        <th t-esc="status[s]"/>
+                                    </t> 
+                                </tr>                                
+                            </thead>
+                            <tbody>                                
+                                <tr>      
+                                    <t t-foreach="main.breakdown" t-as="s">
+                                        <t t-set="entry" t-value="main.breakdown[s]"/> 
+                                        <td>
+                                            <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
+                                        </td>
+                                    </t>       
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Comments</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width:8%">Date</th>
+                                    <th style="width:10%">Status</th>
+                                    <th style="width:20%">Teacher</th>  <!-- Some subjects can be teached by more than one teacher -->
+                                    <th>Comment</th>                                        
+                                </tr>                                
+                            </thead>
+                            <tbody> 
+                                <t t-foreach="main.comments" t-as="c">
+                                    <tr> 
+                                        <td t-esc="c.attendance_session_id.date"/>
+                                        <!-- TODO: if there's any problem with translations: self._fields['state'].convert_to_export(self.state, self) -->
+                                        <td t-esc="dict(c.fields_get(allfields=['status'])['status']['selection'])[c.status]"/> 
+                                        <td t-esc="c.attendance_session_id.session_teacher_id.display_name"/>
+                                        <td t-esc="c.notes"/>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <t t-foreach="lines" t-as="student">
+                            <h3 t-field="student.display_name"/>
+                            <t t-set="data" t-value="lines[student]"/> 
+                            
+                            <h4>Overall</h4>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <t t-foreach="data.overall" t-as="s">
+                                            <th t-esc="status[s]"/>
+                                        </t> 
+                                    </tr>                                
+                                </thead>
+                                <tbody>                                
+                                    <tr>      
+                                        <t t-foreach="data.overall" t-as="s">
+                                            <t t-set="entry" t-value="data.overall[s]"/> 
+                                            <td>
+                                                <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
+                                            </td>
+                                            <!-- TODO: add a pie chart! -->
+                                        </t>       
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h4>Breakdown</h4>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <t t-foreach="data.breakdown" t-as="s">
+                                            <th t-esc="status[s]"/>
+                                        </t> 
+                                    </tr>                                
+                                </thead>
+                                <tbody>                                
+                                    <tr>      
+                                        <t t-foreach="data.breakdown" t-as="s">
+                                            <t t-set="entry" t-value="data.breakdown[s]"/> 
+                                            <td>
+                                                <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
+                                            </td>
+                                        </t>       
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h4>Details</h4>
+                            <!-- TODO: exactly as comments, make a template to call. -->
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:8%">Date</th>
+                                        <th style="width:10%">Status</th>
+                                        <th style="width:20%">Teacher</th>  <!-- Some subjects can be teached by more than one teacher -->
+                                        <th>Comment</th>                                        
+                                    </tr>                                
+                                </thead>
+                                <tbody> 
+                                    <t t-foreach="data.entries" t-as="c">
+                                        <tr> 
+                                            <td t-esc="c.attendance_session_id.date"/>
+                                            <!-- TODO: if there's any problem with translations: self._fields['state'].convert_to_export(self.state, self) -->
+                                            <td t-esc="dict(c.fields_get(allfields=['status'])['status']['selection'])[c.status]"/> 
+                                            <td t-esc="c.attendance_session_id.session_teacher_id.display_name"/>
+                                            <td t-esc="c.notes"/>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

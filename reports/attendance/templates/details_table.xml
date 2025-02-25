@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="attendance_template_details_table">        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width:8%">Date</th>
+                    <th style="width:10%">Status</th>
+                    <th style="width:20%">Teacher</th>
+                    <t t-foreach="extra" t-as="e">
+                        <th style="e['th-style']" t-esc="e['header']"/>
+                    </t>
+                    <th>Comment</th>                                        
+                </tr>                                
+            </thead>
+            <tbody> 
+                <t t-foreach="data.entries" t-as="c">
+                    <tr> 
+                        <td t-esc="c.attendance_session_id.date"/>
+                        <td t-esc="dict(c.fields_get(allfields=['status'])['status']['selection'])[c.status]"/> 
+                        <td t-esc="c.attendance_session_id.session_teacher_id.display_name"/>
+                        <t t-foreach="extra" t-as="e">
+                            <td style="e['td-style']" t-esc="e['value']"/>
+                        </t>
+                        <td t-esc="c.notes"/>
+                    </tr>
+                </t>
+            </tbody>
+        </table>                          
+    </template>
+</odoo>

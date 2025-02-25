@@ -9,43 +9,9 @@
                         <p>From <span t-field="o.from_date"/> to <span t-field="o.to_date"/></p>
                         <h2>Subject</h2>
                         <h3>Summary</h3>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <t t-set="colspan" t-value="len(main.overall)" />
-                                    <th t-att-colspan="colspan">Overall</th>
 
-                                    <t t-set="colspan" t-value="len(main.breakdown)" />
-                                    <th t-att-colspan="colspan">Breakdown</th>
-                                </tr>
-                                <tr>
-                                    <t t-foreach="main.overall" t-as="s">
-                                        <th t-esc="overall_status[s]"/>
-                                    </t> 
-                                    <t t-foreach="main.breakdown" t-as="s">
-                                        <th t-esc="attendance_status[s]"/>
-                                    </t> 
-                                </tr>                                
-                            </thead>
-                            <tbody>                                
-                                <tr>                                                                       
-                                    <t t-foreach="main.overall" t-as="s">
-                                        <t t-set="entry" t-value="main.overall[s]"/> 
-                                        <td>
-                                            <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
-                                        </td>
-                                    </t>  
-                                    <t t-foreach="main.breakdown" t-as="s">
-                                        <t t-set="entry" t-value="main.breakdown[s]"/> 
-                                        <td>
-                                            <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
-                                        </td>
-                                    </t>     
-                                </tr>
-                            </tbody>
-
-                            <!-- TODO: add pie charts -->
-                        </table>    
+                        <t t-set="data" t-value="main"/>
+                        <t t-call="ims.attendance_template_sumary_table"/>
                         <p style="page-break-after:always;" />                    
 
                         <h3>Details</h3>
@@ -92,6 +58,10 @@
                         <p style="page-break-after:always;" />
 
                         <h3>Comments</h3>
+                        <!-- TODO: continue -->
+                        <t t-set="extra" t-value="['th-style' : 'width:20%;', ]"/>
+                        <t t-call="ims.attendance_template_details_table"/>
+
                         <table class="table">
                             <thead>
                                 <tr>
@@ -120,68 +90,13 @@
                         <h2>Students</h2>
                         <t t-foreach="lines" t-as="student">
                             <h3 t-field="student.display_name"/>
-                            <t t-set="data" t-value="lines[student]"/> 
-                            
+                                                        
                             <h4>Summary</h4>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <t t-set="colspan" t-value="len(data.overall)" />
-                                        <th t-att-colspan="colspan">Overall</th>
-
-                                        <t t-set="colspan" t-value="len(data.breakdown)" />
-                                        <th t-att-colspan="colspan">Breakdown</th>
-                                    </tr>
-                                    <tr>
-                                        <t t-foreach="data.overall" t-as="s">
-                                            <th t-esc="overall_status[s]"/>
-                                        </t> 
-                                        <t t-foreach="data.breakdown" t-as="s">
-                                            <th t-esc="attendance_status[s]"/>
-                                        </t> 
-                                    </tr>                                
-                                </thead>
-                                <tbody>                                
-                                    <tr>                                                                       
-                                        <t t-foreach="data.overall" t-as="s">
-                                            <t t-set="entry" t-value="data.overall[s]"/> 
-                                            <td>
-                                                <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
-                                            </td>
-                                        </t>  
-                                        <t t-foreach="data.breakdown" t-as="s">
-                                            <t t-set="entry" t-value="data.breakdown[s]"/> 
-                                            <td>
-                                                <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
-                                            </td>
-                                        </t>     
-                                    </tr>
-                                </tbody>
-
-                                <!-- TODO: add pie charts -->
-                            </table>   
+                            <t t-set="data" t-value="lines[student]"/> 
+                            <t t-call="ims.attendance_template_sumary_table"/>                            
 
                             <h4>Details</h4>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:8%">Date</th>
-                                        <th style="width:10%">Status</th>
-                                        <th style="width:20%">Teacher</th>
-                                        <th>Comment</th>                                        
-                                    </tr>                                
-                                </thead>
-                                <tbody> 
-                                    <t t-foreach="data.entries" t-as="c">
-                                        <tr> 
-                                            <td t-esc="c.attendance_session_id.date"/>
-                                            <td t-esc="dict(c.fields_get(allfields=['status'])['status']['selection'])[c.status]"/> 
-                                            <td t-esc="c.attendance_session_id.session_teacher_id.display_name"/>
-                                            <td t-esc="c.notes"/>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table> 
+                            <t t-call="ims.attendance_template_details_table"/>
                             <p style="page-break-after:always;" />
                         </t>
                     </div>

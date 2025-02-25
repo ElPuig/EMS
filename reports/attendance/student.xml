@@ -14,7 +14,7 @@
                             <thead>
                                 <tr>
                                     <t t-foreach="main.overall" t-as="s">
-                                        <th t-esc="status[s]"/>
+                                        <th t-esc="attendance_status[s]"/>
                                     </t> 
                                 </tr>                                
                             </thead>
@@ -36,7 +36,7 @@
                             <thead>
                                 <tr>
                                     <t t-foreach="main.breakdown" t-as="s">
-                                        <th t-esc="status[s]"/>
+                                        <th t-esc="attendance_status[s]"/>
                                     </t> 
                                 </tr>                                
                             </thead>
@@ -84,7 +84,7 @@
                                 <thead>
                                     <tr>
                                         <t t-foreach="data.overall" t-as="s">
-                                            <th t-esc="status[s]"/>
+                                            <th t-esc="attendance_status[s]"/>
                                         </t> 
                                     </tr>                                
                                 </thead>
@@ -106,7 +106,7 @@
                                 <thead>
                                     <tr>
                                         <t t-foreach="data.breakdown" t-as="s">
-                                            <th t-esc="status[s]"/>
+                                            <th t-esc="attendance_status[s]"/>
                                         </t> 
                                     </tr>                                
                                 </thead>

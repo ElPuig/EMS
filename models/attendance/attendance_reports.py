@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from .attendance_status import status
+from .attendance_status import attendance_status
+
+overall_status = [("assistance", "Assistance"), ("absence", "Absence")]
 
 # Reports:
 #	1. Attendance by subject (for the teachers teaching that subject and above)
@@ -147,7 +149,8 @@ class ims_attendance_report_student(models.AbstractModel):
 			'docs': self.env["ims.attendance_report_student_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
-			'status': dict(status)
+			'attendance_status': dict(attendance_status),
+			'overall_status': dict(overall_status)
 		}		
 
 class ims_attendance_report_subject(models.AbstractModel):
@@ -176,7 +179,8 @@ class ims_attendance_report_subject(models.AbstractModel):
 			'docs': self.env["ims.attendance_report_subject_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
-			'status': dict(status)
+			'attendance_status': dict(attendance_status),
+			'overall_status': dict(overall_status)
 		}
 		
 	# def _get_report_values(self, docids, data=None):        						
@@ -284,31 +288,31 @@ class _report_data:
 		self.comments = []
 		self.breakdown = {}
 
-		attended = 	self._get_status('a_attended')[0]
-		miss = 	self._get_status('m_miss')[0]		
+		assistance = 	self._get_status('assistance')[0]
+		absence = 	self._get_status('absence')[0]		
 		self.overall = {
-			attended : self._setup_counters(0, len(entries)),
-			miss : self._setup_counters(0, len(entries))
+			assistance : self._setup_counters(0, len(entries)),
+			absence : self._setup_counters(0, len(entries))
 		}
 
-		for s in status:
+		for s in attendance_status:
 			self.breakdown[s[0]] = self._setup_counters(0, len(entries))
 
 		for e in entries:
 			self.breakdown[e.status]['count'] += 1		
 			if e.notes != False: self.comments.append(e)	
-			if e.status[0] == 'a': self.overall[attended]['count'] += 1
-			else: self.overall[miss]['count'] += 1
+			if e.status[0] == 'a': self.overall[assistance]['count'] += 1
+			else: self.overall[absence]['count'] += 1
 
-		for s in status:
+		for s in attendance_status:
 			self._compute_counters(self.breakdown[s[0]])
 		
-		self._compute_counters(self.overall[attended])
-		self._compute_counters(self.overall[miss])
+		self._compute_counters(self.overall[assistance])
+		self._compute_counters(self.overall[absence])
 		
 
 	def _get_status(self, name):
-		return list(filter(lambda x: x[0] == name, status))[0]
+		return list(filter(lambda x: x[0] == name, overall_status))[0]
 	
 	def _setup_counters(self, count, total):
 		overall = {

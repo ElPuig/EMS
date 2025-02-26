@@ -4,25 +4,17 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="width:8%">Date</th>
-                    <th style="width:10%">Status</th>
-                    <th style="width:20%">Teacher</th>
-                    <t t-foreach="extra" t-as="e">
-                        <th style="e['th-style']" t-esc="e['header']"/>
+                    <t t-foreach="header" t-as="e">
+                        <th t-att-style="e['style']" t-esc="e['value']"/>
                     </t>
-                    <th>Comment</th>                                        
                 </tr>                                
             </thead>
             <tbody> 
                 <t t-foreach="data.entries" t-as="c">
-                    <tr> 
-                        <td t-esc="c.attendance_session_id.date"/>
-                        <td t-esc="dict(c.fields_get(allfields=['status'])['status']['selection'])[c.status]"/> 
-                        <td t-esc="c.attendance_session_id.session_teacher_id.display_name"/>
-                        <t t-foreach="extra" t-as="e">
-                            <td style="e['td-style']" t-esc="e['value']"/>
+                    <tr>                         
+                        <t t-foreach="rows" t-as="e">
+                            <td t-att-style="e['style']" t-esc="c.report_eval(e['value'])"/>
                         </t>
-                        <td t-esc="c.notes"/>
                     </tr>
                 </t>
             </tbody>

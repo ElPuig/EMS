@@ -156,7 +156,7 @@ class ims_attendance_report_student(models.AbstractModel):
 class ims_attendance_report_subject(models.AbstractModel):
 	_name = 'report.ims.attendance_report_subject'
 	_description = "Attendance report data: by subject."
-	
+		
 	def _get_report_values(self, docids, data=None):
 		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
 		entries = list(self.env["ims.attendance_status"].browse(data['status_ids']))

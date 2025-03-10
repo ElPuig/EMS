@@ -26,3 +26,6 @@ class ims_attendance_status(models.Model):
 			if rec.attendance_session_id:
 				rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_status_ids.student_id')
 	
+	def report_eval(self, field):
+		# Note: this is used within the 'details_table' template in order to render custom fields.		
+		return eval(field)

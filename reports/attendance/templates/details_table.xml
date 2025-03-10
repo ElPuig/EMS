@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="attendance_template_details_table">        
+        <table class="table">
+            <thead>
+                <tr>
+                    <t t-foreach="header" t-as="e">
+                        <th t-att-style="e['style']" t-esc="e['value']"/>
+                    </t>
+                </tr>                                
+            </thead>
+            <tbody> 
+                <t t-foreach="data.entries" t-as="c">
+                    <tr>                         
+                        <t t-foreach="rows" t-as="e">
+                            <td t-att-style="e['style']" t-esc="c.report_eval(e['value'])"/>
+                        </t>
+                    </tr>
+                </t>
+            </tbody>
+        </table>                          
+    </template>
+</odoo>

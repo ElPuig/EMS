@@ -13,9 +13,12 @@
             <field name="arch" type="xml">
                 <form string="Group">
                     <sheet>                        
-                        <group string="Main data" col="4">                            
+                        <group string="Main data" col="4">        
+                            <group colspan="4">
+                                <field name="level_id" />
+                            </group>                    
                             <group colspan="2">
-                                <field name="study_id" />
+                                <field name="study_id" readonly="level_id == False" domain="[('level_id','=', level_id)]" />
                             </group>
                             <group>
                                 <field name="course" />
@@ -26,12 +29,7 @@
                             <group colspan="2">
                                 <field name="tutor_id" widget="many2one_avatar_employee" />
                             </group>
-                            <group>
-                                <!-- 
-                                    TODO: many2one_avatar_employee does not work, maybe could be extended for res.partner? 
-                                    Opt 1: Copy the many2one_avatar_employee widget and modify it: https://www.cybrosys.com/blog/how-to-create-a-field-widget-in-the-odoo-16
-                                    Opt 2: Extends the many2one_avatar_employee to add the new field: https://www.cybrosys.com/blog/how-to-extend-field-widget-in-odoo-16
-                                -->
+                            <group>                              
                                 <field name="delegate_id" widget="many2one_avatar" />
                             </group>
                             <group>

@@ -10,7 +10,7 @@
                 </tr>                                
             </thead>
             <tbody> 
-                <t t-foreach="data.entries" t-as="c">
+                <t t-foreach="entries" t-as="c">
                     <tr>                         
                         <t t-foreach="rows" t-as="e">
                             <td t-att-style="e['style']" t-esc="c.report_eval(e['value'])"/>

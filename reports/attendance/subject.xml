@@ -58,9 +58,9 @@
                         <p style="page-break-after:always;" />
 
                         <h3>Comments</h3>
-                        <!-- TODO: continue -->
+                        <t t-set="entries" t-value="main.comments"/>
                         <t t-set="header" t-value="[
-                            {'style' : 'width:8%;', 'value' : 'Date'},
+                            {'style' : 'width:10%;', 'value' : 'Date'},
                             {'style' : 'width:10%;', 'value' : 'Status'},
                             {'style' : 'width:20%;', 'value' : 'Teacher'},
                             {'style' : 'width:20%;', 'value' : 'Student'},
@@ -82,12 +82,12 @@
                             <h3 t-field="student.display_name"/>
                                                         
                             <h4>Summary</h4>
-                            <t t-set="data" t-value="lines[student]"/> 
+                            <t t-set="entries" t-value="lines[student].entries"/> 
                             <t t-call="ims.attendance_template_sumary_table"/>                            
 
                             <h4>Details</h4>
                             <t t-set="header" t-value="[
-                                {'style' : 'width:8%;', 'value' : 'Date'},
+                                {'style' : 'width:10%;', 'value' : 'Date'},
                                 {'style' : 'width:10%;', 'value' : 'Status'},
                                 {'style' : 'width:20%;', 'value' : 'Teacher'},
                                 {'style' : '', 'value' : 'Comment'}

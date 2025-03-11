@@ -11,22 +11,6 @@ class ims_attendance_schedule(models.Model):
 	_order = 'name asc'
 	
 	# Note: today.weekday() returns this values, do not alter!
-	# TODO: fix in BBDD:
-		# update ims_attendance_session ias set weekday='0' where ias.weekday='mon';
-		# update ims_attendance_session ias set weekday='1' where ias.weekday='tue';
-		# update ims_attendance_session ias set weekday='2' where ias.weekday='wed';
-		# update ims_attendance_session ias set weekday='3' where ias.weekday='thu';
-		# update ims_attendance_session ias set weekday='4' where ias.weekday='fri';
-		# update ims_attendance_session ias set weekday='5' where ias.weekday='sun';
-		# update ims_attendance_session ias set weekday='6' where ias.weekday='sat';
-
-		# update ims_attendance_schedule ias2 set weekday='0' where ias2.weekday='mon';
-		# update ims_attendance_schedule ias2 set weekday='1' where ias2.weekday='tue';
-		# update ims_attendance_schedule ias2 set weekday='2' where ias2.weekday='wed';
-		# update ims_attendance_schedule ias2 set weekday='3' where ias2.weekday='thu';
-		# update ims_attendance_schedule ias2 set weekday='4' where ias2.weekday='fri';
-		# update ims_attendance_schedule ias2 set weekday='5' where ias2.weekday='sun';
-		# update ims_attendance_schedule ias2 set weekday='6' where ias2.weekday='sat';
 	weekdays_selection=[
 		("0", "Monday"),
         ("1", "Tuesday"),

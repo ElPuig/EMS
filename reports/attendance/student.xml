@@ -6,145 +6,58 @@
                 <t t-call="web.external_layout">
                     <div class="page">
                         <h1>Attendance report: <span t-field="o.student_id.display_name"/></h1>
-                        <h2>From <span t-field="o.from_date"/> to <span t-field="o.to_date"/></h2>
+                        <p>From <span t-field="o.from_date"/> to <span t-field="o.to_date"/></p>
 
-                        <h3>Global</h3>
-                        <h4>Overall</h4>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <t t-foreach="main.overall" t-as="s">
-                                        <th t-esc="overall_status[s]"/>
-                                    </t> 
-                                </tr>                                
-                            </thead>
-                            <tbody>                                
-                                <tr>      
-                                    <t t-foreach="main.overall" t-as="s">
-                                        <t t-set="entry" t-value="main.overall[s]"/> 
-                                        <td>
-                                            <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
-                                        </td>
-                                        <!-- TODO: add a pie chart! -->
-                                    </t>       
-                                </tr>
-                            </tbody>
-                        </table>
+                        <h2>Student</h2>
+                        <h3>Summary</h3>
 
-                        <h4>Breakdown</h4>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <t t-foreach="main.breakdown" t-as="s">
-                                        <th t-esc="attendance_status[s]"/>
-                                    </t> 
-                                </tr>                                
-                            </thead>
-                            <tbody>                                
-                                <tr>      
-                                    <t t-foreach="main.breakdown" t-as="s">
-                                        <t t-set="entry" t-value="main.breakdown[s]"/> 
-                                        <td>
-                                            <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
-                                        </td>
-                                    </t>       
-                                </tr>
-                            </tbody>
-                        </table>
+                        <t t-set="data" t-value="main"/>
+                        <t t-call="ims.attendance_template_sumary_table"/>                            
 
-                        <h4>Comments</h4>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th style="width:8%">Date</th>
-                                    <th style="width:10%">Status</th>
-                                    <th style="width:20%">Teacher</th>  <!-- Some subjects can be teached by more than one teacher -->
-                                    <th>Comment</th>                                        
-                                </tr>                                
-                            </thead>
-                            <tbody> 
-                                <t t-foreach="main.comments" t-as="c">
-                                    <tr> 
-                                        <td t-esc="c.attendance_session_id.date"/>
-                                        <!-- TODO: if there's any problem with translations: self._fields['state'].convert_to_export(self.state, self) -->
-                                        <td t-esc="dict(c.fields_get(allfields=['status'])['status']['selection'])[c.status]"/> 
-                                        <td t-esc="c.attendance_session_id.session_teacher_id.display_name"/>
-                                        <td t-esc="c.notes"/>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
+                        <h3>Comments</h3>
+                        <t t-set="entries" t-value="main.comments"/>
+                        <t t-set="header" t-value="[
+                            {'style' : 'width:10%;', 'value' : 'Date'},
+                            {'style' : 'width:10%;', 'value' : 'Status'},
+                            {'style' : 'width:20%;', 'value' : 'Subject'},
+                            {'style' : 'width:20%;', 'value' : 'Teacher'},
+                            {'style' : '', 'value' : 'Comment'}
+                        ]"/>
+                        <!-- Note: 'self' will be an 'attendance_status' object and is necessary to run the 'report_eval' method from the 'details_table' template. -->
+                        <t t-set="rows" t-value="[
+                            {'style' : '', 'value' : 'self.attendance_session_id.date'},
+                            {'style' : '', 'value' : 'dict(self.fields_get(allfields=[\'status\'])[\'status\'][\'selection\'])[self.status]'},
+                            {'style' : '', 'value' : 'self.attendance_session_id.subject_id.display_name'},
+                            {'style' : '', 'value' : 'self.attendance_session_id.session_teacher_id.display_name'},
+                            {'style' : '', 'value' : 'self.notes'},
+                        ]"/>
+                        <t t-call="ims.attendance_template_details_table"/>
+                        <p style="page-break-after:always;" />
 
+                        <h2>Subjects</h2>
                         <t t-foreach="lines" t-as="subject">
                             <h3 t-field="subject.display_name"/>
-                            <t t-set="data" t-value="lines[subject]"/> 
-                            
-                            <h4>Overall</h4>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <t t-foreach="data.overall" t-as="s">
-                                            <th t-esc="overall_status[s]"/>
-                                        </t> 
-                                    </tr>                                
-                                </thead>
-                                <tbody>                                
-                                    <tr>      
-                                        <t t-foreach="data.overall" t-as="s">
-                                            <t t-set="entry" t-value="data.overall[s]"/> 
-                                            <td>
-                                                <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
-                                            </td>
-                                            <!-- TODO: add a pie chart! -->
-                                        </t>       
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <h4>Summary</h4>
 
-                            <h4>Breakdown</h4>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <t t-foreach="data.breakdown" t-as="s">
-                                            <th t-esc="attendance_status[s]"/>
-                                        </t> 
-                                    </tr>                                
-                                </thead>
-                                <tbody>                                
-                                    <tr>      
-                                        <t t-foreach="data.breakdown" t-as="s">
-                                            <t t-set="entry" t-value="data.breakdown[s]"/> 
-                                            <td>
-                                                <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
-                                            </td>
-                                        </t>       
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <t t-set="data" t-value="lines[subject]"/>                                                         
+                            <t t-call="ims.attendance_template_sumary_table"/>     
 
                             <h4>Details</h4>
-                            <!-- TODO: exactly as comments, make a template to call. -->
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:8%">Date</th>
-                                        <th style="width:10%">Status</th>
-                                        <th style="width:20%">Teacher</th>  <!-- Some subjects can be teached by more than one teacher -->
-                                        <th>Comment</th>                                        
-                                    </tr>                                
-                                </thead>
-                                <tbody> 
-                                    <t t-foreach="data.entries" t-as="c">
-                                        <tr> 
-                                            <td t-esc="c.attendance_session_id.date"/>
-                                            <!-- TODO: if there's any problem with translations: self._fields['state'].convert_to_export(self.state, self) -->
-                                            <td t-esc="dict(c.fields_get(allfields=['status'])['status']['selection'])[c.status]"/> 
-                                            <td t-esc="c.attendance_session_id.session_teacher_id.display_name"/>
-                                            <td t-esc="c.notes"/>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
+                            <t t-set="header" t-value="[
+                                {'style' : 'width:10%;', 'value' : 'Date'},
+                                {'style' : 'width:10%;', 'value' : 'Status'},
+                                {'style' : 'width:20%;', 'value' : 'Teacher'},
+                                {'style' : '', 'value' : 'Comment'}
+                            ]"/>
+                            <!-- Note: 'self' will be an 'attendance_status' object and is necessary to run the 'report_eval' method from the 'details_table' template. -->
+                            <t t-set="rows" t-value="[
+                                {'style' : '', 'value' : 'self.attendance_session_id.date'},
+                                {'style' : '', 'value' : 'dict(self.fields_get(allfields=[\'status\'])[\'status\'][\'selection\'])[self.status]'},
+                                {'style' : '', 'value' : 'self.attendance_session_id.session_teacher_id.display_name'},
+                                {'style' : '', 'value' : 'self.notes'},
+                            ]"/>
+                            <t t-call="ims.attendance_template_details_table"/>
+                            <p style="page-break-after:always;" />
                         </t>
                     </div>
                 </t>

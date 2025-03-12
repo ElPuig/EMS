@@ -14,7 +14,7 @@
                             <thead>
                                 <tr>
                                     <t t-foreach="main.overall" t-as="s">
-                                        <th t-esc="attendance_status[s]"/>
+                                        <th t-esc="overall_status[s]"/>
                                     </t> 
                                 </tr>                                
                             </thead>
@@ -84,7 +84,7 @@
                                 <thead>
                                     <tr>
                                         <t t-foreach="data.overall" t-as="s">
-                                            <th t-esc="attendance_status[s]"/>
+                                            <th t-esc="overall_status[s]"/>
                                         </t> 
                                     </tr>                                
                                 </thead>

@@ -63,13 +63,13 @@ class ims_attendance_report_group_wizard(models.TransientModel):
 	def print(self):		
 		query = """SELECT status.id FROM ims_attendance_status AS status
 				LEFT JOIN ims_attendance_session AS session ON session.id = status.attendance_session_id
-				WHERE status.student_id=%d AND session.date >= '%s' AND session.date <= '%s'""" % (self.student_id, self.from_date, self.to_date)
+				WHERE session.group_id=%d AND session.date >= '%s' AND session.date <= '%s'""" % (self.group_id, self.from_date, self.to_date)
 								
 		self.env.cr.execute(query)		
 		status_ids = self.env.cr.dictfetchall()
 		data = {'doc_ids': [self.read()[0]['id']],'status_ids': list(map(lambda x:x['id'], status_ids))}
 
-		return self.env.ref('ims.action_attendance_report_student').with_context(landscape=True).report_action(None, data=data)
+		return self.env.ref('ims.action_attendance_report_group').with_context(landscape=True).report_action(None, data=data)
 
 class ims_attendance_report_student_wizard(models.TransientModel):
 	_name = "ims.attendance_report_student_wizard"

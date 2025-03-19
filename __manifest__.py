@@ -155,8 +155,8 @@
         ### Reports entries ###
         'reports/attendance/session.xml', 
         'reports/attendance/student.xml',
-        'reports/attendance/subject.xml',              
-        
+        'reports/attendance/subject.xml',  
+        'reports/attendance/group.xml',              
         
         ### Data entries (do not alter the order) ###
         'data/main/ims.space_type.csv',    

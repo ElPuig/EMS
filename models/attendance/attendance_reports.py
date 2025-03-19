@@ -6,15 +6,70 @@ from .attendance_status import attendance_status
 overall_status = [("assistance", "Assistance"), ("absence", "Absence")]
 
 # Reports:
-#	1. Attendance by subject (for the teachers teaching that subject and above)
+#	1. Attendance by group (for tutors and above, teachers can calso use it, but only its teaching subject/students will be displayed)
 #	2. Attendance by student (for tutors and above, teachers can calso use it, but only its teaching subject/students will be displayed)
-#	3. Attendance by group (for tutors and above, teachers can calso use it, but only its teaching subject/students will be displayed)
+#	3. Attendance by subject (for the teachers teaching that subject and above)
 
-# TODO: improve the current report (by student) and prepare the new ones
-# A method that, given a student, returns the attendance data (global, overall, comments and details grouped by subject) for all its subjects.
-# A method that, given a subject, returns the attendance data (global, overall, comments and details grouped by student) for all its students.
-# The previous methods must filter the data by requesting user. Only who teachs a subject and a student, can get the data; also,
-# tutors can get the data of all its students and bosses can also get all the data (all subjects, all students).
+class ims_attendance_report_group_wizard(models.TransientModel):
+	_name = "ims.attendance_report_group_wizard"
+	_description = "Attendance report wizard: by group."
+
+	level_id = fields.Many2one(string='Level', comodel_name='ims.level')    
+	study_id = fields.Many2one(string='Studies', comodel_name='ims.study') 
+	group_id = fields.Many2one(string='Group', comodel_name='ims.group')     
+	tutor_id = fields.Many2one(string='Tutor', related="group_id.tutor_id") 
+	allowed_group_ids = fields.Many2many('ims.group', compute='_compute_allowed_group_ids', store=False)
+	from_date = fields.Date(string="From", default=fields.Datetime.now, required=True)
+	to_date = fields.Date(string="To", default=fields.Datetime.now, required=True)	
+
+	@api.onchange('study_id')
+	def _compute_allowed_group_ids(self):
+		for rec in self:
+			if rec.study_id.id != False:
+				# Crossing student's enrollment data with teacher's teaching data.		
+				query = """SELECT tea.group_id FROM ims_teaching AS tea
+						LEFT JOIN ims_group AS grp ON grp.id = tea.group_id"""
+				
+				# TODO: use this to set the permissions (uid = 1 means ADMIN)
+				current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
+				if current_teacher.id > 1:
+					query += " WHERE tea.teacher_id=%d" % (current_teacher.id)
+				
+				self.env.cr.execute(query)		
+				group_ids = list(map(lambda x: x[0], self.env.cr.fetchall()))
+
+				rec.allowed_group_ids = self.env["ims.group"].browse(group_ids)
+
+	@api.onchange('level_id')
+	def _onchange_level_id(self):	
+		for rec in self:			
+			rec.study_id = False
+		
+	@api.onchange('study_id')
+	def _onchange_study_id(self):	
+		for rec in self:			
+			rec.group_id = False
+
+	@api.onchange("group_id")
+	def _onchange_group_id(self):
+		for rec in self:
+			if rec.group_id.id != False:
+				sessions = self.env["ims.attendance_session"].search([("group_id", "=", rec.group_id.id)])
+				first = sessions.search([], order="date asc", limit=1)
+				last = sessions.search([], order="date desc", limit=1)
+				rec.from_date = first.date
+				rec.to_date = last.date
+
+	def print(self):		
+		query = """SELECT status.id FROM ims_attendance_status AS status
+				LEFT JOIN ims_attendance_session AS session ON session.id = status.attendance_session_id
+				WHERE status.student_id=%d AND session.date >= '%s' AND session.date <= '%s'""" % (self.student_id, self.from_date, self.to_date)
+								
+		self.env.cr.execute(query)		
+		status_ids = self.env.cr.dictfetchall()
+		data = {'doc_ids': [self.read()[0]['id']],'status_ids': list(map(lambda x:x['id'], status_ids))}
+
+		return self.env.ref('ims.action_attendance_report_student').with_context(landscape=True).report_action(None, data=data)
 
 class ims_attendance_report_student_wizard(models.TransientModel):
 	_name = "ims.attendance_report_student_wizard"
@@ -35,8 +90,7 @@ class ims_attendance_report_student_wizard(models.TransientModel):
 			if rec.group_id.id != False:
 				# Crossing student's enrollment data with teacher's teaching data.		
 				query = """SELECT en.student_id FROM ims_teaching AS tea
-						LEFT JOIN ims_enrollment AS en ON en.group_id = tea.group_id AND en.subject_id = tea.subject_id
-						WHERE tea.group_id=%d""" % rec.group_id.id
+						LEFT JOIN ims_enrollment AS en ON en.group_id = tea.group_id AND en.subject_id = tea.subject_id AND tea.group_id=%d""" % rec.group_id.id
 				
 				# TODO: use this to set the permissions (uid = 1 means ADMIN)
 				current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
@@ -172,6 +226,38 @@ class ims_attendance_report_subject(models.AbstractModel):
 	_name = 'report.ims.attendance_report_subject'
 	_description = "Attendance report data: by subject."
 		
+	def _get_report_values(self, docids, data=None):
+		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
+		entries = list(self.env["ims.attendance_status"].browse(data['status_ids']))
+		main = _report_data(entries)
+
+		grp_by_student = {}
+		for e in entries:
+			key = e.student_id
+			if not key in grp_by_student: grp_by_student[key] = []
+			values = grp_by_student[key]
+			values.append(e)
+
+		lines = {}
+		for s in grp_by_student:
+			lines[s] = _report_data(grp_by_student[s])
+				
+		return {
+			'doc_ids': docids,
+			'doc_model': 'ims.attendance_report_student_wizard',
+			'docs': self.env["ims.attendance_report_subject_wizard"].browse(data['doc_ids']),
+			'main': main,
+			'lines': lines,
+			'attendance_status': dict(attendance_status),
+			'overall_status': dict(overall_status)
+		}
+	
+
+class ims_attendance_report_group(models.AbstractModel):
+	_name = 'report.ims.attendance_report_group'
+	_description = "Attendance report data: by group."
+		
+	# TODO: this is just a copy/paste, should be properly implemented!
 	def _get_report_values(self, docids, data=None):
 		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
 		entries = list(self.env["ims.attendance_status"].browse(data['status_ids']))

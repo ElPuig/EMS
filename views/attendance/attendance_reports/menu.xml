@@ -14,6 +14,13 @@
             <field name="view_mode">form</field>
             <field name="target">new</field>
         </record>
+
+        <record model="ir.actions.act_window" id="action_attendance_report_group_wizard">
+            <field name="name">Attendance report (by group)</field>
+            <field name="res_model">ims.attendance_report_group_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
         
         <record model="ir.actions.report" id="action_attendance_report_session">
             <field name="name">Attendance report: by session</field>
@@ -35,7 +42,7 @@
             <field name="binding_type">report</field>
         </record>
 
-         <record model="ir.actions.report" id="action_attendance_report_subject">
+        <record model="ir.actions.report" id="action_attendance_report_subject">
             <field name="name">Attendance report: by subject</field>
             <field name="model">report.ims.attendance_report_subject</field>
             <field name="report_type">qweb-pdf</field>
@@ -45,8 +52,19 @@
             <field name="binding_type">report</field>
         </record>
 
+        <record model="ir.actions.report" id="action_attendance_report_group">
+            <field name="name">Attendance report: by group</field>
+            <field name="model">report.ims.attendance_report_group</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ims.attendance_report_group</field>
+            <field name="report_file">attendance_report_group</field>
+            <field name="binding_model_id" ref="ims.model_report_ims_attendance_report_group"/>
+            <field name="binding_type">report</field>
+        </record>
+
         <menuitem name="Reports" sequence="2" id="menu_attendance_reports" parent="menu_attendance"/>
         <menuitem name="Attendance by student" sequence="1" id="menu_attendance_reports_student" parent="menu_attendance_reports" action="action_attendance_report_student_wizard"/>
-        <menuitem name="Attendance by subject" sequence="1" id="menu_attendance_reports_subject" parent="menu_attendance_reports" action="action_attendance_report_subject_wizard"/>
+        <menuitem name="Attendance by subject" sequence="2" id="menu_attendance_reports_subject" parent="menu_attendance_reports" action="action_attendance_report_subject_wizard"/>
+        <menuitem name="Attendance by group" sequence="3" id="menu_attendance_reports_group" parent="menu_attendance_reports" action="action_attendance_report_group_wizard"/>
     </data>
 </odoo>

@@ -244,7 +244,7 @@ class ims_attendance_report_subject(models.AbstractModel):
 				
 		return {
 			'doc_ids': docids,
-			'doc_model': 'ims.attendance_report_student_wizard',
+			'doc_model': 'ims.attendance_report_subject_wizard',
 			'docs': self.env["ims.attendance_report_subject_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
@@ -252,7 +252,6 @@ class ims_attendance_report_subject(models.AbstractModel):
 			'overall_status': dict(overall_status)
 		}
 	
-
 class ims_attendance_report_group(models.AbstractModel):
 	_name = 'report.ims.attendance_report_group'
 	_description = "Attendance report data: by group."
@@ -276,8 +275,8 @@ class ims_attendance_report_group(models.AbstractModel):
 				
 		return {
 			'doc_ids': docids,
-			'doc_model': 'ims.attendance_report_student_wizard',
-			'docs': self.env["ims.attendance_report_subject_wizard"].browse(data['doc_ids']),
+			'doc_model': 'ims.attendance_report_group_wizard',
+			'docs': self.env["ims.attendance_report_group_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
 			'attendance_status': dict(attendance_status),

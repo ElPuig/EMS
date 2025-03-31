@@ -25,7 +25,9 @@ class ims_attendance_report_group_wizard(models.TransientModel):
 	@api.onchange('study_id')
 	def _compute_allowed_group_ids(self):
 		for rec in self:
-			if rec.study_id.id != False:
+			if rec.study_id.id == False:
+				rec.allowed_group_ids = []
+			else:
 				# Crossing student's enrollment data with teacher's teaching data.		
 				query = """SELECT tea.group_id FROM ims_teaching AS tea
 						LEFT JOIN ims_group AS grp ON grp.id = tea.group_id"""
@@ -37,6 +39,7 @@ class ims_attendance_report_group_wizard(models.TransientModel):
 				
 				self.env.cr.execute(query)		
 				group_ids = list(map(lambda x: x[0], self.env.cr.fetchall()))
+				group_ids = list(filter(lambda x: x is not None, group_ids))
 
 				rec.allowed_group_ids = self.env["ims.group"].browse(group_ids)
 
@@ -87,7 +90,9 @@ class ims_attendance_report_student_wizard(models.TransientModel):
 	@api.onchange('group_id')
 	def _compute_allowed_student_ids(self):
 		for rec in self:
-			if rec.group_id.id != False:
+			if rec.group_id.id == False:
+				rec.allowed_student_ids = []
+			else:
 				# Crossing student's enrollment data with teacher's teaching data.		
 				query = """SELECT en.student_id FROM ims_teaching AS tea
 						LEFT JOIN ims_enrollment AS en ON en.group_id = tea.group_id AND en.subject_id = tea.subject_id AND tea.group_id=%d""" % rec.group_id.id
@@ -99,6 +104,7 @@ class ims_attendance_report_student_wizard(models.TransientModel):
 				
 				self.env.cr.execute(query)		
 				student_ids = list(map(lambda x: x[0], self.env.cr.fetchall()))
+				student_ids = list(filter(lambda x: x is not None, student_ids))
 
 				rec.allowed_student_ids = self.env["res.partner"].browse(student_ids)
 
@@ -256,22 +262,21 @@ class ims_attendance_report_group(models.AbstractModel):
 	_name = 'report.ims.attendance_report_group'
 	_description = "Attendance report data: by group."
 		
-	# TODO: this is just a copy/paste, should be properly implemented!
 	def _get_report_values(self, docids, data=None):
 		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
 		entries = list(self.env["ims.attendance_status"].browse(data['status_ids']))
 		main = _report_data(entries)
 
-		grp_by_student = {}
+		grp_by_subject = {}
 		for e in entries:
-			key = e.student_id
-			if not key in grp_by_student: grp_by_student[key] = []
-			values = grp_by_student[key]
+			key = e.attendance_session_id.subject_id
+			if not key in grp_by_subject: grp_by_subject[key] = []
+			values = grp_by_subject[key]
 			values.append(e)
 
 		lines = {}
-		for s in grp_by_student:
-			lines[s] = _report_data(grp_by_student[s])
+		for s in grp_by_subject:
+			lines[s] = _report_data(grp_by_subject[s])
 				
 		return {
 			'doc_ids': docids,

@@ -1,0 +1,30 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_planning_form">
+            <field name="name">ims.planning.form</field>
+            <field name="model">ims.planning</field>
+            <field name="arch" type="xml">				
+                <form string="planning">                   
+                    <sheet>                        
+                        <group string="Main data" col="4">
+                            <group colspan="4">                                
+                                <field name="subject_id" />
+                            </group>                            
+                        </group>
+                        
+                        <notebook>    
+                            <page string="Outcome ponderation">
+                                <field name="planning_outcome_ids" widget="one2many" context="{'default_planning_id': id}" >
+                                    <list editable="bottom" default_order="outcome_id asc">
+                                        <field name="outcome_id" domain="[('id','in', valid_outcome_ids)]"/>
+                                        <field name="ponderation" width="200px"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

@@ -2,6 +2,6 @@
 <odoo>
     <data>   
         <!-- Root menu items only -->
-        <menuitem name="Attendance" sequence="3" id="menu_attendance" />
+        <menuitem name="Planning and Grading" sequence="2" id="menu_planning" />
     </data>
 </odoo>

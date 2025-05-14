@@ -4,7 +4,7 @@ from odoo import models, fields, api
 
 class ims_teaching(models.Model):
 	_name = "ims.teaching"
-	_description = "Teaching: ternary relation between teacher-group-uf."	
+	_description = "Teaching: ternary relation between teacher-group-subject."	
 	_sql_constraints = [
 		('ims_teaching_unique', 
 		'unique(teacher_id, group_id, subject_id)',

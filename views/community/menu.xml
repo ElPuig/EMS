@@ -12,6 +12,6 @@
             <field name="context"> {'default_contact_type': 'student'} </field>
         </record>
         
-        <menuitem name="Educational Community" id="menu_community" action="action_student_kanban"/> 
+        <menuitem name="Educational Community" sequence="1" id="menu_community" action="action_student_kanban"/> 
     </data>
 </odoo>

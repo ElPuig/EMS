@@ -7,9 +7,9 @@ class ims_planning_outcome(models.Model):
 	_name = "ims.planning_outcome"
 	_description = "Planning's outcome ponderation: self explanatory."
 
-	planning_id = fields.Many2one(string="Planning", comodel_name="ims.planning", required=True)
+	planning_id = fields.Many2one(string="Planning", comodel_name="ims.planning", required=True, ondelete='cascade')
 	outcome_id = fields.Many2one(string="Outcome", comodel_name="ims.outcome", required=True)
-	ponderation = fields.Integer(string="Ponderation (%)", required=True)
+	ponderation = fields.Float(string="Ponderation (%)", required=True)
 	valid_outcome_ids = fields.One2many('ims.outcome', related='planning_id.subject_id.outcome_ids', store=False) 	
 
 	@api.constrains("ponderation")

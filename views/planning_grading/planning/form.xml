@@ -7,7 +7,8 @@
                 <form string="planning">                   
                     <sheet>                        
                         <group string="Main data" col="4">
-                            <group colspan="4">                                
+                            <group colspan="4">            
+                                <!-- TODO: hide already in use subject? Maybe not needed...  -->
                                 <field name="subject_id" />
                             </group>                            
                         </group>

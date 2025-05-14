@@ -17,6 +17,7 @@ class ims_planning(models.Model):
 	# teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", required=True, domain="[('employee_type', '=', 'teacher')]")
 	name = fields.Char(string="Name", related='subject_id.display_name', store=True)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required=True)
+	#TODO: also studies! (same subject but for different studies has different plannings)
 	planning_outcome_ids = fields.One2many(string="Outcome ponderation", comodel_name="ims.planning_outcome", inverse_name="planning_id")
 
 	@api.constrains("planning_outcome_ids")

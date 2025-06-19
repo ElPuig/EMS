@@ -4,60 +4,70 @@
             <field name="code">0.13</field>
             <field name="name">Chomsky</field>
             <field name="space_type_id" ref="space_type_1"/>
+            <field name="work_location_id" ref="ims.work_location_main"/>
         </record>
 
         <record id="space_2" model="ims.space">
             <field name="code">0.19</field>
             <field name="name">Tesla</field>
             <field name="space_type_id" ref="space_type_1"/>
+            <field name="work_location_id" ref="ims.work_location_main"/>
         </record>
 
         <record id="space_3" model="ims.space">
             <field name="code">0.18</field>
             <field name="name">Torvalds</field>
             <field name="space_type_id" ref="space_type_1"/>
+            <field name="work_location_id" ref="ims.work_location_main"/>
         </record>
 
         <record id="space_4" model="ims.space">
             <field name="code">0.01</field>
             <field name="name">Stallman</field>
             <field name="space_type_id" ref="space_type_1"/>
+            <field name="work_location_id" ref="ims.work_location_main"/>
         </record>
 
         <record id="space_5" model="ims.space">
             <field name="code">2.08</field>
             <field name="name">Berners-Lee</field>
             <field name="space_type_id" ref="space_type_1"/>
+            <field name="work_location_id" ref="ims.work_location_main"/>
         </record>
 
         <record id="space_6" model="ims.space">
             <field name="code">2.10</field>
             <field name="name">Ada</field>
             <field name="space_type_id" ref="space_type_1"/>
+            <field name="work_location_id" ref="ims.work_location_main"/>
         </record>
 
         <record id="space_7" model="ims.space">
             <field name="code">2.09</field>
             <field name="name">Snowden</field>
             <field name="space_type_id" ref="space_type_1"/>
+            <field name="work_location_id" ref="ims.work_location_main"/>
         </record>
 
         <record id="space_8" model="ims.space">
             <field name="code">3.03</field>
             <field name="name">Turing</field>
             <field name="space_type_id" ref="space_type_1"/>
+            <field name="work_location_id" ref="ims.work_location_main"/>
         </record>
 
         <record id="space_9" model="ims.space">
             <field name="code">-1.03</field>
             <field name="name">Gym</field>
             <field name="space_type_id" ref="space_type_2"/>
+            <field name="work_location_id" ref="ims.work_location_main"/>
         </record>
 
          <record id="space_10" model="ims.space">
             <field name="code">1.12</field>
             <field name="name">Principal's office</field>
             <field name="space_type_id" ref="space_type_4"/>
+            <field name="work_location_id" ref="ims.work_location_main"/>
         </record>
     </data>
 </odoo>

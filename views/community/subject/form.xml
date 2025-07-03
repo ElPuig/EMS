@@ -48,25 +48,27 @@
                                 </field>
                             </page>
 
-                            <page string="Composite">
+                            <!-- Sub-subject behaviour has been developed but not properly tested. Maybe would be better to displable it and reduce unneeded complexities? -->
+                            <!-- <page string="Composite">
                                 <field name="subject_ids" widget="one2many" context="{'default_subject_id': id, 'default_study_ids': study_ids, 'default_code': code}">
                                     <list editable="bottom" default_order="code asc, acronym asc, name asc">
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>
-                                        <button class="oe_stat_button" title="Edit Subject" icon="fa-pencil-square-o" name="open_form" type="object" /> 
+                                        <button class="oe_stat_button" title="Edit Subject" icon="fa-pencil-square-o" name="open_form" type="object" />  -->
 
                                         <!-- Needed but hidden for filtering purposes -->
-                                        <field name="subject_id" column_invisible="True"/>
+                                        <!-- <field name="subject_id" column_invisible="True"/>
                                         <field name="level"  column_invisible="True"/>
                                         <field name="study_ids" column_invisible="True"/>
                                     </list>
                                 </field>
-                            </page>
+                            </page> -->
 
                             <page string="Learning Outcome" invisible="not last">
-                                <field name="outcome_ids" widget="one2many" context="{'default_subject_id': id}">
+                                <field name="outcome_ids" widget="one2many" context="{'default_subject_id': id, 'default_code': code}">
                                     <list editable="bottom" default_order="acronym asc, name asc">
+                                        <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>    
                                         <button class="oe_stat_button" title="Edit Learning Outcome" icon="fa-pencil-square-o" name="open_form" type="object" /> 

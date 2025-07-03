@@ -8,20 +8,38 @@
                     <sheet>                        
                         <group string="Main data" col="6">                            
                             <group>
+                                <field name="code"/>
+                            </group>
+                            <group>
                                 <field name="acronym"/>
                             </group>
                             <group colspan="4">							
-                                <field name="name"/>
+                                <field name="name"/>                                                                
                             </group>                            
                         </group>
                         
-                        <notebook>                           
-                            <page string="Composite">
+                        <notebook>               
+                        	<!-- # Recursive outcome should be allowed? I guess it's better to avoid extra complexities... -->            
+                            <!-- <page string="Composite">
                                 <field name="outcome_ids" widget="one2many" context="{'default_outcome_id': id}">
                                     <list editable="bottom" default_order="acronym asc, name asc">
                                         <field name="acronym"/>
                                         <field name="name"/>                                               
-                                        <button class="oe_stat_button" title="Edit outcome" icon="fa-pencil-square-o" name="open_form" type="object" />
+                                        <button class="oe_stat_button" title="Edit outcome" icon="fa-pencil-square-o" name="open_form" type="object" /> -->
+
+                                        <!-- Needed but hidden for filtering purposes -->
+                                        <!-- <field name="outcome_id" column_invisible="True"/>                                                                                
+                                    </list>
+                                </field>
+                            </page> -->
+
+                            <page string="Evaluation criteria">
+                                <field name="criteria_ids" widget="one2many" context="{'default_outcome_id': id, 'default_code': code}">
+                                    <list editable="bottom" default_order="acronym asc, name asc">
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>                                               
+                                        <button class="oe_stat_button" title="Edit criteria" icon="fa-pencil-square-o" name="open_form" type="object" />
 
                                         <!-- Needed but hidden for filtering purposes -->
                                         <field name="outcome_id" column_invisible="True"/>                                                                                

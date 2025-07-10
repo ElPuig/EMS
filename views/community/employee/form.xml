@@ -76,9 +76,9 @@
 
                 <xpath expr="//group[@name='identification_group']" position="attributes">
                     <attribute name="string">Attendance</attribute>
-                </xpath>       
-                
-               <xpath expr="//notebook" position="inside">
+                </xpath>   
+
+                <xpath expr="//notebook" position="inside">
                     <page string="Teaching" invisible="employee_type == 'asp'">
                         <group string="Tutorships">
                             <field name="tutorship_ids" widget="many2many_tags" nolabel="1" />
@@ -98,6 +98,18 @@
                     </page>                     
                 </xpath>              
             </field>		      
-        </record>   
+        </record>  
+
+        <!-- Hiding the attendace aprovers section -->
+        <record model="ir.ui.view" id="view_employee_form_inherit_hr_attendance">
+            <field name="name">ims.employee_form_inherit_hr_attendance.form</field>
+            <field name="model">hr.employee</field>            
+            <field name="inherit_id" ref="hr_attendance.view_employee_form_inherit_hr_attendance"/> 
+            <field name="arch" type="xml">        
+                <xpath expr="//group[@name='managers']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>          
+            </field>
+        </record>
     </data>
 </odoo>

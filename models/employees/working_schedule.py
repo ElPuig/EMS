@@ -12,3 +12,9 @@ class ims_working_schedule(models.Model):
 class ims_working_schedules_import_wizard(models.TransientModel):
 	_name = "ims.working_schedules_import_wizard"
 	_description = "Working schedules: import wizard."
+
+	attachment_id = fields.Many2one(string="Attachment", comodel_name="ir.attachment", domain="[('res_model', '=', 'ims.working_schedules_import_wizard')]")
+	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")
+
+	def import_planner_data(self):	
+		raise ValidationError("HOLA")

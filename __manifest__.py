@@ -83,6 +83,8 @@
                         
             'views/community/work_location/menu.xml',
             'views/community/employmenttypes/menu.xml',        
+            
+            'views/community/working_schedules/import_wizard.xml',
             'views/community/working_schedules/menu.xml',
 
             'views/community/subject/list.xml',

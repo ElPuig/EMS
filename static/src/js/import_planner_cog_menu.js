@@ -22,7 +22,16 @@ export class ImportPlannerCogMenu extends Component {
         //https://www.odoo.com/ca_ES/forum/ajuda-1/unable-to-display-cogmenuitem-only-in-specific-views-276153
         //https://www.odoo.com/ca_ES/forum/ajuda-1/call-a-python-method-from-owl-javascript-v16-236218
         //let data = this.orm.call("resource.calendar", "action_import_planner_data", [ ]);
-        this.orm.call("resource.calendar", "action_import_planner_data", [[]]);
+        //this.orm.call("resource.calendar", "action_import_planner_data", [[]]);
+        this.action.doAction({
+            name: "Import: planner data",
+            type: "ir.actions.act_window",
+            res_model: "ims.working_schedules_import_wizard",
+            res_id: false,
+            views: [[false, "form"]],   
+            view_mode: "form",
+            target: "new",
+        });  
     };
 }
 

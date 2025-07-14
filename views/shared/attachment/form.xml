@@ -4,13 +4,14 @@
             <field name="name">ims.attachment.form</field>
             <field name="model">ir.attachment</field>
             <field name="arch" type="xml">     
+                <!-- TODO: display all the fields (use the original form) when opening from "thecnical / attachments" -->
                 <form string="Attachment">
                     <sheet>                        
                         <group>
                             <field name="name"/>
                         </group>
                         <group>
-                            <field name="datas"/>
+                            <field name="datas" string="file"/>
                         </group>
                         <group>
                             <!-- Setup from the origin treeview (like in study's form). -->

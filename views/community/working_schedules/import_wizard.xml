@@ -4,31 +4,13 @@
             <field name="name">ims.working_schedules_import.wizard</field>
             <field name="model">ims.working_schedules_import_wizard</field>
             <field name="arch" type="xml">
-                <form string="Session">                       
-                    <group col="2">         
-                        <group>
-                            <field name="level_id" readonly="False" />
-                            <field name="group_id" readonly="study_id == False" domain="[('study_id','=', study_id)]" />
-                        </group>
-                        <group>
-                            <field name="study_id" readonly="level_id == False" domain="[('level_id','=', level_id)]" />
-                            <field name="tutor_id" />
-                        </group>
-
-                        <group colspan="2">      
-                            <field name="subject_id" readonly="group_id == False" domain="[('id','in', allowed_subject_ids)]"/>
-                        </group>
-
-                        <group>
-                            <field name="from_date" />
-                        </group>
-                        <group>
-                            <field name="to_date" />
-                        </group>
+                <form string="Session">     
+                    <group>
+                         <field name="file" readonly="False" options="{'accepted_file_extensions': '.xml'}"/>
                     </group>
 
                     <footer>
-                        <button name="print" string="Print" type="object" class="btn-primary" icon="fa-print" />
+                        <button name="import_planner_data" string="Import" type="object" class="btn-primary" icon="fa-calendar-plus-o" invisible="file == False" />
                         <button name="cancel" string="Cancel" special="cancel"/>
                     </footer>
                 </form>              

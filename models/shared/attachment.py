@@ -4,12 +4,6 @@ from odoo import models, fields, api
 
 class ims_attachment(models.Model):
 	_inherit = 'ir.attachment'
-	#_name = "ims.attachment"
-	#_description = "Attachment file."
-	
-	# name = fields.Char(string="Name", required=True)
-	# file = fields.Binary(string="File", required=True)
-	# domain = fields.Char(string="Domain") # Used to filter the atachment by model, empty means "for all"
 
 	def download(self):        
 		return {

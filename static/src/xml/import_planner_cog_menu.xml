@@ -2,7 +2,7 @@
 <templates xml:space="preserve">
     <t t-name="cog_menu.ImportPlannerCogMenu">
         <DropdownItem class="'o_new_cog_menu'" onSelected.bind="onClickCogMenu">
-            Import planner data (XML)
+            <i class="fa fa-fw fa-calendar-plus-o me-1"></i> Import planner data (XML)
         </DropdownItem>
     </t>
 </templates>

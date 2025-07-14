@@ -17,7 +17,8 @@ class ims_study(models.Model):
     subject_ids = fields.Many2many(string="Subjects", comodel_name="ims.subject") 
     level_id = fields.Many2one(string="Level", comodel_name="ims.level")
 
-    attachment_ids = fields.Many2many(string="Attached files", comodel_name="ims.attachment", domain="['|',('domain', '=', 'ims.study'),('domain', '=', '')]") # Attachment for this model or for all the models (empty domain). TODO: allow multiple values (if needed).
+    #attachment_ids = fields.Many2many(string="Attached files", comodel_name="ims.attachment", domain="['|',('domain', '=', 'ims.study'),('domain', '=', '')]") # Attachment for this model or for all the models (empty domain). TODO: allow multiple values (if needed).
+    attachment_ids = fields.Many2many(string="Attached files", comodel_name="ir.attachment", domain="[('res_model', '=', 'ims.study')]")
     
     @api.depends('acronym', 'name')
     def _compute_display_name(self):              

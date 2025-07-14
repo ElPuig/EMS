@@ -1,3 +1,3 @@
 id,code,acronym,name,level_id:id,date,deprecated,attachment_ids:id,subject_ids:id
-"ims.study_dam_2024","ICB0","DAM","Desenvolupament d'aplicacions multiplataforma","ims.level_cfgs","2013-12-05","","ims.boe_123_20100520,ims.dogc_6516_20131205,ims.mp_ICB0_dam_20240424,ims.orien_ICB0_dam_20240424","ims.subject_0485,ims.subject_0487"
-"ims.study_daw_2024","ICC0","DAW","Desenvolupament d'aplicacions web","ims.level_cfgs","2024-09-01","","ims.boe_143_20100612,ims.dogc_6958_20150917,ims.mp_ICC0_daw_20240424,ims.orien_ICC0_daw_20240424","ims.subject_0485,ims.subject_0487"
+"ims.study_dam_2024","ICB0","DAM","Desenvolupament d'aplicacions multiplataforma","ims.level_cfgs","2013-12-05","","ims.boe_123_20100520_v1,ims.dogc_6516_20131205_v1,ims.mp_ICB0_dam_20240424_v1,ims.orien_ICB0_dam_20240424_v1","ims.subject_0485,ims.subject_0487"
+"ims.study_daw_2024","ICC0","DAW","Desenvolupament d'aplicacions web","ims.level_cfgs","2024-09-01","","ims.boe_143_20100612_v1,ims.dogc_6958_20150917_v1,ims.mp_ICC0_daw_20240424_v1,ims.orien_ICC0_daw_20240424_v1","ims.subject_0485,ims.subject_0487"

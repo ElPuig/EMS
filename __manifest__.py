@@ -168,7 +168,7 @@
         'data/main/ims.space_type.csv',    
         'data/main/hr.work.location.csv',    
 
-        'data/cat/ims.attachment.csv',
+        'data/cat/ir.attachment.csv',
         'data/cat/ims.subject.csv',
         'data/cat/ims.level.csv',
         'data/cat/ims.study.csv',

@@ -7,7 +7,7 @@
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_1"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
         <record id="study_12" model="ims.study">
@@ -17,7 +17,7 @@
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_1"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
         <record id="study_21" model="ims.study">
@@ -27,7 +27,7 @@
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_2"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
         <record id="study_22" model="ims.study">
@@ -37,7 +37,7 @@
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_2"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
         <record id="study_31" model="ims.study">
@@ -47,7 +47,7 @@
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_3"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
         <record id="study_32" model="ims.study">
@@ -57,7 +57,7 @@
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_3"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
         
         <record id="study_41" model="ims.study">
@@ -67,7 +67,7 @@
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_4"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
 
         <record id="study_42" model="ims.study">
@@ -77,7 +77,7 @@
             <field name="date">2013-12-05</field>
             <field name="deprecated">false</field>
             <field name="level_id" ref="level_4"/>
-            <field name="attachment_ids" eval="[(6, 0, [ ref('ims.attachment_1'), ref('ims.attachment_2')])]"/>             
+            <field name="attachment_ids" eval="[(6, 0, [ ref('ir.attachment_1'), ref('ir.attachment_2')])]"/>             
         </record>
     </data>
 </odoo>

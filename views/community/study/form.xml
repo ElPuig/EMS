@@ -42,8 +42,8 @@
                                 </field>
                             </page>
 
-                             <page string="Attached files">
-                                <field name="attachment_ids" default_order="name asc" context="{'default_domain': 'ims.study'}">
+                            <page string="Attached files">
+                                <field name="attachment_ids" default_order="name asc" context="{'default_res_model': 'ims.study'}">
                                      <list default_order="name asc">
                                         <field name="name" />
                                         <button class="btn btn-secondary fa fa-download" title="Download File" name="download" type="object" />

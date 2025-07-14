@@ -2,7 +2,7 @@
     <data>
         <record model="ir.ui.view" id="view_attachment_form">
             <field name="name">ims.attachment.form</field>
-            <field name="model">ims.attachment</field>
+            <field name="model">ir.attachment</field>
             <field name="arch" type="xml">     
                 <form string="Attachment">
                     <sheet>                        
@@ -10,11 +10,11 @@
                             <field name="name"/>
                         </group>
                         <group>
-                            <field name="file"/>
+                            <field name="datas"/>
                         </group>
                         <group>
                             <!-- Setup from the origin treeview (like in study's form). -->
-                            <field name="domain" invisible="1"/>
+                            <field name="res_model" invisible="1"/>
                         </group>
                     </sheet>     
                 </form>

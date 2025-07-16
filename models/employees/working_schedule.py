@@ -9,15 +9,9 @@ import base64
 
 class ims_working_schedule(models.Model):
 	_inherit = 'resource.calendar'
-	
-	# @api.model_create_multi
-	# def create(self, values):
-	# 	for item in values:
-	# 		email = item.get('email')
-	# 		teacher = self.env["hr.employee"].search([("work_email", "=", email)])
-	# 		self.name = "%s (%s-%s)" % (teacher.name, datetime.now().year, datetime.now().year+1)
-		
-	# 	return self.with_context()
+	_sql_constraints = [
+		('unique_name', 'unique (name)', 'duplicated calendar!')
+    ]
 
 class ims_working_schedules_import_wizard(models.TransientModel):
 	_name = "ims.working_schedules_import_wizard"
@@ -31,17 +25,13 @@ class ims_working_schedules_import_wizard(models.TransientModel):
 			'type': 'ir.actions.client',
 			'tag': 'soft_reload',
 		}
-		# return {
-		# 	'view_type': 'form', 
-		# 	'view_mode': 'list', 						
-		# 	'res_model': 'resource.calendar', 			
-		# 	'type': 'ir.actions.act_window', 					
-		# 	'target': 'main',
-		# }
 	
 	@api.model_create_multi
 	def create(self, values):
 		data = []
+		course_id =  self.env['ir.config_parameter'].sudo().get_param('ims.course_id')
+		current_course = self.env["ims.course"].search([("id", "=", course_id)])
+		
 		for item in values:
 			if 'file' not in item or not item.get('file'):
 				raise ValidationError("No XML file has been loaded. Please, provide an XML file and try again.")
@@ -53,16 +43,13 @@ class ims_working_schedules_import_wizard(models.TransientModel):
 				root = tree.getroot()
 				for teacherNode in root:					
 					email = teacherNode.attrib['name'].split(' ')[0]
-					teacher = self.env["hr.employee"].search([("work_email", "=", email)])
-					# TODO: attach to a teacher and also to the current course (should be created in settings).
-					#		the name must be computed automatically.
-					#		teacher+course should be unique
+					teacher = self.env["hr.employee"].search([("work_email", "=", email)])										
 					schedule = self.env['resource.calendar'].create({
-						'name': "%s (%s-%s)" % (teacher.name, datetime.now().year, datetime.now().year+1),
+						'name': "%s (%s)" % (teacher.name, current_course.name),
 						'full_time_required_hours': 24
 					})
 					entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.
-					data.append(schedule)
+					data.append(schedule)						
 
 					for dayNode in teacherNode:
 						# 0: Monday; 1: Tuesday as today.weekday() does.
@@ -101,7 +88,11 @@ class ims_working_schedules_import_wizard(models.TransientModel):
 					
 					schedule.write({
 						'attendance_ids': entries
-					})  		
+					})  
+					
+					teacher.write({
+						"resource_calendar_id": schedule
+					})		
 		return super(models.Model, self).create(values)			
 				
 	def _conv_time_float(self, value):

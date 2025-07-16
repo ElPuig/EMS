@@ -54,10 +54,14 @@ class ims_working_schedules_import_wizard(models.TransientModel):
 				for teacherNode in root:					
 					email = teacherNode.attrib['name'].split(' ')[0]
 					teacher = self.env["hr.employee"].search([("work_email", "=", email)])
+					# TODO: attach to a teacher and also to the current course (should be created in settings).
+					#		the name must be computed automatically.
+					#		teacher+course should be unique
 					schedule = self.env['resource.calendar'].create({
-						'name': "%s (%s-%s)" % (teacher.name, datetime.now().year, datetime.now().year+1) # TODO: get the current course data when defined in settings.						
+						'name': "%s (%s-%s)" % (teacher.name, datetime.now().year, datetime.now().year+1),
+						'full_time_required_hours': 24
 					})
-					entries = []
+					entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.
 					data.append(schedule)
 
 					for dayNode in teacherNode:
@@ -76,7 +80,7 @@ class ims_working_schedules_import_wizard(models.TransientModel):
                                     "dayofweek": str(dayofweek),
                                     "day_period": day_period,
 									"hour_from": self._conv_time_float(start),
-									"hour_to": self._conv_time_float(close,1)
+									"hour_to": self._conv_time_float(close)
                                 }])
 								start = None
 
@@ -100,18 +104,10 @@ class ims_working_schedules_import_wizard(models.TransientModel):
 					})  		
 		return super(models.Model, self).create(values)			
 				
-	def _conv_time_float(self, value, offset=0):
+	def _conv_time_float(self, value):
 		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236
 		vals = value.split(':')
 		t, hours = divmod(float(vals[0]), 24)
-		t, minutes = divmod(float(vals[1]), 60)
-		
-		if offset > 0:
-			if minutes == 0:
-				minutes = 59
-				hours -= 1
-			else:
-				minutes -= 1
-		
+		t, minutes = divmod(float(vals[1]), 60)				
 		minutes = (minutes) / 60.0
 		return hours + minutes

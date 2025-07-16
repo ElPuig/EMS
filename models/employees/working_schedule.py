@@ -9,23 +9,39 @@ import base64
 
 class ims_working_schedule(models.Model):
 	_inherit = 'resource.calendar'
-
-	def action_import_planner_data(self):
-		raise ValidationError("HOLA")
+	
+	# @api.model_create_multi
+	# def create(self, values):
+	# 	for item in values:
+	# 		email = item.get('email')
+	# 		teacher = self.env["hr.employee"].search([("work_email", "=", email)])
+	# 		self.name = "%s (%s-%s)" % (teacher.name, datetime.now().year, datetime.now().year+1)
+		
+	# 	return self.with_context()
 
 class ims_working_schedules_import_wizard(models.TransientModel):
 	_name = "ims.working_schedules_import_wizard"
 	_description = "Working schedules: import wizard."
 
 	attachment_id = fields.Many2one(string="Attachment", comodel_name="ir.attachment", domain="[('res_model', '=', 'ims.working_schedules_import_wizard')]")
-	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")
+	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")	
 
-	def import_planner_data(self):	
-		for rec in self:			
-			raise ValidationError("HOLA")
-		
+	def import_planner_data(self):
+		return {
+			'type': 'ir.actions.client',
+			'tag': 'soft_reload',
+		}
+		# return {
+		# 	'view_type': 'form', 
+		# 	'view_mode': 'list', 						
+		# 	'res_model': 'resource.calendar', 			
+		# 	'type': 'ir.actions.act_window', 					
+		# 	'target': 'main',
+		# }
+	
 	@api.model_create_multi
 	def create(self, values):
+		data = []
 		for item in values:
 			if 'file' not in item or not item.get('file'):
 				raise ValidationError("No XML file has been loaded. Please, provide an XML file and try again.")
@@ -42,7 +58,8 @@ class ims_working_schedules_import_wizard(models.TransientModel):
 						'name': "%s (%s-%s)" % (teacher.name, datetime.now().year, datetime.now().year+1) # TODO: get the current course data when defined in settings.						
 					})
 					entries = []
-					
+					data.append(schedule)
+
 					for dayNode in teacherNode:
 						# 0: Monday; 1: Tuesday as today.weekday() does.
 						dayofweek = int(dayNode.attrib['name'].split(' ')[0]) - 1						
@@ -80,9 +97,8 @@ class ims_working_schedules_import_wizard(models.TransientModel):
 					
 					schedule.write({
 						'attendance_ids': entries
-					})  
-
-		return None
+					})  		
+		return super(models.Model, self).create(values)			
 				
 	def _conv_time_float(self, value, offset=0):
 		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236

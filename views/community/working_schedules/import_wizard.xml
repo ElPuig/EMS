@@ -10,7 +10,7 @@
                     </group>
 
                     <footer>
-                        <button name="import_planner_data" string="Import" type="object" class="btn-primary" icon="fa-calendar-plus-o" invisible="file == False" special="save" />
+                        <button name="import_planner_data" string="Import" type="object" class="btn-primary" icon="fa-calendar-plus-o" invisible="file == False" />
                         <button name="cancel" string="Cancel" special="cancel"/>
                     </footer>
                 </form>              

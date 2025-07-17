@@ -2,7 +2,6 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
-from datetime import datetime
 import xml.etree.ElementTree as ET
 import base64
 
@@ -12,6 +11,14 @@ class ims_working_schedule(models.Model):
 	_sql_constraints = [
 		('unique_name', 'unique (name)', 'duplicated calendar!')
     ]
+
+class ims_working_schedule_assignation(models.Model):
+	_inherit = 'resource.calendar.attendance'
+	# NOTE: no need to constraint, the main model avoids overlapping. 
+
+	subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject")
+	group_id = fields.Many2one(string="Group", comodel_name="ims.group")
+
 
 class ims_working_schedules_import_wizard(models.TransientModel):
 	_name = "ims.working_schedules_import_wizard"
@@ -67,7 +74,9 @@ class ims_working_schedules_import_wizard(models.TransientModel):
                                     "dayofweek": str(dayofweek),
                                     "day_period": day_period,
 									"hour_from": self._conv_time_float(start),
-									"hour_to": self._conv_time_float(close)
+									"hour_to": self._conv_time_float(close),
+									"subject_id": subject.id,
+									"group_id": group.id
                                 }])
 								start = None
 

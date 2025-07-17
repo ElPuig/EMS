@@ -11,8 +11,9 @@
                     <field name="code"/>
                     <field name="acronym"/>
                     <field name="name" class="w-75"/>
+                    <field name="study_acronym" string="Study"/>
                     <!-- Hidden but needed to filter or display properly -->
-                    <field name="study_id" column_invisible="True"/>  
+                    <field name="study_id" column_invisible="True"/>
                     <field name="level" column_invisible="True"/>
                     <field name="subject_id" column_invisible="True"/>  
                 </list>              

@@ -155,6 +155,7 @@ class ims_subject_view(models.Model):
     name = fields.Char(string="Name", required=True)
     study_id = fields.Many2one(string="Study", comodel_name="ims.study")
     subject_id = fields.Many2one(string="Subject", comodel_name="ims.subject", required=True)
+    study_acronym = fields.Char(string="Study's acronym", related="study_id.acronym")
     
     def unlink(self, avoidCircular=False): 
         # This can be called from the list view, which means the user wants to remove a subject, so both subject_view and subject must be removed.

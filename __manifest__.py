@@ -170,7 +170,12 @@
         'data/main/ims.space_type.csv',    
         'data/main/hr.work.location.csv',    
 
-        'data/cat/ir.attachment.csv',
+        'data/cat/attachments/asix/ir.attachment.csv',
+        'data/cat/attachments/dam/ir.attachment.csv',
+        'data/cat/attachments/daw/ir.attachment.csv',
+        'data/cat/attachments/dev/ir.attachment.csv',
+        'data/cat/attachments/smx/ir.attachment.csv',
+        
         'data/cat/ims.subject.csv',
         'data/cat/ims.level.csv',
         'data/cat/ims.study.csv',

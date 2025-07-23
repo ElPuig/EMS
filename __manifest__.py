@@ -137,10 +137,11 @@
             'views/attendance/attendance_session/form.xml',
             'views/attendance/attendance_session/calendar.xml',
             'views/attendance/attendance_session/menu.xml',
+            'views/attendance/attendance_session/justification_wizard.xml',            
 
             'views/attendance/attendance_status/list.xml',
             'views/attendance/attendance_status/form.xml',
-            'views/attendance/attendance_status/menu.xml',       
+            'views/attendance/attendance_status/menu.xml',                   
 
             'views/attendance/attendance_schedule/form.xml',
 

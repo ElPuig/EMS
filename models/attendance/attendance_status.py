@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import logging
+
+_logger = logging.getLogger(__name__)
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
 #		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
@@ -32,12 +34,18 @@ class ims_attendance_status(models.Model):
 		# Note: this is used within the 'details_table' template in order to render custom fields.		
 		return eval(field)
 
+
+	@api.depends('attendance_session_id', 'student_id')
+	def _compute_display_name(self):              
+		for rec in self:
+            # rec.display_name = "%s | %s | %s" % (rec.attendance_schedule_id.display_name, rec.date, rec.space_id.name)
+			rec.display_name = "%s | %s" % (rec.attendance_session_id.display_name, rec.student_id.display_name)
+    
+
 class ims_absence_bulk_justification_wizard(models.TransientModel):
     _name = 'ims.absence_bulk_justification_wizard'
     _description = 'Attendance: Bulk justification wizard'
-
-    # target_model = fields.Char(default=lambda self: self.env.context.get('default_target_model'))
-
+    
     initial_selection = fields.Many2many(
         'ims.attendance_status',
         string='Initial selection',
@@ -45,17 +53,20 @@ class ims_absence_bulk_justification_wizard(models.TransientModel):
     )
     
     def _get_default_initial_selection(self):
-        # return self.env.context.get('default_initial_selection', False)
         return self.env['ims.attendance_status'].browse(
             self.env.context.get('active_ids', [])
         )
 
     # Filters
-    name_filter = fields.Char(string='Student name contains')
-    email_filter = fields.Char(string='Student email contains')
+    # name_filter = fields.Char(string='Student name contains')
+    # email_filter = fields.Char(string='Student email contains')
+    student_id = fields.Many2one(
+        'res.partner',  
+        string='Select student',
+        domain="[('contact_type', '=', 'student')]",
+    )
     date_start = fields.Date(string='Date (from)')
     date_end = fields.Date(string='Date (to)')
-    # TODO: Filter absences only
 
     # Filtered results
     statuses_ids = fields.Many2many(
@@ -75,55 +86,54 @@ class ims_absence_bulk_justification_wizard(models.TransientModel):
         column2='attendance_status_id'
     )
 
-    @api.onchange('name_filter', 'email_filter', 'date_start', 'date_end')
+    @api.onchange('student_id', 'date_start', 'date_end')
     def _onchange_filters(self):
-        if any([self.name_filter, self.email_filter, self.date_start, self.date_end]):
+        if any([self.student_id, self.date_start, self.date_end]):
             self._filter_statuses()
 
     def _filter_statuses(self):
         domain = []
-        if self.name_filter:
-            domain.append(('student_id.name', 'ilike', self.name_filter))
-        if self.email_filter:
-            domain.append(('student_id.email', 'ilike', self.email_filter))
-        if self.date_start and self.date_end:
+        # if self.name_filter:
+        #     domain.append(('student_id.name', 'ilike', self.name_filter))
+        # if self.email_filter:
+        #     domain.append(('student_id.email', 'ilike', self.email_filter))
+        if self.student_id:
+             domain.append(('student_id', '=', self.student_id.id))
+        if self.date_start:
             domain.append(('attendance_session_id.date', '>=', self.date_start))
-            domain.append(('attendance_session_id.date', '<=', self.date_end))
-        elif self.date_start:
-            domain.append(('attendance_session_id.date', '>=', self.date_start))
-        elif self.date_end:
+        if self.date_end:
             domain.append(('attendance_session_id.date', '<=', self.date_end))
 
+        #Only getting unjustified absences
+        domain.append(('status','=', 'm_miss'))
 
         self.statuses_ids = self.env['ims.attendance_status'].search(domain)
         return {
             'type': 'ir.actions.do_nothing',
         }
-
-    def action_select_all(self):
+    
+    def action_select_all(self):        
         self.selected_statuses_ids = self.statuses_ids
-        return {
-            'type': 'ir.actions.do_nothing',
-        }
+        #TODO: Mirar qué acción devolver para que no se pierdan los valores filtrados
+        return {}
 
     def action_deselect_all(self):
         self.selected_statuses_ids = False
-        return {
-            'type': 'ir.actions.do_nothing',
-        }
+        #TODO: Mirar qué acción devolver para que no se pierdan los valores filtrados
+        return {}
 
     def action_confirm(self):
         self.ensure_one()
         if not self.selected_statuses_ids:
             raise UserError(_('You must select at least one element'))
 
-        _logger.info("Selected absences to be bulk action treated")
+        _logger.info(f"Selected {len(self.selected_statuses_ids)} absences to be bulk action treated")
 
         for attendance_status in self.selected_statuses_ids:
-            _logger.info(f"Justifying -> ID: {attendance_status.id}, Nombre: {attendance_status.student_id.name}, Email: {attendance_status.student_id.email}")
-            # TODO llamar al método de justificar
-            # self.selected_statuses_ids.justify()
-        #return {'type': 'ir.actions.act_window_close'}
+            _logger.info(f"Justifying -> ID: {attendance_status.id}, Nombre: {attendance_status.student_id.name}")
+            #Justify every status to "m_justified"
+            attendance_status.status = "m_justified"
+        
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -131,5 +141,9 @@ class ims_absence_bulk_justification_wizard(models.TransientModel):
                 'title': _('Success'),
                 'message': _('%d absences justified') % len(self.selected_statuses_ids),
                 'sticky': False,
-            }
+                'next': { 
+                    'type': 'ir.actions.client',
+                    'tag': 'soft_reload',
+                },
+            },
         }

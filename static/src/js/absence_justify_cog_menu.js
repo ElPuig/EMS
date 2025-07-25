@@ -44,4 +44,4 @@ export const AbsenceJustifyCogMenuItem = {
     },
 };
 
-cogMenuRegistry.add("absence-justify-cog-menu", AbsenceJustifyCogMenu, { sequence: 1 });
+cogMenuRegistry.add("absence-justify-cog-menu", AbsenceJustifyCogMenuItem, { sequence: 1 });

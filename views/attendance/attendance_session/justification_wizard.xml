@@ -1,71 +1,30 @@
 <odoo>
-    <record id="view_justification_wizard_form" model="ir.ui.view">
-        <field name="name">ims.absence_bulk_justification.wizard</field>
+    <record id="view_absence_bulk_justification_wizard_form" model="ir.ui.view">
+        <field name="name">ims.absence_bulk_justification_wizard.form</field>
         <field name="model">ims.absence_bulk_justification_wizard</field>
         <field name="arch" type="xml">
-            <form string="Bulk absence justification">
+            <form string="Bulk Justification">
                 <sheet>
-                    <group string="Filters" colspan="4">
-                        <field name="name_filter" class="oe_filter_input"/>
-                        <field name="email_filter" class="oe_filter_input"/>
-                        <field name="date_start"/>
-                        <field name="date_end"/>                       
+                    <group>
+                        <group>
+                            <field name="student_id"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>                            
+                        </group>                        
                     </group>
-
-                    <group string="Results" invisible="not statuses_ids">
-                        <div class="oe_button_box">
-                            <button name="action_select_all" string="Select All" type="object" class="oe_highlight"/>
-                            <button name="action_deselect_all" string="Deselect All" type="object"/>
-                        </div>
-                        
-                        <field name="statuses_ids" widget="many2many_tags" options="{'no_create': True}"/>
-                        
-                        <label for="selected_statuses_ids" string="Selected:"/>
-                        <field name="selected_statuses_ids" widget="many2many_tags" options="{'no_create': True}"/>
-                    </group>
+                                                                                                    
+                    <field name="selected_statuses_ids" widget="many2many_checkboxes" 
+                           options="{'no_create': True, 'no_open': True}" 
+                           domain="[('id', 'in', statuses_ids)]"/>
+                    
+                    <footer>
+                        <button name="action_confirm" string="Confirm" type="object" class="oe_highlight"/>
+                        <!-- <button name="action_select_all" type="object" string="Select All"/> -->
+                        <!-- <button name="action_deselect_all" type="object" string="Deselect All"/> -->
+                        <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
                 </sheet>
-                <footer>
-                    <button name="action_confirm" string="Justifiy absences" type="object" class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
-                </footer>
             </form>
-        </field>
-    </record>
-
-    <record id="action_open_justification_wizard" model="ir.actions.act_window">
-        <field name="name">Justifiy</field>
-        <field name="res_model">ims.absence_bulk_justification_wizard</field>
-        <field name="view_mode">form, tree</field>
-        <field name="target">new</field>
-        <field name="binding_model_id" ref="model_ims_attendance_session"/>
-        <field name="context">
-            {
-                'default_target_model': 'ims.attendance_status',
-                'active_model': 'ims.attendance_session'
-            }
-        </field>
-    </record>
-
-    <record id="action_bulk_justify" model="ir.actions.server">
-        <field name="name">Absence Justifiy</field>
-        <field name="model_id" ref="model_ims_attendance_status"/>
-        <field name="binding_model_id" ref="model_ims_attendance_status"/>
-        <field name="binding_view_types">list,tree</field>
-        <field name="state">code</field>
-        <field name="code">
-            action = {
-                'type': 'ir.actions.act_window',
-                'name': 'Absence Justifiy',
-                'res_model': 'ims.absence_bulk_justification_wizard',
-                'view_mode': 'form',
-                'target': 'new',
-                'views': [[False, 'form']],
-                'context': {
-                    'default_model': 'model_ims_attendance_status',
-                    'active_ids': context.get('active_ids', []),
-                    'default_initial_selection': [(6, 0, context.get('active_ids', []))]
-                }
-            }
         </field>
     </record>
 </odoo>

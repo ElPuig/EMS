@@ -6,9 +6,9 @@ class ems_enrollment(models.Model):
 	_name = "ems.enrollment"
 	_description = "Enrollment: ternary relation between student-group-uf."	
 
-	student_id = fields.Many2one(string="Student", comodel_name="res.partner", required=True, domain="[('contact_type', '=', 'student')]")	
-	group_id = fields.Many2one(string="Group", comodel_name="ems.group", required=True)	
-	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", required=True)	
+	student_id = fields.Many2one(string="Student", comodel_name="res.partner", required=True, ondelete='cascade', domain="[('contact_type', '=', 'student')]")	
+	group_id = fields.Many2one(string="Group", comodel_name="ems.group", ondelete='cascade', required=True)	
+	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", ondelete='cascade', required=True)	
 	
 	# this field is used to filter the availabe subjects within the view (avoiding the selection of repeated subject in enrolling form).
 	inuse_subject_ids = fields.Many2many('ems.subject', compute='_compute_inuse_subject_ids', store=False) 

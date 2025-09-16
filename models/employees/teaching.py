@@ -11,9 +11,9 @@ class ems_teaching(models.Model):
 		'The ternary "teacher / group / subject" must be unique!')
 	]
 
-	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", required=True, domain="[('employee_type', '=', 'teacher')]")	
-	group_id = fields.Many2one(string="Group", comodel_name="ems.group", required=True)	
-	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", required=True)	
+	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", ondelete='cascade', required=True, domain="[('employee_type', '=', 'teacher')]")	
+	group_id = fields.Many2one(string="Group", comodel_name="ems.group", ondelete='cascade', required=True)	
+	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", ondelete='cascade', required=True)	
 	
 	# this field is used to filter the availabe groups within the view (avoiding the selection of repeated groups for the same subject in teaching form).
 	inuse_group_ids = fields.Many2many('ems.group', compute='_compute_inuse_group_ids', store=False) 

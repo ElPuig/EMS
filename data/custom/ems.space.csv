@@ -4,12 +4,12 @@ __import__.space_001,"0.01","Stallman","ems.space_type_classroom",ems.work_locat
 __import__.space_013,"0.13","Chomsky","ems.space_type_classroom",ems.work_location_main
 __import__.space_018,"0.18","Torvalds","ems.space_type_classroom",ems.work_location_main
 __import__.space_019,"0.19","Tesla","ems.space_type_classroom",ems.work_location_main
-__import__.space_107,"1.07","Classroom 1.07","ems.space_type_office",ems.work_location_main
-__import__.space_109,"1.09","Classroom 1.09","ems.space_type_office",ems.work_location_main
+__import__.space_107,"1.07","Classroom 1.07","ems.space_type_classroom",ems.work_location_main
+__import__.space_109,"1.09","Classroom 1.09","ems.space_type_classroom",ems.work_location_main
 __import__.space_112,"1.12","Principal's office","ems.space_type_office",ems.work_location_main
 __import__.space_204,"2.04","Perlman","ems.space_type_classroom",ems.work_location_main
 __import__.space_207,"2.07","Berners-Lee","ems.space_type_classroom",ems.work_location_main
-__import__.space_208,"2.08","Classroom 2.08","ems.space_type_office",ems.work_location_main
+__import__.space_208,"2.08","Classroom 2.08","ems.space_type_classroom",ems.work_location_main
 __import__.space_209,"2.09","Snowden","ems.space_type_classroom",ems.work_location_main
 __import__.space_210,"2.10","Ada","ems.space_type_classroom",ems.work_location_main
 __import__.space_301,"3.01","Escher","ems.space_type_classroom",ems.work_location_main

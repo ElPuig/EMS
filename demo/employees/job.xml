@@ -1,0 +1,56 @@
+<odoo>
+    <data noupdate="1">     
+        <record id="hr.job_ceo" model="hr.job">
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.job_consultant" model="hr.job">
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.job_developer" model="hr.job">
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.job_marketing" model="hr.job">
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.job_cto" model="hr.job">
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.job_hrm" model="hr.job">
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.job_trainee" model="hr.job">
+            <field name="active">false</field>
+        </record>
+        
+        <record id="job_1" model="hr.job">
+            <field name="name">Teacher (internal)</field>
+            <field name="employee_type">teacher</field>
+        </record>
+
+        <record id="job_2" model="hr.job">
+            <field name="name">Teacher (external)</field>
+            <field name="employee_type">teacher</field>
+        </record>
+
+        <record id="job_3" model="hr.job">
+            <field name="name">Conversational Auxiliary</field>
+            <field name="employee_type">teacher</field>
+        </record>
+
+        <record id="job_4" model="hr.job">
+            <field name="name">Concierje</field>
+            <field name="employee_type">asp</field>
+        </record>
+
+        <record id="job_5" model="hr.job">
+            <field name="name">Secretary</field>
+            <field name="employee_type">asp</field>
+        </record>
+    </data>
+</odoo>

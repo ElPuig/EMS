@@ -1,0 +1,8 @@
+<odoo>
+    <data noupdate="1">     
+        <record id="workgroup_1" model="ems.workgroup">
+            <field name="name">Quality Comission</field>
+            <field name="employee_ids" eval="[(6, 0, [ ref('hr.employee_hne'), ref('hr.employee_fpi'), ref('hr.employee_admin')])]"/>
+        </record>
+    </data>
+</odoo>

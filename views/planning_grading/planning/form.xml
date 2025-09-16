@@ -1,0 +1,43 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_planning_form">
+            <field name="name">ems.planning.form</field>
+            <field name="model">ems.planning</field>
+            <field name="arch" type="xml">				
+                <form string="planning">                   
+                    <sheet>                        
+                        <group string="Main data" col="4">
+                            <group colspan="2">            
+                                <!-- TODO: hide already in use subject? Maybe not needed...  -->
+                                <field name="study_id" />
+                            </group>                            
+                            <group colspan="2">            
+                                <field name="subject_id" readonly="study_id == False" domain="[('id','in', allowed_subject_ids)]" />
+                            </group>                            
+                        </group>
+
+                        <group string="Score ponderation" col="4">
+                            <group colspan="2">            
+                                <field name="internal_ponderation" />
+                            </group>                            
+                            <group colspan="2">            
+                                <field name="external_ponderation" />
+                            </group>                            
+                        </group>
+                        
+                        <notebook>    
+                            <page string="Outcome ponderation">
+                                <field name="planning_outcome_ids" widget="one2many" context="{'default_planning_id': id}" >
+                                    <list editable="bottom" default_order="outcome_id asc">
+                                        <field name="outcome_id" domain="[('id','in', valid_outcome_ids)]"/>
+                                        <field name="ponderation" width="200px"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

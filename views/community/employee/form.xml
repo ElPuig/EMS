@@ -1,0 +1,115 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_employee_form">
+            <field name="name">ems.employee.form</field>
+            <field name="model">hr.employee</field>            
+            <field name="inherit_id" ref="hr.view_employee_form"/> 
+            <field name="arch" type="xml">        
+                <xpath expr="//form" position="attributes">
+                    <attribute name="groups">hr.group_hr_user</attribute>
+                </xpath>           
+                
+                <field name="name" position="replace">
+                    <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->                    
+                    <field name="name" placeholder="Teacher's Name" invisible="employee_type != 'teacher'"/>
+                    <field name="name" placeholder="ASP's Name"     invisible="employee_type != 'asp'"/>
+                </field>
+                
+                <xpath expr="//page[@name='skills_resume']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>  
+
+                <xpath expr="//page[@name='received_badges']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>  
+                
+                <xpath expr="//field[@name='bank_account_id']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//label[@for='distance_home_work']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//div[@name='div_km_home_work']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//page[@name='personal_information']/group/group[2]" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>  
+
+                <xpath expr="//page[@name='personal_information']/group/group[3]" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>   
+
+                <xpath expr="//page[@name='personal_information']/group/group[4]" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>               
+
+                <xpath expr="//page[@name='personal_information']/group" position="inside">
+                    <group string="Emergency">
+                        <field name="emergency_contact"/>
+                        <field name="emergency_phone" class="o_force_ltr"/>
+                    </group>
+                </xpath>  
+
+                <field name="job_title" position="replace">
+                    <field name="job_id" placeholder="Job Position" />
+                </field>
+
+                <field name="category_ids" position="replace">                    
+                    <field name="role_ids" placeholder="Roles" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" />          
+                </field>        
+
+                <field name="coach_id" position="attributes">
+                   <attribute name="invisible">True</attribute>
+                </field>                          
+
+                <field name="employee_type" position="after">
+                    <field name="contract_type_id" />
+                </field>                  
+
+                <xpath expr="//page[@name='hr_settings']" position="attributes">
+                    <attribute name="string">Human Resources</attribute>
+                </xpath>    
+
+                <xpath expr="//group[@name='identification_group']" position="attributes">
+                    <attribute name="string">Attendance</attribute>
+                </xpath>   
+
+                <xpath expr="//notebook" position="inside">
+                    <page string="Teaching" invisible="employee_type == 'asp'">
+                        <group string="Tutorships">
+                            <field name="tutorship_ids" widget="many2many_tags" nolabel="1" />
+                        </group>
+
+                        <group string="Subjects">
+                            <field name="teaching_ids" nolabel="1">
+                                <list editable="bottom" default_order="subject_id asc, group_id asc"
+                                    decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                                    <field name="subject_id" />
+                                    <field name="group_id" domain="[('id','not in', inuse_group_ids)]"/>
+                                    <field name="level" column_invisible="True"/>   
+                                    <field name="inuse_group_ids" column_invisible="True"/>                             
+                                </list>
+                            </field>
+                        </group>
+                    </page>                     
+                </xpath>              
+            </field>		      
+        </record>  
+
+        <!-- Hiding the attendace aprovers section -->
+        <record model="ir.ui.view" id="view_employee_form_inherit_hr_attendance">
+            <field name="name">ems.employee_form_inherit_hr_attendance.form</field>
+            <field name="model">hr.employee</field>            
+            <field name="inherit_id" ref="hr_attendance.view_employee_form_inherit_hr_attendance"/> 
+            <field name="arch" type="xml">        
+                <xpath expr="//group[@name='managers']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>          
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,31 @@
+<odoo>
+    <data>
+        <record id="hr.employee_jep" model="hr.employee">
+            <!-- <field name="department_id" ref="department_2"/> -->
+            <field name="employee_type">asp</field>
+            <field name="job_id" ref="ems.job_4"/>
+            <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+            <field name="department_id" ref="department_5"/>
+            <field name="tz">Europe/Madrid</field>
+        </record>
+
+        <record id="hr.employee_lur" model="hr.employee">
+            <!-- <field name="department_id" ref="department_3"/> -->
+            <field name="employee_type">asp</field>
+            <field name="job_id" ref="ems.job_5"/>
+             <field name="contract_type_id" ref="hr.contract_type_interim"/>
+             <field name="department_id" ref="department_4"/>
+            <field name="tz">Europe/Madrid</field>
+        </record>
+
+        <record id="hr.employee_jgo" model="hr.employee">
+            <!-- <field name="department_id" ref="department_3"/> -->
+            <field name="employee_type">asp</field>
+            <field name="job_id" ref="ems.job_5"/>
+            <field name="contract_type_id" ref="hr.contract_type_temporary"/>
+            <field name="department_id" ref="department_4"/>
+            <field name="parent_id" ref="hr.employee_lur"/>
+            <field name="tz">Europe/Madrid</field>
+        </record>
+    </data>
+</odoo>

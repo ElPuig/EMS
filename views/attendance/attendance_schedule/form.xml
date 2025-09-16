@@ -1,0 +1,44 @@
+<odoo>
+    <data>    
+        <record model="ir.ui.view" id="view_attendance_schedule_form">
+            <field name="name">ems.attendance_schedule.form</field>
+            <field name="model">ems.attendance_schedule</field>
+            <field name="arch" type="xml">
+                <form string="Schedule">
+                    <sheet>                        
+                        <group string="Main data" col="6">
+                            <group colspan="2">      
+                                <field name="attendance_template_id" readonly="True"/>
+                            </group> 
+                            <group colspan="2">                                      
+                                <field name="start_date" readonly="True"/>
+                            </group>    
+                            <group colspan="2">
+                                <field name="end_date" readonly="True"/>
+                            </group>  
+
+                            <group colspan="2">
+                                <field name="weekday" readonly="True"/>
+                            </group>   
+                            <group colspan="2">
+                                <field name="space_id" readonly="True"/>
+                            </group>
+                            <group>
+                                <field name="start_time" readonly="True"/>
+                            </group>     
+                            <group>
+                                <field name="end_time" readonly="True"/>
+                            </group>                                                                  
+                        </group>
+                        
+                        <notebook>
+                            <page string="Sessions">
+                                <field name="attendance_session_ids" string="" readonly="True"/>
+                            </page>                            
+                        </notebook>                        
+                    </sheet>	
+                </form>
+            </field>			
+        </record> 
+    </data>
+</odoo>

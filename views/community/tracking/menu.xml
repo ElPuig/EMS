@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_tracking_tree">
+            <field name="name">Tracking</field>
+            <field name="res_model">ems.tracking</field>
+            <field name="view_mode">list,form</field>
+        </record>       
+
+        <!-- TODO: this should be the tracking info about a student -->
+    </data>
+</odoo>

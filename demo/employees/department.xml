@@ -1,0 +1,60 @@
+<odoo>
+    <data noupdate="1">     
+        <record id="hr.dep_administration" model="hr.department">
+            <!-- TODO: unable to disable this using a CSV... -->
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.dep_rd_ltp" model="hr.department">
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.dep_management" model="hr.department">
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.dep_ps" model="hr.department">
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.dep_rd_be" model="hr.department">
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.dep_rd" model="hr.department">
+            <field name="active">false</field>
+        </record>
+
+        <record id="hr.dep_sales" model="hr.department">
+            <field name="active">false</field>
+        </record>
+
+        <record id="department_1" model="hr.department">
+            <field name="name">VET</field>
+        </record>
+
+        <record id="department_2" model="hr.department">
+            <field name="name">Computer Science</field>
+            <field name="parent_id" ref="department_1"/>
+        </record>
+
+        <record id="department_3" model="hr.department">
+            <field name="name">Administration and management</field>
+            <field name="parent_id" ref="department_1"/>
+        </record>     
+
+        <record id="department_4" model="hr.department">
+            <field name="name">ASP</field>
+        </record>   
+
+        <record id="department_5" model="hr.department">
+            <field name="name">Secretariat</field>
+            <field name="parent_id" ref="department_4"/>
+        </record>
+
+        <record id="department_6" model="hr.department">
+            <field name="name">Conciergerie</field>
+            <field name="parent_id" ref="department_4"/>
+        </record>    
+    </data>
+</odoo>

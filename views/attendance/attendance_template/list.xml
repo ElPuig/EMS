@@ -1,0 +1,19 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_template_list">
+            <field name="name">ems.attendance_template.list</field>
+            <field name="model">ems.attendance_template</field>
+            <field name="arch" type="xml">
+                 <list expand="True" >
+                    <field name="teacher_id"/>
+                    <field name="level_id"/>
+                    <field name="study_id"/>                    
+                    <field name="subject_id"/>
+                    <field name="group_id"/>
+                    <field name="space_id"/>                    
+                    <field name="color" widget="color_picker"/>                
+                </list>
+            </field>
+        </record>   
+    </data>
+</odoo>

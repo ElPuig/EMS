@@ -1,0 +1,35 @@
+<odoo>
+    <data>
+        <record id="attendance_template_1" model="ems.attendance_template">
+            <field name="start_date">2024-09-13</field>
+            <field name="end_date">2024-12-12</field>
+            <field name="color">1</field>
+
+            <field name="teacher_id" ref="hr.employee_admin"/>
+            <field name="level_id" ref="level_2"/>
+            <field name="study_id" ref="study_41"/>
+            <field name="group_id" ref="group_3"/>
+            <field name="subject_id" ref="subject_2"/>
+            <field name="space_id" ref="space_3"/>    
+
+            <field name="student_ids" eval="[(6, 0, [ ref('hr.work_contact_jve'), ref('hr.work_contact_stw')])]"/>
+
+        </record>
+
+         <record id="attendance_template_2" model="ems.attendance_template">
+            <field name="start_date">2024-09-13</field>
+            <field name="end_date">2025-06-01</field>
+            <field name="color">2</field>
+
+            <field name="teacher_id" ref="hr.employee_mit"/>
+            <field name="level_id" ref="level_2"/>
+            <field name="study_id" ref="study_41"/>
+            <field name="group_id" ref="group_1"/>
+            <field name="subject_id" ref="subject_1"/>
+            <field name="space_id" ref="space_5"/>    
+
+            <field name="student_ids" eval="[(6, 0, [ ref('hr.work_contact_vad'), ref('hr.work_contact_jth')])]"/>
+
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_employmenttypes_tree">
+            <field name="name">Employment Types</field>
+            <field name="res_model">hr.contract.type</field>
+            <field name="view_mode">list,form</field>
+        </record>  
+
+        <menuitem name="Employment types" sequence="5" id="menu_employmenttypes" parent="menu_community_config_hhrr" action="action_employmenttypes_tree"/>
+    </data>
+</odoo>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>   
+        <!-- Root menu items only -->
+        <!-- TODO: under early development -->
+        <!-- <menuitem name="Documentation" id="menu_documentation" /> -->
+    </data>
+</odoo>

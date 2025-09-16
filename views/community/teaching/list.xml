@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_teaching_list">
+            <field name="name">ems.teaching.list</field>
+            <field name="model">ems.teaching</field>
+            <field name="arch" type="xml">
+                <list expand="True" default_order="teacher_id asc" >
+                    <field name="teacher_id" />
+                    <field name="group_id" class="w-25"/>                    
+                    <field name="subject_id" />
+                </list>
+            </field>
+        </record>  
+
+        <record model="ir.ui.view" id="view_teaching_search">
+            <field name="name">ems.teaching.search</field>
+            <field name="model">ems.teaching</field>            
+            <field name="arch" type="xml">
+                <search string="teacher">
+                    <group string="Group By">
+                        <filter string="teacher" name="group_by_teacher_id" context="{'group_by':'teacher_id'}" />
+                    </group>
+                </search>
+            </field>
+        </record>  
+ 
+    </data>
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_teachers_role_tree">
+            <field name="name">Roles (for teachers)</field>
+            <field name="res_model">ems.role</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain"> [('employee_type', '=', 'teacher')] </field>
+            <field name="context"> {'default_employee_type': 'teacher'} </field>
+        </record>   
+
+        <record model="ir.actions.act_window" id="action_asp_role_tree">
+            <field name="name">Roles (for ASP)</field>
+            <field name="res_model">ems.role</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain"> [('employee_type', '=', 'asp')] </field>
+            <field name="context"> {'default_employee_type': 'asp'} </field>
+        </record>      
+
+        <menuitem name="Roles" sequence="1" id="menu_teachers_roles" parent="menu_community_config_teachers" action="action_teachers_role_tree"/>        
+        <menuitem name="Roles" sequence="1" id="menu_asp_roles" parent="menu_community_config_asp" action="action_asp_role_tree"/>
+    </data>
+</odoo>

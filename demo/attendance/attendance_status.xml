@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+        <record id="attendance_status_1" model="ems.attendance_status">
+            <field name="status">1</field>
+
+            <field name="student_id" ref="hr.work_contact_jve"/>
+            <field name="attendance_session_id" ref="attendance_session_1"/>
+        </record>
+
+         <record id="attendance_status_2" model="ems.attendance_status">
+            <field name="status">3</field>
+
+            <field name="student_id" ref="hr.work_contact_stw"/>
+            <field name="attendance_session_id" ref="attendance_session_1"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,74 @@
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="action_student_form">
+            <field name="name">Students</field>
+            <field name="res_model">res.partner</field>
+            <field name="res_id">57</field>    
+            <field name="view_mode">form</field>    
+        </record>  
+
+        <record model="ir.ui.view" id="view_group_form">
+            <field name="name">ems.group.form</field>
+            <field name="model">ems.group</field>
+            <field name="arch" type="xml">
+                <form string="Group">
+                    <sheet>                        
+                        <group string="Main data" col="4">        
+                            <group colspan="4">
+                                <field name="level_id" />
+                            </group>                    
+                            <group colspan="2">
+                                <field name="study_id" readonly="level_id == False" domain="[('level_id','=', level_id)]" />
+                            </group>
+                            <group>
+                                <field name="course" />
+                            </group>
+                            <group>
+                                <field name="acronym" />
+                            </group>
+                            <group colspan="2">
+                                <field name="tutor_id" widget="many2one_avatar_employee" />
+                            </group>
+                            <group>                              
+                                <field name="delegate_id" widget="many2one_avatar" />
+                            </group>
+                            <group>
+                                <field name="space_id" />
+                            </group>
+                        </group>                       
+                        
+                        <notebook> 
+                            <page string="Students">
+                                 <field name="main_student_ids" widget="many2many">
+                                    <list default_order="name asc" >
+                                        <field name="image_1920" widget="image" />
+                                        <field name="name" class="align-middle"/>
+                                        <field name="student_email" class="align-middle"/>
+                                        <field name="email" string="Personal Email" class="align-middle"/>
+                                        <field name="mobile" class="align-middle"/>
+                                        <!-- Needed to open as fullscreen form -->
+                                        <field name="id" column_invisible="True"/>
+                                    </list>
+                                </field>
+                            </page>                         
+  
+                             <page string="Enrolled">                                
+                                <field name="enrollment_view_ids" widget="many2many"> 
+                                    <list default_order="student_id asc"> 
+                                        <field name="image_1920" widget="image" />                                   
+                                        <field name="student_id" class="align-middle"/>
+                                        <field name="subject_ids" widget="many2many_tags"/>                                        
+                                    </list>
+                                </field>
+                            </page>
+                           
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>       
+    </data>
+</odoo>

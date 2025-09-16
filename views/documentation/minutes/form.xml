@@ -1,0 +1,66 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_minute_form">
+            <field name="name">ems.minute.form</field>
+            <field name="model">ems.minute</field>
+            <field name="arch" type="xml">
+                <form string="Minute">
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group>
+                                <field name="date"/>
+                            </group>
+                            <group>
+                                <field name="type"/>
+                            </group>
+                            <group colspan="2">
+                                <field name="department_id" invisible="type == 'workgroup'" />
+                                <field name="workgroup_id" invisible="type != 'workgroup'" />
+                            </group>                                                                                                    
+                            <group>
+                                <field name="nature"/>
+                            </group>                                
+                            <group>
+                                <field name="modality"/>
+                            </group>
+                            <group colspan="2">
+                                <field name="space_id"/>
+                            </group>                          
+                        </group>  
+                        <group string="Assistants" col="4">
+                            <group colspan="2">
+                                <field name="assistant_ids" widget="many2many_tags"/>    
+                            </group> 
+
+                             <group colspan="2">
+                                <field name="abstent_ids" widget="many2many_tags"/>    
+                            </group> 
+                        </group>  
+                        <group string="Abstract" col="4">
+                            <group colspan="4">
+                                <field name="abstract" />    
+                            </group> 
+                        </group>  
+
+<!-- 
+                        <notebook>
+                            <page string="Studies">
+                                <field name="study_ids" widget="many2many">
+                                    <list>
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>
+                                    </list>
+                                </field>
+                            </page>
+                            
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                   -->
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>     
+        <!-- Note: the student's one is in the main contact menu -->
+                
+        <record model="ir.actions.act_window" id="action_provider_kanban">
+            <field name="name">Providers</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,list,form</field>    
+            <field name="search_view_id" ref="ems.view_provider_search"/>                        
+            <field name="domain"> [('contact_type', '=', 'provider')] </field>
+            <!-- TODO: test if this is used in order to create a new one -->
+            <field name="context"> {'default_contact_type': 'provider'} </field>
+        </record>   
+
+        <record model="ir.actions.act_window" id="action_student_form">
+            <field name="name">Student</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">form</field>    
+            <!-- <field name="search_view_id" ref="ems.view_provider_search"/>                         -->
+            <field name="domain"> [('contact_type', '=', 'student')] </field>
+            <!-- TODO: test if this is used in order to create a new one -->
+            <field name="context"> {'default_contact_type': 'student'} </field>
+        </record>   
+        
+        <menuitem name="Students"  sequence="1" id="menu_students"  parent="menu_community" action="action_student_kanban"/>
+        <menuitem name="Providers" sequence="4" id="menu_providers" parent="menu_community" action="action_provider_kanban"/>                                          
+
+    </data>
+</odoo>

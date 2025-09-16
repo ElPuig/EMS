@@ -1,0 +1,19 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_space_type_form">
+            <field name="name">ems.space_type.form</field>
+            <field name="model">ems.space_type</field>
+            <field name="arch" type="xml">
+                <form string="space">
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group>
+                                <field name="name"/>
+                            </group>                                                           
+                        </group>                    
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

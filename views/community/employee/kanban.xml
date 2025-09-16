@@ -1,0 +1,43 @@
+<odoo>
+    <data>   
+        <!-- Kanban card within a form's notebook -->       
+        <record model="ir.ui.view" id="view_employee_public_kanban">
+            <field name="name">ems.employee.kanban</field>
+            <field name="model">hr.employee.public</field>
+            <field name="inherit_id" ref="hr.hr_employee_public_view_kanban"/> 
+            <field name="arch" type="xml">               
+                <xpath expr="//div[hasclass('d-flex')]" position="inside">
+                    <div class="o_widget o_widget_hr_employee_delete">
+                        <a title="Delete" type="delete" href="#" class="ml8 we-button.o_delete_btn" role="button">
+                            <i class="fa fa-trash-o" aria-hidden="true" />
+                        </a>
+                    </div>
+                </xpath>           
+            </field>
+        </record>
+
+        <!-- Kanban card within a regular kanban view -->
+        <record model="ir.ui.view" id="view_employee_kanban">
+            <field name="name">ems.employee.kanban</field>
+            <field name="model">hr.employee</field>           
+            <field name="inherit_id" ref="hr.hr_kanban_view_employees"/> 
+            <field name="arch" type="xml">  
+                <xpath expr="//kanban" position="inside">
+                    <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
+                    <field name="tutorships"/>
+                </xpath>
+
+                <field name="job_title" position="after">
+                    <span t-if="record.tutorships.value != ''">
+                        <!-- TODO: this text should be translated, check how to do it -->
+                        Tutorship: <t t-esc="record.tutorships.value"/>
+                    </span>                   
+                </field>                                 
+
+                <field name="category_ids" position="attributes">
+                    <attribute name="name">role_ids</attribute>
+                </field>                                                 
+            </field>		      
+        </record>
+    </data>
+</odoo>

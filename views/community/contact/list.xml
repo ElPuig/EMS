@@ -1,0 +1,42 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_contact_list">
+            <field name="name">ems.contact.list</field>
+            <field name="model">res.partner</field>            
+            <field name="inherit_id" ref="base.view_partner_tree"/> 
+            <field name="arch" type="xml">                                       
+                <xpath expr="//field[@name='user_id']" position="attributes">
+                    <attribute name="column_invisible">True</attribute>
+                </xpath> 
+
+                <xpath expr="//field[@name='phone']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>   
+
+                <xpath expr="//field[@name='mobile']" position="attributes">
+                    <attribute name="optional">show</attribute>
+                </xpath>  
+
+                <xpath expr="//field[@name='city']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>    
+
+                <xpath expr="//field[@name='country_id']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>   
+
+                <xpath expr="//field[@name='activity_ids']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>  
+
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="main_group_id" optional="show"/>
+                </xpath>   
+
+                <xpath expr="//field[@name='main_group_id']" position="after">
+                    <field name="tutor_id" optional="show"/>
+                </xpath>                                
+            </field>		      
+        </record>   
+    </data>
+</odoo>

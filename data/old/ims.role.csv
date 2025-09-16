@@ -1,0 +1,7 @@
+id,name,color,employee_type
+"role_tutor_dam1a","Tutor (DAM1A)",3,teacher
+"role_tutor_dam2a","Tutor (DAM2A)",4,teacher
+"role_tutor_dam2b","Tutor (DAM2B)",4,teacher
+"role_tutor_daw1a","Tutor (DAW1A)",3,teacher
+"role_tutor_daw2a","Tutor (DAW2A)",4,teacher
+"role_tutor_daw2b","Tutor (DAW2B)",4,teacher

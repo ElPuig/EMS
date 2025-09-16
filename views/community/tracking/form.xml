@@ -1,0 +1,26 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_tracking_form">
+            <field name="name">ems.follow.form</field>
+            <field name="model">ems.tracking</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="tracking">
+                    <sheet>
+                        <group string="Basic data">
+                            <field name="study_id"/>
+                            <field name="subject_id"/>
+                            <field name="student_id"/>
+                            <field name="teacher_id"/>
+                        </group>
+                        <notebook>                                                        
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,63 @@
+<odoo>
+    <data>
+        <record id="hr.employee_jep" model="hr.employee">
+            <field name="department_id" ref="department_6"/>
+        </record>
+
+        <record id="hr.employee_lur" model="hr.employee">
+            <field name="department_id" ref="department_5"/>
+        </record>
+
+        <record id="hr.employee_jgo" model="hr.employee">
+            <field name="department_id" ref="department_5"/>
+        </record>
+
+        <record id="hr.employee_jog" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+
+        <record id="hr.employee_ngh" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+
+        <record id="hr.employee_chs" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+
+        <record id="hr.employee_fme" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+
+        <record id="hr.employee_jve" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+
+        <record id="hr.employee_jod" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+
+        <record id="hr.employee_stw" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+
+        <record id="hr.employee_al" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+
+        <record id="hr.employee_niv" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+
+        <record id="hr.employee_vad" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+
+        <record id="hr.employee_jth" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+
+        <record id="hr.employee_han" model="hr.employee">           
+            <field name="active">false</field>            
+        </record>
+    </data>
+</odoo>

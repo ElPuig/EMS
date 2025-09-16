@@ -1,0 +1,50 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_content_form">
+            <field name="name">ems.content.form</field>
+            <field name="model">ems.content</field>
+            <field name="arch" type="xml">				
+                <form string="content">                   
+                    <sheet>      
+                        <group string="Parent content" col="6" invisible="content_id == False">   
+                            <field nolabel="1" name="content_id" readonly="True"/>
+                        </group>                                                
+                        <group string="Main data" col="6">                            
+                            <group>
+                                <field name="code"/>
+                            </group>
+                            <group>
+                                <field name="acronym"/>
+                            </group>
+                            <group colspan="4">							
+                                <field name="name"/>                                                                
+                            </group>                            
+                        </group>
+                        
+                        <notebook>                           
+                            <page string="Composite">
+                                <field name="content_ids" widget="one2many" context="{'default_content_id': content_id, 'default_code': code}">
+                                    <list editable="bottom" default_order="code asc, level asc, acronym asc"
+                                        decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>                                               
+                                        <button class="oe_stat_button" title="Edit Content" icon="fa-pencil-square-o" name="open_form" type="object" />                                 
+
+                                        <!-- Needed but hidden for filtering purposes -->
+                                        <field name="subject_id" column_invisible="True"/>
+                                        <field name="level" column_invisible="True"/>
+                                    </list>
+                                </field>
+                            </page>
+                            
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

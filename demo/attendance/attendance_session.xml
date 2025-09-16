@@ -1,0 +1,21 @@
+<odoo>
+    <data>
+        <record id="attendance_session_1" model="ems.attendance_session">
+            <field name="attendance_schedule_id" ref="attendance_schedule_1"/>            
+            <field name="weekday">1</field>
+            <field name="start_time">16.00</field>
+            <field name="end_time">17.916666666666668</field>           
+
+            <field name="session_teacher_id" ref="hr.employee_mit"/>
+            <field name="template_teacher_id" ref="hr.employee_mit"/>
+            
+            <field name="level_id" ref="level_2"/>
+            <field name="study_id" ref="study_41"/>
+            <field name="group_id" ref="group_1"/>
+            <field name="subject_id" ref="subject_1"/>
+            <field name="space_id" ref="space_5"/>   
+
+            <field name="date">2024-10-14</field>
+        </record>
+    </data>
+</odoo>

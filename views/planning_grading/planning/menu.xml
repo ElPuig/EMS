@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_planning_tree">
+            <field name="name">Plannings</field>
+            <field name="res_model">ems.planning</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Plannings" sequence="1" id="menu_plannings" parent="menu_planning" action="action_planning_tree"/>
+    </data>
+</odoo>

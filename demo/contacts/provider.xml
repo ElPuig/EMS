@@ -1,0 +1,31 @@
+<odoo>
+    <data>    
+        <record id="base.res_partner_12" model="res.partner">           
+            <field name="contact_type">provider</field>            
+        </record>
+
+        <record id="base.res_partner_address_15" model="res.partner">           
+            <field name="contact_type">provider</field>            
+        </record>
+
+        <record id="base.res_partner_address_28" model="res.partner">           
+            <field name="contact_type">provider</field>            
+        </record>
+
+        <record id="base.res_partner_address_16" model="res.partner">           
+            <field name="contact_type">provider</field>            
+        </record>
+
+        <record id="base.res_partner_4" model="res.partner">           
+            <field name="contact_type">provider</field>            
+        </record>
+
+        <record id="base.res_partner_address_7" model="res.partner">           
+            <field name="contact_type">provider</field>            
+        </record>
+
+        <record id="base.res_partner_address_14" model="res.partner">           
+            <field name="contact_type">provider</field>            
+        </record>
+    </data>
+</odoo>

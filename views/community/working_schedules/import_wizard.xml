@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_working_schedules_import_wizard">
+            <field name="name">ems.working_schedules_import.wizard</field>
+            <field name="model">ems.working_schedules_import_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Session">     
+                    <group>
+                         <field name="file" readonly="False" options="{'accepted_file_extensions': '.xml'}"/>
+                    </group>
+
+                    <footer>
+                        <button name="import_planner_data" string="Import" type="object" class="btn-primary" icon="fa-calendar-plus-o" invisible="file == False" />
+                        <button name="cancel" string="Cancel" special="cancel"/>
+                    </footer>
+                </form>              
+            </field>			
+        </record>
+    </data>
+</odoo>

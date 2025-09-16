@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_student_search">
+            <field name="name">ems.student.search</field>
+            <field name="model">res.partner</field>            
+            <field name="arch" type="xml">                                         
+                <search>                    
+                    <searchpanel>       
+                        <field name="main_group_id" string="Student group" icon="fa-users" enable_counters="1" />
+                    </searchpanel>
+                </search>
+            </field>		      
+        </record>   
+
+        <record model="ir.ui.view" id="view_provider_search">
+            <field name="name">ems.provider.search</field>
+            <field name="model">res.partner</field>            
+            <field name="arch" type="xml">                                     
+                <search>                    
+                    <searchpanel>       
+                        <field name="commercial_partner_id" string="Company" icon="fa-building" enable_counters="1" />      
+                    </searchpanel>
+                </search>            
+            </field>		      
+        </record>  
+    </data>
+</odoo>

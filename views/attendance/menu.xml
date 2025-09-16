@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>   
+        <record model="ir.ui.menu" id="hr_attendance.menu_hr_attendance_root">
+            <field name="name">Teacher's Attendances</field>
+            <field name="sequence">4</field>
+
+        </record>   
+
+        <!-- Root menu items only -->
+        <menuitem name="Student's Attendances" sequence="3" id="menu_attendance" />
+    </data>
+</odoo>

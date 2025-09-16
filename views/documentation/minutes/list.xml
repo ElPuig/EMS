@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_minute_list">
+            <field name="name">ems.minute.list</field>
+            <field name="model">ems.minute</field>
+            <field name="arch" type="xml">
+                <list expand="True" >
+                    <field name="date"/>
+                    <field name="type"/>
+                    <field name="members"/>
+                    <field name="nature"/>
+                    <field name="abstract" />  
+                </list>
+            </field>
+        </record>   
+    </data>
+</odoo>

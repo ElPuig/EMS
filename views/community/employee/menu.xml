@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_employee_kanban">
+            <field name="name">Teachers</field>
+            <field name="res_model">hr.employee</field>
+            <field name="view_mode">kanban,list,form</field>                            
+            <field name="domain"> [('employee_type', '=', 'teacher')] </field>
+            <field name="context"> {'default_employee_type': 'teacher'} </field>
+        </record>   
+
+        <record model="ir.actions.act_window" id="action_asp_kanban">
+            <field name="name">Administration and Services Personnel</field>
+            <field name="res_model">hr.employee</field>
+            <field name="view_mode">kanban,list,form</field>                            
+            <field name="domain"> [('employee_type', '=', 'asp')] </field>
+            <field name="context"> {'default_employee_type': 'asp'} </field>
+        </record>
+
+        <menuitem name="Teachers" sequence="2" id="menu_teachers" parent="menu_community" action="action_employee_kanban"/>
+        <menuitem name="ASP"      sequence="3" id="menu_asp"      parent="menu_community" action="action_asp_kanban"/>                    
+    </data>
+</odoo>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_group_tree">
+            <field name="name">Groups (for students)</field>
+            <field name="res_model">ems.group</field>
+            <field name="view_mode">list,form</field>
+        </record>  
+                   
+        <menuitem name="Groups"   sequence="1" id="menu_groups" parent="menu_community_config_students" action="action_group_tree"/>
+    </data>
+</odoo>

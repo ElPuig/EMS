@@ -1,0 +1,19 @@
+<odoo>
+    <data>
+        <!-- Odoo 16 -->
+        <!-- <record model="ir.ui.view" id="view_job_list">
+            <field name="name">ems.job.list</field>
+            <field name="model">hr.job</field>            
+            <field name="inherit_id" ref="hr.view_hr_job_tree"/> 
+            <field name="arch" type="xml">                                                      
+                <field name="department_id" position="attributes">
+                    <attribute name="invisible">1</attribute>                  
+                </field>
+
+                <field name="no_of_recruitment" position="attributes">
+                    <attribute name="invisible">1</attribute>                  
+                </field>
+            </field>		      
+        </record>    -->
+    </data>
+</odoo>

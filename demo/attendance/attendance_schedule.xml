@@ -1,0 +1,43 @@
+<odoo>
+    <data>
+        <record id="attendance_schedule_1" model="ems.attendance_schedule">
+            <field name="weekday">0</field>
+            <field name="start_time">16.00</field>
+            <field name="end_time">17.916666666666668</field>
+            <field name="start_date">2024-09-13 14:00:00</field>
+            <field name="end_date">2024-12-12 16:55:00</field>
+            <field name="space_id" ref="space_3"/>
+            <field name="attendance_template_id" ref="attendance_template_1"/>
+        </record>
+
+        <record id="attendance_schedule_2" model="ems.attendance_schedule">
+            <field name="weekday">2</field>
+            <field name="start_time">18.25</field>
+            <field name="end_time">20.916666666666668</field>
+            <field name="start_date">2024-09-13 16:15:00</field>
+            <field name="end_date">2024-12-12 19:55:00</field>
+            <field name="space_id" ref="space_3"/>
+            <field name="attendance_template_id" ref="attendance_template_1"/>
+        </record>
+
+         <record id="attendance_schedule_3" model="ems.attendance_schedule">
+            <field name="weekday">1</field>
+            <field name="start_time">15.00</field>
+            <field name="end_time">16.00</field>
+            <field name="start_date">2024-09-13 13:00:00</field>
+            <field name="end_date">2025-06-01 15:00:00</field>
+            <field name="space_id" ref="space_5"/>
+            <field name="attendance_template_id" ref="attendance_template_2"/>
+        </record>
+
+        <record id="attendance_schedule_4" model="ems.attendance_schedule">
+            <field name="weekday">3</field>
+            <field name="start_time">16.00</field>
+            <field name="end_time">17.00</field>
+            <field name="start_date">2024-09-13 14:00:00</field>
+            <field name="end_date">2025-06-01 16:00:00</field>
+            <field name="space_id" ref="space_5"/>
+            <field name="attendance_template_id" ref="attendance_template_2"/>
+        </record>
+    </data>
+</odoo>

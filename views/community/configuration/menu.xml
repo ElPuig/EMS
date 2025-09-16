@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>                  
+        <menuitem name="Configuration"  sequence="9" id="menu_community_config"  parent="menu_community" />    
+        <menuitem name="Students" sequence="1" id="menu_community_config_students" parent="menu_community_config"/>
+        <menuitem name="Teachers" sequence="2" id="menu_community_config_teachers" parent="menu_community_config"/>
+        <menuitem name="ASP" sequence="3" id="menu_community_config_asp" parent="menu_community_config"/>        
+        <menuitem name="Curriculum" sequence="4" id="menu_community_config_curriculum" parent="menu_community_config" />
+        <menuitem name="Spaces" sequence="5" id="menu_community_config_spaces" parent="menu_community_config"/>
+        <menuitem name="Human resources" sequence="6" id="menu_community_config_hhrr" parent="menu_community_config"/>
+    </data>
+</odoo>

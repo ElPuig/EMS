@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>                  
+        <menuitem name="Configuration"  sequence="9" id="menu_attendance_config"  parent="menu_attendance" />    
+        <menuitem name="Sessions" sequence="1" id="menu_attendance_config_sessions" parent="menu_attendance_config"/>        
+    </data>
+</odoo>

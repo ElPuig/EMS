@@ -1,0 +1,75 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_template_form">
+            <field name="name">ima.attendance_template.form</field>
+            <field name="model">ems.attendance_template</field>
+            <field name="arch" type="xml">
+                <form string="Template">
+                    <sheet>
+                        <group string="Main data" col="6">   
+                            <group colspan="6">
+                                <field name="color" widget="color_picker"/>
+                            </group>
+                            
+                            <group colspan="2">
+                                <field name="teacher_id"/>                               
+                            </group>
+                            <group colspan="1">
+                                <field name="start_date" widget="daterange" class="oe_inline" options="{'related_end_date': 'end_date'}"/>
+                            </group>
+                            <group colspan="1">
+                                <field name="end_date" widget="daterange" class="oe_inline" options="{'related_start_date': 'start_date'}"/>
+                            </group>
+                            <group colspan="2">
+                                <field name="level_id"/>                               
+                            </group>
+
+                            <group colspan="2">
+                                <field name="study_id"/>                               
+                            </group>
+                            <group colspan="1">
+                                <field name="group_id"/>
+                            </group>
+                            <group colspan="1">
+                                <field name="space_id"/>
+                            </group>                                                      
+                            <group colspan="2">
+                                <field name="subject_id"/>                               
+                            </group>                                                           
+                        </group>
+                                            
+                        <notebook>
+                            <page string="Students">
+                                <field name="student_ids" widget="many2many">
+                                    <list default_order="name asc" >
+                                        <field name="image_1920" widget="image" />
+                                        <field name="name" class="align-middle"/>
+                                        <field name="student_email" class="align-middle"/>
+                                        <field name="main_group_id" class="align-middle"/>
+                                        <field name="tutor_id" class="align-middle"/>
+                                        <!-- Needed to open as fullscreen form -->
+                                        <field name="id" column_invisible="True"/>
+                                    </list>
+                                </field>                          
+                            </page>
+
+                            <page string="Sessions">
+                                <field name="attendance_schedule_ids" string="" context="{'default_space_id' : space_id}">
+                                    <list editable="bottom" default_order="weekday asc, start_time asc">
+                                        <field name="weekday" width="175px" />
+                                        <field name="space_id" />
+                                        <field name="start_time" widget="float_time" width="120px" />
+                                        <field name="end_time" widget="float_time" width="120px" />  
+                                        <!-- The following fields are needed for internal compute. -->
+                                        <field name="start_date" widget="timepicker" width="120px" column_invisible="True" /> 
+                                        <field name="end_date" widget="timepicker" width="120px" column_invisible="True" />  
+                                    </list>
+                                </field>
+                            </page>                           
+                        </notebook> 
+                    </sheet>	
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

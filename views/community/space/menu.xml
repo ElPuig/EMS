@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>   
+        <record model="ir.actions.act_window" id="action_space_tree">
+            <field name="name">Spaces</field>
+            <field name="res_model">ems.space</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Spaces" sequence="4" id="menu_spaces" parent="menu_community" action="action_space_tree"/>
+    </data>
+</odoo>

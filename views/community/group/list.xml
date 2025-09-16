@@ -1,0 +1,16 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_group_list">
+            <field name="name">ems.group.list</field>
+            <field name="model">ems.group</field>
+            <field name="arch" type="xml">
+                <list expand="True" default_order="name asc">      
+                    <field name="name" string="Group"/>
+                    <field name="space_id"/>
+                    <field name="tutor_id" widget="many2one_avatar_employee"/>
+                    <field name="delegate_id" widget="many2one_avatar"/>
+                </list>
+            </field>
+        </record>   
+    </data>
+</odoo>

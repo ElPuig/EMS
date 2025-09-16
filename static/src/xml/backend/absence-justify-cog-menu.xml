@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="cog_menu.AbsenceJustifyCogMenu">
+        <DropdownItem class="'o_new_cog_menu'" onSelected.bind="onClickCogMenu">
+            <i class="fa-solid fa-calendar-check me-1"></i> Absence bulk justification
+        </DropdownItem>
+    </t>
+</templates>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_minute_tree">
+            <field name="name">Minutes</field>
+            <field name="res_model">ems.minute</field>
+            <field name="view_mode">list,form</field>
+        </record>
+                
+        <!-- <menuitem name="Minutes" sequence="1" id="menu_minutes" parent="menu_documentation" action="action_minute_tree"/> -->
+    </data>
+</odoo>

@@ -1,0 +1,48 @@
+<odoo>
+    <data>
+        <record id="hr.employee_hne" model="hr.employee">
+            <field name="department_id" ref="department_2"/>
+            <field name="employee_type">teacher</field>
+            <field name="job_id" ref="ems.job_1"/>
+            <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+            <field name="parent_id" ref=""/>
+            <field name="tz">Europe/Madrid</field>
+        </record>
+
+        <record id="hr.employee_mit" model="hr.employee">
+            <field name="department_id" ref="department_3"/>
+            <field name="employee_type">teacher</field>
+            <field name="job_id" ref="ems.job_1"/>
+            <field name="parent_id" ref="hr.employee_hne"/>
+            <field name="contract_type_id" ref="hr.contract_type_interim"/>
+            <field name="tz">Europe/Madrid</field>
+        </record>
+
+        <record id="hr.employee_fpi" model="hr.employee">
+            <field name="department_id" ref="department_3"/>
+            <field name="employee_type">teacher</field>
+            <field name="job_id" ref="ems.job_2"/>
+            <field name="parent_id" ref="hr.employee_hne"/>            
+            <field name="contract_type_id" ref="hr.contract_type_interim"/>
+            <field name="tz">Europe/Madrid</field>
+        </record>
+
+        <record id="hr.employee_qdp" model="hr.employee">
+            <field name="department_id" ref="department_3"/>
+            <field name="employee_type">teacher</field>
+            <field name="job_id" ref="ems.job_3"/>
+            <field name="parent_id" ref="hr.employee_fpi"/>
+            <field name="contract_type_id" ref="hr.contract_type_temporary"/>
+            <field name="tz">Europe/Madrid</field>
+        </record>
+
+        <record id="hr.employee_admin" model="hr.employee">
+            <field name="department_id" ref="department_2"/>
+            <field name="employee_type">teacher</field>
+            <field name="job_id" ref="ems.job_1"/>
+            <field name="parent_id" ref="hr.employee_hne"/>
+            <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+            <field name="tz">Europe/Madrid</field>
+        </record>
+    </data>
+</odoo>

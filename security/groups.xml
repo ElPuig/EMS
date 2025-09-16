@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">             
+        <!-- To get all the groups available, export the list from user/groups including the "name" and the "external ID" fields -->
+        
+        <record id="ems_category_main" model="ir.module.category" >
+            <field name="name">EMS</field>
+            <field name="description">Educational Management System</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="ems_group_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="comment">Minimal access rights.</field>
+            <field name="category_id" ref="ems.ems_category_main"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>            
+        </record>
+
+        <record id="ems_group_admin" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="comment">All access rights.</field>
+            <field name="category_id" ref="ems.ems_category_main"/>
+            <field name="implied_ids" eval="[(4, ref('ems_group_user'))]"/>    
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>   
+
+        <record id="project.group_project_manager" model="res.groups">
+            <field name="users" eval="[(3,ref('base.user_root')), (3,ref('base.user_admin'))]"/>
+        </record>   
+                
+        <record id="project.group_project_user" model="res.groups">
+            <field name="users" eval="[(3,ref('base.user_root')), (3,ref('base.user_admin'))]"/>
+        </record>  
+        
+        <record id="mass_mailing.group_mass_mailing_user" model="res.groups">
+            <field name="users" eval="[(3,ref('base.user_root')), (3,ref('base.user_admin'))]"/>
+        </record>   
+                
+        <record id="survey.group_survey_manager" model="res.groups">
+            <field name="users" eval="[(3,ref('base.user_root')), (3,ref('base.user_admin'))]"/>
+        </record>   
+
+        <record id="survey.group_survey_user" model="res.groups">
+            <field name="users" eval="[(3,ref('base.user_root')), (3,ref('base.user_admin'))]"/>
+        </record>   
+
+        <record id="utm.menu_link_tracker_root" model="ir.ui.menu">
+            <field name="active">false</field>
+        </record>
+<!-- 
+        <delete id="utm.menu_link_tracker_root" model="ir.ui.menu" ></delete>
+        <delete id="link_tracker.link_tracker_menu_main" model="ir.ui.menu" ></delete>        
+        <delete id="utm.marketing_utm" model="ir.ui.menu" ></delete>         -->
+        
+    </data>
+</odoo>

@@ -1,0 +1,30 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_workgroup_form">
+            <field name="name">ems.workgroup.form</field>
+            <field name="model">ems.workgroup</field>
+            <field name="arch" type="xml">
+                <form string="workgroup">
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group colspan="4">
+                                <field name="name"/>                                
+                            </group>                           
+                        </group>  
+
+                        <notebook>         
+                            <page string="Assigned to">                                
+                                <field name="employee_ids" mode="kanban" />
+                                <!-- TODO: add a remove button: https://www.odoo.com/es_ES/forum/ayuda-1/delete-button-in-kanban-view-odoo-11-129296 -->
+                            </page>     
+
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                  
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="attendance_report_group">
+        <t t-call="web.html_container">            
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h1>Attendance report | <span t-field="o.group_id.display_name"/></h1>
+                        <p>From <span t-field="o.from_date"/> to <span t-field="o.to_date"/></p>
+                        <h2>Subject</h2>
+                        <h3>Summary</h3>
+
+                        <t t-set="data" t-value="main"/>
+                        <t t-call="ems.attendance_template_sumary_table"/>
+                        <p style="page-break-after:always;" />                    
+
+                        <h3>Details</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style='width: 20%'>Subject</th>
+                                    <t t-set="colspan" t-value="len(main.overall)" />
+                                    <th t-att-colspan="colspan">Overall</th>
+
+                                    <t t-set="colspan" t-value="len(main.breakdown)" />
+                                    <th t-att-colspan="colspan">Breakdown</th>
+                                </tr>
+                                <tr>
+                                    <t t-foreach="main.overall" t-as="s">
+                                        <th t-esc="overall_status[s]"/>
+                                    </t> 
+                                    <t t-foreach="main.breakdown" t-as="s">
+                                        <th t-esc="attendance_status[s]"/>
+                                    </t> 
+                                </tr>                                
+                            </thead>
+                            <tbody> 
+                                <t t-foreach="lines" t-as="subject">     
+                                    <tr>
+                                        <td  t-esc="subject.display_name"/>
+                                        <t t-set="line" t-value="lines[subject]"/>                                                                              
+                                        <t t-foreach="line.overall" t-as="s">
+                                            <t t-set="entry" t-value="line.overall[s]"/> 
+                                            <td>
+                                                <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
+                                            </td>
+                                        </t>  
+                                        <t t-foreach="line.breakdown" t-as="s">
+                                            <t t-set="entry" t-value="line.breakdown[s]"/> 
+                                            <td>
+                                                <span t-esc="entry['%']"/>% (<span t-esc="entry['count']"/> / <span t-esc="entry['total']"/>)
+                                            </td>
+                                        </t>     
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <p style="page-break-after:always;" />
+
+                        <h3>Comments</h3>
+                        <t t-set="entries" t-value="main.comments"/>
+                        <t t-set="header" t-value="[
+                            {'style' : 'width:8%;', 'value' : 'Date'},
+                            {'style' : 'width:10%;', 'value' : 'Status'},
+                            {'style' : 'width:15%;', 'value' : 'Subject'},
+                            {'style' : 'width:15%;', 'value' : 'Teacher'},
+                            {'style' : 'width:15%;', 'value' : 'Student'},
+                            {'style' : '', 'value' : 'Comment'}
+                        ]"/>
+                        <!-- Note: 'self' will be an 'attendance_status' object and is necessary to run the 'report_eval' method from the 'details_table' template. -->
+                        <t t-set="rows" t-value="[
+                            {'style' : '', 'value' : 'self.attendance_session_id.date'},
+                            {'style' : '', 'value' : 'dict(self.fields_get(allfields=[\'status\'])[\'status\'][\'selection\'])[self.status]'},
+                            {'style' : '', 'value' : 'self.attendance_session_id.subject_id.display_name'},
+                            {'style' : '', 'value' : 'self.attendance_session_id.session_teacher_id.display_name'},
+                            {'style' : '', 'value' : 'self.student_id.display_name'},
+                            {'style' : '', 'value' : 'self.notes'},
+                        ]"/>
+                        <t t-call="ems.attendance_template_details_table"/>                        
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,107 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_subject_form">
+            <field name="name">ems.subject.form</field>
+            <field name="model">ems.subject</field>
+            <field name="arch" type="xml">				
+                <form string="subject">                   
+                    <sheet>                        
+                        <group string="Main data" col="4">
+                            <group colspan="4">
+                                <field name="subject_id" invisible="level == 1"/>
+                                
+                                <!-- Needed but hidden for filtering purposes -->
+                                <field name="level" invisible="1"/>   
+                                <field name="last" invisible="1"/>                                                                          
+                            </group>
+                            <group>
+                                <field name="code"/>
+                                <field name="total_hours" />
+                            </group>
+                            <group>							
+                                <field name="acronym"/>
+                                <field string="Internal hours" name="total_internal_hours" invisible="last == True or total_internal_hours == 0"/>
+                                <field name="internal_hours" invisible="last == False and total_internal_hours != 0"/>
+                            </group>  
+                            <group colspan="2">
+                                <group colspan="2">
+                                    <field name="name"/>
+                                </group>    
+                                 <group>			
+                                    <field string="External hours" name="total_external_hours" invisible="last == True or total_external_hours == 0"/>
+                                    <field name="external_hours" invisible="last == False and total_external_hours != 0"/>
+                                </group>                                
+                                <group>                        
+                                    <field name="ects" invisible="subject_id != False"/>                                    
+                                </group>
+                            </group>                                                                                                                               
+                        </group>
+                        
+                        <notebook>    
+                            <page string="Studies" invisible="level > 1">
+                                <field name="study_ids">
+                                    <list default_order="code asc, acronym asc, name asc">
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>
+                                    </list>
+                                </field>
+                            </page>
+
+                            <!-- Sub-subject behaviour has been developed but not properly tested. Maybe would be better to displable it and reduce unneeded complexities? -->
+                            <!-- <page string="Composite">
+                                <field name="subject_ids" widget="one2many" context="{'default_subject_id': id, 'default_study_ids': study_ids, 'default_code': code}">
+                                    <list editable="bottom" default_order="code asc, acronym asc, name asc">
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>
+                                        <button class="oe_stat_button" title="Edit Subject" icon="fa-pencil-square-o" name="open_form" type="object" />  -->
+
+                                        <!-- Needed but hidden for filtering purposes -->
+                                        <!-- <field name="subject_id" column_invisible="True"/>
+                                        <field name="level"  column_invisible="True"/>
+                                        <field name="study_ids" column_invisible="True"/>
+                                    </list>
+                                </field>
+                            </page> -->
+
+                            <page string="Learning Outcome" invisible="not last">
+                                <field name="outcome_ids" widget="one2many" context="{'default_subject_id': id, 'default_code': code}">
+                                    <list editable="bottom" default_order="acronym asc, name asc">
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>    
+                                        <button class="oe_stat_button" title="Edit Learning Outcome" icon="fa-pencil-square-o" name="open_form" type="object" /> 
+
+                                        <!-- Needed but hidden for filtering purposes -->
+                                        <field name="subject_id" column_invisible="True"/>                                                                                
+                                    </list>
+                                </field>
+                            </page>
+
+                            <page string="Content" invisible="not last">
+                                <field name="content_ids" widget="one2many" context="{'default_subject_id': id, 'default_code': code}">                                
+                                    <list editable="bottom" default_order="code asc, level asc, acronym asc"
+                                        decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>                                            
+                                        <button class="oe_stat_button" title="Edit Content" icon="fa-pencil-square-o" name="open_form" type="object" />                                 
+
+                                        <!-- Needed but hidden for filtering purposes -->
+                                        <field name="subject_id" column_invisible="True"/>
+                                        <field name="level" column_invisible="True"/>
+                                    </list>
+                                </field>
+                            </page>
+                            
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

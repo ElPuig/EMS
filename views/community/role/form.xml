@@ -1,0 +1,36 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_role_form">
+            <field name="name">ems.role.form</field>
+            <field name="model">ems.role</field>
+            <field name="arch" type="xml">
+                <form string="role">
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group colspan="2">
+                                <field name="name"/>                                
+                                <field name="employee_type" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="color" widget="color_picker"/>
+                            </group>
+                            <group>
+                                <field name="unipersonal" />
+                            </group>
+                        </group>  
+
+                        <notebook>         
+                            <page string="Assigned to">
+                                <field name="employee_ids" mode="kanban"  />                                
+                            </page>     
+
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                  
+                    </sheet>	
+                </form>
+            </field>			
+        </record>      
+    </data>
+</odoo>

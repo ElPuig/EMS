@@ -1,0 +1,82 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_session_form">
+            <field name="name">ems.attendance_session.form</field>
+            <field name="model">ems.attendance_session</field>
+            <field name="arch" type="xml">
+                <form string="Session">
+                    <field name="_display_warning" invisible="1"/>                   
+                    <div class="alert alert-warning" role="alert" name="test_warning" invisible="_display_warning == False">
+                        <!-- TODO: this should be translated (localization) -->
+                        Unable to load the current session, maybe none has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.
+                    </div>
+                    <sheet>     
+                         <group string="Main data" col="3">
+                            <group>
+                                <field name="guard_mode" readonly="id != False"/>
+                            </group>   
+
+                            <group colspan="2">      
+                                <field name="attendance_schedule_id" readonly="id != False"/>
+                            </group>
+
+                            <group>
+                                <field name="date" readonly="id != False"/>
+                            </group> 
+
+                            <group>
+                                <field name="session_teacher_id" string="Teacher"/>                              
+                            </group>   
+                        
+                            <group>
+                                <field name="space_id" readonly="id != False"/>
+                            </group>                                             
+                        </group>
+
+                        <!-- <group string="Main data" col="3" >
+                            <group colspan="3">
+                                <field name="guard_mode" readonly="id != False"/>
+                            </group>     
+                            
+                            <group>
+                                <field name="date" readonly="id != False"/>
+                            </group>   
+                            <group colspan="2">      
+                                <field name="attendance_schedule_id" readonly="id != False"/>
+                            </group>                                                   
+
+                            <group>
+                                <field name="level_id"/>  
+                                <field name="session_teacher_id" string="Teacher"/>                              
+                            </group>
+                            <group>
+                                <field name="study_id"/>   
+                                <field name="group_id"/>                            
+                            </group>
+                            <group>
+                                <field name="subject_id"/>  
+                                <field name="space_id"/>                             
+                            </group>                        
+                        </group> -->
+
+                        <notebook>
+                            <page string="Statuses">
+                                <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}"  mouseover="_onMouseOver">                                    
+                                    <list editable="bottom" default_order="student_id asc">                                       
+                                        <field name="image_1920" widget="image" />
+                                        <field name="student_id" width="175px" class="align-middle" domain="[('contact_type', '=', 'student'), ('id','not in', inuse_student_ids)]"/>
+                                        <field name="status" widget="radio" class="align-middle" options="{'horizontal': true}" />
+                                        <field name="notes" width="350px" class="align-middle"/>                                       
+                                    </list>
+                                </field>
+                            </page>     
+                            <page string="Notes">
+                                <field name="notes"/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>              
+            </field>			
+        </record>
+    </data>
+</odoo>

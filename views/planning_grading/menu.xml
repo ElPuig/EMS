@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>   
+        <!-- Root menu items only -->
+        <menuitem name="Planning and Grading" sequence="2" id="menu_planning" />
+    </data>
+</odoo>

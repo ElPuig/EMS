@@ -1,0 +1,47 @@
+{
+	"version": "0.2.0",    
+	"configurations": [		
+		
+
+		{
+			"name": "Odoo (install & attach with demo data)",
+			"type":"debugpy",
+			"preLaunchTask": "install-demo",
+			"request": "attach",
+			"connect": {
+				"host": "localhost", // replace this with remote machine name
+				"port": 5678
+			} 
+		},	
+		{
+			"name": "Odoo (install & attach without demo data)",
+			"type":"debugpy",
+			"preLaunchTask": "install-no-demo",
+			"request": "attach",
+			"connect": {
+				"host": "localhost", // replace this with remote machine name
+				"port": 5678
+			} 
+		},		
+		{
+			"name": "Odoo (update & attach)",
+			"type":"debugpy",
+			"preLaunchTask": "update",
+			"request": "attach",
+			"connect": {
+				"host": "localhost", // replace this with remote machine name
+				"port": 5678
+			} 
+		},	
+		{
+			"name": "Odoo (attach)",
+			"type":"debugpy",
+			"preLaunchTask": "attach",
+			"request": "attach",
+			"connect": {
+				"host": "localhost", // replace this with remote machine name
+				"port": 5678
+			} 
+		},						
+	]
+}

@@ -1,0 +1,13 @@
+id,active,name,employee_type
+"ems.job_internal",1,"Teacher (internal)",teacher
+"ems.job_external",1,"Teacher (external)",teacher
+"ems.job_conversation",1,"Conversational Auxiliary",teacher
+"ems.job_concierje",1,"Concierje",asp
+"ems.job_secretary",1,"Secretary",asp
+"hr.job_ceo",0,"CEO",
+"hr.job_consultant",0,"Consultant",
+"hr.job_developer",0,"Developer",
+"hr.job_marketing",0,"Marketing",
+"hr.job_cto",0,"CTO",
+"hr.job_hrm",0,"Human Resources",
+"hr.job_trainee",0,"Trainee",

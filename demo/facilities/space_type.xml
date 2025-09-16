@@ -1,0 +1,23 @@
+<odoo>
+    <data>
+        <record id="space_type_1" model="ems.space_type">
+            <field name="name">Classroom</field>
+        </record>
+
+        <record id="space_type_2" model="ems.space_type">
+            <field name="name">Equipment</field>
+        </record>
+
+        <record id="space_type_3" model="ems.space_type">
+            <field name="name">Laboratory</field>
+        </record>
+
+        <record id="space_type_4" model="ems.space_type">
+            <field name="name">Office</field>
+        </record>
+
+        <record id="space_type_5" model="ems.space_type">
+            <field name="name">Workshop</field>
+        </record>
+    </data>
+</odoo>

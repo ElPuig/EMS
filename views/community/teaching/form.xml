@@ -1,0 +1,25 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_teaching_form">
+            <field name="name">ems.teaching.form</field>
+            <field name="model">ems.teaching</field>
+            <field name="arch" type="xml">
+                <form string="teaching">
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group colspan="4">
+                                <field name="teacher_id"/>
+                            </group>
+                            <group colspan="3">
+                                <field name="subject_id"/>
+                            </group>
+                            <group>
+                                <field name="group_id"/>    
+                            </group>                            
+                        </group>                  
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

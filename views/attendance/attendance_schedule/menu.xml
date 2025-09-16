@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+<!-- TODO: schedules should not be available as list -->
+    <!-- <data>          
+        <record model="ir.actions.act_window" id="action_attendance_schedule_tree">
+            <field name="name">Attendance schedule</field>
+            <field name="res_model">ems.attendance_schedule</field>
+            <field name="view_mode">list,form</field>
+        </record>
+            
+        <menuitem name="Schedules" sequence="1" id="menu_attendance_schedule" parent="menu_attendance" action="action_attendance_schedule_tree"/>
+    </data> -->
+</odoo>

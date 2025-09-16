@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_space_search">
+            <field name="name">ems.space.search</field>
+            <field name="model">ems.space</field>            
+            <field name="arch" type="xml">                                         
+                <search string="Spaces">                   
+                    <field name="work_location_id"/>
+                    <field name="space_type_id"/>                    
+                    <group expand="1" string="Group By">                        
+                        <filter name="work_location_id" string="Work location" domain="[]" context="{'group_by': 'work_location_id'}"/>
+                        <filter name="space_type_id" string="Type" domain="[]" context="{'group_by': 'space_type_id'}"/>
+                    </group>
+                    <searchpanel>                        
+                        <field name="work_location_id" icon="fa-building" enable_counters="1"/>
+                        <field name="space_type_id" icon="fa-users" enable_counters="1"/>
+                    </searchpanel>
+                </search>           
+            </field>		      
+        </record>   
+    </data>
+</odoo>

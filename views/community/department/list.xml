@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_department_list">
+            <field name="name">ems.department.list</field>
+            <field name="model">hr.department</field>
+            <field name="inherit_id" ref="hr.view_department_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='parent_id']" position="attributes">                      
+                   <attribute name="column_invisible">True</attribute>
+                </xpath>           
+            </field>
+        </record> 
+    </data>
+</odoo>

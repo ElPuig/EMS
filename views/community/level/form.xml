@@ -1,0 +1,38 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_level_form">
+            <field name="name">ems.level.form</field>
+            <field name="model">ems.level</field>
+            <field name="arch" type="xml">
+                <form string="Level">
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group>
+                                <field name="acronym"/>
+                            </group>
+                            <group colspan="3">
+                                <field name="name"/>    
+                            </group>                            
+                        </group>  
+
+                        <notebook>
+                            <page string="Studies">
+                                <field name="study_ids" widget="many2many">
+                                    <list default_order="code asc, acronym asc, name asc">
+                                        <field name="code"/>
+                                        <field name="acronym"/>
+                                        <field name="name"/>
+                                    </list>
+                                </field>
+                            </page>
+                            
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                  
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,36 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="res_config_settings_view_form">
+            <field name="name">res.config.settings.view.form.inherit.ems</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="15"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">               
+                <xpath expr="//form" position="inside">
+                    <app data-string="EMS Management" string="EMS Management" name="ems">
+                        <block title="Course Management Settings" name="ems_settings">
+                            <setting string="Current course" help="Use this field to select the current course, which will be used for volatile data assignation (like the student's enrollments or the teacher's schedules)." id="current_course_setting">
+                                <field name="course_id" />
+                                <!-- TODO: this is temporary, how should it work: 
+                                        1. The filed "course_id" should be read-only.
+                                        2. On install, the current course should be generated and assigned (the default course values can be used). 
+                                        3. Next to it, there should be a button called "Setup next course". On clicking, a warning should alert about what is going to happen:
+                                            All static data will remain (students, teachers, subjects, etc.)
+                                            All the expirable data will be moved to a read-only history (student's enrollments including grades, teachers assignations and schedules, etc.) and cleared in order to setup the new ones. 
+                                            THIS ACTION CANNOT BE UNDONE (study if a BBDD backup can be done in the background before changing anything). OLD DATA WILL BE AVAILABLE JUST FOR CONSULTING, BUT NOT MODIFICABLE. 
+                                -->
+                                <!-- <div class="content-group" invisible="course_id == False" id="group_current_course_setting">
+                                    <div class="text-warning mt16">
+                                        <strong>Save</strong>
+                                        this page and come back here to set up the
+                                        feature.
+                                    </div>
+                                </div> -->
+                            </setting>
+                        </block>
+                    </app>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,110 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_contact_form">
+            <field name="name">ems.contact.form</field>
+            <field name="model">res.partner</field>            
+            <field name="inherit_id" ref="base.view_partner_form"/> 
+            <field name="arch" type="xml">  
+                <xpath expr="//form" position="attributes">                      
+                    <attribute name="js_class">studentpopup_expand_button</attribute>
+                </xpath>     
+
+                <field name="company_type" position="attributes">
+                    <attribute name="invisible">contact_type != 'provider'</attribute>
+                </field>
+
+                <field name="parent_id" position="attributes">
+                    <attribute name="invisible">contact_type != 'provider' or (((is_company and not parent_id) or company_name) and company_name != '')</attribute>
+                </field>
+
+                <field name="function" position="attributes">     
+                     <attribute name="invisible">contact_type != 'provider'</attribute>
+                </field>
+
+                <field name="website" position="attributes">     
+                     <attribute name="invisible">contact_type != 'provider'</attribute>
+                </field>
+
+                <field name="category_id" position="attributes">     
+                     <attribute name="invisible">contact_type != 'provider'</attribute>
+                </field>
+                              
+                <field name="title" position="attributes">     
+                     <attribute name="invisible">contact_type != 'provider'</attribute>
+                </field>                               
+
+                <field name="vat" position="attributes">                    
+                    <attribute name="invisible">contact_type != 'provider'</attribute>            
+                </field>
+                
+                <field name="vat" position="after">     
+                    <field name="contact_type" invisible="True" />
+                </field>
+
+                <xpath expr="//page[@name='sales_purchases']" position="attributes">                     
+                    <attribute name="invisible">contact_type != 'provider'</attribute>
+                </xpath>
+
+                <xpath expr="//page[@name='contact_addresses']" position="attributes">
+                    <attribute name="autofocus">contact_type != 'student</attribute>
+                </xpath>
+
+                <xpath expr="//page[@name='contact_addresses']" position="before">
+                    <page name="student" string="Student data" invisible="contact_type != 'student'" autofocus="contact_type == 'student">
+                        <group cols="2">
+                            <separator name="data" string="Main Data"/>
+                            <group>
+                                <field name="student_id" />
+                                <field name="birth_date" />                            
+                                <field name="student_email" invisible="contact_type != 'student'"  widget="email" />
+                                <field name="car_plate" />
+                            </group>
+                            <group>
+                                <field name="medical_id" />
+                                <field name="birth_country_id" />    
+                                <field name="citizenship_id" />
+                            </group>                            
+
+                            <separator name="data" string="Authorizations"/>
+                            <group>
+                                <field name="auth_image" />
+                                <field name="auth_trip" />
+                            </group>    
+                            <group>                                
+                                <field name="auth_healt" />
+                            </group>  
+                        </group>                        
+                    </page>
+                </xpath>
+
+                <xpath expr="//page[@name='sales_purchases']" position="after">                                         
+                    <page name="studies" string="Studies" invisible="contact_type != 'student'">
+                        <group cols="2">
+                            <separator name="group" string="Group Data"/>
+                            <group>
+                                <field name="level_id" readonly="False" />
+                                <field name="main_group_id" readonly="study_id == False" domain="[('study_id','=', study_id)]" />
+                            </group>
+                            <group>
+                                <field name="study_id" readonly="level_id == False" domain="[('level_id','=', level_id)]" />
+                                <field name="tutor_id" />
+                            </group>
+
+                            <separator name="enrollment" string="Enrollment Data"/>
+                            <field name="enrollment_ids" string="" context="{'default_group_id': main_group_id}" readonly="main_group_id == False">
+                                <!-- TODO: avoid repeated -->
+                                <list editable="top" default_order="subject_id asc, group_id asc"
+                                    decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                                    <field name="subject_id" domain="[('id','not in', inuse_subject_ids)]"/>
+                                    <field name="group_id" domain="[('study_id','=', parent.study_id)]"/>
+                                    <field name="level" column_invisible="True"/>
+                                    <field name="inuse_subject_ids" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </group>
+                    </page>
+                </xpath>                                                 
+            </field>		      
+        </record>   
+    </data>
+</odoo>

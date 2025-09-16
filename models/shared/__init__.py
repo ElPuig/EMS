@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from . import (attachment, course)
+from . import (utils, attachment, course)

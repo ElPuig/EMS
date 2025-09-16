@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+#from lxml import etree
 
 employee_types = [
     ("asp", "Administrative and Services Personnel"), 
@@ -25,6 +26,13 @@ class ems_employee_base(models.AbstractModel):
     roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
     tutorships = fields.Char(string="Tutorship names", compute="_compute_tutorships_str", store=True)	
 
+    # This field is used to set the entire form as read-only; compute_sudo needed to compute on read-only.
+    read_only = fields.Boolean(string="Read only", compute="_compute_read_only", compute_sudo=True, store=False)
+
+    def _compute_read_only(self):        
+        for rec in self:
+            rec.read_only = self.check_access_rights('write', raise_exception=False)
+
     def _get_new_employee_type(self):
         return employee_types
 
@@ -32,11 +40,8 @@ class ems_employee_base(models.AbstractModel):
     @api.onchange('tutorship_ids')
     def _onchange_tutorship_ids(self):	
         for rec in self:
-            role_tutor = self.env.ref('ems.role_tutor').ids[0]
-            if len(rec.tutorship_ids) > 0:                
-                rec.write({'role_ids' : [(4, role_tutor)]})
-            else:
-                rec.write({'role_ids' : [(3, role_tutor)]})
+            role_tutor = self.env.ref('ems.role_tutor').ids[0]            
+            rec.write({'role_ids' : [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)]})            
 
     @api.onchange('teaching_ids')
     def _onchange_teaching_ids(self):	
@@ -84,24 +89,7 @@ class ems_employee_base(models.AbstractModel):
 
                     # If has childs, they must be added (recursive) if no other childs are present.
                     self._teaching_populate_descendant(rec, sub, teaching)                     
-    
-    def _teaching_populate_descendant(self, rec, sub, teaching):
-        for ch in sub.subject_ids:
-            rec.write({
-                'teaching_ids': [(0, 0, {
-                    "teacher_id": rec.id, 
-                    "group_id": teaching[sub].group_id,
-                    "subject_id": ch.id,      
-                })]
-            }) 
-            self._teaching_populate_descendant(rec, ch, teaching) 
-    
-    @api.constrains("role_ids")
-    def check_limit(self):
-        for rec in self:
-            for role in rec.role_ids:                
-                role.check_limit()                
-				
+                                				
     @api.depends("role_ids")
     def _compute_roles_str(self):			
         for rec in self:
@@ -109,7 +97,6 @@ class ems_employee_base(models.AbstractModel):
             for role in rec.role_ids:
                 rec.roles = "%s, %s" % (rec.roles, role.name) 			
             rec.roles = rec.roles.lstrip(", ")
-
     
     @api.depends("tutorship_ids")
     def _compute_tutorships_str(self):			
@@ -117,13 +104,40 @@ class ems_employee_base(models.AbstractModel):
             rec.tutorships = ""
             for tutorship in rec.tutorship_ids:
                 rec.tutorships = "%s, %s" % (rec.tutorships, tutorship.name) 			
-            rec.tutorships = rec.tutorships.lstrip(", ")
+            rec.tutorships = rec.tutorships.lstrip(", ")   
 
+    @api.constrains("role_ids")
+    def check_limit(self):
+        for rec in self:
+            for role in rec.role_ids:                
+                role.check_limit()
+    
+    # @api.model
+    # def get_view(self, view_id=None, view_type='form', **options):
+    #     res = super().get_view(view_id=view_id, view_type=view_type, **options)
+    #     if view_type == 'form' and "arch" in res:
+    #         doc = etree.fromstring(res["arch"])
+                    
+    #         if not self.check_access_rights('write', raise_exception=False):
+    #             for node in doc.xpath("//field"):
+    #                 node.set("readonly", "true")            
+    #         res["arch"] = etree.tostring(doc, encoding="unicode")
+        
+    #     return res
+                
 class ems_employee(models.AbstractModel):
     _inherit = ["hr.employee"]
 
-    # Info: groups is needed to avoid warnings
-    employee_type = fields.Selection(string="Employee Type", selection_add = employee_types, groups="base.group_system,hr.group_hr_user", ondelete={
+    # Info: groups are needed to allow read-only access to teachers
+    employee_type = fields.Selection(string="Employee Type", selection_add = employee_types, groups="base.group_system,hr.group_hr_user,ems.group_teacher", ondelete={
         'asp': 'set default',
         'teacher': 'set default'
     })
+
+    activity_ids = fields.One2many(groups="hr.group_hr_user,ems.group_teacher")
+    activity_exception_decoration = fields.Selection(groups="hr.group_hr_user,ems.group_teacher")
+    activity_exception_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
+    activity_state = fields.Selection(groups="hr.group_hr_user,ems.group_teacher")
+    activity_summary = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
+    activity_type_id = fields.Many2one(groups="hr.group_hr_user,ems.group_teacher")
+    activity_type_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")

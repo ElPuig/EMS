@@ -1,5 +1,5 @@
-teacher_id/id,group_id/id,subject_id/id
-teacher_50001122A,group_dam1a,ems.subject_0485
-teacher_50001122A,group_dam1a,ems.subject_0487
-teacher_50001122A,group_daw1a,ems.subject_0485
-teacher_50001122A,group_daw1a,ems.subject_0487
+id,teacher_id/id,group_id/id,subject_id/id
+__import__.teaching_1,__import__.teacher_50001122A,__import__.group_dam1a,ems.subject_0485
+__import__.teaching_2,__import__.teacher_50001122A,__import__.group_dam1a,ems.subject_0487
+__import__.teaching_3,__import__.teacher_50001122A,__import__.group_daw1a,ems.subject_0485
+__import__.teaching_4,__import__.teacher_50001122A,__import__.group_daw1a,ems.subject_0487

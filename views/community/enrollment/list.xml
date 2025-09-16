@@ -7,7 +7,7 @@
                 <list expand="True" default_order="student_id asc" >
                     <field name="student_id" />
                     <field name="group_id" class="w-25"/>                    
-                    <field name="subject_id" />
+                    <field name="subject_id" />                    
                 </list>
             </field>
         </record>  

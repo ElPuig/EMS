@@ -3,19 +3,19 @@
        <record id="teaching_1" model="ems.teaching">
             <field name="teacher_id" ref="hr.employee_hne"/>
             <field name="group_id" ref="ems.group_1"/>
-            <field name="subject_id" ref="ems.subject_2_4"/>
+            <field name="subject_id" ref="__import__.subject_2_4"/>
         </record>
         
         <record id="teaching_2" model="ems.teaching">
             <field name="teacher_id" ref="hr.employee_hne"/>
             <field name="group_id" ref="ems.group_1"/>
-            <field name="subject_id" ref="ems.subject_2_5"/>
+            <field name="subject_id" ref="__import__.subject_2_5"/>
         </record>
 
         <record id="teaching_3" model="ems.teaching">
             <field name="teacher_id" ref="hr.employee_hne"/>
             <field name="group_id" ref="ems.group_1"/>
-            <field name="subject_id" ref="ems.subject_2_6"/>
+            <field name="subject_id" ref="__import__.subject_2_6"/>
         </record>
     </data>
 </odoo>

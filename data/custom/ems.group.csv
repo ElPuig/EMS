@@ -1,6 +1,6 @@
 id,course,acronym,level_id/id,study_id/id,space_id/id
-"group_dam1a",1,"A","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","space_018"
-"group_dam2a",2,"A","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","space_019"
-"group_dam2b",2,"B","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","space_208"
-"group_daw1a",1,"A","ems.level_cfgs","ems.study_cfgs_icc0_daw_2024","space_210"
-"group_daw2a",2,"A","ems.level_cfgs","ems.study_cfgs_icc0_daw_2024","space_001"
+__import__.group_dam1a,1,"A","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","__import__.space_018"
+__import__.group_dam2a,2,"A","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","__import__.space_019"
+__import__.group_dam2b,2,"B","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","__import__.space_208"
+__import__.group_daw1a,1,"A","ems.level_cfgs","ems.study_cfgs_icc0_daw_2024","__import__.space_210"
+__import__.group_daw2a,2,"A","ems.level_cfgs","ems.study_cfgs_icc0_daw_2024","__import__.space_001"

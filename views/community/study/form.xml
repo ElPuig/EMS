@@ -32,9 +32,7 @@
                         <notebook>      
                             <page string="Subjects">
                                 <field name="subject_ids">
-                                     <list expand="True" default_order="code asc, level asc, acronym asc"
-                                           decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
-                                        <field name="level" column_invisible="True"/>
+                                     <list expand="True" default_order="code asc, acronym asc">                                        
                                         <field name="code" column_invisible="True"/>
                                         <field name="acronym"/>
                                         <field name="name"/>                                        

@@ -1,0 +1,18 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_template_search">
+            <field name="name">ems.attendance_template.search</field>
+            <field name="model">ems.attendance_template</field>            
+            <field name="arch" type="xml">   
+                <!--
+                    NOTE: The original idea was to filter using a conditional domain within the act_window called action_attendance_template_tree.
+                    Sadly, I wasn't able to use the 'user', 'self', 'env', etc. within the domain's python condition :(
+                    The context is available, but I need to find a way to send if the user is admin throug context...
+                -->
+                <search string="Owner">                                                                             
+                    <filter string="Only my templates" name="only_own" domain="['|', ('teacher_id.user_id.id', '=', uid), ('create_uid', '=', uid)]"/>
+                </search>           
+            </field>		      
+        </record>   
+    </data>
+</odoo>

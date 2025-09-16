@@ -3,61 +3,61 @@
         <record id="enrollment_1" model="ems.enrollment">
             <field name="student_id" ref="hr.work_contact_jve"/>
             <field name="group_id" ref="ems.group_1"/>
-            <field name="subject_id" ref="ems.subject_2_4"/>
+            <field name="subject_id" ref="__import__.subject_2_4"/>
         </record>
 
         <record id="enrollment_2" model="ems.enrollment">
             <field name="student_id" ref="hr.work_contact_jve"/>
             <field name="group_id" ref="ems.group_1"/>
-            <field name="subject_id" ref="ems.subject_2_5"/>
+            <field name="subject_id" ref="__import__.subject_2_5"/>
         </record>
 
         <record id="enrollment_3" model="ems.enrollment">
             <field name="student_id" ref="hr.work_contact_jve"/>
             <field name="group_id" ref="ems.group_1"/>
-            <field name="subject_id" ref="ems.subject_2_6"/>
+            <field name="subject_id" ref="__import__.subject_2_6"/>
         </record>
 
         <record id="enrollment_4" model="ems.enrollment">
             <field name="student_id" ref="hr.work_contact_stw"/>
             <field name="group_id" ref="ems.group_2"/>
-            <field name="subject_id" ref="ems.subject_2_4"/>
+            <field name="subject_id" ref="__import__.subject_2_4"/>
         </record>
 
         <record id="enrollment_5" model="ems.enrollment">
             <field name="student_id" ref="hr.work_contact_stw"/>
             <field name="group_id" ref="ems.group_2"/>
-            <field name="subject_id" ref="ems.subject_2_5"/>
+            <field name="subject_id" ref="__import__.subject_2_5"/>
         </record>
 
         <record id="enrollment_6" model="ems.enrollment">
             <field name="student_id" ref="hr.work_contact_stw"/>
             <field name="group_id" ref="ems.group_2"/>
-            <field name="subject_id" ref="ems.subject_2_6"/>
+            <field name="subject_id" ref="__import__.subject_2_6"/>
         </record>
 
         <record id="enrollment_7" model="ems.enrollment">
             <field name="student_id" ref="hr.work_contact_stw"/>
             <field name="group_id" ref="ems.group_3"/>
-            <field name="subject_id" ref="ems.subject_1_1"/>
+            <field name="subject_id" ref="__import__.subject_1_1"/>
         </record>
 
         <record id="enrollment_8" model="ems.enrollment">
             <field name="student_id" ref="hr.work_contact_vad"/>
             <field name="group_id" ref="ems.group_3"/>
-            <field name="subject_id" ref="ems.subject_1_1"/>
+            <field name="subject_id" ref="__import__.subject_1_1"/>
         </record>
 
         <record id="enrollment_9" model="ems.enrollment">
             <field name="student_id" ref="hr.work_contact_vad"/>
             <field name="group_id" ref="ems.group_3"/>
-            <field name="subject_id" ref="ems.subject_1_2"/>
+            <field name="subject_id" ref="__import__.subject_1_2"/>
         </record>
 
         <record id="enrollment_10" model="ems.enrollment">
             <field name="student_id" ref="hr.work_contact_vad"/>
             <field name="group_id" ref="ems.group_3"/>
-            <field name="subject_id" ref="ems.subject_1_3"/>
+            <field name="subject_id" ref="__import__.subject_1_3"/>
         </record>
         
     </data>

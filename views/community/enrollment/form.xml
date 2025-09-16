@@ -9,6 +9,8 @@
                         <group string="Main data" col="4">
                             <group colspan="4">
                                 <field name="student_id"/>
+                                <field name="user_is_admin" invisible="True" />   
+                                <field name="user_is_tutor" invisible="True" /> 
                             </group>
                             <group colspan="3">
                                 <field name="subject_id"/>

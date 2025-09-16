@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_session_search">
+            <field name="name">ems.attendance_session.search</field>
+            <field name="model">ems.attendance_session</field>            
+            <field name="arch" type="xml">   
+                <!--
+                    NOTE: The original idea was to filter using a conditional domain within the act_window called action_attendance_session_tree.
+                    Sadly, I wasn't able to use the 'user', 'self', 'env', etc. within the domain's python condition :(
+                    The context is available, but I need to find a way to send if the user is admin throug context...
+
+                    All entries must be available for read-onñy in order to be able to justify some entries (because from status jumps to session).
+                    BEWARE: copying data from session to status is possible, but makes the logic more complex and needs backwards compatibility. 
+                    Easier and safer to use filters and, if I find out how to filter by permissions, make it. 
+                -->
+                <search string="Owner">                                                                             
+                    <filter string="Only my sessions" name="only_own" domain="['|', '|', ('create_uid', '=', uid), ('template_teacher_id.user_id.id', '=', uid), ('session_teacher_id.user_id.id', '=', uid)]"/>
+                </search>           
+            </field>		      
+        </record>   
+    </data>
+</odoo>

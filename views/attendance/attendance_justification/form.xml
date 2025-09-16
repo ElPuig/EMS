@@ -1,0 +1,56 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_justification_form">
+            <field name="name">ems.attendance_justification.form</field>
+            <field name="model">ems.attendance_justification</field>
+            <field name="arch" type="xml">
+                <form string="justification">                    
+                    <sheet>     
+                         <group string="Main data" col="4">                            
+                            <group colspan="4">
+                                <field string="Period" name="start_date" widget="daterange" options='{"end_date_field": "end_date"}' readonly="id"/>
+                                <!-- Needed in order to fire 'onchange' for the 'end_date' field -->
+                                <field name="end_date" invisible="True"/>
+                            </group>                         
+                            <group colspan="2">
+                                <field name="student_id" domain="[('id', 'in', allowed_student_ids)]" widget="many2one_avatar" readonly="id"/>
+                            </group>                                             
+                            <group colspan="2">
+                                <field name="teacher_id" string="Teacher" widget="many2one_avatar_employee" readonly="id or not user_is_admin"/>                              
+                            </group>                             
+                        </group>                      
+
+                        <notebook>
+                            <page string="Statuses">                                
+                                <field name="attendance_status_ids">
+                                    <list default_order="student_id asc" create="False" edit="False" delete="False" no_open="True">                                                                               
+                                        <field string="Session" name="display_name" />
+                                        <field name="status" width="175px" />
+                                    </list>
+                                </field>
+                            </page> 
+                            <page string="Session teachers">                                
+                                <field name="session_teacher_ids">
+                                    <list default_order="name asc" create="False" edit="False" delete="False" no_open="True">                                                                               
+                                        <field string="Name" name="name" />
+                                    </list>
+                                </field>
+                            </page>        
+                            <page string="Attached files">
+                                <field name="attachment_ids" default_order="name asc" context="{'default_res_model': 'ems.attendance_justification'}" readonly="not user_is_admin and not user_is_tutor">
+                                    <list default_order="name asc">
+                                        <field name="name" />
+                                        <button class="btn btn-secondary fa fa-download" title="Download File" name="download" type="object" />
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Notes">
+                                <field name="notes"/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>              
+            </field>			
+        </record>
+    </data>
+</odoo>

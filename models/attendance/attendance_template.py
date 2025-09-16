@@ -5,8 +5,8 @@ from odoo import models, fields, api
 class ems_attendance_template(models.Model):
 	_name = "ems.attendance_template"
 	_description = "Attendance template: contains the basic attendance data (who teaches what, where and for whom)"
+	_inherit = ['ems.utils']
 
-	# TODO: add a start_date and an end_date. It will be used to select the current data when creating a new session.
 	start_date = fields.Date(string="Start date", required=True)
 	end_date = fields.Date(string="End date", required=True)
 	color = fields.Integer(string="Color", help="Field to store the color that will be used for calendar view")   
@@ -18,9 +18,14 @@ class ems_attendance_template(models.Model):
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", domain="[('study_ids', 'in', study_id)]", required=True)
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
 	
-	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_schedule", inverse_name="attendance_template_id")		
+	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_schedule", inverse_name="attendance_template_id")			
+	student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")	
+
+	# NOTE: this field is computed when loaded within a form or list
+	read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
 	
-	student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]") # TODO: autofill by group + subject | allow changes
+	def _get_read_only_user(self):
+		return not (self.get_user_is_admin() or self.teacher_id.user_id.id == self.env.uid or self.create_uid == self.env.uid)
 
 	def _default_teacher_id(self):							
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False

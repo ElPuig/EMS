@@ -1,12 +1,12 @@
 id,code,name,space_type_id/id,work_location_id/id
-"space_m103","-1.03","Gym","ems.space_type_equipment",ems.work_location_main
-"space_001","0.01","Stallman","ems.space_type_classroom",ems.work_location_main
-"space_013","0.13","Chomsky","ems.space_type_classroom",ems.work_location_main
-"space_018","0.18","Torvalds","ems.space_type_classroom",ems.work_location_main
-"space_019","0.19","Tesla","ems.space_type_classroom",ems.work_location_main
-"space_112","1.12","Principal's office","ems.space_type_office",ems.work_location_main
-"space_208","2.08","Berners-Lee","ems.space_type_classroom",ems.work_location_main
-"space_209","2.09","Snowden","ems.space_type_classroom",ems.work_location_main
-"space_210","2.10","Ada","ems.space_type_classroom",ems.work_location_main
-"space_220","2.20","Perlman","ems.space_type_classroom",ems.work_location_main
-"space_303","3.03","Turing","ems.space_type_classroom",ems.work_location_main
+__import__.space_m103,"-1.03","Gym","ems.space_type_equipment",ems.work_location_main
+__import__.space_001,"0.01","Stallman","ems.space_type_classroom",ems.work_location_main
+__import__.space_013,"0.13","Chomsky","ems.space_type_classroom",ems.work_location_main
+__import__.space_018,"0.18","Torvalds","ems.space_type_classroom",ems.work_location_main
+__import__.space_019,"0.19","Tesla","ems.space_type_classroom",ems.work_location_main
+__import__.space_112,"1.12","Principal's office","ems.space_type_office",ems.work_location_main
+__import__.space_208,"2.08","Berners-Lee","ems.space_type_classroom",ems.work_location_main
+__import__.space_209,"2.09","Snowden","ems.space_type_classroom",ems.work_location_main
+__import__.space_210,"2.10","Ada","ems.space_type_classroom",ems.work_location_main
+__import__.space_220,"2.20","Perlman","ems.space_type_classroom",ems.work_location_main
+__import__.space_303,"3.03","Turing","ems.space_type_classroom",ems.work_location_main

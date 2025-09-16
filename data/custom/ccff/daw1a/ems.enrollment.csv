@@ -1,5 +1,5 @@
 student_id/id,group_id/id,subject_id/id
-student_33339483A,group_daw1a,ems.subject_0485
-student_33339483A,group_daw1a,ems.subject_0487
-student_77700498L,group_daw1a,ems.subject_0485
-student_77700498L,group_daw1a,ems.subject_0487
+__import__.student_33339483A,__import__.group_daw1a,__import__.subject_0485
+__import__.student_33339483A,__import__.group_daw1a,__import__.subject_0487
+__import__.student_77700498L,__import__.group_daw1a,__import__.subject_0485
+__import__.student_77700498L,__import__.group_daw1a,__import__.subject_0487

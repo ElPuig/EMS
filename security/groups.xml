@@ -13,7 +13,7 @@
             <field name="name">Teacher</field>
             <field name="comment">Teacher's access rights.</field>
             <field name="category_id" ref="ems.category_main"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('hr.group_hr_user'))]"/>
         </record>
 
         <!-- TODO: this group has not been yet setup in ir.modal.access.  -->
@@ -31,6 +31,10 @@
             <field name="implied_ids" eval="[(4, ref('ems.group_teacher')), (4, ref('ems.group_secretary'))]"/>    
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>  
+
+        <!-- <record model="res.groups" id="hr.group_hr_user">
+            <field name="implied_ids" eval="[(4,ref('group_teacher'))]"/>
+        </record>    -->
 
         <record model="res.groups" id="project.group_project_manager">
             <field name="users" eval="[(3,ref('base.user_root')), (3,ref('base.user_admin'))]"/>

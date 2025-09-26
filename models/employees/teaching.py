@@ -15,14 +15,14 @@ class ems_teaching(models.Model):
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", ondelete='cascade', required=True)	
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", ondelete='cascade', required=True)	
 	
-	# this field is used to filter the availabe groups within the view (avoiding the selection of repeated groups for the same subject in teaching form).
-	inuse_group_ids = fields.Many2many('ems.group', compute='_compute_inuse_group_ids', store=False) 
+	# This field is used to filter the availabe groups within the view (avoiding the selection of repeated groups for the same subject in teaching form).
+	# Note: compute_sudo is needed for read-only access.
+	inuse_group_ids = fields.Many2many('ems.group', compute='_compute_inuse_group_ids', compute_sudo=True, store=False) 
 	# this field is used to change the style of the row in the view
 	level = fields.Integer(string="Level", related="subject_id.level", store=False)		
-		
-			
+					
 	@api.depends('subject_id')
-	def _compute_inuse_group_ids(self):		
+	def _compute_inuse_group_ids(self):				
 		for rec in self:
 			groups = []		
 			for tch in rec.teacher_id.teaching_ids:

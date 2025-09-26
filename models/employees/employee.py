@@ -25,6 +25,13 @@ class ems_employee_base(models.AbstractModel):
     roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
     tutorships = fields.Char(string="Tutorship names", compute="_compute_tutorships_str", store=True)	
 
+    # This field is used to set the entire form as read-only; compute_sudo needed to compute on read-only.
+    read_only = fields.Boolean(string="Read only", compute="_compute_read_only", compute_sudo=True, store=False)
+
+    def _compute_read_only(self):        
+        for rec in self:
+            rec.read_only = self.check_access_rights('write', raise_exception=False)
+
     def _get_new_employee_type(self):
         return employee_types
 

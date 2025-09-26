@@ -6,8 +6,18 @@
             <field name="inherit_id" ref="hr.view_employee_form"/> 
             <field name="arch" type="xml">        
                 <xpath expr="//form" position="attributes">
-                    <attribute name="groups">hr.group_hr_user</attribute>
-                </xpath>           
+                    <!-- TODO: posar tots els campos del formulari en mode read-only. Sembla que no es pot fer a tot el form.  -->
+                    <!-- <attribute name="groups">hr.group_hr_user</attribute> -->
+                    <!-- <attribute name="edit">[(True, =, read_only)]</attribute> -->
+                    <!-- <attribute name="edit">False</attribute> -->
+                </xpath>  
+
+                <!-- <xpath expr="//field" position="attributes"> -->
+                    <!-- TODO: posar tots els campos del formulari en mode read-only. Sembla que no es pot fer a tot el form.  -->
+                    <!-- <attribute name="groups">hr.group_hr_user</attribute> -->
+                    <!-- <attribute name="edit">[(True, =, read_only)]</attribute> -->
+                    <!-- <attribute name="readonly">1</attribute>
+                </xpath>                          -->
                 
                 <field name="name" position="replace">
                     <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->                    
@@ -96,7 +106,7 @@
                             </field>
                         </group>
                     </page>                     
-                </xpath>              
+                </xpath>                
             </field>		      
         </record>  
 

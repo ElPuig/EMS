@@ -13,7 +13,7 @@
             <field name="name">Teacher</field>
             <field name="comment">Teacher's access rights.</field>
             <field name="category_id" ref="ems.category_main"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('hr.group_hr_user'))]"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
 
         <!-- TODO: this group has not been yet setup in ir.modal.access.  -->

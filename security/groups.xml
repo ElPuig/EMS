@@ -13,16 +13,16 @@
             <field name="name">User</field>
             <field name="comment">Minimal access rights.</field>
             <field name="category_id" ref="ems.ems_category_main"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>            
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
 
         <record id="ems_group_admin" model="res.groups">
             <field name="name">Administrator</field>
             <field name="comment">All access rights.</field>
             <field name="category_id" ref="ems.ems_category_main"/>
-            <field name="implied_ids" eval="[(4, ref('ems_group_user'))]"/>    
+            <field name="implied_ids" eval="[(4, ref('ems.ems_group_user'))]"/>    
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
-        </record>   
+        </record>  
 
         <record id="project.group_project_manager" model="res.groups">
             <field name="users" eval="[(3,ref('base.user_root')), (3,ref('base.user_admin'))]"/>

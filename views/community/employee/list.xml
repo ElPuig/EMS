@@ -7,7 +7,15 @@
             <field name="arch" type="xml">                        
                 <xpath expr="//field[@name='coach_id']" position="attributes">
                     <attribute name="column_invisible">True</attribute>
-                </xpath>                                      
+                </xpath>   
+
+                <field name="job_id" position="after">
+                    <field name="employee_type" groups="base.group_system,hr.group_hr_user,ems.ems_group_user"/>
+                </field>                                     
+
+                 <!-- <field name="employee_type" position="attributes">
+                    <attribute name="groups">base.group_system,hr.group_hr_user,ems.ems_group_user</attribute>
+                </field>  -->
             </field>		      
         </record>   
     </data>

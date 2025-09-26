@@ -20,7 +20,7 @@ ems.access_ems_role_teacher,ems.access_ems_role_teacher,ems.model_ems_role,ems.g
 ems.access_ems_group_admin,ems.access_ems_group_admin,ems.model_ems_group,ems.group_admin,1,1,1,1
 ems.access_ems_group_teacher,ems.access_ems_group_teacher,ems.model_ems_group,ems.group_teacher,1,0,0,0
 
-ems.access_ems_study_admin,ems.access_ems_study_admin,ems.model_ems_study,ems.group_teacher,1,1,1,1
+ems.access_ems_study_admin,ems.access_ems_study_admin,ems.model_ems_study,ems.group_admin,1,1,1,1
 ems.access_ems_study_teacher,ems.access_ems_study_teacher,ems.model_ems_study,ems.group_teacher,1,0,0,0
 
 ems.access_ems_attendance_template_admin,ems.access_ems_attendance_template_admin,ems.model_ems_attendance_template,ems.group_admin,1,1,1,1
@@ -47,6 +47,9 @@ ems.access_ems_workgroup_teacher,ems.access_ems_workgroup_teacher,ems.model_ems_
 ems.access_ems_subject_admin,ems.access_ems_subject_admin,ems.model_ems_subject,ems.group_admin,1,1,1,1
 ems.access_ems_subject_teacher,ems.access_ems_subject_teacher,ems.model_ems_subject,ems.group_teacher,1,0,0,0
 
+ems.access_ems_subject_view_admin,ems.access_ems_subject_view_admin,ems.model_ems_subject_view,ems.group_admin,1,1,1,1
+ems.access_ems_subject_view_teacher,ems.access_ems_subject_view_teacher,ems.model_ems_subject_view,ems.group_teacher,1,0,0,0
+
 ems.access_ems_minute_admin,ems.access_ems_minute_admin,ems.model_ems_minute,ems.group_admin,1,1,1,1
 ems.access_ems_minute_teacher,ems.access_ems_minute_teacher,ems.model_ems_minute,ems.group_teacher,1,0,0,0
 
@@ -61,9 +64,6 @@ ems.access_ems_outcome_teacher,ems.access_ems_outcome_teacher,ems.model_ems_outc
 
 ems.access_ems_enrollment_view_admin,ems.access_ems_enrollment_view_admin,ems.model_ems_enrollment_view,ems.group_admin,1,1,1,1
 ems.access_ems_enrollment_view_teacher,ems.access_ems_enrollment_view_teacher,ems.model_ems_enrollment_view,ems.group_teacher,1,0,0,0
-
-ems.access_ems_subject_view_admin,ems.access_ems_subject_view_admin,ems.model_ems_subject_view,ems.group_admin,1,1,1,1
-ems.access_ems_subject_view_teacher,ems.access_ems_subject_view_teacher,ems.model_ems_subject_view,ems.group_teacher,1,0,0,0
 
 ems.access_ems_attendance_report_student_wizard_admin,ems.access_ems_attendance_report_student_wizard_admin,ems.model_ems_attendance_report_student_wizard,ems.group_admin,1,1,1,1
 ems.access_ems_attendance_report_student_wizard_teacher,ems.access_ems_attendance_report_student_wizard_teacher,ems.model_ems_attendance_report_student_wizard,ems.group_teacher,1,0,0,0

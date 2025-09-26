@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+#from lxml import etree
 
 employee_types = [
     ("asp", "Administrative and Services Personnel"), 
@@ -91,7 +92,23 @@ class ems_employee_base(models.AbstractModel):
 
                     # If has childs, they must be added (recursive) if no other childs are present.
                     self._teaching_populate_descendant(rec, sub, teaching)                     
+                                				
+    @api.depends("role_ids")
+    def _compute_roles_str(self):			
+        for rec in self:
+            rec.roles = ""
+            for role in rec.role_ids:
+                rec.roles = "%s, %s" % (rec.roles, role.name) 			
+            rec.roles = rec.roles.lstrip(", ")
     
+    @api.depends("tutorship_ids")
+    def _compute_tutorships_str(self):			
+        for rec in self:
+            rec.tutorships = ""
+            for tutorship in rec.tutorship_ids:
+                rec.tutorships = "%s, %s" % (rec.tutorships, tutorship.name) 			
+            rec.tutorships = rec.tutorships.lstrip(", ")
+
     def _teaching_populate_descendant(self, rec, sub, teaching):
         for ch in sub.subject_ids:
             rec.write({
@@ -102,30 +119,26 @@ class ems_employee_base(models.AbstractModel):
                 })]
             }) 
             self._teaching_populate_descendant(rec, ch, teaching) 
-    
+
     @api.constrains("role_ids")
     def check_limit(self):
         for rec in self:
             for role in rec.role_ids:                
-                role.check_limit()                
-				
-    @api.depends("role_ids")
-    def _compute_roles_str(self):			
-        for rec in self:
-            rec.roles = ""
-            for role in rec.role_ids:
-                rec.roles = "%s, %s" % (rec.roles, role.name) 			
-            rec.roles = rec.roles.lstrip(", ")
-
+                role.check_limit()
     
-    @api.depends("tutorship_ids")
-    def _compute_tutorships_str(self):			
-        for rec in self:
-            rec.tutorships = ""
-            for tutorship in rec.tutorship_ids:
-                rec.tutorships = "%s, %s" % (rec.tutorships, tutorship.name) 			
-            rec.tutorships = rec.tutorships.lstrip(", ")
-
+    # @api.model
+    # def get_view(self, view_id=None, view_type='form', **options):
+    #     res = super().get_view(view_id=view_id, view_type=view_type, **options)
+    #     if view_type == 'form' and "arch" in res:
+    #         doc = etree.fromstring(res["arch"])
+                    
+    #         if not self.check_access_rights('write', raise_exception=False):
+    #             for node in doc.xpath("//field"):
+    #                 node.set("readonly", "true")            
+    #         res["arch"] = etree.tostring(doc, encoding="unicode")
+        
+    #     return res
+                
 class ems_employee(models.AbstractModel):
     _inherit = ["hr.employee"]
 

@@ -9,12 +9,12 @@
                     <attribute name="column_invisible">True</attribute>
                 </xpath>   
 
-                <field name="job_id" position="after">
-                    <field name="employee_type" groups="base.group_system,hr.group_hr_user,ems.ems_group_user"/>
-                </field>                                     
+                <!-- <field name="job_id" position="after">
+                    <field name="employee_type" groups="base.group_system,hr.group_hr_user,ems.ems_group_teacher"/>
+                </field>                                      -->
 
                  <!-- <field name="employee_type" position="attributes">
-                    <attribute name="groups">base.group_system,hr.group_hr_user,ems.ems_group_user</attribute>
+                    <attribute name="groups">base.group_system,hr.group_hr_user,ems.ems_group_teacher</attribute>
                 </field>  -->
             </field>		      
         </record>   

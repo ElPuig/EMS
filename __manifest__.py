@@ -218,12 +218,16 @@
         'data/custom/ems.role.csv',
         'data/custom/hr.department.csv',
         'data/custom/res.company.csv',
-        'data/custom/ems.teaching.csv',
 
-        'data/custom/ccff/dam1a/res.partner.csv',
-        'data/custom/ccff/dam1a/ems.enrollment.csv',
-        'data/custom/ccff/daw1a/res.partner.csv',
-        'data/custom/ccff/daw1a/ems.enrollment.csv',
+        # Teacher's data (teaching = subject x teacher x group)
+        #'data/custom/hr.employee.csv',        
+        #'data/custom/ems.teaching.csv',
+        
+        # Student's data (enrollment = subject x student x group)
+        # 'data/custom/ccff/dam1a/res.partner.csv',
+        # 'data/custom/ccff/dam1a/ems.enrollment.csv',
+        # 'data/custom/ccff/daw1a/res.partner.csv',
+        # 'data/custom/ccff/daw1a/ems.enrollment.csv',
     ],
     'license': 'AGPL-3',
     'installable': True,

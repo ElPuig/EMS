@@ -33,8 +33,10 @@ class ems_attendance_session(models.Model):
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)			
 	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	
-	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)		
-	
+	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)	
+	display_duped = fields.Boolean(store=False)
+	# TODO: setup a constrain so cannot save if display_duped is True
+
 	notes = fields.Text("Notes")	
 
 	@api.depends("attendance_schedule_id")
@@ -103,9 +105,9 @@ class ems_attendance_session(models.Model):
 			
 			# TODO: if the loaded session has been already created, a red message should be displayed on top (like the warning)
 			# 		and saving should be disabled (or cancelled).
-			existing = self.env["ems.attendance_session"].search([("date", "=", datetime.now()), ("attendance_schedule_id", "=", rec.attendance_schedule_id)]) or False
-			if existing != False:
-				fake = 0
+			if rec.attendance_schedule_id.id != False:
+				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin				
+				rec.display_duped = self.env["ems.attendance_session"].search([("date", "=", datetime.now()), ("attendance_schedule_id.id", "=", schedule_id)]) or False
 
 			for attendance_status in rec.attendance_status_ids:
 				# Unlink previous students

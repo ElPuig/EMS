@@ -101,7 +101,11 @@ class ems_attendance_session(models.Model):
 		for rec in self:
 			students = []
 			
-			# TODO: rec.write({'attendance_status_ids' : [(6, 0, students)]}) --> '6' means unlink previous and link the new ones.
+			# TODO: if the loaded session has been already created, a red message should be displayed on top (like the warning)
+			# 		and saving should be disabled (or cancelled).
+			existing = self.env["ems.attendance_session"].search([("date", "=", datetime.now()), ("attendance_schedule_id", "=", rec.attendance_schedule_id)]) or False
+			if existing != False:
+				fake = 0
 
 			for attendance_status in rec.attendance_status_ids:
 				# Unlink previous students

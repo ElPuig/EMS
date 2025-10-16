@@ -10,7 +10,8 @@ from .attendance_schedule import ems_attendance_schedule
 
 class ems_attendance_session(models.Model):
 	_name = "ems.attendance_session"
-	_description = "Attendance session: contains the data about every session done with the students."			
+	_description = "Attendance session: contains the data about every session done with the students."		
+	_inherit = ['ems.utils']	
 	
 	# NOTE: This is an statistical data model, should be unaltered if master-data (template, etc.) changes, so the parent data will be copied.		
 	weekday = fields.Selection(string="Weekday", compute="_compute_weekday", selection=ems_attendance_schedule.weekdays_selection, store=True)
@@ -33,7 +34,6 @@ class ems_attendance_session(models.Model):
 	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	
 	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)		
-	user_is_admin = fields.Boolean(compute="_compute_user_is_admin", store=False)
 	
 	notes = fields.Text("Notes")	
 
@@ -86,19 +86,6 @@ class ems_attendance_session(models.Model):
 	def _compute_display_name(self):              
 		for rec in self:
 			rec.display_name = "%s | %s | %s" % (rec.attendance_schedule_id.display_name, rec.date, rec.space_id.name)
-
-	# @api.depends("attendance_schedule_id")
-	# def _compute_session_teacher_id(self):		
-	# 	for rec in self:
-	# 		# NOTE: When loading the demo data, the root user fires this method			
-	# 		current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
-	# 		rec.session_teacher_id = rec.template_teacher_id if current_teacher.name == False else current_teacher									
-	
-	@api.onchange("mode")
-	def _compute_user_is_admin(self):	
-		# TODO: share this method along models?	
-		for rec in self:
-			rec.user_is_admin = self.env.user.has_group('ems.group_admin')
 
 	@api.onchange("mode")
 	def _onchange_mode(self):

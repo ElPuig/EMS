@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_justification_list">
+            <field name="name">ems.attendance_justification.list</field>
+            <field name="model">ems.attendance_justification</field>
+            <field name="arch" type="xml">
+                <list>                                        
+                    <field name="teacher_id" widget="many2one_avatar_employee"/>
+                    <field name="student_id" widget="many2one_avatar"/>
+                    <field name="session_teacher_ids" widget="many2many_tags"/>
+                    <field name="start_date" width="125px"/>
+                    <field name="end_date" width="125px"/>
+                </list>
+            </field>
+        </record>   
+    </data>
+</odoo>

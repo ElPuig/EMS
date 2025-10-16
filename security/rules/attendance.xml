@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ems.attendance_template -->
+    <record id="rule_attendance_template_admin" model="ir.rule">
+        <field name="name">Attendance template: all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_template"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_template_teacher_own" model="ir.rule">
+        <field name="name">Attendance template: own data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_template"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">['|', ('create_uid', '=', user.id), ('teacher_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>  
+
+    <record id="rule_attendance_template_teacher_all_read" model="ir.rule">
+        <!-- NOTE: On 'guard mode' all templates should be available (read-only) for everyone (the schedule needs to read from template). -->
+        <field name="name">Attendance template: read all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_template"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ems.attendance_schedule -->
+     <record id="rule_attendance_schedule_admin" model="ir.rule">
+        <field name="name">Attendance schedule: all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_schedule"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_schedule_teacher_own" model="ir.rule">
+        <field name="name">Attendance schedule: own data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_schedule"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">['|', ('create_uid', '=', user.id), ('teacher_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_schedule_teacher_all_read" model="ir.rule">
+        <!-- NOTE: On 'guard mode' all schedules should be available (read-only) for everyone. -->
+        <field name="name">Attendance schedule: read all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_schedule"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ems.attendance_session -->
+    <record id="rule_attendance_session_admin" model="ir.rule">
+        <field name="name">Attendance session: all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_session"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_session_teacher_own" model="ir.rule">
+        <field name="name">Attendance session: own data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_session"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">
+            [
+                '|', 
+                '|',                  
+                ('create_uid', '=', user.id),                 
+                ('template_teacher_id.user_id.id', '=', user.id), 
+                ('session_teacher_id.user_id.id', '=', user.id)
+            ]
+        </field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>   
+
+    <record id="rule_attendance_session_teacher_all_read" model="ir.rule">
+        <!-- Needed for justification purposes, otherwise cannot acces to some session data. -->
+        <field name="name">Attendance session: own data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_session"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>   
+
+    <!-- ems.attendance_status -->
+    <record id="rule_attendance_status_admin" model="ir.rule">
+        <field name="name">Attendance status: all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_status"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_status_teacher_own" model="ir.rule">
+        <field name="name">Attendance status: own data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_status"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">
+            [
+                '|', 
+                '|',                  
+                ('create_uid', '=', user.id),                 
+                ('template_teacher_id.user_id.id', '=', user.id), 
+                ('session_teacher_id.user_id.id', '=', user.id)
+            ]
+        </field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_status_teacher_tutor" model="ir.rule">
+        <!-- Must be available for tutors in order to justify. -->
+        <field name="name">Attendance status: tutors</field>
+        <field name="model_id" ref="ems.model_ems_attendance_status"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('student_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_status_teacher_all_read" model="ir.rule">
+        <!-- Must be available for tutors in order to justify -->
+        <field name="name">Attendance status: read all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_status"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ems.attendance_justification -->
+     <record id="rule_attendance_justification_admin" model="ir.rule">
+        <field name="name">Attendance justification: all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_justification"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_justification_teacher_tutor" model="ir.rule">
+        <!-- 
+            NOTE: only tutors can perform justifications, but it is checked on form opening and data create/unlink methods,
+            because only a student's tutor can justify its absences, and this kind of granular permissions cannot be checked
+            from here. 
+        -->
+        <field name="name">Attendance justification: tutor</field>
+        <field name="model_id" ref="ems.model_ems_attendance_justification"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('student_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/> 
+    </record>
+
+    <record id="rule_attendance_justification_teacher_own_read" model="ir.rule">
+        <!-- NOTE: a teacher should be able to check why an attendance that was marked as 'miss' appears now as 'justified'. -->
+        <field name="name">Attendance justification: teacher's own affected attendances (read only)</field>
+        <field name="model_id" ref="ems.model_ems_attendance_justification"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">['|', ('teacher_id.user_id.id', '=', user.id), ('session_teacher_ids', 'in', user.employee_ids.ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/> 
+    </record>
+</odoo>

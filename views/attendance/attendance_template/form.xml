@@ -8,39 +8,40 @@
                     <sheet>
                         <group string="Main data" col="6">   
                             <group colspan="6">
-                                <field name="color" widget="color_picker"/>
+                                <field name="color" widget="color_picker" readonly="read_only_user"/>
                             </group>
                             
                             <group colspan="2">
-                                <field name="teacher_id"/>                               
+                                <field name="teacher_id" widget="many2one_avatar_employee" readonly="not user_is_admin"/>
                             </group>
                             <group colspan="1">
-                                <field name="start_date" widget="daterange" class="oe_inline" options="{'related_end_date': 'end_date'}"/>
+                                <!-- TODO: not working, check how its solven at justification form. -->
+                                <field name="start_date" widget="daterange" class="oe_inline" options="{'related_end_date': 'end_date'}" readonly="read_only_user"/>
                             </group>
                             <group colspan="1">
-                                <field name="end_date" widget="daterange" class="oe_inline" options="{'related_start_date': 'start_date'}"/>
+                                <field name="end_date" widget="daterange" class="oe_inline" options="{'related_start_date': 'start_date'}" readonly="read_only_user"/>
                             </group>
                             <group colspan="2">
-                                <field name="level_id"/>                               
+                                <field name="level_id" readonly="read_only_user"/>                               
                             </group>
 
                             <group colspan="2">
-                                <field name="study_id"/>                               
+                                <field name="study_id" readonly="read_only_user"/>                               
                             </group>
                             <group colspan="1">
-                                <field name="group_id"/>
+                                <field name="group_id" readonly="read_only_user"/>
                             </group>
                             <group colspan="1">
-                                <field name="space_id"/>
+                                <field name="space_id" readonly="read_only_user"/>
                             </group>                                                      
                             <group colspan="2">
-                                <field name="subject_id"/>                               
+                                <field name="subject_id" readonly="read_only_user"/>                               
                             </group>                                                           
                         </group>
                                             
                         <notebook>
                             <page string="Students">
-                                <field name="student_ids" widget="many2many">
+                                <field name="student_ids" widget="many2many" readonly="read_only_user">
                                     <list default_order="name asc" >
                                         <field name="image_1920" widget="image" />
                                         <field name="name" class="align-middle"/>
@@ -54,7 +55,7 @@
                             </page>
 
                             <page string="Sessions">
-                                <field name="attendance_schedule_ids" string="" context="{'default_space_id' : space_id}">
+                                <field name="attendance_schedule_ids" string="" context="{'default_space_id' : space_id}" readonly="read_only_user">
                                     <list editable="bottom" default_order="weekday asc, start_time asc">
                                         <field name="weekday" width="175px" />
                                         <field name="space_id" />

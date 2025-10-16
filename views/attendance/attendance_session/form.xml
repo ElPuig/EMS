@@ -5,59 +5,39 @@
             <field name="model">ems.attendance_session</field>
             <field name="arch" type="xml">
                 <form string="Session">
-                    <field name="_display_warning" invisible="1"/>                   
-                    <div class="alert alert-warning" role="alert" name="test_warning" invisible="_display_warning == False">
+                    <field name="display_warning" invisible="1"/>                   
+                    <div class="alert alert-warning" role="alert" name="test_warning" invisible="not display_warning">
                         <!-- TODO: this should be translated (localization) -->
                         Unable to load the current session, maybe none has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.
                     </div>
                     <sheet>     
-                         <group string="Main data" col="3">
+                         <group string="Main data" col="4">
                             <group>
-                                <field name="guard_mode" readonly="id != False"/>
+                                <field name="mode" readonly="id"/>
                             </group>   
 
-                            <group colspan="2">      
-                                <field name="attendance_schedule_id" readonly="id != False"/>
+                            <group colspan="3">      
+                                <!-- <field name="attendance_schedule_id" readonly="id or (not display_warning and mode == 'scheduled')" domain="[('id', 'in', allowed_attendance_schedule_ids)]"/> -->
+                                <field name="attendance_schedule_id" readonly="id" domain="[('id', 'in', allowed_attendance_schedule_ids)]"/>
+                                <!-- <field name="attendance_schedule_id" domain="[('id', 'in', allowed_attendance_schedule_ids)]"/> -->
                             </group>
 
                             <group>
-                                <field name="date" readonly="id != False"/>
+                                <field name="date" readonly="id or mode != 'manual'"/>
                             </group> 
 
                             <group>
-                                <field name="session_teacher_id" string="Teacher"/>                              
+                                <field name="session_teacher_id" string="Teacher" readonly="id or not user_is_admin" widget="many2one_avatar_employee"/>
+                            </group>   
+
+                            <group>
+                                <field name="template_teacher_id" string="Holder" readonly="True" invisible="mode != 'guard' and not user_is_admin" widget="many2one_avatar_employee"/>
                             </group>   
                         
                             <group>
-                                <field name="space_id" readonly="id != False"/>
+                                <field name="space_id" readonly="id"/>
                             </group>                                             
-                        </group>
-
-                        <!-- <group string="Main data" col="3" >
-                            <group colspan="3">
-                                <field name="guard_mode" readonly="id != False"/>
-                            </group>     
-                            
-                            <group>
-                                <field name="date" readonly="id != False"/>
-                            </group>   
-                            <group colspan="2">      
-                                <field name="attendance_schedule_id" readonly="id != False"/>
-                            </group>                                                   
-
-                            <group>
-                                <field name="level_id"/>  
-                                <field name="session_teacher_id" string="Teacher"/>                              
-                            </group>
-                            <group>
-                                <field name="study_id"/>   
-                                <field name="group_id"/>                            
-                            </group>
-                            <group>
-                                <field name="subject_id"/>  
-                                <field name="space_id"/>                             
-                            </group>                        
-                        </group> -->
+                        </group>                      
 
                         <notebook>
                             <page string="Statuses">

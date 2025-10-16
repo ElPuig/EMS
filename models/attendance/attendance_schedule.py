@@ -28,13 +28,16 @@ class ems_attendance_schedule(models.Model):
 	end_time = fields.Float(string="End Time", required=True)
 
 	#Storing as dates is required due to timezones
-	start_date = fields.Datetime(required=True)	
-	end_date = fields.Datetime(required=True)
+	start_date = fields.Datetime(compute="_compute_start_date", required=True, store=True)	
+	end_date = fields.Datetime(compute="_compute_end_date", required=True, store=True)
 	
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
 	attendance_template_id = fields.Many2one(string="Template", comodel_name="ems.attendance_template", ondelete='cascade', required=True)	
 	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_session", inverse_name="attendance_schedule_id")	
-		
+	
+	# The teacher_id is used just for permission filtering pruposes.
+	teacher_id = fields.Many2one(string='Teacher', related="attendance_template_id.teacher_id", store=False) 
+	
 	notes = fields.Text(string="Notes")
 
 	@api.depends("attendance_template_id", "weekday", "start_time", "end_time")
@@ -46,12 +49,14 @@ class ems_attendance_schedule(models.Model):
 			rec.name = "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.display_name, weekday_str, int(start_time[1]), round(start_time[0]*60), int(end_time[1]), round(end_time[0]*60))
 
 	@api.onchange("start_time")
-	def _onchange_start_time(self):			
+	@api.depends("attendance_template_id.start_date")
+	def _compute_start_date(self):			
 		for rec in self:
 			rec.start_date = rec._time_float_to_utc_datetime(rec.attendance_template_id.start_date, rec.start_time)
 	
 	@api.onchange("end_time")
-	def _onchange_end_time(self):			
+	@api.depends("attendance_template_id.end_date")
+	def _compute_end_date(self):			
 		for rec in self:
 			rec.end_date = rec._time_float_to_utc_datetime(rec.attendance_template_id.end_date, rec.end_time)	
 

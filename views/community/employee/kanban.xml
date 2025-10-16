@@ -25,7 +25,7 @@
                 <xpath expr="//kanban" position="inside">
                     <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
                     <field name="tutorships"/>
-                </xpath>
+                </xpath>                
 
                 <field name="job_title" position="after">
                     <span t-if="record.tutorships.value != ''">
@@ -36,7 +36,7 @@
 
                 <field name="category_ids" position="attributes">
                     <attribute name="name">role_ids</attribute>
-                </field>                                                 
+                </field>                                                                
             </field>		      
         </record>
     </data>

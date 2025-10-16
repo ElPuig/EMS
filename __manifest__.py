@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.0.2',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
+    'version': '18.0.0.1.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -32,6 +32,8 @@
     # always loaded
    'data': [
         'security/groups.xml',        
+        'security/rules/attendance.xml',
+        'security/rules/contacts.xml',
         'security/ir.model.access.csv',                        
         
         'views/menu.xml',
@@ -132,18 +134,23 @@
             'views/attendance/attendance_template/menu.xml',
             'views/attendance/attendance_template/list.xml',
             'views/attendance/attendance_template/form.xml',
+            'views/attendance/attendance_template/search.xml',
 
             'views/attendance/attendance_session/list.xml',
             'views/attendance/attendance_session/form.xml',
             'views/attendance/attendance_session/calendar.xml',
-            'views/attendance/attendance_session/menu.xml',
-            'views/attendance/attendance_session/justification_wizard.xml',            
+            'views/attendance/attendance_session/menu.xml',   
+            'views/attendance/attendance_session/search.xml',         
 
             'views/attendance/attendance_status/list.xml',
             'views/attendance/attendance_status/form.xml',
             'views/attendance/attendance_status/menu.xml',                   
 
             'views/attendance/attendance_schedule/form.xml',
+
+            'views/attendance/attendance_justification/list.xml',
+            'views/attendance/attendance_justification/form.xml',
+            'views/attendance/attendance_justification/menu.xml',    
 
             'views/attendance/attendance_reports/menu.xml',
             'views/attendance/attendance_reports/student_wizard.xml', 

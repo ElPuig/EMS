@@ -4,13 +4,10 @@
             <field name="name">ems.employee.form</field>
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_form"/> 
-            <field name="arch" type="xml">        
-                <xpath expr="//form" position="attributes">
-                    <attribute name="groups">hr.group_hr_user</attribute>
-                </xpath>           
+            <field name="arch" type="xml">                                        
                 
                 <field name="name" position="replace">
-                    <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->                    
+                    <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->
                     <field name="name" placeholder="Teacher's Name" invisible="employee_type != 'teacher'"/>
                     <field name="name" placeholder="ASP's Name"     invisible="employee_type != 'asp'"/>
                 </field>
@@ -86,17 +83,15 @@
 
                         <group string="Subjects">
                             <field name="teaching_ids" nolabel="1">
-                                <list editable="bottom" default_order="subject_id asc, group_id asc"
-                                    decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                                <list editable="bottom" default_order="subject_id asc, group_id asc">
                                     <field name="subject_id" />
                                     <field name="group_id" domain="[('id','not in', inuse_group_ids)]"/>
-                                    <field name="level" column_invisible="True"/>   
                                     <field name="inuse_group_ids" column_invisible="True"/>                             
                                 </list>
                             </field>
                         </group>
                     </page>                     
-                </xpath>              
+                </xpath>                
             </field>		      
         </record>  
 

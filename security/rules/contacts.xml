@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+     <record id="rule_contact_admin" model="ir.rule">
+        <field name="name">Contact: admin</field>
+        <field name="model_id" ref="ems.model_res_partner"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_contact_teacher" model="ir.rule">
+        <field name="name">Contact: teacher (read only)</field>
+        <field name="model_id" ref="ems.model_res_partner"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_contact_tutor" model="ir.rule">
+        <field name="name">Contact: tutor (edit its tutorands)</field>
+        <field name="model_id" ref="ems.model_res_partner"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('tutor_id.user_id', '=' , user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_enrollment_admin" model="ir.rule">
+        <field name="name">Enrollment: admin</field>
+        <field name="model_id" ref="ems.model_ems_enrollment"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_enrollment_teacher" model="ir.rule">
+        <field name="name">enrollment: teacher (read only)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_enrollment_tutor" model="ir.rule">
+        <field name="name">enrollment: tutor (edit its tutorands)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('student_id.tutor_id.user_id', '=' , user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>

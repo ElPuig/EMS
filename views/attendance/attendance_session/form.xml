@@ -6,12 +6,20 @@
             <field name="arch" type="xml">
                 <form string="Session">
                     <field name="is_duped" invisible="1"/> 
+                    <field name="is_next" invisible="1"/> 
                     <field name="display_warning" invisible="1"/> 
                     
+                    <!-- NOTE: other CSS classes: alert-success (green); alert-light; alert-primary; alert-secondary; alert-dark -->
+
                     <div class="alert alert-danger" role="alert" name="test_warning" invisible="not is_duped">
                         <!-- TODO: this should be translated (localization) -->
                         <!-- TODO: add the link to the existing one -->
                         The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session.
+                    </div>
+
+                    <div class="alert alert-info" role="alert" name="test_warning" invisible="not is_next">
+                        <!-- TODO: this should be translated (localization) -->
+                        A previous session for the same subject has been detected for today, so assistance data has been copied from the previous one. You can modify any of those as you please.
                     </div>
 
                     <div class="alert alert-warning" role="alert" name="test_warning" invisible="not display_warning">

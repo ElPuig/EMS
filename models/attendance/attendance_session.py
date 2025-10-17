@@ -43,6 +43,7 @@ class ems_attendance_session(models.Model):
 	
 	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)	
 	is_duped = fields.Boolean(store=False)
+	is_next = fields.Boolean(store=False)
 
 	notes = fields.Text("Notes")	
 
@@ -109,27 +110,49 @@ class ems_attendance_session(models.Model):
 	def _onchange_attendance_schedule_id(self):		
 		for rec in self:
 			students = []
-			
-			# TODO: if the loaded session has been already created, a red message should be displayed on top (like the warning)
-			# 		and saving should be disabled (or cancelled).
+						
 			if rec.attendance_schedule_id.id != False:
-				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin				
+				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin
 				rec.is_duped = self.env["ems.attendance_session"].search([("date", "=", datetime.now()), ("attendance_schedule_id.id", "=", schedule_id)]) or False
+
+				# NOTE: the first approach was to check if start_date of current == end_date of previous, but what happens if there's a coffe break between sessions?	
+				#		its better to check if the same subject has been teached previously and load the same data (maybe there's a gap between, but the student assistance 
+				# 		data should be almost the same). Let's test this behaviour (I seems like the easiest and les complex approach) and see...
+				
+				subject_id = rec.attendance_schedule_id.attendance_template_id.subject_id.id
+				previous = self.env["ems.attendance_session"].search(
+					[
+						("date", "=", datetime.now()), 						
+						("attendance_schedule_id.attendance_template_id.subject_id.id", "=", subject_id)
+					], order="end_time DESC") or False				
+				
+				if previous:
+					end = self.time_float_to_utc_time_float(previous[0].end_time)					
+					rec.is_next = (end <= self.time_to_float(datetime.now().time()))					
 
 			for attendance_status in rec.attendance_status_ids:
 				# Unlink previous students
 				students.append([3, attendance_status.id])
 
-			for student in rec.attendance_schedule_id.attendance_template_id.student_ids:
-				# Sources: 
-				# 	https://stackoverflow.com/a/70843263
-				#	https://www.odoo.com/ro_RO/forum/suport-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
-				
-				# Linking new students
-				students.append([0, 0, {
-					"student_id": student
-				}])	
-			#self.write({"attendance_status_ids": students})
+			if not rec.is_next:
+				# Load empty entries
+				for student in rec.attendance_schedule_id.attendance_template_id.student_ids:
+					# Sources: 
+					# 	https://stackoverflow.com/a/70843263
+					#	https://www.odoo.com/ro_RO/forum/suport-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
+					
+					# Linking new students
+					students.append([0, 0, {
+						"student_id": student
+					}])	
+			else:
+				# Load new entries but with the previous session's data
+				for prev in previous.attendance_status_ids:					
+					students.append([0, 0, {
+						"student_id": prev.student_id,
+						"status": prev.status,
+						"notes": prev.notes
+					}])
 			rec.write({"attendance_status_ids": students})
 
 	def _default_teacher_id(self):							

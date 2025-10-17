@@ -9,6 +9,7 @@ class ems_attendance_schedule(models.Model):
 	_name = "ems.attendance_schedule"
 	_description = "Attendance schedule: concretes the weekdays data."
 	_order = 'name asc'
+	_inherit = ['ems.utils']
 	
 	# Note: today.weekday() returns this values, do not alter!
 	weekdays_selection=[
@@ -27,9 +28,9 @@ class ems_attendance_schedule(models.Model):
 	start_time = fields.Float(string="Start Time", required=True)
 	end_time = fields.Float(string="End Time", required=True)
 
-	#Storing as dates is required due to timezones
-	start_date = fields.Datetime(compute="_compute_start_date", required=True, store=True)	
-	end_date = fields.Datetime(compute="_compute_end_date", required=True, store=True)
+	#Storing as dates is required due to timezones (required is not true because it fails on saving, but I don't know why...).
+	start_date = fields.Datetime(compute="_compute_start_date", store=True)	
+	end_date = fields.Datetime(compute="_compute_end_date", store=True)
 	
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
 	attendance_template_id = fields.Many2one(string="Template", comodel_name="ems.attendance_template", ondelete='cascade', required=True)	
@@ -48,25 +49,14 @@ class ems_attendance_schedule(models.Model):
 			weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
 			rec.name = "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.display_name, weekday_str, int(start_time[1]), round(start_time[0]*60), int(end_time[1]), round(end_time[0]*60))
 
-	@api.onchange("start_time")
+	@api.depends("start_time")
 	@api.depends("attendance_template_id.start_date")
 	def _compute_start_date(self):			
 		for rec in self:
-			rec.start_date = rec._time_float_to_utc_datetime(rec.attendance_template_id.start_date, rec.start_time)
+			rec.start_date = rec.time_float_to_utc_datetime(rec.attendance_template_id.start_date, rec.start_time)
 	
-	@api.onchange("end_time")
+	@api.depends("end_time")
 	@api.depends("attendance_template_id.end_date")
 	def _compute_end_date(self):			
 		for rec in self:
-			rec.end_date = rec._time_float_to_utc_datetime(rec.attendance_template_id.end_date, rec.end_time)	
-
-	def _time_float_to_utc_datetime(self, template_date, schedule_time):
-		split_time = math.modf(schedule_time)				
-		return self._convert_to_utc_date(datetime(template_date.year, template_date.month, template_date.day, int(split_time[1]), round(split_time[0]*60), 0))
-
-	def _convert_to_utc_date(self, local_date):
-		user_time_zone = self.env.context["tz"] # can be fetched form logged in user if it is set 
-		local = pytz.timezone(user_time_zone) 
-		start_date = local.localize(local_date, is_dst=None) # start_date is a naive datetime 
-		start_date = start_date.astimezone(pytz.utc) 		
-		return datetime(start_date.year, start_date.month, start_date.day, start_date.hour, start_date.minute, 0, tzinfo=None)	
+			rec.end_date = rec.time_float_to_utc_datetime(rec.attendance_template_id.end_date, rec.end_time)	

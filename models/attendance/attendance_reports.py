@@ -176,7 +176,6 @@ class ems_attendance_report_subject_wizard(models.TransientModel):
 		for rec in self:			
 			rec.group_id = False
 
-
 	@api.onchange("subject_id")
 	def _onchange_subject_id(self):
 		for rec in self:

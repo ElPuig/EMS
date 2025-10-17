@@ -25,7 +25,7 @@ class ems_attendance_template(models.Model):
 	read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
 	
 	def _get_read_only_user(self):
-		return not (self.get_user_is_admin() or self.teacher_id.user_id.id == self.env.uid or self.create_uid == self.env.uid)
+		return not (self.id == False or self.get_user_is_admin() or self.teacher_id.user_id.id == self.env.uid or self.create_uid == self.env.uid)
 
 	def _default_teacher_id(self):							
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False

@@ -49,13 +49,13 @@ class ems_attendance_schedule(models.Model):
 			weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
 			rec.name = "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.display_name, weekday_str, int(start_time[1]), round(start_time[0]*60), int(end_time[1]), round(end_time[0]*60))
 
-	@api.onchange("start_time")
+	@api.depends("start_time")
 	@api.depends("attendance_template_id.start_date")
 	def _compute_start_date(self):			
 		for rec in self:
 			rec.start_date = rec.time_float_to_utc_datetime(rec.attendance_template_id.start_date, rec.start_time)
 	
-	@api.onchange("end_time")
+	@api.depends("end_time")
 	@api.depends("attendance_template_id.end_date")
 	def _compute_end_date(self):			
 		for rec in self:

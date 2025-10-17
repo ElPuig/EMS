@@ -3,7 +3,7 @@
 import math, pytz
 from datetime import datetime
 from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo.exceptions import ValidationError
 from .attendance_schedule import ems_attendance_schedule
 
 #from attendance_session import ems_attendance_session
@@ -12,6 +12,14 @@ class ems_attendance_session(models.Model):
 	_name = "ems.attendance_session"
 	_description = "Attendance session: contains the data about every session done with the students."		
 	_inherit = ['ems.utils']	
+	_sql_constraints = [
+		# TODO: localize this (the same message appears in form).
+        (
+            'attendance_session_is_duped',
+            'UNIQUE(date, attendance_schedule_id)',
+            'The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session.' # El mensaje de error
+        )
+    ]
 	
 	# NOTE: This is an statistical data model, should be unaltered if master-data (template, etc.) changes, so the parent data will be copied.		
 	weekday = fields.Selection(string="Weekday", compute="_compute_weekday", selection=ems_attendance_schedule.weekdays_selection, store=True)
@@ -34,8 +42,7 @@ class ems_attendance_session(models.Model):
 	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	
 	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)	
-	display_duped = fields.Boolean(store=False)
-	# TODO: setup a constrain so cannot save if display_duped is True
+	is_duped = fields.Boolean(store=False)
 
 	notes = fields.Text("Notes")	
 
@@ -107,7 +114,7 @@ class ems_attendance_session(models.Model):
 			# 		and saving should be disabled (or cancelled).
 			if rec.attendance_schedule_id.id != False:
 				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin				
-				rec.display_duped = self.env["ems.attendance_session"].search([("date", "=", datetime.now()), ("attendance_schedule_id.id", "=", schedule_id)]) or False
+				rec.is_duped = self.env["ems.attendance_session"].search([("date", "=", datetime.now()), ("attendance_schedule_id.id", "=", schedule_id)]) or False
 
 			for attendance_status in rec.attendance_status_ids:
 				# Unlink previous students

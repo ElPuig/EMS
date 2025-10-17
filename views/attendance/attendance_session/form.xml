@@ -5,9 +5,10 @@
             <field name="model">ems.attendance_session</field>
             <field name="arch" type="xml">
                 <form string="Session">
+                    <field name="is_duped" invisible="1"/> 
                     <field name="display_warning" invisible="1"/> 
-                    <field name="display_duped" invisible="1"/> 
-                    <div class="alert alert-danger" role="alert" name="test_warning" invisible="not display_duped">
+                    
+                    <div class="alert alert-danger" role="alert" name="test_warning" invisible="not is_duped">
                         <!-- TODO: this should be translated (localization) -->
                         <!-- TODO: add the link to the existing one -->
                         The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session.
@@ -17,6 +18,7 @@
                         <!-- TODO: this should be translated (localization) -->
                         Unable to load the current session, maybe none has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.
                     </div>
+                    
                     <sheet>     
                          <group string="Main data" col="4">
                             <group>

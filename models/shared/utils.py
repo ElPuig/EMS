@@ -12,6 +12,10 @@ class ems_utils(models.AbstractModel):
     def time_to_float(self, time):
         return time.hour + time.minute / 60.0
 
+    def time_float_to_utc_time_float(self, time_float):        
+        dt = self.time_float_to_utc_datetime(datetime.now(), time_float)
+        return self.time_to_float(dt.time())
+    
     def time_float_to_utc_datetime(self, date, time_float):
         split_time = math.modf(time_float)				
         return self.convert_to_utc_date(datetime(date.year, date.month, date.day, int(split_time[1]), round(split_time[0]*60), 0))

@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _
-from odoo.exceptions import UserError
-import logging
-
-_logger = logging.getLogger(__name__)
+from odoo import models, fields, api
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
 #		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
@@ -18,7 +14,6 @@ class ems_attendance_status(models.Model):
     student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
     image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
     attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session")
-    attendance_justification_id = fields.Many2one(string="Justification", comodel_name="ems.attendance_justification")    
     
     # This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
     inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 
@@ -29,6 +24,37 @@ class ems_attendance_status(models.Model):
    
     notes = fields.Text("Notes")
     
+    # TODO: if an existing status changes to "issue", a notification should be send.
+    # Check how to avoid duped notifications if the session timeous has not been fired yet. 
+
+    # @api.model_create_multi
+    # def create(self, values):		
+    #     status = super(ems_attendance_status, self).create(values)        
+    #     for s in status:
+    #         s._update_notification()                          
+
+    # def write(self, vals):
+    #     super(ems_attendance_status, self).write(vals)
+    #     self._update_notification()        
+
+    # def _update_notification(self):
+    #     existing = self.env["ems.attendance_notification"].search([("attendance_status_id", "=", self.id)]) or False                
+    #     if self.status not in ['m_miss', 'a_issue']:             
+    #          # Removing an existing one (if not sent).
+    #          if existing != False and existing.status in ['m_miss', 'a_issue'] and not existing.sent:
+    #              existing.sudo().unlink()
+                                 
+    #     elif self.status in ['m_miss', 'a_issue'] and (self.student_id.auth_share or not self.student_id.is_adult):            
+    #         # Updating is not possible, it will be removed and replaced by a new one if needed
+    #         if existing != False:
+    #              existing.sudo().unlink()
+
+    #         # NOTE: sudo needed because no teacher can create those manually.
+    #         self.sudo().env['ems.attendance_notification'].create({
+    #             'attendance_status_id': self.id,
+    #             'student_id': self.student_id.id                            
+    #         }) 
+
     @api.depends('attendance_session_id')
     def _compute_attendance_session_display_name(self):
         for rec in self:
@@ -39,13 +65,13 @@ class ems_attendance_status(models.Model):
         for rec in self:
             rec.inuse_student_ids = False
             if rec.attendance_session_id:
-                rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_status_ids.student_id')
-
-    def report_eval(self, field):
-        # NOTE: this is used within the 'details_table' template in order to render custom fields.		
-        return eval(field)
+                rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_status_ids.student_id')   
 
     @api.depends('attendance_session_id', 'student_id')
     def _compute_display_name(self):              
         for rec in self:
             rec.display_name = "%s | %s" % (rec.attendance_session_id.display_name, rec.student_id.display_name)
+
+    def report_eval(self, field):
+        # NOTE: this is used within the 'details_table' template in order to render custom fields.		
+        return eval(field)

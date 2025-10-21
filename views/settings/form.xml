@@ -8,7 +8,7 @@
             <field name="arch" type="xml">               
                 <xpath expr="//form" position="inside">
                     <app data-string="EMS Management" string="EMS Management" name="ems">
-                        <block title="Course Management Settings" name="ems_settings">
+                        <block title="Course Management Settings" name="ems_course_settings">
                             <setting string="Current course" help="Use this field to select the current course, which will be used for volatile data assignation (like the student's enrollments or the teacher's schedules)." id="current_course_setting">
                                 <field name="course_id" />
                                 <!-- TODO: this is temporary, how should it work: 
@@ -26,6 +26,12 @@
                                         feature.
                                     </div>
                                 </div> -->
+                            </setting>
+                        </block>
+
+                         <block title="Notification Settings" name="ems_notification_settings">
+                            <setting string="Attendance notification delay (in minutes)" help="Some attendance statuses (like miss or issue) will be notified to the student's tutor and (if not adult or authorized) to their families. This setting setups how many time the notification must delay since its creation." id="notification_delay_setting">
+                                <field name="attendance_notification_delay" />                              
                             </setting>
                         </block>
                     </app>

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from odoo.http import request
-from odoo.exceptions import ValidationError
 from ..shared import utils
+import datetime
+from dateutil.relativedelta import relativedelta
 
 class ems_contact(models.Model):
     _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.utils, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
@@ -17,7 +17,8 @@ class ems_contact(models.Model):
     # model-data fields:
     main_group_id = fields.Many2one(string='Main Group', comodel_name='ems.group')     
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
-    contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student')])   
+    contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student'), ('family', 'Family')])   
+    family_relation = fields.Char(string="Family relation")
     student_email = fields.Char(string="Student email")	
     student_id = fields.Char(string="Student ID")
     medical_id = fields.Char(string="Medical ID")
@@ -27,10 +28,17 @@ class ems_contact(models.Model):
     auth_image = fields.Boolean(string="Image Rights")
     auth_trip = fields.Boolean(string="Scholar Trips")
     auth_healt = fields.Boolean(string="Health Data")
+    auth_share = fields.Boolean(string="Share with family", help="If marked, the student (even if adult) allows to share its educational progression with its family.")
     car_plate = fields.Char(string="Car Plate")
+    is_adult = fields.Boolean(string="Adult", compute="_compute_is_adult", store=False)
 
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
+
+    @api.depends('birth_date')
+    def _compute_is_adult(self):	
+        for rec in self:	
+            rec.is_adult = (relativedelta(datetime.date.today(), rec.birth_date).years >= 18)
 
     @api.onchange('level_id')
     def _onchange_level_id(self):	
@@ -45,12 +53,21 @@ class ems_contact(models.Model):
     @api.model_create_multi
     def create(self, values):
         # Fired when the model is created (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
-        # Note: values is a list of dicts (method fired only once)
+        # NOTE: values is a list of dicts (method fired only once) 
         for entry in values:
             self._compute_group_data(entry) 
+            
+            # NOTE: I don't know why, but the 'contact_type' value does not arrive for contact data (contact within student 
+            #       form) so the value will be manually setup here.
+            if 'parent_id' in entry and entry['parent_id']:
+                parent = self.env['res.partner'].browse(entry['parent_id'])
+                if parent.contact_type == 'student':
+                    entry['contact_type'] = 'family'
+                elif parent.contact_type == 'provider':
+                    entry['contact_type'] = 'provider'
+        
         contact = super(ems_contact, self).create(values)
 
-        #self._compute_enrollment_data(contact)
         return contact
     
     def write(self, values):
@@ -59,7 +76,6 @@ class ems_contact(models.Model):
         self._compute_group_data(values)
         contact =  super(ems_contact, self).write(values)
 
-        #self._compute_enrollment_data(contact)
         return contact
 
     def _compute_group_data(self, values):

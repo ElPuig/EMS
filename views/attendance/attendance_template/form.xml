@@ -55,7 +55,7 @@
                             </page>
 
                             <page string="Sessions">
-                                <field name="attendance_schedule_ids" string="" context="{'default_space_id' : space_id}" readonly="read_only_user">
+                                <field name="attendance_schedule_ids" string="" context="{'default_space_id' : space_id, 'default_weekday' : '0'}" readonly="read_only_user">
                                     <list editable="bottom" default_order="weekday asc, start_time asc">
                                         <field name="weekday" width="175px" />
                                         <field name="space_id" />

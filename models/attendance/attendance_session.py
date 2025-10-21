@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import math, pytz
 from datetime import datetime
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
 from .attendance_schedule import ems_attendance_schedule
+from datetime import timedelta
 
 #from attendance_session import ems_attendance_session
 
 class ems_attendance_session(models.Model):
 	_name = "ems.attendance_session"
 	_description = "Attendance session: contains the data about every session done with the students."		
-	_inherit = ['ems.utils']	
+	_inherit = ['ems.utils', 'mail.thread', 'mail.activity.mixin']	
 	_sql_constraints = [
 		# TODO: localize this (the same message appears in form).
         (
@@ -26,15 +25,17 @@ class ems_attendance_session(models.Model):
 	start_time = fields.Float("Start Time", compute="_compute_start_time", store=True)
 	end_time = fields.Float("End Time", compute="_compute_end_time", store=True)	
 	
+	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
+	start_date = fields.Datetime(compute="_compute_start_date", store=True)	
+	end_date = fields.Datetime(compute="_compute_end_date", store=True)
+
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", compute="_compute_level_id", store=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", compute="_compute_study_id", store=True)
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_group_id", store=True)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", compute="_compute_subject_id", store=True)
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", compute="_compute_space_id", store=True)
 	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
-	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)
-	
-	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
+	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 		
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_status", inverse_name="attendance_session_id")		
@@ -46,6 +47,73 @@ class ems_attendance_session(models.Model):
 	is_next = fields.Boolean(store=False)
 
 	notes = fields.Text("Notes")	
+
+	@api.model_create_multi
+	def create(self, vals_list):
+		records = super().create(vals_list)
+		delay =  self.env.company.attendance_notification_delay
+		execution_time = fields.Datetime.now() + timedelta(seconds=delay * 60) # from minutes to seconds
+
+		for record in records:
+			record.with_delay(
+                eta=execution_time,
+                description=f"Notification task for the session '{record.display_name}' (ID={record.id})"
+            )._send_notifications()
+		return records
+
+
+	def _send_notifications(self):		
+		self.ensure_one()		
+
+		try:
+			template_families = self.env.ref('ems.template_attendance_notification_line_email', raise_if_not_found=True)
+			template_tutors = self.env.ref('ems.template_attendance_notification_email', raise_if_not_found=True)
+		except ValueError as e:		
+			return False # Silent
+		
+		separator = "; "
+		lines = dict()
+		for s in self.attendance_status_ids:
+			if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):
+				if s.student_id.tutor_id not in lines:
+					lines[s.student_id.tutor_id] = []
+				
+				send_to = []
+				for contact in s.student_id.child_ids:				
+					send_to.append(contact.email)
+
+				lines[s.student_id.tutor_id].append([0, 0, {													
+					'attendance_status_id': s.id,
+					'send_to': separator.join(send_to)
+				}]) 
+
+		if len(lines) > 0:
+			for tutor_id in lines:		
+				noti = s.sudo().env['ems.attendance_notification'].create({
+					'attendance_session_id': self.id,
+					'tutor_id': tutor_id.id,
+					'attendance_notification_line_ids': lines[tutor_id]
+				})	
+
+				for line in noti.attendance_notification_line_ids:
+					try:
+						# NOTE: there's no BBC field within the email template, and we want to protect personal addresses 
+						# when sending to multiple destinations. So, it will be send one by one setting up here the address.
+						for to in line.send_to.split(separator):
+							template_families.sudo().send_mail(line.id, force_send=True, email_values={'email_to': to})
+						line.sudo().write({'sent_date': datetime.now()})
+					except Exception as e:
+						raise # it will retry
+			
+				try:
+					# NOTE: the tutor's email is setup within the template
+					template_tutors.sudo().send_mail(noti.id, force_send=True)
+					noti.sudo().write({'sent_date': datetime.now()})
+
+				except Exception as e:
+					raise # it will retry
+
+		return True
 
 	@api.depends("attendance_schedule_id")
 	def _compute_weekday(self):
@@ -62,35 +130,64 @@ class ems_attendance_session(models.Model):
 		for rec in self:
 			rec.end_time = rec.attendance_schedule_id.end_time
 
+	# NOTE: sudo is being used to load attendance_template data, because on guard mode all teachers should be able to read all sessions and template data.
+	@api.depends("attendance_schedule_id")
+	def _compute_start_date(self):			
+		for rec in self:
+			local = rec.time_float_to_local_datetime(rec.date, rec.start_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.start_date = rec.datetime_to_odoo(utc)
+	
+	@api.depends("attendance_schedule_id")
+	def _compute_end_date(self):			
+		for rec in self:
+			local = rec.time_float_to_local_datetime(rec.date, rec.end_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.end_date = rec.datetime_to_odoo(utc)
+
+	@api.depends("attendance_schedule_id")
+	def _compute_start_date(self):			
+		for rec in self:
+			local = rec.time_float_to_local_datetime(rec.date, rec.start_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.start_date = rec.datetime_to_odoo(utc)
+	
+	@api.depends("attendance_schedule_id")
+	def _compute_end_date(self):			
+		for rec in self:
+			local = rec.time_float_to_local_datetime(rec.date, rec.end_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.end_date = rec.datetime_to_odoo(utc)
+			
 	@api.depends("attendance_schedule_id")
 	def _compute_level_id(self):
 		for rec in self:
-			rec.level_id = rec.attendance_schedule_id.attendance_template_id.level_id
+			rec.level_id = rec.attendance_schedule_id.attendance_template_id.sudo().level_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_study_id(self):
 		for rec in self:
-			rec.study_id = rec.attendance_schedule_id.attendance_template_id.study_id
+			rec.study_id = rec.attendance_schedule_id.attendance_template_id.sudo().study_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_group_id(self):
 		for rec in self:
-			rec.group_id = rec.attendance_schedule_id.attendance_template_id.group_id
+			rec.group_id = rec.attendance_schedule_id.attendance_template_id.sudo().group_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_subject_id(self):
 		for rec in self:
-			rec.subject_id = rec.attendance_schedule_id.attendance_template_id.subject_id
+			rec.subject_id = rec.attendance_schedule_id.attendance_template_id.sudo().subject_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_space_id(self):
 		for rec in self:
-			rec.space_id = rec.attendance_schedule_id.attendance_template_id.space_id
+			rec.space_id = rec.attendance_schedule_id.attendance_template_id.sudo().space_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_template_teacher_id(self):
 		for rec in self:
-			rec.template_teacher_id = rec.attendance_schedule_id.attendance_template_id.teacher_id
+			rec.template_teacher_id = rec.attendance_schedule_id.attendance_template_id.sudo().teacher_id
 	
 	@api.depends('attendance_schedule_id', 'date')
 	def _compute_display_name(self):              
@@ -103,7 +200,7 @@ class ems_attendance_session(models.Model):
 			ids = []		
 			for allowed in self._get_allowed_attendance_schedule_ids():				
 				ids.append(allowed.id)
-			rec.write({'allowed_attendance_schedule_ids' : [(6, 0, ids)]})
+			rec.allowed_attendance_schedule_ids = [(6, 0, ids)]
 			rec.attendance_schedule_id = False if len(rec.allowed_attendance_schedule_ids) == 0 else rec.allowed_attendance_schedule_ids[0]
 		
 	@api.onchange("attendance_schedule_id")	
@@ -118,8 +215,9 @@ class ems_attendance_session(models.Model):
 				students.append([3, attendance_status.id])
 
 			if rec.attendance_schedule_id.id != False:
+				now = datetime.now()
 				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin
-				rec.is_duped = self.env["ems.attendance_session"].search([("date", "=", datetime.now()), ("attendance_schedule_id.id", "=", schedule_id)]) or False
+				rec.is_duped = self.env["ems.attendance_session"].search([("date", "=", now), ("attendance_schedule_id.id", "=", schedule_id)]) or False
 								
 				# NOTE: the first approach was to check if start_date of current == end_date of previous, but what happens if there's a coffe break between sessions?	
 				#		its better to check if the same subject has been teached previously and load the same data (maybe there's a gap between, but the student assistance 
@@ -127,26 +225,26 @@ class ems_attendance_session(models.Model):
 				previous = self.env["ems.attendance_session"].search(
 					[
 						("date", "=", datetime.now()), 						
-						("attendance_schedule_id.attendance_template_id", "=", rec.attendance_schedule_id.attendance_template_id.id),
+						("attendance_schedule_id.attendance_template_id.id", "=", rec.attendance_schedule_id.attendance_template_id.sudo().id),
 						("attendance_schedule_id.weekday", "=", rec.attendance_schedule_id.weekday)
 					], order="end_time DESC") or False				
 				
 				if previous:
-					end = self.time_float_to_utc_time_float(previous[0].end_time)					
-					rec.is_next = (end <= self.time_to_float(datetime.now().time()))	
+					end = previous[0].end_time
+					rec.is_next = (end <= self.time_to_float(now.time()))	
 
 					if rec.is_next:
 						# Load new entries but with the previous session's data
 						for prev in previous.attendance_status_ids:					
 							students.append([0, 0, {
 								"student_id": prev.student_id,
-								"status": prev.status,
+								"status": "a_attended" if prev.status == "a_delayed" else prev.status,
 								"notes": prev.notes
 							}])
 						
 			if not rec.is_next:
 				# Load empty entries
-				for student in rec.attendance_schedule_id.attendance_template_id.student_ids:
+				for student in rec.attendance_schedule_id.attendance_template_id.sudo().student_ids:
 					# Sources: 
 					# 	https://stackoverflow.com/a/70843263
 					#	https://www.odoo.com/ro_RO/forum/suport-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
@@ -158,7 +256,7 @@ class ems_attendance_session(models.Model):
 			
 			# NOTE: if duped, avoid next message.
 			if rec.is_duped: rec.is_next = False
-			rec.write({"attendance_status_ids": students})
+			rec.attendance_status_ids = students
 
 	def _default_teacher_id(self):							
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
@@ -171,7 +269,7 @@ class ems_attendance_session(models.Model):
 		# TODO: this method is called twice on load, one from the _default_display_warning and the other one from _onchange_guard_mode
 		# 		the context (self.context) is not shared because there calls come from different instances, so I 
 		# 		can't share the registers in order to avoid duped calls...
-		today = datetime.now()		
+		today = datetime.now()
 		where = [("start_date", "<=", today), ("end_date", ">=", today)]	
 		
 		if self.mode == "manual" and not self.env.user.has_group('ems.group_admin'):
@@ -180,18 +278,25 @@ class ems_attendance_session(models.Model):
 			where.append(("weekday", "=", today.weekday()))
 			where.append(("teacher_id.user_id", "!=" if self.mode == "guard" else "=", self.env.uid))
 
-		# NOTE: the file security/rules.xml should define which records can be loaded depeding on the current user, BUT all records must be avaliable (read only) on guard mode, so it will be filtered here. 		
-		regs = self.env["ems.attendance_schedule"].search(where)
+		# NOTE: the file security/rules.xml should define which records can be loaded depeding on the current user, 
+		# BUT all records must be avaliable (read only) on guard mode, so sudo will be used. 		
+		regs = self.sudo().env["ems.attendance_schedule"].search(where)
 		
 		if self.mode == "manual": 
 			return regs
-		else:
-			# NOTE: I wasn't able to filter the search by hour-range, so ill do it manually
+		else:					
 			current = []
 			for r in regs:
-				start = r.start_date.time()
-				end = r.end_date.time()
-				now = today.time()
+				# NOTE: I wasn't able to filter the search by hour-range due timezones, so ill do it manually
+				# 		- Spain's summer period time: GMT+2 (UTC + 2h)
+				#       - Spain's winter period time: GMT+1 (UTC + 1h)	
+				# 		- Getting a winter's UTC current time won't fit when compared with a summer's UTC stored time.
+				#		
+				# 		SOLUTION: converting all UTC dates (the BBDD ones, as Odoo does) to local and compare. Less efficient,
+				#		but the schedules entries have been filtered at maximum. 
+				start = r.utc_datetime_to_local(r.start_date).time()
+				end = r.utc_datetime_to_local(r.end_date).time()				
+				now = r.utc_datetime_to_local(datetime.now()).time()
 				if now >= start and now < end:
 					current.append(r)		
 			return current			

@@ -1,0 +1,16 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_notification_list">
+            <field name="name">ems.attendance_notification.list</field>
+            <field name="model">ems.attendance_notification</field>
+            <field name="arch" type="xml">
+                <list>                                        
+                    <field name="attendance_session_id" />
+                    <field name="tutor_id" widget="many2one_avatar"/>
+                    <field name="create_date" />
+                    <field name="sent_date" />
+                </list>
+            </field>
+        </record>   
+    </data>
+</odoo>

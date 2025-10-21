@@ -1,8 +1,8 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_attendance_template_search">
-            <field name="name">ems.attendance_template.search</field>
-            <field name="model">ems.attendance_template</field>            
+        <record model="ir.ui.view" id="view_attendance_justification_search">
+            <field name="name">ems.attendance_justification.search</field>
+            <field name="model">ems.attendance_justification</field>            
             <field name="arch" type="xml">                  
                 <search string="Only mine">                                                                             
                     <filter string="Show only mine" name="only_mine" domain="[('teacher_id.user_id.id', '=', uid)]"/>

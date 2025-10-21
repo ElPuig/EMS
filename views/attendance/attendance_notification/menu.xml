@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_attendance_notification_tree">
+            <field name="name">Attendance notification</field>
+            <field name="res_model">ems.attendance_notification</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Notifications" sequence="3" id="menu_attendance_notifications" parent="menu_attendance_config_sessions" action="action_attendance_notification_tree"/>
+    </data>
+</odoo>

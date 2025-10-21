@@ -2,9 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-import logging
-
-_logger = logging.getLogger(__name__)
+import datetime
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
 #		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
@@ -29,6 +27,17 @@ class ems_attendance_status(models.Model):
    
     notes = fields.Text("Notes")
     
+    @api.model_create_multi
+    def create(self, values):		
+        status = super(ems_attendance_status, self).create(values)
+        for val in values:
+            if 'student_id' in val and val.get('student_id'):
+                for s in status:
+                    # TODO: test with a non adult and prepare the notification entry.
+                    is_adult = s.student_id.is_adult
+                    fake = 0                
+
+
     @api.depends('attendance_session_id')
     def _compute_attendance_session_display_name(self):
         for rec in self:

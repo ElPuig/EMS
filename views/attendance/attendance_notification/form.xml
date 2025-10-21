@@ -1,0 +1,57 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_notification_form">
+            <field name="name">ems.attendance_notification.form</field>
+            <field name="model">ems.attendance_notification</field>
+            <field name="arch" type="xml">
+                <form string="notification">                    
+                    <sheet>     
+                         <group string="Main data" col="4">                                                        
+                            <group colspan="4">
+                                <field name="attendance_status_id" />
+                                <field name="student_id" />
+                                <field name="sent_date" />
+                                <field name="sent" />
+                            </group>                         
+                            <group colspan="2">
+                                <!-- <field name="student_id" domain="[('id', 'in', allowed_student_ids)]" widget="many2one_avatar" readonly="id"/> -->
+                            </group>                                             
+                            <group colspan="2">
+                                <!-- <field name="teacher_id" string="Teacher" widget="many2one_avatar_employee" readonly="id or not user_is_admin"/>                               -->
+                            </group>                             
+                        </group>                      
+
+                        <!-- <notebook>
+                            <page string="Statuses">                                
+                                <field name="attendance_status_ids">
+                                    <list default_order="student_id asc" create="False" edit="False" delete="False" no_open="True">                                                                               
+                                        <field string="Session" name="display_name" />
+                                        <field name="status" width="175px" />
+                                    </list>
+                                </field>
+                            </page> 
+                            <page string="Session teachers">                                
+                                <field name="session_teacher_ids">
+                                    <list default_order="name asc" create="False" edit="False" delete="False" no_open="True">                                                                               
+                                        <field string="Name" name="name" />
+                                    </list>
+                                </field>
+                            </page>        
+                            <page string="Attached files">
+                                <field name="attachment_ids" default_order="name asc" context="{'default_res_model': 'ems.attendance_notification'}" readonly="not user_is_admin and not user_is_tutor">
+                                    <list default_order="name asc">
+                                        <field name="name" />
+                                        <button class="btn btn-secondary fa fa-download" title="Download File" name="download" type="object" />
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Notes">
+                                <field name="notes"/>
+                            </page>
+                        </notebook> -->
+                    </sheet>	
+                </form>              
+            </field>			
+        </record>
+    </data>
+</odoo>

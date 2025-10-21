@@ -150,7 +150,11 @@
 
             'views/attendance/attendance_justification/list.xml',
             'views/attendance/attendance_justification/form.xml',
-            'views/attendance/attendance_justification/menu.xml',    
+            'views/attendance/attendance_justification/menu.xml',   
+
+            'views/attendance/attendance_notification/list.xml',
+            'views/attendance/attendance_notification/form.xml',
+            'views/attendance/attendance_notification/menu.xml',    
 
             'views/attendance/attendance_reports/menu.xml',
             'views/attendance/attendance_reports/student_wizard.xml', 

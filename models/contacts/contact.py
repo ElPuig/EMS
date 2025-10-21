@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from odoo.http import request
-from odoo.exceptions import ValidationError
 from ..shared import utils
+import datetime
 
 class ems_contact(models.Model):
     _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.utils, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
@@ -28,9 +27,17 @@ class ems_contact(models.Model):
     auth_trip = fields.Boolean(string="Scholar Trips")
     auth_healt = fields.Boolean(string="Health Data")
     car_plate = fields.Char(string="Car Plate")
+    is_adult = fields.Boolean(string="Adult", compute="_compute_is_adult", store=False)
 
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
+
+    @api.depends('birth_date')
+    def _compute_is_adult(self):	
+        for rec in self:	
+            birth_date = rec.birth_date
+            age = datetime.date.today() - birth_date		
+            rec.is_adult = (age.days / 365 >= 18)
 
     @api.onchange('level_id')
     def _onchange_level_id(self):	

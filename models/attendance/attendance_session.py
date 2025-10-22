@@ -127,7 +127,7 @@ class ems_attendance_session(models.Model):
 				previous = self.env["ems.attendance_session"].search(
 					[
 						("date", "=", datetime.now()), 						
-						("attendance_schedule_id.attendance_template_id", "=", rec.attendance_schedule_id.attendance_template_id.id),
+						("attendance_schedule_id.attendance_template_id.id", "=", rec.attendance_schedule_id.attendance_template_id.id),
 						("attendance_schedule_id.weekday", "=", rec.attendance_schedule_id.weekday)
 					], order="end_time DESC") or False				
 				

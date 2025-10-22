@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import math, pytz
 from datetime import datetime
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
 from .attendance_schedule import ems_attendance_schedule
 
 #from attendance_session import ems_attendance_session
@@ -34,7 +32,8 @@ class ems_attendance_session(models.Model):
 	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
 	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)
 	
-	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
+	# NOTE: when trying to load repeated or previous, the 'date' is the first filter, so indexing it will speedup queries. 
+	date = fields.Date(string="Date", default=fields.Datetime.now, required=True, index=True)
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 		
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_status", inverse_name="attendance_session_id")		

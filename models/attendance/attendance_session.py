@@ -117,13 +117,11 @@ class ems_attendance_session(models.Model):
 
 				# NOTE: the first approach was to check if start_date of current == end_date of previous, but what happens if there's a coffe break between sessions?	
 				#		its better to check if the same subject has been teached previously and load the same data (maybe there's a gap between, but the student assistance 
-				# 		data should be almost the same). Let's test this behaviour (I seems like the easiest and les complex approach) and see...
-				
-				subject_id = rec.attendance_schedule_id.attendance_template_id.subject_id.id
+				# 		data should be almost the same). Let's test this behaviour (I seems like the easiest and les complex approach) and see...				
 				previous = self.env["ems.attendance_session"].search(
 					[
 						("date", "=", datetime.now()), 						
-						("attendance_schedule_id.attendance_template_id.subject_id.id", "=", subject_id)
+						("attendance_schedule_id.attendance_template_id", "=", rec.attendance_schedule_id.attendance_template_id.id)
 					], order="end_time DESC") or False				
 				
 				if previous:

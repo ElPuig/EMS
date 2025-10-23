@@ -7,17 +7,20 @@
                 <form string="notification">                    
                     <sheet>     
                          <group string="Main data" col="4">                                                        
-                            <group colspan="4">
-                                <field name="attendance_status_id" />
-                                <field name="student_id" />
-                                <field name="sent_date" />
-                                <field name="sent" />
+                            <group>
+                                <field name="student_id"  widget="many2one_avatar" />
                             </group>                         
                             <group colspan="2">
-                                <!-- <field name="student_id" domain="[('id', 'in', allowed_student_ids)]" widget="many2one_avatar" readonly="id"/> -->
+                                <field name="attendance_session_id" />
+                            </group>         
+                            <group>
+                                <field name="status"/>
                             </group>                                             
-                            <group colspan="2">
-                                <!-- <field name="teacher_id" string="Teacher" widget="many2one_avatar_employee" readonly="id or not user_is_admin"/>                               -->
+                            <group>
+                                <field name="create_date" />
+                            </group>
+                            <group colspan="3">
+                                <field name="sent_date" />
                             </group>                             
                         </group>                      
 

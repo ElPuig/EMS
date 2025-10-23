@@ -26,6 +26,7 @@ class ems_contact(models.Model):
     auth_image = fields.Boolean(string="Image Rights")
     auth_trip = fields.Boolean(string="Scholar Trips")
     auth_healt = fields.Boolean(string="Health Data")
+    auth_share = fields.Boolean(string="Share with family", help="If marked, the student (even if adult) allows to share its educational progression with its family.")
     car_plate = fields.Char(string="Car Plate")
     is_adult = fields.Boolean(string="Adult", compute="_compute_is_adult", store=False)
 

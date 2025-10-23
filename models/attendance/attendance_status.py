@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _
-from odoo.exceptions import UserError
-import datetime
+from odoo import models, fields, api
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
 #		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
@@ -29,14 +27,14 @@ class ems_attendance_status(models.Model):
     
     @api.model_create_multi
     def create(self, values):		
-        status = super(ems_attendance_status, self).create(values)
-        for val in values:
-            if 'student_id' in val and val.get('student_id'):
-                for s in status:
-                    # TODO: test with a non adult and prepare the notification entry.
-                    is_adult = s.student_id.is_adult
-                    fake = 0                
-
+        status = super(ems_attendance_status, self).create(values)        
+        for s in status:
+            if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):
+                # NOTE: sudo needed because no teacher can create those manually.
+                self.sudo().env['ems.attendance_notification'].create({
+                    'attendance_status_id': s.id,
+                    'student_id': s.student_id.id                            
+                })                            
 
     @api.depends('attendance_session_id')
     def _compute_attendance_session_display_name(self):

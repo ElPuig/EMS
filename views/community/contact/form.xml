@@ -92,6 +92,7 @@
                             </group>    
                             <group>
                                 <field name="auth_healt" readonly="read_only_user" />
+                                <field name="auth_share" readonly="read_only_user" />
                             </group>  
                         </group>                        
                     </page>

@@ -11,11 +11,18 @@ class ems_attendance_notification(models.Model):
 	attendance_status_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_status", required=True, store=True, ondelete='cascade')
 	attendance_session_id = fields.Many2one(string="Session", related="attendance_status_id.attendance_session_id") 
 	student_id = fields.Many2one(string='Student', related="attendance_status_id.student_id") 
-	status = fields.Selection(string="Status", related="attendance_status_id.status")
+	tutor_id = fields.Many2one(string='Tutor', related="student_id.tutor_id") 
+	# NOTE: if changed or justified, the status will change, so it will be copied (changing original status will remove the notification if not sent). 
+	status = fields.Selection(string="Status", compute="_compute_status", selection=attendance_status, store=True)
 	sent_date = fields.Datetime(string="Sent on")
 	sent = fields.Boolean(string="Sent", compute="_compute_sent")
 	
 	notes = fields.Text("Notes")
+	
+	@api.depends("attendance_status_id")
+	def _compute_status(self):
+		for rec in self:
+			rec.status = rec.attendance_status_id.status
 	
 	@api.depends('sent_date')
 	def _compute_sent(self):              

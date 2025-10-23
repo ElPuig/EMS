@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import debugpy
-import socket
+import os
 
-while True:
-    port = 5678
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        if s.connect_ex(('localhost', port)) == 0:
-            port += 1            
-        else:
-            debugpy.listen(("0.0.0.0", port))
-            break        
+is_worker = bool(os.environ.get('ODOO_WORKER_TYPE'))
+if not is_worker:
+    debugpy.configure({"subProcess": True})
+
+    try:
+        debugpy.listen(("0.0.0.0", 5678))
+    except RuntimeError as e:
+        print(f"   ERROR running debugpy: {e}.")        
 
 from . import controllers
 from . import models

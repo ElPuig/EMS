@@ -25,33 +25,33 @@ class ems_attendance_status(models.Model):
    
     notes = fields.Text("Notes")
     
-    @api.model_create_multi
-    def create(self, values):		
-        status = super(ems_attendance_status, self).create(values)        
-        for s in status:
-            s._update_notification()                          
+    # @api.model_create_multi
+    # def create(self, values):		
+    #     status = super(ems_attendance_status, self).create(values)        
+    #     for s in status:
+    #         s._update_notification()                          
 
-    def write(self, vals):
-        super(ems_attendance_status, self).write(vals)
-        self._update_notification()        
+    # def write(self, vals):
+    #     super(ems_attendance_status, self).write(vals)
+    #     self._update_notification()        
 
-    def _update_notification(self):
-        existing = self.env["ems.attendance_notification"].search([("attendance_status_id", "=", self.id)]) or False                
-        if self.status not in ['m_miss', 'a_issue']:             
-             # Removing an existing one (if not sent).
-             if existing != False and existing.status in ['m_miss', 'a_issue'] and not existing.sent:
-                 existing.sudo().unlink()
+    # def _update_notification(self):
+    #     existing = self.env["ems.attendance_notification"].search([("attendance_status_id", "=", self.id)]) or False                
+    #     if self.status not in ['m_miss', 'a_issue']:             
+    #          # Removing an existing one (if not sent).
+    #          if existing != False and existing.status in ['m_miss', 'a_issue'] and not existing.sent:
+    #              existing.sudo().unlink()
                                  
-        elif self.status in ['m_miss', 'a_issue'] and (self.student_id.auth_share or not self.student_id.is_adult):            
-            # Updating is not possible, it will be removed and replaced by a new one if needed
-            if existing != False:
-                 existing.sudo().unlink()
+    #     elif self.status in ['m_miss', 'a_issue'] and (self.student_id.auth_share or not self.student_id.is_adult):            
+    #         # Updating is not possible, it will be removed and replaced by a new one if needed
+    #         if existing != False:
+    #              existing.sudo().unlink()
 
-            # NOTE: sudo needed because no teacher can create those manually.
-            self.sudo().env['ems.attendance_notification'].create({
-                'attendance_status_id': self.id,
-                'student_id': self.student_id.id                            
-            }) 
+    #         # NOTE: sudo needed because no teacher can create those manually.
+    #         self.sudo().env['ems.attendance_notification'].create({
+    #             'attendance_status_id': self.id,
+    #             'student_id': self.student_id.id                            
+    #         }) 
 
     @api.depends('attendance_session_id')
     def _compute_attendance_session_display_name(self):

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="mail.template" id="template_attendance_notification_email" >
+            <field name="name">Email notification: student attendance</field>
+            <field name="model_id" ref="ems.model_ems_attendance_notification"/>
+            <field name="subject">Student attendance notification: ${object.student_id}</field>
+            <field name="auto_delete" eval="True"/> 
+            <!-- TODO: use the contact data -->
+            <!-- <field name="email_to">${object.student_id | safe}</field> -->
+            <field name="email_to">porrino.fernando@elpuig.xeill.net</field>
+            <!-- TODO: get the company email -->            
+            <!-- <field name="email_from">${(user.email_formatted or 'noreply@tuempresa.com') | safe}</field> -->
+            <field name="email_from">ems@elpuig.xeill.net</field>
+
+            <field name="body_html">
+                <![CDATA[
+                    <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;">
+                        <p>Hola${object.student_id.display_name},</p>
+                        
+                        <p>
+                            Este es un correo automático para confirmar que tu registro
+                            ha sido procesado 15 minutos después de su creación.
+                        </p>
+                        
+                        <p>
+                            <strong>Detalles del Registro:</strong>
+                        </p>
+                        <ul>
+                            <li><strong>Nombre:</strong> ${object.student_id.display_name}</li>
+                            <li><strong>Status:</strong> ${object.status}</li>
+                            </ul>
+                        
+                        <p>
+                            Puedes ver el registro directamente en Odoo.
+                        </p>
+                        
+                        <br/>
+                        <p>Saludos,</p>
+                        <p>El Sistema Odoo</p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+    </data>
+</odoo>

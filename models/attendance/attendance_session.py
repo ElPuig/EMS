@@ -3,13 +3,14 @@
 from datetime import datetime
 from odoo import models, fields, api
 from .attendance_schedule import ems_attendance_schedule
+from datetime import timedelta
 
 #from attendance_session import ems_attendance_session
 
 class ems_attendance_session(models.Model):
 	_name = "ems.attendance_session"
 	_description = "Attendance session: contains the data about every session done with the students."		
-	_inherit = ['ems.utils']	
+	_inherit = ['ems.utils', 'mail.thread', 'mail.activity.mixin']	
 	_sql_constraints = [
 		# TODO: localize this (the same message appears in form).
         (
@@ -45,6 +46,43 @@ class ems_attendance_session(models.Model):
 	is_next = fields.Boolean(store=False)
 
 	notes = fields.Text("Notes")	
+
+	@api.model_create_multi
+	def create(self, vals_list):
+		records = super().create(vals_list)
+		# execution_time = fields.Datetime.now() + timedelta(seconds=15 * 60) # 15 minutes
+		execution_time = fields.Datetime.now() + timedelta(seconds=5) # 5 seconds for testing purposes
+
+		for record in records:
+			record.with_delay(
+                eta=execution_time,
+                description=f"Notification task for the session '{record.display_name}' (ID={record.id})"
+            )._send_notifications()
+		return records
+
+
+	def _send_notifications(self):		
+		self.ensure_one()		
+		template_xml_id = 'ems.template_attendance_notification_email'
+
+		try:
+			template = self.env.ref(template_xml_id, raise_if_not_found=True)
+		except ValueError as e:		
+			return False # Silent
+
+		for s in self.attendance_status_ids:
+			if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):				
+				noti = s.sudo().env['ems.attendance_notification'].create({
+					'attendance_status_id': self.id,
+					'student_id': self.student_id.id                            
+				}) 
+
+				try:
+					template.send_mail(noti.id, force_send=True)
+					noti.sudo().write({'sent_date': datetime.now()})
+				except Exception as e:
+					raise # retry
+		return True
 
 	@api.depends("attendance_schedule_id")
 	def _compute_weekday(self):

@@ -22,7 +22,18 @@
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
-    'depends': ['base_setup', 'hr', 'hr_org_chart', 'auth_oauth', 'contacts', 'project', 'mass_mailing', 'survey', 'hr_attendance'],
+    'depends': [
+        'base_setup', 
+        'hr', 
+        'hr_org_chart', 
+        'auth_oauth', 
+        'contacts', 
+        'project', 
+        'mass_mailing', 
+        'survey', 
+        'hr_attendance',
+        'queue_job'
+    ],
     
     # just for debugging
     'external_dependencies': {
@@ -152,6 +163,7 @@
 
             'views/attendance/attendance_notification/list.xml',
             'views/attendance/attendance_notification/form.xml',
+            'views/attendance/attendance_notification/email.xml',
             'views/attendance/attendance_notification/menu.xml',    
 
             'views/attendance/attendance_reports/menu.xml',

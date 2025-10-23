@@ -3,6 +3,7 @@
 from odoo import models, fields, api
 from ..shared import utils
 import datetime
+from dateutil.relativedelta import relativedelta
 
 class ems_contact(models.Model):
     _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.utils, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
@@ -36,9 +37,7 @@ class ems_contact(models.Model):
     @api.depends('birth_date')
     def _compute_is_adult(self):	
         for rec in self:	
-            birth_date = rec.birth_date
-            age = datetime.date.today() - birth_date		
-            rec.is_adult = (age.days / 365 >= 18)
+            rec.is_adult = (relativedelta(datetime.date.today(), rec.birth_date).years >= 18)
 
     @api.onchange('level_id')
     def _onchange_level_id(self):	

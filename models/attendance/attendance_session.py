@@ -61,35 +61,36 @@ class ems_attendance_session(models.Model):
 		for rec in self:
 			rec.end_time = rec.attendance_schedule_id.end_time
 
+	# NOTE: sudo is being used to load attendance_template data, because on guard mode all teachers should be able to read all sessions and template data.
 	@api.depends("attendance_schedule_id")
 	def _compute_level_id(self):
 		for rec in self:
-			rec.level_id = rec.attendance_schedule_id.attendance_template_id.level_id
+			rec.level_id = rec.attendance_schedule_id.attendance_template_id.sudo().level_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_study_id(self):
 		for rec in self:
-			rec.study_id = rec.attendance_schedule_id.attendance_template_id.study_id
+			rec.study_id = rec.attendance_schedule_id.attendance_template_id.sudo().study_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_group_id(self):
 		for rec in self:
-			rec.group_id = rec.attendance_schedule_id.attendance_template_id.group_id
+			rec.group_id = rec.attendance_schedule_id.attendance_template_id.sudo().group_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_subject_id(self):
 		for rec in self:
-			rec.subject_id = rec.attendance_schedule_id.attendance_template_id.subject_id
+			rec.subject_id = rec.attendance_schedule_id.attendance_template_id.sudo().subject_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_space_id(self):
 		for rec in self:
-			rec.space_id = rec.attendance_schedule_id.attendance_template_id.space_id
+			rec.space_id = rec.attendance_schedule_id.attendance_template_id.sudo().space_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_template_teacher_id(self):
 		for rec in self:
-			rec.template_teacher_id = rec.attendance_schedule_id.attendance_template_id.teacher_id
+			rec.template_teacher_id = rec.attendance_schedule_id.attendance_template_id.sudo().teacher_id
 	
 	@api.depends('attendance_schedule_id', 'date')
 	def _compute_display_name(self):              
@@ -126,7 +127,7 @@ class ems_attendance_session(models.Model):
 				previous = self.env["ems.attendance_session"].search(
 					[
 						("date", "=", datetime.now()), 						
-						("attendance_schedule_id.attendance_template_id.id", "=", rec.attendance_schedule_id.attendance_template_id.id),
+						("attendance_schedule_id.attendance_template_id.id", "=", rec.attendance_schedule_id.attendance_template_id.sudo().id),
 						("attendance_schedule_id.weekday", "=", rec.attendance_schedule_id.weekday)
 					], order="end_time DESC") or False				
 				
@@ -145,7 +146,7 @@ class ems_attendance_session(models.Model):
 						
 			if not rec.is_next:
 				# Load empty entries
-				for student in rec.attendance_schedule_id.attendance_template_id.student_ids:
+				for student in rec.attendance_schedule_id.attendance_template_id.sudo().student_ids:
 					# Sources: 
 					# 	https://stackoverflow.com/a/70843263
 					#	https://www.odoo.com/ro_RO/forum/suport-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
@@ -179,8 +180,9 @@ class ems_attendance_session(models.Model):
 			where.append(("weekday", "=", today.weekday()))
 			where.append(("teacher_id.user_id", "!=" if self.mode == "guard" else "=", self.env.uid))
 
-		# NOTE: the file security/rules.xml should define which records can be loaded depeding on the current user, BUT all records must be avaliable (read only) on guard mode, so it will be filtered here. 		
-		regs = self.env["ems.attendance_schedule"].search(where)
+		# NOTE: the file security/rules.xml should define which records can be loaded depeding on the current user, 
+		# BUT all records must be avaliable (read only) on guard mode, so sudo will be used. 		
+		regs = self.sudo().env["ems.attendance_schedule"].search(where)
 		
 		if self.mode == "manual": 
 			return regs

@@ -6,16 +6,6 @@
             <field name="res_model">ems.attendance_session</field>
             <!-- <field name="view_mode">list,form,calendar</field> -->
             <field name="view_mode">list,form</field>
-            <field name="context">{'search_default_only_own': 1}</field>         
-
-            <!-- 
-                Unable to use the 'user', 'self', 'env', etc.
-                I tried a lot of things but none works. Finally, a filter is applied, but the user can remove it (its not a big deal, but...).
-             -->
-            <!-- <field name="domain">                			
-                [] if user.has_group('ems.admin') else ['|', ('teacher_id.user_id.id', '=', uid), ('create_uid', '=', uid)]
-            </field>              -->         
-
         </record>
 
         <menuitem name="Sessions" sequence="1" id="menu_attendance_sessions" parent="menu_attendance" action="action_attendance_session_tree"/>

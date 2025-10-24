@@ -73,8 +73,7 @@ class ems_attendance_session(models.Model):
 		for s in self.attendance_status_ids:
 			if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):				
 				noti = s.sudo().env['ems.attendance_notification'].create({
-					'attendance_status_id': self.id,
-					'student_id': self.student_id.id                            
+					'attendance_status_id': s.id                       
 				}) 
 
 				try:

@@ -34,6 +34,14 @@ class ems_contact(models.Model):
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
 
+    # NOTE: student contacts (like the used with the notifications) will be of type family. 
+    type = fields.Selection(
+        selection_add=[
+            ('family', 'Family member / Legal tutor')
+        ],
+        ondelete={'family': 'set default'}
+    )
+
     @api.depends('birth_date')
     def _compute_is_adult(self):	
         for rec in self:	

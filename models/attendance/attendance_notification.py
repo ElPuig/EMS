@@ -58,4 +58,4 @@ class ems_attendance_notification_line(models.Model):
 	@api.depends('attendance_status_id')
 	def _compute_display_name(self):              
 		for rec in self:
-			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.student_id.display_name, rec.status)
+			rec.display_name = "%s | %s (%s)" % (rec.attendance_notification_id.attendance_session_id.display_name, rec.student_id.display_name, rec.status)

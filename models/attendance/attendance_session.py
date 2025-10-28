@@ -63,7 +63,7 @@ class ems_attendance_session(models.Model):
 
 	def _send_notifications(self):		
 		self.ensure_one()		
-		template_xml_id = 'ems.template_attendance_notification_email'
+		template_xml_id = 'ems.template_attendance_notification_line_email'
 
 		try:
 			template = self.env.ref(template_xml_id, raise_if_not_found=True)
@@ -86,19 +86,14 @@ class ems_attendance_session(models.Model):
 					'attendance_session_id': self.id,
 					'tutor_id': tutor_id.id,
 					'attendance_notification_line_ids': lines[tutor_id]
-				})			
+				})	
 
-		# for s in self.attendance_status_ids:
-		# 	if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):				
-		# 		noti = s.sudo().env['ems.attendance_notification'].create({
-		# 			'attendance_status_id': s.id                       
-		# 		}) 
-
-		# 		try:
-		# 			template.send_mail(noti.id, force_send=True)
-		# 			noti.sudo().write({'sent_date': datetime.now()})
-		# 		except Exception as e:
-		# 			raise # retry
+				for line in noti.attendance_notification_line_ids:
+					try:
+						template.send_mail(line.id, force_send=True)
+						line.sudo().write({'sent_date': datetime.now()})
+					except Exception as e:
+						raise # it will retry		
 		return True
 
 	@api.depends("attendance_schedule_id")

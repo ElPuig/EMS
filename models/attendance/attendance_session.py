@@ -51,7 +51,7 @@ class ems_attendance_session(models.Model):
 	def create(self, vals_list):
 		records = super().create(vals_list)
 		# execution_time = fields.Datetime.now() + timedelta(seconds=15 * 60) # 15 minutes
-		execution_time = fields.Datetime.now() + timedelta(seconds=5) # 5 seconds for testing purposes
+		execution_time = fields.Datetime.now() + timedelta(seconds=1) # 1 seconds for testing purposes
 
 		for record in records:
 			record.with_delay(
@@ -69,18 +69,36 @@ class ems_attendance_session(models.Model):
 			template = self.env.ref(template_xml_id, raise_if_not_found=True)
 		except ValueError as e:		
 			return False # Silent
-
+		
+		lines = dict()
 		for s in self.attendance_status_ids:
-			if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):				
-				noti = s.sudo().env['ems.attendance_notification'].create({
+			if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):
+				if s.student_id.tutor_id not in lines:
+					lines[s.student_id.tutor_id] = []
+				
+				lines[s.student_id.tutor_id].append([0, 0, {													
 					'attendance_status_id': s.id                       
-				}) 
+				}]) 
 
-				try:
-					template.send_mail(noti.id, force_send=True)
-					noti.sudo().write({'sent_date': datetime.now()})
-				except Exception as e:
-					raise # retry
+		if len(lines) > 0:
+			for tutor_id in lines:		
+				noti = s.sudo().env['ems.attendance_notification'].create({
+					'attendance_session_id': self.id,
+					'tutor_id': tutor_id.id,
+					'attendance_notification_line_ids': lines[tutor_id]
+				})			
+
+		# for s in self.attendance_status_ids:
+		# 	if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):				
+		# 		noti = s.sudo().env['ems.attendance_notification'].create({
+		# 			'attendance_status_id': s.id                       
+		# 		}) 
+
+		# 		try:
+		# 			template.send_mail(noti.id, force_send=True)
+		# 			noti.sudo().write({'sent_date': datetime.now()})
+		# 		except Exception as e:
+		# 			raise # retry
 		return True
 
 	@api.depends("attendance_schedule_id")

@@ -188,10 +188,32 @@
         <field name="name">Attendance notification: tutor</field>
         <field name="model_id" ref="ems.model_ems_attendance_notification"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('student_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="domain_force">[('tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/> 
+    </record>
+
+    <record id="rule_attendance_notification_line_admin" model="ir.rule">
+        <field name="name">Attendance notification: all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_notification_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_notification_line_teacher_tutor" model="ir.rule">      
+        <field name="name">Attendance notification: tutor</field>
+        <field name="model_id" ref="ems.model_ems_attendance_notification_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('tutor_id.user_id.id', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
-        <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="True"/> 
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/> 
     </record>
 </odoo>

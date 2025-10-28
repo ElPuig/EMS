@@ -82,6 +82,8 @@ class ems_attendance_session(models.Model):
 
 		if len(lines) > 0:
 			for tutor_id in lines:		
+				# TODO: the send_to should be loaded from the studen't addresses. 
+				# Only one type of addresses should be able to be created: family (name, phone and email; the rest can be omited).
 				noti = s.sudo().env['ems.attendance_notification'].create({
 					'attendance_session_id': self.id,
 					'tutor_id': tutor_id.id,

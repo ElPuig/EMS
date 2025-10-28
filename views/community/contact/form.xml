@@ -77,12 +77,13 @@
                                 <field name="student_id" readonly="read_only_user" />
                                 <field name="medical_id" invisible="read_only_user"  />                                                            
                                 <field name="student_email" readonly="read_only_user" widget="email" />                               
+                                <field name="car_plate" invisible="read_only_user"  />
                             </group>
                             <group>
+                                <field name="is_adult" readonly="True" />
                                 <field name="birth_date" readonly="read_only_user" />
                                 <field name="birth_country_id" invisible="read_only_user"  />    
-                                <field name="citizenship_id" invisible="read_only_user"  />
-                                <field name="car_plate" invisible="read_only_user"  />
+                                <field name="citizenship_id" invisible="read_only_user"  />                                
                             </group>                            
 
                             <separator name="data" string="Authorizations"/>

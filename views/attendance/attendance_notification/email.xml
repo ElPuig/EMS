@@ -7,7 +7,7 @@
             <field name="subject">Student attendance notification: {{object.student_id.display_name}}</field>
             <field name="auto_delete" eval="True"/> 
             <!-- TODO: use the contact data -->
-            <!-- <field name="email_to">{{object.student_id | safe}}</field> -->
+            <!-- <field name="email_to">{{object.student_id | safe}}</field> -->            
             <field name="email_to">porrino.fernando@elpuig.xeill.net</field>
             <!-- TODO: get the company email -->            
             <!-- <field name="email_from">{{(user.email_formatted or 'noreply@tuempresa.com') | safe}}</field> -->

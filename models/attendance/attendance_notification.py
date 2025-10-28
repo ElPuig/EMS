@@ -35,7 +35,7 @@ class ems_attendance_notification_line(models.Model):
 	student_id = fields.Many2one(string='Student', related="attendance_status_id.student_id") 	
 	
 	# NOTE: the status is just text, so it's easy to use it within the email template (the notitication entry is created once the email has to be sent, so the status value won't change).
-	status = fields.Char(string="Status", compute="_compute_status", store=True)	
+	status = fields.Char(string="Status", compute="_compute_status", store=True)		
 	send_to = fields.Char(string="Send to")
 	sent_date = fields.Datetime(string="Sent on")
 	sent = fields.Boolean(string="Sent", compute="_compute_sent")

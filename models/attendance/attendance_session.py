@@ -50,8 +50,8 @@ class ems_attendance_session(models.Model):
 	@api.model_create_multi
 	def create(self, vals_list):
 		records = super().create(vals_list)
-		# execution_time = fields.Datetime.now() + timedelta(seconds=15 * 60) # 15 minutes
-		execution_time = fields.Datetime.now() + timedelta(seconds=1) # 1 seconds for testing purposes
+		delay =  self.env['ir.config_parameter'].sudo().get_param('ems.attendance_notification_delay')
+		execution_time = fields.Datetime.now() + timedelta(seconds=delay * 60) # from minutes to seconds
 
 		for record in records:
 			record.with_delay(

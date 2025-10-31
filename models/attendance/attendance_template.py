@@ -47,4 +47,4 @@ class ems_attendance_template(models.Model):
 			for student in self.env['ems.enrollment'].search([('group_id', '=', rec.group_id.id), ('subject_id', '=', rec.subject_id.id)]).mapped('student_id'):
 				students.append(student.id)
 
-			rec.write({'student_ids' : [(6, 0, students)]})
+			rec.student_ids = [(6, 0, students)]

@@ -14,7 +14,6 @@ class ems_attendance_status(models.Model):
     student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
     image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
     attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session")
-    attendance_justification_id = fields.Many2one(string="Justification", comodel_name="ems.attendance_justification")    
     
     # This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
     inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 

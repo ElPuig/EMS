@@ -41,7 +41,7 @@ class ems_employee_base(models.AbstractModel):
     def _onchange_tutorship_ids(self):	
         for rec in self:
             role_tutor = self.env.ref('ems.role_tutor').ids[0]            
-            rec.write({'role_ids' : [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)]})            
+            rec.role_ids = [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)]
 
     @api.onchange('teaching_ids')
     def _onchange_teaching_ids(self):	
@@ -78,13 +78,11 @@ class ems_employee_base(models.AbstractModel):
                     while parent:          
                         if parent not in ignore:
                             ignore.append(parent.id)                                                       
-                            rec.write({
-                                'teaching_ids': [(0, 0, {
-                                    "teacher_id": rec.id, 
-                                    "group_id": teaching[sub].group_id,
-                                    "subject_id": parent.id,      
-                                })]
-                            })   
+                            rec.teaching_ids = [(0, 0, {
+                                "teacher_id": rec.id, 
+                                "group_id": teaching[sub].group_id,
+                                "subject_id": parent.id,      
+                            })]  
                         parent = parent.subject_id                                                                              
 
                     # If has childs, they must be added (recursive) if no other childs are present.

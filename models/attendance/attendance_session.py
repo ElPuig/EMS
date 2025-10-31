@@ -155,7 +155,7 @@ class ems_attendance_session(models.Model):
 			ids = []		
 			for allowed in self._get_allowed_attendance_schedule_ids():				
 				ids.append(allowed.id)
-			rec.write({'allowed_attendance_schedule_ids' : [(6, 0, ids)]})
+			rec.allowed_attendance_schedule_ids = [(6, 0, ids)]
 			rec.attendance_schedule_id = False if len(rec.allowed_attendance_schedule_ids) == 0 else rec.allowed_attendance_schedule_ids[0]
 		
 	@api.onchange("attendance_schedule_id")	
@@ -170,8 +170,9 @@ class ems_attendance_session(models.Model):
 				students.append([3, attendance_status.id])
 
 			if rec.attendance_schedule_id.id != False:
+				now = self.get_current_datetime()
 				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin
-				rec.is_duped = self.env["ems.attendance_session"].search([("date", "=", datetime.now()), ("attendance_schedule_id.id", "=", schedule_id)]) or False
+				rec.is_duped = self.env["ems.attendance_session"].search([("date", "=", now), ("attendance_schedule_id.id", "=", schedule_id)]) or False
 								
 				# NOTE: the first approach was to check if start_date of current == end_date of previous, but what happens if there's a coffe break between sessions?	
 				#		its better to check if the same subject has been teached previously and load the same data (maybe there's a gap between, but the student assistance 
@@ -184,8 +185,8 @@ class ems_attendance_session(models.Model):
 					], order="end_time DESC") or False				
 				
 				if previous:
-					end = self.time_float_to_utc_time_float(previous[0].end_time)					
-					rec.is_next = (end <= self.time_to_float(datetime.now().time()))	
+					end = previous[0].end_time
+					rec.is_next = (end <= self.time_to_float(now.time()))	
 
 					if rec.is_next:
 						# Load new entries but with the previous session's data
@@ -210,7 +211,7 @@ class ems_attendance_session(models.Model):
 			
 			# NOTE: if duped, avoid next message.
 			if rec.is_duped: rec.is_next = False
-			rec.write({"attendance_status_ids": students})
+			rec.attendance_status_ids = students
 
 	def _default_teacher_id(self):							
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
@@ -223,7 +224,7 @@ class ems_attendance_session(models.Model):
 		# TODO: this method is called twice on load, one from the _default_display_warning and the other one from _onchange_guard_mode
 		# 		the context (self.context) is not shared because there calls come from different instances, so I 
 		# 		can't share the registers in order to avoid duped calls...
-		today = datetime.now()		
+		today = self.get_current_datetime()
 		where = [("start_date", "<=", today), ("end_date", ">=", today)]	
 		
 		if self.mode == "manual" and not self.env.user.has_group('ems.group_admin'):
@@ -239,12 +240,16 @@ class ems_attendance_session(models.Model):
 		if self.mode == "manual": 
 			return regs
 		else:
-			# NOTE: I wasn't able to filter the search by hour-range, so ill do it manually
+			# NOTE: I wasn't able to filter the search by hour-range due timezones, so ill do it manually
+			# 		Spain's summer period time: GMT+2 (UTC + 2h)
+			#       Spain's winter period time: GMT+1 (UTC + 1h)			
 			current = []
 			for r in regs:
+				# NOTE: start and end dates are stored as UTC
+				#		now returns a UTC date too
 				start = r.start_date.time()
-				end = r.end_date.time()
-				now = today.time()
+				end = r.end_date.time()				
+				now = self.get_current_datetime().time() # NOTE: this time uses the user's timezone
 				if now >= start and now < end:
 					current.append(r)		
 			return current			

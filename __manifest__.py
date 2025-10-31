@@ -218,6 +218,7 @@
         'data/custom/ems.role.csv',
         'data/custom/hr.department.csv',
         'data/custom/res.company.csv',
+        'data/custom/res.partner.csv',
 
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        

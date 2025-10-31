@@ -26,15 +26,18 @@ class ems_attendance_session(models.Model):
 	start_time = fields.Float("Start Time", compute="_compute_start_time", store=True)
 	end_time = fields.Float("End Time", compute="_compute_end_time", store=True)	
 	
+	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
+	start_date = fields.Datetime(compute="_compute_start_date", store=True)	
+	end_date = fields.Datetime(compute="_compute_end_date", store=True)
+
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", compute="_compute_level_id", store=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", compute="_compute_study_id", store=True)
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_group_id", store=True)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", compute="_compute_subject_id", store=True)
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", compute="_compute_space_id", store=True)
 	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
-	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)
-	
-	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
+	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
+
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 		
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_status", inverse_name="attendance_session_id")		
@@ -61,6 +64,20 @@ class ems_attendance_session(models.Model):
 	def _compute_end_time(self):
 		for rec in self:
 			rec.end_time = rec.attendance_schedule_id.end_time
+
+	@api.depends("attendance_schedule_id")
+	def _compute_start_date(self):			
+		for rec in self:
+			local = rec.time_float_to_local_datetime(rec.date, rec.start_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.start_date = rec.datetime_to_odoo(utc)
+	
+	@api.depends("attendance_schedule_id")
+	def _compute_end_date(self):			
+		for rec in self:
+			local = rec.time_float_to_local_datetime(rec.date, rec.end_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.end_date = rec.datetime_to_odoo(utc)
 
 	@api.depends("attendance_schedule_id")
 	def _compute_level_id(self):
@@ -118,7 +135,7 @@ class ems_attendance_session(models.Model):
 				students.append([3, attendance_status.id])
 
 			if rec.attendance_schedule_id.id != False:
-				now = self.get_current_datetime()
+				now = datetime.now()
 				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin
 				rec.is_duped = self.env["ems.attendance_session"].search([("date", "=", now), ("attendance_schedule_id.id", "=", schedule_id)]) or False
 								
@@ -172,7 +189,7 @@ class ems_attendance_session(models.Model):
 		# TODO: this method is called twice on load, one from the _default_display_warning and the other one from _onchange_guard_mode
 		# 		the context (self.context) is not shared because there calls come from different instances, so I 
 		# 		can't share the registers in order to avoid duped calls...
-		today = self.get_current_datetime()
+		today = datetime.now()
 		where = [("start_date", "<=", today), ("end_date", ">=", today)]	
 		
 		if self.mode == "manual" and not self.env.user.has_group('ems.group_admin'):
@@ -186,17 +203,19 @@ class ems_attendance_session(models.Model):
 		
 		if self.mode == "manual": 
 			return regs
-		else:
-			# NOTE: I wasn't able to filter the search by hour-range due timezones, so ill do it manually
-			# 		Spain's summer period time: GMT+2 (UTC + 2h)
-			#       Spain's winter period time: GMT+1 (UTC + 1h)			
+		else:					
 			current = []
 			for r in regs:
-				# NOTE: start and end dates are stored as UTC
-				#		now returns a UTC date too
-				start = r.start_date.time()
-				end = r.end_date.time()				
-				now = self.get_current_datetime().time() # NOTE: this time uses the user's timezone
+				# NOTE: I wasn't able to filter the search by hour-range due timezones, so ill do it manually
+				# 		- Spain's summer period time: GMT+2 (UTC + 2h)
+				#       - Spain's winter period time: GMT+1 (UTC + 1h)	
+				# 		- Getting a winter's UTC current time won't fit when compared with a summer's UTC stored time.
+				#		
+				# 		SOLUTION: converting all UTC dates (the BBDD ones, as Odoo does) to local and compare. Less efficient,
+				#		but the schedules entries have been filtered at maximum. 
+				start = r.utc_datetime_to_local(r.start_date).time()
+				end = r.utc_datetime_to_local(r.end_date).time()				
+				now = r.utc_datetime_to_local(datetime.now()).time()
 				if now >= start and now < end:
 					current.append(r)		
 			return current			

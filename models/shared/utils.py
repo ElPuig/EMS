@@ -1,6 +1,7 @@
 import math
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo # requires Python >= 3.9
+from pytz import timezone, UTC
 from odoo import models, fields
 
 class ems_utils(models.AbstractModel):   
@@ -9,23 +10,22 @@ class ems_utils(models.AbstractModel):
 
     user_is_admin = fields.Boolean(default=lambda self: self.get_user_is_admin(), store=False)
     user_is_tutor = fields.Boolean(default=lambda self: self.get_user_is_tutor(), store=False)   
-
-    def time_float_to_datetime(self, time_float):
-        return self.time_float_to_datetime(self.get_current_datetime(), time_float)
     
-    def time_float_to_datetime(self, date, time_float):
-        split_time = math.modf(time_float)        
-        return datetime(date.year, date.month, date.day, int(split_time[1]), round(split_time[0]*60), 0, tzinfo=None) # Odoo demands no timezone
+    def time_float_to_local_datetime(self, date, time_float):
+        split_time = math.modf(time_float)    
+        return datetime(date.year, date.month, date.day, int(split_time[1]), round(split_time[0]*60), 0, tzinfo = ZoneInfo(self.env.context["tz"]))
     
-    def utc_datetime_to_user_timezone(self, utd_datetime):
-        user_time_zone = ZoneInfo(self.env.context["tz"]) 
-        utz_datetime = utd_datetime.astimezone(user_time_zone)
-        return utz_datetime.replace(tzinfo=None)
+    def local_datetime_to_utc(self, datetime):
+        return datetime.astimezone(UTC)
     
-    def get_current_datetime(self):
-        # NOTE: uses the user tz in order to avoid conflicts (do not use UTC!)
-        user_time_zone = ZoneInfo(self.env.context["tz"])    
-        return datetime.now(user_time_zone)
+    def utc_datetime_to_local(self, datetime):
+        return datetime.astimezone(ZoneInfo(self.env.context["tz"]))
+    
+    def datetime_to_odoo(self, datetime):
+        return datetime.replace(tzinfo=None)
+    
+    def get_local_datetime(self):
+        return datetime.now(ZoneInfo(self.env.context["tz"]))
 
     def time_to_float(self, time):
         return time.hour + time.minute / 60.0

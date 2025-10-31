@@ -111,8 +111,8 @@ class ems_attendance_justification(models.Model):
 				teacher_ids = []
 				if statuses != False:		
 					for status in statuses:
-						status_start_date = self.time_float_to_utc_datetime(status.attendance_session_id.date, status.attendance_session_id.start_time)
-						status_end_date = self.time_float_to_utc_datetime(status.attendance_session_id.date, status.attendance_session_id.end_time)
+						status_start_date = self.time_float_to_datetime(status.attendance_session_id.date, status.attendance_session_id.start_time)
+						status_end_date = self.time_float_to_datetime(status.attendance_session_id.date, status.attendance_session_id.end_time)
 						if (status_start_date >= rec.start_date and status_end_date <= rec.end_date) or (status_start_date <= rec.start_date and status_end_date >= rec.end_date):
 							status_ids.append(status.id)
 							teacher_ids.append(status.attendance_session_id.template_teacher_id.id)

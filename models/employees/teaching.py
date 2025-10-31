@@ -26,7 +26,7 @@ class ems_teaching(models.Model):
 			for tch in rec.teacher_id.teaching_ids:
 				if tch.subject_id == rec.subject_id and tch.group_id.id != False: 
 					groups.append(tch.group_id.id)
-			rec.write({'inuse_group_ids' : [(6, 0, groups)]})
+			rec.inuse_group_ids = [(6, 0, groups)]
                 	
 	@api.depends('subject_id')
 	def _compute_display_name(self):              

@@ -44,13 +44,11 @@ class ems_planning(models.Model):
 				last = round(100 - pond * (count - 1), 2)
 
 				for i, oc in enumerate(rec.subject_id.outcome_ids):
-					rec.write({
-						'planning_outcome_ids': [(0, 0, {
-							"planning_id": rec.id, 
-							"outcome_id": oc.id,
-							"ponderation": pond if i < count - 1 else last
-						})]
-					})
+					rec.planning_outcome_ids = [(0, 0, {
+						"planning_id": rec.id, 
+						"outcome_id": oc.id,
+						"ponderation": pond if i < count - 1 else last
+					})]
 
 	@api.depends("study_id", "subject_id")
 	def _compute_name(self):			

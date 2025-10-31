@@ -103,7 +103,7 @@ class ems_attendance_session(models.Model):
 			ids = []		
 			for allowed in self._get_allowed_attendance_schedule_ids():				
 				ids.append(allowed.id)
-			rec.write({'allowed_attendance_schedule_ids' : [(6, 0, ids)]})
+			rec.allowed_attendance_schedule_ids = [(6, 0, ids)]
 			rec.attendance_schedule_id = False if len(rec.allowed_attendance_schedule_ids) == 0 else rec.allowed_attendance_schedule_ids[0]
 		
 	@api.onchange("attendance_schedule_id")	
@@ -159,7 +159,7 @@ class ems_attendance_session(models.Model):
 			
 			# NOTE: if duped, avoid next message.
 			if rec.is_duped: rec.is_next = False
-			rec.write({"attendance_status_ids": students})
+			rec.attendance_status_ids = students
 
 	def _default_teacher_id(self):							
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False

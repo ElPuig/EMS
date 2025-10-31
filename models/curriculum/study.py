@@ -23,12 +23,5 @@ class ems_study(models.Model):
     def _compute_display_name(self):              
         for rec in self:
             rec.display_name = "%s (%s): %s" % (rec.acronym, rec.date.year, rec.name)
-    
-    @api.depends("subject_ids")
-    def _compute_subject_ids(self):
-        for rec in self:
-            for sub in rec.subject_ids:
-                rec.write({'subject_ids' : [(4, sub.id)]})
-
 
             

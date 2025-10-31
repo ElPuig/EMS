@@ -11,10 +11,10 @@ class ems_attendance_justification(models.Model):
 	start_date = fields.Datetime(string="Start date", required=True)
 	end_date = fields.Datetime(string="End date", required=True)
 	teacher_id = fields.Many2one(string="Justified by", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True, ondelete='cascade')
-	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')", required=True, store=True, ondelete='cascade')		
-	attendance_status_ids = fields.One2many(string="Status", comodel_name="ems.attendance_status", inverse_name="attendance_justification_id")
+	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')", required=True, store=True, ondelete='cascade')	
 	attachment_ids = fields.Many2many(string="Attached files", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.attendance_justification')]")	
-	session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee", store=True)
+	attendance_status_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_status") # NOTE: Many2many needed in order to update values (when Many2one used, removed values when changing filters removes also the status entries)
+	session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee")
 	allowed_student_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	notes = fields.Text("Notes")
 
@@ -94,8 +94,8 @@ class ems_attendance_justification(models.Model):
 				if self.env.user.has_group('ems.group_admin') or s.main_group_id in rec.teacher_id.tutorship_ids:
 					allowed.append(s.id)
 
-			rec.write({'allowed_student_ids' : [(6, 0, allowed)]})	
-			
+			rec.allowed_student_ids = [(6, 0, allowed)]	
+
 	@api.onchange("student_id", "start_date", "end_date")
 	def _onchange_attendance_status_ids(self):	
 		for rec in self:
@@ -111,21 +111,27 @@ class ems_attendance_justification(models.Model):
 				teacher_ids = []
 				if statuses != False:		
 					for status in statuses:
-						status_start_date = self.time_float_to_datetime(status.attendance_session_id.date, status.attendance_session_id.start_time)
-						status_end_date = self.time_float_to_datetime(status.attendance_session_id.date, status.attendance_session_id.end_time)
-						if (status_start_date >= rec.start_date and status_end_date <= rec.end_date) or (status_start_date <= rec.start_date and status_end_date >= rec.end_date):
+						status_start_date = rec.time_float_to_datetime(status.attendance_session_id.date, status.attendance_session_id.start_time)
+						status_end_date = rec.time_float_to_datetime(status.attendance_session_id.date, status.attendance_session_id.end_time)
+						
+						# NOTE: start_date and end_date within attendance_justification are in UTC format.
+						#		all dates and times within the BBDD are stored as local times (heck why on https://github.com/ElPuig/EMS/issues/89)
+						just_start_date = rec.utc_datetime_to_user_timezone(rec.start_date)
+						just_end_date = rec.utc_datetime_to_user_timezone(rec.end_date)
+												
+						if not (status_end_date <= just_start_date or just_end_date < status_start_date):
 							status_ids.append(status.id)
 							teacher_ids.append(status.attendance_session_id.template_teacher_id.id)
 							teacher_ids.append(status.attendance_session_id.session_teacher_id.id)
 				
 				teacher_ids = list(set(teacher_ids)) # removing dupes
-				rec.write({
-					'attendance_status_ids' : [(6, 0, status_ids)],
-					'session_teacher_ids' : [(6, 0, teacher_ids)],
-				})
+				rec.attendance_status_ids = [(6, 0, status_ids)]
+				rec.session_teacher_ids = [(6, 0, teacher_ids)]
 			
 	@api.depends('student_id', 'start_date', 'end_date')
 	def _compute_display_name(self):              
 		for rec in self:
-			rec.display_name = "%s (from %s to %s)" % (rec.student_id.display_name, rec.start_date, rec.end_date)
+			start_date = False if rec.start_date == False else rec.utc_datetime_to_user_timezone(rec.start_date)	
+			end_date = False if rec.end_date == False else rec.utc_datetime_to_user_timezone(rec.end_date)	
+			rec.display_name = "%s (from %s to %s)" % (rec.student_id.display_name, start_date, end_date)
 	

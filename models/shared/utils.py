@@ -17,6 +17,11 @@ class ems_utils(models.AbstractModel):
         split_time = math.modf(time_float)        
         return datetime(date.year, date.month, date.day, int(split_time[1]), round(split_time[0]*60), 0, tzinfo=None) # Odoo demands no timezone
     
+    def utc_datetime_to_user_timezone(self, utd_datetime):
+        user_time_zone = ZoneInfo(self.env.context["tz"]) 
+        utz_datetime = utd_datetime.astimezone(user_time_zone)
+        return utz_datetime.replace(tzinfo=None)
+    
     def get_current_datetime(self):
         # NOTE: uses the user tz in order to avoid conflicts (do not use UTC!)
         user_time_zone = ZoneInfo(self.env.context["tz"])    

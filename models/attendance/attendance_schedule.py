@@ -22,7 +22,7 @@ class ems_attendance_schedule(models.Model):
 		("6", "Sunday")
     ]
 
-	name = fields.Char(string="Name", compute="_compute_name", store=True) #Used to sort the dropdown within the session form
+	name = fields.Char(string="Name", compute="_compute_name", store=True) #Used to sort the dropdown within the session form, otherwise the SQL sort won't work.
 	weekday = fields.Selection(string="Weekday", selection=weekdays_selection, default="1", required=True)
 
 	start_time = fields.Float(string="Start Time", required=True)
@@ -62,4 +62,5 @@ class ems_attendance_schedule(models.Model):
 			start = rec.utc_datetime_to_local(rec.start_date)
 								
 			weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
-			rec.name = "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.display_name, weekday_str, start.minute, start.second, end.minute, end.second)
+			rec.name = "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.display_name, weekday_str, start.hour, start.minute, end.hour, end.minute)
+			rec.display_name = rec.name

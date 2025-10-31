@@ -1,7 +1,8 @@
 import math
-from datetime import datetime, timezone
+from pytz import UTC
+from datetime import datetime
 from zoneinfo import ZoneInfo # requires Python >= 3.9
-from pytz import timezone, UTC
+
 from odoo import models, fields
 
 class ems_utils(models.AbstractModel):   
@@ -11,21 +12,30 @@ class ems_utils(models.AbstractModel):
     user_is_admin = fields.Boolean(default=lambda self: self.get_user_is_admin(), store=False)
     user_is_tutor = fields.Boolean(default=lambda self: self.get_user_is_tutor(), store=False)   
     
+    def current_tz(self):
+        try:
+            return ZoneInfo(self.env.context["tz"])
+        except Exception:
+            if self.env.company.partner_id.tz != False:
+                return ZoneInfo(self.env.company.partner_id.tz)
+            else:
+                return ZoneInfo("UTC")
+
     def time_float_to_local_datetime(self, date, time_float):
         split_time = math.modf(time_float)    
-        return datetime(date.year, date.month, date.day, int(split_time[1]), round(split_time[0]*60), 0, tzinfo = ZoneInfo(self.env.context["tz"]))
+        return datetime(date.year, date.month, date.day, int(split_time[1]), round(split_time[0]*60), 0, tzinfo = self.current_tz())
     
     def local_datetime_to_utc(self, datetime):
         return datetime.astimezone(UTC)
     
     def utc_datetime_to_local(self, datetime):
-        return datetime.astimezone(ZoneInfo(self.env.context["tz"]))
+        return datetime.astimezone(self.current_tz())
     
     def datetime_to_odoo(self, datetime):
         return datetime.replace(tzinfo=None)
     
     def get_local_datetime(self):
-        return datetime.now(ZoneInfo(self.env.context["tz"]))
+        return datetime.now(self.current_tz())
 
     def time_to_float(self, time):
         return time.hour + time.minute / 60.0

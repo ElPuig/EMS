@@ -26,15 +26,18 @@ class ems_attendance_session(models.Model):
 	start_time = fields.Float("Start Time", compute="_compute_start_time", store=True)
 	end_time = fields.Float("End Time", compute="_compute_end_time", store=True)	
 	
+	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
+	start_date = fields.Datetime(compute="_compute_start_date", store=True)	
+	end_date = fields.Datetime(compute="_compute_end_date", store=True)
+
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", compute="_compute_level_id", store=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", compute="_compute_study_id", store=True)
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_group_id", store=True)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", compute="_compute_subject_id", store=True)
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", compute="_compute_space_id", store=True)
 	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
-	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)
-	
-	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
+	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
+
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 		
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_status", inverse_name="attendance_session_id")		
@@ -61,6 +64,20 @@ class ems_attendance_session(models.Model):
 	def _compute_end_time(self):
 		for rec in self:
 			rec.end_time = rec.attendance_schedule_id.end_time
+
+	@api.depends("attendance_schedule_id")
+	def _compute_start_date(self):			
+		for rec in self:
+			local = rec.time_float_to_local_datetime(rec.date, rec.start_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.start_date = rec.datetime_to_odoo(utc)
+	
+	@api.depends("attendance_schedule_id")
+	def _compute_end_date(self):			
+		for rec in self:
+			local = rec.time_float_to_local_datetime(rec.date, rec.end_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.end_date = rec.datetime_to_odoo(utc)
 
 	@api.depends("attendance_schedule_id")
 	def _compute_level_id(self):

@@ -111,13 +111,10 @@ class ems_attendance_justification(models.Model):
 				teacher_ids = []
 				if statuses != False:		
 					for status in statuses:
-						status_start_date = rec.time_float_to_datetime(status.attendance_session_id.date, status.attendance_session_id.start_time)
-						status_end_date = rec.time_float_to_datetime(status.attendance_session_id.date, status.attendance_session_id.end_time)
-						
-						# NOTE: start_date and end_date within attendance_justification are in UTC format.
-						#		all dates and times within the BBDD are stored as local times (heck why on https://github.com/ElPuig/EMS/issues/89)
-						just_start_date = rec.utc_datetime_to_user_timezone(rec.start_date)
-						just_end_date = rec.utc_datetime_to_user_timezone(rec.end_date)
+						status_start_date = rec.utc_datetime_to_local(status.attendance_session_id.start_date)
+						status_end_date = rec.utc_datetime_to_local(status.attendance_session_id.end_date)										
+						just_start_date = rec.utc_datetime_to_local(rec.start_date)
+						just_end_date = rec.utc_datetime_to_local(rec.end_date)
 												
 						if not (status_end_date <= just_start_date or just_end_date < status_start_date):
 							status_ids.append(status.id)
@@ -131,7 +128,10 @@ class ems_attendance_justification(models.Model):
 	@api.depends('student_id', 'start_date', 'end_date')
 	def _compute_display_name(self):              
 		for rec in self:
-			start_date = False if rec.start_date == False else rec.utc_datetime_to_user_timezone(rec.start_date)	
-			end_date = False if rec.end_date == False else rec.utc_datetime_to_user_timezone(rec.end_date)	
-			rec.display_name = "%s (from %s to %s)" % (rec.student_id.display_name, start_date, end_date)
-	
+			start_date = False if rec.start_date == False else rec.utc_datetime_to_local(rec.start_date)	
+			end_date = False if rec.end_date == False else rec.utc_datetime_to_local(rec.end_date)	
+			
+			if rec.student_id.id and start_date and end_date:
+				rec.display_name = "%s (from %02d:%02d to %02d:%02d)" % (rec.student_id.display_name, start_date.hour, start_date.minute, end_date.hour, end_date.minute)
+			else:
+				rec.display_name = False

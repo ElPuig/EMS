@@ -16,8 +16,13 @@
 
                 <field name="vat" position="after">     
                     <field name="contact_type" invisible="True" />
-                    <field name="read_only_user" invisible="True" />                    
+                    <field name="read_only_user" invisible="True" />     
+                    <field name="tz" invisible="contact_type not in ['student', 'provider']" />
                 </field>
+
+                <field name="vat" position="attributes">                    
+                    <attribute name="invisible">True</attribute>            
+                </field>   
 
                 <field name="type" position="attributes">                    
                     <attribute name="readonly">contact_type == 'student'</attribute>
@@ -45,11 +50,7 @@
                               
                 <field name="title" position="attributes">     
                      <attribute name="invisible">contact_type != 'provider'</attribute>
-                </field>    
-
-                <field name="vat" position="attributes">                    
-                    <attribute name="invisible">contact_type != 'provider'</attribute>            
-                </field>                          
+                </field>                       
 
                 <xpath expr="//page[@name='sales_purchases']" position="attributes">                     
                     <attribute name="invisible">contact_type != 'provider'</attribute>

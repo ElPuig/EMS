@@ -22,7 +22,7 @@ class ems_attendance_schedule(models.Model):
 		("6", "Sunday")
     ]
 
-	name = fields.Char(string="Name", compute="_compute_name", store=True) #Used to sort the dropdown within the session form
+	name = fields.Char(string="Name", compute="_compute_name", store=True) #Used to sort the dropdown within the session form, otherwise the SQL sort won't work.
 	weekday = fields.Selection(string="Weekday", selection=weekdays_selection, default="1", required=True)
 
 	start_time = fields.Float(string="Start Time", required=True)
@@ -44,17 +44,23 @@ class ems_attendance_schedule(models.Model):
 	@api.depends("start_time", "attendance_template_id.start_date")
 	def _compute_start_date(self):			
 		for rec in self:
-			rec.start_date = rec.time_float_to_datetime(rec.attendance_template_id.start_date, rec.start_time)
+			local = rec.time_float_to_local_datetime(rec.attendance_template_id.start_date, rec.start_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.start_date = rec.datetime_to_odoo(utc)
 	
 	@api.depends("end_time", "attendance_template_id.end_date")
 	def _compute_end_date(self):			
 		for rec in self:
-			rec.end_date = rec.time_float_to_datetime(rec.attendance_template_id.end_date, rec.end_time)
+			local = rec.time_float_to_local_datetime(rec.attendance_template_id.end_date, rec.end_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.end_date = rec.datetime_to_odoo(utc)
 
 	@api.depends("attendance_template_id", "attendance_template_id.start_date", "attendance_template_id.end_date", "weekday", "start_time", "end_time")
 	def _compute_name(self):			
-		for rec in self:			
-			end_time = math.modf(rec.end_time)	
-			start_time = math.modf(rec.start_time)				
+		for rec in self:	
+			end = rec.utc_datetime_to_local(rec.end_date)
+			start = rec.utc_datetime_to_local(rec.start_date)
+								
 			weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
-			rec.name = "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.display_name, weekday_str, int(start_time[1]), round(start_time[0]*60), int(end_time[1]), round(end_time[0]*60))
+			rec.name = "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.display_name, weekday_str, start.hour, start.minute, end.hour, end.minute)
+			rec.display_name = rec.name

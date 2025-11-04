@@ -145,26 +145,29 @@
             'views/attendance/attendance_template/menu.xml',
             'views/attendance/attendance_template/list.xml',
             'views/attendance/attendance_template/form.xml',
+            'views/attendance/attendance_template/search.xml', 
 
+            'views/attendance/attendance_session/menu.xml',
             'views/attendance/attendance_session/list.xml',
             'views/attendance/attendance_session/form.xml',
-            'views/attendance/attendance_session/calendar.xml',
-            'views/attendance/attendance_session/menu.xml',         
+            #'views/attendance/attendance_session/calendar.xml',              
+            'views/attendance/attendance_session/search.xml',         
 
+            'views/attendance/attendance_status/menu.xml',
             'views/attendance/attendance_status/list.xml',
-            'views/attendance/attendance_status/form.xml',
-            'views/attendance/attendance_status/menu.xml',                   
+            'views/attendance/attendance_status/form.xml',                               
 
             'views/attendance/attendance_schedule/form.xml',
 
+            'views/attendance/attendance_justification/menu.xml',
             'views/attendance/attendance_justification/list.xml',
             'views/attendance/attendance_justification/form.xml',
-            'views/attendance/attendance_justification/menu.xml',   
+            'views/attendance/attendance_justification/search.xml',
 
+            'views/attendance/attendance_notification/menu.xml',
             'views/attendance/attendance_notification/list.xml',
             'views/attendance/attendance_notification/form.xml',
-            'views/attendance/attendance_notification/email.xml',
-            'views/attendance/attendance_notification/menu.xml',    
+            'views/attendance/attendance_notification/email.xml',                
 
             'views/attendance/attendance_reports/menu.xml',
             'views/attendance/attendance_reports/student_wizard.xml', 

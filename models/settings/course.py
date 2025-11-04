@@ -8,7 +8,6 @@ from datetime import datetime
 class ems_course(models.Model):
 	_name = "ems.course"
 	_description = "Course: defines a range of time when a course is running (for example: 2024-2025)."
-	_inherit = ['ems.utils']
 	_sql_constraints = [
 		('unique_course_name', 'unique (name)', 'duplicated course!')
     ]

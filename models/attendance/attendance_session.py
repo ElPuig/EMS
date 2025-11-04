@@ -117,6 +117,20 @@ class ems_attendance_session(models.Model):
 			rec.end_time = rec.attendance_schedule_id.end_time
 
 	@api.depends("attendance_schedule_id")
+	def _compute_start_date(self):			
+		for rec in self:
+			local = rec.time_float_to_local_datetime(rec.date, rec.start_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.start_date = rec.datetime_to_odoo(utc)
+	
+	@api.depends("attendance_schedule_id")
+	def _compute_end_date(self):			
+		for rec in self:
+			local = rec.time_float_to_local_datetime(rec.date, rec.end_time)
+			utc = rec.local_datetime_to_utc(local)
+			rec.end_date = rec.datetime_to_odoo(utc)
+			
+	@api.depends("attendance_schedule_id")
 	def _compute_level_id(self):
 		for rec in self:
 			rec.level_id = rec.attendance_schedule_id.attendance_template_id.sudo().level_id

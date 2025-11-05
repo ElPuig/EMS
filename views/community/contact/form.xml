@@ -9,10 +9,13 @@
                     <attribute name="js_class">studentpopup_expand_button</attribute>                    
                 </xpath>     
 
-                <!-- NOTE: This works in production and some test environments, but not in mine... WHY? Reinstall needed? -->
-                <xpath expr="//field[@name='name']" position="attributes">       
+                <xpath expr="//field[@name='name'][last()]" position="attributes">       
                     <attribute name="readonly">read_only_user</attribute>
-                </xpath>                    
+                </xpath>   
+
+                <xpath expr="//field[@name='image_1920']" position="attributes">       
+                    <attribute name="readonly">read_only_user</attribute>
+                </xpath>   
 
                 <field name="vat" position="after">     
                     <field name="contact_type" invisible="True" />

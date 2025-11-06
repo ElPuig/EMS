@@ -98,7 +98,7 @@ class ems_attendance_session(models.Model):
 
 				for line in noti.attendance_notification_line_ids:
 					try:
-						template.send_mail(line.id, force_send=True)
+						template.sudo().send_mail(line.id, force_send=True)
 						line.sudo().write({'sent_date': datetime.now()})
 					except Exception as e:
 						raise # it will retry		

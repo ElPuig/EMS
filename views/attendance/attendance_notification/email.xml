@@ -6,27 +6,27 @@
             <field name="model_id" ref="ems.model_ems_attendance_notification_line"/>
             <field name="subject">Student attendance notification: {{object.student_id.display_name}}</field>
             <field name="auto_delete" eval="True"/> 
-            <!-- TODO: use the contact data -->
-            <!-- <field name="email_to">{{object.student_id | safe}}</field> -->            
-            <field name="email_to">porrino.fernando@elpuig.xeill.net</field>
-            <!-- TODO: get the company email -->            
-            <!-- <field name="email_from">{{(user.email_formatted or 'noreply@tuempresa.com') | safe}}</field> -->
+            <!-- TODO: All as CC? -->
+            <field name="email_to">{{object.send_to}}</field> 
             <field name="email_from">ems@elpuig.xeill.net</field>
-            <field name="reply_to">porrino.fernando@elpuig.xeill.net</field>
+            <field name="reply_to">{{object.tutor_id.email}}</field>
 
             <field name="body_html">
                 <![CDATA[
                     <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;">
                         <p>
-                            Dear <t t-out="object.student_id.display_name"/>,
+                            Dear family,
                         </p>
                         <p>
                             This is an automated email, in order to inform you about an attendance status:
                             <ul>
                                 <li><strong>Student:</strong> <t t-out="object.student_id.display_name"/></li>
+                                <li><strong>Session:</strong> <t t-out="object.attendance_notification_id.attendance_session_id.display_name"/></li>
                                 <li><strong>Status:</strong> <t t-out="object.status"/></li>
                             </ul>                        
-                        </p>                                                
+                        </p>
+
+                        <p>If you need further information, you can contact with <t t-out="object.tutor_id.display_name"/> just replaying to this email.</p>                                                
                         
                         <br/>
                         <p>

@@ -174,7 +174,7 @@
 
      <!-- ems.attendance_notification -->
      <record id="rule_attendance_notification_admin" model="ir.rule">
-        <field name="name">Attendance notification: all data</field>
+        <field name="name">Attendance notification (header): all data</field>
         <field name="model_id" ref="ems.model_ems_attendance_notification"/>
         <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
         <field name="domain_force">[]</field>
@@ -185,7 +185,7 @@
     </record>
 
     <record id="rule_attendance_notification_teacher_tutor" model="ir.rule">      
-        <field name="name">Attendance notification: tutor</field>
+        <field name="name">Attendance notification (header): tutor</field>
         <field name="model_id" ref="ems.model_ems_attendance_notification"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
         <field name="domain_force">[('tutor_id.user_id.id', '=', user.id)]</field>
@@ -196,7 +196,7 @@
     </record>
 
     <record id="rule_attendance_notification_line_admin" model="ir.rule">
-        <field name="name">Attendance notification: all data</field>
+        <field name="name">Attendance notification (line): all data</field>
         <field name="model_id" ref="ems.model_ems_attendance_notification_line"/>
         <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
         <field name="domain_force">[]</field>
@@ -207,7 +207,7 @@
     </record>
 
     <record id="rule_attendance_notification_line_teacher_tutor" model="ir.rule">      
-        <field name="name">Attendance notification: tutor</field>
+        <field name="name">Attendance notification (line): tutor</field>
         <field name="model_id" ref="ems.model_ems_attendance_notification_line"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
         <field name="domain_force">[('tutor_id.user_id.id', '=', user.id)]</field>

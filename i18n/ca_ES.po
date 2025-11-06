@@ -1802,7 +1802,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__5
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__weekday__5
 msgid "Saturday"
-msgstr "dissabte"
+msgstr "Dissabte"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
@@ -2155,7 +2155,7 @@ msgstr "Resum"
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__6
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__weekday__6
 msgid "Sunday"
-msgstr "diumenge"
+msgstr "Diumenge"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__teacher_id
@@ -2249,7 +2249,7 @@ msgstr "El ternari \"professor/grup/assignatura\" ha de ser únic!"
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__weekday__3
 msgid "Thursday"
-msgstr "dijous"
+msgstr "Dijous"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__to_date

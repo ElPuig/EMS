@@ -79,14 +79,17 @@ class ems_attendance_session(models.Model):
 				if s.student_id.tutor_id not in lines:
 					lines[s.student_id.tutor_id] = []
 				
+				send_to = []
+				for contact in s.student_id.child_ids:				
+					send_to.append(contact.email)
+
 				lines[s.student_id.tutor_id].append([0, 0, {													
-					'attendance_status_id': s.id                       
+					'attendance_status_id': s.id,
+					'send_to':";".join(send_to)
 				}]) 
 
 		if len(lines) > 0:
 			for tutor_id in lines:		
-				# TODO: the send_to should be loaded from the studen't addresses. 
-				# Only one type of addresses should be able to be created: family (name, phone and email; the rest can be omited).
 				noti = s.sudo().env['ems.attendance_notification'].create({
 					'attendance_session_id': self.id,
 					'tutor_id': tutor_id.id,

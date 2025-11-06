@@ -27,7 +27,7 @@
                                     <list default_order="student_id asc" create="False" edit="False" delete="False" no_open="True">                                                                               
                                         <field name="student_id" widget="many2one_avatar"/>
                                         <field name="status" width="175px" />
-                                        <field name="send_to" />
+                                        <field name="send_to"/>
                                         <field name="sent_date"/>
                                     </list>
                                 </field>

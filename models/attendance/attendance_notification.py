@@ -10,8 +10,8 @@ class ems_attendance_notification(models.Model):
 	
 	attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session", ondelete='cascade')
 	attendance_notification_line_ids = fields.One2many(string="Status", comodel_name="ems.attendance_notification_line", inverse_name="attendance_notification_id")
-	tutor_id = fields.Many2one(string="Tutor (send to)", comodel_name="hr.employee")
-	sent_date = fields.Datetime(string="Sent on")
+	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee")	
+	sent_date = fields.Datetime(string="Sent on (to tutor)")
 	sent = fields.Boolean(string="Sent", compute="_compute_sent")
 	notes = fields.Text("Notes")
 	
@@ -35,8 +35,8 @@ class ems_attendance_notification_line(models.Model):
 	student_id = fields.Many2one(string='Student', related="attendance_status_id.student_id") 	
 	
 	# NOTE: the status is just text, so it's easy to use it within the email template (the notitication entry is created once the email has to be sent, so the status value won't change).
-	status = fields.Char(string="Status", compute="_compute_status", store=True)		
-	send_to = fields.Char(string="Send to")
+	status = fields.Char(string="Status", compute="_compute_status", store=True)	
+	send_to = fields.Char(string="Send to", required=True)	
 	sent_date = fields.Datetime(string="Sent on")
 	sent = fields.Boolean(string="Sent", compute="_compute_sent")
 	

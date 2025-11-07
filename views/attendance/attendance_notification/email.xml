@@ -5,9 +5,8 @@
             <field name="name">Email notification: student attendance</field>
             <field name="model_id" ref="ems.model_ems_attendance_notification_line"/>
             <field name="subject">Student attendance notification: {{object.student_id.display_name}}</field>
-            <field name="auto_delete" eval="True"/> 
-            <!-- TODO: All as CC? -->
-            <field name="email_to">{{object.send_to}}</field> 
+            <field name="auto_delete" eval="True"/>             
+            <field name="email_bcc">{{object.send_to}}</field> 
             <field name="email_from">ems@elpuig.xeill.net</field>
             <field name="reply_to">{{object.tutor_id.email}}</field>
 

@@ -24,6 +24,9 @@ class ems_attendance_status(models.Model):
    
     notes = fields.Text("Notes")
     
+    # TODO: if an existing status changes to "issue", a notification should be send.
+    # Check how to avoid duped notifications if the session timeous has not been fired yet. 
+
     # @api.model_create_multi
     # def create(self, values):		
     #     status = super(ems_attendance_status, self).create(values)        

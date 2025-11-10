@@ -5,15 +5,10 @@
             <field name="model">ems.attendance_notification</field>
             <field name="arch" type="xml">
                 <list>                                        
-                    <!-- <field name="student_id" widget="many2one_avatar"/> -->                    
                     <field name="attendance_session_id" />
                     <field name="tutor_id" widget="many2one_avatar"/>
-                    <!-- <field name="status" /> -->
                     <field name="create_date" />
                     <field name="sent_date" />
-                    <!-- <field name="session_teacher_ids" widget="many2many_tags"/>
-                    <field name="start_date" width="125px"/>
-                    <field name="end_date" width="125px"/> -->
                 </list>
             </field>
         </record>   

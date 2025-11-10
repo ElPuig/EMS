@@ -33,9 +33,8 @@ class ems_attendance_notification_line(models.Model):
 	attendance_notification_id = fields.Many2one(string="Header", comodel_name="ems.attendance_notification", ondelete='cascade')
 	attendance_status_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_status", required=True, store=True, ondelete='cascade')	
 	student_id = fields.Many2one(string='Student', related="attendance_status_id.student_id") 	
-	
-	# NOTE: the status is just text, so it's easy to use it within the email template (the notitication entry is created once the email has to be sent, so the status value won't change).
-	status = fields.Char(string="Status", compute="_compute_status", store=True)	
+		
+	status = fields.Selection(string="Status", compute="_compute_status", selection=attendance_status)	
 	send_to = fields.Char(string="Send to", required=True)	
 	sent_date = fields.Datetime(string="Sent on")
 	sent = fields.Boolean(string="Sent", compute="_compute_sent")
@@ -48,7 +47,8 @@ class ems_attendance_notification_line(models.Model):
 	@api.depends("attendance_status_id")
 	def _compute_status(self):
 		for rec in self:
-			rec.status = dict(attendance_status).get(rec.attendance_status_id.status)
+			rec.status = rec.attendance_status_id.status
+			#rec.status = dict(attendance_status).get(rec.attendance_status_id.status)
 	
 	@api.depends('sent_date')
 	def _compute_sent(self):              

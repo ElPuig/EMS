@@ -6,7 +6,8 @@
             <field name="model_id" ref="ems.model_ems_attendance_notification_line"/>
             <field name="subject">Student attendance notification: {{object.student_id.display_name}}</field>
             <field name="auto_delete" eval="True"/>             
-            <field name="email_bcc">{{object.send_to}}</field> 
+            <!-- NOTE: there's no BCC field to add a private direction list, so this is being setup within session code (send_mail call within _send_notifications method)  -->
+            <!-- <field name="email_to">{{object.send_to}}</field>  -->
             <field name="email_from">ems@elpuig.xeill.net</field>
             <field name="reply_to">{{object.tutor_id.email}}</field>
 
@@ -19,9 +20,10 @@
                         <p>
                             This is an automated email, in order to inform you about an attendance status:
                             <ul>
-                                <li><strong>Student:</strong> <t t-out="object.student_id.display_name"/></li>
-                                <li><strong>Session:</strong> <t t-out="object.attendance_notification_id.attendance_session_id.display_name"/></li>
-                                <li><strong>Status:</strong> <t t-out="object.status"/></li>
+                                <li><strong>Student:</strong> <span t-field="object.student_id"/></li>
+                                <li><strong>Date:</strong> <span t-field="object.attendance_notification_id.attendance_session_id.weekday"/>, <t t-out="object.attendance_notification_id.attendance_session_id.date"/> from <span t-field="object.attendance_notification_id.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="object.attendance_notification_id.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/></li>                                
+                                <li><strong>Session:</strong> <span t-field="object.attendance_notification_id.attendance_session_id.attendance_schedule_id.attendance_template_id"/></li>
+                                <li><strong>Status:</strong> <span t-field="object.status"/></li>
                             </ul>                        
                         </p>
 

@@ -35,9 +35,7 @@ class ems_attendance_session(models.Model):
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", compute="_compute_subject_id", store=True)
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", compute="_compute_space_id", store=True)
 	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
-	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)
-	
-	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
+	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 		
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_status", inverse_name="attendance_session_id")		
@@ -73,6 +71,7 @@ class ems_attendance_session(models.Model):
 		except ValueError as e:		
 			return False # Silent
 		
+		separator = "; "
 		lines = dict()
 		for s in self.attendance_status_ids:
 			if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):
@@ -85,7 +84,7 @@ class ems_attendance_session(models.Model):
 
 				lines[s.student_id.tutor_id].append([0, 0, {													
 					'attendance_status_id': s.id,
-					'send_to':";".join(send_to)
+					'send_to': separator.join(send_to)
 				}]) 
 
 		if len(lines) > 0:
@@ -98,7 +97,10 @@ class ems_attendance_session(models.Model):
 
 				for line in noti.attendance_notification_line_ids:
 					try:
-						template.sudo().send_mail(line.id, force_send=True)
+						# NOTE: there's no BBC field within the email template, and we want to protect personal addresses 
+						# when sending to multiple destinations. So, it will be send one by one setting up here the address.
+						for to in line.send_to.split(separator):
+							template.sudo().send_mail(line.id, force_send=True, email_values={'email_to': to})
 						line.sudo().write({'sent_date': datetime.now()})
 					except Exception as e:
 						raise # it will retry		

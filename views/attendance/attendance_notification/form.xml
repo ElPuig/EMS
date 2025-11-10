@@ -27,6 +27,11 @@
                                     <list default_order="student_id asc" create="False" edit="False" delete="False" no_open="True">                                                                               
                                         <field name="student_id" widget="many2one_avatar"/>
                                         <field name="status" width="175px" />
+                                        <!-- 
+                                            TODO: the main idea was to store the values as contacts and use the tags widget to display the email
+                                            but was just displaying all the name (student name, contact name). Maybe a custom widget for just the 
+                                            email can be developped?
+                                        -->
                                         <field name="send_to"/>
                                         <field name="sent_date"/>
                                     </list>

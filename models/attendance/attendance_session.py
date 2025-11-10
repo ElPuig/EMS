@@ -64,10 +64,10 @@ class ems_attendance_session(models.Model):
 
 	def _send_notifications(self):		
 		self.ensure_one()		
-		template_xml_id = 'ems.template_attendance_notification_line_email'
 
 		try:
-			template = self.env.ref(template_xml_id, raise_if_not_found=True)
+			template_families = self.env.ref('ems.template_attendance_notification_line_email', raise_if_not_found=True)
+			template_tutors = self.env.ref('ems.template_attendance_notification_email', raise_if_not_found=True)
 		except ValueError as e:		
 			return False # Silent
 		
@@ -100,10 +100,19 @@ class ems_attendance_session(models.Model):
 						# NOTE: there's no BBC field within the email template, and we want to protect personal addresses 
 						# when sending to multiple destinations. So, it will be send one by one setting up here the address.
 						for to in line.send_to.split(separator):
-							template.sudo().send_mail(line.id, force_send=True, email_values={'email_to': to})
+							template_families.sudo().send_mail(line.id, force_send=True, email_values={'email_to': to})
 						line.sudo().write({'sent_date': datetime.now()})
 					except Exception as e:
-						raise # it will retry		
+						raise # it will retry
+			
+				try:
+					# NOTE: the tutor's email is setup within the template
+					template_tutors.sudo().send_mail(noti.id, force_send=True)
+					noti.sudo().write({'sent_date': datetime.now()})
+
+				except Exception as e:
+					raise # it will retry
+
 		return True
 
 	@api.depends("attendance_schedule_id")
@@ -214,7 +223,7 @@ class ems_attendance_session(models.Model):
 						for prev in previous.attendance_status_ids:					
 							students.append([0, 0, {
 								"student_id": prev.student_id,
-								"status": prev.status,
+								"status": "a_attended" if prev.status == "a_delayed" else prev.status,
 								"notes": prev.notes
 							}])
 						

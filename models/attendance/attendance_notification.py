@@ -38,11 +38,12 @@ class ems_attendance_notification_line(models.Model):
 	send_to = fields.Char(string="Send to", required=True)	
 	sent_date = fields.Datetime(string="Sent on")
 	sent = fields.Boolean(string="Sent", compute="_compute_sent")
+	notes = fields.Text("Notes", related="attendance_status_id.notes") 
 	
 	# NOTE: tutor needed for permission purposes
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="student_id.tutor_id") 
 
-	notes = fields.Text("Notes")
+	
 	
 	@api.depends("attendance_status_id")
 	def _compute_status(self):

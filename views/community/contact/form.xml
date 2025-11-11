@@ -27,6 +27,10 @@
                     <attribute name="invisible">True</attribute>            
                 </field>   
 
+                <field name="type" position="attributes">                    
+                    <attribute name="readonly">contact_type == 'student'</attribute>
+                </field>   
+
                 <field name="company_type" position="attributes">
                     <attribute name="invisible">contact_type != 'provider'</attribute>
                 </field>

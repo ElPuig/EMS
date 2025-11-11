@@ -130,21 +130,6 @@ class ems_attendance_session(models.Model):
 		for rec in self:
 			rec.end_time = rec.attendance_schedule_id.end_time
 
-	# NOTE: sudo is being used to load attendance_template data, because on guard mode all teachers should be able to read all sessions and template data.
-	@api.depends("attendance_schedule_id")
-	def _compute_start_date(self):			
-		for rec in self:
-			local = rec.time_float_to_local_datetime(rec.date, rec.start_time)
-			utc = rec.local_datetime_to_utc(local)
-			rec.start_date = rec.datetime_to_odoo(utc)
-	
-	@api.depends("attendance_schedule_id")
-	def _compute_end_date(self):			
-		for rec in self:
-			local = rec.time_float_to_local_datetime(rec.date, rec.end_time)
-			utc = rec.local_datetime_to_utc(local)
-			rec.end_date = rec.datetime_to_odoo(utc)
-
 	@api.depends("attendance_schedule_id")
 	def _compute_start_date(self):			
 		for rec in self:

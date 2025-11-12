@@ -42,8 +42,6 @@ class ems_attendance_notification_line(models.Model):
 	
 	# NOTE: tutor needed for permission purposes
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="student_id.tutor_id") 
-
-	
 	
 	@api.depends("attendance_status_id")
 	def _compute_status(self):

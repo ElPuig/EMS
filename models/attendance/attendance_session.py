@@ -51,16 +51,48 @@ class ems_attendance_session(models.Model):
 	@api.model_create_multi
 	def create(self, vals_list):
 		records = super().create(vals_list)
+		
 		delay =  self.env.company.attendance_notification_delay
 		execution_time = fields.Datetime.now() + timedelta(seconds=delay * 60) # from minutes to seconds
 
+		# TODO: continue here tomorrow :)
 		for record in records:
-			record.with_delay(
-                eta=execution_time,
-                description=f"Notification task for the session '{record.display_name}' (ID={record.id})"
-            )._send_notifications()
+			for noti in record._create_notification_entries():
+				noti.with_delay(
+					eta=execution_time,
+					description=f"Notification task for the session '{record.display_name}' (ID={record.id})"
+				)._send_notifications()
 		return records
 
+	def _create_notification_entries(self):		
+		separator = "; "
+		notis = []
+		
+		for s in self.attendance_status_ids:
+			lines = dict()
+			if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):
+				if s.student_id.tutor_id not in lines:
+					lines[s.student_id.tutor_id] = []
+				
+				send_to = []
+				for contact in s.student_id.child_ids:				
+					send_to.append(contact.email)
+
+				lines[s.student_id.tutor_id].append([0, 0, {													
+					'attendance_status_id': s.id,
+					'send_to': separator.join(send_to)
+				}]) 
+
+		if len(lines) > 0:
+			for tutor_id in lines:		
+				notis.append(
+					s.sudo().env['ems.attendance_notification'].create({
+						'attendance_session_id': self.id,
+						'tutor_id': tutor_id.id,
+						'attendance_notification_line_ids': lines[tutor_id]
+					})
+				)
+		return notis
 
 	def _send_notifications(self):		
 		self.ensure_one()		

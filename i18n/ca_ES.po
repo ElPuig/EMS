@@ -36,7 +36,7 @@ msgid "4th round"
 msgstr "4a avaluació"
 
 #. module: ems
-#: model:mail.template,body_html:ems.template_attendance_notification_line_email
+#: model:mail.template,body_html:ems.template_attendance_issue_line_email
 msgid ""
 "<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>\n"
@@ -260,27 +260,27 @@ msgstr ""
 " (comprovant d'assistència)."
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_attendance_notification_tree
+#: model:ir.actions.act_window,name:ems.action_attendance_issue_tree
 msgid "Attendance notification"
 msgstr ""
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_attendance_notification
+#: model:ir.model,name:ems.model_ems_attendance_issue
 msgid ""
 "Attendance notification (header): contains the data about notifications to "
 "the group's tutor."
 msgstr ""
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_attendance_notification_line
+#: model:ir.model,name:ems.model_ems_attendance_issue_line
 msgid ""
 "Attendance notification (line): contains the data about notifications to the"
 " families."
 msgstr ""
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__attendance_notification_delay
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__attendance_notification_delay
+#: model:ir.model.fields,field_description:ems.field_res_company__attendance_issue_delay
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__attendance_issue_delay
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Attendance notification delay (in minutes)"
 msgstr ""
@@ -580,8 +580,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__create_uid
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__create_uid
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__create_uid
@@ -615,8 +615,8 @@ msgstr "Creat per"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__create_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__create_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__create_date
@@ -720,8 +720,8 @@ msgstr "Detalls"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__display_name
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__display_name
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__display_name
@@ -813,7 +813,7 @@ msgid "Educational Management System"
 msgstr "Sistema de gestió educativa"
 
 #. module: ems
-#: model:mail.template,name:ems.template_attendance_notification_line_email
+#: model:mail.template,name:ems.template_attendance_issue_line_email
 msgid "Email notification: student attendance"
 msgstr ""
 
@@ -1045,7 +1045,7 @@ msgid "Has Message"
 msgstr ""
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__attendance_notification_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__attendance_issue_id
 msgid "Header"
 msgstr ""
 
@@ -1083,8 +1083,8 @@ msgstr "Híbrid"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__id
@@ -1256,8 +1256,8 @@ msgstr "Justificat per"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__write_uid
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__write_uid
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__write_uid
@@ -1291,8 +1291,8 @@ msgstr "Última actualització per"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__write_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__write_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__write_date
@@ -1386,7 +1386,7 @@ msgstr "Grup principal"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_notification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
@@ -1527,8 +1527,8 @@ msgstr "Tipus d'activitat següent"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__notes
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__notes
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__notes
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__notes
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session__notes
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_status__notes
@@ -1547,7 +1547,7 @@ msgstr "Tipus d'activitat següent"
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__notes
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_session
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_notification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
 #: model_terms:ir.ui.view,arch_db:ems.view_content_form
 #: model_terms:ir.ui.view,arch_db:ems.view_criteria_form
@@ -1567,8 +1567,8 @@ msgid "Notification Settings"
 msgstr ""
 
 #. module: ems
-#: model:ir.ui.menu,name:ems.menu_attendance_notifications
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_notification_form
+#: model:ir.ui.menu,name:ems.menu_attendance_issues
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_form
 msgid "Notifications"
 msgstr ""
 
@@ -1842,24 +1842,24 @@ msgid "Secretary's access rights."
 msgstr "Drets d'accés del secretari."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__send_to
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__send_to
 msgid "Send to"
 msgstr ""
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__sent
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__sent
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__sent
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__sent
 msgid "Sent"
 msgstr ""
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__sent_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__sent_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__sent_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__sent_date
 msgid "Sent on"
 msgstr ""
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__attendance_session_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__attendance_session_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session__attendance_schedule_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_status__attendance_session_id
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
@@ -1970,8 +1970,8 @@ msgstr "Data d'inici"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attendance_status_ids
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__attendance_notification_line_ids
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__status
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__attendance_issue_line_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__status
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_status__status
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_session
 msgid "Status"
@@ -1992,7 +1992,7 @@ msgstr ""
 "Planificat: Activitats futures."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__attendance_status_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__attendance_status_id
 msgid "Status data"
 msgstr ""
 
@@ -2005,7 +2005,7 @@ msgstr "Estats"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_status__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__student_id
@@ -2027,7 +2027,7 @@ msgid "Student ID"
 msgstr "Identificador d'estudiant"
 
 #. module: ems
-#: model:mail.template,subject:ems.template_attendance_notification_line_email
+#: model:mail.template,subject:ems.template_attendance_issue_line_email
 msgid "Student attendance notification: {{object.student_id.display_name}}"
 msgstr ""
 
@@ -2303,12 +2303,12 @@ msgid "Tutor"
 msgstr "Tutor/a"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__tutor_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__tutor_id
 msgid "Tutor (send to)"
 msgstr ""
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__tutor_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__tutor_id
 msgid "Tutor (sent to)"
 msgstr ""
 
@@ -2384,8 +2384,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__user_is_admin
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__user_is_admin
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__user_is_admin
@@ -2396,8 +2396,8 @@ msgstr "L'usuari és administrador"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__user_is_tutor
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification__user_is_tutor
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_notification_line__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_line__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__user_is_tutor
@@ -2551,7 +2551,7 @@ msgid "justification"
 msgstr "justificació"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_notification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_form
 msgid "notification"
 msgstr ""
 

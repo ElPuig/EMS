@@ -38,7 +38,7 @@ class ems_attendance_status(models.Model):
     #     self._update_notification()        
 
     # def _update_notification(self):
-    #     existing = self.env["ems.attendance_notification"].search([("attendance_status_id", "=", self.id)]) or False                
+    #     existing = self.env["ems.attendance_issue"].search([("attendance_status_id", "=", self.id)]) or False                
     #     if self.status not in ['m_miss', 'a_issue']:             
     #          # Removing an existing one (if not sent).
     #          if existing != False and existing.status in ['m_miss', 'a_issue'] and not existing.sent:
@@ -50,7 +50,7 @@ class ems_attendance_status(models.Model):
     #              existing.sudo().unlink()
 
     #         # NOTE: sudo needed because no teacher can create those manually.
-    #         self.sudo().env['ems.attendance_notification'].create({
+    #         self.sudo().env['ems.attendance_issue'].create({
     #             'attendance_status_id': self.id,
     #             'student_id': self.student_id.id                            
     #         }) 

@@ -8,6 +8,6 @@
             <field name="context">{'search_default_only_mine': 0}</field>         
         </record>
 
-        <menuitem name="Justifications" sequence="2" id="menu_attendance_justifications" parent="menu_attendance" action="action_attendance_justification_tree"/>
+        <menuitem name="Justifications" sequence="3" id="menu_attendance_justifications" parent="menu_attendance" action="action_attendance_justification_tree"/>
     </data>
 </odoo>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record model="mail.template" id="mail_attendance_notification_tutor" >
+        <record model="mail.template" id="mail_attendance_issue_tutor" >
             <field name="name">Email notification for tutors: student attendances</field>
-            <field name="model_id" ref="ems.model_ems_attendance_notification_tutor"/>
+            <field name="model_id" ref="ems.model_ems_attendance_issue_tutor"/>
             <field name="subject">Attendance notification: daily summary</field>
             <field name="auto_delete" eval="True"/>             
             <field name="email_to">{{object.tutor_id.email}}</field> 
@@ -23,11 +23,11 @@
                                 <li>
                                     <strong>Date: </strong><span t-field="object.date"/>
                                     <ul>
-                                        <t t-foreach="object.attendance_notification_student_ids" t-as="student">
+                                        <t t-foreach="object.attendance_issue_student_ids" t-as="student">
                                             <li>
                                                 <strong>Student: </strong><span t-field="student.student_id"/>
                                                 <ul>
-                                                    <t t-foreach="object.attendance_notification_status_ids" t-as="status">
+                                                    <t t-foreach="object.attendance_issue_status_ids" t-as="status">
                                                         <li><strong>Session: </strong><span t-field="object.attendance_session_id.attendance_schedule_id.attendance_template_id"/> (from <span t-field="object.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="object.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/>)</li>
                                                         <li>
                                                             <strong>Status: </strong><span t-field="line.status"/>

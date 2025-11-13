@@ -36,7 +36,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	@api.model_create_multi
 	def create(self, values):
 		data = []
-		# TODO: change it to load form company as attendance_notification_delay? It's a yes right now...
+		# TODO: change it to load form company as attendance_issue_delay? It's a yes right now...
 		course_id =  self.env['ir.config_parameter'].sudo().get_param('ems.course_id')
 		current_course = self.env["ems.course"].search([("id", "=", course_id)])
 		

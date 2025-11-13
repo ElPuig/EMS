@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record model="mail.template" id="mail_attendance_notification_status" >
+        <record model="mail.template" id="mail_attendance_issue_status" >
             <field name="name">Email notification for families: student attendance status</field>
-            <field name="model_id" ref="ems.model_ems_attendance_notification_status"/>
-            <field name="subject">Student attendance notification: {{object.attendance_notification_student_id.student_id.display_name}}</field>
+            <field name="model_id" ref="ems.model_ems_attendance_issue_status"/>
+            <field name="subject">Student attendance notification: {{object.attendance_issue_student_id.student_id.display_name}}</field>
             <field name="auto_delete" eval="True"/>             
             <!-- NOTE: there's no BCC field to add a private direction list, so this is being setup within session code (send_mail call within _send_notifications method)  -->
             <!-- <field name="email_to">{{object.send_to}}</field>  -->
             <field name="email_from">ems@elpuig.xeill.net</field>
-            <field name="reply_to">{{object.attendance_notification_student_id.attendance_notification_tutor_id.tutor_id.email}}</field>
+            <field name="reply_to">{{object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.email}}</field>
 
             <field name="body_html">
                 <![CDATA[
@@ -20,7 +20,7 @@
                         <p>
                             This is an automated email, in order to inform you about an attendance status:
                             <ul>
-                                <li><strong>Student:</strong> <span t-field="object.attendance_notification_student_id.student_id"/></li>
+                                <li><strong>Student:</strong> <span t-field="object.attendance_issue_student_id.student_id"/></li>
                                 <li><strong>Date:</strong> <span t-field="object.attendance_session_id.weekday"/>, <t t-out="object.attendance_session_id.date"/> from <span t-field="object.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="object.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/></li>                                
                                 <li><strong>Session:</strong> <span t-field="object.attendance_session_id.attendance_schedule_id.attendance_template_id"/></li>
                                 <li><strong>Status:</strong> <span t-field="object.status"/></li>
@@ -30,7 +30,7 @@
                             </ul>                        
                         </p>
 
-                        <p>If you need further information, you can contact with <t t-out="object.attendance_notification_student_id.attendance_notification_tutor_id.tutor_id.display_name"/> just replaying to this email.</p>                                                
+                        <p>If you need further information, you can contact with <t t-out="object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name"/> just replaying to this email.</p>                                                
                         
                         <br/>
                         <p>

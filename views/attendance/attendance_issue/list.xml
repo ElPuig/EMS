@@ -1,8 +1,8 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_attendance_notification_tutor_list">
-            <field name="name">ems.attendance_notification_tutor.list</field>
-            <field name="model">ems.attendance_notification_tutor</field>
+        <record model="ir.ui.view" id="view_attendance_issue_tutor_list">
+            <field name="name">ems.attendance_issue_tutor.list</field>
+            <field name="model">ems.attendance_issue_tutor</field>
             <field name="arch" type="xml">
                 <list default_order="date desc, tutor_id desc">
                     <field name="date" />

@@ -31,7 +31,7 @@
 
                          <block title="Notification Settings" name="ems_notification_settings">
                             <setting string="Attendance notification delay (in minutes)" help="Some attendance statuses (like miss or issue) will be notified to the student's tutor and (if not adult or authorized) to their families. This setting setups how many time the notification must delay since its creation." id="notification_delay_setting">
-                                <field name="attendance_notification_delay" />                              
+                                <field name="attendance_issue_delay" />                              
                             </setting>
                         </block>
                     </app>

@@ -61,11 +61,11 @@ class ems_attendance_session(models.Model):
 
 		# TODO: test this
 		notification_tutor_eta = 5 # TODO: compute this
-		notification_status_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_notification_delay * 60) # from minutes to seconds
+		notification_status_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_delay * 60) # from minutes to seconds
 
 		for record in records:
 			for noti in record.create_notification_entries():
-				# noti internal structure: attendance_notification_tutor (1) --> (N) attendance_notification_student (1) --> (N) attendance_notification_status
+				# noti internal structure: attendance_issue_tutor (1) --> (N) attendance_issue_student (1) --> (N) attendance_issue_status
 				# notifications for the tutors: daily (at the end if its tourn); notifications for the family (status): after a timeout (default 15 minutes). 
 
 				noti.with_delay(
@@ -73,8 +73,8 @@ class ems_attendance_session(models.Model):
 					description=f"Notification task for the daily assistance report for tutors: '{noti.display_name}' (ID={noti.id})"
 				).send_notification()
 
-				for student in noti.attendance_notification_student_ids:
-					for status in student.attendance_notification_status_ids:
+				for student in noti.attendance_issue_student_ids:
+					for status in student.attendance_issue_status_ids:
 						status.with_delay(
 							eta = notification_status_eta,
 							description=f"Notification task for the attendance session: '{status.display_name}' (ID={status.id})"
@@ -103,10 +103,10 @@ class ems_attendance_session(models.Model):
 		if len(lines) > 0:
 			for tutor_id in lines:		
 				notis.append(
-					s.sudo().env['ems.attendance_notification'].create({
+					s.sudo().env['ems.attendance_issue'].create({
 						'attendance_session_id': self.id,
 						'tutor_id': tutor_id.id,
-						'attendance_notification_line_ids': lines[tutor_id]
+						'attendance_issue_line_ids': lines[tutor_id]
 					})
 				)
 		return notis	

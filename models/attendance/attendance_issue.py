@@ -4,12 +4,12 @@ from odoo import models, fields, api
 from .attendance_status import attendance_status
 from datetime import datetime
 
-class ems_attendance_notification_tutor(models.Model):
-	_name = "ems.attendance_notification_tutor"
-	_description = "Attendance notification (tutor): contains the data about notifications that will be sent to the student's tutor."
+class ems_attendance_issue_tutor(models.Model):
+	_name = "ems.attendance_issue_tutor"
+	_description = "Attendance issue (tutor): contains the data about isues that can be reviewed by the student's tutor."
 	_inherit = ['ems.utils']
 	
-	attendance_notification_student_ids = fields.One2many(string="Students", comodel_name="ems.attendance_notification_student", inverse_name="attendance_notification_tutor_id")
+	attendance_issue_student_ids = fields.One2many(string="Students", comodel_name="ems.attendance_issue_student", inverse_name="attendance_issue_tutor_id")
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee")	
 	date = fields.Datetime(string="Notification date")
 	sent_date = fields.Datetime(string="Sent on (to tutor)")
@@ -23,28 +23,28 @@ class ems_attendance_notification_tutor(models.Model):
 		self.ensure_one()		
 
 		try:
-			template = self.env.ref('ems.mail_attendance_notification_tutor', raise_if_not_found=True)	
+			template = self.env.ref('ems.mail_attendance_issue_tutor', raise_if_not_found=True)	
 			template.sudo().send_mail(self.id, force_send=True)				
 			self.sudo().write({'sent_date': datetime.now()})					
 		except ValueError as e:		
 			return False # Silent			
 		return True
 
-class ems_attendance_notification_student(models.Model):
-	_name = "ems.attendance_notification_student"
-	_description = "Attendance notification (student): groups the attendance_notification_statis data about the current student."
+class ems_attendance_issue_student(models.Model):
+	_name = "ems.attendance_issue_student"
+	_description = "Attendance issue (student): groups the attendance's issues by student."
 	_inherit = ['ems.utils']
 	
-	attendance_notification_tutor_id = fields.Many2one(string="Tutor notification data", comodel_name="ems.attendance_notification_tutor", ondelete='cascade')
-	attendance_notification_status_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_notification_status", inverse_name="attendance_notification_student_id")
+	attendance_issue_tutor_id = fields.Many2one(string="Tutor notification data", comodel_name="ems.attendance_issue_tutor", ondelete='cascade')
+	attendance_issue_status_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_issue_status", inverse_name="attendance_issue_student_id")
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", ondelete='cascade')
 
-class ems_attendance_notification_status(models.Model):
-	_name = "ems.attendance_notification_status"
-	_description = "Attendance notification (status): contains the data about an attendance status (session x student x status). This is the data that will be notified to the families (on demand)."
+class ems_attendance_issue_status(models.Model):
+	_name = "ems.attendance_issue_status"
+	_description = "Attendance issue (status): contains the data about an attendance issue."
 	_inherit = ['ems.utils']
 	
-	attendance_notification_student_id = fields.Many2one(string="Student notification data", comodel_name="ems.attendance_notification_student", ondelete='cascade')
+	attendance_issue_student_id = fields.Many2one(string="Student notification data", comodel_name="ems.attendance_issue_student", ondelete='cascade')
 	attendance_status_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_status", required=True, ondelete='cascade')	
 	attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session", required=True, ondelete='cascade')
 
@@ -55,7 +55,7 @@ class ems_attendance_notification_status(models.Model):
 	notes = fields.Text("Notes", related="attendance_status_id.notes") 
 	
 	# NOTE: tutor needed for permission purposes
-	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_notification_student_id.student_id.tutor_id") 
+	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 
 	
 	@api.depends("attendance_status_id")
 	def _compute_status(self):
@@ -65,7 +65,7 @@ class ems_attendance_notification_status(models.Model):
 	@api.depends('attendance_status_id')
 	def _compute_display_name(self):              
 		for rec in self:
-			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_notification_student_id.student_id.display_name, rec.status)
+			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, rec.status)
 
 
 	def send_notification(self):		
@@ -73,8 +73,8 @@ class ems_attendance_notification_status(models.Model):
 		separator = "; "
 
 		try:
-			template = self.env.ref('ems.mail_attendance_notification_status', raise_if_not_found=True)			
-			for line in self.attendance_notification_line_ids:
+			template = self.env.ref('ems.mail_attendance_issue_status', raise_if_not_found=True)			
+			for line in self.attendance_issue_line_ids:
 				# NOTE: there's no BBC field within the email template, and we want to protect personal addresses 
 				# when sending to multiple destinations. So, it will be send one by one setting up here the address.
 				for to in line.send_to.split(separator):

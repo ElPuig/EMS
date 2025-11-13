@@ -172,10 +172,10 @@
         <field name="perm_unlink" eval="False"/> 
     </record>
 
-    <!-- ems.attendance_notification -->
-    <record id="rule_attendance_notification_tutor_admin" model="ir.rule">
+    <!-- ems.attendance_issue -->
+    <record id="rule_attendance_issue_tutor_admin" model="ir.rule">
         <field name="name">Attendance notification (tutor): all data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_notification_tutor"/>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_tutor"/>
         <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
@@ -184,9 +184,9 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
-    <record id="rule_attendance_notification_tutor_tutor" model="ir.rule">      
+    <record id="rule_attendance_issue_tutor_tutor" model="ir.rule">      
         <field name="name">Attendance notification (tutor): tutor's data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_notification_tutor"/>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_tutor"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
         <field name="domain_force">[('tutor_id.user_id.id', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
@@ -195,9 +195,9 @@
         <field name="perm_unlink" eval="False"/> 
     </record>
 
-    <record id="rule_attendance_notification_student_admin" model="ir.rule">
+    <record id="rule_attendance_issue_student_admin" model="ir.rule">
         <field name="name">Attendance notification (student): all data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_notification_student"/>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_student"/>
         <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
@@ -206,20 +206,20 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
-    <record id="rule_attendance_notification_student_tutor" model="ir.rule">      
+    <record id="rule_attendance_issue_student_tutor" model="ir.rule">      
         <field name="name">Attendance notification (student): tutor's data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_notification_student"/>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_student"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('attendance_notification_tutor_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="domain_force">[('attendance_issue_tutor_id.tutor_id.user_id.id', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/> 
     </record>
 
-    <record id="rule_attendance_notification_status_admin" model="ir.rule">
+    <record id="rule_attendance_issue_status_admin" model="ir.rule">
         <field name="name">Attendance notification (status): all data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_notification_status"/>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_status"/>
         <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
@@ -228,11 +228,11 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
-    <record id="rule_attendance_notification_status_tutor" model="ir.rule">      
+    <record id="rule_attendance_issue_status_tutor" model="ir.rule">      
         <field name="name">Attendance notification (status): tutor's data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_notification_status"/>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_status"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('attendance_notification_student_id.attendance_notification_tutor_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="domain_force">[('attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.user_id.id', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="False"/>

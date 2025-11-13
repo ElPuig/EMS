@@ -168,7 +168,8 @@
             'views/attendance/attendance_issue/list.xml',
             'views/attendance/attendance_issue/form.xml',
 
-            'views/attendance/attendance_notification/menu.xml',               
+            'views/attendance/attendance_notification/menu.xml',  
+            'views/attendance/attendance_notification/list.xml',               
 
             'views/attendance/attendance_reports/menu.xml',
             'views/attendance/attendance_reports/student_wizard.xml', 

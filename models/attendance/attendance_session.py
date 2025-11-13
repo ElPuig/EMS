@@ -51,7 +51,14 @@ class ems_attendance_session(models.Model):
 	@api.model_create_multi
 	def create(self, vals_list):
 		records = super().create(vals_list)
-		
+		# NOTE: Tutors will receive a daily report but the notification to the families will be sent hours before that.
+		#		It's important that, if a family contacts with the tutor, he/she can review the data even if this has not been sent yet
+		#		(maybe we can ensure that a tutor can check the attendance entries of its own students, but this is a bit complex to prepare
+		#		so right now its easier to check pending notifications). 
+		# 		
+		# 		Maybe we should create a new section called 'Daily Issues' and change the 'notification_xxx' model to 'issue_xxx' in order to allow
+		#		quickly review options? Is the same as the current notification, but with its own section (like reports does).
+
 		# TODO: test this
 		notification_tutor_eta = 5 # TODO: compute this
 		notification_status_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_notification_delay * 60) # from minutes to seconds

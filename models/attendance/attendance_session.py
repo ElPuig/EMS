@@ -58,27 +58,33 @@ class ems_attendance_session(models.Model):
 		# TODO: link the job.queue with the issue entry in order to check if it has been sent or not. This allows reducing 
 		#		some complexity and allow the tutors to check if there's some kind of error. 
 
-
 		# TODO: test this
 		notification_tutor_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_delay * 60) # TODO: compute this
 		notification_status_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_delay * 60) # from minutes to seconds
 
 		for record in records:
-			for noti in record.create_notification_entries():
+			for entry in record.create_notification_entries():
 				# noti internal structure: attendance_issue_tutor (1) --> (N) attendance_issue_student (1) --> (N) attendance_issue_status
 				# notifications for the tutors: daily (at the end if its tourn); notifications for the family (status): after a timeout (default 15 minutes). 
 
-				noti.with_delay(
+				daily = entry.with_delay(
 					eta = notification_tutor_eta,
-					description=f"Notification task for the daily assistance report for tutors: '{noti.display_name}' (ID={noti.id})"
+					description=f"Daily assistance report: '{entry.display_name}' (ID={entry.id})"
 				).send_notification()
 
-				for student in noti.attendance_issue_student_ids:
+				job = self.sudo().env['queue.job'].search([('uuid', '=', daily.uuid)]) or False
+				if job: entry.sudo().write({'notification_id': job.id})
+
+				for student in entry.attendance_issue_student_ids:
 					for status in student.attendance_issue_status_ids:
-						status.with_delay(
+						noti = status.with_delay(
 							eta = notification_status_eta,
-							description=f"Notification task for the attendance session: '{status.display_name}' (ID={status.id})"
+							description=f"Family assistance notification: '{status.display_name}' (ID={status.id})"
 						).send_notification()
+
+						job = self.sudo().env['queue.job'].search([('uuid', '=', noti.uuid)]) or False
+						if job: status.sudo().write({'notification_id': job.id})
+
 		return records
 
 	def create_notification_entries(self):		

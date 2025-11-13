@@ -10,7 +10,8 @@ class ems_attendance_issue_tutor(models.Model):
 	_inherit = ['ems.utils']
 	
 	attendance_issue_student_ids = fields.One2many(string="Students", comodel_name="ems.attendance_issue_student", inverse_name="attendance_issue_tutor_id")
-	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee")	
+	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
+	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee")
 	date = fields.Date(string="Notification date")
 	sent_date = fields.Datetime(string="Sent on (to tutor)")
 	notes = fields.Text("Notes")
@@ -47,6 +48,7 @@ class ems_attendance_issue_status(models.Model):
 	attendance_issue_student_id = fields.Many2one(string="Student notification data", comodel_name="ems.attendance_issue_student", ondelete='cascade')
 	attendance_status_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_status", required=True, ondelete='cascade')	
 	attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session", required=True, ondelete='cascade')
+	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
 
 	# NOTE: We want a copy of the original status, because a miss can be justified later, but we want to keep the original notification status. 	
 	status = fields.Selection(string="Status", compute="_compute_status", selection=attendance_status)	
@@ -65,7 +67,7 @@ class ems_attendance_issue_status(models.Model):
 	@api.depends('attendance_status_id')
 	def _compute_display_name(self):              
 		for rec in self:
-			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, rec.status)
+			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_status).get(rec.status))
 
 
 	def send_notification(self):		

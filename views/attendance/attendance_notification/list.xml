@@ -1,13 +1,12 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_attendance_notification_list">
-            <field name="name">ems.attendance_notification.list</field>
-            <field name="model">ems.attendance_notification</field>
+        <record model="ir.ui.view" id="view_attendance_notification_tutor_list">
+            <field name="name">ems.attendance_notification_tutor.list</field>
+            <field name="model">ems.attendance_notification_tutor</field>
             <field name="arch" type="xml">
-                <list>                                        
-                    <field name="attendance_session_id" />
-                    <field name="tutor_id" widget="many2one_avatar"/>
-                    <field name="create_date" />
+                <list default_order="date desc, tutor_id desc">
+                    <field name="date" />
+                    <field name="tutor_id" widget="many2one_avatar"/>                    
                     <field name="sent_date" />
                 </list>
             </field>

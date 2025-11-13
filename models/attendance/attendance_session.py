@@ -52,19 +52,29 @@ class ems_attendance_session(models.Model):
 	def create(self, vals_list):
 		records = super().create(vals_list)
 		
-		delay =  self.env.company.attendance_notification_delay
-		execution_time = fields.Datetime.now() + timedelta(seconds=delay * 60) # from minutes to seconds
+		# TODO: test this
+		notification_tutor_eta = 5 # TODO: compute this
+		notification_status_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_notification_delay * 60) # from minutes to seconds
 
-		# TODO: continue here tomorrow :)
 		for record in records:
-			for noti in record._create_notification_entries():
+			for noti in record.create_notification_entries():
+				# noti internal structure: attendance_notification_tutor (1) --> (N) attendance_notification_student (1) --> (N) attendance_notification_status
+				# notifications for the tutors: daily (at the end if its tourn); notifications for the family (status): after a timeout (default 15 minutes). 
+
 				noti.with_delay(
-					eta=execution_time,
-					description=f"Notification task for the session '{record.display_name}' (ID={record.id})"
-				)._send_notifications()
+					eta = notification_tutor_eta,
+					description=f"Notification task for the daily assistance report for tutors: '{noti.display_name}' (ID={noti.id})"
+				).send_notification()
+
+				for student in noti.attendance_notification_student_ids:
+					for status in student.attendance_notification_status_ids:
+						status.with_delay(
+							eta = notification_status_eta,
+							description=f"Notification task for the attendance session: '{status.display_name}' (ID={status.id})"
+						).send_notification()
 		return records
 
-	def _create_notification_entries(self):		
+	def create_notification_entries(self):		
 		separator = "; "
 		notis = []
 		
@@ -92,60 +102,7 @@ class ems_attendance_session(models.Model):
 						'attendance_notification_line_ids': lines[tutor_id]
 					})
 				)
-		return notis
-
-	def _send_notifications(self):		
-		self.ensure_one()		
-
-		try:
-			template_families = self.env.ref('ems.template_attendance_notification_line_email', raise_if_not_found=True)
-			template_tutors = self.env.ref('ems.template_attendance_notification_email', raise_if_not_found=True)
-		except ValueError as e:		
-			return False # Silent
-		
-		separator = "; "
-		lines = dict()
-		for s in self.attendance_status_ids:
-			if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):
-				if s.student_id.tutor_id not in lines:
-					lines[s.student_id.tutor_id] = []
-				
-				send_to = []
-				for contact in s.student_id.child_ids:				
-					send_to.append(contact.email)
-
-				lines[s.student_id.tutor_id].append([0, 0, {													
-					'attendance_status_id': s.id,
-					'send_to': separator.join(send_to)
-				}]) 
-
-		if len(lines) > 0:
-			for tutor_id in lines:		
-				noti = s.sudo().env['ems.attendance_notification'].create({
-					'attendance_session_id': self.id,
-					'tutor_id': tutor_id.id,
-					'attendance_notification_line_ids': lines[tutor_id]
-				})	
-
-				for line in noti.attendance_notification_line_ids:
-					try:
-						# NOTE: there's no BBC field within the email template, and we want to protect personal addresses 
-						# when sending to multiple destinations. So, it will be send one by one setting up here the address.
-						for to in line.send_to.split(separator):
-							template_families.sudo().send_mail(line.id, force_send=True, email_values={'email_to': to})
-						line.sudo().write({'sent_date': datetime.now()})
-					except Exception as e:
-						raise # it will retry
-			
-				try:
-					# NOTE: the tutor's email is setup within the template
-					template_tutors.sudo().send_mail(noti.id, force_send=True)
-					noti.sudo().write({'sent_date': datetime.now()})
-
-				except Exception as e:
-					raise # it will retry
-
-		return True
+		return notis	
 
 	@api.depends("attendance_schedule_id")
 	def _compute_weekday(self):

@@ -166,9 +166,7 @@
 
             'views/attendance/attendance_notification/menu.xml',
             'views/attendance/attendance_notification/list.xml',
-            'views/attendance/attendance_notification/form.xml',
-            'views/attendance/attendance_notification/email_families.xml', 
-            'views/attendance/attendance_notification/email_tutors.xml',                
+            'views/attendance/attendance_notification/form.xml',               
 
             'views/attendance/attendance_reports/menu.xml',
             'views/attendance/attendance_reports/student_wizard.xml', 
@@ -181,6 +179,10 @@
             'views/documentation/minutes/form.xml',   
 
         'views/shared/attachment/form.xml',  
+
+        ### Mailing templates ###
+        'mails/attendance/attendance_notification_status.xml', 
+        'mails/attendance/attendance_notification_tutor.xml', 
 
         ### Reports templates ###
         'reports/attendance/templates/sumary_table.xml', 

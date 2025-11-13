@@ -11,7 +11,7 @@ class ems_attendance_issue_tutor(models.Model):
 	
 	attendance_issue_student_ids = fields.One2many(string="Students", comodel_name="ems.attendance_issue_student", inverse_name="attendance_issue_tutor_id")
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee")	
-	date = fields.Datetime(string="Notification date")
+	date = fields.Date(string="Notification date")
 	sent_date = fields.Datetime(string="Sent on (to tutor)")
 	notes = fields.Text("Notes")
 
@@ -73,14 +73,13 @@ class ems_attendance_issue_status(models.Model):
 		separator = "; "
 
 		try:
-			template = self.env.ref('ems.mail_attendance_issue_status', raise_if_not_found=True)			
-			for line in self.attendance_issue_line_ids:
-				# NOTE: there's no BBC field within the email template, and we want to protect personal addresses 
-				# when sending to multiple destinations. So, it will be send one by one setting up here the address.
-				for to in line.send_to.split(separator):
-					template.sudo().send_mail(line.id, force_send=True, email_values={'email_to': to})
+			template = self.env.ref('ems.mail_attendance_issue_status', raise_if_not_found=True)						
+			# NOTE: there's no BBC field within the email template, and we want to protect personal addresses 
+			# when sending to multiple destinations. So, it will be send one by one setting up here the address.
+			for to in self.send_to.split(separator):
+				template.sudo().send_mail(self.id, force_send=True, email_values={'email_to': to})
 				
-				line.sudo().write({'sent_date': datetime.now()})					
+			self.sudo().write({'sent_date': datetime.now()})					
 		except ValueError as e:		
 			return False # Silent			
 		return True

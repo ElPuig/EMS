@@ -8,6 +8,7 @@
             <field name="domain"> [('model_name', 'like', '%attendance_issue%')] </field>
         </record>
 
+        <!-- NOTE: by default, only admins can see the model and also the menu entry. If access should be granted to teachers, only tutors should be able to see their pending notification (also some tweak should be done to the listview).  -->
         <menuitem name="Notifications" sequence="3" id="menu_attendance_notifications" parent="menu_attendance_config_sessions" action="action_attendance_notification_tree"/>
     </data>
 </odoo>

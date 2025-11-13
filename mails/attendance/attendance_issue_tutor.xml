@@ -27,14 +27,13 @@
                                             <li>
                                                 <strong>Student: </strong><span t-field="student.student_id"/>
                                                 <ul>
-                                                    <t t-foreach="object.attendance_issue_status_ids" t-as="status">
-                                                        <li><strong>Session: </strong><span t-field="object.attendance_session_id.attendance_schedule_id.attendance_template_id"/> (from <span t-field="object.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="object.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/>)</li>
-                                                        <li>
-                                                            <strong>Status: </strong><span t-field="line.status"/>
-                                                            <t t-if="line.notes">
-                                                                <strong>Details: </strong><span t-field="line.notes"/>
+                                                    <t t-foreach="student.attendance_issue_status_ids" t-as="status">
+                                                        <li>                                                            
+                                                            <span t-field="status.attendance_session_id.attendance_schedule_id.attendance_template_id"/> | from <span t-field="status.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="status.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/>
+                                                            <t t-if="status.notes">
+                                                                | <span t-field="status.notes"/>
                                                             </t>
-                                                        </li>
+                                                        </li>                                                        
                                                     </t>
                                                 </ul>
                                             </li>                                                                               

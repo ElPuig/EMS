@@ -53,14 +53,14 @@ class ems_attendance_session(models.Model):
 		records = super().create(vals_list)
 		# NOTE: Tutors will receive a daily report but the notification to the families will be sent hours before that.
 		#		It's important that, if a family contacts with the tutor, he/she can review the data even if this has not been sent yet
-		#		(maybe we can ensure that a tutor can check the attendance entries of its own students, but this is a bit complex to prepare
-		#		so right now its easier to check pending notifications). 
-		# 		
-		# 		Maybe we should create a new section called 'Daily Issues' and change the 'notification_xxx' model to 'issue_xxx' in order to allow
-		#		quickly review options? Is the same as the current notification, but with its own section (like reports does).
+		#		using the 'daily issues0 section.
+
+		# TODO: link the job.queue with the issue entry in order to check if it has been sent or not. This allows reducing 
+		#		some complexity and allow the tutors to check if there's some kind of error. 
+
 
 		# TODO: test this
-		notification_tutor_eta = 5 # TODO: compute this
+		notification_tutor_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_delay * 60) # TODO: compute this
 		notification_status_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_delay * 60) # from minutes to seconds
 
 		for record in records:
@@ -85,31 +85,51 @@ class ems_attendance_session(models.Model):
 		separator = "; "
 		notis = []
 		
-		for s in self.attendance_status_ids:
-			lines = dict()
+		data = dict()
+		for s in self.attendance_status_ids:			
 			if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):
-				if s.student_id.tutor_id not in lines:
-					lines[s.student_id.tutor_id] = []
+				if s.student_id.tutor_id not in data:
+					data[s.student_id.tutor_id] = []
 				
 				send_to = []
 				for contact in s.student_id.child_ids:				
 					send_to.append(contact.email)
 
-				lines[s.student_id.tutor_id].append([0, 0, {													
+				data[s.student_id.tutor_id].append({
 					'attendance_status_id': s.id,
+					'student_id': s.student_id.id,
 					'send_to': separator.join(send_to)
-				}]) 
+				}) 
 
-		if len(lines) > 0:
-			for tutor_id in lines:		
-				notis.append(
-					s.sudo().env['ems.attendance_issue'].create({
+		if len(data) > 0:
+			for tutor_id in data:
+				for line in data[tutor_id]:				
+					issue_tutor = self.sudo().env['ems.attendance_issue_tutor'].search([('date', '=', self.date), ('tutor_id', '=', tutor_id.id)]) or False
+
+					# The main entry is for the current date and the current tutor. 
+					if not issue_tutor:
+						issue_tutor = s.sudo().env['ems.attendance_issue_tutor'].create({
+							'tutor_id': tutor_id.id,
+							'date': datetime.today()						
+						})
+
+					# For this entry, every student has a line.
+					issue_student = issue_tutor.attendance_issue_student_ids.search([('student_id', '=', line["student_id"])]) or False
+					if not issue_student:
+						issue_student = s.sudo().env['ems.attendance_issue_student'].create({
+							'student_id': line["student_id"],
+							'attendance_issue_tutor_id': issue_tutor.id
+						})						
+
+					s.sudo().env['ems.attendance_issue_status'].create({
 						'attendance_session_id': self.id,
-						'tutor_id': tutor_id.id,
-						'attendance_issue_line_ids': lines[tutor_id]
-					})
-				)
-		return notis	
+						'attendance_status_id': line["attendance_status_id"],
+						'attendance_issue_student_id': issue_student.id,
+						'send_to': line["send_to"]
+					})						
+					
+					if not issue_tutor in notis: notis.append(issue_tutor)
+		return notis
 
 	@api.depends("attendance_schedule_id")
 	def _compute_weekday(self):

@@ -14,7 +14,11 @@
             <field name="active">false</field>
         </record> 
 
-         <record model="ir.ui.menu" id="mail.menu_root_discuss">
+        <record model="ir.ui.menu" id="mail.menu_root_discuss">
+            <field name="active">false</field>
+        </record> 
+
+        <record model="ir.ui.menu" id="queue_job.menu_queue_job_root">
             <field name="active">false</field>
         </record> 
 

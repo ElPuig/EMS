@@ -30,27 +30,50 @@
                                     </list>
                                 </field>
                             </page>      
-                        </notebook>
-                        <!-- <notebook>
-                            <page string="Notifications">                                
-                                <field name="attendance_issue_line_ids">
-                                    <list default_order="student_id asc" create="False" edit="False" delete="False" no_open="True">                                                                               
-                                        <field name="student_id" widget="many2one_avatar"/>
-                                        <field name="status" width="175px" /> -->
+                        </notebook>                      
+                    </sheet>	
+                </form>              
+            </field>			
+        </record>
+
+         <record model="ir.ui.view" id="view_attendance_issue_student_form">
+            <field name="name">ems.attendance_issue_student.form</field>
+            <field name="model">ems.attendance_issue_student</field>
+            <field name="arch" type="xml">
+                <form string="notification">                    
+                    <sheet>     
+                         <group string="Student report data" col="3">   
+                            <group colspan="2">
+                                <field name="student_id" readonly="True" />
+                            </group>         
+                            <group>
+                                <field name="date" readonly="True" />
+                            </group>                                 
+                        </group>
+
+                        <notebook>
+                            <page string="Sessions and statuses">
+                                <field name="attendance_issue_status_ids">
+                                    <list default_order="start_time asc" create="False" edit="False" delete="False" no_open="True">
+                                        <field name="subject_id" />
                                         <!-- 
-                                            TODO: the main idea was to store the values as contacts and use the tags widget to display the email
-                                            but was just displaying all the name (student name, contact name). Maybe a custom widget for just the 
-                                            email can be developped?
+                                            TODO: add a method (on utils?) to convert to string like (from hh:mm to hh:mm) 
+                                                  replace current conversions using this method (should format compatible)
                                         -->
-                                        <!-- <field name="send_to"/>
-                                        <field name="sent_date"/>
+                                        <field string="From" name="start_time" widget="float_time" />
+                                        <field string="To" name="end_time" widget="float_time" />
+                                        <field name="group_id" />
+                                        <!-- Too many information within the form? -->
+                                        <!-- <field name="space_id" /> -->
+                                        <field name="teacher_id" widget="many2one_avatar"/>
+                                        <field name="status" />
+                                        <field name="notes" />
+                                        <!-- TODO: add a button to display the notification form -->
+                                        <!-- <field name="notification_id" string="Notification details" /> -->
                                     </list>
                                 </field>
-                            </page>                            
-                            <page string="Notes">
-                                <field name="notes"/>
-                            </page>
-                        </notebook> -->
+                            </page>      
+                        </notebook>                      
                     </sheet>	
                 </form>              
             </field>			

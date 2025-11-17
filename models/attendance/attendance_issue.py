@@ -39,6 +39,8 @@ class ems_attendance_issue_student(models.Model):
 	attendance_issue_tutor_id = fields.Many2one(string="Tutor notification data", comodel_name="ems.attendance_issue_tutor", ondelete='cascade')
 	attendance_issue_status_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_issue_status", inverse_name="attendance_issue_student_id")
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", ondelete='cascade')
+	date = fields.Date(string="Date", related="attendance_issue_tutor_id.date")
+
 
 class ems_attendance_issue_status(models.Model):
 	_name = "ems.attendance_issue_status"
@@ -53,8 +55,14 @@ class ems_attendance_issue_status(models.Model):
 	# NOTE: We want a copy of the original status, because a miss can be justified later, but we want to keep the original notification status. 	
 	status = fields.Selection(string="Status", compute="_compute_status", selection=attendance_status)	
 	send_to = fields.Char(string="Send to", required=True)	
-	sent_date = fields.Datetime(string="Sent on")	
-	notes = fields.Text("Notes", related="attendance_status_id.notes") 
+	sent_date = fields.Datetime(string="Sent on", related="notification_id.date_done")
+	notes = fields.Text(string="Notes", related="attendance_status_id.notes") 
+	subject_id = fields.Many2one(string="Subject", related="attendance_session_id.subject_id")
+	group_id = fields.Many2one(string="Group", related="attendance_session_id.group_id")
+	space_id = fields.Many2one(string="Space", related="attendance_session_id.space_id")
+	teacher_id = fields.Many2one(string="Teacher", related="attendance_session_id.session_teacher_id")
+	start_time = fields.Float(string="Start time", related="attendance_session_id.start_time")
+	end_time = fields.Float(string="End time", related="attendance_session_id.end_time")
 	
 	# NOTE: tutor needed for permission purposes
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 

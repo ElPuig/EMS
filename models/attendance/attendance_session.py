@@ -45,6 +45,7 @@ class ems_attendance_session(models.Model):
 	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)	
 	is_duped = fields.Boolean(store=False)
 	is_next = fields.Boolean(store=False)
+	time_range = fields.Char("Time range", compute="_compute_time_range")
 
 	notes = fields.Text("Notes")	
 

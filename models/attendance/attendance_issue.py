@@ -41,6 +41,11 @@ class ems_attendance_issue_student(models.Model):
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", ondelete='cascade')
 	date = fields.Date(string="Date", related="attendance_issue_tutor_id.date")
 
+	@api.depends('attendance_issue_tutor_id')
+	def _compute_display_name(self):              
+		for rec in self:
+			rec.display_name = "%s | %s" % (rec.student_id.display_name, rec.date)
+
 
 class ems_attendance_issue_status(models.Model):
 	_name = "ems.attendance_issue_status"
@@ -76,7 +81,6 @@ class ems_attendance_issue_status(models.Model):
 		for rec in self:
 			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_status).get(rec.status))
 
-
 	def send_notification(self):		
 		self.ensure_one()		
 		separator = "; "
@@ -92,3 +96,13 @@ class ems_attendance_issue_status(models.Model):
 		except ValueError as e:		
 			return False # Silent			
 		return True
+	
+	def display_notification(self):
+		return {
+			'type': 'ir.actions.act_window',
+			'res_model': 'queue.job',
+			'res_id': self.notification_id.id,						
+			'view_id': self.env.ref('queue_job.view_queue_job_form').id,
+			'view_mode': 'form',
+			'target': 'new'
+		}  

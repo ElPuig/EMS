@@ -62,8 +62,10 @@
                                         <field name="teacher_id" widget="many2one_avatar"/>
                                         <field name="status" />
                                         <field name="notes" />
-                                        <!-- TODO: add a button to display the notification form -->
-                                        <!-- <field name="notification_id" string="Notification details" /> -->
+                                        <!-- TODO: develop a custom component to work as tags but using the email field (or beeing able to choose the field). Then, change the field to res.partner relation instead of Char. -->
+                                        <field name="send_to" />
+                                        <field name="sent_date" />
+                                        <button class="oe_stat_button" title="Display notification" icon="fa-info-circle" name="display_notification" type="object" /> 
                                     </list>
                                 </field>
                             </page>      

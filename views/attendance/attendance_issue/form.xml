@@ -63,8 +63,7 @@
                                         <field string="From" name="start_time" widget="float_time" />
                                         <field string="To" name="end_time" widget="float_time" />
                                         <field name="group_id" />
-                                        <!-- Too many information within the form? -->
-                                        <!-- <field name="space_id" /> -->
+                                        <field name="space_id" />
                                         <field name="teacher_id" widget="many2one_avatar"/>
                                         <field name="status" />
                                         <field name="notes" />

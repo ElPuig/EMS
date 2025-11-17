@@ -24,7 +24,8 @@ class ems_attendance_session(models.Model):
 	weekday = fields.Selection(string="Weekday", compute="_compute_weekday", selection=ems_attendance_schedule.weekdays_selection, store=True)
 	start_time = fields.Float("Start Time", compute="_compute_start_time", store=True)
 	end_time = fields.Float("End Time", compute="_compute_end_time", store=True)	
-	
+	time_range = fields.Char("Time range", compute="_compute_time_range", store=True)
+
 	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
 	start_date = fields.Datetime(compute="_compute_start_date", store=True)	
 	end_date = fields.Datetime(compute="_compute_end_date", store=True)
@@ -45,7 +46,7 @@ class ems_attendance_session(models.Model):
 	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)	
 	is_duped = fields.Boolean(store=False)
 	is_next = fields.Boolean(store=False)
-	time_range = fields.Char("Time range", compute="_compute_time_range")
+	
 
 	notes = fields.Text("Notes")	
 
@@ -152,6 +153,11 @@ class ems_attendance_session(models.Model):
 	def _compute_end_time(self):
 		for rec in self:
 			rec.end_time = rec.attendance_schedule_id.end_time
+
+	@api.depends("attendance_schedule_id")
+	def _compute_time_range(self):
+		for rec in self:
+			rec.time_range = rec.attendance_schedule_id.time_range
 
 	@api.depends("attendance_schedule_id")
 	def _compute_start_date(self):			

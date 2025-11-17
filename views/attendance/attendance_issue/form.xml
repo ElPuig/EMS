@@ -54,14 +54,9 @@
                         <notebook>
                             <page string="Sessions and statuses">
                                 <field name="attendance_issue_status_ids">
-                                    <list default_order="start_time asc" create="False" edit="False" delete="False" no_open="True">
+                                    <list default_order="time_range asc" create="False" edit="False" delete="False" no_open="True">
                                         <field name="subject_id" />
-                                        <!-- 
-                                            TODO: add a method (on utils?) to convert to string like (from hh:mm to hh:mm) 
-                                                  replace current conversions using this method (should format compatible)
-                                        -->
-                                        <field string="From" name="start_time" widget="float_time" />
-                                        <field string="To" name="end_time" widget="float_time" />
+                                        <field name="time_range" />
                                         <field name="group_id" />
                                         <field name="space_id" />
                                         <field name="teacher_id" widget="many2one_avatar"/>

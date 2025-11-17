@@ -61,8 +61,7 @@ class ems_attendance_issue_status(models.Model):
 	group_id = fields.Many2one(string="Group", related="attendance_session_id.group_id")
 	space_id = fields.Many2one(string="Space", related="attendance_session_id.space_id")
 	teacher_id = fields.Many2one(string="Teacher", related="attendance_session_id.session_teacher_id")
-	start_time = fields.Float(string="Start time", related="attendance_session_id.start_time")
-	end_time = fields.Float(string="End time", related="attendance_session_id.end_time")
+	time_range = fields.Char(string="Time range", related="attendance_session_id.time_range")
 	
 	# NOTE: tutor needed for permission purposes
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 

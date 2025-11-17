@@ -12,8 +12,8 @@ class ems_attendance_issue_tutor(models.Model):
 	attendance_issue_student_ids = fields.One2many(string="Students", comodel_name="ems.attendance_issue_student", inverse_name="attendance_issue_tutor_id")
 	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee")
-	date = fields.Date(string="Notification date")
-	sent_date = fields.Datetime(string="Sent on (to tutor)")
+	date = fields.Date(string="Date")
+	sent_date = fields.Datetime(string="Sent on", related="notification_id.date_done")
 	notes = fields.Text("Notes")
 
 	def _compute_display_name(self):              
@@ -26,7 +26,7 @@ class ems_attendance_issue_tutor(models.Model):
 		try:
 			template = self.env.ref('ems.mail_attendance_issue_tutor', raise_if_not_found=True)	
 			template.sudo().send_mail(self.id, force_send=True)				
-			self.sudo().write({'sent_date': datetime.now()})					
+			#self.sudo().write({'sent_date': datetime.now()})					
 		except ValueError as e:		
 			return False # Silent			
 		return True
@@ -81,7 +81,7 @@ class ems_attendance_issue_status(models.Model):
 			for to in self.send_to.split(separator):
 				template.sudo().send_mail(self.id, force_send=True, email_values={'email_to': to})
 				
-			self.sudo().write({'sent_date': datetime.now()})					
+			#self.sudo().write({'sent_date': datetime.now()})					
 		except ValueError as e:		
 			return False # Silent			
 		return True

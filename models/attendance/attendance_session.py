@@ -112,13 +112,13 @@ class ems_attendance_session(models.Model):
 		if len(data) > 0:
 			for tutor_id in data:
 				for line in data[tutor_id]:				
-					issue_tutor = self.sudo().env['ems.attendance_issue_tutor'].search([('date', '=', self.date), ('tutor_id', '=', tutor_id.id)]) or False
+					issue_tutor = self.sudo().env['ems.attendance_issue_tutor'].search([('issue_date', '=', self.date), ('tutor_id', '=', tutor_id.id)]) or False
 
 					# The main entry is for the current date and the current tutor. 
 					if not issue_tutor:
 						issue_tutor = s.sudo().env['ems.attendance_issue_tutor'].create({
 							'tutor_id': tutor_id.id,
-							'date': datetime.today()						
+							'issue_date': datetime.today()						
 						})
 
 					# For this entry, every student has a line.

@@ -2,7 +2,6 @@
 
 from odoo import models, fields, api
 from .attendance_status import attendance_status
-from datetime import datetime
 
 class ems_attendance_issue_tutor(models.Model):
 	_name = "ems.attendance_issue_tutor"
@@ -12,13 +11,24 @@ class ems_attendance_issue_tutor(models.Model):
 	attendance_issue_student_ids = fields.One2many(string="Students", comodel_name="ems.attendance_issue_student", inverse_name="attendance_issue_tutor_id")
 	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee")
-	date = fields.Date(string="Date")
-	sent_date = fields.Datetime(string="Sent on", related="notification_id.date_done")
-	notes = fields.Text("Notes")
+	issue_date = fields.Date(string="Date")
+	schedule_date = fields.Datetime(string="Scheduled on", related="notification_id.eta")
+	status = fields.Selection(string="Status", compute="_compute_status", selection=[("pending", "Pending"), ("sent", "Sent"), ("error", "Error")], store=True)
+	exception = fields.Text(string="Exception", related="notification_id.exc_info")
+
+	@api.depends("exception", "notification_id.date_started")
+	def _compute_status(self):              
+		for rec in self:
+			if rec.notification_id.date_done:
+				rec.status = "sent"
+			elif rec.exception:
+				rec.status = "error"
+			else:
+				rec.status = "pending"
 
 	def _compute_display_name(self):              
 		for rec in self:
-			rec.display_name = "%s: %s" % (rec.date, rec.tutor_id.display_name)
+			rec.display_name = "%s: %s" % (rec.issue_date, rec.tutor_id.display_name)
 
 	def send_notification(self):		
 		self.ensure_one()		
@@ -39,13 +49,12 @@ class ems_attendance_issue_student(models.Model):
 	attendance_issue_tutor_id = fields.Many2one(string="Tutor notification data", comodel_name="ems.attendance_issue_tutor", ondelete='cascade')
 	attendance_issue_status_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_issue_status", inverse_name="attendance_issue_student_id")
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", ondelete='cascade')
-	date = fields.Date(string="Date", related="attendance_issue_tutor_id.date")
+	date = fields.Date(string="Date", related="attendance_issue_tutor_id.issue_date")
 
 	@api.depends('attendance_issue_tutor_id')
 	def _compute_display_name(self):              
 		for rec in self:
 			rec.display_name = "%s | %s" % (rec.student_id.display_name, rec.date)
-
 
 class ems_attendance_issue_status(models.Model):
 	_name = "ems.attendance_issue_status"

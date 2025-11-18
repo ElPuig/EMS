@@ -21,7 +21,7 @@
                             This is your students daily report, in order to inform you about today's attendance statuses:
                             <ul>
                                 <li>
-                                    <strong>Date: </strong><span t-field="object.date"/>
+                                    <strong>Date: </strong><span t-field="object.issue_date"/>
                                     <ul>
                                         <t t-foreach="object.attendance_issue_student_ids" t-as="student">
                                             <li>

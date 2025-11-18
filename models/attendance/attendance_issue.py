@@ -13,19 +13,9 @@ class ems_attendance_issue_tutor(models.Model):
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee")
 	issue_date = fields.Date(string="Date")
 	schedule_date = fields.Datetime(string="Scheduled on", related="notification_id.eta")
-	status = fields.Selection(string="Status", compute="_compute_status", selection=[("pending", "Pending"), ("sent", "Sent"), ("error", "Error")], store=True)
+	status = fields.Selection(string="Status", related="notification_id.state")
 	exception = fields.Text(string="Exception", related="notification_id.exc_info")
-
-	@api.depends("exception", "notification_id.date_started")
-	def _compute_status(self):              
-		for rec in self:
-			if rec.notification_id.date_done:
-				rec.status = "sent"
-			elif rec.exception:
-				rec.status = "error"
-			else:
-				rec.status = "pending"
-
+	
 	def _compute_display_name(self):              
 		for rec in self:
 			rec.display_name = "%s: %s" % (rec.issue_date, rec.tutor_id.display_name)
@@ -66,10 +56,13 @@ class ems_attendance_issue_status(models.Model):
 	attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session", required=True, ondelete='cascade')
 	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
 
+	notification_status = fields.Selection(string="Notification status", related="notification_id.state")
+	exception = fields.Text(string="Exception", related="notification_id.exc_info")
+
 	# NOTE: We want a copy of the original status, because a miss can be justified later, but we want to keep the original notification status. 	
-	status = fields.Selection(string="Status", compute="_compute_status", selection=attendance_status)	
+	attendance_status = fields.Selection(string="Attendance status", compute="_compute_attendance_status", selection=attendance_status)	
 	send_to = fields.Char(string="Send to", required=True)	
-	sent_date = fields.Datetime(string="Sent on", related="notification_id.date_done")
+	schedule_date = fields.Datetime(string="Scheduled on", related="notification_id.eta")
 	notes = fields.Text(string="Notes", related="attendance_status_id.notes") 
 	subject_id = fields.Many2one(string="Subject", related="attendance_session_id.subject_id")
 	group_id = fields.Many2one(string="Group", related="attendance_session_id.group_id")
@@ -79,11 +72,11 @@ class ems_attendance_issue_status(models.Model):
 	
 	# NOTE: tutor needed for permission purposes
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 
-	
+
 	@api.depends("attendance_status_id")
-	def _compute_status(self):
+	def _compute_attendance_status(self):
 		for rec in self:
-			rec.status = rec.attendance_status_id.status	
+			rec.attendance_status = rec.attendance_status_id.status	
 
 	@api.depends('attendance_status_id')
 	def _compute_display_name(self):              

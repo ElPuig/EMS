@@ -8,7 +8,7 @@
                     <sheet>     
                          <group string="Daily report data" col="3">   
                             <group>
-                                <field name="tutor_id"  widget="many2one_avatar" readonly="True" />
+                                <field name="tutor_id" widget="many2one_avatar" readonly="True" />
                             </group>  
                             <group colspan="2">
                                 <field name="notification_id" string="Notification details" readonly="True" invisible="not user_is_admin" />
@@ -27,7 +27,7 @@
 
                         <notebook>
                             <page string="Error details" invisible="not exception">
-                                <field name="exception" readonly="True" />                                    
+                                <field name="exception" readonly="True" />
                             </page>     
                             <page string="Students">
                                 <field name="attendance_issue_student_ids">
@@ -50,7 +50,7 @@
                     <sheet>     
                          <group string="Student report data" col="3">   
                             <group colspan="2">
-                                <field name="student_id" readonly="True" />
+                                <field name="student_id" widget="many2one_avatar" readonly="True" />
                             </group>         
                             <group>
                                 <field name="date" readonly="True" />
@@ -61,16 +61,22 @@
                             <page string="Sessions and statuses">
                                 <field name="attendance_issue_status_ids">
                                     <list default_order="time_range asc" create="False" edit="False" delete="False" no_open="True">
-                                        <field name="subject_id" />
-                                        <field name="time_range" />
-                                        <field name="group_id" />
-                                        <field name="space_id" />
-                                        <field name="teacher_id" widget="many2one_avatar"/>
-                                        <field name="status" />
-                                        <field name="notes" />
+                                        <field name="subject_id" width="300px"/>
+                                        <field name="time_range" width="100px"/>
+                                        <field name="group_id"  width="100px"/>
+                                        <field name="space_id" width="150px"/>
+                                        <field name="teacher_id" widget="many2one_avatar" width="200px"/>
+                                        <field name="attendance_status" string="Attendance" width="100px" />                                        
                                         <!-- TODO: develop a custom component to work as tags but using the email field (or beeing able to choose the field). Then, change the field to res.partner relation instead of Char. -->
-                                        <field name="send_to" />
-                                        <field name="sent_date" />
+                                        <field name="send_to" width="300px"/>
+                                        <field name="schedule_date" width="150px"/>
+                                        <field name="notification_status" string="Notification" width="100px"/>
+                                        <field name="notes" width="500px" />
+                                        <!-- 
+                                            TODO: adding a column for exceptions is too much becasue maybe there's only one in the list... 
+                                            Check if there's a way to open a popup displaying the error if a button is clicked.
+                                            The same with the details or issue notes.
+                                        -->
                                         <button class="oe_stat_button" title="Display notification" icon="fa-info-circle" name="display_notification" type="object" /> 
                                     </list>
                                 </field>

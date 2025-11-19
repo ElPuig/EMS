@@ -77,7 +77,7 @@
                                         <field name="notification_status" string="Notification" width="100px"/>
                                         <!-- 
                                             TODO: develop a custom component in order to show a summary (cut at specified length) and display all the text as a popup or modal window on clic. 
-                                            
+                                            https://github.com/ElPuig/EMS/issues/104
                                         -->
                                         <field name="exception" string="Error details (none if empty)" width="300px"/>
 

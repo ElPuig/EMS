@@ -29,9 +29,13 @@
                             </setting>
                         </block>
 
-                         <block title="Notification Settings" name="ems_notification_settings">
-                            <setting string="Attendance notification delay (in minutes)" help="Some attendance statuses (like miss or issue) will be notified to the student's tutor and (if not adult or authorized) to their families. This setting setups how many time the notification must delay since its creation." id="notification_delay_setting">
-                                <field name="attendance_issue_delay" />                              
+                         <block title="Attendance Settings" name="ems_attendance_settings">
+                            <setting string="Issue notification delay (in minutes)" help="Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification." id="notification_delay_setting">
+                                <field name="attendance_issue_status_delay" />                              
+                            </setting>
+
+                            <setting string="Tutor's default attendance delay report send time" help="The tutors will receive a daily attendance report at the end of their work tourn but, it its not defined, this time will be used to send the report." id="notification_delay_setting">
+                                <field name="attendance_issue_tutor_default" widget="float_time" />                              
                             </setting>
                         </block>
                     </app>

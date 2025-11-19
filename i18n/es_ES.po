@@ -279,8 +279,8 @@ msgid ""
 msgstr ""
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__attendance_issue_delay
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__attendance_issue_delay
+#: model:ir.model.fields,field_description:ems.field_res_company__attendance_issue_status_delay
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__attendance_issue_status_delay
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Attendance notification delay (in minutes)"
 msgstr ""

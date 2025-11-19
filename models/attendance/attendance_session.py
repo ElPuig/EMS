@@ -52,18 +52,13 @@ class ems_attendance_session(models.Model):
 
 	@api.model_create_multi
 	def create(self, vals_list):
-		records = super().create(vals_list)
-		# NOTE: Tutors will receive a daily report but the notification to the families will be sent hours before that.
-		#		It's important that, if a family contacts with the tutor, he/she can review the data even if this has not been sent yet
-		#		using the 'daily issues0 section.
-
-		# TODO: link the job.queue with the issue entry in order to check if it has been sent or not. This allows reducing 
-		#		some complexity and allow the tutors to check if there's some kind of error. 
-
-		# TODO: test this
-		notification_tutor_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_delay * 60) # TODO: compute this
-		notification_status_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_delay * 60) # from minutes to seconds
-
+		records = super().create(vals_list)		
+		
+		notification_status_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_status_delay * 60) # from minutes to seconds
+		
+		# TODO: tutor's working schedule end-time should be loaded firts, and use the default only if not defined. 
+		notification_tutor_eta = self.time_float_to_local_datetime(fields.Datetime.now(), self.env.company.attendance_issue_tutor_default)
+		
 		for record in records:
 			for entry in record.create_notification_entries():
 				# noti internal structure: attendance_issue_tutor (1) --> (N) attendance_issue_student (1) --> (N) attendance_issue_status

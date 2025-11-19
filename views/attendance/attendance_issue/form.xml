@@ -74,14 +74,15 @@
                                         -->
                                         <field name="send_to" width="500px"/>
                                         <field name="schedule_date" width="150px"/>
-                                        <field name="notification_status" string="Notification" width="100px"/>
-                                        <!-- 
-                                            TODO: develop a custom component in order to show a summary (cut at specified length) and display all the text as a popup or modal window on clic. 
+                                        <field name="notification_status" string="Notification" width="100px"/>                                       
+                                        
+                                         <!-- 
+                                            TODO: develop a custom component to work as the OCA popover plugin, but opening a modal instead of filling the tooltip. 
                                             https://github.com/ElPuig/EMS/issues/104
+                                            https://github.com/OCA/web/tree/18.0/web_widget_popover 
                                         -->
-                                        <field name="exception" string="Error details (none if empty)" width="300px"/>
-
-                                        <button class="oe_stat_button" title="Display notification" icon="fa-info-circle" name="display_notification" type="object" invisible="not user_is_admin" /> 
+                                        <button name="open_exception_popup" type="object" icon="fa-info-circle" title="Open error details" invisible="not exception"/> 
+                                        <field name="exception" column_invisible="1"/>
                                     </list>
                                 </field>
                             </page>      
@@ -89,6 +90,21 @@
                     </sheet>	
                 </form>              
             </field>			
+        </record>
+
+        <record model="ir.ui.view" id="view_attendance_issue_status_exception_popup">
+            <field name="name">ems.attendance_issue_status_exception.popup</field>
+            <field name="model">ems.attendance_issue_status</field> 
+            <field name="arch" type="xml">
+                <form string="Error details">
+                    <sheet>
+                        <field name="exception" readonly="1" widget="text"/>
+                    </sheet>
+                    <footer>
+                        <button string="Clonse" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
         </record>
     </data>
 </odoo>

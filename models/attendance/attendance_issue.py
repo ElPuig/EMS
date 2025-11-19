@@ -73,6 +73,19 @@ class ems_attendance_issue_status(models.Model):
 	# NOTE: tutor needed for permission purposes
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 
 
+	def open_exception_popup(self):
+		self.ensure_one()
+		return {
+			'type': 'ir.actions.act_window',
+			'name': 'Error details',
+			'res_model': self._name,
+			'res_id': self.id,
+			'view_mode': 'form',
+			'view_id': self.env.ref('ems.view_attendance_issue_status_exception_popup').id,
+			'target': 'new', 
+			'flags': {'mode': 'readonly'}
+		}
+
 	@api.depends("attendance_status_id")
 	def _compute_attendance_status(self):
 		for rec in self:

@@ -66,18 +66,22 @@
                                         <field name="group_id"  width="100px"/>
                                         <field name="space_id" width="150px"/>
                                         <field name="teacher_id" widget="many2one_avatar" width="200px"/>
-                                        <field name="attendance_status" string="Attendance" width="100px" />                                        
-                                        <!-- TODO: develop a custom component to work as tags but using the email field (or beeing able to choose the field). Then, change the field to res.partner relation instead of Char. -->
-                                        <field name="send_to" width="300px"/>
-                                        <field name="schedule_date" width="150px"/>
-                                        <field name="notification_status" string="Notification" width="100px"/>
+                                        <field name="attendance_status" string="Attendance" width="100px" />
                                         <field name="notes" width="500px" />
                                         <!-- 
-                                            TODO: adding a column for exceptions is too much becasue maybe there's only one in the list... 
-                                            Check if there's a way to open a popup displaying the error if a button is clicked.
-                                            The same with the details or issue notes.
+                                            TODO: develop a custom component to work as tags but using the email field (or beeing able to choose the field). Then, change the field to res.partner relation instead of Char. 
+                                            https://github.com/ElPuig/EMS/issues/103
                                         -->
-                                        <button class="oe_stat_button" title="Display notification" icon="fa-info-circle" name="display_notification" type="object" /> 
+                                        <field name="send_to" width="500px"/>
+                                        <field name="schedule_date" width="150px"/>
+                                        <field name="notification_status" string="Notification" width="100px"/>
+                                        <!-- 
+                                            TODO: develop a custom component in order to show a summary (cut at specified length) and display all the text as a popup or modal window on clic. 
+                                            
+                                        -->
+                                        <field name="exception" string="Error details (none if empty)" width="300px"/>
+
+                                        <button class="oe_stat_button" title="Display notification" icon="fa-info-circle" name="display_notification" type="object" invisible="not user_is_admin" /> 
                                     </list>
                                 </field>
                             </page>      

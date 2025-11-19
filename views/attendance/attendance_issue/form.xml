@@ -74,15 +74,15 @@
                                         -->
                                         <field name="send_to" width="500px"/>
                                         <field name="schedule_date" width="150px"/>
-                                        <field name="notification_status" string="Notification" width="100px"/>                                       
+                                        <field name="notification_status" string="Notification" width="100px"/>
                                         
                                          <!-- 
                                             TODO: develop a custom component to work as the OCA popover plugin, but opening a modal instead of filling the tooltip. 
                                             https://github.com/ElPuig/EMS/issues/104
                                             https://github.com/OCA/web/tree/18.0/web_widget_popover 
                                         -->
-                                        <button name="open_exception_popup" type="object" icon="fa-info-circle" title="Open error details" invisible="not exception"/> 
-                                        <field name="exception" column_invisible="1"/>
+                                        <button name="open_exception_popup" type="object" icon="fa-info-circle" title="Open error details" invisible="not exception" width="30px"/> 
+                                        <button name="open_notification_form" type="object" icon="fa-envelope-o" title="Open notification details" invisible="not user_is_admin" width="30px"/> 
                                     </list>
                                 </field>
                             </page>      

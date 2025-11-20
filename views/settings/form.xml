@@ -9,8 +9,8 @@
                 <xpath expr="//form" position="inside">
                     <app data-string="EMS Management" string="EMS Management" name="ems">
                         <block title="Course Management Settings" name="ems_course_settings">
-                            <setting string="Current course" help="Use this field to select the current course, which will be used for volatile data assignation (like the student's enrollments or the teacher's schedules)." id="course_id">
-                                <field name="course_id" />
+                            <setting string="Current course" help="Use this field to select the current course, which will be used for volatile data assignation (like the student's enrollments or the teacher's schedules)." id="current_course_id">
+                                <field name="current_course_id" />
                                 <!-- TODO: this is temporary, how should it work: 
                                         1. The filed "course_id" should be read-only.
                                         2. On install, the current course should be generated and assigned (the default course values can be used). 

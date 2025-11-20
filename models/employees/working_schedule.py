@@ -53,8 +53,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	
 	@api.model_create_multi
 	def create(self, values):
-		course_id =  self.env['ir.config_parameter'].sudo().get_param('ems.course_id')
-		current_course = self.env["ems.course"].search([("id", "=", course_id)])
+		course_id = self.env.company.current_course_id
 		
 		for item in values:
 			if 'file' not in item or not item.get('file'):
@@ -67,19 +66,23 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				root = tree.getroot()
 				for node in root:	
 					email = node.attrib['name'].split(' ')[0]
-					teacher = self.env["hr.employee"].search([("work_email", "=", email)])					
-					entries = self._create_schedule(node, teacher, current_course)
-					self._create_teaching(entries, teacher, current_course)
-					self._create_assitance_templates(entries, teacher, current_course)
+					teacher = self.env["hr.employee"].search([("work_email", "=", email)])	
+					if not teacher.id: raise ValidationError("Teacher with email '%s' not found." % email)
+
+					entries = self._create_schedule(node, teacher, course_id)
+					self._create_teaching(entries, teacher, course_id)
+					self._create_assitance_templates(entries, teacher, course_id)
 
 		return super(models.Model, self).create(values)			
 
-	def _create_schedule(self, xml_node, teacher, current_course):									
-		schedule = teacher.resource_calendar_id
-		if not teacher.resource_calendar_id.id:
+	def _create_schedule(self, xml_node, teacher, course_id):									
+		name = "%s (%s)" % (teacher.name, course_id.name)
+		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
+
+		if not schedule:
 			# TODO: add a relation to current_course
 			schedule = self.env['resource.calendar'].create({
-				'name': "%s (%s)" % (teacher.name, current_course.name),
+				'name': "%s (%s)" % (teacher.name, course_id.name),
 				'full_time_required_hours': 24
 			})
 		
@@ -117,17 +120,19 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					subject = self.env["ems.subject"].search([("code", "=", subjectCode[2:])])
 					group = self.env["ems.group"].search([("name", "=", groupAcro)])
 					start = hourNode.attrib['name'].split(' ')[1]
-		
-		# CONTINUE HERE: NOT BEEING STORED!?
+
+					if not subject.id: raise ValidationError("Subject with code '%s' not found." % subjectCode[2:])
+					if not group.id: raise ValidationError("Group with acronym '%s' not found." % groupAcro[2:])
+							
 		schedule.write({ 'attendance_ids': entries })  		
 		teacher.write({ "resource_calendar_id": schedule })
 		return [x[2] for x in entries[1:]] #skipping the first (unlink all) and getting only entities.	
 
-	def _create_teaching(self, entries, teacher, current_course):
-		teaching = [[5]] # remove all previous		
+	def _create_teaching(self, entries, teacher, course_id):
+		teaching = []
 		for t in teacher.teaching_ids:
-			teaching.append([(2, t.id)]) #remove
-				
+			t.unlink()
+		
 		for e in entries: #skipping the first (unlink all)
 			# TODO: asign also the current_course
 			item = [0, 0, {
@@ -142,7 +147,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			'teaching_ids': teaching
 		})	
 	
-	def _create_assitance_templates(self, entries, teacher, current_course):
+	def _create_assitance_templates(self, entries, teacher, course_id):
 		# TODO: It's necessary to know if a template has been created automatically or manually? 
 		# 		Should we keep the manually created? If so, additional checks are needed in order to create
 		#		the entries avoiding duped templates... 		

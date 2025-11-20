@@ -57,76 +57,90 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		current_course = self.env["ems.course"].search([("id", "=", course_id)])
 		
 		for item in values:
-			self._create_schedule(item, current_course)
+			if 'file' not in item or not item.get('file'):
+				raise ValidationError("No XML file has been loaded. Please, provide an XML file and try again.")
+			else:	
+				file = item.get('file')
+				xml_content = base64.b64decode(file)
+				tree = ET.ElementTree(ET.fromstring(xml_content))
+				
+				root = tree.getroot()
+				for teacherNode in root:	
+					email = teacherNode.attrib['name'].split(' ')[0]
+					teacher = self.env["hr.employee"].search([("work_email", "=", email)])					
+					entries = self._create_schedule(teacherNode, teacher, current_course)
+					teaching = self._create_teaching(entries, teacher, current_course)
 
 		return super(models.Model, self).create(values)			
 
-	def _create_schedule(self, item, current_course):
-		if 'file' not in item or not item.get('file'):
-			raise ValidationError("No XML file has been loaded. Please, provide an XML file and try again.")
-		else:				
-			file = item.get('file')
-			xml_content = base64.b64decode(file)
-			tree = ET.ElementTree(ET.fromstring(xml_content))
+	def _create_schedule(self, xml_node, teacher, current_course):									
+		schedule = teacher.resource_calendar_id
+		if not teacher.resource_calendar_id.id:
+			# TODO: add a relation to current_course
+			schedule = self.env['resource.calendar'].create({
+				'name': "%s (%s)" % (teacher.name, current_course.name),
+				'full_time_required_hours': 24
+			})
+		
+		entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.					
+		for dayNode in xml_node:
+			# NOTE: 0: Monday; 1: Tuesday as today.weekday() does.
+			dayofweek = int(dayNode.attrib['name'].split(' ')[0]) - 1						
+			start = None
 			
-			root = tree.getroot()
-			for teacherNode in root:					
-				email = teacherNode.attrib['name'].split(' ')[0]
-				teacher = self.env["hr.employee"].search([("work_email", "=", email)])
-				schedule = teacher.resource_calendar_id
-
-				if not teacher.resource_calendar_id.id:
-					# TODO: add a relation to current_course
-					schedule = self.env['resource.calendar'].create({
-						'name': "%s (%s)" % (teacher.name, current_course.name),
-						'full_time_required_hours': 24
-					})
-				
-				entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.					
-				for dayNode in teacherNode:
-					# NOTE: 0: Monday; 1: Tuesday as today.weekday() does.
-					dayofweek = int(dayNode.attrib['name'].split(' ')[0]) - 1						
+			for hourNode in dayNode:
+				if start is not None:
+					close = hourNode.attrib['name'].split(' ')[1]
+					entries.append([0, 0, {
+						"name": "%s: %s (%s)" % (subject.acronym, subject.name, group.name),
+						"dayofweek": str(dayofweek),
+						"day_period": 'morning' if int(start[:2]) < 15 else 'afternoon',
+						"hour_from": self._conv_time_float(start),
+						"hour_to": self._conv_time_float(close),
+						"subject_id": subject.id,
+						"group_id": group.id
+					}])
 					start = None
-					
-					for hourNode in dayNode:
-						if start is not None:
-							close = hourNode.attrib['name'].split(' ')[1]
-							day_period = 'morning' if int(start[:2]) < 15 else 'afternoon'
 
-							# TODO: add the subject and group entieies
-							entries.append([0, 0, {
-								"name": "%s: %s (%s)" % (subject.acronym, subject.name, group.name),
-								"dayofweek": str(dayofweek),
-								"day_period": day_period,
-								"hour_from": self._conv_time_float(start),
-								"hour_to": self._conv_time_float(close),
-								"subject_id": subject.id,
-								"group_id": group.id
-							}])
-							start = None
+				# NOTE: Ignore empty hours (lack of activities)
+				id = None
+				for content in hourNode:
+					if content.tag == 'Activity':
+						id = content.attrib['id'].split(' ')[0]
+					elif content.tag == 'Subject':
+						subjectCode = content.attrib['name'].split(' ')[0]
+					elif content.tag == 'Students':
+						groupAcro = content.attrib['name'].split(' ')[0]														
+				
+				if id is not None:
+					subject = self.env["ems.subject"].search([("code", "=", subjectCode[2:])])
+					group = self.env["ems.group"].search([("name", "=", groupAcro)])
+					start = hourNode.attrib['name'].split(' ')[1]
+		
+		schedule.write({ 'attendance_ids': entries })  		
+		teacher.write({ "resource_calendar_id": schedule })
+		return entries	
 
-						# NOTE: Ignore empty hours (lack of activities)
-						id = None
-						for content in hourNode:
-							if content.tag == 'Activity':
-								id = content.attrib['id'].split(' ')[0]
-							elif content.tag == 'Subject':
-								subjectCode = content.attrib['name'].split(' ')[0]
-							elif content.tag == 'Students':
-								groupAcro = content.attrib['name'].split(' ')[0]														
-						
-						if id is not None:
-							subject = self.env["ems.subject"].search([("code", "=", subjectCode[2:])])
-							group = self.env["ems.group"].search([("name", "=", groupAcro)])
-							start = hourNode.attrib['name'].split(' ')[1]
+	def _create_teaching(self, entries, teacher, current_course):
+		teaching = []		
+		for t in teacher.teaching_ids:
+			teaching.append([(2, t.id)]) #remove
 				
-				schedule.write({
-					'attendance_ids': entries
-				})  
+		for e in entries[1:]: #skipping the first (unlink all)
+			# TODO: asign also the current_course
+			item = [0, 0, {
+				'group_id': e[2]["group_id"],
+				'subject_id': e[2]["subject_id"]
+			}]
+
+			if item not in teaching:
+				teaching.append(item)
 				
-				teacher.write({
-					"resource_calendar_id": schedule
-				})	
+		teacher.write({
+			'teaching_ids': teaching
+		})	
+		
+		return teaching		
 
 	def _conv_time_float(self, value):
 		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236

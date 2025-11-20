@@ -138,13 +138,9 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				
 		teacher.write({
 			'teaching_ids': teaching
-<<<<<<< HEAD
 		})	
 		
 		return teaching		
-=======
-		})			
->>>>>>> 89bbd0365850c2eb741ee75e91e3dca4a84cc454
 
 	def _conv_time_float(self, value):
 		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236

@@ -9,7 +9,7 @@
                 <xpath expr="//form" position="inside">
                     <app data-string="EMS Management" string="EMS Management" name="ems">
                         <block title="Course Management Settings" name="ems_course_settings">
-                            <setting string="Current course" help="Use this field to select the current course, which will be used for volatile data assignation (like the student's enrollments or the teacher's schedules)." id="current_course_setting">
+                            <setting string="Current course" help="Use this field to select the current course, which will be used for volatile data assignation (like the student's enrollments or the teacher's schedules)." id="course_id">
                                 <field name="course_id" />
                                 <!-- TODO: this is temporary, how should it work: 
                                         1. The filed "course_id" should be read-only.
@@ -30,11 +30,11 @@
                         </block>
 
                          <block title="Attendance Settings" name="ems_attendance_settings">
-                            <setting string="Issue notification delay (in minutes)" help="Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification." id="notification_delay_setting">
+                            <setting string="Issue notification delay (in minutes)" help="Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification." id="attendance_issue_status_delay">
                                 <field name="attendance_issue_status_delay" />                              
                             </setting>
 
-                            <setting string="Tutor's default attendance delay report send time" help="The tutors will receive a daily attendance report at the end of their work tourn but, it its not defined, this time will be used to send the report." id="notification_delay_setting">
+                            <setting string="Tutor's default attendance delay report send time" help="The tutors will receive a daily attendance report at the end of their work tourn but, it its not defined, this time will be used to send the report." id="attendance_issue_tutor_default">
                                 <field name="attendance_issue_tutor_default" widget="float_time" />                              
                             </setting>
                         </block>

@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 from odoo import models, fields, api
 from .attendance_schedule import ems_attendance_schedule
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 #from attendance_session import ems_attendance_session
 

@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from datetime import datetime
 import xml.etree.ElementTree as ET
 import base64
 
@@ -18,7 +19,6 @@ class ems_working_schedule_assignation(models.Model):
 
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
-
 
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
@@ -65,11 +65,12 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				tree = ET.ElementTree(ET.fromstring(xml_content))
 				
 				root = tree.getroot()
-				for teacherNode in root:	
-					email = teacherNode.attrib['name'].split(' ')[0]
+				for node in root:	
+					email = node.attrib['name'].split(' ')[0]
 					teacher = self.env["hr.employee"].search([("work_email", "=", email)])					
-					entries = self._create_schedule(teacherNode, teacher, current_course)
-					teaching = self._create_teaching(entries, teacher, current_course)
+					entries = self._create_schedule(node, teacher, current_course)
+					self._create_teaching(entries, teacher, current_course)
+					self._create_assitance_templates(entries, teacher, current_course)
 
 		return super(models.Model, self).create(values)			
 
@@ -117,20 +118,21 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					group = self.env["ems.group"].search([("name", "=", groupAcro)])
 					start = hourNode.attrib['name'].split(' ')[1]
 		
+		# CONTINUE HERE: NOT BEEING STORED!?
 		schedule.write({ 'attendance_ids': entries })  		
 		teacher.write({ "resource_calendar_id": schedule })
-		return entries	
+		return [x[2] for x in entries[1:]] #skipping the first (unlink all) and getting only entities.	
 
 	def _create_teaching(self, entries, teacher, current_course):
-		teaching = []		
+		teaching = [[5]] # remove all previous		
 		for t in teacher.teaching_ids:
 			teaching.append([(2, t.id)]) #remove
 				
-		for e in entries[1:]: #skipping the first (unlink all)
+		for e in entries: #skipping the first (unlink all)
 			# TODO: asign also the current_course
 			item = [0, 0, {
-				'group_id': e[2]["group_id"],
-				'subject_id': e[2]["subject_id"]
+				'group_id': e["group_id"],
+				'subject_id': e["subject_id"]
 			}]
 
 			if item not in teaching:
@@ -139,8 +141,50 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		teacher.write({
 			'teaching_ids': teaching
 		})	
+	
+	def _create_assitance_templates(self, entries, teacher, current_course):
+		# TODO: It's necessary to know if a template has been created automatically or manually? 
+		# 		Should we keep the manually created? If so, additional checks are needed in order to create
+		#		the entries avoiding duped templates... 		
+		color = 1
+		templates = dict()
+		now = datetime.now()		
+
+		for e in entries:
+			key = "%s.%s" % (e["subject_id"], e["group_id"])
+			if key in templates:
+				t = templates[key]
+			else:
+				# TODO: define default start and end date for subjects within settings.			
+				#t = self.env['ems.attendance_template'].create({
+				group_id = self.env['ems.group'].search([('id', '=', e["group_id"])]) or False
+				t = {
+					'start_date': datetime(now.year, 9, 1),
+					'end_date': datetime(now.year+1, 7, 1),
+					'color': color,
+					'teacher_id': teacher.id,
+					'subject_id': e["subject_id"],
+					'group_id': e["group_id"],
+					'level_id': group_id.level_id.id,
+					'study_id': group_id.study_id.id,
+					'space_id': group_id.space_id.id,
+					'attendance_schedule_ids': []
+				}
+				color += 1
+				templates[key] = t
+			
+			t["attendance_schedule_ids"].append(
+				[0, 0, {
+					'start_time': e["hour_from"],
+					'end_time': e["hour_to"],
+					'weekday': e["dayofweek"],
+					'space_id': t["space_id"]
+				}]
+			)
 		
-		return teaching		
+		self.env['ems.attendance_template'].search([('teacher_id', '=', teacher.id)]).unlink()
+		for t in templates:
+			self.env['ems.attendance_template'].create(templates[t])		
 
 	def _conv_time_float(self, value):
 		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236

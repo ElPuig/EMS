@@ -26,7 +26,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	attachment_id = fields.Many2one(string="Attachment", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.working_schedules_import_wizard')]")
 	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")	
+	is_overriding = fields.Boolean(store=False)
+	overrided_teachers = fields.Char(default="")
 
+	@api.onchange("file")
+	def _onchange_file(self):
+		for rec in self:
+			if rec.file:
+				xml_content = base64.b64decode(rec.file)
+				tree = ET.ElementTree(ET.fromstring(xml_content))
+					
+				root = tree.getroot()
+				for teacherNode in root:					
+					email = teacherNode.attrib['name'].split(' ')[0]
+					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
+
+					if teacher and teacher.resource_calendar_id.id:
+						rec.is_overriding = True
+						rec.overrided_teachers = teacher.display_name if not rec.overrided_teachers else "%s, %s" % (rec.overrided_teachers, teacher.display_name)						
+	
 	def import_planner_data(self):
 		return {
 			'type': 'ir.actions.client',
@@ -35,7 +53,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	
 	@api.model_create_multi
 	def create(self, values):
-		data = []
+		#data = []
 		# TODO: change it to load form company as attendance_issue_status_delay? It's a yes right now...
 		course_id =  self.env['ir.config_parameter'].sudo().get_param('ems.course_id')
 		current_course = self.env["ems.course"].search([("id", "=", course_id)])
@@ -57,7 +75,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						'full_time_required_hours': 24
 					})
 					entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.
-					data.append(schedule)						
+					#data.append(schedule)						
 
 					for dayNode in teacherNode:
 						# 0: Monday; 1: Tuesday as today.weekday() does.

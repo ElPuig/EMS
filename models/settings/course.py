@@ -13,8 +13,8 @@ class ems_course(models.Model):
     ]
 	
 	name = fields.Char(string="Name", compute="_compute_name", store=True)
-	start = fields.Integer(string="Start", default=lambda self: self.get_current_datetime().year, required=True)
-	end = fields.Integer(string="End", default=lambda self: self.get_current_datetime().year+1, required=True)	
+	start = fields.Integer(string="Start", default=lambda self: datetime.now().year, required=True)
+	end = fields.Integer(string="End", default=lambda self: datetime.now().year+1, required=True)	
 
 	@api.depends("start", "end")
 	def _compute_name(self):			

@@ -11,7 +11,14 @@ class ems_utils(models.AbstractModel):
 
     user_is_admin = fields.Boolean(default=lambda self: self.get_user_is_admin(), store=False)
     user_is_tutor = fields.Boolean(default=lambda self: self.get_user_is_tutor(), store=False)   
-    
+    active = fields.Boolean(default=True)
+
+    # TODO: Some Odoo models define this method to archive them and also their related fields. 
+    #       Implement this in all our models! Needed, for example, to avoid deleting sessions. 
+    def action_archive(self):
+        for rec in self:
+            rec.active = False    
+
     def current_tz(self):
         try:
             return ZoneInfo(self.env.context["tz"])

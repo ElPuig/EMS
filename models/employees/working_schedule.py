@@ -54,6 +54,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	@api.model_create_multi
 	def create(self, values):
 		course_id = self.env.company.current_course_id
+		if not course_id.id:
+			raise ValidationError("No 'current course' has been setup. Please, select or create the current course within the EMS settings section.")
 		
 		for item in values:
 			if 'file' not in item or not item.get('file'):
@@ -86,7 +88,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'full_time_required_hours': 24
 			})
 		
-		entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.					
+		entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.	Items will be removed if became orphan.				
 		for dayNode in xml_node:
 			# NOTE: 0: Monday; 1: Tuesday as today.weekday() does.
 			dayofweek = int(dayNode.attrib['name'].split(' ')[0]) - 1						
@@ -129,9 +131,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		return [x[2] for x in entries[1:]] #skipping the first (unlink all) and getting only entities.	
 
 	def _create_teaching(self, entries, teacher, course_id):
-		teaching = []
-		for t in teacher.teaching_ids:
-			t.unlink()
+		teaching = [[5]] #5 means unlink all previus, because the created schedule has default entries attached.	Items will be removed if became orphan.		
 		
 		for e in entries: #skipping the first (unlink all)
 			# TODO: asign also the current_course

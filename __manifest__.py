@@ -22,7 +22,7 @@
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
-    'depends': ['base_setup', 'hr', 'hr_org_chart', 'auth_oauth', 'contacts', 'project', 'mass_mailing', 'survey', 'hr_attendance'],
+    'depends': ['base_setup', 'hr', 'hr_org_chart', 'auth_oauth', 'contacts', 'project', 'mass_mailing', 'survey', 'hr_attendance', 'sale_management', 'account', 'spreadsheet_dashboard'],
     
     # just for debugging
     'external_dependencies': {
@@ -156,13 +156,16 @@
             'views/attendance/attendance_reports/student_wizard.xml', 
             'views/attendance/attendance_reports/subject_wizard.xml', 
             'views/attendance/attendance_reports/group_wizard.xml', 
-            
+
+        'views/academic_management/menu.xml',
+        'views/academic_management/enrolment/menu.xml',        
+
         'views/documentation/menu.xml',       
             'views/documentation/minutes/menu.xml',       
             'views/documentation/minutes/list.xml',       
             'views/documentation/minutes/form.xml',   
 
-        'views/shared/attachment/form.xml',  
+        'views/shared/attachment/form.xml', 
 
         ### Reports templates ###
         'reports/attendance/templates/sumary_table.xml', 
@@ -219,6 +222,7 @@
         'data/custom/hr.department.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',
+        'data/custom/crm.team.csv',
 
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        

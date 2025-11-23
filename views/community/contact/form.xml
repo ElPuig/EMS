@@ -119,6 +119,23 @@
                     </page>
                 </xpath>                                                 
             </field>		      
-        </record>   
+        </record>
+        <record id="view_partner_form_ems_cleanup_final" model="ir.ui.view">
+            <field name="name">res.partner.form.ems.cleanup.final</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="priority">100</field> 
+            <field name="arch" type="xml">
+                
+                <xpath expr="//button[@name='action_view_sale_order']" position="attributes">
+                    <attribute name="groups">base.group_no_one</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='action_view_partner_invoices']" position="attributes">
+                    <attribute name="groups">base.group_no_one</attribute>
+                </xpath>
+
+            </field>
+        </record>
     </data>
 </odoo>

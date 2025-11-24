@@ -72,7 +72,7 @@ class ems_attendance_session(models.Model):
 				# notifications for the tutors: daily (at the end if its tourn); notifications for the family (status): after a timeout (default 15 minutes). 
 
 				daily = entry.with_delay(
-					eta = notification_tutor_eta,
+					eta = self.datetime_to_odoo(notification_tutor_eta),
 					description=f"Daily assistance report: '{entry.display_name}' (ID={entry.id})"
 				).send_notification()
 
@@ -92,55 +92,62 @@ class ems_attendance_session(models.Model):
 		return records
 
 	def create_notification_entries(self):		
-		separator = "; "
-		notis = []
-		
-		data = dict()
+		notis = []		
+		status_by_tutor = dict()
 		for s in self.attendance_status_ids:			
-			if s.status in ['m_miss', 'a_issue'] and (s.student_id.auth_share or not s.student_id.is_adult):
-				if s.student_id.tutor_id not in data:
-					data[s.student_id.tutor_id] = []
+			self._setup_issue_status_data(s, status_by_tutor)			
+
+		for tutor_id in status_by_tutor:
+			for issue_status in status_by_tutor[tutor_id]:				
+				issue_tutor = self._setup_issue_tutor_entry(tutor_id)
+				issue_student = self._setup_issue_student_entry(issue_tutor, issue_status["student_id"])
+				self._setup_issue_status_entry(issue_student, issue_status["attendance_status_id"], issue_status["send_to"])									
 				
-				send_to = []
-				for contact in s.student_id.child_ids:				
-					send_to.append(contact.email)
-
-				data[s.student_id.tutor_id].append({
-					'attendance_status_id': s.id,
-					'student_id': s.student_id.id,
-					'send_to': separator.join(send_to)
-				}) 
-
-		if len(data) > 0:
-			for tutor_id in data:
-				for line in data[tutor_id]:				
-					issue_tutor = self.sudo().env['ems.attendance_issue_tutor'].search([('issue_date', '=', self.date), ('tutor_id', '=', tutor_id.id)]) or False
-
-					# The main entry is for the current date and the current tutor. 
-					if not issue_tutor:
-						issue_tutor = s.sudo().env['ems.attendance_issue_tutor'].create({
-							'tutor_id': tutor_id.id,
-							'issue_date': datetime.today()						
-						})
-
-					# For this entry, every student has a line.
-					issue_student = issue_tutor.attendance_issue_student_ids.search([('student_id', '=', line["student_id"])]) or False
-					if not issue_student:
-						issue_student = s.sudo().env['ems.attendance_issue_student'].create({
-							'student_id': line["student_id"],
-							'attendance_issue_tutor_id': issue_tutor.id
-						})						
-
-					s.sudo().env['ems.attendance_issue_status'].create({
-						'attendance_session_id': self.id,
-						'attendance_status_id': line["attendance_status_id"],
-						'attendance_issue_student_id': issue_student.id,
-						'send_to': line["send_to"]
-					})						
-					
-					if not issue_tutor in notis: notis.append(issue_tutor)
+				if not issue_tutor in notis: notis.append(issue_tutor)
 		return notis
 
+	def _setup_issue_status_data(self, status_id, status_by_tutor):
+		separator = "; "
+		if status_id.status in ['m_miss', 'a_issue'] and (status_id.student_id.auth_share or not status_id.student_id.is_adult):
+			if status_id.student_id.tutor_id not in status_by_tutor:
+				status_by_tutor[status_id.student_id.tutor_id] = []
+			
+			send_to = []
+			for contact in status_id.student_id.child_ids:				
+				send_to.append(contact.email)
+
+			status_by_tutor[status_id.student_id.tutor_id].append({
+				'attendance_status_id': status_id.id,
+				'student_id': status_id.student_id.id,
+				'send_to': separator.join(send_to)
+			}) 
+
+	def _setup_issue_tutor_entry(self, tutor_id):
+		issue_tutor = self.sudo().env['ems.attendance_issue_tutor'].search([('issue_date', '=', self.date), ('tutor_id', '=', tutor_id.id)]) or False
+		if not issue_tutor:
+			issue_tutor = self.sudo().env['ems.attendance_issue_tutor'].create({
+				'tutor_id': tutor_id.id,
+				'issue_date': datetime.today()						
+			})
+		return issue_tutor
+	
+	def _setup_issue_student_entry(self, issue_tutor, student_id):
+		issue_student = self.sudo().env['ems.attendance_issue_student'].search([('attendance_issue_tutor_id', '=', issue_tutor.id), ('student_id', '=', student_id)]) or False
+		if not issue_student:
+			issue_student = self.sudo().env['ems.attendance_issue_student'].create({
+				'student_id': student_id,
+				'attendance_issue_tutor_id': issue_tutor.id
+			})		
+		return issue_student
+	
+	def _setup_issue_status_entry(self, issue_student, attendance_status_id, send_to):
+		self.sudo().env['ems.attendance_issue_status'].create({
+			'attendance_session_id': self.id,
+			'attendance_status_id': attendance_status_id,
+			'attendance_issue_student_id': issue_student.id,
+			'send_to': send_to
+		})
+	
 	@api.depends("attendance_schedule_id")
 	def _compute_weekday(self):
 		for rec in self:

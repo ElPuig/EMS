@@ -61,52 +61,68 @@ class ems_attendance_session(models.Model):
 	def create(self, vals_list):
 		records = super().create(vals_list)		
 		
-		notification_status_eta = fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_status_delay * 60) # from minutes to seconds
-		
-		# TODO: tutor's working schedule end-time should be loaded firts, and use the default only if not defined. 
-		notification_tutor_eta = self.time_float_to_local_datetime(fields.Datetime.now(), self.env.company.attendance_issue_tutor_default)
+		# NOTE: Optional, but computed here for optimization
+		notification_status_eta = self._get_notification_status_eta()
+		notification_tutor_eta = self._get_notification_tutor_eta()
 		
 		for record in records:
-			for entry in record.create_notification_entries():
+			for entry in record.get_or_create_notification_entries():
 				# noti internal structure: attendance_issue_tutor (1) --> (N) attendance_issue_student (1) --> (N) attendance_issue_status
 				# notifications for the tutors: daily (at the end if its tourn); notifications for the family (status): after a timeout (default 15 minutes). 
 
-				daily = entry.with_delay(
-					eta = self.datetime_to_odoo(notification_tutor_eta),
-					description=f"Daily assistance report: '{entry.display_name}' (ID={entry.id})"
-				).send_notification()
-
-				job = self.sudo().env['queue.job'].search([('uuid', '=', daily.uuid)]) or False
-				if job: entry.sudo().write({'notification_id': job.id})
-
+				self.setup_daily_assistance_notification(entry, notification_tutor_eta)
 				for student in entry.attendance_issue_student_ids:
 					for status in student.attendance_issue_status_ids:
-						noti = status.with_delay(
-							eta = notification_status_eta,
-							description=f"Family assistance notification: '{status.display_name}' (ID={status.id})"
-						).send_notification()
-
-						job = self.sudo().env['queue.job'].search([('uuid', '=', noti.uuid)]) or False
-						if job: status.sudo().write({'notification_id': job.id})
+						self.setup_family_assistance_notification(status, notification_status_eta)
 
 		return records
+	
+	def _get_notification_tutor_eta(self):
+		# TODO: tutor's working schedule end-time should be loaded firts, and use the default only if not defined. 
+		notification_tutor_eta = self.time_float_to_local_datetime(fields.Datetime.now(), self.env.company.attendance_issue_tutor_default)
+		return self.datetime_to_odoo(notification_tutor_eta)
+	
+	def _get_notification_status_eta(self):
+		return fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_status_delay * 60) # from minutes to seconds
+	
+	def setup_daily_assistance_notification(self, entry, eta=None):
+		if eta is None: eta = self._get_notification_tutor_eta()
 
-	def create_notification_entries(self):		
+		daily = entry.with_delay(
+			eta = eta,
+			description=f"Daily assistance report: '{entry.display_name}' (ID={entry.id})"
+		).send_notification()
+
+		job = self.sudo().env['queue.job'].search([('uuid', '=', daily.uuid)]) or False
+		if job: entry.sudo().write({'notification_id': job.id})
+
+	def setup_family_assistance_notification(self, status, eta=None):
+		if eta is None: eta = self._get_notification_status_eta()
+
+		noti = status.with_delay(
+			eta = eta,
+			description=f"Family assistance notification: '{status.display_name}' (ID={status.id})"
+		).send_notification()
+
+		job = self.sudo().env['queue.job'].search([('uuid', '=', noti.uuid)]) or False
+		if job: status.sudo().write({'notification_id': job.id})
+
+	def get_or_create_notification_entries(self):		
 		notis = []		
 		status_by_tutor = dict()
 		for s in self.attendance_status_ids:			
-			self._setup_issue_status_data(s, status_by_tutor)			
+			self.setup_issue_status_data(s, status_by_tutor)			
 
 		for tutor_id in status_by_tutor:
-			for issue_status in status_by_tutor[tutor_id]:				
-				issue_tutor = self._setup_issue_tutor_entry(tutor_id)
-				issue_student = self._setup_issue_student_entry(issue_tutor, issue_status["student_id"])
-				self._setup_issue_status_entry(issue_student, issue_status["attendance_status_id"], issue_status["send_to"])									
+			for issue_status_data in status_by_tutor[tutor_id]:				
+				issue_tutor = self.get_or_create_issue_tutor(tutor_id)
+				issue_student = self.get_or_create_issue_student(issue_tutor, issue_status_data["student_id"])
+				self.get_or_create_issue_status(issue_student, issue_status_data["attendance_status_id"], issue_status_data["send_to"])
 				
 				if not issue_tutor in notis: notis.append(issue_tutor)
 		return notis
 
-	def _setup_issue_status_data(self, status_id, status_by_tutor):
+	def setup_issue_status_data(self, status_id, status_by_tutor):
 		separator = "; "
 		if status_id.status in ['m_miss', 'a_issue'] and (status_id.student_id.auth_share or not status_id.student_id.is_adult):
 			if status_id.student_id.tutor_id not in status_by_tutor:
@@ -122,31 +138,37 @@ class ems_attendance_session(models.Model):
 				'send_to': separator.join(send_to)
 			}) 
 
-	def _setup_issue_tutor_entry(self, tutor_id):
-		issue_tutor = self.sudo().env['ems.attendance_issue_tutor'].search([('issue_date', '=', self.date), ('tutor_id', '=', tutor_id.id)]) or False
+	def get_or_create_issue_tutor(self, tutor_id):
+		repo = self.sudo().env['ems.attendance_issue_tutor']
+		issue_tutor = repo.search([('issue_date', '=', self.date), ('tutor_id', '=', tutor_id.id)]) or False
 		if not issue_tutor:
-			issue_tutor = self.sudo().env['ems.attendance_issue_tutor'].create({
+			issue_tutor = repo.create({
 				'tutor_id': tutor_id.id,
 				'issue_date': datetime.today()						
 			})
 		return issue_tutor
 	
-	def _setup_issue_student_entry(self, issue_tutor, student_id):
-		issue_student = self.sudo().env['ems.attendance_issue_student'].search([('attendance_issue_tutor_id', '=', issue_tutor.id), ('student_id', '=', student_id)]) or False
+	def get_or_create_issue_student(self, issue_tutor, student_id):
+		repo = self.sudo().env['ems.attendance_issue_student']
+		issue_student = repo.search([('attendance_issue_tutor_id', '=', issue_tutor.id), ('student_id', '=', student_id)]) or False
 		if not issue_student:
-			issue_student = self.sudo().env['ems.attendance_issue_student'].create({
+			issue_student = repo.create({
 				'student_id': student_id,
 				'attendance_issue_tutor_id': issue_tutor.id
 			})		
 		return issue_student
 	
-	def _setup_issue_status_entry(self, issue_student, attendance_status_id, send_to):
-		self.sudo().env['ems.attendance_issue_status'].create({
-			'attendance_session_id': self.id,
-			'attendance_status_id': attendance_status_id,
-			'attendance_issue_student_id': issue_student.id,
-			'send_to': send_to
-		})
+	def get_or_create_issue_status(self, issue_student, attendance_status_id, send_to):
+		repo = self.sudo().env['ems.attendance_issue_status']
+		issue_status = repo.search([('attendance_status_id', '=', attendance_status_id)]) or False
+		if not issue_status:
+			issue_status = repo.create({
+				#'attendance_session_id': self.id,
+				'attendance_status_id': attendance_status_id,
+				'attendance_issue_student_id': issue_student.id,
+				'send_to': send_to
+			})
+		return issue_status
 	
 	@api.depends("attendance_schedule_id")
 	def _compute_weekday(self):

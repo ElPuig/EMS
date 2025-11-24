@@ -53,7 +53,7 @@ class ems_attendance_issue_status(models.Model):
 	
 	attendance_issue_student_id = fields.Many2one(string="Student notification data", comodel_name="ems.attendance_issue_student", ondelete='cascade')
 	attendance_status_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_status", required=True, ondelete='cascade')	
-	attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session", required=True, ondelete='cascade')
+	attendance_session_id = fields.Many2one(string="Session", related="attendance_status_id.attendance_session_id", store=False)
 	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
 
 	notification_status = fields.Selection(string="Notification status", related="notification_id.state")

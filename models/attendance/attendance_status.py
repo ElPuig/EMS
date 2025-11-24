@@ -24,36 +24,28 @@ class ems_attendance_status(models.Model):
    
     notes = fields.Text("Notes")
     
-    # TODO: if an existing status changes to "issue", a notification should be send.
-    # Check how to avoid duped notifications if the session timeous has not been fired yet. 
+    def write(self, vals):
+        super(ems_attendance_status, self).write(vals)
+        self._update_notification()   
 
-    # @api.model_create_multi
-    # def create(self, values):		
-    #     status = super(ems_attendance_status, self).create(values)        
-    #     for s in status:
-    #         s._update_notification()                          
+    def _update_notification(self):
+        session = self.attendance_session_id
+        status_by_tutor = dict()
+        session.setup_issue_status_data(self.id, status_by_tutor)
+        
+        # NOTE: Only one entry will be get (or none) if needed. Expected behaviour:
+        #       1. Missing or already sent notifications will be added (eg: changed from 'attended' to 'issue').
+        #       2. Existing notifications will be updated (eg: changed from 'miss' to 'issue').
+        #       3. If not send, corrected notifications will be removed (eg: changed from 'miss' to 'attended').
+        #       4. If mistaken and sent, a correction will be sent (eg: changed from 'miss' to 'attended').
 
-    # def write(self, vals):
-    #     super(ems_attendance_status, self).write(vals)
-    #     self._update_notification()        
+        for tutor_id in status_by_tutor:
+            for issue_status_data in status_by_tutor[tutor_id]:
+                issue_tutor = session.get_or_create_issue_tutor(self.student_id.tutor_id)
+                issue_student = session.get_or_create_issue_student(issue_tutor, self.student_id)
+                issue_status = session.get_or_create_issue_status(issue_student, self.id, issue_status_data["send_to"])
+                self.setup_family_assistance_notification(issue_status)
 
-    # def _update_notification(self):
-    #     existing = self.env["ems.attendance_issue"].search([("attendance_status_id", "=", self.id)]) or False                
-    #     if self.status not in ['m_miss', 'a_issue']:             
-    #          # Removing an existing one (if not sent).
-    #          if existing != False and existing.status in ['m_miss', 'a_issue'] and not existing.sent:
-    #              existing.sudo().unlink()
-                                 
-    #     elif self.status in ['m_miss', 'a_issue'] and (self.student_id.auth_share or not self.student_id.is_adult):            
-    #         # Updating is not possible, it will be removed and replaced by a new one if needed
-    #         if existing != False:
-    #              existing.sudo().unlink()
-
-    #         # NOTE: sudo needed because no teacher can create those manually.
-    #         self.sudo().env['ems.attendance_issue'].create({
-    #             'attendance_status_id': self.id,
-    #             'student_id': self.student_id.id                            
-    #         }) 
 
     @api.depends('attendance_session_id')
     def _compute_attendance_session_display_name(self):

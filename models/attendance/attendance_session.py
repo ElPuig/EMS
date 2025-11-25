@@ -318,11 +318,13 @@ class ems_attendance_session(models.Model):
 	
 	def unlink(self):
 		# NOTE: removing the session removes also the statuses and the related notification entries
+		# TODO: should be blocked if the notifications have been sent? I guess so, but the admins should be ablte to delete those
+		#		after confirming a popup. 
+		date = self.date
 		res = super().unlink()
 		
-		for rec in self:
-			for it_id in self.env['ems.attendance_issue_tutor'].sudo().search(['issue_date', '=', rec.date]):
-				it_id.remove_if_empty()
+		for it_id in self.env['ems.attendance_issue_tutor'].sudo().search([('issue_date', '=', date)]):
+			it_id.remove_if_empty()
 
 		return res
 	

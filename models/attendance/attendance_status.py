@@ -13,7 +13,7 @@ class ems_attendance_status(models.Model):
     status = fields.Selection(string="Status", default="a_attended", required=True, selection=attendance_status)
     student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
     image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
-    attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session", delete="cascade")
+    attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session", ondelete="cascade")
     
     # This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
     inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 
@@ -39,7 +39,7 @@ class ems_attendance_status(models.Model):
         previous_issue_status = False
         issue_tutor = session.get_issue_tutor(self.student_id.tutor_id)
         if issue_tutor: 
-            issue_student = session.get_issue_student(issue_tutor, self.student_id)
+            issue_student = session.get_issue_student(issue_tutor["values"], self.student_id.id)
             if issue_student:
                 previous_issue_status = session.get_issue_status(self.id)
 
@@ -56,7 +56,7 @@ class ems_attendance_status(models.Model):
                 #           4.1. Do nothing.
        
         if previous_issue_status:            
-            if not previous_issue_status.pending:
+            if not previous_issue_status.pending():
                 # 1.2 & 2.2. If notified, a rectification should be send to the family.                 
                 # TODO: rectification mail
                 fake = 0

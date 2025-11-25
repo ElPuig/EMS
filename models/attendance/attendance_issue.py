@@ -32,10 +32,9 @@ class ems_attendance_issue_tutor(models.Model):
 		return True
 
 	def remove_if_empty(self):
-		if len(self.attendance_issue_student_ids) == 0: self.unlink()
-		else:
-			for is_id in self.attendance_issue_student_ids:
-				if len(is_id.attendance_issue_status_ids) == 0: is_id.unlink()
+		for is_id in self.attendance_issue_student_ids:
+			if len(is_id.attendance_issue_status_ids) == 0: is_id.unlink()		
+		if len(self.attendance_issue_student_ids) == 0: self.unlink()		
 
 class ems_attendance_issue_student(models.Model):
 	_name = "ems.attendance_issue_student"

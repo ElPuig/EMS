@@ -29,8 +29,12 @@ class ems_utils(models.AbstractModel):
                 return ZoneInfo("UTC")
 
     def time_float_to_local_datetime(self, date, time_float):
-        split_time = math.modf(time_float)    
+        split_time = math.modf(time_float)
         return datetime(date.year, date.month, date.day, int(split_time[1]), round(split_time[0]*60), 0, tzinfo = self.current_tz())
+    
+    def time_float_to_utc_datetime(self, date, time_float):
+        local = self.time_float_to_local_datetime(date, time_float)
+        return self.local_datetime_to_utc(local)
     
     def local_datetime_to_utc(self, datetime):
         return datetime.astimezone(UTC)

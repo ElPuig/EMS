@@ -235,7 +235,7 @@ class ems_attendance_session(models.Model):
 	
 	def _get_notification_tutor_eta(self):
 		# TODO: tutor's working schedule end-time should be loaded firts, and use the default only if not defined. 
-		notification_tutor_eta = self.time_float_to_local_datetime(fields.Datetime.now(), self.env.company.attendance_issue_tutor_default)
+		notification_tutor_eta = self.time_float_to_utc_datetime(fields.Datetime.now(), self.env.company.attendance_issue_tutor_default)
 		return self.datetime_to_odoo(notification_tutor_eta)
 	
 	def _get_notification_status_eta(self):

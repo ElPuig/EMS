@@ -375,3 +375,4 @@ class ems_attendance_session(models.Model):
 		issue_status = repo.search([('attendance_status_id', '=', attendance_status_id)], order='id desc', limit=1) or False
 		return {"repo": repo, "values": issue_status}	
 	
+	# TODO: when removing a session (rare, but could be possible), remove also the issue entries

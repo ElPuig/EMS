@@ -24,28 +24,60 @@ class ems_attendance_status(models.Model):
    
     notes = fields.Text("Notes")
     
+    def status_is_notificable(self):
+        # TODO: load from EMS settings.
+        return self.status in ['m_miss', 'a_issue']    
+
     def write(self, vals):
         super(ems_attendance_status, self).write(vals)
         self._update_notification()   
 
     def _update_notification(self):
         session = self.attendance_session_id
-        status_by_tutor = dict()
-        session.setup_issue_status_data(self.id, status_by_tutor)
-        
-        # NOTE: Only one entry will be get (or none) if needed. Expected behaviour:
-        #       1. Missing or already sent notifications will be added (eg: changed from 'attended' to 'issue').
-        #       2. Existing notifications will be updated (eg: changed from 'miss' to 'issue').
-        #       3. If not send, corrected notifications will be removed (eg: changed from 'miss' to 'attended').
-        #       4. If mistaken and sent, a correction will be sent (eg: changed from 'miss' to 'attended').
 
-        for tutor_id in status_by_tutor:
-            for issue_status_data in status_by_tutor[tutor_id]:
-                issue_tutor = session.get_or_create_issue_tutor(self.student_id.tutor_id)
-                issue_student = session.get_or_create_issue_student(issue_tutor, self.student_id)
-                issue_status = session.get_or_create_issue_status(issue_student, self.id, issue_status_data["send_to"])
-                self.setup_family_assistance_notification(issue_status)
+        # NOTE: Original data must be compared with the current one in order to update properly.            
+        previous_issue_status = False
+        issue_tutor = session.get_issue_tutor(self.student_id.tutor_id)
+        if issue_tutor: 
+            issue_student = session.get_issue_student(issue_tutor, self.student_id)
+            if issue_student:
+                previous_issue_status = session.get_issue_status(self.id)
 
+         # NOTE: Possible scenarios when updating an attendance status:
+                #       1. From issue to non-issue:
+                #           1.1. If not notified yet, just remove.
+                #           1.2. If notified, a rectification should be send to the family.
+                #       2. From issue to issue:
+                #           2.1. If not notified yet, update the notification data.
+                #           2.2. If notified, a rectification should be send to the family.
+                #       3. From non-issue to issue:
+                #           3.1. Add the notification with the regular timeout. 
+                #       4. From non-issue to non-issue:
+                #           4.1. Do nothing.
+       
+        if previous_issue_status:            
+            if not previous_issue_status.pending:
+                # 1.2 & 2.2. If notified, a rectification should be send to the family.                 
+                # TODO: rectification mail
+                # TODO: rectification mail
+                fake = 0
+            else:
+                if not self.status_is_notificable():
+                    # 1.1. If not notified yet, just remove.
+                    # NOTE: button_cancel source: https://github.com/OCA/queue/blob/18.0/queue_job/models/queue_job.py
+                    previous_issue_status.notification_id.button_cancel()
+                    previous_issue_status.unlink()
+                else:
+                    # 2.1. If not notified yet, update the notification data.
+                    previous_issue_status.write({
+                        "attendance_status": self.status
+                    })
+        elif self.status_is_notificable():
+            # 3.1. Add the notification with the regular timeout. 
+            # TODO: do not notify to the families after certain timeout (eg: is from a few days ago).
+            status_by_tutor = dict()
+            session.collect_issue_status_data(self.id, status_by_tutor)
+            session.create_notification_entries(status_by_tutor)
 
     @api.depends('attendance_session_id')
     def _compute_attendance_session_display_name(self):

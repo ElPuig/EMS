@@ -69,6 +69,7 @@ class ems_attendance_issue_status(models.Model):
 	space_id = fields.Many2one(string="Space", related="attendance_session_id.space_id")
 	teacher_id = fields.Many2one(string="Teacher", related="attendance_session_id.session_teacher_id")
 	time_range = fields.Char(string="Time range", related="attendance_session_id.time_range")
+	pending = fields.Boolean(string="Pending", compute="_compute_pending", store=False)
 	
 	# NOTE: tutor needed for permission purposes
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 	
@@ -82,6 +83,10 @@ class ems_attendance_issue_status(models.Model):
 	def _compute_display_name(self):              
 		for rec in self:
 			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_status).get(rec.attendance_status))
+
+	@api.depends('notification_status')
+	def _compute_pending(self):
+		return self.notification_status in ["pending", "enqueued"]
 
 	def send_notification(self):		
 		self.ensure_one()		

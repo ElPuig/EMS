@@ -31,6 +31,12 @@ class ems_attendance_issue_tutor(models.Model):
 			return False # Silent			
 		return True
 
+	def remove_if_empty(self):
+		if len(self.attendance_issue_student_ids) == 0: self.unlink()
+		else:
+			for is_id in self.attendance_issue_student_ids:
+				if len(is_id.attendance_issue_status_ids) == 0: is_id.unlink()
+
 class ems_attendance_issue_student(models.Model):
 	_name = "ems.attendance_issue_student"
 	_description = "Attendance issue (student): groups the attendance's issues by student."
@@ -88,6 +94,11 @@ class ems_attendance_issue_status(models.Model):
 	def _compute_pending(self):
 		return self.notification_status in ["pending", "enqueued"]
 
+	def unlink(self):
+		# NOTE: button_cancel source: https://github.com/OCA/queue/blob/18.0/queue_job/models/queue_job.py
+		self.notification_id.button_cancel()
+		return super().unlink()
+	
 	def send_notification(self):		
 		self.ensure_one()		
 		separator = "; "

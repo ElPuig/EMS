@@ -315,7 +315,17 @@ class ems_attendance_session(models.Model):
 
 			record.create_notification_entries(status_by_tutor, notification_tutor_eta, notification_status_eta)
 		return records
+	
+	def unlink(self):
+		# NOTE: removing the session removes also the statuses and the related notification entries
+		res = super().unlink()
 		
+		for rec in self:
+			for it_id in self.env['ems.attendance_issue_tutor'].sudo().search(['issue_date', '=', rec.date]):
+				it_id.remove_if_empty()
+
+		return res
+	
 	def create_notification_entries(self, status_by_tutor, notification_tutor_eta=None, notification_status_eta=None):				
 		if notification_tutor_eta is None: notification_tutor_eta = self._get_notification_tutor_eta()
 		if notification_status_eta is None: notification_status_eta = self._get_notification_status_eta()
@@ -375,4 +385,3 @@ class ems_attendance_session(models.Model):
 		issue_status = repo.search([('attendance_status_id', '=', attendance_status_id)], order='id desc', limit=1) or False
 		return {"repo": repo, "values": issue_status}	
 	
-	# TODO: when removing a session (rare, but could be possible), remove also the issue entries

@@ -13,7 +13,7 @@ class ems_attendance_status(models.Model):
     status = fields.Selection(string="Status", default="a_attended", required=True, selection=attendance_status)
     student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
     image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
-    attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session")
+    attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session", delete="cascade")
     
     # This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
     inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 
@@ -59,14 +59,13 @@ class ems_attendance_status(models.Model):
             if not previous_issue_status.pending:
                 # 1.2 & 2.2. If notified, a rectification should be send to the family.                 
                 # TODO: rectification mail
-                # TODO: rectification mail
                 fake = 0
             else:
                 if not self.status_is_notificable():
                     # 1.1. If not notified yet, just remove.
-                    # NOTE: button_cancel source: https://github.com/OCA/queue/blob/18.0/queue_job/models/queue_job.py
-                    previous_issue_status.notification_id.button_cancel()
+                    # NOTE: also removes the notification.                    
                     previous_issue_status.unlink()
+                    # TODO: remove empty ones
                 else:
                     # 2.1. If not notified yet, update the notification data.
                     previous_issue_status.write({

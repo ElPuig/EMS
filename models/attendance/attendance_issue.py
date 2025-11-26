@@ -65,7 +65,7 @@ class ems_attendance_issue_status(models.Model):
 	exception = fields.Text(string="Exception", related="notification_id.exc_info")
 
 	# NOTE: We want a copy of the original status, because a miss can be justified later, but we want to keep the original notification status. 	
-	attendance_status = fields.Selection(string="Attendance status", compute="_compute_attendance_status", selection=attendance_status)	
+	attendance_status = fields.Selection(string="Attendance status", selection=attendance_status)	
 	send_to = fields.Char(string="Send to", required=True)	
 	schedule_date = fields.Datetime(string="Scheduled on", related="notification_id.eta")
 	notes = fields.Text(string="Notes", related="attendance_status_id.notes") 
@@ -75,14 +75,9 @@ class ems_attendance_issue_status(models.Model):
 	teacher_id = fields.Many2one(string="Teacher", related="attendance_session_id.session_teacher_id")
 	time_range = fields.Char(string="Time range", related="attendance_session_id.time_range")
 	pending = fields.Boolean(string="Pending", compute="_compute_pending", store=False)
-	
+	rectification = fields.Boolean(string="Rectification", default=False)
 	# NOTE: tutor needed for permission purposes
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 	
-
-	@api.depends("attendance_status_id")
-	def _compute_attendance_status(self):
-		for rec in self:
-			rec.attendance_status = rec.attendance_status_id.status	
 
 	@api.depends('attendance_status_id')
 	def _compute_display_name(self):              
@@ -91,7 +86,8 @@ class ems_attendance_issue_status(models.Model):
 
 	@api.depends('notification_status')
 	def _compute_pending(self):
-		return self.notification_status in ["pending", "enqueued"]
+		for rec in self:
+			rec.pending = self.notification_status in ["pending", "enqueued"]
 
 	def unlink(self):
 		# NOTE: button_cancel source: https://github.com/OCA/queue/blob/18.0/queue_job/models/queue_job.py

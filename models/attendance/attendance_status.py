@@ -41,9 +41,9 @@ class ems_attendance_status(models.Model):
         if issue_tutor: 
             issue_student = session.get_issue_student(issue_tutor["values"], self.student_id.id)
             if issue_student:
-                previous_issue_status = session.get_issue_status(self.id)
+                previous_issue_status = (session.get_issue_status(self.id))["values"]
 
-         # NOTE: Possible scenarios when updating an attendance status:
+        # NOTE: Possible scenarios when updating an attendance status:
                 #       1. From issue to non-issue:
                 #           1.1. If not notified yet, just remove.
                 #           1.2. If notified, a rectification should be send to the family.
@@ -54,12 +54,11 @@ class ems_attendance_status(models.Model):
                 #           3.1. Add the notification with the regular timeout. 
                 #       4. From non-issue to non-issue:
                 #           4.1. Do nothing.
-       
+        create = 0
         if previous_issue_status:            
-            if not previous_issue_status.pending():
+            if not previous_issue_status.pending:
                 # 1.2 & 2.2. If notified, a rectification should be send to the family.                 
-                # TODO: rectification mail
-                fake = 0
+                create = 1
             else:
                 if not self.status_is_notificable():
                     # 1.1. If not notified yet, just remove.
@@ -74,9 +73,12 @@ class ems_attendance_status(models.Model):
         elif self.status_is_notificable():
             # 3.1. Add the notification with the regular timeout. 
             # TODO: do not notify to the families after certain timeout (eg: is from a few days ago).
+            create = 2
+        
+        if create != 0:
             status_by_tutor = dict()
-            session.collect_issue_status_data(self.id, status_by_tutor)
-            session.create_notification_entries(status_by_tutor)
+            session.collect_issue_status_data(self, status_by_tutor)
+            session.create_notification_entries(status_by_tutor, rectification=(create == 1))
 
     @api.depends('attendance_session_id')
     def _compute_attendance_session_display_name(self):

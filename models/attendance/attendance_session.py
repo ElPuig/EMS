@@ -241,17 +241,24 @@ class ems_attendance_session(models.Model):
 	def _get_notification_status_eta(self):
 		return fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_status_delay * 60) # from minutes to seconds
 	
-	def _get_or_create_issue_status(self, issue_student, attendance_status_id, send_to):
+	def _get_or_create_issue_status(self, issue_student, attendance_status_id, send_to, rectification):
 		data = self.get_issue_status(attendance_status_id)
 		repo = data["repo"]
 		issue_status = data["values"]	
-				
-		if not issue_status:
-			issue_status = repo.create({
-				#'attendance_session_id': self.id,
-				'attendance_status_id': attendance_status_id,
+
+		if rectification:
+			for is_id in issue_status:
+				# TODO: should mark as rectified (instead of rectification, in order to mark as muted)
+				is_id.write({})
+
+		if not issue_status or rectification:
+			as_id = self.sudo().env['ems.attendance_status'].sudo().search([('id', '=', attendance_status_id)])
+			issue_status = repo.create({				
 				'attendance_issue_student_id': issue_student.id,
-				'send_to': send_to
+				'attendance_status_id': attendance_status_id,
+				'attendance_status': as_id.status,				
+				'rectification': False,
+				'send_to': send_to				
 			})
 		return issue_status
 	
@@ -288,16 +295,18 @@ class ems_attendance_session(models.Model):
 		job = self.sudo().env['queue.job'].search([('uuid', '=', daily.uuid)]) or False
 		if job: entry.sudo().write({'notification_id': job.id})
 
-	def _schedule_family_assistance_notification(self, status, eta):		
+	def _schedule_family_assistance_notification(self, status, eta, rectification):		
 		if not status.send_to or status.send_to == "": return				
 
 		noti = status.with_delay(
 			eta = eta,
-			description=f"Family assistance notification: '{status.display_name}' (ID={status.id})"
+			description="Family assistance notification %s: %s (ID=%s)" % ("" if not rectification else " (rectification)", status.display_name, status.id)
 		).send_notification()
 
 		job = self.sudo().env['queue.job'].search([('uuid', '=', noti.uuid)]) or False
-		if job: status.sudo().write({'notification_id': job.id})
+		if job: status.sudo().write({
+			'notification_id': job.id
+		})
 	
 	@api.model_create_multi
 	def create(self, vals_list):
@@ -328,7 +337,7 @@ class ems_attendance_session(models.Model):
 
 		return res
 	
-	def create_notification_entries(self, status_by_tutor, notification_tutor_eta=None, notification_status_eta=None):				
+	def create_notification_entries(self, status_by_tutor, notification_tutor_eta=None, notification_status_eta=None, rectification=False):				
 		if notification_tutor_eta is None: notification_tutor_eta = self._get_notification_tutor_eta()
 		if notification_status_eta is None: notification_status_eta = self._get_notification_status_eta()
 
@@ -338,7 +347,7 @@ class ems_attendance_session(models.Model):
 			for issue_status_data in status_by_tutor[tutor_id]:
 				issue_tutor = self._get_or_create_issue_tutor(tutor_id)
 				issue_student = self._get_or_create_issue_student(issue_tutor, issue_status_data["student_id"])
-				self._get_or_create_issue_status(issue_student, issue_status_data["attendance_status_id"], issue_status_data["send_to"])
+				self._get_or_create_issue_status(issue_student, issue_status_data["attendance_status_id"], issue_status_data["send_to"], rectification)
 				
 				if not issue_tutor in notis: notis.append(issue_tutor)
 		
@@ -349,7 +358,7 @@ class ems_attendance_session(models.Model):
 			self._schedule_daily_assistance_notification(n, notification_tutor_eta)
 			for student in n.attendance_issue_student_ids:
 				for status in student.attendance_issue_status_ids:
-					self._schedule_family_assistance_notification(status, notification_status_eta)
+					self._schedule_family_assistance_notification(status, notification_status_eta, rectification)
 
 	def collect_issue_status_data(self, status_id, status_by_tutor):
 		separator = "; "

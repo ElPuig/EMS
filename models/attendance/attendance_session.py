@@ -245,21 +245,22 @@ class ems_attendance_session(models.Model):
 		data = self.get_issue_status(attendance_status_id)
 		repo = data["repo"]
 		issue_status = data["values"]	
-
-		if rectification:
-			for is_id in issue_status:
-				# TODO: should mark as rectified (instead of rectification, in order to mark as muted)
-				is_id.write({})
-
+		
 		if not issue_status or rectification:
 			as_id = self.sudo().env['ems.attendance_status'].sudo().search([('id', '=', attendance_status_id)])
 			issue_status = repo.create({				
 				'attendance_issue_student_id': issue_student.id,
 				'attendance_status_id': attendance_status_id,
-				'attendance_status': as_id.status,				
-				'rectification': False,
-				'send_to': send_to				
+				'attendance_status': as_id.status,
+				'notes': as_id.notes,
+				'send_to': send_to,
 			})
+
+			if rectification:
+				must_rectify = self.sudo().env['ems.attendance_issue_status'].sudo().search([('attendance_status_id', '=', attendance_status_id), ('rectified_by', '=', False), ('id', '!=', issue_status.id)])
+				for rect in must_rectify:				
+					rect.write({'rectified_by' : issue_status.id})
+
 		return issue_status
 	
 	def _get_or_create_issue_student(self, issue_tutor, student_id):

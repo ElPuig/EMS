@@ -359,6 +359,7 @@ class ems_attendance_session(models.Model):
 			self._schedule_daily_assistance_notification(n, notification_tutor_eta)
 			for student in n.attendance_issue_student_ids:
 				for status in student.attendance_issue_status_ids:
+					# TODO: do not schedule already created notifications
 					self._schedule_family_assistance_notification(status, notification_status_eta, rectification)
 
 	def collect_issue_status_data(self, status_id, status_by_tutor):

@@ -37,9 +37,9 @@ class ems_attendance_status(models.Model):
 
         # NOTE: Original data must be compared with the current one in order to update properly.            
         previous_issue_status = False
-        issue_tutor = session.get_issue_tutor(self.student_id.tutor_id)
+        issue_tutor = (session.get_issue_tutor(self.student_id.tutor_id))["values"]
         if issue_tutor: 
-            issue_student = session.get_issue_student(issue_tutor["values"], self.student_id.id)
+            issue_student = session.get_issue_student(issue_tutor, self.student_id.id)
             if issue_student:
                 previous_issue_status = (session.get_issue_status(self.id))["values"]
 
@@ -63,12 +63,14 @@ class ems_attendance_status(models.Model):
                 if not self.status_is_notificable():
                     # 1.1. If not notified yet, just remove.
                     # NOTE: also removes the notification.                    
+                    issue_tutor = previous_issue_status.attendance_issue_student_id.attendance_issue_tutor_id
                     previous_issue_status.unlink()
-                    # TODO: remove empty ones
+                    issue_tutor.remove_if_empty()                  
                 else:
                     # 2.1. If not notified yet, update the notification data.
                     previous_issue_status.write({
-                        "attendance_status": self.status
+                        "attendance_status": self.status,
+                        "notes": self.notes
                     })
         elif self.status_is_notificable():
             # 3.1. Add the notification with the regular timeout. 

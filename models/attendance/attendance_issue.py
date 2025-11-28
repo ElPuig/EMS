@@ -21,20 +21,18 @@ class ems_attendance_issue_tutor(models.Model):
 			rec.display_name = "%s: %s" % (rec.issue_date, rec.tutor_id.display_name)
 
 	def send_notification(self):		
-		self.ensure_one()		
-
-		try:
-			template = self.env.ref('ems.mail_attendance_issue_tutor', raise_if_not_found=True)	
-			template.sudo().send_mail(self.id, force_send=True)				
-			#self.sudo().write({'sent_date': datetime.now()})					
-		except ValueError as e:		
-			return False # Silent			
+		self.ensure_one()				
+		template = self.env.ref('ems.mail_attendance_issue_tutor', raise_if_not_found=True)	
+		template.sudo().send_mail(self.id, force_send=True)						
 		return True
 
 	def remove_if_empty(self):
-		for is_id in self.attendance_issue_student_ids:
-			if len(is_id.attendance_issue_status_ids) == 0: is_id.unlink()		
-		if len(self.attendance_issue_student_ids) == 0: self.unlink()		
+		for issue_student in self.attendance_issue_student_ids:
+			if len(issue_student.attendance_issue_status_ids) == 0: issue_student.unlink()
+		
+		if len(self.attendance_issue_student_ids) == 0: 
+			self.notification_id.button_cancelled()
+			self.unlink()
 
 class ems_attendance_issue_student(models.Model):
 	_name = "ems.attendance_issue_student"
@@ -73,6 +71,7 @@ class ems_attendance_issue_status(models.Model):
 	time_range = fields.Char(string="Time range", related="attendance_session_id.time_range")
 	pending = fields.Boolean(string="Pending", compute="_compute_pending", store=False)
 	rectified_by = fields.Many2one(string="Rectified by", comodel_name="ems.attendance_issue_status", ondelete='cascade')
+	rectification = fields.Boolean(string="Rectification", default=False)
 	
 	# NOTE: tutor needed for permission purposes
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 	
@@ -93,23 +92,19 @@ class ems_attendance_issue_status(models.Model):
 
 	def unlink(self):
 		# NOTE: button_cancel source: https://github.com/OCA/queue/blob/18.0/queue_job/models/queue_job.py
-		self.notification_id.button_cancel()
+		self.notification_id.button_cancelled()
 		return super().unlink()
 	
 	def send_notification(self):		
 		self.ensure_one()		
 		separator = "; "
 
-		try:
-			template = self.env.ref('ems.mail_attendance_issue_status', raise_if_not_found=True)						
-			# NOTE: there's no BBC field within the email template, and we want to protect personal addresses 
-			# when sending to multiple destinations. So, it will be send one by one setting up here the address.
-			for to in self.send_to.split(separator):
-				template.sudo().send_mail(self.id, force_send=True, email_values={'email_to': to})
-				
-			#self.sudo().write({'sent_date': datetime.now()})					
-		except ValueError as e:		
-			return False # Silent			
+		template = self.env.ref('ems.mail_attendance_issue_rectification' if self.rectification else 'ems.mail_attendance_issue_status', raise_if_not_found=True)						
+		# NOTE: there's no BBC field within the email template, and we want to protect personal addresses 
+		# when sending to multiple destinations. So, it will be send one by one setting up here the address.
+		for to in self.send_to.split(separator):
+			template.sudo().send_mail(self.id, force_send=True, email_values={'email_to': to})
+		
 		return True
 	
 	def open_notification_form(self):

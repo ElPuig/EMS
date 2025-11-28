@@ -16,7 +16,9 @@
                             Dear family,
                         </p>
                         <p>
-                            We're sorry, but you received previously an incorrect email that contained mistakes about some attendance statuses. <br/>
+                            We're sorry, but you recently received an email containing mistakes about some attendance statuses.
+                        </p>
+                        <p>
                             Again, we apologize, this is the correct attendance status:
                             <ul>
                                 <li><strong>Student:</strong> <span t-field="object.attendance_issue_student_id.student_id"/></li>

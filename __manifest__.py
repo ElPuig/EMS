@@ -185,6 +185,7 @@
 
         ### Mailing templates ###
         'mails/attendance/attendance_issue_status.xml', 
+        'mails/attendance/attendance_issue_rectification.xml', 
         'mails/attendance/attendance_issue_tutor.xml', 
 
         ### Reports templates ###

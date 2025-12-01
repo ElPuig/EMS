@@ -318,6 +318,8 @@ msgstr "Valor predeterminado en el estado de una incidencia en asistencia de car
 msgid "Attendance Settings"
 msgstr "Configuración de asistencia"
 
+# TODO: continue here
+
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_reports_group
 msgid "Attendance by group"

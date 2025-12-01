@@ -318,6 +318,8 @@ msgstr "Valor predeterminat a l'estat d'una incidència en assistència de cara 
 msgid "Attendance Settings"
 msgstr "Configuració d'asistencia"
 
+# TODO: continue here
+
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_reports_group
 msgid "Attendance by group"

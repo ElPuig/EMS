@@ -104,7 +104,7 @@
                         <field name="exception" readonly="1" widget="text"/>
                     </sheet>
                     <footer>
-                        <button string="Clonse" class="btn-secondary" special="cancel"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
                     </footer>
                 </form>
             </field>

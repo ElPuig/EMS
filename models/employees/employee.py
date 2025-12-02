@@ -43,51 +43,6 @@ class ems_employee_base(models.AbstractModel):
             role_tutor = self.env.ref('ems.role_tutor').ids[0]            
             rec.role_ids = [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)]
 
-    @api.onchange('teaching_ids')
-    def _onchange_teaching_ids(self):	
-        # Same as contact's _onchange_enrollment_ids
-        for rec in self:
-            ignore = []   
-            old_sub = []
-            teaching = {}  
-            for item in rec._origin.teaching_ids:
-                old_sub.append(item.subject_id)
-                ignore.append(item.subject_id)
-                teaching[item.subject_id] = item        
-
-            added = []                      
-            for item in rec.teaching_ids:
-                if item.subject_id not in old_sub:
-                    added.append(item.subject_id)
-                if item.subject_id not in teaching:
-                    teaching[item.subject_id] = item                                                         
-           
-            for sub in added:
-                if sub.subject_id in added:
-                    # The current one and also its parents should be ignored, to avoid adding already removed childs.                    
-                    ignore.append(sub)
-                    while sub:
-                        if sub not in ignore: ignore.append(sub)
-                        sub = sub.subject_id
-
-            for sub in added:
-                # For every added enrollment: 
-                # If has parent, it must be added (recursive) if not present.                
-                if sub not in ignore:
-                    parent = sub.subject_id
-                    while parent:          
-                        if parent not in ignore:
-                            ignore.append(parent.id)                                                       
-                            rec.teaching_ids = [(0, 0, {
-                                "teacher_id": rec.id, 
-                                "group_id": teaching[sub].group_id,
-                                "subject_id": parent.id,      
-                            })]  
-                        parent = parent.subject_id                                                                              
-
-                    # If has childs, they must be added (recursive) if no other childs are present.
-                    self._teaching_populate_descendant(rec, sub, teaching)                     
-                                				
     @api.depends("role_ids")
     def _compute_roles_str(self):			
         for rec in self:
@@ -108,21 +63,7 @@ class ems_employee_base(models.AbstractModel):
     def check_limit(self):
         for rec in self:
             for role in rec.role_ids:                
-                role.check_limit()
-    
-    # @api.model
-    # def get_view(self, view_id=None, view_type='form', **options):
-    #     res = super().get_view(view_id=view_id, view_type=view_type, **options)
-    #     if view_type == 'form' and "arch" in res:
-    #         doc = etree.fromstring(res["arch"])
-                    
-    #         if not self.check_access_rights('write', raise_exception=False):
-    #             for node in doc.xpath("//field"):
-    #                 node.set("readonly", "true")            
-    #         res["arch"] = etree.tostring(doc, encoding="unicode")
-        
-    #     return res
-                
+                role.check_limit()                
 class ems_employee(models.AbstractModel):
     _inherit = ["hr.employee"]
 

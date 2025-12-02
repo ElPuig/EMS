@@ -323,8 +323,8 @@ class ems_attendance_session(models.Model):
 		for record in records:		
 			# NOTE: Collecting all status data first allow some optimizations.	
 			issue_status_by_tutor = dict()			
-			for attendance_session in record.attendance_status_ids:			
-				record.collect_issue_status_data(attendance_session, issue_status_by_tutor)
+			for attendance_status in record.attendance_status_ids:			
+				record.collect_issue_status_data(attendance_status, issue_status_by_tutor)
 
 			record.create_notification_entries(issue_status_by_tutor, notification_tutor_eta, notification_status_eta)
 		return records
@@ -364,9 +364,9 @@ class ems_attendance_session(models.Model):
 				for issue_status in issue_student.attendance_issue_status_ids:					
 					self._schedule_family_assistance_notification(issue_status, notification_status_eta, rectification)
 
-	def collect_issue_status_data(self, status_id, status_by_tutor):
+	def collect_issue_status_data(self, status_id, status_by_tutor, rectification=False):
 		separator = "; "
-		if status_id.status_is_notificable():
+		if rectification or status_id.status_is_notificable():
 			if status_id.student_id.tutor_id not in status_by_tutor:
 				status_by_tutor[status_id.student_id.tutor_id] = []
 			

@@ -79,7 +79,7 @@ class ems_attendance_status(models.Model):
         
         if create != 0:
             status_by_tutor = dict()
-            session.collect_issue_status_data(self, status_by_tutor)
+            session.collect_issue_status_data(self, status_by_tutor, create == 1)
             session.create_notification_entries(status_by_tutor, rectification=(create == 1))
 
     @api.depends('attendance_session_id')

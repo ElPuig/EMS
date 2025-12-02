@@ -30,3 +30,8 @@ td.o_radio_cell:has(div.o_field_radio.align-middle){
 th[data-name="deprecated"]{
     text-align: center;
 }
+
+.text-strikethrough {
+    text-decoration: line-through !important;
+    opacity: 0.75;
+}

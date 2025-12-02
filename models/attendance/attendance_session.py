@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import math, pytz
-from datetime import datetime
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
 from .attendance_schedule import ems_attendance_schedule
+from datetime import datetime, timedelta
 
 #from attendance_session import ems_attendance_session
 
 class ems_attendance_session(models.Model):
 	_name = "ems.attendance_session"
 	_description = "Attendance session: contains the data about every session done with the students."		
-	_inherit = ['ems.utils']	
+	_inherit = ['ems.utils', 'mail.thread', 'mail.activity.mixin']	
 	_sql_constraints = [
 		# TODO: localize this (the same message appears in form).
         (
@@ -25,11 +23,20 @@ class ems_attendance_session(models.Model):
 	weekday = fields.Selection(string="Weekday", compute="_compute_weekday", selection=ems_attendance_schedule.weekdays_selection, store=True)
 	start_time = fields.Float("Start Time", compute="_compute_start_time", store=True)
 	end_time = fields.Float("End Time", compute="_compute_end_time", store=True)	
-	
+	time_range = fields.Char("Time range", compute="_compute_time_range", store=True)
+
 	date = fields.Date(string="Date", default=fields.Datetime.now, required=True)
 	start_date = fields.Datetime(compute="_compute_start_date", store=True)	
 	end_date = fields.Datetime(compute="_compute_end_date", store=True)
 
+	# TODO: 
+	# 		1. Remove unnecessary data. 
+	# 		2. Related data should not be never removed, but archived. 
+	# 		For example:	
+	# 			1. New course, so new templates.
+	#			2. Removing templates, removes also the schedules.
+	#			3. Sessions are linked to schedules, so cannot be removed because never should be removed by cascade (only manually).
+	# 			4. The same if a student's group is removed, it should really be archived.   
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", compute="_compute_level_id", store=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", compute="_compute_study_id", store=True)
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_group_id", store=True)
@@ -37,7 +44,6 @@ class ems_attendance_session(models.Model):
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", compute="_compute_space_id", store=True)
 	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
 	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
-
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 		
 	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_status", inverse_name="attendance_session_id")		
@@ -46,7 +52,7 @@ class ems_attendance_session(models.Model):
 	
 	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)	
 	is_duped = fields.Boolean(store=False)
-	is_next = fields.Boolean(store=False)
+	is_next = fields.Boolean(store=False)	
 
 	notes = fields.Text("Notes")	
 
@@ -66,6 +72,11 @@ class ems_attendance_session(models.Model):
 			rec.end_time = rec.attendance_schedule_id.end_time
 
 	@api.depends("attendance_schedule_id")
+	def _compute_time_range(self):
+		for rec in self:
+			rec.time_range = rec.attendance_schedule_id.time_range
+
+	@api.depends("attendance_schedule_id")
 	def _compute_start_date(self):			
 		for rec in self:
 			local = rec.time_float_to_local_datetime(rec.date, rec.start_time)
@@ -78,36 +89,37 @@ class ems_attendance_session(models.Model):
 			local = rec.time_float_to_local_datetime(rec.date, rec.end_time)
 			utc = rec.local_datetime_to_utc(local)
 			rec.end_date = rec.datetime_to_odoo(utc)
-
+	
+	# TODO:  should be related? Can a "sudo" be used within a related or is not needed?
 	@api.depends("attendance_schedule_id")
 	def _compute_level_id(self):
 		for rec in self:
-			rec.level_id = rec.attendance_schedule_id.attendance_template_id.level_id
+			rec.level_id = rec.attendance_schedule_id.attendance_template_id.sudo().level_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_study_id(self):
 		for rec in self:
-			rec.study_id = rec.attendance_schedule_id.attendance_template_id.study_id
+			rec.study_id = rec.attendance_schedule_id.attendance_template_id.sudo().study_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_group_id(self):
 		for rec in self:
-			rec.group_id = rec.attendance_schedule_id.attendance_template_id.group_id
+			rec.group_id = rec.attendance_schedule_id.attendance_template_id.sudo().group_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_subject_id(self):
 		for rec in self:
-			rec.subject_id = rec.attendance_schedule_id.attendance_template_id.subject_id
+			rec.subject_id = rec.attendance_schedule_id.attendance_template_id.sudo().subject_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_space_id(self):
 		for rec in self:
-			rec.space_id = rec.attendance_schedule_id.attendance_template_id.space_id
+			rec.space_id = rec.attendance_schedule_id.attendance_template_id.sudo().space_id
 
 	@api.depends("attendance_schedule_id")
 	def _compute_template_teacher_id(self):
 		for rec in self:
-			rec.template_teacher_id = rec.attendance_schedule_id.attendance_template_id.teacher_id
+			rec.template_teacher_id = rec.attendance_schedule_id.attendance_template_id.sudo().teacher_id
 	
 	@api.depends('attendance_schedule_id', 'date')
 	def _compute_display_name(self):              
@@ -139,32 +151,33 @@ class ems_attendance_session(models.Model):
 				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin
 				rec.is_duped = self.env["ems.attendance_session"].search([("date", "=", now), ("attendance_schedule_id.id", "=", schedule_id)]) or False
 								
-				# NOTE: the first approach was to check if start_date of current == end_date of previous, but what happens if there's a coffe break between sessions?	
-				#		its better to check if the same subject has been teached previously and load the same data (maybe there's a gap between, but the student assistance 
-				# 		data should be almost the same). Let's test this behaviour (I seems like the easiest and les complex approach) and see...				
+				# NOTE: The first approach was to check if start_date of current == end_date of previous, but what happens if there's a coffe break between sessions?	
+				#		Its better to check if the same subject has been teached previously and load the same data (maybe there's a gap between, but the student assistance 
+				# 		data should be almost the same). 
 				previous = self.env["ems.attendance_session"].search(
 					[
-						("date", "=", now), 						
-						("attendance_schedule_id.attendance_template_id", "=", rec.attendance_schedule_id.attendance_template_id.id),
+						("date", "=", datetime.now()), 						
+						("attendance_schedule_id.attendance_template_id.id", "=", rec.attendance_schedule_id.attendance_template_id.sudo().id),
 						("attendance_schedule_id.weekday", "=", rec.attendance_schedule_id.weekday)
-					], order="end_time DESC") or False				
+					], order="end_time DESC", limit=1)
 				
 				if previous:
-					end = previous[0].end_time
-					rec.is_next = (end <= self.time_to_float(now.time()))	
+					end = previous.end_time
+					start = self.utc_datetime_to_local(datetime.now())
+					rec.is_next = (end <= self.time_to_float(start.time()))	
 
 					if rec.is_next:
 						# Load new entries but with the previous session's data
-						for prev in previous.attendance_status_ids:					
+						for prev in previous.attendance_status_ids:
 							students.append([0, 0, {
 								"student_id": prev.student_id,
-								"status": prev.status,
+								"status": "a_attended" if prev.status == "a_delayed" else prev.status,
 								"notes": prev.notes
 							}])
 						
 			if not rec.is_next:
 				# Load empty entries
-				for student in rec.attendance_schedule_id.attendance_template_id.student_ids:
+				for student in rec.attendance_schedule_id.attendance_template_id.sudo().student_ids:
 					# Sources: 
 					# 	https://stackoverflow.com/a/70843263
 					#	https://www.odoo.com/ro_RO/forum/suport-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
@@ -198,8 +211,9 @@ class ems_attendance_session(models.Model):
 			where.append(("weekday", "=", today.weekday()))
 			where.append(("teacher_id.user_id", "!=" if self.mode == "guard" else "=", self.env.uid))
 
-		# NOTE: the file security/rules.xml should define which records can be loaded depeding on the current user, BUT all records must be avaliable (read only) on guard mode, so it will be filtered here. 		
-		regs = self.env["ems.attendance_schedule"].search(where)
+		# NOTE: the file security/rules.xml should define which records can be loaded depeding on the current user, 
+		# BUT all records must be avaliable (read only) on guard mode, so sudo will be used. 		
+		regs = self.sudo().env["ems.attendance_schedule"].search(where)
 		
 		if self.mode == "manual": 
 			return regs
@@ -219,4 +233,171 @@ class ems_attendance_session(models.Model):
 				if now >= start and now < end:
 					current.append(r)		
 			return current			
+	
+	def _get_notification_tutor_eta(self):
+		# TODO: tutor's working schedule end-time should be loaded firts, and use the default only if not defined. 
+		notification_tutor_eta = self.time_float_to_utc_datetime(fields.Datetime.now(), self.env.company.attendance_issue_tutor_default)
+		return self.datetime_to_odoo(notification_tutor_eta)
+	
+	def _get_notification_status_eta(self):
+		return fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_status_delay * 60) # from minutes to seconds
+	
+	def _get_or_create_issue_status(self, issue_student, attendance_status_id, send_to, rectification):
+		data = self.get_issue_status(attendance_status_id)
+		repo = data["repo"]
+		issue_status = data["values"]	
+		
+		if not issue_status or rectification:
+			as_id = self.sudo().env['ems.attendance_status'].sudo().search([('id', '=', attendance_status_id)])
+			issue_status = repo.create({				
+				'attendance_issue_student_id': issue_student.id,
+				'attendance_status_id': attendance_status_id,
+				'attendance_status': as_id.status,
+				'rectification': rectification,
+				'notes': as_id.notes,
+				'send_to': send_to,				
+			})
+
+			if rectification:
+				must_rectify = self.sudo().env['ems.attendance_issue_status'].sudo().search([('attendance_status_id', '=', attendance_status_id), ('rectified_by', '=', False), ('id', '!=', issue_status.id)])
+				for rect in must_rectify:				
+					rect.write({'rectified_by' : issue_status.id})
+
+		return issue_status
+	
+	def _get_or_create_issue_student(self, issue_tutor, student_id):
+		data = self.get_issue_student(issue_tutor, student_id)		
+		repo = data["repo"]
+		issue_student = data["values"]	
+
+		if not issue_student:
+			issue_student = repo.create({
+				'student_id': student_id,
+				'attendance_issue_tutor_id': issue_tutor.id
+			})		
+		return issue_student
+	
+	def _get_or_create_issue_tutor(self, tutor_id):
+		data = self.get_issue_tutor(tutor_id)		
+		repo = data["repo"]
+		issue_tutor = data["values"]		
+		
+		if not issue_tutor:
+			issue_tutor = repo.create({
+				'tutor_id': tutor_id.id,
+				'issue_date': datetime.today()						
+			})
+		return issue_tutor
+	
+	def _schedule_daily_assistance_notification(self, issue_tutor, eta):		
+		if issue_tutor.notification_id.id != False: return
+
+		daily = issue_tutor.with_delay(
+			eta = eta,
+			description=f"Tutor's assistance report: ID={issue_tutor.id}"
+		).send_notification()
+
+		job = self.sudo().env['queue.job'].search([('uuid', '=', daily.uuid)]) or False
+		if job: issue_tutor.sudo().write({'notification_id': job.id})
+
+	def _schedule_family_assistance_notification(self, issue_status, eta, rectification):		
+		if issue_status.notification_id.id != False or not issue_status.send_to or issue_status.send_to == "": return				
+
+		noti = issue_status.with_delay(
+			eta = eta,
+			description="Family assistance notification %s: ID=%s" % ("" if not rectification else " (rectification)", issue_status.id)
+		).send_notification()
+
+		job = self.sudo().env['queue.job'].search([('uuid', '=', noti.uuid)]) or False
+		if job: issue_status.sudo().write({
+			'notification_id': job.id
+		})
+	
+	@api.model_create_multi
+	def create(self, vals_list):
+		records = super().create(vals_list)		
+		
+		# NOTE: Optional, but computed here for optimization
+		notification_status_eta = self._get_notification_status_eta()
+		notification_tutor_eta = self._get_notification_tutor_eta()
+
+		for record in records:		
+			# NOTE: Collecting all status data first allow some optimizations.	
+			issue_status_by_tutor = dict()			
+			for attendance_status in record.attendance_status_ids:			
+				record.collect_issue_status_data(attendance_status, issue_status_by_tutor)
+
+			record.create_notification_entries(issue_status_by_tutor, notification_tutor_eta, notification_status_eta)
+		return records
+	
+	def unlink(self):
+		# NOTE: removing the session removes also the statuses and the related notification entries
+		# TODO: should be blocked if the notifications have been sent? I guess so, but the admins should be ablte to delete those
+		#		after confirming a popup. 
+		date = self.date
+		res = super().unlink()
+		
+		for issue_tutor in self.env['ems.attendance_issue_tutor'].sudo().search([('issue_date', '=', date)]):
+			issue_tutor.remove_if_empty()
+
+		return res
+	
+	def create_notification_entries(self, issue_status_by_tutor, notification_tutor_eta=None, notification_status_eta=None, rectification=False):				
+		if notification_tutor_eta is None: notification_tutor_eta = self._get_notification_tutor_eta()
+		if notification_status_eta is None: notification_status_eta = self._get_notification_status_eta()
+
+		# NOTE: Status data is grouped by tutor and only got the ones which should be notified. 
+		notis = []
+		for tutor_id in issue_status_by_tutor:
+			for issue_status_data in issue_status_by_tutor[tutor_id]:
+				issue_tutor = self._get_or_create_issue_tutor(tutor_id)
+				issue_student = self._get_or_create_issue_student(issue_tutor, issue_status_data["student_id"])
+				self._get_or_create_issue_status(issue_student, issue_status_data["attendance_status_id"], issue_status_data["send_to"], rectification)
+				
+				if not issue_tutor in notis: notis.append(issue_tutor)
+		
+		for notification_tutor in notis:
+			# noti internal structure: attendance_issue_tutor (1) --> (N) attendance_issue_student (1) --> (N) attendance_issue_status
+			# notifications for the tutors: daily (at the end if its tourn); notifications for the family (status): after a timeout (default 15 minutes). 
+
+			self._schedule_daily_assistance_notification(notification_tutor, notification_tutor_eta)
+			for issue_student in notification_tutor.attendance_issue_student_ids:
+				for issue_status in issue_student.attendance_issue_status_ids:					
+					self._schedule_family_assistance_notification(issue_status, notification_status_eta, rectification)
+
+	def collect_issue_status_data(self, status_id, status_by_tutor, rectification=False):
+		separator = "; "
+		if rectification or status_id.status_is_notificable():
+			if status_id.student_id.tutor_id not in status_by_tutor:
+				status_by_tutor[status_id.student_id.tutor_id] = []
+			
+			send_to = []
+			if status_id.student_id.auth_share or not status_id.student_id.is_adult:
+				for contact in status_id.student_id.child_ids:				
+					send_to.append(contact.email)
+
+			# NOTE: The 'send_to' field will be empty if adult or family shared not authorized.
+			#		All entries must be notified to the tutor, always. This trick simplifies a bit the logic.
+			status_by_tutor[status_id.student_id.tutor_id].append({
+				'attendance_status_id': status_id.id,
+				'student_id': status_id.student_id.id,
+				'send_to': separator.join(send_to)
+			})	
+	
+	def get_issue_tutor(self, tutor_id):
+		repo = self.sudo().env['ems.attendance_issue_tutor']
+		issue_tutor = repo.search([('issue_date', '=', self.date), ('tutor_id', '=', tutor_id.id)]) or False		
+		return {"repo": repo, "values": issue_tutor}
+	
+	def get_issue_student(self, issue_tutor, student_id):
+		repo = self.sudo().env['ems.attendance_issue_student']
+		issue_student = repo.search([('attendance_issue_tutor_id', '=', issue_tutor.id), ('student_id', '=', student_id)]) or False
+		return {"repo": repo, "values": issue_student}
+	
+	def get_issue_status(self, attendance_status_id):
+		# NOTE: On rectification, multiple issue_status can be attanched to the same attendance_status, but we always
+		#		whant the most recent. 
+		repo = self.sudo().env['ems.attendance_issue_status']
+		issue_status = repo.search([('attendance_status_id', '=', attendance_status_id)], order='id desc', limit=1) or False
+		return {"repo": repo, "values": issue_status}	
 	

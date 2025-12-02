@@ -18,11 +18,22 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.1.5',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
+    'version': '18.0.0.2.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
-    'depends': ['base_setup', 'hr', 'hr_org_chart', 'auth_oauth', 'contacts', 'project', 'mass_mailing', 'survey', 'hr_attendance'],
+    'depends': [
+        'base_setup', 
+        'hr', 
+        'hr_org_chart', 
+        'auth_oauth', 
+        'contacts', 
+        'project', 
+        'mass_mailing', 
+        'survey', 
+        'hr_attendance',
+        'queue_job'
+    ],
     
     # just for debugging
     'external_dependencies': {
@@ -134,23 +145,31 @@
             'views/attendance/attendance_template/menu.xml',
             'views/attendance/attendance_template/list.xml',
             'views/attendance/attendance_template/form.xml',
-            'views/attendance/attendance_template/search.xml',
+            'views/attendance/attendance_template/search.xml', 
 
+            'views/attendance/attendance_session/menu.xml',
             'views/attendance/attendance_session/list.xml',
             'views/attendance/attendance_session/form.xml',
-            'views/attendance/attendance_session/calendar.xml',
-            'views/attendance/attendance_session/menu.xml',   
+            #'views/attendance/attendance_session/calendar.xml',              
             'views/attendance/attendance_session/search.xml',         
 
+            'views/attendance/attendance_status/menu.xml',
             'views/attendance/attendance_status/list.xml',
-            'views/attendance/attendance_status/form.xml',
-            'views/attendance/attendance_status/menu.xml',                   
+            'views/attendance/attendance_status/form.xml',                               
 
             'views/attendance/attendance_schedule/form.xml',
 
+            'views/attendance/attendance_justification/menu.xml',
             'views/attendance/attendance_justification/list.xml',
             'views/attendance/attendance_justification/form.xml',
-            'views/attendance/attendance_justification/menu.xml',    
+            'views/attendance/attendance_justification/search.xml',
+
+            'views/attendance/attendance_issue/menu.xml',
+            'views/attendance/attendance_issue/list.xml',
+            'views/attendance/attendance_issue/form.xml',
+
+            'views/attendance/attendance_notification/menu.xml',  
+            'views/attendance/attendance_notification/list.xml',               
 
             'views/attendance/attendance_reports/menu.xml',
             'views/attendance/attendance_reports/student_wizard.xml', 
@@ -163,6 +182,11 @@
             'views/documentation/minutes/form.xml',   
 
         'views/shared/attachment/form.xml',  
+
+        ### Mailing templates ###
+        'mails/attendance/attendance_issue_status.xml', 
+        'mails/attendance/attendance_issue_rectification.xml', 
+        'mails/attendance/attendance_issue_tutor.xml', 
 
         ### Reports templates ###
         'reports/attendance/templates/sumary_table.xml', 

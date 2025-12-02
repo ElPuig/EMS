@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _
-from odoo.exceptions import UserError
-import logging
-
-_logger = logging.getLogger(__name__)
+from odoo import models, fields, api
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
 #		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
@@ -17,7 +13,7 @@ class ems_attendance_status(models.Model):
     status = fields.Selection(string="Status", default="a_attended", required=True, selection=attendance_status)
     student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
     image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
-    attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session")
+    attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session", ondelete="cascade")
     
     # This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
     inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 
@@ -28,6 +24,64 @@ class ems_attendance_status(models.Model):
    
     notes = fields.Text("Notes")
     
+    def status_is_notificable(self):
+        # TODO: load from EMS settings.
+        return self.status in ['m_miss', 'a_issue']    
+
+    def write(self, vals):
+        super(ems_attendance_status, self).write(vals)
+        self._update_notification()   
+
+    def _update_notification(self):
+        session = self.attendance_session_id
+
+        # NOTE: Original data must be compared with the current one in order to update properly.            
+        previous_issue_status = False
+        issue_tutor = (session.get_issue_tutor(self.student_id.tutor_id))["values"]
+        if issue_tutor: 
+            issue_student = session.get_issue_student(issue_tutor, self.student_id.id)
+            if issue_student:
+                previous_issue_status = (session.get_issue_status(self.id))["values"]
+
+        # NOTE: Possible scenarios when updating an attendance status:
+                #       1. From issue to non-issue:
+                #           1.1. If not notified yet, just remove.
+                #           1.2. If notified, a rectification should be send to the family.
+                #       2. From issue to issue:
+                #           2.1. If not notified yet, update the notification data.
+                #           2.2. If notified, a rectification should be send to the family.
+                #       3. From non-issue to issue:
+                #           3.1. Add the notification with the regular timeout. 
+                #       4. From non-issue to non-issue:
+                #           4.1. Do nothing.
+        create = 0
+        if previous_issue_status:            
+            if not previous_issue_status.pending:
+                # 1.2 & 2.2. If notified, a rectification should be send to the family.                 
+                create = 1
+            else:
+                if not self.status_is_notificable():
+                    # 1.1. If not notified yet, just remove.
+                    # NOTE: also removes the notification.                    
+                    issue_tutor = previous_issue_status.attendance_issue_student_id.attendance_issue_tutor_id
+                    previous_issue_status.unlink()
+                    issue_tutor.remove_if_empty()                  
+                else:
+                    # 2.1. If not notified yet, update the notification data.
+                    previous_issue_status.write({
+                        "attendance_status": self.status,
+                        "notes": self.notes
+                    })
+        elif self.status_is_notificable():
+            # 3.1. Add the notification with the regular timeout. 
+            # TODO: do not notify to the families after certain timeout (eg: is from a few days ago).
+            create = 2
+        
+        if create != 0:
+            status_by_tutor = dict()
+            session.collect_issue_status_data(self, status_by_tutor, create == 1)
+            session.create_notification_entries(status_by_tutor, rectification=(create == 1))
+
     @api.depends('attendance_session_id')
     def _compute_attendance_session_display_name(self):
         for rec in self:
@@ -38,13 +92,13 @@ class ems_attendance_status(models.Model):
         for rec in self:
             rec.inuse_student_ids = False
             if rec.attendance_session_id:
-                rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_status_ids.student_id')
-
-    def report_eval(self, field):
-        # NOTE: this is used within the 'details_table' template in order to render custom fields.		
-        return eval(field)
+                rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_status_ids.student_id')   
 
     @api.depends('attendance_session_id', 'student_id')
     def _compute_display_name(self):              
         for rec in self:
             rec.display_name = "%s | %s" % (rec.attendance_session_id.display_name, rec.student_id.display_name)
+
+    def report_eval(self, field):
+        # NOTE: this is used within the 'details_table' template in order to render custom fields.		
+        return eval(field)

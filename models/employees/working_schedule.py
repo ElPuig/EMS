@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from datetime import datetime
 import xml.etree.ElementTree as ET
 import base64
 
@@ -19,14 +20,31 @@ class ems_working_schedule_assignation(models.Model):
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
 
-
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
 	_description = "Working schedules: import wizard."
 
 	attachment_id = fields.Many2one(string="Attachment", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.working_schedules_import_wizard')]")
 	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")	
+	is_overriding = fields.Boolean(store=False)
+	overrided_teachers = fields.Char(default="")
 
+	@api.onchange("file")
+	def _onchange_file(self):
+		for rec in self:
+			if rec.file:
+				xml_content = base64.b64decode(rec.file)
+				tree = ET.ElementTree(ET.fromstring(xml_content))
+					
+				root = tree.getroot()
+				for teacherNode in root:					
+					email = teacherNode.attrib['name'].split(' ')[0]
+					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
+
+					if teacher and teacher.resource_calendar_id.id:
+						rec.is_overriding = True
+						rec.overrided_teachers = teacher.display_name if not rec.overrided_teachers else "%s, %s" % (rec.overrided_teachers, teacher.display_name)						
+	
 	def import_planner_data(self):
 		return {
 			'type': 'ir.actions.client',
@@ -35,75 +53,144 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	
 	@api.model_create_multi
 	def create(self, values):
-		data = []
-		course_id =  self.env['ir.config_parameter'].sudo().get_param('ems.course_id')
-		current_course = self.env["ems.course"].search([("id", "=", course_id)])
+		course_id = self.env.company.current_course_id
+		if not course_id.id:
+			raise ValidationError("No 'current course' has been setup. Please, select or create the current course within the EMS settings section.")
 		
 		for item in values:
 			if 'file' not in item or not item.get('file'):
 				raise ValidationError("No XML file has been loaded. Please, provide an XML file and try again.")
-			else:				
+			else:	
 				file = item.get('file')
 				xml_content = base64.b64decode(file)
 				tree = ET.ElementTree(ET.fromstring(xml_content))
 				
 				root = tree.getroot()
-				for teacherNode in root:					
-					email = teacherNode.attrib['name'].split(' ')[0]
-					teacher = self.env["hr.employee"].search([("work_email", "=", email)])										
-					schedule = self.env['resource.calendar'].create({
-						'name': "%s (%s)" % (teacher.name, current_course.name),
-						'full_time_required_hours': 24
-					})
-					entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.
-					data.append(schedule)						
+				for node in root:	
+					email = node.attrib['name'].split(' ')[0]
+					teacher = self.env["hr.employee"].search([("work_email", "=", email)])	
+					if not teacher.id: raise ValidationError("Teacher with email '%s' not found." % email)
 
-					for dayNode in teacherNode:
-						# 0: Monday; 1: Tuesday as today.weekday() does.
-						dayofweek = int(dayNode.attrib['name'].split(' ')[0]) - 1						
-						start = None
-						
-						for hourNode in dayNode:
-							if start is not None:
-								close = hourNode.attrib['name'].split(' ')[1]
-								day_period = 'morning' if int(start[:2]) < 15 else 'afternoon'
+					entries = self._create_schedule(node, teacher, course_id)
+					self._create_teaching(entries, teacher, course_id)
+					self._create_assitance_templates(entries, teacher, course_id)
 
-								# TODO: add the subject and group entieies
-								entries.append([0, 0, {
-                                    "name": "%s: %s (%s)" % (subject.acronym, subject.name, group.name),
-                                    "dayofweek": str(dayofweek),
-                                    "day_period": day_period,
-									"hour_from": self._conv_time_float(start),
-									"hour_to": self._conv_time_float(close),
-									"subject_id": subject.id,
-									"group_id": group.id
-                                }])
-								start = None
-
-							# Ignore empty hours (lack of activities)
-							id = None
-							for content in hourNode:
-								if content.tag == 'Activity':
-									id = content.attrib['id'].split(' ')[0]
-								elif content.tag == 'Subject':
-									subjectCode = content.attrib['name'].split(' ')[0]
-								elif content.tag == 'Students':
-									groupAcro = content.attrib['name'].split(' ')[0]														
-							
-							if id is not None:
-								subject = self.env["ems.subject"].search([("code", "=", subjectCode[2:])])
-								group = self.env["ems.group"].search([("name", "=", groupAcro)])
-								start = hourNode.attrib['name'].split(' ')[1]
-					
-					schedule.write({
-						'attendance_ids': entries
-					})  
-					
-					teacher.write({
-						"resource_calendar_id": schedule
-					})		
 		return super(models.Model, self).create(values)			
+
+	def _create_schedule(self, xml_node, teacher, course_id):									
+		name = "%s (%s)" % (teacher.name, course_id.name)
+		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
+
+		if not schedule:
+			# TODO: add a relation to current_course
+			schedule = self.env['resource.calendar'].create({
+				'name': "%s (%s)" % (teacher.name, course_id.name),
+				'full_time_required_hours': 24
+			})
+		
+		entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.	Items will be removed if became orphan.				
+		for dayNode in xml_node:
+			# NOTE: 0: Monday; 1: Tuesday as today.weekday() does.
+			dayofweek = int(dayNode.attrib['name'].split(' ')[0]) - 1						
+			start = None
+			
+			for hourNode in dayNode:
+				if start is not None:
+					close = hourNode.attrib['name'].split(' ')[1]
+					entries.append([0, 0, {
+						"name": "%s: %s (%s)" % (subject.acronym, subject.name, group.name),
+						"dayofweek": str(dayofweek),
+						"day_period": 'morning' if int(start[:2]) < 15 else 'afternoon',
+						"hour_from": self._conv_time_float(start),
+						"hour_to": self._conv_time_float(close),
+						"subject_id": subject.id,
+						"group_id": group.id
+					}])
+					start = None
+
+				# NOTE: Ignore empty hours (lack of activities)
+				id = None
+				for content in hourNode:
+					if content.tag == 'Activity':
+						id = content.attrib['id'].split(' ')[0]
+					elif content.tag == 'Subject':
+						subjectCode = content.attrib['name'].split(' ')[0]
+					elif content.tag == 'Students':
+						groupAcro = content.attrib['name'].split(' ')[0]														
 				
+				if id is not None:
+					subject = self.env["ems.subject"].search([("code", "=", subjectCode[2:])])
+					group = self.env["ems.group"].search([("name", "=", groupAcro)])
+					start = hourNode.attrib['name'].split(' ')[1]
+
+					if not subject.id: raise ValidationError("Subject with code '%s' not found." % subjectCode[2:])
+					if not group.id: raise ValidationError("Group with acronym '%s' not found." % groupAcro[2:])
+							
+		schedule.write({ 'attendance_ids': entries })  		
+		teacher.write({ "resource_calendar_id": schedule })
+		return [x[2] for x in entries[1:]] #skipping the first (unlink all) and getting only entities.	
+
+	def _create_teaching(self, entries, teacher, course_id):
+		teaching = [[5]] #5 means unlink all previus, because the created schedule has default entries attached.	Items will be removed if became orphan.		
+		
+		for e in entries: #skipping the first (unlink all)
+			# TODO: asign also the current_course
+			item = [0, 0, {
+				'group_id': e["group_id"],
+				'subject_id': e["subject_id"]
+			}]
+
+			if item not in teaching:
+				teaching.append(item)
+				
+		teacher.write({
+			'teaching_ids': teaching
+		})	
+	
+	def _create_assitance_templates(self, entries, teacher, course_id):
+		# TODO: It's necessary to know if a template has been created automatically or manually? 
+		# 		Should we keep the manually created? If so, additional checks are needed in order to create
+		#		the entries avoiding duped templates... 		
+		color = 1
+		templates = dict()
+		now = datetime.now()		
+
+		for e in entries:
+			key = "%s.%s" % (e["subject_id"], e["group_id"])
+			if key in templates:
+				t = templates[key]
+			else:
+				# TODO: define default start and end date for subjects within settings.			
+				#t = self.env['ems.attendance_template'].create({
+				group_id = self.env['ems.group'].search([('id', '=', e["group_id"])]) or False
+				t = {
+					'start_date': datetime(now.year, 9, 1),
+					'end_date': datetime(now.year+1, 7, 1),
+					'color': color,
+					'teacher_id': teacher.id,
+					'subject_id': e["subject_id"],
+					'group_id': e["group_id"],
+					'level_id': group_id.level_id.id,
+					'study_id': group_id.study_id.id,
+					'space_id': group_id.space_id.id,
+					'attendance_schedule_ids': []
+				}
+				color += 1
+				templates[key] = t
+			
+			t["attendance_schedule_ids"].append(
+				[0, 0, {
+					'start_time': e["hour_from"],
+					'end_time': e["hour_to"],
+					'weekday': e["dayofweek"],
+					'space_id': t["space_id"]
+				}]
+			)
+		
+		self.env['ems.attendance_template'].search([('teacher_id', '=', teacher.id)]).unlink()
+		for t in templates:
+			self.env['ems.attendance_template'].create(templates[t])		
+
 	def _conv_time_float(self, value):
 		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236
 		vals = value.split(':')

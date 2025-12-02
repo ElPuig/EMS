@@ -39,8 +39,16 @@ class ems_attendance_schedule(models.Model):
 	# The teacher_id is used just for permission filtering pruposes.
 	teacher_id = fields.Many2one(string='Teacher', related="attendance_template_id.teacher_id", store=False) 
 	
+	time_range = fields.Char(compute="_compute_time_range", store=True)
 	notes = fields.Text(string="Notes")
 
+	@api.depends("start_time", "end_time")
+	def _compute_time_range(self):			
+		for rec in self:
+			end = rec.utc_datetime_to_local(rec.end_date)
+			start = rec.utc_datetime_to_local(rec.start_date)
+			rec.time_range = "%02d:%02d - %02d:%02d" % (start.hour, start.minute, end.hour, end.minute)
+	
 	@api.depends("start_time", "attendance_template_id.start_date")
 	def _compute_start_date(self):			
 		for rec in self:
@@ -57,10 +65,8 @@ class ems_attendance_schedule(models.Model):
 
 	@api.depends("attendance_template_id", "attendance_template_id.start_date", "attendance_template_id.end_date", "weekday", "start_time", "end_time")
 	def _compute_name(self):			
-		for rec in self:	
-			end = rec.utc_datetime_to_local(rec.end_date)
-			start = rec.utc_datetime_to_local(rec.start_date)
-								
-			weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
-			rec.name = "%s | %s | %02d:%02d - %02d:%02d" % (rec.attendance_template_id.display_name, weekday_str, start.hour, start.minute, end.hour, end.minute)
+		for rec in self:				
+			weekday_str = dict(self.weekdays_selection).get(rec.weekday)
+			#weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
+			rec.name = "%s | %s | %s" % (rec.attendance_template_id.display_name, weekday_str, rec.time_range)
 			rec.display_name = rec.name

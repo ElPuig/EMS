@@ -23,18 +23,6 @@
         <field name="perm_unlink" eval="True"/>
     </record>  
 
-    <record id="rule_attendance_template_teacher_all_read" model="ir.rule">
-        <!-- NOTE: On 'guard mode' all templates should be available (read-only) for everyone (the schedule needs to read from template). -->
-        <field name="name">Attendance template: read all data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_template"/>
-        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[]</field>
-        <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="False"/>
-        <field name="perm_create" eval="False"/>
-        <field name="perm_unlink" eval="False"/>
-    </record>
-
     <!-- ems.attendance_schedule -->
      <record id="rule_attendance_schedule_admin" model="ir.rule">
         <field name="name">Attendance schedule: all data</field>
@@ -56,18 +44,6 @@
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
         <field name="perm_unlink" eval="True"/>
-    </record>
-
-    <record id="rule_attendance_schedule_teacher_all_read" model="ir.rule">
-        <!-- NOTE: On 'guard mode' all schedules should be available (read-only) for everyone. -->
-        <field name="name">Attendance schedule: read all data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_schedule"/>
-        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[]</field>
-        <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="False"/>
-        <field name="perm_create" eval="False"/>
-        <field name="perm_unlink" eval="False"/>
     </record>
 
     <!-- ems.attendance_session -->
@@ -99,18 +75,6 @@
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
         <field name="perm_unlink" eval="True"/>
-    </record>   
-
-    <record id="rule_attendance_session_teacher_all_read" model="ir.rule">
-        <!-- Needed for justification purposes, otherwise cannot acces to some session data. -->
-        <field name="name">Attendance session: own data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_session"/>
-        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[]</field>
-        <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="False"/>
-        <field name="perm_create" eval="False"/>
-        <field name="perm_unlink" eval="False"/>
     </record>   
 
     <!-- ems.attendance_status -->
@@ -204,6 +168,73 @@
         <field name="domain_force">['|', ('teacher_id.user_id.id', '=', user.id), ('session_teacher_ids', 'in', user.employee_ids.ids)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/> 
+    </record>
+
+    <!-- ems.attendance_issue -->
+    <record id="rule_attendance_issue_tutor_admin" model="ir.rule">
+        <field name="name">Attendance notification (tutor): all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_tutor"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_issue_tutor_tutor" model="ir.rule">      
+        <field name="name">Attendance notification (tutor): tutor's data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_tutor"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/> 
+    </record>
+
+    <record id="rule_attendance_issue_student_admin" model="ir.rule">
+        <field name="name">Attendance notification (student): all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_student"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_issue_student_tutor" model="ir.rule">      
+        <field name="name">Attendance notification (student): tutor's data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_student"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('attendance_issue_tutor_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/> 
+    </record>
+
+    <record id="rule_attendance_issue_status_admin" model="ir.rule">
+        <field name="name">Attendance notification (status): all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_status"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_issue_status_tutor" model="ir.rule">      
+        <field name="name">Attendance notification (status): tutor's data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_issue_status"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/> 
     </record>

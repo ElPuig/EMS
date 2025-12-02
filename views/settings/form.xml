@@ -34,7 +34,7 @@
                                 <field name="attendance_issue_status_delay" />                              
                             </setting>
 
-                            <setting string="Tutor's default attendance delay report send time" help="The tutors will receive a daily attendance report at the end of their work tourn but, it its not defined, this time will be used to send the report." id="attendance_issue_tutor_default">
+                            <setting string="Tutor's attendance report default send time" help="The tutors will receive a daily attendance report at the end of their work tourn but, it its not defined, this time will be used to send the report." id="attendance_issue_tutor_default">
                                 <field name="attendance_issue_tutor_default" widget="float_time" />                              
                             </setting>
                         </block>

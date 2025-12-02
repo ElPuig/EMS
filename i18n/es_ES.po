@@ -1295,8 +1295,8 @@ msgid ""
 "If marked, the student (even if adult) allows to share its educational "
 "information with its family."
 msgstr ""
-"Si está marcado, el estudiante (aunque sea adulto) autoriza a que se comparta información 
-académica con su familia."
+"Si está marcado, el estudiante (aunque sea adulto) autoriza a que se comparta información "
+"académica con su familia."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_status__image_1920
@@ -2500,16 +2500,17 @@ msgstr ""
 msgid "Thursday"
 msgstr "Jueves"
 
+# TODO: redundant (see next)
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__time_range
 msgid "Time Range"
-msgstr ""
+msgstr "Franja Horària"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__time_range
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session__time_range
 msgid "Time range"
-msgstr ""
+msgstr "Franja horària"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__to_date
@@ -2561,27 +2562,27 @@ msgstr "Martes"
 #: model:ir.model.fields,field_description:ems.field_res_partner__tutor_id
 #: model:ir.model.fields,field_description:ems.field_res_users__tutor_id
 msgid "Tutor"
-msgstr ""
+msgstr "Tutor"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__tutor_id
 msgid "Tutor (sent to)"
-msgstr ""
+msgstr "Tutor (enviar a)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__attendance_issue_tutor_id
 msgid "Tutor notification data"
-msgstr ""
+msgstr "Información de la notificación al tutor"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "Tutor's default attendance delay report send time"
-msgstr ""
+msgid "Tutor's attendance report default send time"
+msgstr "Hora de envío predeterminada para el reporte de asistencia del tutor"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_kanban
 msgid "Tutor:"
-msgstr ""
+msgstr "Tutor/a"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__tutorships
@@ -2628,14 +2629,14 @@ msgid ""
 "scheduled for the current date and time?. Please, choose one manually or "
 "activate the \"guard mode\" if needed."
 msgstr ""
-"No se puede cargar la sesión actual; es posible que no haya ninguna "
-"programada para esta fecha y hora. Por favor, seleccione una manualmente o "
-"active el \"modo de vigilancia\" si es necesario."
+"No ha sido posible cargar la sesión actual, ¿es posible que no haya ninguna (o haya "
+"más de una) programada para esta fecha y hora? Por favor, seleccione una manualmente o "
+"active el \"modo guardia\" si fuera necesario."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__unipersonal
 msgid "Unipersonal"
-msgstr ""
+msgstr "Unipersonal"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -2677,12 +2678,12 @@ msgstr "El usuario es tutor"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session__website_message_ids
 msgid "Website Messages"
-msgstr ""
+msgstr "Mensajes del sitio web"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_attendance_session__website_message_ids
 msgid "Website communication history"
-msgstr ""
+msgstr "Historial de comunicaciones del sitio web"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2
@@ -2801,7 +2802,7 @@ msgstr "¡Tema duplicado!"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "e.g. Parent"
-msgstr ""
+msgstr "ej: Padre"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_form
@@ -2822,7 +2823,7 @@ msgstr "justificación"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form
 msgid "notification"
-msgstr ""
+msgstr "notificación"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_outcome_form
@@ -2837,7 +2838,7 @@ msgstr "planificación"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_role_form
 msgid "role"
-msgstr ""
+msgstr "rol"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_space_form
@@ -2848,12 +2849,12 @@ msgstr "espacio"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_subject_form
 msgid "subject"
-msgstr "sujeto"
+msgstr "asunto"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_teaching_search
 msgid "teacher"
-msgstr "profesor"
+msgstr "docente"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_teaching_form

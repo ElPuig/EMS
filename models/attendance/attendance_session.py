@@ -163,7 +163,8 @@ class ems_attendance_session(models.Model):
 				
 				if previous:
 					end = previous.end_time
-					rec.is_next = (end <= self.time_to_float(now.time()))	
+					start = self.utc_datetime_to_local(datetime.now())
+					rec.is_next = (end <= self.time_to_float(start.time()))	
 
 					if rec.is_next:
 						# Load new entries but with the previous session's data

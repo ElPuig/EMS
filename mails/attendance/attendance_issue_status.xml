@@ -10,7 +10,6 @@
             <!-- <field name="email_to">{{object.send_to}}</field>  -->
             <field name="email_from">ems@elpuig.xeill.net</field>
             <field name="reply_to">{{object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.email}}</field>
-
             <field name="body_html">
                 <![CDATA[
                     <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;">

@@ -30,10 +30,7 @@
                                 </t>
                             </ul>                        
                         </p>
-
                         <p>If you need further information, you can contact with <t t-out="object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name"/> just replaying to this email.</p>                                                
-                        
-                        <br/>
                         <p>
                             Kind regards,<br>
                             <t t-out="object.create_uid.company_id.name"/>

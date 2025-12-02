@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_issue_tutor_list">
+            <field name="name">ems.attendance_issue_tutor.list</field>
+            <field name="model">ems.attendance_issue_tutor</field>
+            <field name="arch" type="xml">
+                <list default_order="issue_date desc, tutor_id desc">
+                    <field name="issue_date" />
+                    <field name="tutor_id" widget="many2one_avatar"/>                    
+                    <!-- <field name="sent_date" /> -->
+                </list>
+            </field>
+        </record>   
+    </data>
+</odoo>

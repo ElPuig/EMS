@@ -4,7 +4,18 @@
             <field name="name">ems.working_schedules_import.wizard</field>
             <field name="model">ems.working_schedules_import_wizard</field>
             <field name="arch" type="xml">
-                <form string="Session">     
+                <form string="Session"> 
+                    <field name="is_overriding" invisible="1"/> 
+                    <div class="alert alert-warning" role="alert" name="alert-warning" invisible="not is_overriding">
+                        <!-- TODO: this should be translated (localization) -->
+                        Attention please: some teachers (<field name="overrided_teachers" readonly="1" class="oe_inline fw-bold" options="{'no_open': True}"/>) already have a schedule defined for the current course. If you continue with the process: <br/>
+                        <ul>
+                            <li>The current schedules will be replaced by the new ones.</li>
+                            <li>The current subject assignations will be updated to match the new schedules.</li>
+                            <li>The current assistance templates will be updated to match the new schedules.</li>
+                        </ul>
+                    </div>
+
                     <group>
                          <field name="file" readonly="False" options="{'accepted_file_extensions': '.xml'}"/>
                     </group>

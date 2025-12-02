@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="mail.template" id="mail_attendance_issue_rectification" >
+            <field name="name">Email notification for families: student attendance status (rectification)</field>
+            <field name="model_id" ref="ems.model_ems_attendance_issue_status"/>
+            <field name="subject">Student attendance notification (rectification): {{object.attendance_issue_student_id.student_id.display_name}}</field>
+            <field name="auto_delete" eval="True"/>             
+            <field name="email_from">ems@elpuig.xeill.net</field>
+            <field name="reply_to">{{object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.email}}</field>
+
+            <field name="body_html">
+                <![CDATA[
+                    <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;">
+                        <p>
+                            Dear family,
+                        </p>
+                        <p>
+                            We're sorry, but you recently received an email containing mistakes about some attendance statuses.
+                        </p>
+                        <p>
+                            Again, we apologize, this is the correct attendance status:
+                            <ul>
+                                <li><strong>Student:</strong> <span t-field="object.attendance_issue_student_id.student_id"/></li>
+                                <li><strong>Date:</strong> <span t-field="object.attendance_session_id.weekday"/>, <t t-out="object.attendance_session_id.date"/> from <span t-field="object.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="object.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/></li>                                
+                                <li><strong>Session:</strong> <span t-field="object.attendance_session_id.attendance_schedule_id.attendance_template_id"/></li>
+                                <li><strong>Status:</strong> <span t-field="object.attendance_status"/></li>
+                                <t t-if="object.notes">
+                                    <li><strong>Details:</strong> <span t-field="object.notes"/></li>
+                                </t>
+                            </ul>                        
+                        </p>
+                        <p>If you need further information, you can contact with <t t-out="object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name"/> just replaying to this email.</p>                                                
+                        <p>
+                            Kind regards,<br>
+                            <t t-out="object.create_uid.company_id.name"/>
+                        </p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+    </data>
+</odoo>

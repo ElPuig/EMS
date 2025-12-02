@@ -1,0 +1,26 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_notification_list">
+            <field name="name">ems.notification.list</field>
+            <field name="model">queue.job</field>            
+            <field name="inherit_id" ref="queue_job.view_queue_job_tree"/> 
+            <field name="arch" type="xml">        
+                <xpath expr="//field[@name='channel']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>   
+
+                <xpath expr="//field[@name='uuid']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>   
+
+                <xpath expr="//field[@name='model_name']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>   
+
+                <xpath expr="//field[@name='eta']" position="attributes">
+                    <attribute name="optional">show</attribute>
+                </xpath>                                                
+            </field>		      
+        </record>   
+    </data>
+</odoo>

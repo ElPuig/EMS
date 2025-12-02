@@ -13,7 +13,9 @@ class ems_attendance_justification(models.Model):
 	teacher_id = fields.Many2one(string="Justified by", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True, ondelete='cascade')
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')", required=True, store=True, ondelete='cascade')	
 	attachment_ids = fields.Many2many(string="Attached files", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.attendance_justification')]")	
-	attendance_status_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_status") # NOTE: Many2many needed in order to update values (when Many2one used, removed values when changing filters removes also the status entries)
+	
+	# NOTE: Many2many needed in order to update values (when Many2one used, removed values when changing filters removes also the status entries)
+	attendance_status_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_status") 
 	session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee")
 	allowed_student_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	notes = fields.Text("Notes")

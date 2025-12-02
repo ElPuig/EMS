@@ -1,0 +1,113 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_issue_tutor_form">
+            <field name="name">ems.attendance_issue_tutor.form</field>
+            <field name="model">ems.attendance_issue_tutor</field>
+            <field name="arch" type="xml">
+                <form string="notification">                    
+                    <sheet>     
+                         <group string="Daily report data" col="3">   
+                            <group>
+                                <field name="tutor_id" widget="many2one_avatar" readonly="True" />
+                            </group>  
+                            <group colspan="2">
+                                <field name="notification_id" string="Notification details" readonly="True" invisible="not user_is_admin" />
+                            </group>  
+                            
+                            <group>
+                                <field name="issue_date" readonly="True" />
+                            </group>
+                            <group>
+                                <field name="schedule_date" readonly="True" />
+                            </group> 
+                            <group >
+                                <field name="status" readonly="True" />
+                            </group>                                         
+                        </group>
+
+                        <notebook>
+                            <page string="Error details" invisible="not exception">
+                                <field name="exception" readonly="True" />
+                            </page>     
+                            <page string="Students">
+                                <field name="attendance_issue_student_ids">
+                                    <list default_order="student_id asc" create="False" edit="False" delete="False">
+                                        <field name="student_id" widget="many2one_avatar"/>
+                                    </list>
+                                </field>
+                            </page> 
+                        </notebook>                      
+                    </sheet>	
+                </form>              
+            </field>			
+        </record>
+
+         <record model="ir.ui.view" id="view_attendance_issue_student_form">
+            <field name="name">ems.attendance_issue_student.form</field>
+            <field name="model">ems.attendance_issue_student</field>
+            <field name="arch" type="xml">
+                <form string="notification">                    
+                    <sheet>     
+                         <group string="Student report data" col="3">   
+                            <group colspan="2">
+                                <field name="student_id" widget="many2one_avatar" readonly="True" />
+                            </group>         
+                            <group>
+                                <field name="date" readonly="True" />
+                            </group>                                 
+                        </group>
+
+                        <notebook>
+                            <page string="Sessions and statuses">
+                                <field name="attendance_issue_status_ids">
+                                    <list default_order="time_range asc, id desc" create="False" edit="False" delete="False" no_open="True"
+                                    decoration-strikethrough="rectified_by != False">
+                                       <field name="id" column_invisible="True"/>
+                                        <field name="rectified_by" column_invisible="True"/>
+                                        <field name="subject_id" width="300px"/>
+                                        <field name="time_range" width="100px"/>
+                                        <field name="group_id"  width="100px"/>
+                                        <field name="space_id" width="150px"/>
+                                        <field name="teacher_id" widget="many2one_avatar" width="200px"/>
+                                        <field name="attendance_status" string="Attendance" width="100px" />                                        
+                                        <field name="notes" width="500px" />
+                                        <!-- 
+                                            TODO: develop a custom component to work as tags but using the email field (or beeing able to choose the field). Then, change the field to res.partner relation instead of Char. 
+                                            https://github.com/ElPuig/EMS/issues/103
+                                        -->
+                                        <field name="send_to" width="500px"/>
+                                        <field name="schedule_date" width="150px"/>
+                                        <field name="notification_status" string="Notification" width="100px"/>
+                                        
+                                         <!-- 
+                                            TODO: develop a custom component to work as the OCA popover plugin, but opening a modal instead of filling the tooltip. 
+                                            https://github.com/ElPuig/EMS/issues/104
+                                            https://github.com/OCA/web/tree/18.0/web_widget_popover 
+                                        -->
+                                        <button name="open_exception_popup" type="object" icon="fa-info-circle" title="Open error details" invisible="not exception" width="30px"/> 
+                                        <button name="open_notification_form" type="object" icon="fa-envelope-o" title="Open notification details" invisible="not user_is_admin" width="30px"/> 
+                                    </list>
+                                </field>
+                            </page>      
+                        </notebook>                      
+                    </sheet>	
+                </form>              
+            </field>			
+        </record>
+
+        <record model="ir.ui.view" id="view_attendance_issue_status_exception_popup">
+            <field name="name">ems.attendance_issue_status_exception.popup</field>
+            <field name="model">ems.attendance_issue_status</field> 
+            <field name="arch" type="xml">
+                <form string="Error details">
+                    <sheet>
+                        <field name="exception" readonly="1" widget="text"/>
+                    </sheet>
+                    <footer>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

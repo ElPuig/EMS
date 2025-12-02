@@ -9,10 +9,13 @@
                     <attribute name="js_class">studentpopup_expand_button</attribute>                    
                 </xpath>     
 
-                <!-- NOTE: This works in production and some test environments, but not in mine... WHY? Reinstall needed? -->
-                <xpath expr="//field[@name='name']" position="attributes">       
+                <xpath expr="//field[@name='name'][last()]" position="attributes">       
                     <attribute name="readonly">read_only_user</attribute>
-                </xpath>     
+                </xpath>   
+
+                <xpath expr="//field[@name='image_1920']" position="attributes">       
+                    <attribute name="readonly">read_only_user</attribute>
+                </xpath>   
 
                 <field name="vat" position="after">     
                     <field name="contact_type" invisible="True" />
@@ -22,6 +25,10 @@
 
                 <field name="vat" position="attributes">                    
                     <attribute name="invisible">True</attribute>            
+                </field>   
+
+                <field name="type" position="attributes">                    
+                    <attribute name="readonly">contact_type == 'student'</attribute>
                 </field>   
 
                 <field name="company_type" position="attributes">
@@ -64,7 +71,7 @@
                 <xpath expr="//page[@name='contact_addresses']" position="attributes">
                     <attribute name="invisible">read_only_user</attribute>
                 </xpath>   
-
+        
                 <xpath expr="//page[@name='contact_addresses']" position="before">
                     <page name="student" string="Student data" invisible="contact_type != 'student'" autofocus="contact_type == 'student">
                         <group cols="2">
@@ -74,12 +81,13 @@
                                 <field name="student_id" readonly="read_only_user" />
                                 <field name="medical_id" invisible="read_only_user"  />                                                            
                                 <field name="student_email" readonly="read_only_user" widget="email" />                               
+                                <field name="car_plate" invisible="read_only_user"  />
                             </group>
                             <group>
+                                <field name="is_adult" readonly="True" />
                                 <field name="birth_date" readonly="read_only_user" />
                                 <field name="birth_country_id" invisible="read_only_user"  />    
-                                <field name="citizenship_id" invisible="read_only_user"  />
-                                <field name="car_plate" invisible="read_only_user"  />
+                                <field name="citizenship_id" invisible="read_only_user"  />                                
                             </group>                            
 
                             <separator name="data" string="Authorizations"/>
@@ -89,6 +97,7 @@
                             </group>    
                             <group>
                                 <field name="auth_healt" readonly="read_only_user" />
+                                <field name="auth_share" readonly="read_only_user" />
                             </group>  
                         </group>                        
                     </page>
@@ -117,7 +126,72 @@
                             </field>
                         </group>
                     </page>
-                </xpath>                                                 
+                </xpath> 
+
+                <!-- Hiding or setting up fields when the "add contact" button is used (same form). -->
+                <xpath expr="//field[@name='child_ids']" position="attributes">
+                    <attribute name="context">
+                        {
+                            'default_parent_id': id,
+                            'default_street': street, 
+                            'default_street2': street2, 
+                            'default_city': city, 
+                            'default_state_id': state_id, 
+                            'default_zip': zip, 
+                            'default_country_id': country_id, 
+                            'default_lang': lang, 
+                            'default_user_id': user_id, 
+                            'default_type': 'contact',                            
+                            'default_contact_type': 'family' if contact_type == 'student' else 'provider'
+                        }
+                    </attribute>
+                </xpath>                                                  
+
+                <xpath expr="/form//form//field[@name='function']" position="after">
+                    <field name="contact_type" invisible="True" />
+                    <field name="family_relation" placeholder="e.g. Parent" invisible="contact_type != 'family'" />                    
+                </xpath>  
+
+                <xpath expr="/form//form//field[@name='type']" position="attributes">
+                    <attribute name="invisible">contact_type == 'family'</attribute>
+                </xpath> 
+
+                <xpath expr="/form//form/sheet/div" position="attributes">
+                    <attribute name="invisible">contact_type == 'family'</attribute>
+                </xpath>
+              
+                <xpath expr="/form//form/sheet/hr" position="attributes">
+                    <attribute name="invisible">contact_type == 'family'</attribute>
+                </xpath> 
+
+                <xpath expr="/form//form//field[@name='name']" position="attributes">
+                    <attribute name="placeholder"></attribute>
+                </xpath>  
+
+                <xpath expr="/form//form//field[@name='title']" position="attributes">
+                    <attribute name="invisible">contact_type == 'family'</attribute>
+                </xpath>    
+
+                <xpath expr="/form//form//field[@name='function']" position="attributes">
+                    <attribute name="invisible">contact_type == 'family'</attribute>
+                </xpath>   
+              
+                <xpath expr="/form//form//label[@for='street']" position="attributes">
+                    <attribute name="invisible">type in ['contact'] or contact_type == 'family'</attribute>
+                </xpath>  
+
+                <xpath expr="/form//form//group/group/div" position="attributes">
+                    <attribute name="invisible">type in ['contact'] or contact_type == 'family'</attribute>
+                </xpath> 
+
+                <!-- Adding data to the kanban card -->
+                <xpath expr="//kanban/templates//field[@name='function']" position="attributes">
+                    <attribute name="invisible">contact_type == 'family'</attribute>
+                </xpath> 
+
+                <xpath expr="//kanban/templates//field[@name='function']" position="after">
+                    <field name="family_relation" invisible="contact_type != 'family'" />
+                </xpath> 
             </field>		      
         </record>
         <record id="view_partner_form_ems_cleanup_final" model="ir.ui.view">

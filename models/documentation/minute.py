@@ -26,6 +26,7 @@ class minute(models.Model):
 	@api.depends('type', 'workgroup_id', 'department_id', 'nature')
 	def _compute_display_name(self):              
 		for rec in self:
+			# TODO: fix selection text using the new form (look at wiki)
 			rec.display_name = "%s: %s (%s)" % (dict(rec._fields['type'].selection).get(rec.type), rec.workgroup_id.name if type == "workgroup" else rec.department_id.name, dict(rec._fields['nature'].selection).get(rec.nature))
 
 	@api.depends("type")

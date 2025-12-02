@@ -1,0 +1,3814 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ems
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0-20251023\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-01 15:12+0000\n"
+"PO-Revision-Date: 2025-12-01 15:12+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid ""
+") already have a schedule defined for the current course. If you continue "
+"with the process: <br/>"
+msgstr ""
+") ja te definit un horari pel curs actual. Si continua "
+"amb el procés: <br/>"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_outcome__round__1
+msgid "1st round"
+msgstr "1a avaluació"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_outcome__round__2
+msgid "2nd round"
+msgstr "2a avaluació"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_outcome__round__3
+msgid "3rd round"
+msgstr "3a avaluació"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_outcome__round__4
+msgid "4th round"
+msgstr "4a avaluació"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_attendance_issue_status
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Dear family,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            This is an automated email, in order to inform you about an attendance status:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Student:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
+"                                <li><strong>Date:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> from <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
+"                                <li><strong>Session:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
+"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>                        \n"
+"                        \n"
+"                        <p>If you need further information, you can contact with <t t-out=\"object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name\"/> just replaying to this email.</p>                                                \n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Estimada família,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Aquest es un correu automàtic, per a informar-lo sobre una assistència:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Estudiant:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
+"                                <li><strong>Data:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> de <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
+"                                <li><strong>Sessió:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
+"                                <li><strong>Estat:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Detalls:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>                        \n"
+"                        \n"
+"                        <p>Si necessita més informació, pot contactar amb <t t-out=\"object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name\"/> contestant a aquest correu.</p>                                                \n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_attendance_issue_rectification
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Dear family,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            We're sorry, but you recently received an email containing mistakes about some attendance statuses.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Again, we apologize, this is the correct attendance status:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Student:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
+"                                <li><strong>Date:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> from <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
+"                                <li><strong>Session:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
+"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>                        \n"
+"                        \n"
+"                        <p>If you need further information, you can contact with <t t-out=\"object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name\"/> just replaying to this email.</p>                                                \n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Estimada família,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Els demanem disculpes, perquè recentment han rebut un correu electrònic que contenia dades incorrectes sobre l'estat d'una assistència.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            De nou, les nostres disculpes; aquesta és la informació correcta de l'assistència:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Estudiant:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
+"                                <li><strong>Data:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> de <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
+"                                <li><strong>Sessió:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
+"                                <li><strong>Estat:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Detalls:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>                        \n"
+"                        \n"
+"                        <p>Si necessita més informació, pot contactar amb <t t-out=\"object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name\"/> contestant a aquest correu.</p>                                                \n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_attendance_issue_tutor
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Dear tutor,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            This is your students daily report, in order to inform you about today's attendance statuses:\n"
+"                            </p><ul>\n"
+"                                <li>\n"
+"                                    <strong>Date: </strong><span t-field=\"object.issue_date\"/>\n"
+"                                    <ul>\n"
+"                                        <t t-foreach=\"object.attendance_issue_student_ids\" t-as=\"student\">\n"
+"                                            <li>\n"
+"                                                <strong>Student: </strong><span t-field=\"student.student_id\"/>\n"
+"                                                <ul>\n"
+"                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
+"                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\">                                                            \n"
+"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status\"/>\n"
+"                                                            <t t-if=\"status.notes\">\n"
+"                                                                | <span t-field=\"status.notes\"/>\n"
+"                                                            </t>\n"
+"                                                        </li>                                                        \n"
+"                                                    </t>\n"
+"                                                </ul>\n"
+"                                            </li>                                                                               \n"
+"                                        </t>\n"
+"                                    </ul>\n"
+"                                </li>\n"
+"                            </ul>\n"
+"                                                \n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Estimat tutor,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Aquest és l'informe diari dels seus alumnes, per a informar-lo sobre l'estat de les assistències del dia d'avuí:\n"
+"                            </p><ul>\n"
+"                                <li>\n"
+"                                    <strong>Data: </strong><span t-field=\"object.issue_date\"/>\n"
+"                                    <ul>\n"
+"                                        <t t-foreach=\"object.attendance_issue_student_ids\" t-as=\"student\">\n"
+"                                            <li>\n"
+"                                                <strong>Estudiant: </strong><span t-field=\"student.student_id\"/>\n"
+"                                                <ul>\n"
+"                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
+"                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\"> \n"
+"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status\"/>\n"
+"                                                            <t t-if=\"status.notes\">\n"
+"                                                                | <span t-field=\"status.notes\"/>\n"
+"                                                            </t>\n"
+"                                                        </li>                                                        \n"
+"                                                    </t>\n"
+"                                                </ul>\n"
+"                                            </li>                                                                               \n"
+"                                        </t>\n"
+"                                    </ul>\n"
+"                                </li>\n"
+"                            </ul>\n"
+"                                                \n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
+msgid ""
+"A previous session for the same subject has been detected for today, so "
+"assistance data has been copied from the previous one. You can modify any of"
+" those as you please."
+msgstr ""
+"S'ha detectat una sessió prèvia sobre la mateixa assignatura per avuí, de manera que "
+"s'han copiat les dades d'assistència de la sessió anterior. Podeu "
+"modificar-los al vostre gust."
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_asp
+#: model:ir.ui.menu,name:ems.menu_community_config_asp
+msgid "ASP"
+msgstr "PAS"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "ASP's Name"
+msgstr "Nom del PAS"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__abstent_ids
+msgid "Abstents"
+msgstr "Absents"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Abstract"
+msgstr "Resum"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__abstract
+msgid "Abstract or main topic"
+msgstr "Resum o tema principal"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_content__acronym
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__acronym
+#: model:ir.model.fields,field_description:ems.field_ems_group__acronym
+#: model:ir.model.fields,field_description:ems.field_ems_level__acronym
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__acronym
+#: model:ir.model.fields,field_description:ems.field_ems_study__acronym
+#: model:ir.model.fields,field_description:ems.field_ems_subject__acronym
+msgid "Acronym"
+msgstr "Acrònim"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__message_needaction
+msgid "Action Needed"
+msgstr "Acció Necessària"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__active
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__active
+#: model:ir.model.fields,field_description:ems.field_ems_utils__active
+msgid "Active"
+msgstr "Actiu"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__activity_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee__activity_ids
+msgid "Activities"
+msgstr "Activitats"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_hr_employee__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Decorador de la excepció a una activitad"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__activity_state
+#: model:ir.model.fields,field_description:ems.field_hr_employee__activity_state
+msgid "Activity State"
+msgstr "Estat de l'activitat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_hr_employee__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Icona del tipus d'activitat"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_asp_kanban
+msgid "Administration and Services Personnel"
+msgstr "Personal d'Administració i Serveis"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__asp
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__asp
+#: model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__asp
+msgid "Administrative and Services Personnel"
+msgstr "Personal Administratiu i de Serveis"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_study_form
+msgid "Administrative data"
+msgstr "Dades administratives"
+
+#. module: ems
+#: model:res.groups,name:ems.group_admin
+msgid "Administrator"
+msgstr "Administrador/a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__is_adult
+#: model:ir.model.fields,field_description:ems.field_res_users__is_adult
+msgid "Adult"
+msgstr "Adult"
+
+#. module: ems
+#: model:res.groups,comment:ems.group_admin
+msgid "All access rights."
+msgstr "Tots els drets d'accés."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__allowed_attendance_schedule_ids
+msgid "Allowed Attendance Schedule"
+msgstr "Horari d'assistència permès"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__allowed_group_ids
+msgid "Allowed Group"
+msgstr "Grup permès"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__allowed_student_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__allowed_student_ids
+msgid "Allowed Student"
+msgstr "Estudiant permès"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__allowed_subject_ids
+msgid "Allowed Subject"
+msgstr "Assumpte permès"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_role__employee_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_role_form
+#: model_terms:ir.ui.view,arch_db:ems.view_role_list
+#: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
+msgid "Assigned to"
+msgstr "Assignat a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__assistant_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Assistants"
+msgstr "Assistents"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids
+#: model:ir.model.fields,field_description:ems.field_ems_study__attachment_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_study_form
+msgid "Attached files"
+msgstr "Fitxers adjunts"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ir_attachment
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__attachment_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attachment_form
+msgid "Attachment"
+msgstr "Adjunt"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__message_attachment_count
+msgid "Attachment Count"
+msgstr "Quantitat d'adjunts"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Attendance"
+msgstr "Assistència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__attendance_issue_status_delay
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__attendance_issue_status_delay
+msgid "Attendance Issue Status Delay"
+msgstr "Retard a l'estat d'una incidència en assistència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__attendance_issue_tutor_default
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__attendance_issue_tutor_default
+msgid "Attendance Issue Tutor Default"
+msgstr "Valor predeterminat a l'estat d'una incidència en assistència de cara al tutor"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Attendance Settings"
+msgstr "Configuració d'asistencia"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_reports_group
+msgid "Attendance by group"
+msgstr "Assistència per grup"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_reports_student
+msgid "Attendance by student"
+msgstr "Assistència per estudiant"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_reports_subject
+msgid "Attendance by subject"
+msgstr "Assistència per assignatura"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_issue_tree
+msgid "Attendance issue"
+msgstr "Incidència en assistència"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_issue_status
+msgid ""
+"Attendance issue (status): contains the data about an attendance issue."
+msgstr ""
+"Incidència en assistència (estat): conté les dades sobre una incidència en assistència."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_issue_student
+msgid "Attendance issue (student): groups the attendance's issues by student."
+msgstr "Incidència en assistència (estudiant): agrupa les incidències en assistència per estudiant."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_issue_tutor
+msgid ""
+"Attendance issue (tutor): contains the data about isues that can be reviewed"
+" by the student's tutor."
+msgstr ""
+"Incidència en assistència (tutor): conté les dades sobre les incidències que es poden revisar"
+" pel tutor/a dels estudiants."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_justification_tree
+msgid "Attendance justification"
+msgstr "Justificant d'assistència"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_justification
+msgid ""
+"Attendance justification: contains the data about an abscence justification "
+"(proof of attendance)."
+msgstr ""
+"Justificant d'assistència: conté les dades sobre una justificació d'absència"
+" (comprovant d'assistència)."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_notification_tree
+msgid "Attendance notification"
+msgstr "Notificació d'assistència"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_attendance_issue_tutor
+msgid "Attendance notification: daily summary"
+msgstr "Notificación de asistencia: resum diari"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_report_group_wizard
+msgid "Attendance report (by group)"
+msgstr "Informe d'assistència (per grup)"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_report_student_wizard
+msgid "Attendance report (by student)"
+msgstr "Informe d'assistència (per estudiant)"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_report_subject_wizard
+msgid "Attendance report (by subject)"
+msgstr "Informe d'assistència (per assignatura)"
+
+#. module: ems
+#: model:ir.model,name:ems.model_report_ems_attendance_report_group
+msgid "Attendance report data: by group."
+msgstr "Dades de l'informe d'assistència: per grup."
+
+#. module: ems
+#: model:ir.model,name:ems.model_report_ems_attendance_report_student
+msgid "Attendance report data: by student."
+msgstr "Dades de l'informe d'assistència: per estudiant."
+
+#. module: ems
+#: model:ir.model,name:ems.model_report_ems_attendance_report_subject
+msgid "Attendance report data: by subject."
+msgstr "Dades de l'informe d'assistència: per assignatura."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_report_group_wizard
+msgid "Attendance report wizard: by group."
+msgstr "Assistent d'informe d'assistència: per grup."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_report_student_wizard
+msgid "Attendance report wizard: by student."
+msgstr "Assistent d'informe d'assistència: per estudiant."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_report_subject_wizard
+msgid "Attendance report wizard: by subject."
+msgstr "Assistent d'informe d'assistència: per assignatura."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+msgid "Attendance report |"
+msgstr "Informe d'assistència |"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
+msgid "Attendance report:"
+msgstr "Informe d'assistència:"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_attendance_report_group
+msgid "Attendance report: by group"
+msgstr "Informe d'assistència: per grup"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_attendance_report_session
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_session
+msgid "Attendance report: by session"
+msgstr "Informe d'assistència: per sessió"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_attendance_report_student
+msgid "Attendance report: by student"
+msgstr "Informe d'assistència: per estudiant"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_attendance_report_subject
+msgid "Attendance report: by subject"
+msgstr "Informe d'assistència: per assignatura"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_schedule
+msgid "Attendance schedule: concretes the weekdays data."
+msgstr "Horari d'assistència: concreta les dades dels dies feiners."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_session_tree
+msgid "Attendance session"
+msgstr "Sessió d'assistència"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_session
+msgid ""
+"Attendance session: contains the data about every session done with the "
+"students."
+msgstr ""
+"Sessió d'assistència: conté les dades de cada sessió realitzada amb els "
+"estudiants."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_status
+msgid "Attendance status"
+msgstr "Estat de l'assistència"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_status
+msgid "Attendance status: information about session per student."
+msgstr "Estat d'assistència: informació sobre la sessió per estudiant."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_template_tree
+msgid "Attendance template"
+msgstr "Plantilla d'assistència"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_template
+msgid ""
+"Attendance template: contains the basic attendance data (who teaches what, "
+"where and for whom)"
+msgstr ""
+"Plantilla d'assistència: conté les dades bàsiques d'assistència (qui ensenya"
+" què, on i per a qui)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_attended
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__status__a_attended
+msgid "Attended"
+msgstr "Assistència"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Attention please: some teachers ("
+msgstr "Atenció: alguns docents ("
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Authorizations"
+msgstr "Autoritzacions"
+
+#. module: ems
+#: model:ir.model,name:ems.model_hr_employee_base
+msgid "Basic Employee"
+msgstr "Empleat bàsic"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__birth_country_id
+#: model:ir.model.fields,field_description:ems.field_res_users__birth_country_id
+msgid "Birth Country"
+msgstr "País de naixement"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__birth_date
+#: model:ir.model.fields,field_description:ems.field_res_users__birth_date
+msgid "Birth Date"
+msgstr "Data de naixement"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_sumary_table
+msgid "Breakdown"
+msgstr "Desglossament"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Cancel"
+msgstr "Cancel·la"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__car_plate
+#: model:ir.model.fields,field_description:ems.field_res_users__car_plate
+msgid "Car Plate"
+msgstr "Placa de cotxe"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__employee_type
+msgid ""
+"Categorize your Employees by type. This field also has an impact on "
+"contracts. Only Employees, Students and Trainee will have contract history."
+msgstr ""
+"Classifica els teus empleats per tipus. Aquest camp també té un impacte en "
+"els contractes. Només els empleats, els estudiants i els estudiants en "
+"pràctiques tindran un historial de contractes."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__citizenship_id
+#: model:ir.model.fields,field_description:ems.field_res_users__citizenship_id
+msgid "Citizenship"
+msgstr "Ciutadania"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__space_id
+msgid "Classroom"
+msgstr "Aula"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_status_exception_popup
+msgid "Close"
+msgstr "Tancar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_content__code
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__code
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__code
+#: model:ir.model.fields,field_description:ems.field_ems_space__code
+#: model:ir.model.fields,field_description:ems.field_ems_study__code
+#: model:ir.model.fields,field_description:ems.field_ems_subject__code
+msgid "Code"
+msgstr "Codi"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
+#: model:ir.model.fields,field_description:ems.field_ems_role__color
+msgid "Color"
+msgstr "Color"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+msgid "Comments"
+msgstr "Comentaris"
+
+#. module: ems
+#: model:ir.model,name:ems.model_res_company
+msgid "Companies"
+msgstr "Empreses"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_provider_search
+msgid "Company"
+msgstr "Empresa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_content__content_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_content_form
+msgid "Composite"
+msgstr "Composició"
+
+#. module: ems
+#: model:hr.job,name:ems.job_concierje
+msgid "Concierje"
+msgstr "Conserge"
+
+#. module: ems
+#: model:ir.model,name:ems.model_res_config_settings
+msgid "Config Settings"
+msgstr "Paràmetres de configuració"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_settings
+#: model:ir.ui.menu,name:ems.menu_attendance_config
+#: model:ir.ui.menu,name:ems.menu_community_config
+msgid "Configuration"
+msgstr "Configuració"
+
+#. module: ems
+#: model:ir.model,name:ems.model_res_partner
+msgid "Contact"
+msgstr "Contacte"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__contact_type
+#: model:ir.model.fields,field_description:ems.field_res_users__contact_type
+msgid "Contact Type"
+msgstr "Tipus de contacte"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_subject__content_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_form
+msgid "Content"
+msgstr "Contingut"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_content
+msgid "Content: what the student should work on."
+msgstr "Contingut: allò en què ha de treballar l'alumne."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__contract_type_id
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__contract_type_id
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__contract_type_id
+msgid "Contract Type"
+msgstr "Tipus de contracte"
+
+#. module: ems
+#: model:hr.job,name:ems.job_conversation
+msgid "Conversational Auxiliary"
+msgstr "Auxiliar de conversa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__course
+msgid "Course"
+msgstr "Curs"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Course Management Settings"
+msgstr "Configuració de la gestió del curs"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_course
+msgid ""
+"Course: defines a range of time when a course is running (for example: "
+"2024-2025)."
+msgstr ""
+"Curs: defineix un interval de temps en què s'està impartint un curs (per "
+"exemple: 2024-2025)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_content__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_course__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_group__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_level__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_planning__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_role__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_space__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_space_type__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_study__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_subject__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_workgroup__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__create_uid
+msgid "Created by"
+msgstr "Creat per"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_content__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_course__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_group__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_level__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_planning__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_role__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_space__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_space_type__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_study__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_subject__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_workgroup__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__create_date
+msgid "Created on"
+msgstr "Creat el"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_criteria
+msgid ""
+"Criteria: what the teacher should use in order to validate the student's "
+"learning outcome."
+msgstr ""
+"Criteris: allò que el professor ha d'utilitzar per validar el resultat "
+"d'aprenentatge de l'estudiant."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__current_course_id
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__current_course_id
+msgid "Current Course"
+msgstr "Curs Actual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Current course"
+msgstr "Curs actual"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_community_config_curriculum
+msgid "Curriculum"
+msgstr "Currículum"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_issues
+msgid "Daily issues"
+msgstr "Incidències diàries"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form
+msgid "Daily report data"
+msgstr "Dades de l'informe diari"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__issue_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__date
+#: model:ir.model.fields,field_description:ems.field_ems_minute__date
+msgid "Date"
+msgstr "Data"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_delayed
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__status__a_delayed
+msgid "Delayed"
+msgstr "Retard"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__delegate_id
+msgid "Delegate"
+msgstr "Delegat/da"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_public_kanban
+msgid "Delete"
+msgstr "Suprimeix"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__department_id
+msgid "Department"
+msgstr "Departament"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__type__department
+msgid "Department meeting"
+msgstr "Reunió del departament"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_department_tree
+#: model:ir.ui.menu,name:ems.menu_departments
+#: model_terms:ir.ui.view,arch_db:ems.view_department_search
+msgid "Departments"
+msgstr "Departaments"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__deprecated
+msgid "Deprecated"
+msgstr "Obsolet"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+msgid "Details"
+msgstr "Detalls"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_content__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_course__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_group__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_level__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_planning__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_role__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_space__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_space_type__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_study__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_subject__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_workgroup__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__display_name
+msgid "Display Name"
+msgstr "Nom de visualització"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__display_warning
+msgid "Display Warning"
+msgstr "Mostra l'avís"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_study_form
+msgid "Download File"
+msgstr "Descarrega el fitxer"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_subject__ects
+msgid "ECTS Credits"
+msgstr "Crèdits ECTS"
+
+#. module: ems
+#: model:ir.module.category,name:ems.category_main
+#: model:ir.module.category,name:ems.ems_category_main
+msgid "EMS"
+msgstr "EMS"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "EMS Management"
+msgstr "Gestió de l'EMS"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_utils
+msgid "EMS utils library (mixin)"
+msgstr "Biblioteca d'utilitats de l'EMS (mixin)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_content_form
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_form
+msgid "Edit Content"
+msgstr "Edita el contingut"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_form
+msgid "Edit Learning Outcome"
+msgstr "Edita el resultat d'aprenentatge"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_outcome_form
+msgid "Edit criteria"
+msgstr "Edita els criteris"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_community
+msgid "Educational Community"
+msgstr "Comunitat Educativa"
+
+#. module: ems
+#: model:ir.module.category,description:ems.category_main
+#: model:ir.module.category,description:ems.ems_category_main
+msgid "Educational Management System"
+msgstr "Sistema de gestió educativa"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_attendance_issue_status
+msgid "Email notification for families: student attendance status"
+msgstr "Email de notificació per a les famílies: assistència de l'estudiant"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_attendance_issue_tutor
+msgid "Email notification for tutors: student attendances"
+msgstr "Email de notificació per a tutors/es: assistència dels/les estudiants"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Emergency"
+msgstr "Emergència"
+
+#. module: ems
+#: model:ir.model,name:ems.model_hr_employee
+msgid "Employee"
+msgstr "Empleat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_role__employee_type
+#: model:ir.model.fields,field_description:ems.field_hr_employee__employee_type
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__employee_type
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__employee_type
+#: model:ir.model.fields,field_description:ems.field_hr_job__employee_type
+msgid "Employee Type"
+msgstr "Tipus d'empleat"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_employmenttypes_tree
+msgid "Employment Types"
+msgstr "Tipus d'ocupació"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_employmenttypes
+msgid "Employment types"
+msgstr "Tipus d'ocupació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course__end
+msgid "End"
+msgstr "Final"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__end_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__end_date
+msgid "End Date"
+msgstr "Data de finalització"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__end_time
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__end_time
+msgid "End Time"
+msgstr "Hora de finalització"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__end_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__end_date
+msgid "End date"
+msgstr "Data de finalització"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__enrolled_student_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "Enrolled"
+msgstr "Inscrit"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__enrollment_view_ids
+#: model:ir.model.fields,field_description:ems.field_res_partner__enrollment_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__enrollment_ids
+msgid "Enrollment"
+msgstr "Matrícula"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Enrollment Data"
+msgstr "Dades d'inscripció"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_enrollment
+msgid "Enrollment: ternary relation between student-group-uf."
+msgstr "Matrícula: relació ternària entre estudiant-grup-uf."
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_enrollments
+msgid "Enrollments"
+msgstr "Inscripcions"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_enrollment_tree
+msgid "Enrollments (student x group x subject)"
+msgstr "Matrícules (estudiant x grup x assignatura)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_status_exception_popup
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form
+msgid "Error details"
+msgstr "Detalls de l'error"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_outcome_form
+msgid "Evaluation criteria"
+msgstr "Criteris d'avaluació"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__type__evaluation
+msgid "Evaluation meeting"
+msgstr "Reunió d'avaluació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__exception
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__exception
+msgid "Exception"
+msgstr "Excepció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_planning__external_ponderation
+msgid "External grading ponderation (%)"
+msgstr "Ponderació de la gradació externa (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_subject__external_hours
+msgid "External hours"
+msgstr "Horari extern"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__nature__extraordinary
+msgid "Extraordinary"
+msgstr "Extraordinari"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__family
+msgid "Family"
+msgstr "Familia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__family_relation
+#: model:ir.model.fields,field_description:ems.field_res_users__family_relation
+msgid "Family relation"
+msgstr "Vincle familiar"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__color
+msgid "Field to store the color that will be used for calendar view"
+msgstr ""
+"Camp per emmagatzemar el color que s'utilitzarà per a la vista de calendari"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__follow_ids
+msgid "Follow-up"
+msgstr "Seguiment"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__message_follower_ids
+msgid "Followers"
+msgstr "Seguiment"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguiment (col·laboradors)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_session__activity_type_icon
+#: model:ir.model.fields,help:ems.field_hr_employee__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Icona de font impressionant, p. ex. tasques-fa"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__weekday__4
+msgid "Friday"
+msgstr "Divendres"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__from_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__from_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__from_date
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+msgid "From"
+msgstr "De"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_grade_outcome
+msgid "Grade (outcome): ternary relation between student-teacher-outcome."
+msgstr "Qualificació (resultat d'aprenentatge): relació ternària entre estudiant-professor-resultat."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__group_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_id
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_group_list
+msgid "Group"
+msgstr "Grup"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_search
+#: model_terms:ir.ui.view,arch_db:ems.view_space_search
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_search
+#: model_terms:ir.ui.view,arch_db:ems.view_teaching_search
+msgid "Group By"
+msgstr "Agrupar per"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Group Data"
+msgstr "Dades de grup"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_kanban
+msgid "Group:"
+msgstr "Grup:"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_groups
+msgid "Groups"
+msgstr "Grups"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_group_tree
+msgid "Groups (for students)"
+msgstr "Grups (per a estudiants)"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_group
+msgid "Groups: Where the students are assigned to."
+msgstr "Grups: On s'assignen els estudiants."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__mode__guard
+msgid "Guard"
+msgstr "Guàrdia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__has_message
+msgid "Has Message"
+msgstr "Té missatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__auth_healt
+#: model:ir.model.fields,field_description:ems.field_res_users__auth_healt
+msgid "Health Data"
+msgstr "Dades de salut"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_department_search
+msgid "Hide main departments"
+msgstr "Amaga els departaments principals"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_list
+msgid "Holder"
+msgstr "Titular"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Human Resources"
+msgstr "Recursos Humans"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_community_config_hhrr
+msgid "Human resources"
+msgstr "Recursos humans"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__modality__hybrid
+msgid "Hybrid"
+msgstr "Híbrid"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__id
+#: model:ir.model.fields,field_description:ems.field_ems_content__id
+#: model:ir.model.fields,field_description:ems.field_ems_course__id
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__id
+#: model:ir.model.fields,field_description:ems.field_ems_group__id
+#: model:ir.model.fields,field_description:ems.field_ems_level__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute__id
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__id
+#: model:ir.model.fields,field_description:ems.field_ems_planning__id
+#: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__id
+#: model:ir.model.fields,field_description:ems.field_ems_role__id
+#: model:ir.model.fields,field_description:ems.field_ems_space__id
+#: model:ir.model.fields,field_description:ems.field_ems_space_type__id
+#: model:ir.model.fields,field_description:ems.field_ems_study__id
+#: model:ir.model.fields,field_description:ems.field_ems_subject__id
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__id
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__id
+#: model:ir.model.fields,field_description:ems.field_ems_workgroup__id
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
+msgid "ID"
+msgstr "ID"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_hr_employee__activity_exception_icon
+msgid "Icon"
+msgstr "Icona"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_session__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_hr_employee__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Icona per indicar una activitat d'excepció."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_session__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si està marcat, nous missatges requereixen de la seva atenció."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_session__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_session__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si està marcat, alguns missatges no s'han pogut lliurar."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__auth_share
+#: model:ir.model.fields,help:ems.field_res_users__auth_share
+msgid ""
+"If marked, the student (even if adult) allows to share its educational "
+"information with its family."
+msgstr ""
+"Si està marcat, l'estudiant (encara que sigui adult) autoritza que es comparteixi informació "
+"acadèmica amb la família."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__image_1920
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__image_1920
+msgid "Image"
+msgstr "Imatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__auth_image
+#: model:ir.model.fields,field_description:ems.field_res_users__auth_image
+msgid "Image Rights"
+msgstr "Drets d'imatge"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Import"
+msgstr "Importa"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/import_planner_cog_menu.xml:0
+msgid "Import planner data (XML)"
+msgstr "Importar dades del planificador (XML)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__modality__in-person
+msgid "In-person"
+msgstr "Presencial"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_planning__internal_ponderation
+msgid "Internal grading ponderation (%)"
+msgstr "Ponderació de la gradació interna (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_subject__internal_hours
+msgid "Internal hours"
+msgstr "Horari intern"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__inuse_group_ids
+msgid "Inuse Group"
+msgstr "Grup d'inús"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__inuse_student_ids
+msgid "Inuse Student"
+msgstr "Estudiant inutilitzat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__inuse_subject_ids
+msgid "Inuse Subject"
+msgstr "Assumpte en ús"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__is_duped
+msgid "Is Duped"
+msgstr "Està enganyat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__message_is_follower
+msgid "Is Follower"
+msgstr "És seguidor"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__is_next
+msgid "Is Next"
+msgstr "És el següent"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__is_overriding
+msgid "Is Overriding"
+msgstr "Està sobreescrivint"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_issue
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__status__a_issue
+msgid "Issue"
+msgstr "Incident"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Issue notification delay (in minutes)"
+msgstr "Temps d'espera (en minuts) per notificar una incidència en assistència"
+
+#. module: ems
+#: model:ir.model,name:ems.model_hr_job
+#: model:ir.model.fields,field_description:ems.field_hr_employee__job_id
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__job_id
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__job_id
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Job Position"
+msgstr "Lloc de treball"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_job_tree
+msgid "Job Positions"
+msgstr "Llocs de treball"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_job
+msgid "Job positions"
+msgstr "llocs de treball"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_justifications
+msgid "Justifications"
+msgstr "Justificants"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__m_justified
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__status__m_justified
+msgid "Justified Miss"
+msgstr "Falta justificada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__teacher_id
+msgid "Justified by"
+msgstr "Justificat per"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_content__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_course__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_group__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_level__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_planning__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_role__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_space__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_space_type__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_study__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_subject__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_workgroup__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Última actualització per"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_content__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_course__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_group__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_level__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_planning__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_role__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_space__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_space_type__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_study__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_subject__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_workgroup__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__write_date
+msgid "Last Updated on"
+msgstr "Última actualització el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__outcome_id
+#: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__valid_outcome_ids
+#: model:ir.model.fields,field_description:ems.field_ems_subject__outcome_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_form
+msgid "Learning Outcome"
+msgstr "Resultat d'aprenentatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__criteria_ids
+msgid "Learning criteria"
+msgstr "Criteris d'aprenentatge"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_outcome
+msgid "Learning outcome: what the student should learn."
+msgstr "Resultat d'aprenentatge: allò que l'estudiant ha d'aprendre."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__level_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__level_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__level_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__level_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__level_id
+#: model:ir.model.fields,field_description:ems.field_ems_content__level
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__level
+#: model:ir.model.fields,field_description:ems.field_ems_group__level_id
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__level
+#: model:ir.model.fields,field_description:ems.field_ems_study__level_id
+#: model:ir.model.fields,field_description:ems.field_res_partner__level_id
+#: model:ir.model.fields,field_description:ems.field_res_users__level_id
+#: model_terms:ir.ui.view,arch_db:ems.view_level_form
+msgid "Level"
+msgstr "Nivell"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_level
+msgid "Level: Defines the studies level (University, VET, etc.)."
+msgstr "Nivell: Defineix el nivell d'estudis (Universitat, Formació Professional, etc.)."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_level_tree
+#: model:ir.ui.menu,name:ems.menu_levels
+#: model_terms:ir.ui.view,arch_db:ems.view_study_search
+msgid "Levels"
+msgstr "Nivells"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Main Data"
+msgstr "Dades principals"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__main_group_id
+#: model:ir.model.fields,field_description:ems.field_res_users__main_group_id
+msgid "Main Group"
+msgstr "Grup principal"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+#: model_terms:ir.ui.view,arch_db:ems.view_content_form
+#: model_terms:ir.ui.view,arch_db:ems.view_criteria_form
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_form
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_level_form
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model_terms:ir.ui.view,arch_db:ems.view_outcome_form
+#: model_terms:ir.ui.view,arch_db:ems.view_planning_form
+#: model_terms:ir.ui.view,arch_db:ems.view_role_form
+#: model_terms:ir.ui.view,arch_db:ems.view_space_form
+#: model_terms:ir.ui.view,arch_db:ems.view_space_type_form
+#: model_terms:ir.ui.view,arch_db:ems.view_study_form
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_form
+#: model_terms:ir.ui.view,arch_db:ems.view_teaching_form
+#: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
+msgid "Main data"
+msgstr "Dades principals"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__mode__manual
+msgid "Manual"
+msgstr "Manual"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__medical_id
+#: model:ir.model.fields,field_description:ems.field_res_users__medical_id
+msgid "Medical ID"
+msgstr "Identificació mèdica"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_workgroup__employee_ids
+msgid "Members"
+msgstr "Membres"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__members
+msgid "Memebers"
+msgstr "Membres"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__message_ids
+msgid "Messages"
+msgstr "Missatges"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Minute"
+msgstr "Acta"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute
+msgid ""
+"Minute: Defines a meeting minute (department meeting, workgroup meeting, "
+"evaluation meeting...)."
+msgstr ""
+"Acta: Defineix l'acta d'una reunió (reunió de departament, reunió de grup "
+"de treball, reunió d'avaluació...)."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_minute_tree
+msgid "Minutes"
+msgstr "Actes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__m_miss
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__status__m_miss
+msgid "Miss"
+msgstr "Falta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__modality
+msgid "Modality"
+msgstr "Modalitat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__mode
+msgid "Mode"
+msgstr "Mode"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__weekday__0
+msgid "Monday"
+msgstr "Dilluns"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Data límit de la meva activitat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__name
+#: model:ir.model.fields,field_description:ems.field_ems_content__name
+#: model:ir.model.fields,field_description:ems.field_ems_course__name
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__name
+#: model:ir.model.fields,field_description:ems.field_ems_group__name
+#: model:ir.model.fields,field_description:ems.field_ems_level__name
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__name
+#: model:ir.model.fields,field_description:ems.field_ems_planning__name
+#: model:ir.model.fields,field_description:ems.field_ems_role__name
+#: model:ir.model.fields,field_description:ems.field_ems_space__name
+#: model:ir.model.fields,field_description:ems.field_ems_space_type__name
+#: model:ir.model.fields,field_description:ems.field_ems_study__name
+#: model:ir.model.fields,field_description:ems.field_ems_subject__name
+#: model:ir.model.fields,field_description:ems.field_ems_workgroup__name
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+msgid "Name"
+msgstr "Nom"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__nature
+msgid "Nature"
+msgstr "Natura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Data límit de la següent activitat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__activity_summary
+#: model:ir.model.fields,field_description:ems.field_hr_employee__activity_summary
+msgid "Next Activity Summary"
+msgstr "Resum de l'activitat següent"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_hr_employee__activity_type_id
+msgid "Next Activity Type"
+msgstr "Tipus d'activitat següent"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__notes
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__notes
+#: model:ir.model.fields,field_description:ems.field_ems_content__notes
+#: model:ir.model.fields,field_description:ems.field_ems_criteria__notes
+#: model:ir.model.fields,field_description:ems.field_ems_group__notes
+#: model:ir.model.fields,field_description:ems.field_ems_level__notes
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__notes
+#: model:ir.model.fields,field_description:ems.field_ems_role__notes
+#: model:ir.model.fields,field_description:ems.field_ems_study__notes
+#: model:ir.model.fields,field_description:ems.field_ems_subject__notes
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__notes
+#: model:ir.model.fields,field_description:ems.field_ems_workgroup__notes
+#: model:ir.model.fields,field_description:ems.field_hr_employee__notes
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__notes
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__notes
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_session
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
+#: model_terms:ir.ui.view,arch_db:ems.view_content_form
+#: model_terms:ir.ui.view,arch_db:ems.view_criteria_form
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_level_form
+#: model_terms:ir.ui.view,arch_db:ems.view_outcome_form
+#: model_terms:ir.ui.view,arch_db:ems.view_role_form
+#: model_terms:ir.ui.view,arch_db:ems.view_study_form
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_form
+#: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
+msgid "Notes"
+msgstr ""
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notification_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__notification_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
+msgid "Notification"
+msgstr "Notificació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form
+msgid "Notification details"
+msgstr "Detalls de la notificació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notification_status
+msgid "Notification status"
+msgstr "Estat de la notificació"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_notifications
+msgid "Notifications"
+msgstr "Notificacions"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Quantitat d'accions"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__message_has_error_counter
+msgid "Number of errors"
+msgstr "Quantitat d'errors"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_session__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Quantitat de missatges que requiereixen atenció"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_session__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Quantitat de missatges amb errors de lliurament"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__modality__online
+msgid "Online"
+msgstr "En línia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search
+msgid "Only mine"
+msgstr "Tansols els meus"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
+msgid "Open error details"
+msgstr "Obrir els detalls de l'error"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
+msgid "Open notification details"
+msgstr "Obrir els detalls de la notificació"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__nature__ordinary
+msgid "Ordinary"
+msgstr "Ordinari"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__outcome_id
+#: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__outcome_id
+msgid "Outcome"
+msgstr "Resultat d'Aprenentatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_planning__planning_outcome_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_planning_form
+msgid "Outcome ponderation"
+msgstr "Ponderació dels resultats d'aprenentatge"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_sumary_table
+msgid "Overall"
+msgstr "En general"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__overrided_teachers
+msgid "Overrided Teachers"
+msgstr "Docents sobreescrits"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_content__content_id
+msgid "Parent"
+msgstr "Antecessor"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_content_form
+msgid "Parent content"
+msgstr "Contingut del antecessor"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__pending
+msgid "Pending"
+msgstr "Pendent"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+msgid "Period"
+msgstr "Període"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "Personal Email"
+msgstr "Correu electrònic personal"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__file
+msgid "Planner file (XML)"
+msgstr "Fitxer de planificador (XML)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__planning_id
+msgid "Planning"
+msgstr "Planificació"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_planning
+msgid "Planning and Grading"
+msgstr "Planificació i qualificació"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_planning_outcome
+msgid "Planning's outcome ponderation: self explanatory."
+msgstr ""
+"Ponderació dels resultats d'aprenentatge dins de la programació docent: s'explica per ella mateixa."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_planning
+msgid ""
+"Planning: Curriculum deployment in the classroom (in development: just for "
+"grading ponderation at the moment)."
+msgstr ""
+"Programació docent: Desplegament del currículum a l'aula (en desenvolupament: "
+"només per avaluar la ponderació en aquest moment)."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_planning_tree
+#: model:ir.ui.menu,name:ems.menu_plannings
+msgid "Plannings"
+msgstr "Programacions docents"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__ponderation
+msgid "Ponderation (%)"
+msgstr "Ponderació (%)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard
+msgid "Print"
+msgstr "Imprimeix"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__provider
+msgid "Provider"
+msgstr "Proveïdor"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_provider_kanban
+#: model:ir.ui.menu,name:ems.menu_providers
+msgid "Providers"
+msgstr "Proveïdors"
+
+# TODO: erase this.
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__rating_ids
+msgid "Ratings"
+msgstr "Ratios"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__read_only_user
+#: model:ir.model.fields,field_description:ems.field_res_partner__read_only_user
+#: model:ir.model.fields,field_description:ems.field_res_users__read_only_user
+msgid "Read Only User"
+msgstr "Usuari de només lectura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__read_only
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__read_only
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__read_only
+msgid "Read only"
+msgstr "Només lectura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__rectified_by
+msgid "Rectified by"
+msgstr "Rectificat per"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_study_list
+msgid "Release"
+msgstr "Publicació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__date
+msgid "Release Date"
+msgstr "Data de llançament"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_reports
+msgid "Reports"
+msgstr "Informes"
+
+#. module: ems
+#: model:ir.model,name:ems.model_resource_calendar
+msgid "Resource Working Time"
+msgstr "Temps de treball dels recursos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__activity_user_id
+msgid "Responsible User"
+msgstr "Usuari responsable"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_role_list
+msgid "Role"
+msgstr "Rol"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__roles
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__roles
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__roles
+msgid "Role names"
+msgstr "Noms del rols"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__role_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__role_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__role_ids
+#: model:ir.ui.menu,name:ems.menu_asp_roles
+#: model:ir.ui.menu,name:ems.menu_teachers_roles
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Roles"
+msgstr "Rols"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_asp_role_tree
+msgid "Roles (for ASP)"
+msgstr "Rols (per a PAS)"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_teachers_role_tree
+msgid "Roles (for teachers)"
+msgstr "Rols (per a professors)"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_role
+msgid "Roles: The coordination position held by the employees."
+msgstr "Rols: El càrrec de coordinació que ostenten els empleats."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__round
+msgid "Round"
+msgstr "Ronda"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Error de lliurament de SMS"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__5
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__weekday__5
+msgid "Saturday"
+msgstr "Dissabte"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
+msgid "Schedule"
+msgstr "Horari"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__mode__scheduled
+msgid "Scheduled"
+msgstr "Programat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__schedule_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__schedule_date
+msgid "Scheduled on"
+msgstr "Programat el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__auth_trip
+#: model:ir.model.fields,field_description:ems.field_res_users__auth_trip
+msgid "Scholar Trips"
+msgstr "Viatges acadèmics"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__score
+msgid "Score"
+msgstr "Puntuació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_planning_form
+msgid "Score ponderation"
+msgstr "Ponderació de la puntuació"
+
+#. module: ems
+#: model:hr.job,name:ems.job_secretary
+#: model:res.groups,name:ems.group_secretary
+msgid "Secretary"
+msgstr "Secretari/ària"
+
+#. module: ems
+#: model:res.groups,comment:ems.group_secretary
+msgid "Secretary's access rights."
+msgstr "Drets d'accés del secretari."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__send_to
+msgid "Send to"
+msgstr "Enviar a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_session_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__attendance_schedule_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__attendance_session_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Session"
+msgstr "Sessió"
+
+# TODO: redundant? (see next)
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__session_teacher_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+msgid "Session teachers"
+msgstr "Professors de sessió"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__session_teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__session_teacher_id
+msgid "Session's teacher"
+msgstr "Professor/a de la sessió"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__attendance_issue_status_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__attendance_session_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__attendance_schedule_ids
+#: model:ir.ui.menu,name:ems.menu_attendance_config_sessions
+#: model:ir.ui.menu,name:ems.menu_attendance_sessions
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+msgid "Sessions"
+msgstr "Sessions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
+msgid "Sessions and statuses"
+msgstr "Sessions y assistència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__auth_share
+#: model:ir.model.fields,field_description:ems.field_res_users__auth_share
+msgid "Share with family"
+msgstr "Compartir amb la familia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search
+msgid "Show only mine"
+msgstr "Mostrar tan sols els meuss"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Some attendance statuses (like miss or issue) will be notified (if not adult"
+" or authorized) to their families almost inmediatly. This setting setups how"
+" many delay is wanted between the assistance creation and its notification."
+msgstr ""
+"Alguns estats d'assistència (com falta o incidència) seran notificats (si l'alumne no és adult"
+" o ho ha autoritzat) a les families de forma gairebé inmediata. Aquesta configuració estableix"
+" quin retard o decalatge de temps es vol entre la cració de la assistència i la seva notificació."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__space_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__space_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__space_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__space_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute__space_id
+msgid "Space"
+msgstr "Espai"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_space_type_tree
+msgid "Space Types"
+msgstr "Tipus d'espai"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_space_type
+msgid "Space type: classroom, laboratory, etc."
+msgstr "Tipus d'espai: aula, laboratori, etc."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_space
+msgid "Space: where each student group are assigned to."
+msgstr "Espai: on s'assigna cada grup d'estudiants."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_space_tree
+#: model:ir.ui.menu,name:ems.menu_community_config_spaces
+#: model:ir.ui.menu,name:ems.menu_spaces
+#: model_terms:ir.ui.view,arch_db:ems.view_space_search
+msgid "Spaces"
+msgstr "Espais"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course__start
+msgid "Start"
+msgstr "Inici"
+
+# TODO: redundant (see line 2172)
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__start_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__start_date
+msgid "Start Date"
+msgstr "Data d'inici"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__start_time
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__start_time
+msgid "Start Time"
+msgstr "Hora d'inici"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__start_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__start_date
+msgid "Start date"
+msgstr "Data d'inici"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__status
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attendance_status_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__status
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_session
+msgid "Status"
+msgstr "Estat"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_session__activity_state
+#: model:ir.model.fields,help:ems.field_hr_employee__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Estat basat en activitats\n"
+"Endarrerit: La data de venciment ja ha passat\n"
+"Avui: La data de l'activitat és avui\n"
+"Planificat: Activitats futures."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_status_id
+msgid "Status data"
+msgstr "Informació de l'estat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__attendance_status_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
+msgid "Statuses"
+msgstr "Estats"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__student_id
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__student
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_session
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_search
+msgid "Student"
+msgstr "Estudiant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__student_id
+#: model:ir.model.fields,field_description:ems.field_res_users__student_id
+msgid "Student ID"
+msgstr "Identificador d'estudiant"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_attendance_issue_rectification
+msgid ""
+"Student attendance notification (rectification): "
+"{{object.attendance_issue_student_id.student_id.display_name}}"
+msgstr ""
+"Notificació d'assistència de l'estudiant (rectificació): "
+"{{object.attendance_issue_student_id.student_id.display_name}}"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_attendance_issue_status
+msgid ""
+"Student attendance notification: "
+"{{object.attendance_issue_student_id.student_id.display_name}}"
+msgstr ""
+"Notificació d'assistència de l'estudiant: "
+"{{object.attendance_issue_student_id.student_id.display_name}}"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Student data"
+msgstr "Dades de l'estudiant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__student_email
+#: model:ir.model.fields,field_description:ems.field_res_users__student_email
+msgid "Student email"
+msgstr "Correu electrònic de l'estudiant"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Student group"
+msgstr "Grup d'estudiants"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_issue_student_id
+msgid "Student notification data"
+msgstr "Informació sobre la notificació d'un estudiant"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
+msgid "Student report data"
+msgstr "Informació sobre l'informe d'un alumne"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance
+msgid "Student's Attendances"
+msgstr "Assistència dels estudiants"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_student_form
+#: model:ir.actions.act_window,name:ems.action_student_kanban
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__attendance_issue_student_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__student_ids
+#: model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids
+#: model:ir.ui.menu,name:ems.menu_community_config_students
+#: model:ir.ui.menu,name:ems.menu_students
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "Students"
+msgstr "Estudiants"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_study_tree
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_level__study_ids
+#: model:ir.model.fields,field_description:ems.field_ems_subject__study_ids
+#: model:ir.model.fields,field_description:ems.field_res_partner__study_id
+#: model:ir.model.fields,field_description:ems.field_res_users__study_id
+#: model:ir.ui.menu,name:ems.menu_studies
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_level_form
+#: model_terms:ir.ui.view,arch_db:ems.view_study_form
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_form
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_search
+msgid "Studies"
+msgstr "Estudis"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_group__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_planning__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__study_id
+msgid "Study"
+msgstr "Estudi"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_study
+msgid ""
+"Study: The concrete type of stidy (kind of bachelor, concrete univeristy "
+"grade, etc.)"
+msgstr ""
+"Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universitari "
+"concret, etc.)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_content__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__subject_ids
+#: model:ir.model.fields,field_description:ems.field_ems_outcome__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_planning__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__subject_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__subject_id
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+msgid "Subject"
+msgstr "Assumpte"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_teaching
+msgid "Subject assignation"
+msgstr "Assignació d'assignatures"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_teaching_tree
+msgid "Subject assignation (teacher x group x subject)"
+msgstr "Assignació d'assignatures (professor x grup x assignatura)"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_subject
+msgid "Subject: The main item for a student's subject."
+msgstr "Assignatura: L'element principal de l'assignatura d'un estudiant."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_subject_tree
+#: model:ir.model.fields,field_description:ems.field_ems_planning__allowed_subject_ids
+#: model:ir.model.fields,field_description:ems.field_ems_study__subject_ids
+#: model:ir.ui.menu,name:ems.menu_subjects
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_study_form
+msgid "Subjects"
+msgstr "Assumptes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+msgid "Summary"
+msgstr "Resum"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__6
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__weekday__6
+msgid "Sunday"
+msgstr "Diumenge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_tracking__teacher_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__teacher
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__teacher
+#: model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__teacher
+#: model:res.groups,name:ems.group_teacher
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_list
+msgid "Teacher"
+msgstr "Professor/a"
+
+#. module: ems
+#: model:hr.job,name:ems.job_external
+msgid "Teacher (external)"
+msgstr "Professor/a (extern/a)"
+
+#. module: ems
+#: model:hr.job,name:ems.job_internal
+msgid "Teacher (internal)"
+msgstr "Professor/a (intern/a)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Teacher's Name"
+msgstr "Nom del professor/a"
+
+#. module: ems
+#: model:res.groups,comment:ems.group_teacher
+msgid "Teacher's access rights."
+msgstr "Drets d'accés del professorat."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_employee_kanban
+#: model:ir.ui.menu,name:ems.menu_community_config_teachers
+#: model:ir.ui.menu,name:ems.menu_teachers
+msgid "Teachers"
+msgstr "Professors"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__teaching_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__teaching_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__teaching_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Teaching"
+msgstr "Ensenyament"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_teaching
+msgid "Teaching: ternary relation between teacher-group-subject."
+msgstr "Ensenyament: relació ternària entre professor-grup-assignatura."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__attendance_template_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+msgid "Template"
+msgstr "Plantilla"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__template_teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__template_teacher_id
+msgid "Template's teacher"
+msgstr "Professor/a de la plantilla"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_template
+msgid "Templates"
+msgstr "Plantilles"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid ""
+"The current assistance templates will be updated to match the new schedules."
+msgstr ""
+"Les plantilles d'assistència actuals seran actualitzades per a coincidir amb els nous horaris."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "The current schedules will be replaced by the new ones."
+msgstr "Els horaris actuals seran reemplaçats pels nous."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_attendance_session_attendance_session_is_duped
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
+msgid ""
+"The current session already exists. Please, edit the existing one (maybe has"
+" been created by another teacher) or choose another available session."
+msgstr ""
+"La sessió actual ja existeix. Si us plau, editeu l'existent (potser l'ha "
+"creat un altre professor) o trieu una altra sessió disponible."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid ""
+"The current subject assignations will be updated to match the new schedules."
+msgstr ""
+"Els horaris actuals seran reemplaçats pels nous."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_teaching_ems_teaching_unique
+msgid "The ternary \"teacher / group / subject\" must be unique!"
+msgstr "El ternari \"professor/grup/assignatura\" ha de ser únic!"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"The tutors will receive a daily attendance report at the end of their work "
+"tourn but, it its not defined, this time will be used to send the report."
+msgstr ""
+"Els/les tutors/res rebràs un informe d'assistència diari al final del seu torn"
+"però, si el vostre horari laboral no s'ha definit, aquesta hora s'utilitzarà per enviar l'informe."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__weekday__3
+msgid "Thursday"
+msgstr "Dijous"
+
+# TODO: redundant (see next)
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__time_range
+msgid "Time Range"
+msgstr "Franja Horaria"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__time_range
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__time_range
+msgid "Time range"
+msgstr "Franja horaria"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__to_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__to_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__to_date
+msgid "To"
+msgstr "A"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_subject__total_hours
+msgid "Total hours"
+msgstr "Total d'hores"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_tracking
+msgid ""
+"Tracking: Tutors and teachers can add information about the student "
+"evolution, follow-up, etc."
+msgstr ""
+"Seguiment: Els tutors i professors poden afegir informació sobre l'evolució "
+"de l'alumne, el seguiment, etc."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_enrollment_view
+msgid ""
+"Transitient model for displaying enrollment data within groups but filtered "
+"(allows ems.group.enrollment_view_ids to work: contains the same data as "
+"enrolled_student_ids but filtered for the current group because it cannot be"
+" filtered on view...)."
+msgstr ""
+"Model transitori per mostrar les dades d'inscripció dins dels grups però "
+"filtrades (permet que ems.group.enrollment_view_ids funcioni: conté les "
+"mateixes dades que enrolled_student_ids però filtrades per al grup actual "
+"perquè no es poden filtrar a la vista...)."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__weekday__1
+msgid "Tuesday"
+msgstr "Dimarts"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__tutor_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__tutor_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__tutor_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__tutor_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__tutor_id
+#: model:ir.model.fields,field_description:ems.field_ems_group__tutor_id
+#: model:ir.model.fields,field_description:ems.field_res_partner__tutor_id
+#: model:ir.model.fields,field_description:ems.field_res_users__tutor_id
+msgid "Tutor"
+msgstr "Tutor/a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__tutor_id
+msgid "Tutor (sent to)"
+msgstr "Tutor (enviado a)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__attendance_issue_tutor_id
+msgid "Tutor notification data"
+msgstr "Información de la notificació al tutor"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Tutor's attendance report default send time"
+msgstr "Hora d'enviament predeterminada per al report d'assistència del tutor"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_kanban
+msgid "Tutor:"
+msgstr "Tutor/a:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__tutorships
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__tutorships
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__tutorships
+msgid "Tutorship names"
+msgstr "Noms de tutoria"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_kanban
+msgid "Tutorship:"
+msgstr "Tutoria:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__tutorship_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__tutorship_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__tutorship_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Tutorships"
+msgstr "Tutories"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__type
+#: model:ir.model.fields,field_description:ems.field_ems_space__space_type_id
+#: model_terms:ir.ui.view,arch_db:ems.view_space_search
+msgid "Type"
+msgstr "Tipus"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_session__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_hr_employee__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Tipus de l'activitat d'excepció registrada."
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_space_type
+msgid "Types"
+msgstr "Tipus"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
+msgid ""
+"Unable to load the current session, maybe none (or more than one) has been "
+"scheduled for the current date and time?. Please, choose one manually or "
+"activate the \"guard mode\" if needed."
+msgstr ""
+"No s'ha pogut carregar la sesió actual, ¿és possible que no hi hagi cap (o hi hagi "
+"más d'una) programada per a aquesta data i hora? Si su plau, seleccioni una manualment o "
+"activi el \"mode guàrdia\" si fos necessari."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_role__unipersonal
+msgid "Unipersonal"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Use this field to select the current course, which will be used for volatile"
+" data assignation (like the student's enrollments or the teacher's "
+"schedules)."
+msgstr ""
+"Feu servir aquest camp per seleccionar el curs actual, que s'utilitzarà per "
+"a l'assignació de dades volàtils (com ara les matrícules dels estudiants o "
+"els horaris del professor)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_utils__user_is_admin
+msgid "User Is Admin"
+msgstr "L'usuari és administrador"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_utils__user_is_tutor
+msgid "User Is Tutor"
+msgstr "L'usuari és tutor"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__website_message_ids
+msgid "Website Messages"
+msgstr "Missatges del lloc web"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_session__website_message_ids
+msgid "Website communication history"
+msgstr "Històric de comunicacions del lloc web"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session__weekday__2
+msgid "Wednesday"
+msgstr "Dimecres"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__weekday
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__weekday
+msgid "Weekday"
+msgstr "Dia laborable"
+
+#. module: ems
+#: model:ir.model,name:ems.model_resource_calendar_attendance
+msgid "Work Detail"
+msgstr "Detall del treball"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_work_location_tree
+msgid "Work Locations"
+msgstr "Llocs de treball"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_space__work_location_id
+#: model_terms:ir.ui.view,arch_db:ems.view_space_search
+msgid "Work location"
+msgstr "Lloc de treball"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__workgroup_id
+msgid "Workgroup"
+msgstr "Grup de treball"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__type__workgroup
+msgid "Workgroup meeting"
+msgstr "Reunió del grup de treball"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_workgroup
+msgid ""
+"Workgroup: Employees (teachers, providers, and ASP) can define workgroups."
+msgstr ""
+"Grup de treball: Els empleats (professors, proveïdors i PAS) poden definir "
+"grups de treball."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_workgroup_tree
+#: model:ir.ui.menu,name:ems.menu_workgroups
+msgid "Workgroups"
+msgstr "Grups de treball"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_working_schedules_tree
+msgid "Working Schedules"
+msgstr "Horaris de treball"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_work_locations
+msgid "Working schedules"
+msgstr "Horaris de treball"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_working_schedules_import_wizard
+msgid "Working schedules: import wizard."
+msgstr "Horaris de treball: assistent d'importació."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_content_form
+#: model_terms:ir.ui.view,arch_db:ems.view_criteria_form
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_level_form
+#: model_terms:ir.ui.view,arch_db:ems.view_outcome_form
+#: model_terms:ir.ui.view,arch_db:ems.view_role_form
+#: model_terms:ir.ui.view,arch_db:ems.view_study_form
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_form
+#: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
+msgid "Write down here your notes..."
+msgstr "Escriu aquí les teves notes..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_content_form
+msgid "content"
+msgstr "contingut"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_criteria_form
+msgid "criteria"
+msgstr "criteris"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_resource_calendar_unique_name
+msgid "duplicated calendar!"
+msgstr "calendari duplicat!"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_content_unique_code
+#: model:ir.model.constraint,message:ems.constraint_ems_criteria_unique_code
+#: model:ir.model.constraint,message:ems.constraint_ems_outcome_unique_code
+#: model:ir.model.constraint,message:ems.constraint_ems_space_unique_code
+#: model:ir.model.constraint,message:ems.constraint_ems_subject_unique_code
+msgid "duplicated code!"
+msgstr "codi duplicat!"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_course_unique_course_name
+msgid "duplicated course!"
+msgstr "curs duplicat!"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_subject_id
+msgid "duplicated subject!"
+msgstr "tema duplicat!"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "e.g. Parent"
+msgstr "ex: Pare"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_form
+msgid "enrollment"
+msgstr "matrícula"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attachment_form
+msgid "file"
+msgstr "fitxer"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+msgid "justification"
+msgstr "justificació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form
+msgid "notification"
+msgstr "notificació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_outcome_form
+msgid "outcome"
+msgstr "resultat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_planning_form
+msgid "planning"
+msgstr "planificació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_role_form
+msgid "role"
+msgstr "rol"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_space_form
+#: model_terms:ir.ui.view,arch_db:ems.view_space_type_form
+msgid "space"
+msgstr "espai"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_subject_form
+msgid "subject"
+msgstr "assumpte"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_teaching_search
+msgid "teacher"
+msgstr "docent"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_teaching_form
+msgid "teaching"
+msgstr "ensenyament"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+msgid "to"
+msgstr "a"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
+msgid "workgroup"
+msgstr "grup de treball"
+
+###################################################################
+#     THE FOLLOWING TRANSLATIONS ARE FOR THE QUEUE_JOB MODULE     #
+#  - a pull request with the catalan translation has been sent -  #
+###################################################################
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid ""
+"<br/>\n"
+"                            <span class=\"oe_grey oe_inline\"> If the max. retries is 0, the number of retries is infinite.</span>"
+msgstr ""
+"<br/>\n"
+"                            <span class=\"oe_grey oe_inline\"> Si els reintents màxims és 0, el nombre de reintents serà infinit.</span>"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_needaction
+msgid "Action Needed"
+msgstr "Acció Necessària"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__activity_ids
+msgid "Activities"
+msgstr "Activitats"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Decorador d'Excepció d'Activitat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__activity_state
+msgid "Activity State"
+msgstr "Estat de l'Activitat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Icona del Tipus d'Activitat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__args
+msgid "Args"
+msgstr "Params"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_attachment_count
+msgid "Attachment Count"
+msgstr "Quantitat d'Adjunts"
+
+#. module: queue_job
+#: model:ir.actions.server,name:queue_job.ir_cron_autovacuum_queue_jobs_ir_actions_server
+msgid "AutoVacuum Job Queue"
+msgstr "Treball de la Cua d'AutoNeteja"
+
+#. module: queue_job
+#: model:ir.model,name:queue_job.model_base
+msgid "Base"
+msgstr "Base"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_requeue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_set_jobs_cancelled
+#: model_terms:ir.ui.view,arch_db:queue_job.view_set_jobs_done
+msgid "Cancel"
+msgstr "Cancel·lar"
+
+#. module: queue_job
+#: model:ir.model,name:queue_job.model_queue_jobs_to_cancelled
+msgid "Cancel all selected jobs"
+msgstr "Cancel·lar tots els treballs seleccionats"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Cancel job"
+msgstr "Cancel·lar el treball"
+
+#. module: queue_job
+#: model:ir.actions.act_window,name:queue_job.action_set_jobs_cancelled
+#: model_terms:ir.ui.view,arch_db:queue_job.view_set_jobs_cancelled
+msgid "Cancel jobs"
+msgstr "Cancel·lar els treballs"
+
+#. module: queue_job
+#: model:ir.model.fields.selection,name:queue_job.selection__queue_job__state__cancelled
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Cancelled"
+msgstr "Cancel·lat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__channel
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__channel_id
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_function_search
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Channel"
+msgstr "Canal"
+
+#. module: queue_job
+#: model:ir.model.constraint,message:queue_job.constraint_queue_job_channel_name_uniq
+msgid "Channel complete name must be unique"
+msgstr "El canal complet ha de ser únic"
+
+#. module: queue_job
+#: model:ir.actions.act_window,name:queue_job.action_queue_job_channel
+#: model:ir.ui.menu,name:queue_job.menu_queue_job_channel
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_channel_form
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_channel_search
+msgid "Channels"
+msgstr "Canals"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__company_id
+msgid "Company"
+msgstr "Companyia"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__channel_method_name
+msgid "Complete Method Name"
+msgstr "Nom complet del mètode"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__complete_name
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__channel
+msgid "Complete Name"
+msgstr "Nom complet"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__date_created
+msgid "Created Date"
+msgstr "Data de Creació"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__create_uid
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__create_uid
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__create_uid
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__create_uid
+#: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__create_uid
+msgid "Created by"
+msgstr "Creat per"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Created date"
+msgstr "Data de creació"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__create_date
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__create_date
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__create_date
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__create_date
+#: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__create_date
+msgid "Created on"
+msgstr "Creat el"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__retry
+msgid "Current try"
+msgstr "Intent actual"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Current try / max. retries"
+msgstr "Intent actual / max. reintents"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__date_cancelled
+msgid "Date Cancelled"
+msgstr "Data de Cancel·lació"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__date_done
+msgid "Date Done"
+msgstr "Data Compleció"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__dependencies
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Dependencies"
+msgstr "Dependències"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__dependency_graph
+msgid "Dependency Graph"
+msgstr "Graf de dependències"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__name
+msgid "Description"
+msgstr "Descripció"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__display_name
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__display_name
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__display_name
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__display_name
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__display_name
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__display_name
+#: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__display_name
+msgid "Display Name"
+msgstr "Nom a mostrar"
+
+#. module: queue_job
+#: model:ir.model.fields.selection,name:queue_job.selection__queue_job__state__done
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Done"
+msgstr "Completat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__date_enqueued
+msgid "Enqueue Time"
+msgstr "Temps en cua"
+
+#. module: queue_job
+#: model:ir.model.fields.selection,name:queue_job.selection__queue_job__state__enqueued
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Enqueued"
+msgstr "En cua"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__exc_name
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Exception"
+msgstr "Excepció"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__exc_info
+msgid "Exception Info"
+msgstr "Info. de l'Excepció"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Exception Information"
+msgstr "Informació de l'Excepció"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__exc_message
+msgid "Exception Message"
+msgstr "Missatge d'Excepció"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Exception message"
+msgstr "Missatge d'excepció"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Exception:"
+msgstr "Excepció"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__eta
+msgid "Execute only after"
+msgstr "Només executar després de"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__exec_time
+msgid "Execution Time (avg)"
+msgstr "Temps d'execució (aprox)"
+
+#. module: queue_job
+#: model:ir.model.fields.selection,name:queue_job.selection__queue_job__state__failed
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Failed"
+msgstr "Fallat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_ir_model_fields__ttype
+msgid "Field Type"
+msgstr "Tipus de Camp"
+
+#. module: queue_job
+#: model:ir.model,name:queue_job.model_ir_model_fields
+msgid "Fields"
+msgstr "Camps"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_follower_ids
+msgid "Followers"
+msgstr "Seguidors"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguidors (Col·laboradors)"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Icona de font awesome, ex: fa-tasks"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Graph"
+msgstr "Graf"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Graph Jobs"
+msgstr "Treballs del graf"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__graph_jobs_count
+msgid "Graph Jobs Count"
+msgstr "Comptador de treballs del graf"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__graph_uuid
+msgid "Graph UUID"
+msgstr "UUID del graf"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_function_search
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Group By"
+msgstr "Agrupat per"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__has_message
+msgid "Has Message"
+msgstr "Té Missatge"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__id
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__id
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__id
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__id
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__id
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__id
+#: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__id
+msgid "ID"
+msgstr "ID"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__activity_exception_icon
+msgid "Icon"
+msgstr "Icona"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Icona per a indicar una excepció a l'activitat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__identity_key
+msgid "Identity Key"
+msgstr "Clau d'identitat"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si està marcat, hi ha nous missatges que requereixen de la vostra atenció. "
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__message_has_error
+#: model:ir.model.fields,help:queue_job.field_queue_job__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si està marcat, alguns missatges han fallat a l'intentar ser lliurats."
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_is_follower
+msgid "Is Follower"
+msgstr "És Seguidor"
+
+#. module: queue_job
+#: model:ir.model,name:queue_job.model_queue_job_channel
+msgid "Job Channels"
+msgstr "Canals de Treball"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__job_function_id
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Job Function"
+msgstr "Funció de Treball"
+
+#. module: queue_job
+#: model:ir.actions.act_window,name:queue_job.action_queue_job_function
+#: model:ir.model,name:queue_job.model_queue_job_function
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__job_function_ids
+#: model:ir.ui.menu,name:queue_job.menu_queue_job_function
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_function_form
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_function_search
+msgid "Job Functions"
+msgstr "Funcions de Treball"
+
+#. module: queue_job
+#: model:ir.module.category,name:queue_job.module_category_queue_job
+#: model:ir.ui.menu,name:queue_job.menu_queue_job_root
+msgid "Job Queue"
+msgstr "Cua de Treball"
+
+#. module: queue_job
+#: model:res.groups,name:queue_job.group_queue_job_manager
+msgid "Job Queue Manager"
+msgstr "Administrador de la Cua de Treball"
+
+#. module: queue_job
+#: model:ir.model.fields.selection,name:queue_job.selection__ir_model_fields__ttype__job_serialized
+msgid "Job Serialized"
+msgstr "Treball Serialitzat"
+
+#. module: queue_job
+#: model:mail.message.subtype,name:queue_job.mt_job_failed
+msgid "Job failed"
+msgstr "Treball fallat"
+
+#. module: queue_job
+#: model:ir.actions.act_window,name:queue_job.action_queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__job_ids
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__job_ids
+#: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__job_ids
+#: model:ir.ui.menu,name:queue_job.menu_queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_graph
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_pivot
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Jobs"
+msgstr "Treballs"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__kwargs
+msgid "Kwargs"
+msgstr "Kwargs"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Last 24 hours"
+msgstr "Últimes 24 hores"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Last 30 days"
+msgstr "Últims 30 dies"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Last 7 days"
+msgstr "Últims 7 dies"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__write_uid
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__write_uid
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__write_uid
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__write_uid
+#: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__write_uid
+msgid "Last Updated by"
+msgstr "Actualitzar recentment per"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__write_date
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__write_date
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_cancelled__write_date
+#: model:ir.model.fields,field_description:queue_job.field_queue_jobs_to_done__write_date
+#: model:ir.model.fields,field_description:queue_job.field_queue_requeue_job__write_date
+msgid "Last Updated on"
+msgstr "Actualitzat recentment el"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__max_retries
+msgid "Max. retries"
+msgstr "Reintents max."
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_has_error
+msgid "Message Delivery error"
+msgstr "Missatge d'error de lliurament"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_ids
+msgid "Messages"
+msgstr "Missatges"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__method
+msgid "Method"
+msgstr "Mètode"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__method_name
+msgid "Method Name"
+msgstr "Nom del mètode"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__model_name
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__model_id
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Model"
+msgstr "Model"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Data límit de la Meva Activitat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__name
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Data límit de la Propera Activitat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__activity_summary
+msgid "Next Activity Summary"
+msgstr "Resum de la Propera Activitat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__activity_type_id
+msgid "Next Activity Type"
+msgstr "Tipus de la Propera Activitat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Quantitat d'Accions"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_has_error_counter
+msgid "Number of errors"
+msgstr "Quantitat d'errors"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Quantitat de missatges que requereixen d'alguna acció"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Quantitat de missatges amb errors de lliurament"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__parent_id
+msgid "Parent Channel"
+msgstr "Antecessor del Canal"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job_function__edit_retry_pattern
+msgid ""
+"Pattern expressing from the count of retries on retryable errors, the number of of seconds to postpone the next execution. Setting the number of seconds to a 2-element tuple or list will randomize the retry interval between the 2 values.\n"
+"Example: {1: 10, 5: 20, 10: 30, 15: 300}.\n"
+"Example: {1: (1, 10), 5: (11, 20), 10: (21, 30), 15: (100, 300)}.\n"
+"See the module description for details."
+msgstr ""
+"Patró que representa el conteig de reintents sobre errors reintentables, els segons que cal esperar per a posposar la següent execució. Establir els segons a una tupa de 2 elements o una llista, farà que s'esculli aleatòriament l'interval de reintents entre els dos valors.\n"
+"Exemple: {1: 10, 5: 20, 10: 30, 15: 300}.\n"
+"Exemple: {1: (1, 10), 5: (11, 20), 10: (21, 30), 15: (100, 300)}.\n"
+"Veure la descripció del mòdul per a més detalls."
+
+#. module: queue_job
+#: model:ir.model.fields.selection,name:queue_job.selection__queue_job__state__pending
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Pending"
+msgstr "Pendent"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__priority
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Priority"
+msgstr "Prioritat"
+
+#. module: queue_job
+#: model:ir.ui.menu,name:queue_job.menu_queue
+msgid "Queue"
+msgstr "Cua"
+
+#. module: queue_job
+#: model:ir.model,name:queue_job.model_queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_lock__queue_job_id
+msgid "Queue Job"
+msgstr "Cua de Treball"
+
+#. module: queue_job
+#: model:ir.model,name:queue_job.model_queue_job_lock
+msgid "Queue Job Lock"
+msgstr "Bloqueig de la Cua de Treball"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__rating_ids
+msgid "Ratings"
+msgstr "Valoracions"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__records
+msgid "Record(s)"
+msgstr "Registre(s)"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Related"
+msgstr "Relacionat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__edit_related_action
+msgid "Related Action"
+msgstr "Acció Relacionada"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__related_action
+msgid "Related Action (serialized)"
+msgstr "Acció Relacionada (serialitzada)"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_tree
+msgid "Remaining days to execute"
+msgstr "Dies restants fins l'execució"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_channel__removal_interval
+msgid "Removal Interval"
+msgstr "Interval d'Eliminació"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_requeue_job
+msgid "Requeue"
+msgstr "Encuar de nou"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Requeue Job"
+msgstr "Encuar de nou el Treball"
+
+#. module: queue_job
+#: model:ir.actions.act_window,name:queue_job.action_requeue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_requeue_job
+msgid "Requeue Jobs"
+msgstr "Encuar de nou els Treballs"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__activity_user_id
+msgid "Responsible User"
+msgstr "Usuari Responsable"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__result
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Result"
+msgstr "Resultat"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Results"
+msgstr "Resultats"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__edit_retry_pattern
+msgid "Retry Pattern"
+msgstr "Patró de Reintents"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job_function__retry_pattern
+msgid "Retry Pattern (serialized)"
+msgstr "Patró de Reintents (serialitzat)"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Error de Lliurament de SMS"
+
+#. module: queue_job
+#: model:ir.model,name:queue_job.model_queue_jobs_to_done
+msgid "Set all selected jobs to done"
+msgstr "Establir tots els treballs seleccionats a completat"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_set_jobs_done
+msgid "Set jobs done"
+msgstr "Establir treballs completat"
+
+#. module: queue_job
+#: model:ir.actions.act_window,name:queue_job.action_set_jobs_done
+msgid "Set jobs to done"
+msgstr "Establir treballs a completat"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Set to 'Done'"
+msgstr "Establir a 'Completat'"
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_set_jobs_done
+msgid "Set to done"
+msgstr "Establir a completat"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__graph_uuid
+msgid "Single shared identifier of a Graph. Empty for a single job."
+msgstr "Únic identificador compartit d'un Graf. En blanc per a un únic treball."
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__date_started
+msgid "Start Date"
+msgstr "Data d'Inici"
+
+#. module: queue_job
+#: model:ir.model.fields.selection,name:queue_job.selection__queue_job__state__started
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Started"
+msgstr "Iniciat"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__state
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "State"
+msgstr "Estat"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Estat basat en les activitats\n"
+"Endarrerit: La data de venciment ja ha passat\n"
+"Avui: La data de l'activitat és avui\n"
+"Planificat: Futures activitats."
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__func_string
+msgid "Task"
+msgstr "Tasca"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job_function__edit_related_action
+msgid ""
+"The action when the button *Related Action* is used on a job. The default action is to open the view of the record related to the job. Configured as a dictionary with optional keys: enable, func_name, kwargs.\n"
+"See the module description for details."
+msgstr ""
+"L'acció quan s'utilitza el botó *Acció relacionada* en una tasca. L'acció per defecte és obrir la vista del registre relacionat amb la tasca. Configurat com a diccionari amb claus opcionals: enable, func_name, kwargs.\n"
+"Veure la desdescripció del mòdul per a més detalls."
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__max_retries
+msgid ""
+"The job will fail if the number of tries reach the max. retries.\n"
+"Retries are infinite when empty."
+msgstr ""
+"La tasca fallarà si el nombre d'intents arriba al màxim de reintents.\n"
+"Els intents són infinits quan està buit."
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_set_jobs_cancelled
+msgid "The selected jobs will be cancelled."
+msgstr "Els treballs seleccionats seran cancel·lats."
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_requeue_job
+msgid "The selected jobs will be requeued."
+msgstr "Els treballs seleccionats seran encuats de nou."
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_set_jobs_done
+msgid "The selected jobs will be set to done."
+msgstr "Els treballs seleccionats seran marcats com a completats."
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_form
+msgid "Time (s)"
+msgstr "Temps (s)"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__exec_time
+msgid "Time required to execute this job in seconds. Average when grouped."
+msgstr "Temps necessari per executar aquesta tasca en segons. Mitjana quan s'agrupen."
+
+#. module: queue_job
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Tried many times"
+msgstr "Massa reintents"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Tipus d'excepció de l'activitat registrada."
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__uuid
+msgid "UUID"
+msgstr "UUID"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__user_id
+msgid "User ID"
+msgstr "ID d'Usuari"
+
+#. module: queue_job
+#: model:ir.model.fields.selection,name:queue_job.selection__queue_job__state__wait_dependencies
+#: model_terms:ir.ui.view,arch_db:queue_job.view_queue_job_search
+msgid "Wait Dependencies"
+msgstr "Esperar Dependències"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__website_message_ids
+msgid "Website Messages"
+msgstr "Missatges del Lloc Web"
+
+#. module: queue_job
+#: model:ir.model.fields,help:queue_job.field_queue_job__website_message_ids
+msgid "Website communication history"
+msgstr "Històric de comunicació del lloc web"
+
+#. module: queue_job
+#: model:ir.model,name:queue_job.model_queue_requeue_job
+msgid "Wizard to requeue a selection of jobs"
+msgstr "Assistent per a encuar de nou una selecció de treballs"
+
+#. module: queue_job
+#: model:ir.model.fields,field_description:queue_job.field_queue_job__worker_pid
+msgid "Worker Pid"
+msgstr "Pid del treballador"

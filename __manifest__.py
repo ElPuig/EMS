@@ -32,7 +32,10 @@
         'mass_mailing', 
         'survey', 
         'hr_attendance',
-        'queue_job'
+        'queue_job',
+        'sale_management', 
+        'account', 
+        'spreadsheet_dashboard'
     ],
     
     # just for debugging

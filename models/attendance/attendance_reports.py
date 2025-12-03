@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from .attendance_status import attendance_status
+from .attendance_session import attendance_status
 
 overall_status = [("assistance", "Assistance"), ("absence", "Absence")]
 

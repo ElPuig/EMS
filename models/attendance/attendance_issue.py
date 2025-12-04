@@ -77,7 +77,7 @@ class ems_attendance_issue_status(models.Model):
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 	
 
 	# NOTE: We want a copy of the original status, because a miss can be justified later, but we want to keep the original notification status. 	
-	attendance_session_line = fields.Selection(string="Attendance status", selection=attendance_status_selection)	
+	attendance_session_status = fields.Selection(string="Attendance status", selection=attendance_status_selection)	
 	notes = fields.Text(string="Notes") 
 
 	@api.depends('attendance_status_id')

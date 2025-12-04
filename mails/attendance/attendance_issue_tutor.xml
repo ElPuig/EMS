@@ -6,7 +6,7 @@
             <field name="model_id" ref="ems.model_ems_attendance_issue_tutor"/>
             <field name="subject">Attendance notification: daily summary</field>
             <field name="auto_delete" eval="True"/>             
-            <field name="email_to">{{object.tutor_id.email}}</field> 
+            <field name="email_to">{{object.tutor_id.work_email}}</field> 
             <field name="email_from">ems@elpuig.xeill.net</field>
             <!-- TODO: setup reply / bounce email on settings for this purpouses? -->
             <!-- <field name="reply_to">{{object.tutor_id.email}}</field> -->

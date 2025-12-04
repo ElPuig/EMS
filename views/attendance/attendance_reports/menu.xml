@@ -24,11 +24,11 @@
         
         <record model="ir.actions.report" id="action_attendance_report_session">
             <field name="name">Attendance report: by session</field>
-            <field name="model">ems.attendance_session</field>
+            <field name="model">ems.attendance_session_header</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.attendance_report_session</field>
             <field name="report_file">attendance_report_session</field>
-            <field name="binding_model_id" ref="ems.model_ems_attendance_session"/>
+            <field name="binding_model_id" ref="ems.model_ems_attendance_session_header"/>
             <field name="binding_type">report</field>
         </record>
 

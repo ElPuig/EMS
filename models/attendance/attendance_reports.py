@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from .attendance_session import attendance_status
+from .attendance_session import attendance_status_selection
 
 overall_status = [("assistance", "Assistance"), ("absence", "Absence")]
 
@@ -57,15 +57,15 @@ class ems_attendance_report_group_wizard(models.TransientModel):
 	def _onchange_group_id(self):
 		for rec in self:
 			if rec.group_id.id != False:
-				sessions = self.env["ems.attendance_session"].search([("group_id", "=", rec.group_id.id)])
+				sessions = self.env["ems.attendance_session_header"].search([("group_id", "=", rec.group_id.id)])
 				first = sessions.search([], order="date asc", limit=1)
 				last = sessions.search([], order="date desc", limit=1)
 				rec.from_date = first.date
 				rec.to_date = last.date
 
 	def print(self):		
-		query = """SELECT status.id FROM ems_attendance_status AS status
-				LEFT JOIN ems_attendance_session AS session ON session.id = status.attendance_session_id
+		query = """SELECT status.id FROM ems_attendance_session_status AS status
+				LEFT JOIN ems_attendance_session_header AS session ON session.id = status.attendance_session_id
 				WHERE session.group_id=%d AND session.date >= '%s' AND session.date <= '%s'""" % (self.group_id, self.from_date, self.to_date)
 								
 		self.env.cr.execute(query)		
@@ -122,15 +122,15 @@ class ems_attendance_report_student_wizard(models.TransientModel):
 	def _onchange_student_id(self):
 		for rec in self:
 			if rec.student_id.id != False:
-				sessions = self.env["ems.attendance_status"].search([("student_id", "=", rec.student_id.id)]).mapped('attendance_session_id')
+				sessions = self.env["ems.attendance_session_status"].search([("student_id", "=", rec.student_id.id)]).mapped('attendance_session_id')
 				first = sessions.search([], order="date asc", limit=1)
 				last = sessions.search([], order="date desc", limit=1)
 				rec.from_date = first.date
 				rec.to_date = last.date
 
 	def print(self):		
-		query = """SELECT status.id FROM ems_attendance_status AS status
-				LEFT JOIN ems_attendance_session AS session ON session.id = status.attendance_session_id
+		query = """SELECT status.id FROM ems_attendance_session_status AS status
+				LEFT JOIN ems_attendance_session_header AS session ON session.id = status.attendance_session_id
 				WHERE status.student_id=%d AND session.date >= '%s' AND session.date <= '%s'""" % (self.student_id, self.from_date, self.to_date)
 								
 		self.env.cr.execute(query)		
@@ -180,15 +180,15 @@ class ems_attendance_report_subject_wizard(models.TransientModel):
 	def _onchange_subject_id(self):
 		for rec in self:
 			if rec.subject_id.id != False:
-				sessions = self.env["ems.attendance_session"].search([("subject_id", "=", rec.subject_id.id), ("group_id", "=", rec.group_id.id)])
+				sessions = self.env["ems.attendance_session_header"].search([("subject_id", "=", rec.subject_id.id), ("group_id", "=", rec.group_id.id)])
 				first = sessions.search([], order="date asc", limit=1)
 				last = sessions.search([], order="date desc", limit=1)
 				rec.from_date = first.date
 				rec.to_date = last.date
 
 	def print(self):
-		query = """SELECT status.id FROM ems_attendance_status AS status
-				LEFT JOIN ems_attendance_session AS session on session.id = status.attendance_session_id
+		query = """SELECT status.id FROM ems_attendance_session_status AS status
+				LEFT JOIN ems_attendance_session_header AS session on session.id = status.attendance_session_id
 				WHERE session.group_id=%d AND session.subject_id=%d AND session.date >= '%s' AND session.date <= '%s'""" % (self.group_id, self.subject_id, self.from_date, self.to_date)
 		
 		self.env.cr.execute(query)		
@@ -203,7 +203,7 @@ class ems_attendance_report_student(models.AbstractModel):
 
 	def _get_report_values(self, docids, data=None):
 		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
-		entries = list(self.env["ems.attendance_status"].browse(data['status_ids']))
+		entries = list(self.env["ems.attendance_session_status"].browse(data['status_ids']))
 		main = _report_data(entries)
 
 		grp_by_subject = {}
@@ -223,7 +223,7 @@ class ems_attendance_report_student(models.AbstractModel):
 			'docs': self.env["ems.attendance_report_student_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
-			'attendance_status': dict(attendance_status),
+			'attendance_session_status': dict(attendance_status_selection),
 			'overall_status': dict(overall_status)
 		}		
 
@@ -233,7 +233,7 @@ class ems_attendance_report_subject(models.AbstractModel):
 		
 	def _get_report_values(self, docids, data=None):
 		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
-		entries = list(self.env["ems.attendance_status"].browse(data['status_ids']))
+		entries = list(self.env["ems.attendance_session_status"].browse(data['status_ids']))
 		main = _report_data(entries)
 
 		grp_by_student = {}
@@ -253,7 +253,7 @@ class ems_attendance_report_subject(models.AbstractModel):
 			'docs': self.env["ems.attendance_report_subject_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
-			'attendance_status': dict(attendance_status),
+			'attendance_session_status': dict(attendance_status_selection),
 			'overall_status': dict(overall_status)
 		}
 	
@@ -263,7 +263,7 @@ class ems_attendance_report_group(models.AbstractModel):
 		
 	def _get_report_values(self, docids, data=None):
 		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
-		entries = list(self.env["ems.attendance_status"].browse(data['status_ids']))
+		entries = list(self.env["ems.attendance_session_status"].browse(data['status_ids']))
 		main = _report_data(entries)
 
 		grp_by_subject = {}
@@ -283,7 +283,7 @@ class ems_attendance_report_group(models.AbstractModel):
 			'docs': self.env["ems.attendance_report_group_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
-			'attendance_status': dict(attendance_status),
+			'attendance_session_status': dict(attendance_status_selection),
 			'overall_status': dict(overall_status)
 		}
 		
@@ -300,7 +300,7 @@ class _report_data:
 			absence : self._setup_counters(0, len(entries))
 		}
 
-		for s in attendance_status:
+		for s in attendance_status_selection:
 			self.breakdown[s[0]] = self._setup_counters(0, len(entries))
 
 		for e in entries:
@@ -309,7 +309,7 @@ class _report_data:
 			if e.status[0] == 'a': self.overall[assistance]['count'] += 1
 			else: self.overall[absence]['count'] += 1
 
-		for s in attendance_status:
+		for s in attendance_status_selection:
 			self._compute_counters(self.breakdown[s[0]])
 		
 		self._compute_counters(self.overall[assistance])

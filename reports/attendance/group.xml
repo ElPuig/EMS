@@ -30,7 +30,7 @@
                                         <th t-esc="overall_status[s]"/>
                                     </t> 
                                     <t t-foreach="main.breakdown" t-as="s">
-                                        <th t-esc="attendance_status[s]"/>
+                                        <th t-esc="attendance_session_status[s]"/>
                                     </t> 
                                 </tr>                                
                             </thead>
@@ -67,7 +67,7 @@
                             {'style' : 'width:15%;', 'value' : 'Student'},
                             {'style' : '', 'value' : 'Comment'}
                         ]"/>
-                        <!-- Note: 'self' will be an 'attendance_status' object and is necessary to run the 'report_eval' method from the 'details_table' template. -->
+                        <!-- Note: 'self' will be an 'attendance_session_status' object and is necessary to run the 'report_eval' method from the 'details_table' template. -->
                         <t t-set="rows" t-value="[
                             {'style' : '', 'value' : 'self.attendance_session_id.date'},
                             {'style' : '', 'value' : 'dict(self.fields_get(allfields=[\'status\'])[\'status\'][\'selection\'])[self.status]'},

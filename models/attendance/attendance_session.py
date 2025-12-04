@@ -6,12 +6,11 @@ from datetime import datetime, timedelta
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
 #		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
-attendance_status = [("a_attended", "Attended"), ("a_delayed", "Delayed"), ("m_miss", "Miss"), ("m_justified", "Justified Miss"), ("a_issue", "Issue")]
+attendance_status_selection = [("a_attended", "Attended"), ("a_delayed", "Delayed"), ("m_miss", "Miss"), ("m_justified", "Justified Miss"), ("a_issue", "Issue")]
 
-class ems_attendance_session(models.Model):
-	# TODO: should attendance_session be renamed to attendance_session_header? 
-	_name = "ems.attendance_session"
-	_description = "Attendance session: contains the data about every session done with the students."		
+class ems_attendance_session_header(models.Model):
+	_name = "ems.attendance_session_header"
+	_description = "Attendance session header: contains the main data about an attendance session."
 	_inherit = ['ems.utils', 'mail.thread', 'mail.activity.mixin']	
 	_sql_constraints = [
 		# TODO: localize this (the same message appears in form).
@@ -49,7 +48,7 @@ class ems_attendance_session(models.Model):
 	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 		
-	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_status", inverse_name="attendance_session_id")		
+	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_status", inverse_name="attendance_session_id")		
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)			
 	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	
@@ -145,19 +144,19 @@ class ems_attendance_session(models.Model):
 			rec.is_next = False
 			rec.is_duped = False
 			
-			for attendance_status in rec.attendance_status_ids:
+			for attendance_session_status in rec.attendance_status_ids:
 				# Unlink previous students
-				students.append([3, attendance_status.id])
+				students.append([3, attendance_session_status.id])
 
 			if rec.attendance_schedule_id.id != False:
 				now = datetime.now()
 				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin
-				rec.is_duped = self.env["ems.attendance_session"].search([("date", "=", now), ("attendance_schedule_id.id", "=", schedule_id)]) or False
+				rec.is_duped = self.env["ems.attendance_session_header"].search([("date", "=", now), ("attendance_schedule_id.id", "=", schedule_id)]) or False
 								
 				# NOTE: The first approach was to check if start_date of current == end_date of previous, but what happens if there's a coffe break between sessions?	
 				#		Its better to check if the same subject has been teached previously and load the same data (maybe there's a gap between, but the student assistance 
 				# 		data should be almost the same). 
-				previous = self.env["ems.attendance_session"].search(
+				previous = self.env["ems.attendance_session_header"].search(
 					[
 						("date", "=", datetime.now()), 						
 						("attendance_schedule_id.attendance_template_id.id", "=", rec.attendance_schedule_id.attendance_template_id.sudo().id),
@@ -251,11 +250,11 @@ class ems_attendance_session(models.Model):
 		issue_status = data["values"]	
 		
 		if not issue_status or rectification:
-			as_id = self.sudo().env['ems.attendance_status'].sudo().search([('id', '=', attendance_status_id)])
+			as_id = self.sudo().env['ems.attendance_session_status'].sudo().search([('id', '=', attendance_status_id)])
 			issue_status = repo.create({				
 				'attendance_issue_student_id': issue_student.id,
 				'attendance_status_id': attendance_status_id,
-				'attendance_status': as_id.status,
+				'attendance_session_status': as_id.status,
 				'rectification': rectification,
 				'notes': as_id.notes,
 				'send_to': send_to,				
@@ -327,8 +326,8 @@ class ems_attendance_session(models.Model):
 		for record in records:		
 			# NOTE: Collecting all status data first allow some optimizations.	
 			issue_status_by_tutor = dict()			
-			for attendance_status in record.attendance_status_ids:			
-				record.collect_issue_status_data(attendance_status, issue_status_by_tutor)
+			for attendance_session_status in record.attendance_status_ids:			
+				record.collect_issue_status_data(attendance_session_status, issue_status_by_tutor)
 
 			record.create_notification_entries(issue_status_by_tutor, notification_tutor_eta, notification_status_eta)
 		return records
@@ -398,7 +397,7 @@ class ems_attendance_session(models.Model):
 		return {"repo": repo, "values": issue_student}
 	
 	def get_issue_status(self, attendance_status_id):
-		# NOTE: On rectification, multiple issue_status can be attanched to the same attendance_status, but we always
+		# NOTE: On rectification, multiple issue_status can be attanched to the same attendance_session_status, but we always
 		#		whant the most recent. 
 		repo = self.sudo().env['ems.attendance_issue_status']
 		issue_status = repo.search([('attendance_status_id', '=', attendance_status_id)], order='id desc', limit=1) or False
@@ -406,15 +405,15 @@ class ems_attendance_session(models.Model):
 
 # NOTE: moved here because the status is strongly related to the session, it has no own list or form (as happens with the
 #		attendance issues).
-class ems_attendance_status(models.Model):
-	# TODO: should attendance_status be renamed to attendance_session_status or attendance_session_lines? 
-    _name = "ems.attendance_status"
-    _description = "Attendance status: information about session per student."
-
-    status = fields.Selection(string="Status", default="a_attended", required=True, selection=attendance_status)
+class ems_attendance_session_status(models.Model):	
+    _name = "ems.attendance_session_status"
+    _description = "Attendance status status: information about the session status per student within an attendance session."
+	
+	# TODO: should status be renamed to value? 
+    status = fields.Selection(string="Status", default="a_attended", required=True, selection=attendance_status_selection)
     student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
     image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
-    attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session", ondelete="cascade")
+    attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session_header", ondelete="cascade")
     
     # This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
     inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 
@@ -430,7 +429,7 @@ class ems_attendance_status(models.Model):
         return self.status in ['m_miss', 'a_issue']    
 
     def write(self, vals):
-        super(ems_attendance_status, self).write(vals)
+        super(ems_attendance_session_status, self).write(vals)
         self._update_notification()   
 
     def _update_notification(self):
@@ -470,7 +469,7 @@ class ems_attendance_status(models.Model):
                 else:
                     # 2.1. If not notified yet, update the notification data.
                     previous_issue_status.write({
-                        "attendance_status": self.status,
+                        "attendance_session_status": self.status,
                         "notes": self.notes
                     })
         elif self.status_is_notificable():

@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_attendance_session_form">
-            <field name="name">ems.attendance_session.form</field>
-            <field name="model">ems.attendance_session</field>
+            <field name="name">ems.attendance_session_header.form</field>
+            <field name="model">ems.attendance_session_header</field>
             <field name="arch" type="xml">
                 <form string="Session">
                     <field name="is_duped" invisible="1"/> 

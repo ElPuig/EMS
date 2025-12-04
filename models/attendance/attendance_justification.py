@@ -15,7 +15,7 @@ class ems_attendance_justification(models.Model):
 	attachment_ids = fields.Many2many(string="Attached files", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.attendance_justification')]")	
 	
 	# NOTE: Many2many needed in order to update values (when Many2one used, removed values when changing filters removes also the status entries)
-	attendance_status_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_session_status") 
+	attendance_status_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_session_line") 
 	session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee")
 	allowed_student_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	notes = fields.Text("Notes")
@@ -102,7 +102,7 @@ class ems_attendance_justification(models.Model):
 	def _onchange_attendance_status_ids(self):	
 		for rec in self:
 			if rec.student_id.id != False and rec.start_date != False and rec.end_date != False:								
-				statuses = self.env["ems.attendance_session_status"].search([
+				statuses = self.env["ems.attendance_session_line"].search([
 					("status", "=", "m_miss"), 
 					("student_id", "=", rec.student_id.id), 
 					("attendance_session_id.date", ">=", rec.start_date), 

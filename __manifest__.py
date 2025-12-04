@@ -286,8 +286,8 @@
 
         # 'demo/attendance/attendance_template.xml',
         # 'demo/attendance/attendance_schedule.xml',
-        # 'demo/attendance/attendance_session.xml',
-        # 'demo/attendance/attendance_session_status.xml',
+        # 'demo/attendance/attendance_session_header.xml',
+        # 'demo/attendance/attendance_session_line.xml',
     ],   
     'assets': {       
         'web.assets_backend': [

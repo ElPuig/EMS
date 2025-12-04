@@ -3,7 +3,7 @@ import logging
 _logger = logging.getLogger(__name__)
 def migrate(cr, version):
     operations = [
-        ('ems_attendance_status', 'ems_attendance_session_status'),
+        ('ems_attendance_status', 'ems_attendance_session_line'),
         ('ems_attendance_session', 'ems_attendance_session_header'),
     ]
 

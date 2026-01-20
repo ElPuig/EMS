@@ -48,7 +48,7 @@ class ems_attendance_session_header(models.Model):
 	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 		
-	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_status", inverse_name="attendance_session_id")		
+	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")		
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)			
 	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	
@@ -144,9 +144,9 @@ class ems_attendance_session_header(models.Model):
 			rec.is_next = False
 			rec.is_duped = False
 			
-			for attendance_session_status in rec.attendance_status_ids:
+			for attendance_session_line in rec.attendance_status_ids:
 				# Unlink previous students
-				students.append([3, attendance_session_status.id])
+				students.append([3, attendance_session_line.id])
 
 			if rec.attendance_schedule_id.id != False:
 				now = datetime.now()
@@ -250,11 +250,11 @@ class ems_attendance_session_header(models.Model):
 		issue_status = data["values"]	
 		
 		if not issue_status or rectification:
-			as_id = self.sudo().env['ems.attendance_session_status'].sudo().search([('id', '=', attendance_status_id)])
+			as_id = self.sudo().env['ems.attendance_session_line'].sudo().search([('id', '=', attendance_status_id)])
 			issue_status = repo.create({				
 				'attendance_issue_student_id': issue_student.id,
 				'attendance_status_id': attendance_status_id,
-				'attendance_session_status': as_id.status,
+				'attendance_session_line': as_id.status,
 				'rectification': rectification,
 				'notes': as_id.notes,
 				'send_to': send_to,				
@@ -326,8 +326,8 @@ class ems_attendance_session_header(models.Model):
 		for record in records:		
 			# NOTE: Collecting all status data first allow some optimizations.	
 			issue_status_by_tutor = dict()			
-			for attendance_session_status in record.attendance_status_ids:			
-				record.collect_issue_status_data(attendance_session_status, issue_status_by_tutor)
+			for attendance_session_line in record.attendance_status_ids:			
+				record.collect_issue_status_data(attendance_session_line, issue_status_by_tutor)
 
 			record.create_notification_entries(issue_status_by_tutor, notification_tutor_eta, notification_status_eta)
 		return records
@@ -397,7 +397,7 @@ class ems_attendance_session_header(models.Model):
 		return {"repo": repo, "values": issue_student}
 	
 	def get_issue_status(self, attendance_status_id):
-		# NOTE: On rectification, multiple issue_status can be attanched to the same attendance_session_status, but we always
+		# NOTE: On rectification, multiple issue_status can be attanched to the same attendance_session_line, but we always
 		#		whant the most recent. 
 		repo = self.sudo().env['ems.attendance_issue_status']
 		issue_status = repo.search([('attendance_status_id', '=', attendance_status_id)], order='id desc', limit=1) or False
@@ -405,9 +405,9 @@ class ems_attendance_session_header(models.Model):
 
 # NOTE: moved here because the status is strongly related to the session, it has no own list or form (as happens with the
 #		attendance issues).
-class ems_attendance_session_status(models.Model):	
-    _name = "ems.attendance_session_status"
-    _description = "Attendance status status: information about the session status per student within an attendance session."
+class ems_attendance_session_line(models.Model):	
+    _name = "ems.attendance_session_line"
+    _description = "Attendance status line: information about a status per student within an attendance session."
 	
 	# TODO: should status be renamed to value? 
     status = fields.Selection(string="Status", default="a_attended", required=True, selection=attendance_status_selection)
@@ -429,7 +429,7 @@ class ems_attendance_session_status(models.Model):
         return self.status in ['m_miss', 'a_issue']    
 
     def write(self, vals):
-        super(ems_attendance_session_status, self).write(vals)
+        super(ems_attendance_session_line, self).write(vals)
         self._update_notification()   
 
     def _update_notification(self):
@@ -469,7 +469,7 @@ class ems_attendance_session_status(models.Model):
                 else:
                     # 2.1. If not notified yet, update the notification data.
                     previous_issue_status.write({
-                        "attendance_session_status": self.status,
+                        "attendance_session_line": self.status,
                         "notes": self.notes
                     })
         elif self.status_is_notificable():

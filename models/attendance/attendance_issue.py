@@ -55,7 +55,7 @@ class ems_attendance_issue_status(models.Model):
 	_inherit = ['ems.utils']
 	
 	attendance_issue_student_id = fields.Many2one(string="Student notification data", comodel_name="ems.attendance_issue_student", ondelete='cascade')
-	attendance_status_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_session_status", required=True, ondelete='cascade')	
+	attendance_status_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_session_line", required=True, ondelete='cascade')	
 	attendance_session_id = fields.Many2one(string="Session", related="attendance_status_id.attendance_session_id", store=False)
 	
 	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
@@ -83,7 +83,7 @@ class ems_attendance_issue_status(models.Model):
 	@api.depends('attendance_status_id')
 	def _compute_display_name(self):              
 		for rec in self:
-			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_session_status).get(rec.attendance_session_status))
+			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_session_line).get(rec.attendance_session_line))
 
 	@api.depends('notification_status')
 	def _compute_pending(self):

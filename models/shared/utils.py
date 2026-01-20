@@ -51,15 +51,18 @@ class ems_utils(models.AbstractModel):
     def time_to_float(self, time):
         return time.hour + time.minute / 60.0
     
+    # The current user is admin. 
     def get_user_is_admin(self):	
         return self.env.user.has_group('ems.group_admin')
 
+    # The current user is tutor of some group. 
     def get_user_is_tutor(self):
         for e in self.env.user.employee_ids:
             if e.tutorship_ids != False and len(e.tutorship_ids) > 0:
                 return True
         return False
 
+    # The current user is the tutor of the current model's instance. 
     def get_user_is_tutor_of_self(self):
         if 'tutor_id' in self.env[self._name]._fields:
             return self.tutor_id.id != False and self.tutor_id.user_id == self.env.user        

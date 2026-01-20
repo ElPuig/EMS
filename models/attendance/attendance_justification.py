@@ -17,7 +17,7 @@ class ems_attendance_justification(models.Model):
 	# NOTE: Many2many needed in order to update values (when Many2one used, removed values when changing filters removes also the status entries)
 	attendance_status_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_session_status") 
 	session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee")
-	allowed_student_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
+	allowed_student_ids = fields.Many2many(comodel_name='res.partner', store=False)	
 	notes = fields.Text("Notes")
 
 	# NOTE: this field is used to compute permissions within utils.get_user_is_tutor_of_self()	
@@ -30,11 +30,9 @@ class ems_attendance_justification(models.Model):
 	def create(self, values):		
 		just = super(ems_attendance_justification, self).create(values)
 		for val in values:
-			is_admin = False
-			is_tutor = just.get_user_is_tutor_of_self()
-			if 'user_is_admin' in val and val.get('user_is_admin'):
-				is_admin = just.user_is_admin			
-				
+			is_admin = just.get_user_is_admin()
+			is_tutor = just.get_user_is_tutor_of_self()							
+			
 			if not is_admin and not is_tutor:
 				# TODO: localize the message
 				raise ValidationError("Only the student's tutor can justify its attendances.")

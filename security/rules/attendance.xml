@@ -172,6 +172,46 @@
         <field name="perm_unlink" eval="False"/> 
     </record>
 
+    <!-- ems.attendance_prevision -->
+     <record id="rule_attendance_prevision_admin" model="ir.rule">
+        <field name="name">Attendance justification: all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_prevision"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_prevision_teacher_tutor" model="ir.rule">
+        <!-- 
+            NOTE: only tutors can perform justifications, but it is checked on form opening and data create/unlink methods,
+            because only a student's tutor can justify its absences, and this kind of granular permissions cannot be checked
+            from here. 
+        -->
+        <field name="name">Attendance justification: tutor</field>
+        <field name="model_id" ref="ems.model_ems_attendance_prevision"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('student_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/> 
+    </record>
+
+    <record id="rule_attendance_prevision_teacher_own_read" model="ir.rule">
+        <!-- NOTE: a teacher should be able to check why an attendance that was marked as 'miss' appears now as 'justified'. -->
+        <field name="name">Attendance justification: teacher's own affected attendances (read only)</field>
+        <field name="model_id" ref="ems.model_ems_attendance_prevision"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">['|', ('teacher_id.user_id.id', '=', user.id), ('session_teacher_ids', 'in', user.employee_ids.ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/> 
+    </record>
+
     <!-- ems.attendance_issue -->
     <record id="rule_attendance_issue_tutor_admin" model="ir.rule">
         <field name="name">Attendance notification (tutor): all data</field>

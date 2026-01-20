@@ -3,9 +3,9 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 
-class ems_attendance_justification(models.Model):
-	_name = "ems.attendance_justification"
-	_description = "Attendance justification: contains the data about an abscence justification (proof of attendance)."
+class ems_attendance_justification_base(models.AbstractModel):
+	_name = "ems.attendance_justification_base"
+	_description = "Attendance justification base: main data for abscence prevission / justification."
 	_inherit = ['ems.utils']
 	
 	start_date = fields.Datetime(string="Start date", required=True)
@@ -14,8 +14,9 @@ class ems_attendance_justification(models.Model):
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')", required=True, store=True, ondelete='cascade')	
 	attachment_ids = fields.Many2many(string="Attached files", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.attendance_justification')]")	
 	
-	# NOTE: Many2many needed in order to update values (when Many2one used, removed values when changing filters removes also the status entries)
-	attendance_status_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_session_line") 
+	# NOTE: Many2many needed in order to update values (when Many2one used, removed values when changing filters removes also the status entries).
+	# NOTE: relation name should be forced to <63 chars (PSQL restriction), but must be different for any inheriting model. The relation field should be rewrite on inheriting field to alter the table name... sad...
+	attendance_session_line_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_session_line", relation='ems_att_just_base_att_ses_line_rel', column1='justification_id', column2='session_line_id') 
 	session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee")
 	allowed_student_ids = fields.Many2many(comodel_name='res.partner', store=False)	
 	notes = fields.Text("Notes")
@@ -25,53 +26,7 @@ class ems_attendance_justification(models.Model):
 
 	def _default_teacher_id(self):							
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
-
-	@api.model_create_multi
-	def create(self, values):		
-		just = super(ems_attendance_justification, self).create(values)
-		for val in values:
-			is_admin = just.get_user_is_admin()
-			is_tutor = just.get_user_is_tutor_of_self()							
 			
-			if not is_admin and not is_tutor:
-				# TODO: localize the message
-				raise ValidationError("Only the student's tutor can justify its attendances.")
-			
-			if 'attendance_status_ids' in val and val.get('attendance_status_ids'):
-				# NOTE: it would be nice to have a link to the justification entry within the status form, but this demands an 
-				# extra column that will be almost always empty. So, at the moment, the text "Justified by" will be added to the
-				# comments sections. 
-				
-				# TODO: localize text
-				text = "Justified by: " + just.teacher_id.display_name
-				for status in just.attendance_status_ids:	
-					if status.status == "m_miss":			
-						notes = "" if status.notes == False else status.notes + "\n"
-						notes += text
-						status.write({
-							'status': 'm_justified',
-							'notes': notes
-						}) 		
-		return just
-	
-	def unlink(self):
-		for rec in self:
-			if not rec.user_is_admin and not rec.student_id.main_group_id in rec.teacher_id.tutorship_ids:
-				raise UserError("Only the studen's tutor can remove its attendance justifications.")
-			else:
-				for status in rec.attendance_status_ids:	
-					if status.status == "m_justified":	
-						# TODO: localize text
-						text = "Justified by: " + rec.teacher_id.display_name		
-						notes = False if status.notes == False else status.notes.replace(text, "")
-						status.write({
-							'status': 'm_miss',
-							'notes': False if len(notes) == 0 else notes
-						})
-				rec.write({'attendance_status_ids' : [5]})	
-
-		return super().unlink()
-
 	@api.model
 	def default_get(self, fields_list):
 		# TODO: unable to hide the "NEW" button to non-tutor teachers.	
@@ -97,7 +52,7 @@ class ems_attendance_justification(models.Model):
 			rec.allowed_student_ids = [(6, 0, allowed)]	
 
 	@api.onchange("student_id", "start_date", "end_date")
-	def _onchange_attendance_status_ids(self):	
+	def _onchange_attendance_session_line_ids(self):	
 		for rec in self:
 			if rec.student_id.id != False and rec.start_date != False and rec.end_date != False:								
 				statuses = self.env["ems.attendance_session_line"].search([
@@ -122,7 +77,7 @@ class ems_attendance_justification(models.Model):
 							teacher_ids.append(status.attendance_session_id.session_teacher_id.id)
 				
 				teacher_ids = list(set(teacher_ids)) # removing dupes
-				rec.attendance_status_ids = [(6, 0, status_ids)]
+				rec.attendance_session_line_ids = [(6, 0, status_ids)]
 				rec.session_teacher_ids = [(6, 0, teacher_ids)]
 			
 	@api.depends('student_id', 'start_date', 'end_date')
@@ -135,3 +90,59 @@ class ems_attendance_justification(models.Model):
 				rec.display_name = "%s (from %02d:%02d to %02d:%02d)" % (rec.student_id.display_name, start_date.hour, start_date.minute, end_date.hour, end_date.minute)
 			else:
 				rec.display_name = False
+
+class ems_attendance_justification(models.Model):
+	_name = "ems.attendance_justification"
+	_description = "Attendance justification: contains the data about an abscence justification (proof of attendance)."
+	_inherit = ['ems.attendance_justification_base']
+
+	# NOTE: relation name should be forced to <63 chars (PSQL restriction), but must be different for any inheriting model. The relation field should be rewrite on inheriting field to alter the table name... sad...
+	attendance_session_line_ids = fields.Many2many(relation='ems_att_just_att_ses_line_rel') 
+
+	@api.model_create_multi
+	def create(self, values):		
+		just = super().create(values)
+		for val in values:
+			is_admin = just.get_user_is_admin()
+			is_tutor = just.get_user_is_tutor_of_self()							
+			
+			if not is_admin and not is_tutor:
+				# TODO: localize the message
+				raise ValidationError("Only the student's tutor can justify its attendances.")
+			
+			if 'attendance_session_line_ids' in val and val.get('attendance_session_line_ids'):
+				# NOTE: it would be nice to have a link to the justification entry within the status form, but this demands an 
+				# extra column that will be almost always empty. So, at the moment, the text "Justified by" will be added to the
+				# comments sections. 
+				
+				# TODO: localize text
+				text = "Justified by: " + just.teacher_id.display_name
+				for status in just.attendance_session_line_ids:	
+					if status.status == "m_miss":			
+						notes = "" if status.notes == False else status.notes + "\n"
+						notes += text
+						status.write({
+							'status': 'm_justified',
+							'notes': notes
+						}) 		
+		return just
+	
+	def unlink(self):
+		for rec in self:
+			if not rec.user_is_admin and not rec.student_id.main_group_id in rec.teacher_id.tutorship_ids:
+				raise UserError("Only the studen's tutor can remove its attendance justifications.")
+			else:
+				for status in rec.attendance_session_line_ids:	
+					if status.status == "m_justified":	
+						# TODO: localize text
+						text = "Justified by: " + rec.teacher_id.display_name		
+						notes = False if status.notes == False else status.notes.replace(text, "")
+						status.write({
+							'status': 'm_miss',
+							'notes': False if len(notes) == 0 else notes
+						})
+				rec.write({'attendance_session_line_ids' : [5]})	
+
+		return super().unlink()
+
+	

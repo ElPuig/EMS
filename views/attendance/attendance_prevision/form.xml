@@ -1,8 +1,8 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_attendance_justification_form">
-            <field name="name">ems.attendance_justification.form</field>
-            <field name="model">ems.attendance_justification</field>
+        <record model="ir.ui.view" id="view_attendance_prevision_form">
+            <field name="name">ems.attendance_prevision.form</field>
+            <field name="model">ems.attendance_prevision</field>
             <field name="arch" type="xml">
                 <form string="justification">                    
                     <sheet>     
@@ -22,22 +22,22 @@
 
                         <notebook>
                             <page string="Statuses">                                
-                                <field name="attendance_session_line_ids">
+                                <field name="attendance_session_line_ids" readonly="True">
                                     <list default_order="student_id asc" create="False" edit="False" delete="False" no_open="True">                                                                               
                                         <field string="Session" name="display_name" />
                                         <field name="status" width="175px" />
                                     </list>
                                 </field>
                             </page> 
-                            <page string="Session teachers">                                
-                                <field name="session_teacher_ids">
+                            <page string="Session teachers">
+                                <field name="session_teacher_ids" readonly="True">
                                     <list default_order="name asc" create="False" edit="False" delete="False" no_open="True">                                                                               
                                         <field string="Name" name="name" />
                                     </list>
                                 </field>
                             </page>        
                             <page string="Attached files">
-                                <field name="attachment_ids" default_order="name asc" context="{'default_res_model': 'ems.attendance_justification'}" readonly="not user_is_admin and not user_is_tutor">
+                                <field name="attachment_ids" default_order="name asc" context="{'default_res_model': 'ems.attendance_prevision'}" readonly="not user_is_admin and not user_is_tutor">
                                     <list default_order="name asc">
                                         <field name="name" />
                                         <button class="btn btn-secondary fa fa-download" title="Download File" name="download" type="object" />

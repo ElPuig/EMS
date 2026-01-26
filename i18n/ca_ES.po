@@ -2290,7 +2290,7 @@ msgstr "Data d'inici"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__status
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attendance_status_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attendance_session_line_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_status__status
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_session
 msgid "Status"
@@ -2316,7 +2316,7 @@ msgid "Status data"
 msgstr "Informació de l'estat"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__attendance_status_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session__attendance_session_line_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
 msgid "Statuses"

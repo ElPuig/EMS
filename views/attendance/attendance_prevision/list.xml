@@ -5,7 +5,7 @@
             <field name="model">ems.attendance_prevision</field>
             <field name="arch" type="xml">
                 <list>                                        
-                    <field name="teacher_id" widget="many2one_avatar_employee"/>
+                    <field name="teacher_id" string="Previewed by" widget="many2one_avatar_employee"/>
                     <field name="student_id" widget="many2one_avatar"/>
                     <field name="session_teacher_ids" widget="many2many_tags"/>
                     <field name="start_date" width="125px"/>

@@ -48,7 +48,7 @@ class ems_attendance_session_header(models.Model):
 	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 		
-	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")		
+	attendance_session_line_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")		
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)			
 	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	
@@ -140,13 +140,13 @@ class ems_attendance_session_header(models.Model):
 	@api.onchange("attendance_schedule_id")	
 	def _onchange_attendance_schedule_id(self):		
 		for rec in self:			
-			students = []
+			lines = []
 			rec.is_next = False
 			rec.is_duped = False
 			
-			for attendance_session_line in rec.attendance_status_ids:
+			for attendance_session_line in rec.attendance_session_line_ids:
 				# Unlink previous students
-				students.append([3, attendance_session_line.id])
+				lines.append([3, attendance_session_line.id])
 
 			if rec.attendance_schedule_id.id != False:
 				now = datetime.now()
@@ -170,28 +170,39 @@ class ems_attendance_session_header(models.Model):
 
 					if rec.is_next:
 						# Load new entries but with the previous session's data
-						for prev in previous.attendance_status_ids:
-							students.append([0, 0, {
+						for prev in previous.attendance_session_line_ids:
+							lines.append([0, 0, {
 								"student_id": prev.student_id,
 								"status": "a_attended" if prev.status == "a_delayed" else prev.status,
 								"notes": prev.notes
 							}])
 						
 			if not rec.is_next:
-				# Load empty entries
+				# Load empty entries, must check absence prevission
+				# TODO: CONTINUE HERE: NO PREVISION RETURNED. WHY!!!
+				previssions = self.sudo().env["ems.attendance_prevision"]#.search([("start_date", ">=", fields.Datetime.now()), ("end_date", "<=", fields.Datetime.now())])
 				for student in rec.attendance_schedule_id.attendance_template_id.sudo().student_ids:
 					# Sources: 
 					# 	https://stackoverflow.com/a/70843263
 					#	https://www.odoo.com/ro_RO/forum/suport-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
 					
-					# Linking new students
-					students.append([0, 0, {
-						"student_id": student
+					# Linking new students					
+					is_prev = False
+					tc_prev = None
+					for p in previssions:
+						if p.student_id == student:
+							is_prev = True
+							tc_prev = p.teacher_id
+
+					lines.append([0, 0, {
+						"student_id": student,
+						"status": "m_justified" if is_prev else "a_attended",
+						"notes": "Absence expected by: " + tc_prev.display_name if is_prev else None,
 					}])	
 			
 			# NOTE: if duped, avoid next message.
 			if rec.is_duped: rec.is_next = False
-			rec.attendance_status_ids = students
+			rec.attendance_session_line_ids = lines
 
 	def _default_teacher_id(self):							
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
@@ -326,7 +337,7 @@ class ems_attendance_session_header(models.Model):
 		for record in records:		
 			# NOTE: Collecting all status data first allow some optimizations.	
 			issue_status_by_tutor = dict()			
-			for attendance_session_line in record.attendance_status_ids:			
+			for attendance_session_line in record.attendance_session_line_ids:			
 				record.collect_issue_status_data(attendance_session_line, issue_status_by_tutor)
 
 			record.create_notification_entries(issue_status_by_tutor, notification_tutor_eta, notification_status_eta)
@@ -492,7 +503,7 @@ class ems_attendance_session_line(models.Model):
         for rec in self:
             rec.inuse_student_ids = False
             if rec.attendance_session_id:
-                rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_status_ids.student_id')   
+                rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_session_line_ids.student_id')   
 
     @api.depends('attendance_session_id', 'student_id')
     def _compute_display_name(self):              

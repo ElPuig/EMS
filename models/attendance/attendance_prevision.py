@@ -35,7 +35,7 @@ class ems_attendance_prevision(models.Model):
 			if not rec.user_is_admin and not rec.student_id.main_group_id in rec.teacher_id.tutorship_ids:
 				raise UserError("Only the studen's tutor can remove its attendance previssions.")
 			else:
-				for status in rec.attendance_status_ids:	
+				for status in rec.attendance_session_line_ids:	
 					if status.status == "m_justified":	
 						# TODO: localize text
 						text = "Absence expected by: " + rec.teacher_id.display_name
@@ -44,6 +44,6 @@ class ems_attendance_prevision(models.Model):
 							'status': 'm_miss',
 							'notes': False if len(notes) == 0 else notes
 						})
-				rec.write({'attendance_status_ids' : [5]})	
+				rec.write({'attendance_session_line_ids' : [5]})	
 
 		return super().unlink()		

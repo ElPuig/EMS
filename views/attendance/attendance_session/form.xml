@@ -58,7 +58,7 @@
 
                         <notebook>
                             <page string="Statuses">
-                                <field name="attendance_status_ids" widget="one2many_list" context="{'show_attribute': False}"  mouseover="_onMouseOver">                                    
+                                <field name="attendance_session_line_ids" widget="one2many_list" context="{'show_attribute': False}"  mouseover="_onMouseOver">                                    
                                     <list editable="bottom" default_order="student_id asc">                                       
                                         <field name="image_1920" widget="image" />
                                         <field name="student_id" width="175px" class="align-middle" domain="[('contact_type', '=', 'student'), ('id','not in', inuse_student_ids)]"/>

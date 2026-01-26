@@ -179,8 +179,7 @@ class ems_attendance_session_header(models.Model):
 						
 			if not rec.is_next:
 				# Load empty entries, must check absence prevission
-				# TODO: CONTINUE HERE: NO PREVISION RETURNED. WHY!!!
-				previssions = self.sudo().env["ems.attendance_prevision"]#.search([("start_date", ">=", fields.Datetime.now()), ("end_date", "<=", fields.Datetime.now())])
+				previssions = self.sudo().env["ems.attendance_prevision"].search([("start_date", "<=", fields.Datetime.now()), ("end_date", ">=", fields.Datetime.now())])
 				for student in rec.attendance_schedule_id.attendance_template_id.sudo().student_ids:
 					# Sources: 
 					# 	https://stackoverflow.com/a/70843263

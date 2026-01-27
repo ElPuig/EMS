@@ -48,7 +48,7 @@ class ems_attendance_session_header(models.Model):
 	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 		
-	attendance_session_line_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")		
+	attendance_session_line_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")			
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)			
 	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	
@@ -186,18 +186,24 @@ class ems_attendance_session_header(models.Model):
 					#	https://www.odoo.com/ro_RO/forum/suport-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
 					
 					# Linking new students					
-					is_prev = False
-					tc_prev = None
+					line = None
 					for p in previssions:
 						if p.student_id == student:
-							is_prev = True
-							tc_prev = p.teacher_id
+							line = {
+								"student_id": student,
+								"status": "m_justified",
+								"notes": "Absence expected by: " + p.teacher_id.display_name,
+								"attendance_prevision_ids": [(4, p.id)] # NOTE: this will be used also on line creation to setup the prevission remaining data
+							}							
 
-					lines.append([0, 0, {
-						"student_id": student,
-						"status": "m_justified" if is_prev else "a_attended",
-						"notes": "Absence expected by: " + tc_prev.display_name if is_prev else None,
-					}])	
+					if line is None:
+						line = {
+								"student_id": student,
+								"status": "a_attended",
+								"notes": None
+							}
+						
+					lines.append([0, 0, line])	
 			
 			# NOTE: if duped, avoid next message.
 			if rec.is_duped: rec.is_next = False
@@ -424,7 +430,10 @@ class ems_attendance_session_line(models.Model):
     student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
     image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
     attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session_header", ondelete="cascade")
-    
+	# NOTE: this is a 'mirror' field, pointing at the same table as attendance_prevision's attendance_session_line_ids field is (used to link a line with a prevision on creation within attendance_session_header).
+    attendance_prevision_ids = fields.Many2many(string="Prevision", comodel_name="ems.attendance_prevision", relation='ems_att_just_base_att_ses_line_rel', column1='session_line_id', column2='justification_id')
+	# NOTE: the same as attendance_prevision_ids can be done with attendance_justification_ids if needed (in order to jump from a session_line to its justification).
+
     # This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
     inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 
 
@@ -434,6 +443,8 @@ class ems_attendance_session_line(models.Model):
    
     notes = fields.Text("Notes")
     
+	# TODO: define create in order to setup the prevision data if needed (link teachers and sessions).
+
     def status_is_notificable(self):
         # TODO: load from EMS settings.
         return self.status in ['m_miss', 'a_issue']    

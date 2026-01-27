@@ -9,7 +9,7 @@ class ems_attendance_schedule(models.Model):
 	_name = "ems.attendance_schedule"
 	_description = "Attendance schedule: concretes the weekdays data."
 	_order = 'name asc'
-	_inherit = ['ems.utils']
+	_inherit = ['ems.base', 'ems.datetime_utils']
 	
 	# Note: today.weekday() returns this values, do not alter!
 	weekdays_selection=[

@@ -6,7 +6,7 @@ from .attendance_session import attendance_status_selection
 class ems_attendance_issue_tutor(models.Model):
 	_name = "ems.attendance_issue_tutor"
 	_description = "Attendance issue (tutor): contains the data about isues that can be reviewed by the student's tutor."
-	_inherit = ['ems.utils']
+	_inherit = ['ems.base']
 	
 	attendance_issue_student_ids = fields.One2many(string="Students", comodel_name="ems.attendance_issue_student", inverse_name="attendance_issue_tutor_id")
 	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
@@ -37,7 +37,7 @@ class ems_attendance_issue_tutor(models.Model):
 class ems_attendance_issue_student(models.Model):
 	_name = "ems.attendance_issue_student"
 	_description = "Attendance issue (student): groups the attendance's issues by student."
-	_inherit = ['ems.utils']
+	_inherit = ['ems.base']
 	
 	attendance_issue_tutor_id = fields.Many2one(string="Tutor notification data", comodel_name="ems.attendance_issue_tutor", ondelete='cascade')
 	attendance_issue_status_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_issue_status", inverse_name="attendance_issue_student_id")
@@ -52,7 +52,7 @@ class ems_attendance_issue_student(models.Model):
 class ems_attendance_issue_status(models.Model):
 	_name = "ems.attendance_issue_status"
 	_description = "Attendance issue (status): contains the data about an attendance issue."
-	_inherit = ['ems.utils']
+	_inherit = ['ems.base']
 	
 	attendance_issue_student_id = fields.Many2one(string="Student notification data", comodel_name="ems.attendance_issue_student", ondelete='cascade')
 	attendance_status_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_session_line", required=True, ondelete='cascade')	
@@ -83,7 +83,7 @@ class ems_attendance_issue_status(models.Model):
 	@api.depends('attendance_status_id')
 	def _compute_display_name(self):              
 		for rec in self:
-			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_session_line).get(rec.attendance_session_line))
+			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_status_selection).get(rec.attendance_session_status))
 
 	@api.depends('notification_status')
 	def _compute_pending(self):

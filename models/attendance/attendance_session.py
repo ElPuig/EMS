@@ -11,7 +11,7 @@ attendance_status_selection = [("a_attended", "Attended"), ("a_delayed", "Delaye
 class ems_attendance_session_header(models.Model):
 	_name = "ems.attendance_session_header"
 	_description = "Attendance session header: contains the main data about an attendance session."
-	_inherit = ['ems.utils', 'mail.thread', 'mail.activity.mixin']	
+	_inherit = ['ems.base', 'ems.datetime_utils', 'mail.thread', 'mail.activity.mixin']	
 	_sql_constraints = [
 		# TODO: localize this (the same message appears in form).
         (
@@ -34,11 +34,11 @@ class ems_attendance_session_header(models.Model):
 	# TODO: 
 	# 		1. Remove unnecessary data. 
 	# 		2. Related data should not be never removed, but archived. 
-	# 		For example:	
+	# 		For example:
 	# 			1. New course, so new templates.
 	#			2. Removing templates, removes also the schedules.
 	#			3. Sessions are linked to schedules, so cannot be removed because never should be removed by cascade (only manually).
-	# 			4. The same if a student's group is removed, it should really be archived.   
+	# 			4. The same if a student's group is removed, it should really be archived.
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", compute="_compute_level_id", store=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", compute="_compute_study_id", store=True)
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_group_id", store=True)
@@ -47,12 +47,12 @@ class ems_attendance_session_header(models.Model):
 	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
 	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
-		
-	attendance_session_line_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")			
-	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)			
-	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	
-	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)	
+	attendance_session_line_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")			
+	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)
+	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)
+	
+	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)
 	is_duped = fields.Boolean(store=False)
 	is_next = fields.Boolean(store=False)	
 
@@ -193,7 +193,7 @@ class ems_attendance_session_header(models.Model):
 								"student_id": student,
 								"status": "m_justified",
 								"notes": "Absence expected by: " + p.teacher_id.display_name,
-								"attendance_prevision_ids": [(4, p.id)] # NOTE: this will be used also on line creation to setup the prevission remaining data
+								"attendance_prevision_id": p # NOTE: this will be used also on line creation to setup the prevission remaining data
 							}							
 
 					if line is None:
@@ -270,7 +270,7 @@ class ems_attendance_session_header(models.Model):
 			issue_status = repo.create({				
 				'attendance_issue_student_id': issue_student.id,
 				'attendance_status_id': attendance_status_id,
-				'attendance_session_line': as_id.status,
+				'attendance_session_status': as_id.status,
 				'rectification': rectification,
 				'notes': as_id.notes,
 				'send_to': send_to,				
@@ -422,104 +422,113 @@ class ems_attendance_session_header(models.Model):
 # NOTE: moved here because the status is strongly related to the session, it has no own list or form (as happens with the
 #		attendance issues).
 class ems_attendance_session_line(models.Model):	
-    _name = "ems.attendance_session_line"
-    _description = "Attendance status line: information about a status per student within an attendance session."
+	_name = "ems.attendance_session_line"
+	_description = "Attendance status line: information about a status per student within an attendance session."
 	
 	# TODO: should status be renamed to value? 
-    status = fields.Selection(string="Status", default="a_attended", required=True, selection=attendance_status_selection)
-    student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
-    image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
-    attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session_header", ondelete="cascade")
+	status = fields.Selection(string="Status", default="a_attended", required=True, selection=attendance_status_selection)
+	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
+	image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
+	attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session_header", ondelete="cascade")
 	# NOTE: this is a 'mirror' field, pointing at the same table as attendance_prevision's attendance_session_line_ids field is (used to link a line with a prevision on creation within attendance_session_header).
-    attendance_prevision_ids = fields.Many2many(string="Prevision", comodel_name="ems.attendance_prevision", relation='ems_att_just_base_att_ses_line_rel', column1='session_line_id', column2='justification_id')
-	# NOTE: the same as attendance_prevision_ids can be done with attendance_justification_ids if needed (in order to jump from a session_line to its justification).
+	attendance_prevision_id = fields.Many2one(string="Prevision", comodel_name="ems.attendance_prevision")
+	# NOTE: the same as attendance_prevision_id can be done with attendance_justification_id if needed (in order to jump from a session_line to its justification).
 
-    # This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
-    inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 
+	# This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
+	inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 
 
-    # The teacher_id is used just for permission filtering pruposes.
-    template_teacher_id = fields.Many2one(string="Template's teacher", related="attendance_session_id.template_teacher_id", store=False)    
-    session_teacher_id = fields.Many2one(string="Session's teacher", related="attendance_session_id.session_teacher_id", store=False)    
-   
-    notes = fields.Text("Notes")
-    
-	# TODO: define create in order to setup the prevision data if needed (link teachers and sessions).
+	# The teacher_id is used just for permission filtering pruposes.
+	template_teacher_id = fields.Many2one(string="Template's teacher", related="attendance_session_id.template_teacher_id", store=False)    
+	session_teacher_id = fields.Many2one(string="Session's teacher", related="attendance_session_id.session_teacher_id", store=False)    
 
-    def status_is_notificable(self):
-        # TODO: load from EMS settings.
-        return self.status in ['m_miss', 'a_issue']    
+	notes = fields.Text("Notes")
 
-    def write(self, vals):
-        super(ems_attendance_session_line, self).write(vals)
-        self._update_notification()   
+	def status_is_notificable(self):
+		# TODO: load from EMS settings.
+		return self.status in ['m_miss', 'a_issue']    
+	
+	@api.model_create_multi
+	def create(self, vals_list):
+		records = super().create(vals_list)		
 
-    def _update_notification(self):
-        session = self.attendance_session_id
+		for r in records:		
+			if r.attendance_prevision_id.id != False:
+				r.attendance_prevision_id.attendance_session_line_ids = [(4, r.id)]
+				r.attendance_prevision_id.session_teacher_ids = [(4, r.attendance_session_id.session_teacher_id.id)]
+			
+		return records
 
-        # NOTE: Original data must be compared with the current one in order to update properly.            
-        previous_issue_status = False
-        issue_tutor = (session.get_issue_tutor(self.student_id.tutor_id))["values"]
-        if issue_tutor: 
-            issue_student = session.get_issue_student(issue_tutor, self.student_id.id)
-            if issue_student:
-                previous_issue_status = (session.get_issue_status(self.id))["values"]
+	def write(self, vals):
+		super(ems_attendance_session_line, self).write(vals)
+		self._update_notification()   
 
-        # NOTE: Possible scenarios when updating an attendance status:
-                #       1. From issue to non-issue:
-                #           1.1. If not notified yet, just remove.
-                #           1.2. If notified, a rectification should be send to the family.
-                #       2. From issue to issue:
-                #           2.1. If not notified yet, update the notification data.
-                #           2.2. If notified, a rectification should be send to the family.
-                #       3. From non-issue to issue:
-                #           3.1. Add the notification with the regular timeout. 
-                #       4. From non-issue to non-issue:
-                #           4.1. Do nothing.
-        create = 0
-        if previous_issue_status:            
-            if not previous_issue_status.pending:
-                # 1.2 & 2.2. If notified, a rectification should be send to the family.                 
-                create = 1
-            else:
-                if not self.status_is_notificable():
-                    # 1.1. If not notified yet, just remove.
-                    # NOTE: also removes the notification.                    
-                    issue_tutor = previous_issue_status.attendance_issue_student_id.attendance_issue_tutor_id
-                    previous_issue_status.unlink()
-                    issue_tutor.remove_if_empty()                  
-                else:
-                    # 2.1. If not notified yet, update the notification data.
-                    previous_issue_status.write({
-                        "attendance_session_line": self.status,
-                        "notes": self.notes
-                    })
-        elif self.status_is_notificable():
-            # 3.1. Add the notification with the regular timeout. 
-            # TODO: do not notify to the families after certain timeout (eg: is from a few days ago).
-            create = 2
-        
-        if create != 0:
-            status_by_tutor = dict()
-            session.collect_issue_status_data(self, status_by_tutor, create == 1)
-            session.create_notification_entries(status_by_tutor, rectification=(create == 1))
+	def _update_notification(self):
+		session = self.attendance_session_id
 
-    @api.depends('attendance_session_id')
-    def _compute_attendance_session_display_name(self):
-        for rec in self:
-            rec.attendance_session_display_name = rec.attendance_session_id.display_name
+		# NOTE: Original data must be compared with the current one in order to update properly.            
+		previous_issue_status = False
+		issue_tutor = (session.get_issue_tutor(self.student_id.tutor_id))["values"]
+		if issue_tutor: 
+			issue_student = session.get_issue_student(issue_tutor, self.student_id.id)
+			if issue_student:
+				previous_issue_status = (session.get_issue_status(self.id))["values"]
 
-    @api.depends('attendance_session_id')
-    def _compute_inuse_student_ids(self):
-        for rec in self:
-            rec.inuse_student_ids = False
-            if rec.attendance_session_id:
-                rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_session_line_ids.student_id')   
+		# NOTE: Possible scenarios when updating an attendance status:
+				#       1. From issue to non-issue:
+				#           1.1. If not notified yet, just remove.
+				#           1.2. If notified, a rectification should be send to the family.
+				#       2. From issue to issue:
+				#           2.1. If not notified yet, update the notification data.
+				#           2.2. If notified, a rectification should be send to the family.
+				#       3. From non-issue to issue:
+				#           3.1. Add the notification with the regular timeout. 
+				#       4. From non-issue to non-issue:
+				#           4.1. Do nothing.
+		create = 0
+		if previous_issue_status:            
+			if not previous_issue_status.pending:
+				# 1.2 & 2.2. If notified, a rectification should be send to the family.                 
+				create = 1
+			else:
+				if not self.status_is_notificable():
+					# 1.1. If not notified yet, just remove.
+					# NOTE: also removes the notification.                    
+					issue_tutor = previous_issue_status.attendance_issue_student_id.attendance_issue_tutor_id
+					previous_issue_status.unlink()
+					issue_tutor.remove_if_empty()                  
+				else:
+					# 2.1. If not notified yet, update the notification data.
+					previous_issue_status.write({
+						"attendance_session_line": self.status,
+						"notes": self.notes
+					})
+		elif self.status_is_notificable():
+			# 3.1. Add the notification with the regular timeout. 
+			# TODO: do not notify to the families after certain timeout (eg: is from a few days ago).
+			create = 2
+		
+		if create != 0:
+			status_by_tutor = dict()
+			session.collect_issue_status_data(self, status_by_tutor, create == 1)
+			session.create_notification_entries(status_by_tutor, rectification=(create == 1))
 
-    @api.depends('attendance_session_id', 'student_id')
-    def _compute_display_name(self):              
-        for rec in self:
-            rec.display_name = "%s | %s" % (rec.attendance_session_id.display_name, rec.student_id.display_name)
+	@api.depends('attendance_session_id')
+	def _compute_attendance_session_display_name(self):
+		for rec in self:
+			rec.attendance_session_display_name = rec.attendance_session_id.display_name
 
-    def report_eval(self, field):
-        # NOTE: this is used within the 'details_table' template in order to render custom fields.		
-        return eval(field)	
+	@api.depends('attendance_session_id')
+	def _compute_inuse_student_ids(self):
+		for rec in self:
+			rec.inuse_student_ids = False
+			if rec.attendance_session_id:
+				rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_session_line_ids.student_id')   
+
+	@api.depends('attendance_session_id', 'student_id')
+	def _compute_display_name(self):              
+		for rec in self:
+			rec.display_name = "%s | %s" % (rec.attendance_session_id.display_name, rec.student_id.display_name)
+
+	def report_eval(self, field):
+		# NOTE: this is used within the 'details_table' template in order to render custom fields.		
+		return eval(field)	

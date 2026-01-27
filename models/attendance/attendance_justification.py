@@ -6,7 +6,7 @@ from odoo.exceptions import UserError, ValidationError
 class ems_attendance_justification_base(models.AbstractModel):
 	_name = "ems.attendance_justification_base"
 	_description = "Attendance justification base: main data for abscence prevission / justification."
-	_inherit = ['ems.utils']
+	_inherit = ['ems.base', 'ems.datetime_utils']
 	
 	start_date = fields.Datetime(string="Start date", required=True)
 	end_date = fields.Datetime(string="End date", required=True)

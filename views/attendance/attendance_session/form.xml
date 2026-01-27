@@ -63,7 +63,8 @@
                                         <field name="image_1920" widget="image" />
                                         <field name="student_id" width="175px" class="align-middle" domain="[('contact_type', '=', 'student'), ('id','not in', inuse_student_ids)]"/>
                                         <field name="status" widget="radio" class="align-middle" options="{'horizontal': true}" />
-                                        <field name="notes" width="350px" class="align-middle"/>                                       
+                                        <field name="notes" width="350px" class="align-middle"/> 
+                                        <field name="attendance_prevision_id" column_invisible="True"/> <!-- NOTE: needed in order to get and store the value in the back. --> 
                                     </list>
                                 </field>
                             </page>     

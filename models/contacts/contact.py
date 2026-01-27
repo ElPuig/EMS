@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from ..shared import utils
+from ..shared import base
 import datetime
 from dateutil.relativedelta import relativedelta
 
 class ems_contact(models.Model):
-    _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.utils, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
+    _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.base, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
             
     # view-oriented fields:
     # level_id and study_id are used for form view purposes (linked dropdowns: level > study > group) and will be computed on save.
@@ -90,7 +90,7 @@ class ems_contact(models.Model):
             values["level_id"] = study.level_id.id
 
     def _get_read_only_user(self):
-        is_admin = utils.ems_utils.get_user_is_admin(self)
+        is_admin = base.ems_utils.get_user_is_admin(self)
         is_tutor = False
         for t in self.env.user.employee_ids:
             if t.id != False and len(t.tutorship_ids) > 0:

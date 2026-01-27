@@ -7,7 +7,7 @@ from odoo.exceptions import UserError
 class ems_enrollment(models.Model):
 	_name = "ems.enrollment"
 	_description = "Enrollment: ternary relation between student-group-uf."	
-	_inherit = ['ems.utils']
+	_inherit = ['ems.base']
 	
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", required=True, ondelete='cascade', domain="[('contact_type', '=', 'student')]")	
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", ondelete='cascade', required=True)	
@@ -16,7 +16,7 @@ class ems_enrollment(models.Model):
 	#NOTE: this field is used to filter the availabe subjects within the view (avoiding the selection of repeated subject in enrolling form).
 	inuse_subject_ids = fields.Many2many('ems.subject', compute='_compute_inuse_subject_ids', store=False) 	
 	
-	#NOTE: this field is used within ems.utils.get_user_is_tutor, which is used to block the opening of the edit form if no permissions.
+	#NOTE: this field is used within ems.base.get_user_is_tutor, which is used to block the opening of the edit form if no permissions.
 	#	   BUT, at this moment, only admins are allowed to create manual enrollments. 
 	#tutor_id = fields.Many2one(string='Tutor', related="student_id.tutor_id")
 

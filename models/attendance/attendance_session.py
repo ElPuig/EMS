@@ -3,6 +3,7 @@
 from odoo import models, fields, api
 from .attendance_schedule import ems_attendance_schedule
 from datetime import datetime, timedelta
+from .attendance_justification import PREVISION_CAPTION
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
 #		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
@@ -179,7 +180,7 @@ class ems_attendance_session_header(models.Model):
 						
 			if not rec.is_next:
 				# Load empty entries, must check absence prevission
-				previssions = self.sudo().env["ems.attendance_prevision"].search([("start_date", "<=", fields.Datetime.now()), ("end_date", ">=", fields.Datetime.now())])
+				previssions = self.sudo().env["ems.attendance_justification"].search([("start_date", "<=", fields.Datetime.now()), ("end_date", ">=", fields.Datetime.now())])
 				for student in rec.attendance_schedule_id.attendance_template_id.sudo().student_ids:
 					# Sources: 
 					# 	https://stackoverflow.com/a/70843263
@@ -192,7 +193,7 @@ class ems_attendance_session_header(models.Model):
 							line = {
 								"student_id": student,
 								"status": "m_justified",
-								"notes": "Absence expected by: " + p.teacher_id.display_name,
+								"notes": PREVISION_CAPTION + p.teacher_id.display_name,
 								"attendance_prevision_id": p # NOTE: this will be used also on line creation to setup the prevission remaining data
 							}							
 
@@ -430,9 +431,8 @@ class ems_attendance_session_line(models.Model):
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
 	image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
 	attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session_header", ondelete="cascade")
-	# NOTE: this is a 'mirror' field, pointing at the same table as attendance_prevision's attendance_session_line_ids field is (used to link a line with a prevision on creation within attendance_session_header).
-	attendance_prevision_id = fields.Many2one(string="Prevision", comodel_name="ems.attendance_prevision")
-	# NOTE: the same as attendance_prevision_id can be done with attendance_justification_id if needed (in order to jump from a session_line to its justification).
+	attendance_justification_id = fields.Many2one(string="Justification", comodel_name="ems.attendance_justification")
+	attendance_prevision_id = fields.Many2one(string="Prevision", comodel_name="ems.attendance_justification")
 
 	# This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
 	inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 

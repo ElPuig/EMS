@@ -3,9 +3,12 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 
-class ems_attendance_justification_base(models.AbstractModel):
-	_name = "ems.attendance_justification_base"
-	_description = "Attendance justification base: main data for abscence prevission / justification."
+JUSTIFICATION_CAPTION = "Justified by: "
+PREVISION_CAPTION = "Absence expected by: "
+
+class ems_attendance_justification(models.Model):
+	_name = "ems.attendance_justification"
+	_description = "Attendance justification: contains the data about an abscence justification (proof of attendance)."
 	_inherit = ['ems.base', 'ems.datetime_utils']
 	
 	start_date = fields.Datetime(string="Start date", required=True)
@@ -15,8 +18,8 @@ class ems_attendance_justification_base(models.AbstractModel):
 	attachment_ids = fields.Many2many(string="Attached files", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.attendance_justification')]")	
 	
 	# NOTE: Many2many needed in order to update values (when Many2one used, removed values when changing filters removes also the status entries).
-	# NOTE: relation name should be forced to <63 chars (PSQL restriction), but must be different for any inheriting model. The relation field should be rewrite on inheriting field to alter the table name... sad...
-	attendance_session_line_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_session_line", relation='ems_att_just_base_att_ses_line_rel', column1='justification_id', column2='session_line_id') 
+	# NOTE: relation name should be forced to <63 chars (PSQL restriction).
+	attendance_session_line_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_session_line", relation='ems_att_just_att_ses_line_rel', column1='justification_id', column2='session_line_id') 
 	session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee")
 	allowed_student_ids = fields.Many2many(comodel_name='res.partner', store=False)	
 	notes = fields.Text("Notes")
@@ -91,14 +94,6 @@ class ems_attendance_justification_base(models.AbstractModel):
 			else:
 				rec.display_name = False
 
-class ems_attendance_justification(models.Model):
-	_name = "ems.attendance_justification"
-	_description = "Attendance justification: contains the data about an abscence justification (proof of attendance)."
-	_inherit = ['ems.attendance_justification_base']
-
-	# NOTE: relation name should be forced to <63 chars (PSQL restriction), but must be different for any inheriting model. The relation field should be rewrite on inheriting field to alter the table name... sad...
-	attendance_session_line_ids = fields.Many2many(relation='ems_att_just_att_ses_line_rel') 
-
 	@api.model_create_multi
 	def create(self, values):		
 		just = super().create(values)
@@ -110,20 +105,17 @@ class ems_attendance_justification(models.Model):
 				# TODO: localize the message
 				raise ValidationError("Only the student's tutor can justify its attendances.")
 			
-			if 'attendance_session_line_ids' in val and val.get('attendance_session_line_ids'):
-				# NOTE: it would be nice to have a link to the justification entry within the status form, but this demands an 
-				# extra column that will be almost always empty. So, at the moment, the text "Justified by" will be added to the
-				# comments sections. 
-				
+			if 'attendance_session_line_ids' in val and val.get('attendance_session_line_ids'):			
 				# TODO: localize text
-				text = "Justified by: " + just.teacher_id.display_name
+				text = JUSTIFICATION_CAPTION + just.teacher_id.display_name
 				for status in just.attendance_session_line_ids:	
 					if status.status == "m_miss":			
 						notes = "" if status.notes == False else status.notes + "\n"
 						notes += text
 						status.write({
 							'status': 'm_justified',
-							'notes': notes
+							'notes': notes,
+							'attendance_justification_id' : just
 						}) 		
 		return just
 	
@@ -135,14 +127,13 @@ class ems_attendance_justification(models.Model):
 				for status in rec.attendance_session_line_ids:	
 					if status.status == "m_justified":	
 						# TODO: localize text
-						text = "Justified by: " + rec.teacher_id.display_name		
-						notes = False if status.notes == False else status.notes.replace(text, "")
+						# NOTE: justification or prevision, attendance_prevision_id or attendance_justification_id must be filled if this has been justified.
+						text = PREVISION_CAPTION if status.attendance_prevision_id.id != False else JUSTIFICATION_CAPTION						
+						notes = False if status.notes == False else status.notes.replace(text + rec.teacher_id.display_name, "")
 						status.write({
 							'status': 'm_miss',
 							'notes': False if len(notes) == 0 else notes
 						})
 				rec.write({'attendance_session_line_ids' : [5]})	
 
-		return super().unlink()
-
-	
+		return super().unlink()	

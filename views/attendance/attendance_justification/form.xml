@@ -22,7 +22,7 @@
 
                         <notebook>
                             <page string="Statuses">                                
-                                <field name="attendance_session_line_ids">
+                                <field name="attendance_session_line_ids" readonly="True">
                                     <list default_order="student_id asc" create="False" edit="False" delete="False" no_open="True">                                                                               
                                         <field string="Session" name="display_name" />
                                         <field name="status" width="175px" />
@@ -30,7 +30,7 @@
                                 </field>
                             </page> 
                             <page string="Session teachers">                                
-                                <field name="session_teacher_ids">
+                                <field name="session_teacher_ids" readonly="True">
                                     <list default_order="name asc" create="False" edit="False" delete="False" no_open="True">                                                                               
                                         <field string="Name" name="name" />
                                     </list>

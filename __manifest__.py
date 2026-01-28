@@ -160,11 +160,6 @@
             'views/attendance/attendance_justification/form.xml',
             'views/attendance/attendance_justification/search.xml',
 
-             'views/attendance/attendance_prevision/menu.xml',
-            'views/attendance/attendance_prevision/list.xml',
-            'views/attendance/attendance_prevision/form.xml',
-            'views/attendance/attendance_prevision/search.xml',
-
             'views/attendance/attendance_issue/menu.xml',
             'views/attendance/attendance_issue/list.xml',
             'views/attendance/attendance_issue/form.xml',

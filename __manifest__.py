@@ -180,7 +180,8 @@
             'views/attendance/attendance_reports/group_wizard.xml', 
 
         'views/academic_management/menu.xml',
-        'views/academic_management/enrolment/menu.xml',        
+        'views/academic_management/enrollment/menu.xml',
+        'views/academic_management/enrollment/enrollment_view.xml',
 
         'views/documentation/menu.xml',       
             'views/documentation/minutes/menu.xml',       
@@ -238,6 +239,7 @@
         'data/cat/ems.workgroup.csv',    
         'data/cat/hr.job.csv',
         
+        
         # Custom data entries (adapt it to your needs, for example, ESO subjects can differ between centers)        
         'data/custom/eso/ems.subject.csv',
         'data/custom/eso/ems.study.csv',
@@ -249,6 +251,7 @@
         'data/custom/hr.department.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',
+        'data/custom/ems.course.csv',
         'data/custom/crm.team.csv',
 
         # Teacher's data (teaching = subject x teacher x group)

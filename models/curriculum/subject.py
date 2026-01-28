@@ -19,12 +19,70 @@ class ems_subject(models.Model):
     internal_hours = fields.Integer(string="Internal hours") 
     external_hours = fields.Integer(string="External hours")       
     total_hours = fields.Integer(string="Total hours", compute='_compute_total_hours')
+
+    product_id = fields.Many2one(
+        comodel_name='product.product', 
+        string="Service Product", 
+        ondelete='set null',
+        delegate=False,
+        help="Field to link the subject with the technical product used in enrolments (Sale Orders)"
+    )
             
     outcome_ids = fields.One2many(string="Learning Outcome", comodel_name="ems.outcome", inverse_name="subject_id")
     content_ids = fields.One2many(string="Content", comodel_name="ems.content", inverse_name="subject_id")        
     study_ids = fields.Many2many(string="Studies", comodel_name="ems.study")       
 
     notes = fields.Text("Notes")            
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            product_vals = {
+                'name': vals.get('name', 'New Subject'),
+                'default_code': vals.get('code', ''),
+                'type': 'service',           
+                'invoice_policy': 'order',
+                'list_price': 0.0,
+                'sale_ok': True,
+                'purchase_ok': False,
+            }
+            
+            new_product = self.env['product.product'].create(product_vals)
+            
+            vals['product_id'] = new_product.id
+
+        return super(ems_subject, self).create(vals_list)
+
+    def write(self, vals):
+        result = super(ems_subject, self).write(vals)
+
+        for record in self:
+            # A) Autocuración: Si no tiene producto, lo crea
+            if not record.product_id:
+                product_vals = {
+                    'name': record.name,
+                    'default_code': record.code,
+                    'type': 'service',  # Usamos 'type' aquí también
+                    'invoice_policy': 'order',
+                    'list_price': 0.0,
+                    'sale_ok': True,
+                    'purchase_ok': False,
+                }
+                new_product = self.env['product.product'].create(product_vals)
+                record.write({'product_id': new_product.id})
+
+            # B) Sincronización: Si cambia nombre o código
+            elif 'name' in vals or 'code' in vals:
+                update_vals = {}
+                if 'name' in vals:
+                    update_vals['name'] = record.name
+                if 'code' in vals:
+                    update_vals['default_code'] = record.code
+                
+                if update_vals:
+                    record.product_id.write(update_vals)
+        
+        return result
 
     @api.onchange("internal_hours", "external_hours")
     def _compute_total_hours(self):

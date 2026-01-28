@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_order_form_inherit_ems_enrollment" model="ir.ui.view">
+        <field name="name">sale.order.form.ems.enrollment</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//notebook" position="before">
+                <group string="Academic Information">
+                    <group>
+                        <field name="ems_course_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="ems_study_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+            </xpath>         
+
+        </field>
+    </record>
+
+    <record id="sale_order_template_view_form_inherit_ems" model="ir.ui.view">
+        <field name="name">sale.order.template.form.ems</field>
+        <field name="model">sale.order.template</field>
+        <field name="inherit_id" ref="sale_management.sale_order_template_view_form"/>
+        <field name="arch" type="xml">
+            
+            <field name="name" position="after">
+                <field name="ems_study_id" required="1"/>
+                <field name="ems_level_id" readonly="1"/>
+            </field>
+
+        </field>
+    </record>
+
+</odoo>

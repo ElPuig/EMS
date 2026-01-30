@@ -454,7 +454,10 @@ class ems_attendance_session_line(models.Model):
 		for r in records:		
 			if r.attendance_prevision_id.id != False:
 				r.attendance_prevision_id.attendance_session_line_ids = [(4, r.id)]
-				r.attendance_prevision_id.session_teacher_ids = [(4, r.attendance_session_id.session_teacher_id.id)]
+				# r.attendance_prevision_id.write({
+				# 	"attendance_session_line_ids" : [(4, r.id)],
+				# 	"session_teacher_ids" : [(4, r.attendance_session_id.session_teacher_id.id)]
+				# })
 			
 		return records
 

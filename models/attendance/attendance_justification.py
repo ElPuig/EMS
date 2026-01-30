@@ -3,7 +3,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 
-JUSTIFICATION_CAPTION = "Justified by: "
+JUSTIFICATION_CAPTION = "Absence justified by: "
 PREVISION_CAPTION = "Absence expected by: "
 
 class ems_attendance_justification(models.Model):
@@ -20,16 +20,46 @@ class ems_attendance_justification(models.Model):
 	# NOTE: Many2many needed in order to update values (when Many2one used, removed values when changing filters removes also the status entries).
 	# NOTE: relation name should be forced to <63 chars (PSQL restriction).
 	attendance_session_line_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_session_line", relation='ems_att_just_att_ses_line_rel', column1='justification_id', column2='session_line_id') 
-	session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee")
+	#session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee")
+	session_teacher_ids = fields.Many2many(string="Session teachers", compute='_compute_session_teacher_ids', store=True, readonly=False)    
 	allowed_student_ids = fields.Many2many(comodel_name='res.partner', store=False)	
 	notes = fields.Text("Notes")
 
 	# NOTE: this field is used to compute permissions within utils.get_user_is_tutor_of_self()	
 	tutor_id = fields.Many2one(string='Tutor', related="student_id.tutor_id") 
 
+	@api.depends('attendance_session_line_ids')
+	def _compute_session_teacher_ids(self):
+		for record in self:			
+			tt_id = record.attendance_session_line_ids.mapped('attendance_session_id.template_teacher_id.id')
+			st_id = record.attendance_session_line_ids.mapped('attendance_session_id.session_teacher_id.id')
+			regs = list(set(tt_id + st_id))
+			
+			# Storing both sets but removing dupes
+			record.session_teacher_ids = [(6, 0, regs)]
+			
+			
 	def _default_teacher_id(self):							
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
+
+	@api.constrains('student_id', 'start_date', 'end_date')
+	def _check_time_overlap(self):
+		for record in self:
+			if record.start_date and record.end_date and record.start_date >= record.end_date:
+				raise ValidationError("The completion date must be later than the start date.")
+
+			domain = [
+				('student_id', '=', record.student_id.id),
+				('id', '!=', record.id),                  
+				('start_date', '<', record.end_date),     
+				('end_date', '>', record.start_date),     
+			]
 			
+			if self.search_count(domain) > 0:
+				raise ValidationError(
+					f"The student {record.student_id.name} has another justification which overlaps with the current one."
+				)
+					
 	@api.model
 	def default_get(self, fields_list):
 		# TODO: unable to hide the "NEW" button to non-tutor teachers.	
@@ -54,7 +84,9 @@ class ems_attendance_justification(models.Model):
 
 			rec.allowed_student_ids = [(6, 0, allowed)]	
 
-	@api.onchange("student_id", "start_date", "end_date")
+	# NOTE: only fired when adding from the form (so wont be fire), so won't be fired twice when 
+	# using the regular attendance form. 
+	@api.onchange("student_id", "start_date", "end_date") 
 	def _onchange_attendance_session_line_ids(self):	
 		for rec in self:
 			if rec.student_id.id != False and rec.start_date != False and rec.end_date != False:								
@@ -66,7 +98,7 @@ class ems_attendance_justification(models.Model):
 				]) or False
 
 				status_ids = []
-				teacher_ids = []
+				#teacher_ids = []
 				if statuses != False:		
 					for status in statuses:
 						status_start_date = rec.utc_datetime_to_local(status.attendance_session_id.start_date)
@@ -76,12 +108,17 @@ class ems_attendance_justification(models.Model):
 												
 						if not (status_end_date <= just_start_date or just_end_date < status_start_date):
 							status_ids.append(status.id)
-							teacher_ids.append(status.attendance_session_id.template_teacher_id.id)
-							teacher_ids.append(status.attendance_session_id.session_teacher_id.id)
+							status.attendance_justification_id = [(4, rec.id)]
+							# teacher_ids.append(status.attendance_session_id.template_teacher_id.id)
+							# teacher_ids.append(status.attendance_session_id.session_teacher_id.id)
+
+							# status.write({
+							# 	"attendance_justification_id" : [(4, rec.id)]						
+							# })
 				
-				teacher_ids = list(set(teacher_ids)) # removing dupes
+				#teacher_ids = list(set(teacher_ids)) # removing dupes
 				rec.attendance_session_line_ids = [(6, 0, status_ids)]
-				rec.session_teacher_ids = [(6, 0, teacher_ids)]
+				#rec.session_teacher_ids = [(6, 0, teacher_ids)]
 			
 	@api.depends('student_id', 'start_date', 'end_date')
 	def _compute_display_name(self):              

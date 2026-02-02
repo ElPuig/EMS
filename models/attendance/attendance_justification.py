@@ -3,6 +3,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 
+# TODO: localize text
 JUSTIFICATION_CAPTION = "Absence justified by: "
 PREVISION_CAPTION = "Absence expected by: "
 
@@ -125,46 +126,76 @@ class ems_attendance_justification(models.Model):
 			else:
 				rec.display_name = False
 
-	@api.model_create_multi
-	def create(self, values):		
-		just = super().create(values)
-		for val in values:
-			is_admin = just.get_user_is_admin()
-			is_tutor = just.get_user_is_tutor_of_self()							
-			
-			if not is_admin and not is_tutor:
-				# TODO: localize the message
-				raise ValidationError("Only the student's tutor can justify its attendances.")
-			
-			if 'attendance_session_line_ids' in val and val.get('attendance_session_line_ids'):			
+	def _check_permissions(self):
+		is_admin = self.get_user_is_admin()
+		is_tutor = self.get_user_is_tutor_of_self()							
+		return is_admin or is_tutor
+
+	def _perform_justification(self):
+		text = JUSTIFICATION_CAPTION + self.teacher_id.display_name
+		for status in self.attendance_session_line_ids:	
+			if status.status == "m_miss":			
+				notes = "" if status.notes == False else status.notes + "\n"
+				notes += text
+				status.write({
+					'status': 'm_justified',
+					'notes': notes,
+					'attendance_justification_id' : self
+				}) 		
+
+	def _remove_justification(self):
+		for status in self.attendance_session_line_ids:	
+			if status.status == "m_justified":	
 				# TODO: localize text
-				text = JUSTIFICATION_CAPTION + just.teacher_id.display_name
-				for status in just.attendance_session_line_ids:	
-					if status.status == "m_miss":			
-						notes = "" if status.notes == False else status.notes + "\n"
-						notes += text
-						status.write({
-							'status': 'm_justified',
-							'notes': notes,
-							'attendance_justification_id' : just
-						}) 		
+				# NOTE: justification or prevision, attendance_prevision_id or attendance_justification_id must be filled if this has been justified.
+				text = PREVISION_CAPTION if status.attendance_prevision_id.id != False else JUSTIFICATION_CAPTION						
+				notes = False if status.notes == False else status.notes.replace(text + self.teacher_id.display_name, "")
+				status.write({
+					'status': 'm_miss',
+					'notes': False if len(notes) == 0 else notes
+				})
+			self.write({'attendance_session_line_ids' : [5]})
+
+	@api.model_create_multi
+	def create(self, values):	
+		if not self._check_permissions():
+			# TODO: localize the message
+			raise ValidationError("Only the student's tutor can justify its attendances.")
+			
+		just = super().create(values)
+		for val in values:			
+			if 'attendance_session_line_ids' in val and val.get('attendance_session_line_ids'):							
+				just._perform_justification()
 		return just
 	
-	def unlink(self):
-		for rec in self:
-			if not rec.user_is_admin and not rec.student_id.main_group_id in rec.teacher_id.tutorship_ids:
-				raise UserError("Only the studen's tutor can remove its attendance justifications.")
-			else:
-				for status in rec.attendance_session_line_ids:	
-					if status.status == "m_justified":	
-						# TODO: localize text
-						# NOTE: justification or prevision, attendance_prevision_id or attendance_justification_id must be filled if this has been justified.
-						text = PREVISION_CAPTION if status.attendance_prevision_id.id != False else JUSTIFICATION_CAPTION						
-						notes = False if status.notes == False else status.notes.replace(text + rec.teacher_id.display_name, "")
-						status.write({
-							'status': 'm_miss',
-							'notes': False if len(notes) == 0 else notes
-						})
-				rec.write({'attendance_session_line_ids' : [5]})	
+	def write(self, vals):
+		if not self._check_permissions():
+			# TODO: localize the message
+			raise UserError("Only the studen's tutor can update its attendance justifications.")
+		
+		if 'start_date' in vals or 'end_date' in vals:
+			old_lines_map = {}
+			for record in self:
+				old_lines_map[record.id] = set(record.attendance_session_line_ids.ids)
+	
+			for rec in self:
+				rec._remove_justification()
+		
+		res = super(ems_attendance_justification, self).write(vals)
+		if old_lines_map:
+			for record in self:
+				old_ids = old_lines_map.get(record.id, set())
+				new_ids = set(record.attendance_session_line_ids.ids)
 
+				# TODO: continue from here. --> remove justifications from old / add justifications to new.
+
+		return res 
+
+	def unlink(self):
+		if not self._check_permissions():
+			# TODO: localize the message
+			raise UserError("Only the studen's tutor can remove its attendance justifications.")
+		
+		for rec in self:			
+			rec._remove_justification()				
 		return super().unlink()	

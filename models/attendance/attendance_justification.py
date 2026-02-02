@@ -19,9 +19,8 @@ class ems_attendance_justification(models.Model):
 	
 	# NOTE: Many2many needed in order to update values (when Many2one used, removed values when changing filters removes also the status entries).
 	# NOTE: relation name should be forced to <63 chars (PSQL restriction).
-	attendance_session_line_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_session_line", relation='ems_att_just_att_ses_line_rel', column1='justification_id', column2='session_line_id') 
-	#session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee")
-	session_teacher_ids = fields.Many2many(string="Session teachers", compute='_compute_session_teacher_ids', store=True, readonly=False)    
+	attendance_session_line_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_session_line") 	
+	session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee", compute='_compute_session_teacher_ids', store=True, readonly=False)    
 	allowed_student_ids = fields.Many2many(comodel_name='res.partner', store=False)	
 	notes = fields.Text("Notes")
 
@@ -36,8 +35,7 @@ class ems_attendance_justification(models.Model):
 			regs = list(set(tt_id + st_id))
 			
 			# Storing both sets but removing dupes
-			record.session_teacher_ids = [(6, 0, regs)]
-			
+			record.session_teacher_ids = [(6, 0, regs)]			
 			
 	def _default_teacher_id(self):							
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
@@ -98,7 +96,6 @@ class ems_attendance_justification(models.Model):
 				]) or False
 
 				status_ids = []
-				#teacher_ids = []
 				if statuses != False:		
 					for status in statuses:
 						status_start_date = rec.utc_datetime_to_local(status.attendance_session_id.start_date)
@@ -107,18 +104,15 @@ class ems_attendance_justification(models.Model):
 						just_end_date = rec.utc_datetime_to_local(rec.end_date)
 												
 						if not (status_end_date <= just_start_date or just_end_date < status_start_date):
-							status_ids.append(status.id)
-							status.attendance_justification_id = [(4, rec.id)]
-							# teacher_ids.append(status.attendance_session_id.template_teacher_id.id)
-							# teacher_ids.append(status.attendance_session_id.session_teacher_id.id)
-
-							# status.write({
-							# 	"attendance_justification_id" : [(4, rec.id)]						
-							# })
+							status_ids.append(status.id)							
+							# NOTE: shoudl be done with write, direct attribute assignation does not work if the current
+							#		item is beeing created (the ID will be something like NEW_xxxx).
+							#status.attendance_justification_id = [(4, rec.id)]
+							status.write({								
+								"attendance_justification_id" : [(4, rec.id)]						
+							})
 				
-				#teacher_ids = list(set(teacher_ids)) # removing dupes
 				rec.attendance_session_line_ids = [(6, 0, status_ids)]
-				#rec.session_teacher_ids = [(6, 0, teacher_ids)]
 			
 	@api.depends('student_id', 'start_date', 'end_date')
 	def _compute_display_name(self):              

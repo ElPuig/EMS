@@ -182,6 +182,8 @@
         'views/academic_management/menu.xml',
         'views/academic_management/enrollment/menu.xml',
         'views/academic_management/enrollment/enrollment_view.xml',
+        
+        'views/sales/product_view.xml',
 
         'views/documentation/menu.xml',       
             'views/documentation/minutes/menu.xml',       

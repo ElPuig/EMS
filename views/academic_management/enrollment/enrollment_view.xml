@@ -14,7 +14,12 @@
                         <field name="ems_study_id" options="{'no_create': True}"/>
                     </group>
                 </group>
-            </xpath>         
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']//field[@name='product_template_id']" position="attributes">
+                <attribute name="domain">['|', ('ems_study_ids', '=', parent.ems_study_id), ('is_generic', '=', True)]</attribute>
+            </xpath>
+
 
         </field>
     </record>

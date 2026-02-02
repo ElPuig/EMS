@@ -42,7 +42,11 @@ class SaleOrder(models.Model):
     )
 
     # Campo para seleccionar el estudio en la matrícula
-    ems_study_id = fields.Many2one('ems.study', string="Studies for enrollment")
+    ems_study_id = fields.Many2one(
+        'ems.study',
+        string="Studies for enrollment",
+        required=True
+    )
 
     # Modificamos el campo nativo 'sale_order_template_id' (Plantilla de Presupuesto)
     # Le aplicamos un dominio dinámico: Solo mostrar plantillas del estudio seleccionado arriba

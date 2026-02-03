@@ -3,7 +3,6 @@
 from odoo import models, fields, api
 from .attendance_schedule import ems_attendance_schedule
 from datetime import datetime, timedelta
-from .attendance_justification import PREVISION_CAPTION
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
 #		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
@@ -172,11 +171,7 @@ class ems_attendance_session_header(models.Model):
 					if rec.is_next:
 						# Load new entries but with the previous session's data
 						for prev in previous.attendance_session_line_ids:
-							lines.append([0, 0, {
-								"student_id": prev.student_id,
-								"status": "a_attended" if prev.status == "a_delayed" else prev.status,
-								"notes": prev.notes
-							}])
+							lines.append([0, 0, self._setup_next_session_line_data(prev)])
 						
 			if not rec.is_next:
 				# Load empty entries, must check absence prevission
@@ -190,19 +185,10 @@ class ems_attendance_session_header(models.Model):
 					line = None
 					for p in previssions:
 						if p.student_id == student:
-							line = {
-								"student_id": student,
-								"status": "m_justified",
-								"notes": PREVISION_CAPTION + p.teacher_id.display_name,
-								"attendance_prevision_id": p # NOTE: this will be used also on line creation to setup the prevission remaining data
-							}							
+							line = p.justify_session_line(self._setup_new_line_data(), True)
 
 					if line is None:
-						line = {
-								"student_id": student,
-								"status": "a_attended",
-								"notes": None
-							}
+						line = self._setup_new_line_data(student, "a_attended")
 						
 					lines.append([0, 0, line])	
 			
@@ -332,6 +318,22 @@ class ems_attendance_session_header(models.Model):
 			'notification_id': job.id
 		})
 	
+	def _setup_new_line_data(self, student_id, status, notes=None):
+		return  {
+			"student_id": student_id,
+			"status": status,
+			"notes": notes
+		}
+	
+	def _setup_next_session_line_data(self, previous):
+		return  {
+			"student_id": previous.student_id,
+			"status": "a_attended" if previous.status == "a_delay" else previous.status,
+			"notes": previous.notes,
+			"attendance_justification_id": previous.attendance_justification_id,
+			"attendance_prevision_id" : previous.attendance_prevision_id 
+		}
+
 	@api.model_create_multi
 	def create(self, vals_list):
 		records = super().create(vals_list)		

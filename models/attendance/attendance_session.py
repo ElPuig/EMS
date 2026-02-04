@@ -185,7 +185,7 @@ class ems_attendance_session_header(models.Model):
 					line = None
 					for p in previssions:
 						if p.student_id == student:
-							line = p.justify_session_line(self._setup_new_line_data(), True)
+							line = p.perform_justification(self._setup_new_line_data(student), True)
 
 					if line is None:
 						line = self._setup_new_line_data(student, "a_attended")
@@ -282,7 +282,7 @@ class ems_attendance_session_header(models.Model):
 			})		
 		return issue_student
 	
-	def _get_or_create_issue_tutor(self, tutor_id):
+	def _get_or_create_issue_tutor(self, tutor_id, date):
 		data = self.get_issue_tutor(tutor_id)		
 		repo = data["repo"]
 		issue_tutor = data["values"]		
@@ -290,7 +290,7 @@ class ems_attendance_session_header(models.Model):
 		if not issue_tutor:
 			issue_tutor = repo.create({
 				'tutor_id': tutor_id.id,
-				'issue_date': datetime.today()						
+				'issue_date': date
 			})
 		return issue_tutor
 	
@@ -318,7 +318,7 @@ class ems_attendance_session_header(models.Model):
 			'notification_id': job.id
 		})
 	
-	def _setup_new_line_data(self, student_id, status, notes=None):
+	def _setup_new_line_data(self, student_id, status="a_attended", notes=None):
 		return  {
 			"student_id": student_id,
 			"status": status,
@@ -371,7 +371,7 @@ class ems_attendance_session_header(models.Model):
 		notis = []
 		for tutor_id in issue_status_by_tutor:
 			for issue_status_data in issue_status_by_tutor[tutor_id]:
-				issue_tutor = self._get_or_create_issue_tutor(tutor_id)
+				issue_tutor = self._get_or_create_issue_tutor(tutor_id, self.date)
 				issue_student = self._get_or_create_issue_student(issue_tutor, issue_status_data["student_id"])
 				self._get_or_create_issue_status(issue_student, issue_status_data["attendance_status_id"], issue_status_data["send_to"], rectification)
 				

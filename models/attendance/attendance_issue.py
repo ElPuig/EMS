@@ -3,6 +3,19 @@
 from odoo import models, fields, api
 from .attendance_session import attendance_status_selection
 
+# TODO: check this
+#	1.1. With no justification created.
+#		1.1.1. Create a session and mark an absence. The issue will be created.
+#		1.1.2. ERROR: Change the absence to attendance. The issue should be removed (no notification means update the status or remove it). Empty lines should remove the issue entry. 
+#		1.1.3. Removing the session correctly removes the issue. 
+
+#	1.2. With no justification created.
+#		1.2.1. Create a session and mark an absence. The issue will be created.
+#		1.2.2. Create a justification for the session and student. The session line updated correctly (justified). 
+# 			   ERROR: The issue status creates another "miss" and another "justified". Only the justification should be shown (because no notification has been sent). 
+#		1.2.3. Remove the justification. The session line updates correctly. ERROR: old status not removed on issue (no notifcation send).
+
+#	1.3 Justified entries should be read-only to avoid inconsistences. 
 class ems_attendance_issue_tutor(models.Model):
 	_name = "ems.attendance_issue_tutor"
 	_description = "Attendance issue (tutor): contains the data about isues that can be reviewed by the student's tutor."

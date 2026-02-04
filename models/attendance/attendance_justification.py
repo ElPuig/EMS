@@ -131,37 +131,52 @@ class ems_attendance_justification(models.Model):
 		is_tutor = self.get_user_is_tutor_of_self()							
 		return is_admin or is_tutor
 
-	# NOTE: called also from attendance_session (when creating lines as absence_prevission)
+	# NOTE: Called also from attendance_session (when creating lines as absence_prevission). 
+	# 		Write and create methods always want a dictionary (values) to know which fields must be updated. 
+	#       WARNING: line is a dictionary when called from attendance_session, but a model when called from attendance_justification!
 	def perform_justification(self, line, prevision=False):	
-		# Given an attendance_session_line, changes the values to perform a justification (does not write).	
-		text = PREVISION_CAPTION if prevision else  JUSTIFICATION_CAPTION + self.teacher_id.display_name
-		notes = "" if line["notes"] == False else line["notes"] + "\n"
-		line["status"] = 'm_justified'
-		line["notes"] = notes + text
-		line['attendance_prevision_id' if prevision else 'attendance_justification_id'] = self
+		if hasattr(line, '_name'):
+			# Is a model (the line is beeing changed from attendance_justification, so a justification is beeing made).
+			vals = line.copy_data()[0]
+			vals['id'] = line.id
+		else:
+			# Is a dictionary (the line is beeing created from attendance_session, so a prevision is beeing made).
+			vals = line.copy()
+
+		text = PREVISION_CAPTION if prevision else JUSTIFICATION_CAPTION		
+		notes = "" if vals["notes"] is None or vals["notes"] == False else vals["notes"] + "\n"
+		
+		# Must ensure that no field is beeing removed, just edited, otherwise line creation could fail if called from attendance_session.
+		vals["status"] = "m_justified"
+		vals["notes"] = notes + text + self.teacher_id.display_name
+		vals["attendance_prevision_id" if prevision else "attendance_justification_id"] = self
+		return vals	
 
 	def remove_justification(self, line):	
-		# Given an attendance_session_line, changes the values to remove a justification (does not write).			
+		# Given an attendance_session_line, changes the values to remove a justification (does not write).
+		# NOTE: this method uses always line as a model, removing a justification always work with already existing lines.			
 		text = PREVISION_CAPTION if line.attendance_prevision_id.id != False else JUSTIFICATION_CAPTION						
-		notes = False if line["notes"] == False else line["notes"].replace(text + self.teacher_id.display_name, "")
-		line["status"] = 'm_miss'
-		line["notes"] = False if len(notes) == 0 else notes
-		line['attendance_justification_id'] = None
-		line['attendance_prevision_id'] = None
+		notes = False if line.notes == False else line.notes.replace(text + self.teacher_id.display_name, "")
+		return {
+			"status": "m_miss",
+			"notes":  False if len(notes) == 0 else notes,
+			"attendance_justification_id": None,
+			"attendance_prevision_id": None
+		}	
 	
 	@api.model_create_multi
 	def create(self, values):	
-		if not self._check_permissions():
-			# TODO: localize the message
-			raise ValidationError("Only the student's tutor can justify its attendances.")
-			
-		just = super().create(values)
-		for val in values:			
-			if 'attendance_session_line_ids' in val and val.get('attendance_session_line_ids'):
-				for line in self.attendance_session_line_ids:	
-					if line.status == "m_miss":	
-						line.write(self.perform_justification(line))
-		return just
+		# NOTE: don't worry, wont be saved if there's an exception (wihtin transaction)
+		records = super().create(values)
+		for just in records:
+			if not just._check_permissions():
+				# TODO: localize the message
+				raise ValidationError("Only the student's tutor can justify its attendances.")			
+						
+			for line in just.attendance_session_line_ids:	
+				if line.status == "m_miss":	
+					line.write(just.perform_justification(line))
+		return records
 	
 	def write(self, vals):		
 		if 'start_date' in vals or 'end_date' in vals:
@@ -199,7 +214,5 @@ class ems_attendance_justification(models.Model):
 			for line in rec.attendance_session_line_ids:	
 				if line.status == "m_justified":
 					line.write(self.remove_justification(line))
-
-			#rec.write({'attendance_session_line_ids' : [5]})
 
 		return super().unlink()	

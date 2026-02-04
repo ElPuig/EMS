@@ -14,8 +14,7 @@ from .attendance_session import attendance_status_selection
 #		1.2.2. Create a justification for the session and student. The session line updated correctly (justified). 
 # 			   ERROR: The issue status creates another "miss" and another "justified". Only the justification should be shown (because no notification has been sent). 
 #		1.2.3. Remove the justification. The session line updates correctly. ERROR: old status not removed on issue (no notifcation send).
-
-#	1.3 Justified entries should be read-only to avoid inconsistences. 
+  
 class ems_attendance_issue_tutor(models.Model):
 	_name = "ems.attendance_issue_tutor"
 	_description = "Attendance issue (tutor): contains the data about isues that can be reviewed by the student's tutor."

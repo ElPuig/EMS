@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from .attendance_schedule import ems_attendance_schedule
+from .attendance_justification import ems_attendance_justification
 from datetime import datetime, timedelta
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
@@ -174,8 +175,8 @@ class ems_attendance_session_header(models.Model):
 							lines.append([0, 0, self._setup_next_session_line_data(prev)])
 						
 			if not rec.is_next:
-				# Load empty entries, must check absence prevission
-				previssions = self.sudo().env["ems.attendance_justification"].search([("start_date", "<=", fields.Datetime.now()), ("end_date", ">=", fields.Datetime.now())])
+				# Load empty entries, must check absence prevission				
+				previssions = ems_attendance_justification.get_current_justifications(self)
 				for student in rec.attendance_schedule_id.attendance_template_id.sudo().student_ids:
 					# Sources: 
 					# 	https://stackoverflow.com/a/70843263
@@ -322,7 +323,8 @@ class ems_attendance_session_header(models.Model):
 		return  {
 			"student_id": student_id,
 			"status": status,
-			"notes": notes
+			"notes": notes,
+			"is_auto_generated" : True
 		}
 	
 	def _setup_next_session_line_data(self, previous):
@@ -331,7 +333,8 @@ class ems_attendance_session_header(models.Model):
 			"status": "a_attended" if previous.status == "a_delay" else previous.status,
 			"notes": previous.notes,
 			"attendance_justification_id": previous.attendance_justification_id,
-			"attendance_prevision_id" : previous.attendance_prevision_id 
+			"attendance_prevision_id" : previous.attendance_prevision_id,
+			"is_auto_generated" : True 
 		}
 
 	@api.model_create_multi
@@ -443,6 +446,8 @@ class ems_attendance_session_line(models.Model):
 	template_teacher_id = fields.Many2one(string="Template's teacher", related="attendance_session_id.template_teacher_id", store=False)    
 	session_teacher_id = fields.Many2one(string="Session's teacher", related="attendance_session_id.session_teacher_id", store=False)    
 
+	# Used to know if the student can be chosen manually or not (should be disabled, otherwise a justified student can be swaped for another).
+	is_auto_generated = fields.Boolean(default=False)
 	notes = fields.Text("Notes")
 
 	def status_is_notificable(self):
@@ -466,6 +471,23 @@ class ems_attendance_session_line(models.Model):
 	def write(self, vals):
 		super(ems_attendance_session_line, self).write(vals)
 		self._update_notification()   
+	
+	def report_eval(self, field):
+		# NOTE: this is used within the 'details_table' template in order to render custom fields.		
+		return eval(field)	
+	
+	# Allow justification (absence prevission) on manually added entries.
+	@api.onchange("student_id")
+	def _onchange_student_id(self):	
+		for rec in self:			
+			if not rec.is_auto_generated:
+				data = rec.attendance_session_id._setup_new_line_data(rec.student_id)
+				data["is_auto_generated"] = False
+				previssions = ems_attendance_justification.get_current_justifications(self)
+				for p in previssions:
+					if p.student_id == rec.student_id:
+						data = p.perform_justification(rec, True)
+				rec.write(data)						
 
 	def _update_notification(self):
 		session = self.attendance_session_id
@@ -534,6 +556,4 @@ class ems_attendance_session_line(models.Model):
 		for rec in self:
 			rec.display_name = "%s | %s" % (rec.attendance_session_id.display_name, rec.student_id.display_name)
 
-	def report_eval(self, field):
-		# NOTE: this is used within the 'details_table' template in order to render custom fields.		
-		return eval(field)	
+	

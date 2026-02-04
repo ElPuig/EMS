@@ -131,6 +131,9 @@ class ems_attendance_justification(models.Model):
 		is_tutor = self.get_user_is_tutor_of_self()							
 		return is_admin or is_tutor
 
+	def get_current_justifications(self):
+		return self.sudo().env["ems.attendance_justification"].search([("start_date", "<=", fields.Datetime.now()), ("end_date", ">=", fields.Datetime.now())])
+		
 	# NOTE: Called also from attendance_session (when creating lines as absence_prevission). 
 	# 		Write and create methods always want a dictionary (values) to know which fields must be updated. 
 	#       WARNING: line is a dictionary when called from attendance_session, but a model when called from attendance_justification!

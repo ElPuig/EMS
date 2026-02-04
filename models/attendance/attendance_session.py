@@ -248,24 +248,24 @@ class ems_attendance_session_header(models.Model):
 	def _get_notification_status_eta(self):
 		return fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_status_delay * 60) # from minutes to seconds
 	
-	def _get_or_create_issue_status(self, issue_student, attendance_status_id, send_to, rectification):
-		data = self.get_issue_status(attendance_status_id)
+	def _get_or_create_issue_status(self, issue_student, attendance_session_line, send_to, rectification):
+		data = self.get_issue_status(attendance_session_line)
 		repo = data["repo"]
 		issue_status = data["values"]	
 		
 		if not issue_status or rectification:
-			as_id = self.sudo().env['ems.attendance_session_line'].sudo().search([('id', '=', attendance_status_id)])
+			as_id = self.sudo().env['ems.attendance_session_line'].sudo().search([('id', '=', attendance_session_line)])
 			issue_status = repo.create({				
 				'attendance_issue_student_id': issue_student.id,
-				'attendance_status_id': attendance_status_id,
-				'attendance_session_status': as_id.status,
+				'attendance_session_line_id': attendance_session_line,
+				'attendance_status': as_id.status,
 				'rectification': rectification,
 				'notes': as_id.notes,
 				'send_to': send_to,				
 			})
 
 			if rectification:
-				must_rectify = self.sudo().env['ems.attendance_issue_status'].sudo().search([('attendance_status_id', '=', attendance_status_id), ('rectified_by', '=', False), ('id', '!=', issue_status.id)])
+				must_rectify = self.sudo().env['ems.attendance_issue_status'].sudo().search([('attendance_session_line_id', '=', attendance_session_line), ('rectified_by', '=', False), ('id', '!=', issue_status.id)])
 				for rect in must_rectify:				
 					rect.write({'rectified_by' : issue_status.id})
 
@@ -376,7 +376,7 @@ class ems_attendance_session_header(models.Model):
 			for issue_status_data in issue_status_by_tutor[tutor_id]:
 				issue_tutor = self._get_or_create_issue_tutor(tutor_id, self.date)
 				issue_student = self._get_or_create_issue_student(issue_tutor, issue_status_data["student_id"])
-				self._get_or_create_issue_status(issue_student, issue_status_data["attendance_status_id"], issue_status_data["send_to"], rectification)
+				self._get_or_create_issue_status(issue_student, issue_status_data["attendance_session_line_id"], issue_status_data["send_to"], rectification)
 				
 				if not issue_tutor in notis: notis.append(issue_tutor)
 		
@@ -389,22 +389,22 @@ class ems_attendance_session_header(models.Model):
 				for issue_status in issue_student.attendance_issue_status_ids:					
 					self._schedule_family_assistance_notification(issue_status, notification_status_eta, rectification)
 
-	def collect_issue_status_data(self, status_id, status_by_tutor, rectification=False):
+	def collect_issue_status_data(self, attendance_session_line_id, status_by_tutor, rectification=False):
 		separator = "; "
-		if rectification or status_id.status_is_notificable():
-			if status_id.student_id.tutor_id not in status_by_tutor:
-				status_by_tutor[status_id.student_id.tutor_id] = []
+		if rectification or attendance_session_line_id.status_is_notificable():
+			if attendance_session_line_id.student_id.tutor_id not in status_by_tutor:
+				status_by_tutor[attendance_session_line_id.student_id.tutor_id] = []
 			
 			send_to = []
-			if status_id.student_id.auth_share or not status_id.student_id.is_adult:
-				for contact in status_id.student_id.child_ids:				
+			if attendance_session_line_id.student_id.auth_share or not attendance_session_line_id.student_id.is_adult:
+				for contact in attendance_session_line_id.student_id.child_ids:				
 					send_to.append(contact.email)
 
 			# NOTE: The 'send_to' field will be empty if adult or family shared not authorized.
 			#		All entries must be notified to the tutor, always. This trick simplifies a bit the logic.
-			status_by_tutor[status_id.student_id.tutor_id].append({
-				'attendance_status_id': status_id.id,
-				'student_id': status_id.student_id.id,
+			status_by_tutor[attendance_session_line_id.student_id.tutor_id].append({
+				'attendance_session_line_id': attendance_session_line_id.id,
+				'student_id': attendance_session_line_id.student_id.id,
 				'send_to': separator.join(send_to)
 			})	
 	
@@ -418,11 +418,11 @@ class ems_attendance_session_header(models.Model):
 		issue_student = repo.search([('attendance_issue_tutor_id', '=', issue_tutor.id), ('student_id', '=', student_id)]) or False
 		return {"repo": repo, "values": issue_student}
 	
-	def get_issue_status(self, attendance_status_id):
+	def get_issue_status(self, attendance_session_line):
 		# NOTE: On rectification, multiple issue_status can be attanched to the same attendance_session_line, but we always
 		#		whant the most recent. 
 		repo = self.sudo().env['ems.attendance_issue_status']
-		issue_status = repo.search([('attendance_status_id', '=', attendance_status_id)], order='id desc', limit=1) or False
+		issue_status = repo.search([('attendance_session_line_id', '=', attendance_session_line)], order='id desc', limit=1) or False
 		return {"repo": repo, "values": issue_status}	
 
 # NOTE: moved here because the status is strongly related to the session, it has no own list or form (as happens with the
@@ -452,6 +452,7 @@ class ems_attendance_session_line(models.Model):
 
 	def status_is_notificable(self):
 		# TODO: load from EMS settings.
+		# TODO: we want to notify also a justified miss? Maybe to prevent falsification (inform about a preveision? But if legit, will be also notified...)
 		return self.status in ['m_miss', 'a_issue']    
 	
 	@api.model_create_multi
@@ -526,7 +527,7 @@ class ems_attendance_session_line(models.Model):
 				else:
 					# 2.1. If not notified yet, update the notification data.
 					previous_issue_status.write({
-						"attendance_session_line": self.status,
+						"attendance_status": self.status,
 						"notes": self.notes
 					})
 		elif self.status_is_notificable():

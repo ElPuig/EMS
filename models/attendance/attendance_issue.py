@@ -3,18 +3,6 @@
 from odoo import models, fields, api
 from .attendance_session import attendance_status_selection
 
-# TODO: check this
-#	1.1. With no justification created.
-#		1.1.1. Create a session and mark an absence. The issue will be created.
-#		1.1.2. ERROR: Change the absence to attendance. The issue should be removed (no notification means update the status or remove it). Empty lines should remove the issue entry. 
-#		1.1.3. Removing the session correctly removes the issue. 
-
-#	1.2. With no justification created.
-#		1.2.1. Create a session and mark an absence. The issue will be created.
-#		1.2.2. Create a justification for the session and student. The session line updated correctly (justified). 
-# 			   ERROR: The issue status creates another "miss" and another "justified". Only the justification should be shown (because no notification has been sent). 
-#		1.2.3. Remove the justification. The session line updates correctly. ERROR: old status not removed on issue (no notifcation send).
-  
 class ems_attendance_issue_tutor(models.Model):
 	_name = "ems.attendance_issue_tutor"
 	_description = "Attendance issue (tutor): contains the data about isues that can be reviewed by the student's tutor."
@@ -67,8 +55,8 @@ class ems_attendance_issue_status(models.Model):
 	_inherit = ['ems.base']
 	
 	attendance_issue_student_id = fields.Many2one(string="Student notification data", comodel_name="ems.attendance_issue_student", ondelete='cascade')
-	attendance_status_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_session_line", required=True, ondelete='cascade')	
-	attendance_session_id = fields.Many2one(string="Session", related="attendance_status_id.attendance_session_id", store=False)
+	attendance_session_line_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_session_line", required=True, ondelete='cascade')	
+	attendance_session_id = fields.Many2one(string="Session", related="attendance_session_line_id.attendance_session_id", store=False)
 	
 	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
 	notification_status = fields.Selection(string="Notification status", related="notification_id.state")
@@ -89,18 +77,18 @@ class ems_attendance_issue_status(models.Model):
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 	
 
 	# NOTE: We want a copy of the original status, because a miss can be justified later, but we want to keep the original notification status. 	
-	attendance_session_status = fields.Selection(string="Attendance status", selection=attendance_status_selection)	
+	attendance_status = fields.Selection(string="Attendance status", selection=attendance_status_selection)	
 	notes = fields.Text(string="Notes") 
 
-	@api.depends('attendance_status_id')
+	@api.depends('attendance_session_line_id')
 	def _compute_display_name(self):              
 		for rec in self:
-			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_status_selection).get(rec.attendance_session_status))
+			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_status_selection).get(rec.attendance_status))
 
 	@api.depends('notification_status')
 	def _compute_pending(self):
 		for rec in self:
-			rec.pending = self.notification_status in ["pending", "enqueued"]
+			rec.pending = self.notification_status is False or self.notification_status in ["pending", "enqueued"]
 
 	def unlink(self):
 		# NOTE: button_cancel source: https://github.com/OCA/queue/blob/18.0/queue_job/models/queue_job.py

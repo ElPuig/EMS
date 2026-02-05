@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_ems_enrollment_items_form" model="ir.ui.view">
+            <field name="name">product.template.form.ems.items</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="mode">primary</field> 
+            <field name="arch" type="xml">
+                
+                <xpath expr="//label[@for='name']" position="attributes">
+                    <attribute name="string">Enrollment Item</attribute>
+                </xpath>
+
+                <header position="replace">
+                    <header>
+                    </header>
+                </header>
+
+                <div name="options" position="replace">
+                    <span class="d-inline-block">
+                        <field name="is_generic" widget="boolean_toggle"/> 
+                        <label for="is_generic"/>
+                    </span>
+                </div>
+
+                <notebook position="replace">
+                    <notebook>
+                        
+                        <page string="General Information" name="general_info">
+                            <group>
+                                <group string="Academic Data">
+                                    <field name="ems_study_ids" widget="many2many_tags"/>
+                                    <field name="type" readonly="1"/>
+                                </group>
+                                <group string="Financial">
+                                    <field name="list_price" string="Enrollment Fee"/>
+                                    <field name="taxes_id" widget="many2many_tags"/>
+                                    <field name="uom_id" groups="uom.group_uom" invisible="1"/>
+                                    <field name="uom_po_id" groups="uom.group_uom" invisible="1"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Description &amp; Notes" name="descriptions">
+                            <group>
+                                <field name="description" placeholder="Internal notes..."/>
+                                <field name="description_sale" placeholder="Text to appear on the enrollment receipt/invoice..."/>
+                            </group>
+                        </page>
+
+                        <page string="Settings" name="settings">
+                            <group>
+                                <group string="Accounting">
+                                    <field name="property_account_income_id"/>
+                                    <field name="property_account_expense_id"/>
+                                </group>
+                                <group string="System">
+                                    <field name="default_code"/>
+                                    <field name="barcode"/>
+                                    <field name="active" widget="boolean_toggle"/>
+                                </group>
+                            </group>
+                        </page>
+
+                    </notebook>
+                </notebook>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

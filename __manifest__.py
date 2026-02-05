@@ -182,6 +182,9 @@
         'views/academic_management/menu.xml',
         'views/academic_management/enrollment/menu.xml',
         'views/academic_management/enrollment/enrollment_view.xml',
+        'views/academic_management/enrollment_configuration/enrollment_items_form.xml',
+        'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
+        'views/academic_management/enrollment_configuration/menu.xml',
         
         'views/sales/product_view.xml',
 

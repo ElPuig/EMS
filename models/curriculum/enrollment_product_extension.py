@@ -23,7 +23,7 @@ class ProductTemplate(models.Model):
 
     # Select as generic so that it can be included in all enrollments
     is_generic = fields.Boolean(
-        string="Is Generic/Transversal", 
+        string="Is Generic", 
         help="If checked, this product will appear in enrollments for ALL studies (e.g. Fees, Insurance).",
         default=False
     )

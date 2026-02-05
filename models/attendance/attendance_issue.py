@@ -55,8 +55,8 @@ class ems_attendance_issue_status(models.Model):
 	_inherit = ['ems.base']
 	
 	attendance_issue_student_id = fields.Many2one(string="Student notification data", comodel_name="ems.attendance_issue_student", ondelete='cascade')
-	attendance_status_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_session_line", required=True, ondelete='cascade')	
-	attendance_session_id = fields.Many2one(string="Session", related="attendance_status_id.attendance_session_id", store=False)
+	attendance_session_line_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_session_line", required=True, ondelete='cascade')	
+	attendance_session_id = fields.Many2one(string="Session", related="attendance_session_line_id.attendance_session_id", store=False)
 	
 	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
 	notification_status = fields.Selection(string="Notification status", related="notification_id.state")
@@ -77,18 +77,18 @@ class ems_attendance_issue_status(models.Model):
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 	
 
 	# NOTE: We want a copy of the original status, because a miss can be justified later, but we want to keep the original notification status. 	
-	attendance_session_status = fields.Selection(string="Attendance status", selection=attendance_status_selection)	
+	attendance_status = fields.Selection(string="Attendance status", selection=attendance_status_selection)	
 	notes = fields.Text(string="Notes") 
 
-	@api.depends('attendance_status_id')
+	@api.depends('attendance_session_line_id')
 	def _compute_display_name(self):              
 		for rec in self:
-			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_status_selection).get(rec.attendance_session_status))
+			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_status_selection).get(rec.attendance_status))
 
 	@api.depends('notification_status')
 	def _compute_pending(self):
 		for rec in self:
-			rec.pending = self.notification_status in ["pending", "enqueued"]
+			rec.pending = self.notification_status is False or self.notification_status in ["pending", "enqueued"]
 
 	def unlink(self):
 		# NOTE: button_cancel source: https://github.com/OCA/queue/blob/18.0/queue_job/models/queue_job.py

@@ -88,9 +88,13 @@ class ems_attendance_justification(models.Model):
 	@api.onchange("student_id", "start_date", "end_date") 
 	def _onchange_attendance_session_line_ids(self):	
 		for rec in self:
-			if rec.student_id.id != False and rec.start_date != False and rec.end_date != False:								
+			if rec.student_id.id != False and rec.start_date != False and rec.end_date != False:	
+				# NOTE: Because changing dates is allowed, already justified abscences must be included
+				# 		(already justified will fail due overlapping check).
 				statuses = self.env["ems.attendance_session_line"].search([
-					("status", "=", "m_miss"), 
+					'|',
+					("status", "=", "m_miss"),
+					("status", "=", "m_justified"), 
 					("student_id", "=", rec.student_id.id), 
 					("attendance_session_id.date", ">=", rec.start_date), 
 					("attendance_session_id.date", "<=", rec.end_date)
@@ -192,21 +196,28 @@ class ems_attendance_justification(models.Model):
 				raise UserError("Only the studen's tutor can update its attendance justifications.")
 		
 			old_lines_map = {}
-			for record in self:
+			for rec in self:
 				#old_lines_map[record.id] = set(record.attendance_session_line_ids.ids)
-				old_lines_map[record] = set(record.attendance_session_line_ids)
-		
-			if old_lines_map:
-				for record in self:
-					old_lines = old_lines_map.get(record, set())
-					for line in old_lines:
-						self.remove_justification(line)
+				old_lines_map[rec.id] = set(rec.attendance_session_line_ids)			
 			
-			new_lines = set(record.attendance_session_line_ids)
-			for line in new_lines:
-				self.perform_justification(line)
+			updated = super(ems_attendance_justification, self).write(vals) 
 
-		return super(ems_attendance_justification, self).write(vals) 
+			for rec in self:				
+				old_lines = old_lines_map.get(rec.id, set())
+				new_lines = set(rec.attendance_session_line_ids)
+
+				# TODO: compare the IDs, not the entire line
+				for ol in old_lines:
+					# Removing old justifications					
+					if ol not in new_lines:
+						ol.write(rec.remove_justification(ol))
+
+				for nl in new_lines:
+					# Adding new justifications
+					if nl not in old_lines:
+						nl.write(rec.perform_justification(nl))
+
+		return updated
 
 	def unlink(self):
 		if not self._check_permissions():
@@ -216,6 +227,6 @@ class ems_attendance_justification(models.Model):
 		for rec in self:
 			for line in rec.attendance_session_line_ids:	
 				if line.status == "m_justified":
-					line.write(self.remove_justification(line))
+					line.write(rec.remove_justification(line))
 
 		return super().unlink()	

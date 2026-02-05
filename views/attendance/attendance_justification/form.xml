@@ -8,7 +8,7 @@
                     <sheet>     
                          <group string="Main data" col="4">                            
                             <group colspan="4">
-                                <field string="Period" name="start_date" widget="daterange" options='{"end_date_field": "end_date"}' readonly="id"/>
+                                <field string="Period" name="start_date" widget="daterange" options='{"end_date_field": "end_date"}' />
                                 <!-- Needed in order to fire 'onchange' for the 'end_date' field -->
                                 <field name="end_date" invisible="True"/>
                             </group>                         

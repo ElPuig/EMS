@@ -67,7 +67,7 @@ class ems_attendance_justification(models.Model):
 			# This happens when opening the form, when storing fires again but field per field			
 			if not (res["user_is_admin"] or res["user_is_tutor"]):
 				# TODO: localize the message
-				raise UserError("Only tutors can justify student's attendances.")		
+				raise UserError(_("Only tutors can justify student's attendances."))		
 		return res
 
 	@api.onchange("teacher_id")
@@ -178,7 +178,7 @@ class ems_attendance_justification(models.Model):
 		for just in records:
 			if not just._check_permissions():
 				# TODO: localize the message
-				raise ValidationError("Only the student's tutor can justify its attendances.")			
+				raise ValidationError(_("Only the student's tutor can justify its attendances."))
 						
 			for line in just.attendance_session_line_ids:	
 				if line.status == "m_miss":	
@@ -193,7 +193,7 @@ class ems_attendance_justification(models.Model):
 			# So, this condition avoids running this method when saving from attendance list.
 			if not self._check_permissions():
 				# TODO: localize the message
-				raise UserError("Only the studen's tutor can update its attendance justifications.")
+				raise UserError(_("Only the studen's tutor can update its attendance justifications."))
 		
 			old_lines_map = {}
 			for rec in self:
@@ -222,7 +222,7 @@ class ems_attendance_justification(models.Model):
 	def unlink(self):
 		if not self._check_permissions():
 			# TODO: localize the message
-			raise UserError("Only the studen's tutor can remove its attendance justifications.")
+			raise UserError(_("Only the studen's tutor can remove its attendance justifications."))
 		
 		for rec in self:
 			for line in rec.attendance_session_line_ids:	

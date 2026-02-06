@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from .attendance_schedule import ems_attendance_schedule
 from .attendance_justification import ems_attendance_justification
 from datetime import datetime, timedelta
+from odoo.tools.translate import _lt
+from odoo.exceptions import ValidationError
+from psycopg2 import IntegrityError
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
 #		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
@@ -12,16 +15,14 @@ attendance_status_selection = [("a_attended", "Attended"), ("a_delayed", "Delaye
 class ems_attendance_session_header(models.Model):
 	_name = "ems.attendance_session_header"
 	_description = "Attendance session header: contains the main data about an attendance session."
-	_inherit = ['ems.base', 'ems.datetime_utils', 'mail.thread', 'mail.activity.mixin']	
+	_inherit = ['ems.base', 'ems.datetime_utils', 'mail.thread', 'mail.activity.mixin']		
 	_sql_constraints = [
-		# TODO: localize this (the same message appears in form).
-        (
-            'attendance_session_is_duped',
-            'UNIQUE(date, attendance_schedule_id)',
-            'The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session.' # El mensaje de error
-        )
-    ]
-	
+		(
+			'attendance_session_is_duped',
+			'UNIQUE(date, attendance_schedule_id)',
+			'Duped session (same schedule and date).' # Translated message within the method 'create'.
+		)
+	]
 	# NOTE: This is an statistical data model, should be unaltered if master-data (template, etc.) changes, so the parent data will be copied.		
 	weekday = fields.Selection(string="Weekday", compute="_compute_weekday", selection=ems_attendance_schedule.weekdays_selection, store=True)
 	start_time = fields.Float("Start Time", compute="_compute_start_time", store=True)
@@ -58,7 +59,7 @@ class ems_attendance_session_header(models.Model):
 	is_next = fields.Boolean(store=False)	
 
 	notes = fields.Text("Notes")	
-
+	
 	@api.depends("attendance_schedule_id")
 	def _compute_weekday(self):
 		for rec in self:
@@ -339,7 +340,10 @@ class ems_attendance_session_header(models.Model):
 
 	@api.model_create_multi
 	def create(self, vals_list):
-		records = super().create(vals_list)		
+		try:
+			records = super().create(vals_list)	
+		except IntegrityError as e:
+			raise e if "attendance_session_is_duped" not in str(e) else ValidationError(_('The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session.'))
 		
 		# NOTE: Optional, but computed here for optimization
 		notification_status_eta = self._get_notification_status_eta()

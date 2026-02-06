@@ -90,7 +90,7 @@ class ems_contact(models.Model):
             values["level_id"] = study.level_id.id
 
     def _get_read_only_user(self):
-        is_admin = base.ems_utils.get_user_is_admin(self)
+        is_admin = base.ems_base.get_user_is_admin(self)
         is_tutor = False
         for t in self.env.user.employee_ids:
             if t.id != False and len(t.tutorship_ids) > 0:

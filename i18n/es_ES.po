@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0-20251023\n"
+"Project-Id-Version: Odoo Server 18.0-20251024\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-05 19:50+0000\n"
-"PO-Revision-Date: 2026-02-05 19:50+0000\n"
+"POT-Creation-Date: 2026-02-06 08:32+0000\n"
+"PO-Revision-Date: 2026-02-06 08:32+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -256,6 +256,18 @@ msgid "ASP's Name"
 msgstr "Nombre del PAS"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Absence expected by: "
+msgstr "Ausencia prevista por: "
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Absence justified by: "
+msgstr "Ausencia justificada por: "
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__abstent_ids
 msgid "Abstents"
 msgstr "Ausentes"
@@ -350,6 +362,18 @@ msgstr "Administrador"
 #: model:ir.model.fields,field_description:ems.field_res_users__is_adult
 msgid "Adult"
 msgstr "Adulto"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attendance_session_line_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+msgid "Affected sessions"
+msgstr "Sesiones afectadas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__session_teacher_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+msgid "Affected teachers"
+msgstr "Docentes afectados"
 
 #. module: ems
 #: model:res.groups,comment:ems.group_admin
@@ -601,9 +625,9 @@ msgstr ""
 " estudiantes."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_session_status
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_status
 msgid "Attendance status"
-msgstr "Estado de la asistencia"
+msgstr "Estado de asistencia"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_attendance_session_line
@@ -627,7 +651,7 @@ msgstr ""
 "imparte qué, dónde y para quién)."
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_session_status__a_attended
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_attended
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__a_attended
 msgid "Attended"
 msgstr "Asistencia"
@@ -720,7 +744,7 @@ msgstr "Código"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
 #: model:ir.model.fields,field_description:ems.field_ems_role__color
 msgid "Color"
-msgstr "Color"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
@@ -931,10 +955,10 @@ msgid "Date"
 msgstr "Fecha"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_session_status__a_delayed
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_delayed
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__a_delayed
 msgid "Delayed"
-msgstr "Retraso"
+msgstr "Demorado"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__delegate_id
@@ -1031,7 +1055,7 @@ msgstr "Créditos ECTS"
 #: model:ir.module.category,name:ems.category_main
 #: model:ir.module.category,name:ems.ems_category_main
 msgid "EMS"
-msgstr "EMS"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -1085,7 +1109,8 @@ msgstr "Email de notificación para las familias: asistencia del estudiante"
 msgid ""
 "Email notification for families: student attendance status (rectification)"
 msgstr ""
-"Email de notificación pera las familias: asistencia del alumnado (rectificació)"
+"Email de notificación pera las familias: asistencia del alumnado "
+"(rectificació)"
 
 #. module: ems
 #: model:mail.template,name:ems.mail_attendance_issue_tutor
@@ -1401,7 +1426,7 @@ msgstr "Híbrido"
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_exception_icon
@@ -1424,7 +1449,8 @@ msgstr "Si está marcado, nuevos mensajes requieren de su atención. "
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
-msgstr "Si está marcado, algunos mensajes fallaron al intentar ser entregados."
+msgstr ""
+"Si está marcado, algunos mensajes fallaron al intentar ser entregados."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_res_partner__auth_share
@@ -1490,6 +1516,11 @@ msgid "Inuse Subject"
 msgstr "Tema en uso"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__is_auto_generated
+msgid "Is Auto Generated"
+msgstr ""
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__is_duped
 msgid "Is Duped"
 msgstr "Está duplicado"
@@ -1510,10 +1541,10 @@ msgid "Is Overriding"
 msgstr "Está sobreescribiendo"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_session_status__a_issue
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_issue
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__a_issue
 msgid "Issue"
-msgstr "Incidencia"
+msgstr "Asunto"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -1551,10 +1582,10 @@ msgid "Justifications"
 msgstr "Justificaciones"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_session_status__m_justified
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__m_justified
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__m_justified
 msgid "Justified Miss"
-msgstr "Falta justificada"
+msgstr "Justificada Miss"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__teacher_id
@@ -1717,7 +1748,7 @@ msgstr "Datos principales"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__manual
 msgid "Manual"
-msgstr "Manual"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__medical_id
@@ -1765,7 +1796,7 @@ msgid "Minutes"
 msgstr "Actas"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_session_status__m_miss
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__m_miss
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__m_miss
 msgid "Miss"
 msgstr "Falta"
@@ -2123,7 +2154,7 @@ msgstr "Nombres de los roles"
 #: model:ir.ui.menu,name:ems.menu_teachers_roles
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Roles"
-msgstr "Roles"
+msgstr ""
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_asp_role_tree
@@ -2216,12 +2247,6 @@ msgstr "Enviar a"
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "Session"
 msgstr "Sesión"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__session_teacher_ids
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
-msgid "Session teachers"
-msgstr "Decentes de las sesiones"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__session_teacher_id
@@ -2327,7 +2352,6 @@ msgstr "Fecha de inicio"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__status
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attendance_session_line_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__status
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_session
 msgid "Status"
@@ -2348,9 +2372,9 @@ msgstr ""
 "Planificada: actividades futuras."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_status_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_session_line_id
 msgid "Status data"
-msgstr "Información del estado"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__attendance_session_line_ids
@@ -2741,7 +2765,8 @@ msgstr "Información de la notificación al/la tutor/a"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Tutor's attendance report default send time"
-msgstr "Hora de envío predeterminada para el reporte de asistencia del tutor/a"
+msgstr ""
+"Hora de envío predeterminada para el reporte de asistencia del tutor/a"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_kanban
@@ -2800,7 +2825,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__unipersonal
 msgid "Unipersonal"
-msgstr "Unipersonal"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form

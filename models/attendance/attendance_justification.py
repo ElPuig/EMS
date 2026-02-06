@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.translate import _lt
 
-# TODO: localize text
-JUSTIFICATION_CAPTION = "Absence justified by: "
-PREVISION_CAPTION = "Absence expected by: "
+JUSTIFICATION_CAPTION = _lt("Absence justified by: ")
+PREVISION_CAPTION = _lt("Absence expected by: ")
 
 class ems_attendance_justification(models.Model):
 	_name = "ems.attendance_justification"
@@ -20,8 +20,8 @@ class ems_attendance_justification(models.Model):
 	
 	# NOTE: Many2many needed in order to update values (when Many2one used, removed values when changing filters removes also the status entries).
 	# NOTE: relation name should be forced to <63 chars (PSQL restriction).
-	attendance_session_line_ids = fields.Many2many(string="Status", comodel_name="ems.attendance_session_line") 	
-	session_teacher_ids = fields.Many2many(string="Session teachers", comodel_name="hr.employee", compute='_compute_session_teacher_ids', store=True, readonly=False)    
+	attendance_session_line_ids = fields.Many2many(string="Affected sessions", comodel_name="ems.attendance_session_line") 	
+	session_teacher_ids = fields.Many2many(string="Affected teachers", comodel_name="hr.employee", compute='_compute_session_teacher_ids', store=True, readonly=False)    
 	allowed_student_ids = fields.Many2many(comodel_name='res.partner', store=False)	
 	notes = fields.Text("Notes")
 

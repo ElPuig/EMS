@@ -66,7 +66,6 @@ class ems_attendance_justification(models.Model):
 		if "user_is_admin" in fields_list and  "user_is_tutor" in fields_list:
 			# This happens when opening the form, when storing fires again but field per field			
 			if not (res["user_is_admin"] or res["user_is_tutor"]):
-				# TODO: localize the message
 				raise UserError(_("Only tutors can justify student's attendances."))		
 		return res
 
@@ -177,7 +176,6 @@ class ems_attendance_justification(models.Model):
 		records = super().create(values)
 		for just in records:
 			if not just._check_permissions():
-				# TODO: localize the message
 				raise ValidationError(_("Only the student's tutor can justify its attendances."))
 						
 			for line in just.attendance_session_line_ids:	
@@ -192,8 +190,7 @@ class ems_attendance_justification(models.Model):
 			# NOTE: this is the only update allowed, no other fields can be edieted.
 			# So, this condition avoids running this method when saving from attendance list.
 			if not self._check_permissions():
-				# TODO: localize the message
-				raise UserError(_("Only the studen's tutor can update its attendance justifications."))
+				raise UserError(_("Only the student's tutor can update its attendance justifications."))
 		
 			old_lines_map = {}
 			for rec in self:
@@ -221,8 +218,7 @@ class ems_attendance_justification(models.Model):
 
 	def unlink(self):
 		if not self._check_permissions():
-			# TODO: localize the message
-			raise UserError(_("Only the studen's tutor can remove its attendance justifications."))
+			raise UserError(_("Only the student's tutor can remove its attendance justifications."))
 		
 		for rec in self:
 			for line in rec.attendance_session_line_ids:	

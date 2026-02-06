@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0-20251024\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 08:36+0000\n"
-"PO-Revision-Date: 2026-02-06 08:36+0000\n"
+"POT-Creation-Date: 2026-02-06 09:29+0000\n"
+"PO-Revision-Date: 2026-02-06 09:29+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,6 @@ msgid ""
 "with the process: <br/>"
 msgstr ""
 ") ja te definit un horari pel curs actual. Si continua amb el procés: <br/>"
-""
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_outcome__round__1
@@ -361,7 +360,7 @@ msgstr "Administrador/a"
 #: model:ir.model.fields,field_description:ems.field_res_partner__is_adult
 #: model:ir.model.fields,field_description:ems.field_res_users__is_adult
 msgid "Adult"
-msgstr ""
+msgstr "Adulto"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attendance_session_line_ids
@@ -744,7 +743,7 @@ msgstr "Codi"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
 #: model:ir.model.fields,field_description:ems.field_ems_role__color
 msgid "Color"
-msgstr ""
+msgstr "Color"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
@@ -1047,6 +1046,13 @@ msgid "Download File"
 msgstr "Descarrega el fitxer"
 
 #. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_attendance_session_header_attendance_session_is_duped
+msgid "Duped session (same schedule and date)."
+msgstr ""
+"La sessió actual ja existeix. Si us plau, editeu l'existent (potser l'ha "
+"creat un altre professor) o trieu una altra sessió disponible."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__ects
 msgid "ECTS Credits"
 msgstr "Crèdits ECTS"
@@ -1055,7 +1061,7 @@ msgstr "Crèdits ECTS"
 #: model:ir.module.category,name:ems.category_main
 #: model:ir.module.category,name:ems.ems_category_main
 msgid "EMS"
-msgstr ""
+msgstr "EMS"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -1425,7 +1431,7 @@ msgstr "Híbrid"
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_exception_icon
@@ -1516,7 +1522,7 @@ msgstr "Assumpte en ús"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__is_auto_generated
 msgid "Is Auto Generated"
-msgstr ""
+msgstr "És autogenerat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__is_duped
@@ -1748,7 +1754,7 @@ msgstr "Dades principals"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__manual
 msgid "Manual"
-msgstr ""
+msgstr "Manual"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__medical_id
@@ -1809,7 +1815,7 @@ msgstr "Modalitat"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__mode
 msgid "Mode"
-msgstr ""
+msgstr "Modo"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0
@@ -1895,7 +1901,7 @@ msgstr "Tipus d'activitat següent"
 #: model_terms:ir.ui.view,arch_db:ems.view_subject_form
 #: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
 msgid "Notes"
-msgstr ""
+msgstr "Notas"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notification_id
@@ -1945,11 +1951,46 @@ msgid "Online"
 msgstr "En línia"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment.py:0
+msgid ""
+"Only admins can create manual enrollments. If you're a group's tutor, you "
+"can enroll students using the student's form."
+msgstr ""
+"Només els administradors poden crear matriculacions manuals. Si ets el "
+"tutor d'un grup, pots matricular els estudiants fent servir el formulari "
+"dels estudiants."
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search
 msgid "Only mine"
 msgstr "Tansols els meus"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Only the student's tutor can remove its attendance justifications."
+msgstr "Només el/la tutor/a de l'alumne/a pot eliminar les seves justificacions d'assistència."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Only the student's tutor can update its attendance justifications."
+msgstr "Només el/la tutor/a de l'alumne/a pot actualitzar les seves justificacions d'assistència."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Only the student's tutor can justify its attendances."
+msgstr "Només el/la tutor/a de l'alumne/a pot justificar les seves faltes d'assistència."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Only tutors can justify student's attendances."
+msgstr "Només els/les tutors/es poden justificar faltes d'assistència."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
@@ -2374,7 +2415,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_session_line_id
 msgid "Status data"
-msgstr ""
+msgstr "Detalls de l'estat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__attendance_session_line_ids
@@ -2650,7 +2691,8 @@ msgid "The current schedules will be replaced by the new ones."
 msgstr "Els horaris actuals seran reemplaçats pels nous."
 
 #. module: ems
-#: model:ir.model.constraint,message:ems.constraint_ems_attendance_session_header_attendance_session_is_duped
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
 msgid ""
 "The current session already exists. Please, edit the existing one (maybe has"
@@ -2821,7 +2863,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__unipersonal
 msgid "Unipersonal"
-msgstr ""
+msgstr "Unipersonal"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form

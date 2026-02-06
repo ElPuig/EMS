@@ -27,7 +27,6 @@ class ems_enrollment(models.Model):
 		if "user_is_admin" in fields_list:
 			# This happens when opening the form, when storing fires again but field per field			
 			if not (res["user_is_admin"]):
-				# TODO: localize the message
 				raise UserError(_("Only admins can create manual enrollments. If you're a group's tutor, you can enroll students using the student's form."))
 		return res
 	

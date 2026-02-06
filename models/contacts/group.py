@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, http
-from odoo.exceptions import UserError
-from odoo.http import request
+from odoo import models, fields, api
 
 class ems_group(models.Model):
 	_name = "ems.group"

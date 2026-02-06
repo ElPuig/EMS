@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import pytz
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
 from datetime import datetime
 
 class ems_course(models.Model):

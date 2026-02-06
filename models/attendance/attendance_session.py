@@ -4,7 +4,6 @@ from odoo import models, fields, api, _
 from .attendance_schedule import ems_attendance_schedule
 from .attendance_justification import ems_attendance_justification
 from datetime import datetime, timedelta
-from odoo.tools.translate import _lt
 from odoo.exceptions import ValidationError
 from psycopg2 import IntegrityError
 

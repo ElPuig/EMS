@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import math, pytz
-from datetime import datetime, time
 from odoo import models, fields, api
-from odoo.exceptions import UserError
 
 class ems_attendance_schedule(models.Model):
 	_name = "ems.attendance_schedule"

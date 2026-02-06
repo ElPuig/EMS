@@ -5,7 +5,7 @@ from odoo import models, fields, api
 class ems_attendance_template(models.Model):
 	_name = "ems.attendance_template"
 	_description = "Attendance template: contains the basic attendance data (who teaches what, where and for whom)"
-	_inherit = ['ems.utils']
+	_inherit = ['ems.base']
 
 	start_date = fields.Date(string="Start date", required=True)
 	end_date = fields.Date(string="End date", required=True)

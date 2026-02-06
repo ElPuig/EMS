@@ -24,11 +24,11 @@
         
         <record model="ir.actions.report" id="action_attendance_report_session">
             <field name="name">Attendance report: by session</field>
-            <field name="model">ems.attendance_session</field>
+            <field name="model">ems.attendance_session_header</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.attendance_report_session</field>
             <field name="report_file">attendance_report_session</field>
-            <field name="binding_model_id" ref="ems.model_ems_attendance_session"/>
+            <field name="binding_model_id" ref="ems.model_ems_attendance_session_header"/>
             <field name="binding_type">report</field>
         </record>
 
@@ -62,7 +62,7 @@
             <field name="binding_type">report</field>
         </record>
 
-        <menuitem name="Reports" sequence="4" id="menu_attendance_reports" parent="menu_attendance"/>
+        <menuitem name="Reports" sequence="5" id="menu_attendance_reports" parent="menu_attendance"/>
         <menuitem name="Attendance by student" sequence="1" id="menu_attendance_reports_student" parent="menu_attendance_reports" action="action_attendance_report_student_wizard"/>
         <menuitem name="Attendance by subject" sequence="2" id="menu_attendance_reports_subject" parent="menu_attendance_reports" action="action_attendance_report_subject_wizard"/>
         <menuitem name="Attendance by group" sequence="3" id="menu_attendance_reports_group" parent="menu_attendance_reports" action="action_attendance_report_group_wizard"/>

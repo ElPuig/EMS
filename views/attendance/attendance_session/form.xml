@@ -62,7 +62,7 @@
                                     <list editable="bottom" default_order="student_id asc">                                       
                                         <field name="image_1920" widget="image" />
                                         <field name="student_id" width="175px" class="align-middle" domain="[('contact_type', '=', 'student'), ('id','not in', inuse_student_ids)]"/>
-                                        <field name="status" widget="radio" class="align-middle" options="{'horizontal': true}" />
+                                        <field name="status" widget="attendance_selection" class="align-middle" options="{'horizontal': true}" />
                                         <field name="notes" width="350px" class="align-middle"/>                                       
                                     </list>
                                 </field>

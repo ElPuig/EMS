@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="ems.AttendanceSelection" owl="1">
+        <div class="d-flex flex-wrap gap-1">
+            <t t-foreach="options" t-as="opt" t-key="opt.value">
+                <button type="button"
+                    class="btn btn-sm d-flex align-items-center gap-1"
+                    t-att-class="getButtonClass(opt)"
+                    t-on-click="(ev) => this.updateStatus(opt.value, ev)">
+                    
+                    <i t-attf-class="fa {{opt.icon}}"/>
+                    <span t-esc="opt.label" class="d-none d-xl-inline"/>
+                </button>
+            </t>
+        </div>
+    </t>
+
+</templates>

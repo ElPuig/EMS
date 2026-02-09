@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from . import controllers, hr_org_chart
+from . import controllers, hr_org_chart, home, portal

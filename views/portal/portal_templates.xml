@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <template id="portal_home_alumno" name="Portal del Alumno (EMS)">
+        <t t-call="portal.portal_layout">
+            <div class="o_portal_details container mt-4">
+                <t t-if="is_teacher">
+                    <div class="d-flex justify-content-end mb-3">
+                        <a href="/teacher/attendance" class="btn btn-primary">
+                            <i class="fa fa-users me-2"></i> Pasar Lista de Asistencia
+                        </a>
+                    </div>
+                </t>
+                <h3>Mis Datos</h3>
+                <hr/>
+                <owl-component name="ems.StudentCard"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="teacher_attendance_root" name="Teacher Attendance Root">
+        <t t-call="portal.portal_layout">
+            <t t-set="no_breadcrumbs" t-value="True"/>
+            <div id="wrap" class="container mt-4 mb-5">
+                <owl-component name="ems.AttendanceKiosk"/>
+            </div>
+        </t>
+    </template>
+
+</odoo>

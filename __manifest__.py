@@ -32,7 +32,8 @@
         'mass_mailing', 
         'survey', 
         'hr_attendance',
-        'queue_job'
+        'queue_job',
+        'portal'
     ],
     
     # just for debugging
@@ -192,6 +193,8 @@
         'reports/attendance/templates/sumary_table.xml', 
         'reports/attendance/templates/details_table.xml', 
 
+        'views/portal/portal_templates.xml',
+
         ### Reports entries ###
         'reports/attendance/session.xml', 
         'reports/attendance/student.xml',
@@ -300,7 +303,9 @@
             'ems/static/src/js/backend/**/*', 
         ],       
         'web.assets_frontend': [
+           'ems/static/src/xml/frontend/**/*',
            'ems/static/src/css/frontend/**/*',
+           'ems/static/src/js/frontend/**/*',
         ],
         'web.assets_common': [
             #'ems/static/src/css/**/*',      

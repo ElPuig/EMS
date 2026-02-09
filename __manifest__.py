@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.2.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
+    'version': '18.0.0.3.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -150,13 +150,9 @@
 
             'views/attendance/attendance_session/menu.xml',
             'views/attendance/attendance_session/list.xml',
-            'views/attendance/attendance_session/form.xml',
-            #'views/attendance/attendance_session/calendar.xml',              
-            'views/attendance/attendance_session/search.xml',         
-
-            'views/attendance/attendance_status/menu.xml',
-            'views/attendance/attendance_status/list.xml',
-            'views/attendance/attendance_status/form.xml',                               
+            'views/attendance/attendance_session/form.xml',                     
+            'views/attendance/attendance_session/search.xml',                                                 
+            #'views/attendance/attendance_session/calendar.xml',     
 
             'views/attendance/attendance_schedule/form.xml',
 
@@ -293,8 +289,8 @@
 
         # 'demo/attendance/attendance_template.xml',
         # 'demo/attendance/attendance_schedule.xml',
-        # 'demo/attendance/attendance_session.xml',
-        # 'demo/attendance/attendance_status.xml',
+        # 'demo/attendance/attendance_session_header.xml',
+        # 'demo/attendance/attendance_session_line.xml',
     ],   
     'assets': {       
         'web.assets_backend': [

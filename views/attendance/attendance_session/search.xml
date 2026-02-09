@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_attendance_session_search">
-            <field name="name">ems.attendance_session.search</field>
-            <field name="model">ems.attendance_session</field>            
+            <field name="name">ems.attendance_session_header.search</field>
+            <field name="model">ems.attendance_session_header</field>            
             <field name="arch" type="xml">                  
                 <search string="Only mine">                                                                             
                     <filter string="Show only mine" name="only_mine" domain="['|', ('template_teacher_id.user_id.id', '=', uid), ('session_teacher_id.user_id.id', '=', uid)]"/>

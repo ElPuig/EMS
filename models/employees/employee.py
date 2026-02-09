@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
-from odoo.exceptions import ValidationError
-#from lxml import etree
+from odoo import models, fields, api, Command, _
+from odoo.exceptions import UserError
 
 employee_types = [
     ("asp", "Administrative and Services Personnel"), 
@@ -35,13 +34,18 @@ class ems_employee_base(models.AbstractModel):
 
     def _get_new_employee_type(self):
         return employee_types
-
-    @api.depends("tutorship_ids")
+    
     @api.onchange('tutorship_ids')
     def _onchange_tutorship_ids(self):	
+        self.update_tutor_role()
+
+    @api.depends("tutorship_ids")
+    def _compute_tutorships_str(self):			
         for rec in self:
-            role_tutor = self.env.ref('ems.role_tutor').ids[0]            
-            rec.role_ids = [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)]
+            rec.tutorships = ""
+            for tutorship in rec.tutorship_ids:
+                rec.tutorships = "%s, %s" % (rec.tutorships, tutorship.name) 			
+            rec.tutorships = rec.tutorships.lstrip(", ")   
 
     @api.depends("role_ids")
     def _compute_roles_str(self):			
@@ -51,14 +55,36 @@ class ems_employee_base(models.AbstractModel):
                 rec.roles = "%s, %s" % (rec.roles, role.name) 			
             rec.roles = rec.roles.lstrip(", ")
     
-    @api.depends("tutorship_ids")
-    def _compute_tutorships_str(self):			
-        for rec in self:
-            rec.tutorships = ""
-            for tutorship in rec.tutorship_ids:
-                rec.tutorships = "%s, %s" % (rec.tutorships, tutorship.name) 			
-            rec.tutorships = rec.tutorships.lstrip(", ")   
+    @api.onchange('role_ids')
+    def _onchange_role_ids(self):
+        role_tutor = self.env.ref('ems.role_tutor').ids[0]  
+        for rec in self:	             
+            is_role_tutor = role_tutor in rec.role_ids.ids 
+            is_tutor = len(rec.tutorship_ids) > 0
+            if not is_role_tutor and is_tutor:                
+                rec.tutorship_ids = False
+            elif is_role_tutor and not is_tutor:
+                rec.role_ids = [(3, role_tutor)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The tutor role cannot be assigned manually, it will be set automatically if any group is added to the 'tutorship' field."),
+                        'type': 'notification',
+                    }
+                }
 
+    def update_tutor_role(self):
+        role_tutor = self.env.ref('ems.role_tutor').ids[0]
+        for rec in self:            
+            rec.role_ids = [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)] # link if tutor, otherwise unlink
+
+    def write(self, vals):
+        if "tutorship_ids" in vals:
+            # NOTE: I don't know why, but unlink (3, ID) does not arrive when unlinked from '_onchange_role_ids' (I tried everything!!!), but a remove... (2, ID)
+            for command in vals["tutorship_ids"]:
+                if command[0] == 2: command[0] = 3
+        return super(ems_employee_base, self).write(vals) 
+                        
     @api.constrains("role_ids")
     def check_limit(self):
         for rec in self:

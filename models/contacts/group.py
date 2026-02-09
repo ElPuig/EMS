@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, http
-from odoo.exceptions import UserError
-from odoo.http import request
+from odoo import models, fields, api
 
 class ems_group(models.Model):
 	_name = "ems.group"
@@ -52,6 +50,17 @@ class ems_group(models.Model):
 					"subject_ids": subs,					
 				})				
 
+	def write(self, vals):		
+		old_tutor = self.tutor_id			
+		res = super(ems_group, self).write(vals) 
+		new_tutor = self.tutor_id
+
+		if 'tutor_id' in vals:
+			# NOTE: tutor_id field changes when the tutor is assigned from the teacher form, but the old tutor's role 
+			# should be updated and must be done from here once changed.
+			old_tutor.update_tutor_role()
+			new_tutor.update_tutor_role()
+		return res
 class ems_enrollment_view(models.TransientModel):
 	_name = "ems.enrollment_view"
 	_description = "Transitient model for displaying enrollment data within groups but filtered (allows ems.group.enrollment_view_ids to work: contains the same data as enrolled_student_ids but filtered for the current group because it cannot be filtered on view...)."

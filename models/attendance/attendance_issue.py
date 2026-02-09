@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from .attendance_status import attendance_status
+from .attendance_session import attendance_status_selection
 
 class ems_attendance_issue_tutor(models.Model):
 	_name = "ems.attendance_issue_tutor"
 	_description = "Attendance issue (tutor): contains the data about isues that can be reviewed by the student's tutor."
-	_inherit = ['ems.utils']
+	_inherit = ['ems.base']
 	
 	attendance_issue_student_ids = fields.One2many(string="Students", comodel_name="ems.attendance_issue_student", inverse_name="attendance_issue_tutor_id")
 	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
@@ -37,7 +37,7 @@ class ems_attendance_issue_tutor(models.Model):
 class ems_attendance_issue_student(models.Model):
 	_name = "ems.attendance_issue_student"
 	_description = "Attendance issue (student): groups the attendance's issues by student."
-	_inherit = ['ems.utils']
+	_inherit = ['ems.base']
 	
 	attendance_issue_tutor_id = fields.Many2one(string="Tutor notification data", comodel_name="ems.attendance_issue_tutor", ondelete='cascade')
 	attendance_issue_status_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_issue_status", inverse_name="attendance_issue_student_id")
@@ -52,11 +52,11 @@ class ems_attendance_issue_student(models.Model):
 class ems_attendance_issue_status(models.Model):
 	_name = "ems.attendance_issue_status"
 	_description = "Attendance issue (status): contains the data about an attendance issue."
-	_inherit = ['ems.utils']
+	_inherit = ['ems.base']
 	
 	attendance_issue_student_id = fields.Many2one(string="Student notification data", comodel_name="ems.attendance_issue_student", ondelete='cascade')
-	attendance_status_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_status", required=True, ondelete='cascade')	
-	attendance_session_id = fields.Many2one(string="Session", related="attendance_status_id.attendance_session_id", store=False)
+	attendance_session_line_id = fields.Many2one(string="Status data", comodel_name="ems.attendance_session_line", required=True, ondelete='cascade')	
+	attendance_session_id = fields.Many2one(string="Session", related="attendance_session_line_id.attendance_session_id", store=False)
 	
 	notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
 	notification_status = fields.Selection(string="Notification status", related="notification_id.state")
@@ -77,18 +77,18 @@ class ems_attendance_issue_status(models.Model):
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 	
 
 	# NOTE: We want a copy of the original status, because a miss can be justified later, but we want to keep the original notification status. 	
-	attendance_status = fields.Selection(string="Attendance status", selection=attendance_status)	
+	attendance_status = fields.Selection(string="Attendance status", selection=attendance_status_selection)	
 	notes = fields.Text(string="Notes") 
 
-	@api.depends('attendance_status_id')
+	@api.depends('attendance_session_line_id')
 	def _compute_display_name(self):              
 		for rec in self:
-			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_status).get(rec.attendance_status))
+			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_status_selection).get(rec.attendance_status))
 
 	@api.depends('notification_status')
 	def _compute_pending(self):
 		for rec in self:
-			rec.pending = self.notification_status in ["pending", "enqueued"]
+			rec.pending = self.notification_status is False or self.notification_status in ["pending", "enqueued"]
 
 	def unlink(self):
 		# NOTE: button_cancel source: https://github.com/OCA/queue/blob/18.0/queue_job/models/queue_job.py

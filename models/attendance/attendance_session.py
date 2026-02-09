@@ -1,24 +1,27 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from .attendance_schedule import ems_attendance_schedule
+from .attendance_justification import ems_attendance_justification
 from datetime import datetime, timedelta
+from odoo.exceptions import ValidationError
+from psycopg2 import IntegrityError
 
-#from attendance_session import ems_attendance_session
+# NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
+#		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
+attendance_status_selection = [("a_attended", "Attended"), ("a_delayed", "Delayed"), ("m_miss", "Miss"), ("m_justified", "Justified Miss"), ("a_issue", "Issue")]
 
-class ems_attendance_session(models.Model):
-	_name = "ems.attendance_session"
-	_description = "Attendance session: contains the data about every session done with the students."		
-	_inherit = ['ems.utils', 'mail.thread', 'mail.activity.mixin']	
+class ems_attendance_session_header(models.Model):
+	_name = "ems.attendance_session_header"
+	_description = "Attendance session header: contains the main data about an attendance session."
+	_inherit = ['ems.base', 'ems.datetime_utils', 'mail.thread', 'mail.activity.mixin']		
 	_sql_constraints = [
-		# TODO: localize this (the same message appears in form).
-        (
-            'attendance_session_is_duped',
-            'UNIQUE(date, attendance_schedule_id)',
-            'The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session.' # El mensaje de error
-        )
-    ]
-	
+		(
+			'attendance_session_is_duped',
+			'UNIQUE(date, attendance_schedule_id)',
+			'Duped session (same schedule and date).' # Translated message within the method 'create'.
+		)
+	]
 	# NOTE: This is an statistical data model, should be unaltered if master-data (template, etc.) changes, so the parent data will be copied.		
 	weekday = fields.Selection(string="Weekday", compute="_compute_weekday", selection=ems_attendance_schedule.weekdays_selection, store=True)
 	start_time = fields.Float("Start Time", compute="_compute_start_time", store=True)
@@ -32,11 +35,11 @@ class ems_attendance_session(models.Model):
 	# TODO: 
 	# 		1. Remove unnecessary data. 
 	# 		2. Related data should not be never removed, but archived. 
-	# 		For example:	
+	# 		For example:
 	# 			1. New course, so new templates.
 	#			2. Removing templates, removes also the schedules.
 	#			3. Sessions are linked to schedules, so cannot be removed because never should be removed by cascade (only manually).
-	# 			4. The same if a student's group is removed, it should really be archived.   
+	# 			4. The same if a student's group is removed, it should really be archived.
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", compute="_compute_level_id", store=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", compute="_compute_study_id", store=True)
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_group_id", store=True)
@@ -45,17 +48,17 @@ class ems_attendance_session(models.Model):
 	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
 	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
-		
-	attendance_status_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_status", inverse_name="attendance_session_id")		
-	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)			
-	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)	
 	
-	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)	
+	attendance_session_line_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")			
+	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)
+	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)
+	
+	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)
 	is_duped = fields.Boolean(store=False)
 	is_next = fields.Boolean(store=False)	
 
 	notes = fields.Text("Notes")	
-
+	
 	@api.depends("attendance_schedule_id")
 	def _compute_weekday(self):
 		for rec in self:
@@ -138,23 +141,23 @@ class ems_attendance_session(models.Model):
 	@api.onchange("attendance_schedule_id")	
 	def _onchange_attendance_schedule_id(self):		
 		for rec in self:			
-			students = []
+			lines = []
 			rec.is_next = False
 			rec.is_duped = False
 			
-			for attendance_status in rec.attendance_status_ids:
+			for attendance_session_line in rec.attendance_session_line_ids:
 				# Unlink previous students
-				students.append([3, attendance_status.id])
+				lines.append([3, attendance_session_line.id])
 
 			if rec.attendance_schedule_id.id != False:
 				now = datetime.now()
 				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin
-				rec.is_duped = self.env["ems.attendance_session"].search([("date", "=", now), ("attendance_schedule_id.id", "=", schedule_id)]) or False
+				rec.is_duped = self.env["ems.attendance_session_header"].search([("date", "=", now), ("attendance_schedule_id.id", "=", schedule_id)]) or False
 								
 				# NOTE: The first approach was to check if start_date of current == end_date of previous, but what happens if there's a coffe break between sessions?	
 				#		Its better to check if the same subject has been teached previously and load the same data (maybe there's a gap between, but the student assistance 
 				# 		data should be almost the same). 
-				previous = self.env["ems.attendance_session"].search(
+				previous = self.env["ems.attendance_session_header"].search(
 					[
 						("date", "=", datetime.now()), 						
 						("attendance_schedule_id.attendance_template_id.id", "=", rec.attendance_schedule_id.attendance_template_id.sudo().id),
@@ -168,28 +171,31 @@ class ems_attendance_session(models.Model):
 
 					if rec.is_next:
 						# Load new entries but with the previous session's data
-						for prev in previous.attendance_status_ids:
-							students.append([0, 0, {
-								"student_id": prev.student_id,
-								"status": "a_attended" if prev.status == "a_delayed" else prev.status,
-								"notes": prev.notes
-							}])
+						for prev in previous.attendance_session_line_ids:
+							lines.append([0, 0, self._setup_next_session_line_data(prev)])
 						
 			if not rec.is_next:
-				# Load empty entries
+				# Load empty entries, must check absence prevission				
+				previssions = ems_attendance_justification.get_current_justifications(self)
 				for student in rec.attendance_schedule_id.attendance_template_id.sudo().student_ids:
 					# Sources: 
 					# 	https://stackoverflow.com/a/70843263
 					#	https://www.odoo.com/ro_RO/forum/suport-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
 					
-					# Linking new students
-					students.append([0, 0, {
-						"student_id": student
-					}])	
+					# Linking new students					
+					line = None
+					for p in previssions:
+						if p.student_id == student:
+							line = p.perform_justification(self._setup_new_line_data(student), True)
+
+					if line is None:
+						line = self._setup_new_line_data(student, "a_attended")
+						
+					lines.append([0, 0, line])	
 			
 			# NOTE: if duped, avoid next message.
 			if rec.is_duped: rec.is_next = False
-			rec.attendance_status_ids = students
+			rec.attendance_session_line_ids = lines
 
 	def _default_teacher_id(self):							
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
@@ -242,16 +248,16 @@ class ems_attendance_session(models.Model):
 	def _get_notification_status_eta(self):
 		return fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_status_delay * 60) # from minutes to seconds
 	
-	def _get_or_create_issue_status(self, issue_student, attendance_status_id, send_to, rectification):
-		data = self.get_issue_status(attendance_status_id)
+	def _get_or_create_issue_status(self, issue_student, attendance_session_line, send_to, rectification):
+		data = self.get_issue_status(attendance_session_line)
 		repo = data["repo"]
 		issue_status = data["values"]	
 		
 		if not issue_status or rectification:
-			as_id = self.sudo().env['ems.attendance_status'].sudo().search([('id', '=', attendance_status_id)])
+			as_id = self.sudo().env['ems.attendance_session_line'].sudo().search([('id', '=', attendance_session_line)])
 			issue_status = repo.create({				
 				'attendance_issue_student_id': issue_student.id,
-				'attendance_status_id': attendance_status_id,
+				'attendance_session_line_id': attendance_session_line,
 				'attendance_status': as_id.status,
 				'rectification': rectification,
 				'notes': as_id.notes,
@@ -259,7 +265,7 @@ class ems_attendance_session(models.Model):
 			})
 
 			if rectification:
-				must_rectify = self.sudo().env['ems.attendance_issue_status'].sudo().search([('attendance_status_id', '=', attendance_status_id), ('rectified_by', '=', False), ('id', '!=', issue_status.id)])
+				must_rectify = self.sudo().env['ems.attendance_issue_status'].sudo().search([('attendance_session_line_id', '=', attendance_session_line), ('rectified_by', '=', False), ('id', '!=', issue_status.id)])
 				for rect in must_rectify:				
 					rect.write({'rectified_by' : issue_status.id})
 
@@ -277,7 +283,7 @@ class ems_attendance_session(models.Model):
 			})		
 		return issue_student
 	
-	def _get_or_create_issue_tutor(self, tutor_id):
+	def _get_or_create_issue_tutor(self, tutor_id, date):
 		data = self.get_issue_tutor(tutor_id)		
 		repo = data["repo"]
 		issue_tutor = data["values"]		
@@ -285,7 +291,7 @@ class ems_attendance_session(models.Model):
 		if not issue_tutor:
 			issue_tutor = repo.create({
 				'tutor_id': tutor_id.id,
-				'issue_date': datetime.today()						
+				'issue_date': date
 			})
 		return issue_tutor
 	
@@ -313,9 +319,30 @@ class ems_attendance_session(models.Model):
 			'notification_id': job.id
 		})
 	
+	def _setup_new_line_data(self, student_id, status="a_attended", notes=None):
+		return  {
+			"student_id": student_id,
+			"status": status,
+			"notes": notes,
+			"is_auto_generated" : True
+		}
+	
+	def _setup_next_session_line_data(self, previous):
+		return  {
+			"student_id": previous.student_id,
+			"status": "a_attended" if previous.status == "a_delay" else previous.status,
+			"notes": previous.notes,
+			"attendance_justification_id": previous.attendance_justification_id,
+			"attendance_prevision_id" : previous.attendance_prevision_id,
+			"is_auto_generated" : True 
+		}
+
 	@api.model_create_multi
 	def create(self, vals_list):
-		records = super().create(vals_list)		
+		try:
+			records = super().create(vals_list)	
+		except IntegrityError as e:
+			raise e if "attendance_session_is_duped" not in str(e) else ValidationError(_('The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session.'))
 		
 		# NOTE: Optional, but computed here for optimization
 		notification_status_eta = self._get_notification_status_eta()
@@ -324,8 +351,8 @@ class ems_attendance_session(models.Model):
 		for record in records:		
 			# NOTE: Collecting all status data first allow some optimizations.	
 			issue_status_by_tutor = dict()			
-			for attendance_status in record.attendance_status_ids:			
-				record.collect_issue_status_data(attendance_status, issue_status_by_tutor)
+			for attendance_session_line in record.attendance_session_line_ids:			
+				record.collect_issue_status_data(attendance_session_line, issue_status_by_tutor)
 
 			record.create_notification_entries(issue_status_by_tutor, notification_tutor_eta, notification_status_eta)
 		return records
@@ -350,9 +377,9 @@ class ems_attendance_session(models.Model):
 		notis = []
 		for tutor_id in issue_status_by_tutor:
 			for issue_status_data in issue_status_by_tutor[tutor_id]:
-				issue_tutor = self._get_or_create_issue_tutor(tutor_id)
+				issue_tutor = self._get_or_create_issue_tutor(tutor_id, self.date)
 				issue_student = self._get_or_create_issue_student(issue_tutor, issue_status_data["student_id"])
-				self._get_or_create_issue_status(issue_student, issue_status_data["attendance_status_id"], issue_status_data["send_to"], rectification)
+				self._get_or_create_issue_status(issue_student, issue_status_data["attendance_session_line_id"], issue_status_data["send_to"], rectification)
 				
 				if not issue_tutor in notis: notis.append(issue_tutor)
 		
@@ -365,22 +392,22 @@ class ems_attendance_session(models.Model):
 				for issue_status in issue_student.attendance_issue_status_ids:					
 					self._schedule_family_assistance_notification(issue_status, notification_status_eta, rectification)
 
-	def collect_issue_status_data(self, status_id, status_by_tutor, rectification=False):
+	def collect_issue_status_data(self, attendance_session_line_id, status_by_tutor, rectification=False):
 		separator = "; "
-		if rectification or status_id.status_is_notificable():
-			if status_id.student_id.tutor_id not in status_by_tutor:
-				status_by_tutor[status_id.student_id.tutor_id] = []
+		if rectification or attendance_session_line_id.status_is_notificable():
+			if attendance_session_line_id.student_id.tutor_id not in status_by_tutor:
+				status_by_tutor[attendance_session_line_id.student_id.tutor_id] = []
 			
 			send_to = []
-			if status_id.student_id.auth_share or not status_id.student_id.is_adult:
-				for contact in status_id.student_id.child_ids:				
+			if attendance_session_line_id.student_id.auth_share or not attendance_session_line_id.student_id.is_adult:
+				for contact in attendance_session_line_id.student_id.child_ids:				
 					send_to.append(contact.email)
 
 			# NOTE: The 'send_to' field will be empty if adult or family shared not authorized.
 			#		All entries must be notified to the tutor, always. This trick simplifies a bit the logic.
-			status_by_tutor[status_id.student_id.tutor_id].append({
-				'attendance_status_id': status_id.id,
-				'student_id': status_id.student_id.id,
+			status_by_tutor[attendance_session_line_id.student_id.tutor_id].append({
+				'attendance_session_line_id': attendance_session_line_id.id,
+				'student_id': attendance_session_line_id.student_id.id,
 				'send_to': separator.join(send_to)
 			})	
 	
@@ -394,10 +421,143 @@ class ems_attendance_session(models.Model):
 		issue_student = repo.search([('attendance_issue_tutor_id', '=', issue_tutor.id), ('student_id', '=', student_id)]) or False
 		return {"repo": repo, "values": issue_student}
 	
-	def get_issue_status(self, attendance_status_id):
-		# NOTE: On rectification, multiple issue_status can be attanched to the same attendance_status, but we always
+	def get_issue_status(self, attendance_session_line):
+		# NOTE: On rectification, multiple issue_status can be attanched to the same attendance_session_line, but we always
 		#		whant the most recent. 
 		repo = self.sudo().env['ems.attendance_issue_status']
-		issue_status = repo.search([('attendance_status_id', '=', attendance_status_id)], order='id desc', limit=1) or False
+		issue_status = repo.search([('attendance_session_line_id', '=', attendance_session_line)], order='id desc', limit=1) or False
 		return {"repo": repo, "values": issue_status}	
+
+# NOTE: moved here because the status is strongly related to the session, it has no own list or form (as happens with the
+#		attendance issues).
+class ems_attendance_session_line(models.Model):	
+	_name = "ems.attendance_session_line"
+	_description = "Attendance status line: information about a status per student within an attendance session."
+	
+	# TODO: should status be renamed to value? 
+	status = fields.Selection(string="Status", default="a_attended", required=True, selection=attendance_status_selection)
+	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
+	image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
+	attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session_header", ondelete="cascade")
+	attendance_justification_id = fields.Many2one(string="Justification", comodel_name="ems.attendance_justification")
+	attendance_prevision_id = fields.Many2one(string="Prevision", comodel_name="ems.attendance_justification")
+
+	# This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
+	inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 
+
+	# The teacher_id is used just for permission filtering pruposes.
+	template_teacher_id = fields.Many2one(string="Template's teacher", related="attendance_session_id.template_teacher_id", store=False)    
+	session_teacher_id = fields.Many2one(string="Session's teacher", related="attendance_session_id.session_teacher_id", store=False)    
+
+	# Used to know if the student can be chosen manually or not (should be disabled, otherwise a justified student can be swaped for another).
+	is_auto_generated = fields.Boolean(default=False)
+	notes = fields.Text("Notes")
+
+	def status_is_notificable(self):
+		# TODO: load from EMS settings.
+		# TODO: we want to notify also a justified miss? Maybe to prevent falsification (inform about a preveision? But if legit, will be also notified...)
+		return self.status in ['m_miss', 'a_issue']    
+	
+	@api.model_create_multi
+	def create(self, vals_list):
+		records = super().create(vals_list)		
+
+		for r in records:		
+			if r.attendance_prevision_id.id != False:
+				r.attendance_prevision_id.attendance_session_line_ids = [(4, r.id)]
+				# r.attendance_prevision_id.write({
+				# 	"attendance_session_line_ids" : [(4, r.id)],
+				# 	"session_teacher_ids" : [(4, r.attendance_session_id.session_teacher_id.id)]
+				# })
+			
+		return records
+
+	def write(self, vals):
+		super(ems_attendance_session_line, self).write(vals)
+		self._update_notification()   
+	
+	def report_eval(self, field):
+		# NOTE: this is used within the 'details_table' template in order to render custom fields.		
+		return eval(field)	
+	
+	# Allow justification (absence prevission) on manually added entries.
+	@api.onchange("student_id")
+	def _onchange_student_id(self):	
+		for rec in self:			
+			if not rec.is_auto_generated:
+				data = rec.attendance_session_id._setup_new_line_data(rec.student_id)
+				data["is_auto_generated"] = False
+				previssions = ems_attendance_justification.get_current_justifications(self)
+				for p in previssions:
+					if p.student_id == rec.student_id:
+						data = p.perform_justification(rec, True)
+				rec.write(data)						
+
+	def _update_notification(self):
+		session = self.attendance_session_id
+
+		# NOTE: Original data must be compared with the current one in order to update properly.            
+		previous_issue_status = False
+		issue_tutor = (session.get_issue_tutor(self.student_id.tutor_id))["values"]
+		if issue_tutor: 
+			issue_student = session.get_issue_student(issue_tutor, self.student_id.id)
+			if issue_student:
+				previous_issue_status = (session.get_issue_status(self.id))["values"]
+
+		# NOTE: Possible scenarios when updating an attendance status:
+				#       1. From issue to non-issue:
+				#           1.1. If not notified yet, just remove.
+				#           1.2. If notified, a rectification should be send to the family.
+				#       2. From issue to issue:
+				#           2.1. If not notified yet, update the notification data.
+				#           2.2. If notified, a rectification should be send to the family.
+				#       3. From non-issue to issue:
+				#           3.1. Add the notification with the regular timeout. 
+				#       4. From non-issue to non-issue:
+				#           4.1. Do nothing.
+		create = 0
+		if previous_issue_status:            
+			if not previous_issue_status.pending:
+				# 1.2 & 2.2. If notified, a rectification should be send to the family.                 
+				create = 1
+			else:
+				if not self.status_is_notificable():
+					# 1.1. If not notified yet, just remove.
+					# NOTE: also removes the notification.                    
+					issue_tutor = previous_issue_status.attendance_issue_student_id.attendance_issue_tutor_id
+					previous_issue_status.unlink()
+					issue_tutor.remove_if_empty()                  
+				else:
+					# 2.1. If not notified yet, update the notification data.
+					previous_issue_status.write({
+						"attendance_status": self.status,
+						"notes": self.notes
+					})
+		elif self.status_is_notificable():
+			# 3.1. Add the notification with the regular timeout. 
+			# TODO: do not notify to the families after certain timeout (eg: is from a few days ago).
+			create = 2
+		
+		if create != 0:
+			status_by_tutor = dict()
+			session.collect_issue_status_data(self, status_by_tutor, create == 1)
+			session.create_notification_entries(status_by_tutor, rectification=(create == 1))
+
+	@api.depends('attendance_session_id')
+	def _compute_attendance_session_display_name(self):
+		for rec in self:
+			rec.attendance_session_display_name = rec.attendance_session_id.display_name
+
+	@api.depends('attendance_session_id')
+	def _compute_inuse_student_ids(self):
+		for rec in self:
+			rec.inuse_student_ids = False
+			if rec.attendance_session_id:
+				rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_session_line_ids.student_id')   
+
+	@api.depends('attendance_session_id', 'student_id')
+	def _compute_display_name(self):              
+		for rec in self:
+			rec.display_name = "%s | %s" % (rec.attendance_session_id.display_name, rec.student_id.display_name)
+
 	

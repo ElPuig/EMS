@@ -19,7 +19,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-set="status" t-value="o.mapped('attendance_status_ids')"/>
+                                <t t-set="status" t-value="o.mapped('attendance_session_line_ids')"/>
                                 <tr t-foreach="status" t-as="entry">
                                     <td>
                                         <span t-field="entry.student_id"/>

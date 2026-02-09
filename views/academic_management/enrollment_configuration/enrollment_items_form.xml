@@ -27,43 +27,33 @@
 
                 <notebook position="replace">
                     <notebook>
-                        
                         <page string="General Information" name="general_info">
                             <group>
                                 <group string="Academic Data">
                                     <field name="ems_study_ids" widget="many2many_tags"/>
                                     <field name="type" readonly="1"/>
+                                    <field name="default_code" required="1"/>
                                 </group>
                                 <group string="Financial">
                                     <field name="list_price" string="Enrollment Fee"/>
                                     <field name="taxes_id" widget="many2many_tags"/>
+                                    <field name="categ_id" string="Category"/>
                                     <field name="uom_id" groups="uom.group_uom" invisible="1"/>
                                     <field name="uom_po_id" groups="uom.group_uom" invisible="1"/>
                                 </group>
                             </group>
-                        </page>
-
-                        <page string="Description &amp; Notes" name="descriptions">
                             <group>
-                                <field name="description" placeholder="Internal notes..."/>
-                                <field name="description_sale" placeholder="Text to appear on the enrollment receipt/invoice..."/>
-                            </group>
-                        </page>
-
-                        <page string="Settings" name="settings">
-                            <group>
-                                <group string="Accounting">
-                                    <field name="property_account_income_id"/>
-                                    <field name="property_account_expense_id"/>
+                                <group string="Description &amp; Notes">
+                                    <field name="description" placeholder="Internal notes..."/>
+                                    <field name="description_sale" placeholder="Text to appear on the enrollment receipt/invoice..."/>
                                 </group>
                                 <group string="System">
-                                    <field name="default_code"/>
+                                    <field name="default_code" required="1"/>
                                     <field name="barcode"/>
                                     <field name="active" widget="boolean_toggle"/>
                                 </group>
                             </group>
                         </page>
-
                     </notebook>
                 </notebook>
 

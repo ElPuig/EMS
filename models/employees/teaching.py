@@ -6,11 +6,12 @@ class ems_teaching(models.Model):
 	_name = "ems.teaching"
 	_description = "Teaching: ternary relation between teacher-group-subject."	
 	_inherit = ['ems.base']
-	_sql_constraints = [
-		('ems_teaching_unique', 
-		'unique(teacher_id, group_id, subject_id)',
-		'The ternary "teacher / group / subject" must be unique!')
-	]
+	# TODO: must be unique within the same course!
+	# _sql_constraints = [
+	# 	('ems_teaching_unique', 
+	# 	'unique(teacher_id, group_id, subject_id)',
+	# 	'The ternary "teacher / group / subject" must be unique!')
+	# ]
 
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", ondelete='cascade', required=True, domain="[('employee_type', '=', 'teacher')]")	
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", ondelete='cascade', required=True)	

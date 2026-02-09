@@ -87,9 +87,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					if not teacher.id: raise ValidationError("Teacher with email '%s' not found." % email)
 
 					entries = self._create_schedule(node, teacher, course_id)
-					# TODO: uncomment this once the items being archive instead of deleted on recreation.
 					self._create_teaching(entries, teacher, course_id)
-					#self._create_assitance_templates(entries, teacher, course_id)
+					self._create_assitance_templates(entries, teacher, course_id)
 
 		return super(models.Model, self).create(values)			
 
@@ -168,22 +167,33 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		return [x[2] for x in entries[1:]] #skipping the first (unlink all) and getting only entities.	
 
 	def _create_teaching(self, entries, teacher, course_id):
-		old_items = dict()
-		for t in teacher.teaching_ids:
-			old_items["%s.%s" % (t.subject_id.id, t.group_id.id)] = t
+		# TODO: 
+		# 	1. The course should be given (in order to setup the current or future ones).
+		#	2. Old entries should be archived, never removed. This protects trackability (maybe not needed for teaching, but needed for other like the attendance system, and I prefer to work always the same way.).
+		#	3. New entries:
+		#		3.1. If restoring (exists as archived) -> unarchive.
+		#		3.2. Else, create as new. 
 
+		old_items = dict()
+		for t in teacher.teaching_ids.filtered('active'):
+			old_items["%s.%s" % (t.subject_id.id, t.group_id.id)] = t
+		
+		teaching = []
 		new_items = dict()
 		for e in entries:
-			new_items["%s.%s" % (e["subject_id"], e["group_id"])] = {
+			key = "%s.%s" % (e["subject_id"], e["group_id"])
+			value = {
 				'group_id': e["group_id"],
 				'subject_id': e["subject_id"],
 				# TODO: add the course (the course should be able to be selected from the form, in order to prepare future courses)
 			}
 
-		teaching = []
-		for ne in new_items:
-			if ne not in old_items:
-				item = [0, 0, new_items[ne]]
+			if not key in new_items:
+				new_items[key] = value
+
+			if key not in old_items:
+				# Create only if new
+				item = [0, 0, new_items[key]]
 				if item not in teaching:
 					teaching.append(item)
 
@@ -191,7 +201,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			if old not in new_items:
 				# Should be archived
 				old_items[old].action_archive()
-				teaching.append([3, old_items[old].id])
+				# NOTE: do not remove link because tracking could be lost, just archive it!
+				#teaching.append([3, old_items[old].id])
 
 		teacher.write({
 			'teaching_ids': teaching
@@ -200,44 +211,75 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	def _create_assitance_templates(self, entries, teacher, course_id):
 		# TODO: It's necessary to know if a template has been created automatically or manually? 
 		# 		Should we keep the manually created? If so, additional checks are needed in order to create
-		#		the entries avoiding duped templates... 		
-		# TODO: archive old ones, create or update new ones. NEVER remove.
-		color = 1
-		templates = dict()
+		#		the entries avoiding duped templates... 	
+		# 	
+		# TODO: 
+		# 	1. The course should be given (in order to setup the current or future ones).
+		#	2. Old entries should be archived, never removed. This protects trackability (maybe not needed for teaching, but needed for other like the attendance system, and I prefer to work always the same way.).
+		#	3. New entries:
+		#		3.1. If restoring (exists as archived) -> unarchive.
+		#		3.2. Else, create as new. 
+		color = 1		
 		now = datetime.now()		
 
+		old_items = dict()
+		for t in teacher.attendance_template_ids.filtered('active'):
+			# TODO: what happens with the space, If two templates for the same subject and group exists but for diferent space?
+			old_items["%s.%s" % (t.subject_id.id, t.group_id.id)] = t
+
+		changes = []
+		templates = dict()
+		new_items = dict()
 		for e in entries:
 			key = "%s.%s" % (e["subject_id"], e["group_id"])
-			if key in templates:
-				t = templates[key]
-			else:
-				# TODO: define default start and end date for subjects within settings.			
-				#t = self.env['ems.attendance_template'].create({
-				group_id = self.env['ems.group'].search([('id', '=', e["group_id"])]) or False
-				t = {
-					'start_date': datetime(now.year, 9, 1),
-					'end_date': datetime(now.year+1, 7, 1),
-					'color': color,
-					'teacher_id': teacher.id,
-					'subject_id': e["subject_id"],
-					'group_id': e["group_id"],
-					'level_id': group_id.level_id.id,
-					'study_id': group_id.study_id.id,
-					'space_id': group_id.space_id.id,
-					'attendance_schedule_ids': []
-				}
-				color += 1
-				templates[key] = t
-			
-			t["attendance_schedule_ids"].append(
-				[0, 0, {
-					'start_time': e["hour_from"],
-					'end_time': e["hour_to"],
-					'weekday': e["dayofweek"],
-					'space_id': t["space_id"]
-				}]
-			)
+
+			if not key in new_items:
+				new_items[key] = e
+
+			if not key in old_items:
+				# Create only if new
+				if key in templates:
+					t = templates[key]
+				else:
+					# TODO: define default start and end date for subjects within settings.							
+					group_id = self.env['ems.group'].search([('id', '=', e["group_id"])]) or False
+					t = {
+						'start_date': datetime(now.year, 9, 1),
+						'end_date': datetime(now.year+1, 7, 1),
+						'color': color,
+						'teacher_id': teacher.id,
+						'subject_id': e["subject_id"],
+						'group_id': e["group_id"],
+						'level_id': group_id.level_id.id,
+						'study_id': group_id.study_id.id,
+						'space_id': group_id.space_id.id,
+						'attendance_schedule_ids': [],
+						# TODO: add also the current course
+					}
+					color += 1
+					templates[key] = t
+				
+				t["attendance_schedule_ids"].append(
+					[0, 0, {
+						'start_time': e["hour_from"],
+						'end_time': e["hour_to"],
+						'weekday': e["dayofweek"],
+						'space_id': t["space_id"]
+					}]
+				)
+				changes.append([0, 0, t])
+
+		for old in old_items:
+			if old not in new_items:
+				# Should be archived
+				old_items[old].action_archive()
+				# NOTE: do not remove link because tracking could be lost, just archive it!
+				#templates.append([3, old_items[old].id])		
 		
-		self.env['ems.attendance_template'].search([('teacher_id', '=', teacher.id)]).unlink()
-		for t in templates:
-			self.env['ems.attendance_template'].create(templates[t])		
+		teacher.write({
+			'attendance_template_ids': changes
+		})
+
+		#self.env['ems.attendance_template'].search([('teacher_id', '=', teacher.id)]).unlink()
+		# for t in templates:
+		# 	self.env['ems.attendance_template'].create(templates[t])		

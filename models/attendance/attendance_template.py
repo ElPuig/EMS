@@ -16,7 +16,7 @@ class ems_attendance_template(models.Model):
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", domain="[('level_id', '=', level_id)]", required=True)
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", domain="[('study_id', '=', study_id)]", required=True)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", domain="[('study_ids', 'in', study_id)]", required=True)
-	space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
+	space_id = fields.Many2one(string="Space", comodel_name="ems.space", default="group_id.space_id", required=True)
 	
 	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_schedule", inverse_name="attendance_template_id")			
 	student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")	
@@ -48,3 +48,8 @@ class ems_attendance_template(models.Model):
 				students.append(student.id)
 
 			rec.student_ids = [(6, 0, students)]
+
+	def action_archive(self):
+		super().action_archive()
+		for sch in self.attendance_schedule_ids:
+			sch.action_archive()

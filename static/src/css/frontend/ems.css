@@ -1,3 +1,59 @@
-.o_hr_attendance_install_btn{
+.o_hr_attendance_install_btn {
     display: none !important;
+}
+
+.att-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #aaa;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    margin: 0 4px;
+    background: white;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.att-btn:hover {
+    background: #f8f9fa;
+    transform: scale(1.1);
+}
+
+.att-btn.active.btn-present {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.att-btn.active.btn-late {
+    background-color: #17a2b8;
+    color: white;
+    border-color: #17a2b8;
+}
+
+.att-btn.active.btn-absent {
+    background-color: #dc3545;
+    color: white;
+    border-color :#dc3545;
+}
+
+.att-btn.active.btn-justified {
+    background-color: #ffac00;
+    color: white;
+    border-color :#ffac00;
+}
+
+.att-btn.active.btn-issue {
+    background-color: #495057;
+    color: white;
+    border-color :#495057;
+}
+
+.table-vcenter td {
+    vertical-align: middle;
 }

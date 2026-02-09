@@ -1,0 +1,135 @@
+<templates xml:space="preserve">
+    <t t-name="ems.AttendanceKiosk">
+
+        <div t-if="state.view === 'list'">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                <h3 class="text-primary m-0">
+                    <t t-if="!state.showPast">Mis Clases de Hoy</t>
+                    <t t-else="">Historial de Clases</t>
+                </h3>
+
+                <button class="btn btn-outline-secondary btn-sm" t-on-click="toggleHistory">
+                    <t t-if="!state.showPast">
+                        <i class="fa fa-history me-1"></i> Ver Anteriores
+                    </t>
+                    <t t-else="">
+                        <i class="fa fa-calendar me-1"></i> Ver Hoy
+                    </t>
+                </button>
+            </div>
+
+            <div t-if="(state.showPast ? state.pastSessions : state.sessions).length === 0" class="alert alert-info">
+                <span t-if="!state.showPast">No tienes clases programadas para hoy.</span>
+                <span t-else="">No se encontraron sesiones anteriores.</span>
+            </div>
+
+            <div class="row">
+                <t t-foreach="state.showPast ? state.pastSessions : state.sessions" t-as="session" t-key="session.id">
+                    <div class="col-md-6 mb-3">
+                        <div class="card shadow-sm h-100" style="cursor: pointer;" t-on-click="() => this.openSession(session.id)">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1 text-primary"><t t-esc="session.subject"/></h5>
+                                    <small class="text-muted"><t t-esc="session.group"/></small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-light text-dark border"><i class="fa fa-clock-o"></i> <t t-esc="session.start_time"/></span>
+                                    <div t-if="state.showPast" class="small text-muted mt-1">
+                                        <i class="fa fa-calendar-o"></i> <t t-esc="session.date"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+
+        <div t-if="state.view === 'kiosk'">
+            
+            <div class="d-flex justify-content-between align-items-center mb-3 bg-white py-3 border-bottom sticky-top" style="z-index: 1020;">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-secondary btn-sm" t-on-click="goBack">
+                        <i class="fa fa-arrow-left"></i>
+                    </button>
+                    
+                    <div>
+                        <h4 class="m-0"><t t-esc="state.currentSessionName"/></h4>
+                        <div class="text-muted small mt-1">
+                            <i class="fa fa-calendar-o me-1"></i>
+                            <t t-esc="state.date"/> - <t t-esc="state.startTime"/>
+                        </div>
+                    </div>
+                </div>
+            
+                <div>
+                    <span class="badge bg-secondary me-2"><t t-esc="state.students.length"/> Alumnos</span>
+                    
+                    <button class="btn btn-warning btn-sm fw-bold" 
+                            t-on-click="signAttendance">
+                        <i class="fa fa-pencil-square-o me-1"></i> Firmar asistencia
+                    </button>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover table-vcenter mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th style="width: 50px;"></th>
+                                <th>Alumno</th>
+                                <th class="text-center">Asistencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="state.students" t-as="student" t-key="student.line_id">
+                                <td>
+                                    <img t-attf-src="/web/image?model=res.partner&amp;id={{student.student_id}}&amp;field=avatar_128" 
+                                         class="rounded-circle" 
+                                         style="width: 80px; height: 80px; object-fit: cover;"/>
+                                </td>
+                                
+                                <td>
+                                    <span class="fw-bold text-dark"><t t-esc="student.name"/></span>
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center">
+                                        <div t-att-class="'att-btn btn-present ' + (student.status === 'a_attended' ? 'active' : '')"
+                                             t-on-click="() => this.setStatus(student, 'a_attended')"
+                                             title="Attended">
+                                            A
+                                        </div>
+                                        <div t-att-class="'att-btn btn-late ' + (student.status === 'a_delayed' ? 'active' : '')"
+                                             t-on-click="() => this.setStatus(student, 'a_delayed')"
+                                             title="Delayed">
+                                            R
+                                        </div>
+                                        <div t-att-class="'att-btn btn-absent ' + (student.status === 'm_miss' ? 'active' : '')"
+                                             t-on-click="() => this.setStatus(student, 'm_miss')"
+                                             title="Miss">
+                                            F
+                                        </div>
+                                        <div t-att-class="'att-btn btn-justified ' + (student.status === 'm_justified' ? 'active' : '')"
+                                             t-on-click="() => this.setStatus(student, 'm_justified')"
+                                             title="Justified Miss">
+                                            J
+                                        </div>
+                                        <div t-att-class="'att-btn btn-issue ' + (student.status === 'a_issue' ? 'active' : '')"
+                                             t-on-click="() => this.setStatus(student, 'a_issue')"
+                                             title="Issue">
+                                            I
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </t>
+</templates>

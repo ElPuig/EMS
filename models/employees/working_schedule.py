@@ -17,6 +17,20 @@ class ems_working_schedule_assignation(models.Model):
 	_inherit = 'resource.calendar.attendance'
 	# NOTE: no need to constraint, the main model avoids overlapping. 
 
+	non_teaching_selection=[
+		("AC", "Another Coordinations"),
+		("CM", "Coordination Meeting"),
+		("CT", "Coordination Time"),
+        ("G", "Guard"),
+        ("MT", "Management Time"),
+        ("R", "Reduction"),
+		("S", "Staying at the center"),
+		("SC", "School Council"),
+        ("TT", "Tutorship Time"),
+		("WIC", "Workplace Intership Coordination"),
+    ]
+
+	non_teaching = fields.Selection(string="Non-teaching", selection=non_teaching_selection)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
 
@@ -72,14 +86,16 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					if not teacher.id: raise ValidationError("Teacher with email '%s' not found." % email)
 
 					entries = self._create_schedule(node, teacher, course_id)
-					self._create_teaching(entries, teacher, course_id)
-					self._create_assitance_templates(entries, teacher, course_id)
+					# TODO: uncomment this once the items being archive instead of deleted on recreation.
+					#self._create_teaching(entries, teacher, course_id)
+					#self._create_assitance_templates(entries, teacher, course_id)
 
 		return super(models.Model, self).create(values)			
 
 	def _create_schedule(self, xml_node, teacher, course_id):									
 		name = "%s (%s)" % (teacher.name, course_id.name)
 		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
+		non_teaching_items = dict(ems_working_schedule_assignation.non_teaching_selection)
 
 		if not schedule:
 			# TODO: add a relation to current_course
@@ -97,35 +113,55 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			for hourNode in dayNode:
 				if start is not None:
 					close = hourNode.attrib['name'].split(' ')[1]
-					entries.append([0, 0, {
-						"name": "%s: %s (%s)" % (subject.acronym, subject.name, group.name),
+					new_entry = {						
 						"dayofweek": str(dayofweek),
 						"day_period": 'morning' if int(start[:2]) < 15 else 'afternoon',
 						"hour_from": self._conv_time_float(start),
-						"hour_to": self._conv_time_float(close),
-						"subject_id": subject.id,
-						"group_id": group.id
-					}])
+						"hour_to": self._conv_time_float(close),						
+					}
+
+					if not non_teaching_id:
+						new_entry["name"] = "%s: %s (%s)" % (subject.acronym, subject.name, group.name)
+						new_entry["subject_id"] = subject.id
+						new_entry["group_id"] = group.id
+						new_entry["non_teaching"] = False				
+					else:
+						new_entry["name"] = "%s: %s" % (non_teaching_id, non_teaching_items[non_teaching_id])
+						new_entry["subject_id"] = False
+						new_entry["group_id"] = False
+						new_entry["non_teaching"] = non_teaching_id
+
+					entries.append([0, 0, new_entry])
 					start = None
 
 				# NOTE: Ignore empty hours (lack of activities)
 				id = None
+				non_teaching = False
 				for content in hourNode:
 					if content.tag == 'Activity':
 						id = content.attrib['id'].split(' ')[0]
+					elif content.tag == 'NonTeaching':
+						non_teaching = True
+						id = content.attrib['name'].split(' ')[0]
 					elif content.tag == 'Subject':
 						subjectCode = content.attrib['name'].split(' ')[0]
 					elif content.tag == 'Students':
 						groupAcro = content.attrib['name'].split(' ')[0]														
 				
 				if id is not None:
-					subject = self.env["ems.subject"].search([("code", "=", subjectCode[2:])])
-					group = self.env["ems.group"].search([("name", "=", groupAcro)])
 					start = hourNode.attrib['name'].split(' ')[1]
-
-					if not subject.id: raise ValidationError("Subject with code '%s' not found." % subjectCode[2:])
-					if not group.id: raise ValidationError("Group with acronym '%s' not found." % groupAcro[2:])
-							
+					if non_teaching:
+						if not id in non_teaching_items: raise ValidationError("Non-Teaching with code '%s' not found." % id)
+						non_teaching_id = id
+						subject = False
+						group = False
+					else:
+						subject = self.env["ems.subject"].search([("code", "=", subjectCode[2:])])
+						group = self.env["ems.group"].search([("name", "=", groupAcro)])	
+						non_teaching_id = False					
+						if not subject.id: raise ValidationError("Subject with code '%s' not found." % subjectCode[2:])
+						if not group.id: raise ValidationError("Group with acronym '%s' not found." % groupAcro[2:])
+												
 		schedule.write({ 'attendance_ids': entries })  		
 		teacher.write({ "resource_calendar_id": schedule })
 		return [x[2] for x in entries[1:]] #skipping the first (unlink all) and getting only entities.	

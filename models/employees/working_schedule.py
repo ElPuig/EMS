@@ -37,6 +37,7 @@ class ems_working_schedule_assignation(models.Model):
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
 	_description = "Working schedules: import wizard."
+	_inherit = ['ems.datetime_utils']
 
 	attachment_id = fields.Many2one(string="Attachment", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.working_schedules_import_wizard')]")
 	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")	
@@ -87,7 +88,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 					entries = self._create_schedule(node, teacher, course_id)
 					# TODO: uncomment this once the items being archive instead of deleted on recreation.
-					#self._create_teaching(entries, teacher, course_id)
+					self._create_teaching(entries, teacher, course_id)
 					#self._create_assitance_templates(entries, teacher, course_id)
 
 		return super(models.Model, self).create(values)			
@@ -116,8 +117,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					new_entry = {						
 						"dayofweek": str(dayofweek),
 						"day_period": 'morning' if int(start[:2]) < 15 else 'afternoon',
-						"hour_from": self._conv_time_float(start),
-						"hour_to": self._conv_time_float(close),						
+						"hour_from": self.time_string_to_float(start),
+						"hour_to": self.time_string_to_float(close),						
 					}
 
 					if not non_teaching_id:
@@ -125,13 +126,13 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						new_entry["subject_id"] = subject.id
 						new_entry["group_id"] = group.id
 						new_entry["non_teaching"] = False				
+						entries.append([0, 0, new_entry])
 					else:
 						new_entry["name"] = "%s: %s" % (non_teaching_id, non_teaching_items[non_teaching_id])
 						new_entry["subject_id"] = False
 						new_entry["group_id"] = False
 						new_entry["non_teaching"] = non_teaching_id
-
-					entries.append([0, 0, new_entry])
+					
 					start = None
 
 				# NOTE: Ignore empty hours (lack of activities)
@@ -167,26 +168,40 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		return [x[2] for x in entries[1:]] #skipping the first (unlink all) and getting only entities.	
 
 	def _create_teaching(self, entries, teacher, course_id):
-		teaching = [[5]] #5 means unlink all previus, because the created schedule has default entries attached.	Items will be removed if became orphan.		
-		
-		for e in entries: #skipping the first (unlink all)
-			# TODO: asign also the current_course
-			item = [0, 0, {
-				'group_id': e["group_id"],
-				'subject_id': e["subject_id"]
-			}]
+		old_items = dict()
+		for t in teacher.teaching_ids:
+			old_items["%s.%s" % (t.subject_id.id, t.group_id.id)] = t
 
-			if item not in teaching:
-				teaching.append(item)
-				
+		new_items = dict()
+		for e in entries:
+			new_items["%s.%s" % (e["subject_id"], e["group_id"])] = {
+				'group_id': e["group_id"],
+				'subject_id': e["subject_id"],
+				# TODO: add the course (the course should be able to be selected from the form, in order to prepare future courses)
+			}
+
+		teaching = []
+		for ne in new_items:
+			if ne not in old_items:
+				item = [0, 0, new_items[ne]]
+				if item not in teaching:
+					teaching.append(item)
+
+		for old in old_items:
+			if old not in new_items:
+				# Should be archived
+				old_items[old].action_archive()
+				teaching.append([3, old_items[old].id])
+
 		teacher.write({
 			'teaching_ids': teaching
 		})	
-	
+
 	def _create_assitance_templates(self, entries, teacher, course_id):
 		# TODO: It's necessary to know if a template has been created automatically or manually? 
 		# 		Should we keep the manually created? If so, additional checks are needed in order to create
 		#		the entries avoiding duped templates... 		
+		# TODO: archive old ones, create or update new ones. NEVER remove.
 		color = 1
 		templates = dict()
 		now = datetime.now()		
@@ -226,11 +241,3 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		self.env['ems.attendance_template'].search([('teacher_id', '=', teacher.id)]).unlink()
 		for t in templates:
 			self.env['ems.attendance_template'].create(templates[t])		
-
-	def _conv_time_float(self, value):
-		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236
-		vals = value.split(':')
-		t, hours = divmod(float(vals[0]), 24)
-		t, minutes = divmod(float(vals[1]), 60)				
-		minutes = (minutes) / 60.0
-		return hours + minutes

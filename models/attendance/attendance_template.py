@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 class ems_attendance_template(models.Model):
 	_name = "ems.attendance_template"
@@ -59,3 +60,9 @@ class ems_attendance_template(models.Model):
 		super().action_archive()
 		for sch in self.attendance_schedule_ids:
 			sch.action_archive()
+
+	def unlink(self):
+		for sch in self.attendance_schedule_ids:			
+			if len(sch.attendance_session_ids) > 0:
+				raise ValidationError(_("This template have been already used to check the student's attendances and cannot be deleted. Please, archive it instead."))
+		return super().unlink()

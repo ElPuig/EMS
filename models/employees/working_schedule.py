@@ -191,8 +191,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 		for old in old_items:
 			if old not in new_items:
-				# NOTE: do not remove link because tracking could be lost, just archive it!
-				old_items[old].action_archive()				
+				# NOTE: Using the teacher's form, entries are removed, so the same is performed from here.
+				#		If tracking needed, archive from both sides, the model code is ready to do so. 
+				old_items[old].unlink()
+				#old_items[old].action_archive()				
 
 		teacher.write({
 			'teaching_ids': teaching

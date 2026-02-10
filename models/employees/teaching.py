@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 class ems_teaching(models.Model):
 	_name = "ems.teaching"
 	_description = "Teaching: ternary relation between teacher-group-subject."	
 	_inherit = ['ems.base']
-	# TODO: must be unique within the same course!
-	# _sql_constraints = [
-	# 	('ems_teaching_unique', 
-	# 	'unique(teacher_id, group_id, subject_id)',
-	# 	'The ternary "teacher / group / subject" must be unique!')
-	# ]
 
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", ondelete='cascade', required=True, domain="[('employee_type', '=', 'teacher')]")	
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", ondelete='cascade', required=True)	
@@ -35,3 +30,18 @@ class ems_teaching(models.Model):
 	def _compute_display_name(self):              
 		for rec in self:
 			rec.display_name = "%s" % rec.subject_id.display_name
+
+	@api.constrains('teacher_id', 'group_id', 'subject_id')
+	def _check_unique_active(self):
+		for record in self:			
+			domain = [
+				('id', '!=', record.id),
+				('teacher_id', '=', record.teacher_id.id),				                  
+				('group_id', '=', record.group_id.id),
+				('subject_id', '=', record.subject_id.id),
+				('active', '=', True),
+			]
+			
+			# TODO: add the current course!
+			if self.search_count(domain) > 0:
+				raise ValidationError(_("There's another active entry for the same 'teacher / group / subject' ternary. Archive it first."))

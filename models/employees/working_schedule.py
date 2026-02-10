@@ -6,7 +6,6 @@ from datetime import datetime
 import xml.etree.ElementTree as ET
 import base64
 
-
 class ems_working_schedule(models.Model):
 	_inherit = 'resource.calendar'
 	_sql_constraints = [
@@ -167,13 +166,6 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		return [x[2] for x in entries[1:]] #skipping the first (unlink all) and getting only entities.	
 
 	def _create_teaching(self, entries, teacher, course_id):
-		# TODO: 
-		# 	1. The course should be given (in order to setup the current or future ones).
-		#	2. Old entries should be archived, never removed. This protects trackability (maybe not needed for teaching, but needed for other like the attendance system, and I prefer to work always the same way.).
-		#	3. New entries:
-		#		3.1. If restoring (exists as archived) -> unarchive.
-		#		3.2. Else, create as new. 
-
 		old_items = dict()
 		for t in teacher.teaching_ids.filtered('active'):
 			old_items["%s.%s" % (t.subject_id.id, t.group_id.id)] = t
@@ -199,10 +191,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 		for old in old_items:
 			if old not in new_items:
-				# Should be archived
-				old_items[old].action_archive()
 				# NOTE: do not remove link because tracking could be lost, just archive it!
-				#teaching.append([3, old_items[old].id])
+				old_items[old].action_archive()				
 
 		teacher.write({
 			'teaching_ids': teaching
@@ -211,23 +201,16 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	def _create_assitance_templates(self, entries, teacher, course_id):
 		# TODO: It's necessary to know if a template has been created automatically or manually? 
 		# 		Should we keep the manually created? If so, additional checks are needed in order to create
-		#		the entries avoiding duped templates... 	
-		# 	
-		# TODO: 
-		# 	1. The course should be given (in order to setup the current or future ones).
-		#	2. Old entries should be archived, never removed. This protects trackability (maybe not needed for teaching, but needed for other like the attendance system, and I prefer to work always the same way.).
-		#	3. New entries:
-		#		3.1. If restoring (exists as archived) -> unarchive.
-		#		3.2. Else, create as new. 
+		#		the entries avoiding duped templates... 
 		color = 1		
 		now = datetime.now()		
 
 		old_items = dict()
 		for t in teacher.attendance_template_ids.filtered('active'):
-			# TODO: what happens with the space, If two templates for the same subject and group exists but for diferent space?
+			# TODO: what happens with the space, if two templates for the same subject and group exists but for diferent space?
 			old_items["%s.%s" % (t.subject_id.id, t.group_id.id)] = t
 
-		changes = []
+		create = []
 		templates = dict()
 		new_items = dict()
 		for e in entries:
@@ -267,19 +250,17 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						'space_id': t["space_id"]
 					}]
 				)
-				changes.append([0, 0, t])
+				create.append(t)
 
 		for old in old_items:
 			if old not in new_items:
-				# Should be archived
-				old_items[old].action_archive()
 				# NOTE: do not remove link because tracking could be lost, just archive it!
-				#templates.append([3, old_items[old].id])		
+				old_items[old].action_archive()				
 		
-		teacher.write({
-			'attendance_template_ids': changes
-		})
+		# NOTE: Templates must be created directly into its table, in order to be able to run its 'fill_students' method.
+		new_templates = self.env['ems.attendance_template'].create(create)
+		for t in new_templates:
+			t.fill_students()		
 
-		#self.env['ems.attendance_template'].search([('teacher_id', '=', teacher.id)]).unlink()
-		# for t in templates:
-		# 	self.env['ems.attendance_template'].create(templates[t])		
+		# TODO: should existing ones reload its students? All of them or only automatically added? Keep manually modified untouched?
+	

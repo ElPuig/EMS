@@ -42,12 +42,18 @@ class ems_attendance_template(models.Model):
 
 	@api.onchange("subject_id", "group_id")	
 	def _fill_students(self):		
-		for rec in self:						
-			students = []
-			for student in self.env['ems.enrollment'].search([('group_id', '=', rec.group_id.id), ('subject_id', '=', rec.subject_id.id)]).mapped('student_id'):
-				students.append(student.id)
+		for rec in self:
+			rec.fill_students()									
 
-			rec.student_ids = [(6, 0, students)]
+	def fill_students(self):				
+		students = []
+		for student in self.env['ems.enrollment'].search([('group_id', '=', self.group_id.id), ('subject_id', '=', self.subject_id.id)]).mapped('student_id'):
+			students.append(student.id)
+		self.student_ids = [(6, 0, students)]
+
+	def reload_students(self):
+		self.student_ids = [(5)]
+		self.fill_students()
 
 	def action_archive(self):
 		super().action_archive()

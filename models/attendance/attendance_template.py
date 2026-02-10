@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 class ems_attendance_template(models.Model):
 	_name = "ems.attendance_template"
@@ -16,7 +17,7 @@ class ems_attendance_template(models.Model):
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", domain="[('level_id', '=', level_id)]", required=True)
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", domain="[('study_id', '=', study_id)]", required=True)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", domain="[('study_ids', 'in', study_id)]", required=True)
-	space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
+	space_id = fields.Many2one(string="Space", comodel_name="ems.space", default="group_id.space_id", required=True)
 	
 	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_schedule", inverse_name="attendance_template_id")			
 	student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")	
@@ -42,9 +43,26 @@ class ems_attendance_template(models.Model):
 
 	@api.onchange("subject_id", "group_id")	
 	def _fill_students(self):		
-		for rec in self:						
-			students = []
-			for student in self.env['ems.enrollment'].search([('group_id', '=', rec.group_id.id), ('subject_id', '=', rec.subject_id.id)]).mapped('student_id'):
-				students.append(student.id)
+		for rec in self:
+			rec.fill_students()									
 
-			rec.student_ids = [(6, 0, students)]
+	def fill_students(self):				
+		students = []
+		for student in self.env['ems.enrollment'].search([('group_id', '=', self.group_id.id), ('subject_id', '=', self.subject_id.id)]).mapped('student_id'):
+			students.append(student.id)
+		self.student_ids = [(6, 0, students)]
+
+	def reload_students(self):
+		self.student_ids = [(5)]
+		self.fill_students()
+
+	def action_archive(self):
+		super().action_archive()
+		for sch in self.attendance_schedule_ids:
+			sch.action_archive()
+
+	def unlink(self):
+		for sch in self.attendance_schedule_ids:			
+			if len(sch.attendance_session_ids) > 0:
+				raise ValidationError(_("This template have been already used to check the student's attendances and cannot be deleted. Please, archive it instead."))
+		return super().unlink()

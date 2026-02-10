@@ -40,3 +40,12 @@ class ems_datetime_utils(models.AbstractModel):
 
     def time_to_float(self, time):
         return time.hour + time.minute / 60.0
+    
+    def time_string_to_float(self, value):
+        # To convert from string like "17:45" to float like 17.75
+		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236
+        vals = value.split(':')
+        t, hours = divmod(float(vals[0]), 24)
+        t, minutes = divmod(float(vals[1]), 60)				
+        minutes = (minutes) / 60.0
+        return hours + minutes

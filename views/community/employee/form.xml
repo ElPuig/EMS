@@ -75,6 +75,10 @@
                     <attribute name="string">Attendance</attribute>
                 </xpath>   
 
+                <xpath expr="//div[hasclass('oe_title')]/h2" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+                
                 <xpath expr="//notebook" position="inside">
                     <page string="Teaching" invisible="employee_type == 'asp'">
                         <group string="Tutorships">

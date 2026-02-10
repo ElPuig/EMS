@@ -155,11 +155,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						subject = False
 						group = False
 					else:
-						subject = self.env["ems.subject"].search([("code", "=", subjectCode[2:])])
+						subject = self.env["ems.subject"].search([("code", "=", subjectCode)])
 						group = self.env["ems.group"].search([("name", "=", groupAcro)])	
 						non_teaching_id = False					
-						if not subject.id: raise ValidationError("Subject with code '%s' not found." % subjectCode[2:])
-						if not group.id: raise ValidationError("Group with acronym '%s' not found." % groupAcro[2:])
+						if not subject.id: raise ValidationError("Subject with code '%s' not found." % subjectCode)
+						if not group.id: raise ValidationError("Group with acronym '%s' not found." % groupAcro)
 												
 		schedule.write({ 'attendance_ids': entries })  		
 		teacher.write({ "resource_calendar_id": schedule })
@@ -212,7 +212,6 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			# TODO: what happens with the space, if two templates for the same subject and group exists but for diferent space?
 			old_items["%s.%s" % (t.subject_id.id, t.group_id.id)] = t
 
-		create = []
 		templates = dict()
 		new_items = dict()
 		for e in entries:
@@ -251,8 +250,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						'weekday': e["dayofweek"],
 						'space_id': t["space_id"]
 					}]
-				)
-				create.append(t)
+				)				
 
 		for old in old_items:
 			if old not in new_items:
@@ -260,7 +258,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				old_items[old].action_archive()				
 		
 		# NOTE: Templates must be created directly into its table, in order to be able to run its 'fill_students' method.
-		new_templates = self.env['ems.attendance_template'].create(create)
+		new_templates = self.env['ems.attendance_template'].create(list(templates.values()))
 		for t in new_templates:
 			t.fill_students()		
 

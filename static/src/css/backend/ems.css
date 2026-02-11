@@ -35,3 +35,16 @@ th[data-name="deprecated"]{
     text-decoration: line-through !important;
     opacity: 0.75;
 }
+
+
+th[data-name="status"],
+td[data-name="status"] {
+    width: 350px;
+}
+
+@media (max-width: 768px) {
+    th[data-name="status"],
+    td[data-name="status"] {
+        width: 160px !important;
+    }
+}

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_order_form_inherit_ems_enrollment" model="ir.ui.view">
+        <field name="name">sale.order.form.ems.enrollment</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/field[@name='state']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>        
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="string">Student</attribute>
+                <attribute name="context">{'res_partner_search_mode': 'customer'}</attribute>
+                <attribute name="options">{'always_reload': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='validity_date']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='sale_order_template_id']" position="before">
+                 <field name="ems_study_id" required="1" options="{'no_create': True}"/>
+            </xpath>
+            <xpath expr="//field[@name='sale_order_template_id']" position="attributes">
+                <attribute name="string">Enrollment Template</attribute>
+            </xpath>            
+            <xpath expr="(//label[@for='date_order'])[1]" position="attributes">
+                <attribute name="string">Pre-Enrollment Date</attribute>
+            </xpath>
+            <xpath expr="(//label[@for='date_order'])[2]" position="attributes">
+                <attribute name="string">Enrollment Date</attribute>
+            </xpath>
+            <xpath expr="//group[@name='order_details']" position="inside">
+                <field name="ems_course_id" options="{'no_create': True, 'no_open': True}"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']//field[@name='product_template_id']" position="attributes">
+                <attribute name="domain">['|', ('ems_study_ids', '=', parent.ems_study_id), ('is_generic', '=', True)]</attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
+                <attribute name="string">Enrollment Item</attribute>
+                <attribute name="help">Select the subject or fee. Only items allowed for the selected Academic Study or generic fees will be displayed.</attribute>
+                <attribute name="column_invisible">0</attribute>
+                <attribute name="optional"></attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_id']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_qty']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_total']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='tax_id']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='customer_lead']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='qty_delivered']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='qty_invoiced']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='order_lines']" position="attributes">
+                <attribute name="string">Enrollment Items</attribute>
+            </xpath>            
+            <xpath expr="//page[@name='optional_products']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='customer_signature']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='other_information']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>            
+        </field>
+    </record>
+
+    <record id="sale_order_template_view_form_inherit_ems" model="ir.ui.view">
+        <field name="name">sale.order.template.form.ems</field>
+        <field name="model">sale.order.template</field>
+        <field name="inherit_id" ref="sale_management.sale_order_template_view_form"/>
+        <field name="arch" type="xml">
+            
+            <field name="name" position="after">
+                <field name="ems_study_id" required="1" options="{'no_create': True}"/>
+                <field name="ems_level_id" readonly="1" force_save="1"/>
+            </field>
+
+        </field>
+    </record>
+
+</odoo>

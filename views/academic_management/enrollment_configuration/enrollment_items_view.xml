@@ -1,89 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data>
 
-        <record id="view_ems_enrollment_items_tree" model="ir.ui.view">
-            <field name="name">product.template.list.ems.items</field>
-            <field name="model">product.template</field>
-            <field name="priority">20</field> <field name="arch" type="xml">
-                <list string="Enrollment Items"
-                        default_order="is_generic desc, name" 
-                        decoration-warning="is_generic" 
-                        decoration-bf="is_generic"
-                        decoration-muted="active == False"
-                        multi_edit="1">
-                    <field name="sequence" widget="handle"/>
-                    <field name="name"/>
-                    <field name="default_code" optional="show"/>
-                    
-                    <field name="ems_study_ids" widget="many2many_tags" string="Linked Studies"/>
-                    <field name="is_generic" widget="boolean_toggle" readonly="1"/>
-                    
-                    <field name="list_price" string="Price" optional="hide"/>
-                    <field name="categ_id" optional="hide"/>
-                    
-                    <field name="active" invisible="1"/>
-                </list>
-            </field>
-        </record>
+    <record id="view_ems_enrollment_items_tree" model="ir.ui.view">
+        <field name="name">product.template.list.ems.items</field>
+        <field name="model">product.template</field>
+        <field name="priority">20</field> <field name="arch" type="xml">
+            <list string="Enrollment Items"
+                    default_order="is_generic desc, name" 
+                    decoration-warning="is_generic" 
+                    decoration-bf="is_generic"
+                    decoration-muted="active == False"
+                    multi_edit="1">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="default_code" optional="show"/>
+                
+                <field name="ems_study_ids" widget="many2many_tags" string="Linked Studies"/>
+                <field name="is_generic" widget="boolean_toggle" readonly="1"/>
+                
+                <field name="list_price" string="Price" optional="hide"/>
+                <field name="categ_id" optional="hide"/>
+                
+                <field name="active" invisible="1"/>
+            </list>
+        </field>
+    </record>
 
-        <record id="view_ems_enrollment_items_search" model="ir.ui.view">
-            <field name="name">product.template.search.ems.items</field>
-            <field name="model">product.template</field>
-            <field name="arch" type="xml">
-                <search string="Enrollment Items Search">
-                    <field name="name" string="Item"/>
-                    <field name="ems_study_ids" string="Linked Study" 
-                        filter_domain="['|', ('ems_study_ids.name', 'ilike', self), ('ems_study_ids.acronym', 'ilike', self)]"/>
-                    
-                    <filter string="Generic Items" name="filter_generic" domain="[('is_generic', '=', True)]"/>
-                    <filter string="Subjects (Linked)" name="filter_subjects" domain="[('is_generic', '=', False)]"/>
-                    
-                    <separator/>
-                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+    <record id="view_ems_enrollment_items_search" model="ir.ui.view">
+        <field name="name">product.template.search.ems.items</field>
+        <field name="model">product.template</field>
+        <field name="arch" type="xml">
+            <search string="Enrollment Items Search">
+                <field name="name" string="Item"/>
+                <field name="ems_study_ids" string="Linked Study" 
+                    filter_domain="['|', ('ems_study_ids.name', 'ilike', self), ('ems_study_ids.acronym', 'ilike', self)]"/>
+                
+                <filter string="Generic Items" name="filter_generic" domain="[('is_generic', '=', True)]"/>
+                <filter string="Subjects (Linked)" name="filter_subjects" domain="[('is_generic', '=', False)]"/>
+                
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
 
-                    <group expand="1" string="Group By">
-                        <filter string="Study" name="group_by_study" context="{'group_by': 'ems_study_ids'}"/>
-                        <filter string="Is Generic" name="group_by_generic" context="{'group_by': 'is_generic'}"/>
-                    </group>
-                </search>
-            </field>
-        </record>
+                <group expand="1" string="Group By">
+                    <filter string="Study" name="group_by_study" context="{'group_by': 'ems_study_ids'}"/>
+                    <filter string="Is Generic" name="group_by_generic" context="{'group_by': 'is_generic'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
 
-        <record id="action_ems_enrollment_items" model="ir.actions.act_window">
-            <field name="name">Enrollment Item</field> <field name="res_model">product.template</field>
-            <field name="view_mode">list,form,kanban</field>
-            <field name="search_view_id" ref="view_ems_enrollment_items_search"/>
-            <field name="domain">[('sale_ok', '=', True), ('type', '=', 'service')]</field>
-            <field name="context">{
-                'default_sale_ok': True, 
-                'default_purchase_ok': False, 
-                'default_type': 'service',
-                'default_is_generic': True
-            }</field>
-            <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
-                    Create a new Enrollment Item
-                </p>
-                <p>
-                    Define subjects, fees, insurance, or materials available for enrollment.
-                </p>
-            </field>
-        </record>
+    <record id="action_ems_enrollment_items" model="ir.actions.act_window">
+        <field name="name">Enrollment Item</field> <field name="res_model">product.template</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="search_view_id" ref="view_ems_enrollment_items_search"/>
+        <field name="domain">[('sale_ok', '=', True), ('type', '=', 'service')]</field>
+        <field name="context">{
+            'default_sale_ok': True, 
+            'default_purchase_ok': False, 
+            'default_type': 'service',
+            'default_is_generic': True
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Enrollment Item
+            </p>
+            <p>
+                Define subjects, fees, insurance, or materials available for enrollment.
+            </p>
+        </field>
+    </record>
 
-        <record id="action_ems_enrollment_items_tree_link" model="ir.actions.act_window.view">
-            <field name="sequence" eval="1"/>
-            <field name="view_mode">list</field>
-            <field name="view_id" ref="view_ems_enrollment_items_tree"/>
-            <field name="act_window_id" ref="action_ems_enrollment_items"/>
-        </record>
+    <record id="action_ems_enrollment_items_tree_link" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_ems_enrollment_items_tree"/>
+        <field name="act_window_id" ref="action_ems_enrollment_items"/>
+    </record>
 
-        <record id="action_ems_enrollment_items_form_link" model="ir.actions.act_window.view">
-            <field name="sequence" eval="2"/>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="view_ems_enrollment_items_form"/>
-            <field name="act_window_id" ref="action_ems_enrollment_items"/>
-        </record>
+    <record id="action_ems_enrollment_items_form_link" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_ems_enrollment_items_form"/>
+        <field name="act_window_id" ref="action_ems_enrollment_items"/>
+    </record>
 
-    </data>
 </odoo>

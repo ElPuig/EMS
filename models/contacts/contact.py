@@ -5,6 +5,57 @@ from ..shared import utils
 import datetime
 from dateutil.relativedelta import relativedelta
 
+class ems_student_benefit(models.Model):
+    _name = 'ems.student.benefit'
+    _description = 'Student Benefits and Exemptions'
+    
+    student_id = fields.Many2one('res.partner', string="Student", required=True, ondelete='cascade')
+    
+    benefit_type = fields.Selection([
+        # Bonificaciones
+        ('large_family_gen', 'Large Family (General)'),
+        ('single_parent_gen', 'Single Parent (General)'),
+        ('scholarship', 'Ministry Scholarship'),
+        # Exenciones
+        ('large_family_spec', 'Large Family (Special)'),
+        ('single_parent_spec', 'Single Parent (Special)'),
+        ('disability', 'Disability (>33%)'),
+        ('other', 'Other Exemption')
+    ], string="Type", required=True)
+    
+    category = fields.Selection([
+        ('bonification', 'Bonification (Partial)'),
+        ('exemption', 'Exemption (Total)')
+    ], string="Category", compute="_compute_category", store=True)
+
+    document = fields.Binary(string="Document", required=True)
+    document_name = fields.Char(string="File Name")
+    renewal_date = fields.Date(string="Renewal/Review Date")
+    notes = fields.Char(string="Notes")
+
+    @api.depends('benefit_type')
+    def _compute_category(self):
+        for rec in self:
+            if not rec.benefit_type:
+                # If no type is selected, there is no Bonification or Exemption.
+                rec.category = False
+            elif rec.benefit_type in ['large_family_gen', 'single_parent_gen', 'scholarship']:
+                rec.category = 'bonification'
+            else:
+                rec.category = 'exemption'
+
+    @api.onchange('benefit_type')
+    def _onchange_benefit_type(self):
+        if self.benefit_type:
+            today = fields.Date.today()
+            
+            # Scholarship case: 9 months
+            if self.benefit_type == 'scholarship':
+                self.renewal_date = today + relativedelta(months=9)
+            # Other cases: 2 years
+            else:
+                self.renewal_date = today + relativedelta(years=2)
+
 class ems_contact(models.Model):
     _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.utils, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
             
@@ -32,8 +83,33 @@ class ems_contact(models.Model):
     car_plate = fields.Char(string="Car Plate")
     is_adult = fields.Boolean(string="Adult", compute="_compute_is_adult", store=False)
 
+    # Fields to store student Benefits:
+    benefit_ids = fields.One2many(string='Benefits & Exemptions', comodel_name='ems.student.benefit', inverse_name='student_id')
+    benefit_status = fields.Selection([
+        ('none', 'None'),
+        ('bonification', 'Bonification'),
+        ('exemption', 'Exemption')
+    ], string="Benefits", compute="_compute_benefit_status")
+
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
+
+    @api.depends('benefit_ids', 'benefit_ids.category')
+    def _compute_benefit_status(self):
+        for rec in self:
+            if not rec.benefit_ids:
+                rec.benefit_status = 'none'
+            else:
+                categories = rec.benefit_ids.mapped('category')
+                # Priority 1: If there is an exemption, the status will be Exemption.
+                if 'exemption' in categories:
+                    rec.benefit_status = 'exemption'
+                # Priority 2: If there is a bonus, the status will be Exemption.
+                elif 'bonification' in categories:
+                    rec.benefit_status = 'bonification'
+                # If there are lines but no defined category
+                else:
+                    rec.benefit_status = 'none'
 
     @api.depends('birth_date')
     def _compute_is_adult(self):	

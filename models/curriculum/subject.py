@@ -34,8 +34,16 @@ class ems_subject(models.Model):
 
     notes = fields.Text("Notes")            
 
+    def _get_academic_category_id(self):
+        """Attempts to obtain the ID of the category ems_category_academic. If it does not exist (e.g. data loading error), it returns False."""
+        try:
+            return self.env.ref('ems.ems_category_academic').id
+        except ValueError:
+            return False
+
     @api.model_create_multi
     def create(self, vals_list):
+        categ_id = self._get_academic_category_id()
         for vals in vals_list:
             product_vals = {
                 'name': vals.get('name', 'New Subject'),
@@ -46,7 +54,9 @@ class ems_subject(models.Model):
                 'sale_ok': True,
                 'purchase_ok': False,
             }
-            
+            if categ_id:
+                product_vals['categ_id'] = categ_id
+
             new_product = self.env['product.product'].create(product_vals)
             
             vals['product_id'] = new_product.id
@@ -55,6 +65,7 @@ class ems_subject(models.Model):
 
     def write(self, vals):
         result = super(ems_subject, self).write(vals)
+        categ_id = self._get_academic_category_id()
 
         for record in self:
             # A) Autocuración: Si no tiene producto, lo crea
@@ -68,6 +79,8 @@ class ems_subject(models.Model):
                     'sale_ok': True,
                     'purchase_ok': False,
                 }
+                if categ_id:
+                    product_vals['categ_id'] = categ_id
                 new_product = self.env['product.product'].create(product_vals)
                 record.write({'product_id': new_product.id})
 

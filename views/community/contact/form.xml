@@ -87,7 +87,12 @@
                                 <field name="is_adult" readonly="True" />
                                 <field name="birth_date" readonly="read_only_user" />
                                 <field name="birth_country_id" invisible="read_only_user"  />    
-                                <field name="citizenship_id" invisible="read_only_user"  />                                
+                                <field name="citizenship_id" invisible="read_only_user"  />
+                                <field name="benefit_status" 
+                                    widget="badge" 
+                                    decoration-success="benefit_status == 'exemption'" 
+                                    decoration-info="benefit_status == 'bonification'" 
+                                    decoration-muted="benefit_status == 'none'"/>                                
                             </group>                            
 
                             <separator name="data" string="Authorizations"/>
@@ -122,6 +127,22 @@
                                     <field name="subject_id" domain="[('id','not in', inuse_subject_ids)]"/>
                                     <field name="group_id" domain="[('study_id','=', parent.study_id)]"/>
                                     <field name="inuse_subject_ids" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </group>
+                    </page>
+                    <page name="secretary" string="Secretary" invisible="contact_type != 'student'">
+                        <group>
+                            <separator string="Bonifications &amp; Exemptions" colspan="2"/>
+                                                       
+                            <field name="benefit_ids" nolabel="1" colspan="2" readonly="read_only_user">
+                                <list editable="bottom" decoration-info="category == 'bonification'" decoration-success="category == 'exemption'">
+                                    <field name="benefit_type"/>
+                                    <field name="category" optional="show"/>
+                                    <field name="document" filename="document_name" widget="binary"/>
+                                    <field name="document_name" column_invisible="1"/>
+                                    <field name="renewal_date" widget="remaining_days"/>
+                                    <field name="notes" optional="hide"/>
                                 </list>
                             </field>
                         </group>

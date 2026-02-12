@@ -109,3 +109,6 @@ ems.access_ems_working_schedules_import_wizard_teacher,ems.access_ems_working_sc
 
 ems.access_ems_course_admin,ems.access_ems_course_admin,ems.model_ems_course,ems.group_admin,1,1,1,1
 ems.access_ems_course_teacher,ems.access_ems_course_teacher,ems.model_ems_course,ems.group_teacher,1,0,0,0
+
+ems.access_ems_student_benefit_admin,ems.access_ems_student_benefit_admin,ems.model_ems_student_benefit,ems.group_admin,1,1,1,1
+ems.access_ems_student_benefit_teacher,ems.access_ems_student_benefit_teacher,ems.model_ems_student_benefit,ems.group_teacher,1,0,0,0

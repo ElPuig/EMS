@@ -86,6 +86,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					if not teacher.id: raise ValidationError("Teacher with email '%s' not found." % email)
 
 					entries = self._create_schedule(node, teacher, course_id)
+					entries = [e for e in entries if not e["non_teaching"]]
 					self._create_teaching(entries, teacher, course_id)
 					self._create_assitance_templates(entries, teacher, course_id)
 
@@ -123,14 +124,14 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						new_entry["name"] = "%s: %s (%s)" % (subject.acronym, subject.name, group.name)
 						new_entry["subject_id"] = subject.id
 						new_entry["group_id"] = group.id
-						new_entry["non_teaching"] = False				
-						entries.append([0, 0, new_entry])
+						new_entry["non_teaching"] = False										
 					else:
 						new_entry["name"] = "%s: %s" % (non_teaching_id, non_teaching_items[non_teaching_id])
 						new_entry["subject_id"] = False
 						new_entry["group_id"] = False
 						new_entry["non_teaching"] = non_teaching_id
 					
+					entries.append([0, 0, new_entry])
 					start = None
 
 				# NOTE: Ignore empty hours (lack of activities)

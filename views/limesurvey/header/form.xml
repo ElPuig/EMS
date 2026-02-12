@@ -5,6 +5,13 @@
             <field name="model">ems.limesurvey_header</field>
             <field name="arch" type="xml">
                 <form string="Survey">
+                    <header>
+                        <button name="action_test" 
+                                string="TEST" 
+                                type="object" 
+                                class="oe_highlight" 
+                                icon="fa-search"/>
+                    </header>
                     <sheet>
                         <group string="Main data" col="4">
                             <group>

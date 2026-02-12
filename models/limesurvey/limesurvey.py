@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+import requests, json
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 survey_recipient_selection = [("students", "Students"), ("teachers", "Teachers"), ("asp", "ASP")]
 
@@ -28,10 +30,92 @@ class ems_limesurvey_header(models.Model):
 				levels = []
 				for l in rec.level:
 					levels.append(l.acronym)
-				level_str = str.join(", ", levels)
-				
+				level_str = str.join(", ", levels)				
 				rec.display_name = "%s: %s (%s)" % (rec.name, recipient, level_str) if rec.recipient else "%s (%s)" % (rec.name, level_str)
 
+	def action_test(self):
+		ems_grp = self.get_ems_group()
+		if not ems_grp:
+			ems_grp = self.create_group("ems", "DO NOT TOUCH! This group has been automatically created and is managed by the EMS.") 
+		
+		if not ems_grp:
+			return {
+					'type': 'ir.actions.client',
+					'tag': 'display_notification',
+					'params': {
+						'title': 'No encontrado',
+						'message': f"No existe ningún grupo con el nombre '{self.name}'",
+						'type': 'warning',
+						'sticky': False,
+					}
+				}
+		else:
+			return {
+				'effect': {
+					'fadeout': 'slow',
+					'message': f"¡Éxito! El grupo existe. ID: {ems_grp['gsid']}",
+					'type': 'rainbow_man',
+				}
+			}			
+
+
+	def run_api_request(self, method, params=[]):
+		self.ensure_one()
+		headers = {'content-type': 'application/json'}
+		session_key = self._get_session_key(headers)
+
+		if not session_key:
+			raise UserError(_("Unable to get the LimeSurvey's session key."))
+		
+		try:
+			session = [self._get_session_key(headers)]
+			payload = {
+                "method": method,
+                "params": [*session, *params], 
+                "id": 1
+            }
+
+			response = requests.post(self.env.company.limesurvey_api, data=json.dumps(payload), headers=headers)			
+			if response.json().get('error'):
+				raise UserError(f"API error: {response.json().get('error')}")
+			
+			result = response.json().get('result')
+			if result is None:
+				raise UserError(f"API error: unkown (maybe permissions?)")
+			return result			
+
+		except Exception as e:
+			raise UserError(f"Unexpected error: {str(e)}")
+			
+		finally:
+			self._release_session_key(session_key, headers)
+
+	def get_ems_group(self):
+		result = self.run_api_request("list_surveys_groups", [None])		
+		group_found = False if result is None else next((g for g in result if g['name'] == "ems"), None)
+		return None if not group_found else group_found
+	
+	def create_group(self, group, description):
+		result = self.run_api_request("add_surveys_group", [group, description])		
+		return result
+
+
+	def _get_session_key(self, headers):
+		payload = {
+			"method": "get_session_key",
+			"params": [self.env.company.limesurvey_usr, self.env.company.limesurvey_pwd],
+			"id": 1
+		}
+		response = requests.post(self.env.company.limesurvey_api, data=json.dumps(payload), headers=headers)
+		return response.json().get('result')
+	
+	def _release_session_key(self, session_key, headers):
+		payload = {
+			"method": "release_session_key",
+			"params": [session_key],
+			"id": 1
+		}
+		requests.post(self.env.company.limesurvey_api, data=json.dumps(payload), headers=headers)
 class ems_limesurvey_block(models.Model):
 	_name = "ems.limesurvey_block"
 	_description = "LimeSurvey block: contains the main data about a LimeSurvey's session block."

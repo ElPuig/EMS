@@ -1,0 +1,43 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_limesurvey_header_form">
+            <field name="name">ems.limesurvey_header.form</field>
+            <field name="model">ems.limesurvey_header</field>
+            <field name="arch" type="xml">
+                <form string="Survey">
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group>
+                                <field name="name"/>
+                            </group>
+                            <group>
+                                <field name="recipient"/>
+                            </group>
+                            <group colspan="2">
+                                <field name="level" widget="many2many_tags"/>
+                            </group>                                                                       
+                        </group>
+                        <group string="Header's content (tab separated)">
+                            <field string="" name="tsv_raw_text" widget="ace" options="{'mode': 'text'}" style="min-height: 300px;"/>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Blocks">
+                                <field name="limesurvey_block_ids">
+                                    <list>
+                                        <field name="sort" widget="handle"/>
+                                        <field name="name"/>                                        
+                                    </list>
+                                </field>
+                            </page>
+                            
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

@@ -32,17 +32,25 @@
             <xpath expr="//group[@name='order_details']" position="inside">
                 <field name="ems_course_id" options="{'no_create': True, 'no_open': True}"/>
             </xpath>
-            <xpath expr="//field[@name='order_line']//field[@name='product_template_id']" position="attributes">
-                <attribute name="domain">['|', ('ems_study_ids', '=', parent.ems_study_id), ('is_generic', '=', True)]</attribute>
-                <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
-            </xpath>
+            <xpath expr="//group[@name='order_details']" position="after">
+                <field name="ems_existing_product_ids" invisible="1"/>
+            </xpath>            
             <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
+                <attribute name="domain">
+                    [
+                        '&amp;',
+                        '|', ('ems_study_ids', '=', parent.ems_study_id), ('is_generic', '=', True),
+                        ('id', 'not in', parent.ems_existing_product_ids)
+                    ]
+                </attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
                 <attribute name="string">Enrollment Item</attribute>
                 <attribute name="help">Select the subject or fee. Only items allowed for the selected Academic Study or generic fees will be displayed.</attribute>
                 <attribute name="column_invisible">0</attribute>
                 <attribute name="optional"></attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']/list//field[@name='product_id']" position="attributes">
+                <attribute name="string">Enrollment Item</attribute>
                 <attribute name="column_invisible">1</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_qty']" position="attributes">

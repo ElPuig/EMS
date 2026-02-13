@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import requests, json
+import requests, json, html, re
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
@@ -34,9 +34,30 @@ class ems_limesurvey_header(models.Model):
 				rec.display_name = "%s: %s (%s)" % (rec.name, recipient, level_str) if rec.recipient else "%s (%s)" % (rec.name, level_str)
 
 	def action_test(self):
-		ems_grp = self.get_ems_group()
+		# TODO: Expected behaviour:
+		#		1. Check if exists the main "ems" group:
+		#			1.1. If exists, keeps its ID.
+		#			1.2. If don't, fires exceptions and requires to create manually the group using the same user (suggest also the description).
+		#
+		#		2. Every survey will be created into the same group, because the EMS will keep track between every recipient and its survey.
+		#		3. The surveys will be created as {DisplayName} - yyyyMMddHHmmssmmmmm
+		#		4. A new sheet called "Current recipients" will contain the relation between recipients (Name, email, survey_recipient_selection, limesurvey survey name, limsurvey survey link).
+		#		5. Buttons (or a kind of wizard with progress like in emails section) in the following order:
+		#			5.1. Create the surveys in LimeSurvey (once used, disables the option).
+		#			5.2. Enable the surveys in LimeSurvey and send invitations (once used, disables the option).
+		#			5.3. Send reminders (disables on closing the survey).
+		#			5.4. Close the survey in LimeSurvey (once used, disables the option).
+		#			5.5. PHASE 2: Downloads the data from LimeSurvey [and trasnfers it to Metabase <- can we handle it within Odoo?] (once used, disables the option).
+		#			5.6. Remove the survey from LimeSurvey, cleans the recipients data. Do not remove already downloaded data! (once used, disables the option BUT enables the first one again).
+
+		# TODO: Metabase import could be in a phase 2. But would be nice to do not use Metabase and keep everything within Odoo. 
+		#		In that case, download the data and metabase import can wait, the priority is to create and manage recipients in
+		#		order to detect and fix problems quickly. 
+		ems_grp = self._get_ems_group()
 		if not ems_grp:
-			ems_grp = self.create_group("ems", "DO NOT TOUCH! This group has been automatically created and is managed by the EMS.") 
+			# The API does not allow to create groups.
+			raise UserError("<TODO>")
+			#ems_grp = self._create_group("ems", "DO NOT TOUCH! This group has been automatically created and is managed by the EMS.") 
 		
 		if not ems_grp:
 			return {
@@ -59,7 +80,7 @@ class ems_limesurvey_header(models.Model):
 			}			
 
 
-	def run_api_request(self, method, params=[]):
+	def _run_api_request(self, method, params=[]):
 		self.ensure_one()
 		headers = {'content-type': 'application/json'}
 		session_key = self._get_session_key(headers)
@@ -75,30 +96,40 @@ class ems_limesurvey_header(models.Model):
                 "id": 1
             }
 
-			response = requests.post(self.env.company.limesurvey_api, data=json.dumps(payload), headers=headers)			
-			if response.json().get('error'):
-				raise UserError(f"API error: {response.json().get('error')}")
+			response = requests.post(self.env.company.limesurvey_api, data=json.dumps(payload), headers=headers)
+			if response.status_code != 200:
+				raise UserError(f"LimeSurvey API call error: {response.reason} \n\n {self._extract_limesurvey_html_error(response.text)}")
+			elif response.json().get('error'):
+				raise UserError(f"LimeSurvey API call error:  {response.json().get('error')}")
 			
 			result = response.json().get('result')
 			if result is None:
-				raise UserError(f"API error: unkown (maybe permissions?)")
+				raise UserError(f"LimeSurvey API call error: unkown (maybe permissions?)")
 			return result			
 
+		except UserError as ue:
+			raise ue
 		except Exception as e:
 			raise UserError(f"Unexpected error: {str(e)}")
 			
 		finally:
 			self._release_session_key(session_key, headers)
 
-	def get_ems_group(self):
-		result = self.run_api_request("list_surveys_groups", [None])		
-		group_found = False if result is None else next((g for g in result if g['name'] == "ems"), None)
-		return None if not group_found else group_found
-	
-	def create_group(self, group, description):
-		result = self.run_api_request("add_surveys_group", [group, description])		
-		return result
+	def _extract_limesurvey_html_error(self, html_content):		
+		match = re.search(r'<h2[^>]*class="error-title"[^>]*>(.*?)</h2>', html_content, re.IGNORECASE | re.DOTALL)
+		
+		if match:
+			raw_text = match.group(1)			
+			clean_text = " ".join(raw_text.split())			
+			final_text = html.unescape(clean_text)			
+			return final_text
+			
+		return html_content
 
+	def _get_ems_group(self):
+		result = self._run_api_request("list_survey_groups", [None])		
+		group_found = False if result is None else next((g for g in result if g['name'] == "ems"), None)
+		return None if not group_found else group_found	
 
 	def _get_session_key(self, headers):
 		payload = {

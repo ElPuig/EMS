@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0-20251024\n"
+"Project-Id-Version: Odoo Server 18.0-20260206\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 09:29+0000\n"
-"PO-Revision-Date: 2026-02-06 09:29+0000\n"
+"POT-Creation-Date: 2026-02-10 10:45+0000\n"
+"PO-Revision-Date: 2026-02-10 10:45+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -308,6 +308,7 @@ msgstr "Acción Necesária"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__active
 #: model:ir.model.fields,field_description:ems.field_ems_base__active
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__active
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__active
 msgid "Active"
 msgstr "Activo"
 
@@ -400,6 +401,11 @@ msgstr "Estudiante autorizado"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__allowed_subject_ids
 msgid "Allowed Subject"
 msgstr "Tema permitido"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ac
+msgid "Another Coordinations"
+msgstr "Otras Coordinaciones"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__employee_ids
@@ -651,6 +657,13 @@ msgstr ""
 "imparte qué, dónde y para quién)."
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__attendance_template_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__attendance_template_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__attendance_template_ids
+msgid "Attendance templates"
+msgstr "Plantillas de asistencia"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_attended
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__a_attended
 msgid "Attended"
@@ -744,7 +757,7 @@ msgstr "Código"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
 #: model:ir.model.fields,field_description:ems.field_ems_role__color
 msgid "Color"
-msgstr "Color"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
@@ -819,6 +832,16 @@ msgstr "Tipo de contrato"
 #: model:hr.job,name:ems.job_conversation
 msgid "Conversational Auxiliary"
 msgstr "Auxiliar de conversa"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__cm
+msgid "Coordination Meeting"
+msgstr "Reunión de Coordinación"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ct
+msgid "Coordination Time"
+msgstr "Cargo de Coordinación"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__course
@@ -1062,7 +1085,7 @@ msgstr "Créditos ECTS"
 #: model:ir.module.category,name:ems.category_main
 #: model:ir.module.category,name:ems.ems_category_main
 msgid "EMS"
-msgstr "EMS"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -1359,6 +1382,7 @@ msgstr "Grupos: Lugares a los que se asignan los estudiantes."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__guard
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__g
 msgid "Guard"
 msgstr "Guardia"
 
@@ -1433,7 +1457,7 @@ msgstr "Híbrido"
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_exception_icon
@@ -1753,9 +1777,14 @@ msgid "Main data"
 msgstr "Datos principales"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__mt
+msgid "Management Time"
+msgstr "Cargo de Dirección"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__manual
 msgid "Manual"
-msgstr "Manual"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__medical_id
@@ -1871,6 +1900,17 @@ msgid "Next Activity Type"
 msgstr "Tipo de la siguiente actividad"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__non_teaching
+msgid "Non-teaching"
+msgstr "No lectiva"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Not allowed"
+msgstr "No permitido"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes
@@ -1958,9 +1998,9 @@ msgid ""
 "Only admins can create manual enrollments. If you're a group's tutor, you "
 "can enroll students using the student's form."
 msgstr ""
-"Solamente los administradores pueden crear matriculaciones manuales. Si "
-"eres el tutor de un grupo, puedes matricular a los estudiantes utilizando "
-"el formulario de los estudiantes."
+"Solamente los administradores pueden crear matriculaciones manuales. Si eres"
+" el tutor de un grupo, puedes matricular a los estudiantes utilizando el "
+"formulario de los estudiantes."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
@@ -1972,20 +2012,26 @@ msgstr "Solamente los míos"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Only the student's tutor can justify its attendances."
+msgstr ""
+"Solamente el/la tutor/a del alumno/a puede justificar sus faltas de "
+"asistencia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can remove its attendance justifications."
-msgstr "Solamente el/la tutor/a del alumno/a puede eliminar sus justificaciones de asistencia."
+msgstr ""
+"Solamente el/la tutor/a del alumno/a puede eliminar sus justificaciones de "
+"asistencia."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can update its attendance justifications."
-msgstr "Solamente el/la tutor/a del alumno/a puede actualizar sus justificaciones de asistencia."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification.py:0
-msgid "Only the student's tutor can justify its attendances."
-msgstr "Solamente el/la tutor/a del alumno/a puede justificar sus faltas de asistencia."
+msgstr ""
+"Solamente el/la tutor/a del alumno/a puede actualizar sus justificaciones de"
+" asistencia."
 
 #. module: ems
 #. odoo-python
@@ -2152,6 +2198,11 @@ msgid "Rectified by"
 msgstr "Rectificado per"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__r
+msgid "Reduction"
+msgstr "Reducción de jornada"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_study_list
 msgid "Release"
 msgstr "Liberar"
@@ -2196,7 +2247,7 @@ msgstr "Nombres de los roles"
 #: model:ir.ui.menu,name:ems.menu_teachers_roles
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Roles"
-msgstr "Roles"
+msgstr ""
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_asp_role_tree
@@ -2250,6 +2301,11 @@ msgstr "Programado el"
 #: model:ir.model.fields,field_description:ems.field_res_users__auth_trip
 msgid "Scholar Trips"
 msgstr "Viajes de estudios"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__sc
+msgid "School Council"
+msgstr "Consejo Escolar"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__score
@@ -2423,6 +2479,11 @@ msgstr "Detalles del estado"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
 msgid "Statuses"
 msgstr "Estados"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__s
+msgid "Staying at the center"
+msgstr "Permanencia en el centro"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__student_id
@@ -2711,9 +2772,12 @@ msgstr ""
 "nuevos horarios."
 
 #. module: ems
-#: model:ir.model.constraint,message:ems.constraint_ems_teaching_ems_teaching_unique
-msgid "The ternary \"teacher / group / subject\" must be unique!"
-msgstr "La dicotomía \"profesor/grupo/asignatura\" debe ser única."
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The tutor role cannot be assigned manually, it will be set automatically if "
+"any group is added to the 'tutorship' field."
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -2724,6 +2788,38 @@ msgstr ""
 "Los/las tutores/as recibirás un informe de asistencia diario al final de su "
 "turno pero, si su horario laboral no se ha definido, esta hora se utilizará "
 "para enviar el informe."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/teaching.py:0
+msgid ""
+"There's another active entry for the same 'teacher / group / subject' "
+"ternary. Archive it first."
+msgstr ""
+"Existe otra entrada para la misma ternaria 'docente / grupo / asignatura'. "
+"Es necesario archivarla primero."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_schedule.py:0
+msgid ""
+"This schedule have been already used to check the student's attendances and "
+"cannot be deleted. Please, update its data instead or archive the entire "
+"template and create a new one with the correct data."
+msgstr ""
+"Este marco horario ha sido usado para comprobar la asistencia de algún estudiante "
+"y no se puede eliminar. Por favor, actualice los datos o archive la plantilla y "
+"proceda a crear una nueva con los datos correctos."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_template.py:0
+msgid ""
+"This template have been already used to check the student's attendances and "
+"cannot be deleted. Please, archive it instead."
+msgstr ""
+"Esta plantilla ha sido usada para comprobar la asistencia de algún estudiante "
+"y no se puede eliminar. Por favor, archive la plantilla y proceda a crear una nueva."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3
@@ -2816,6 +2912,11 @@ msgid "Tutor:"
 msgstr "Tutor/a"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__tt
+msgid "Tutorship Time"
+msgstr "Tutoria"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__tutorships
 #: model:ir.model.fields,field_description:ems.field_hr_employee_base__tutorships
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__tutorships
@@ -2867,7 +2968,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__unipersonal
 msgid "Unipersonal"
-msgstr "Unipersonal"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -2890,6 +2991,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_base__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__user_is_admin
 msgid "User Is Admin"
 msgstr "El usuario es administrador"
 
@@ -2903,6 +3005,7 @@ msgstr "El usuario es administrador"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_base__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__user_is_tutor
 msgid "User Is Tutor"
 msgstr "El usuario es tutor"
 
@@ -2982,6 +3085,11 @@ msgstr "Horarios de trabajo"
 #: model:ir.model,name:ems.model_ems_working_schedules_import_wizard
 msgid "Working schedules: import wizard."
 msgstr "Horarios de trabajo: asistente de importación."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__wic
+msgid "Workplace Intership Coordination"
+msgstr "Coordinación FCT"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_content_form

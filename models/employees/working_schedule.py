@@ -6,7 +6,6 @@ from datetime import datetime
 import xml.etree.ElementTree as ET
 import base64
 
-
 class ems_working_schedule(models.Model):
 	_inherit = 'resource.calendar'
 	_sql_constraints = [
@@ -17,12 +16,27 @@ class ems_working_schedule_assignation(models.Model):
 	_inherit = 'resource.calendar.attendance'
 	# NOTE: no need to constraint, the main model avoids overlapping. 
 
+	non_teaching_selection=[
+		("AC", "Another Coordinations"),
+		("CM", "Coordination Meeting"),
+		("CT", "Coordination Time"),
+        ("G", "Guard"),
+        ("MT", "Management Time"),
+        ("R", "Reduction"),
+		("S", "Staying at the center"),
+		("SC", "School Council"),
+        ("TT", "Tutorship Time"),
+		("WIC", "Workplace Intership Coordination"),
+    ]
+
+	non_teaching = fields.Selection(string="Non-teaching", selection=non_teaching_selection)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
 
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
 	_description = "Working schedules: import wizard."
+	_inherit = ['ems.datetime_utils']
 
 	attachment_id = fields.Many2one(string="Attachment", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.working_schedules_import_wizard')]")
 	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")	
@@ -72,6 +86,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					if not teacher.id: raise ValidationError("Teacher with email '%s' not found." % email)
 
 					entries = self._create_schedule(node, teacher, course_id)
+					entries = [e for e in entries if not e["non_teaching"]]
 					self._create_teaching(entries, teacher, course_id)
 					self._create_assitance_templates(entries, teacher, course_id)
 
@@ -80,6 +95,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	def _create_schedule(self, xml_node, teacher, course_id):									
 		name = "%s (%s)" % (teacher.name, course_id.name)
 		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
+		non_teaching_items = dict(ems_working_schedule_assignation.non_teaching_selection)
 
 		if not schedule:
 			# TODO: add a relation to current_course
@@ -97,104 +113,155 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			for hourNode in dayNode:
 				if start is not None:
 					close = hourNode.attrib['name'].split(' ')[1]
-					entries.append([0, 0, {
-						"name": "%s: %s (%s)" % (subject.acronym, subject.name, group.name),
+					new_entry = {						
 						"dayofweek": str(dayofweek),
 						"day_period": 'morning' if int(start[:2]) < 15 else 'afternoon',
-						"hour_from": self._conv_time_float(start),
-						"hour_to": self._conv_time_float(close),
-						"subject_id": subject.id,
-						"group_id": group.id
-					}])
+						"hour_from": self.time_string_to_float(start),
+						"hour_to": self.time_string_to_float(close),						
+					}
+
+					if not non_teaching_id:
+						new_entry["name"] = "%s: %s (%s)" % (subject.acronym, subject.name, group.name)
+						new_entry["subject_id"] = subject.id
+						new_entry["group_id"] = group.id
+						new_entry["non_teaching"] = False										
+					else:
+						new_entry["name"] = "%s: %s" % (non_teaching_id, non_teaching_items[non_teaching_id])
+						new_entry["subject_id"] = False
+						new_entry["group_id"] = False
+						new_entry["non_teaching"] = non_teaching_id
+					
+					entries.append([0, 0, new_entry])
 					start = None
 
 				# NOTE: Ignore empty hours (lack of activities)
 				id = None
+				non_teaching = False
 				for content in hourNode:
 					if content.tag == 'Activity':
 						id = content.attrib['id'].split(' ')[0]
+					elif content.tag == 'NonTeaching':
+						non_teaching = True
+						id = content.attrib['name'].split(' ')[0]
 					elif content.tag == 'Subject':
 						subjectCode = content.attrib['name'].split(' ')[0]
 					elif content.tag == 'Students':
 						groupAcro = content.attrib['name'].split(' ')[0]														
 				
 				if id is not None:
-					subject = self.env["ems.subject"].search([("code", "=", subjectCode[2:])])
-					group = self.env["ems.group"].search([("name", "=", groupAcro)])
 					start = hourNode.attrib['name'].split(' ')[1]
-
-					if not subject.id: raise ValidationError("Subject with code '%s' not found." % subjectCode[2:])
-					if not group.id: raise ValidationError("Group with acronym '%s' not found." % groupAcro[2:])
-							
+					if non_teaching:
+						if not id in non_teaching_items: raise ValidationError("Non-Teaching with code '%s' not found." % id)
+						non_teaching_id = id
+						subject = False
+						group = False
+					else:
+						subject = self.env["ems.subject"].search([("code", "=", subjectCode)])
+						group = self.env["ems.group"].search([("name", "=", groupAcro)])	
+						non_teaching_id = False					
+						if not subject.id: raise ValidationError("Subject with code '%s' not found." % subjectCode)
+						if not group.id: raise ValidationError("Group with acronym '%s' not found." % groupAcro)
+												
 		schedule.write({ 'attendance_ids': entries })  		
 		teacher.write({ "resource_calendar_id": schedule })
 		return [x[2] for x in entries[1:]] #skipping the first (unlink all) and getting only entities.	
 
 	def _create_teaching(self, entries, teacher, course_id):
-		teaching = [[5]] #5 means unlink all previus, because the created schedule has default entries attached.	Items will be removed if became orphan.		
+		old_items = dict()
+		for t in teacher.teaching_ids.filtered('active'):
+			old_items["%s.%s" % (t.subject_id.id, t.group_id.id)] = t
 		
-		for e in entries: #skipping the first (unlink all)
-			# TODO: asign also the current_course
-			item = [0, 0, {
+		teaching = []
+		new_items = dict()
+		for e in entries:
+			key = "%s.%s" % (e["subject_id"], e["group_id"])
+			value = {
 				'group_id': e["group_id"],
-				'subject_id': e["subject_id"]
-			}]
+				'subject_id': e["subject_id"],
+				# TODO: add the course (the course should be able to be selected from the form, in order to prepare future courses)
+			}
 
-			if item not in teaching:
-				teaching.append(item)
-				
+			if not key in new_items:
+				new_items[key] = value
+
+			if key not in old_items:
+				# Create only if new
+				item = [0, 0, new_items[key]]
+				if item not in teaching:
+					teaching.append(item)
+
+		for old in old_items:
+			if old not in new_items:
+				# NOTE: Using the teacher's form, entries are removed, so the same is performed from here.
+				#		If tracking needed, archive from both sides, the model code is ready to do so. 
+				old_items[old].unlink()
+				#old_items[old].action_archive()				
+
 		teacher.write({
 			'teaching_ids': teaching
 		})	
-	
+
 	def _create_assitance_templates(self, entries, teacher, course_id):
 		# TODO: It's necessary to know if a template has been created automatically or manually? 
 		# 		Should we keep the manually created? If so, additional checks are needed in order to create
-		#		the entries avoiding duped templates... 		
-		color = 1
-		templates = dict()
+		#		the entries avoiding duped templates... 
+		color = 1		
 		now = datetime.now()		
 
+		old_items = dict()
+		for t in teacher.attendance_template_ids.filtered('active'):
+			# TODO: what happens with the space, if two templates for the same subject and group exists but for diferent space?
+			old_items["%s.%s" % (t.subject_id.id, t.group_id.id)] = t
+
+		templates = dict()
+		new_items = dict()
 		for e in entries:
 			key = "%s.%s" % (e["subject_id"], e["group_id"])
-			if key in templates:
-				t = templates[key]
-			else:
-				# TODO: define default start and end date for subjects within settings.			
-				#t = self.env['ems.attendance_template'].create({
-				group_id = self.env['ems.group'].search([('id', '=', e["group_id"])]) or False
-				t = {
-					'start_date': datetime(now.year, 9, 1),
-					'end_date': datetime(now.year+1, 7, 1),
-					'color': color,
-					'teacher_id': teacher.id,
-					'subject_id': e["subject_id"],
-					'group_id': e["group_id"],
-					'level_id': group_id.level_id.id,
-					'study_id': group_id.study_id.id,
-					'space_id': group_id.space_id.id,
-					'attendance_schedule_ids': []
-				}
-				color += 1
-				templates[key] = t
-			
-			t["attendance_schedule_ids"].append(
-				[0, 0, {
-					'start_time': e["hour_from"],
-					'end_time': e["hour_to"],
-					'weekday': e["dayofweek"],
-					'space_id': t["space_id"]
-				}]
-			)
-		
-		self.env['ems.attendance_template'].search([('teacher_id', '=', teacher.id)]).unlink()
-		for t in templates:
-			self.env['ems.attendance_template'].create(templates[t])		
 
-	def _conv_time_float(self, value):
-		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236
-		vals = value.split(':')
-		t, hours = divmod(float(vals[0]), 24)
-		t, minutes = divmod(float(vals[1]), 60)				
-		minutes = (minutes) / 60.0
-		return hours + minutes
+			if not key in new_items:
+				new_items[key] = e
+
+			if not key in old_items:
+				# Create only if new
+				if key in templates:
+					t = templates[key]
+				else:
+					# TODO: define default start and end date for subjects within settings.							
+					group_id = self.env['ems.group'].search([('id', '=', e["group_id"])]) or False
+					t = {
+						'start_date': datetime(now.year, 9, 1),
+						'end_date': datetime(now.year+1, 7, 1),
+						'color': color,
+						'teacher_id': teacher.id,
+						'subject_id': e["subject_id"],
+						'group_id': e["group_id"],
+						'level_id': group_id.level_id.id,
+						'study_id': group_id.study_id.id,
+						'space_id': group_id.space_id.id,
+						'attendance_schedule_ids': [],
+						# TODO: add also the current course
+					}
+					color += 1
+					templates[key] = t
+				
+				t["attendance_schedule_ids"].append(
+					[0, 0, {
+						'start_time': e["hour_from"],
+						'end_time': e["hour_to"],
+						'weekday': e["dayofweek"],
+						'space_id': t["space_id"]
+					}]
+				)				
+
+		for old in old_items:
+			if old not in new_items:
+				# NOTE: do not remove link because tracking could be lost, just archive it!
+				old_items[old].action_archive()				
+		
+		# NOTE: Templates must be created directly into its table, in order to be able to run its 'fill_students' method.
+		new_templates = self.env['ems.attendance_template'].create(list(templates.values()))
+		for t in new_templates:
+			t.fill_students()		
+
+		# TODO: should existing ones reload its students? All of them or only automatically added? Keep manually modified untouched?
+	

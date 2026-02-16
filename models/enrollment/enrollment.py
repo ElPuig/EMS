@@ -20,7 +20,6 @@ class SaleOrderTemplate(models.Model):
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    
     def _get_default_course(self):
         """
         Logic to auto-select the academic year:

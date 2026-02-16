@@ -89,7 +89,7 @@ class ems_contact(models.Model):
         ('none', 'None'),
         ('bonification', 'Bonification'),
         ('exemption', 'Exemption')
-    ], string="Benefits", compute="_compute_benefit_status")
+    ], string="Benefits", compute="_compute_benefit_status", store=True)
 
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)

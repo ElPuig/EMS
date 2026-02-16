@@ -244,6 +244,7 @@
         'data/cat/ems.role.csv',    
         'data/cat/ems.workgroup.csv',    
         'data/cat/hr.job.csv',
+        'data/cat/ems_fee_data.xml',
         
         
         # Custom data entries (adapt it to your needs, for example, ESO subjects can differ between centers)        

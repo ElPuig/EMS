@@ -34,7 +34,10 @@
             </xpath>
             <xpath expr="//group[@name='order_details']" position="after">
                 <field name="ems_existing_product_ids" invisible="1"/>
-            </xpath>            
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list" position="attributes">
+                <attribute name="default_order">product_id asc</attribute>
+            </xpath>                        
             <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
                 <attribute name="domain">
                     [
@@ -62,6 +65,9 @@
             <xpath expr="//field[@name='order_line']/list//field[@name='price_total']" position="attributes">
                 <attribute name="optional">hide</attribute>
             </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='discount']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>            
             <xpath expr="//field[@name='order_line']/list//field[@name='tax_id']" position="attributes">
                 <attribute name="optional">hide</attribute>
             </xpath>

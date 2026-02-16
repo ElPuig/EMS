@@ -20,7 +20,58 @@ class SaleOrderLine(models.Model):
                         'message': _("The item '%s' is already in the list. Please select a different one.") % name,
                     }
                 }
+    @api.depends('product_id', 'order_id.order_line', 'order_id.partner_id.benefit_status')
+    def _compute_price_unit(self):
+        # Primero ejecutamos la lógica original de Odoo (tarifas, etc.)
+        super()._compute_price_unit()
+        for line in self:
+            # Solo actuamos si el producto de esta línea está marcado como Tasa
+            if line.product_template_id.ems_is_enrollment_fee:
+                # 1. Contamos asignaturas (no genéricos) en el pedido padre
+                subject_lines = line.order_id.order_line.filtered(
+                    lambda l: l.product_template_id and not l.product_template_id.is_generic
+                )
+                count = len(subject_lines)
+                
+                # 2. Obtenemos configuración
+                max_fee = line.product_template_id.list_price 
+                unit_cost = line.product_template_id.ems_subject_unit_cost
+                
+                # 3. Aplicamos el menor valor entre el cálculo y el precio de lista
+                line.price_unit = min(count * unit_cost, max_fee)
+                
+                base_name = f"{line.product_template_id.name} ({count} Subjects)"
+                benefit_suffix = ""
+                partner = line.order_id.partner_id
+                if partner and partner.benefit_status:
+                    if partner.benefit_status == 'bonification':
+                        benefit_suffix = " - Bonification 50%"
+                    elif partner.benefit_status == 'exemption':
+                        benefit_suffix = " - Exemption 100%"
+                
+                line.name = f"{base_name}{benefit_suffix}"
 
+    @api.depends('product_id', 'order_id.partner_id.benefit_status')
+    def _compute_discount(self):
+        # Primero ejecutamos la lógica original
+        super()._compute_discount()
+        for line in self:
+            if line.product_template_id.ems_is_enrollment_fee:
+                discount = 0.0
+                benefit_text = ""
+                partner = line.order_id.partner_id
+                # Aplicamos bonificación o exención según el estado del partner
+                if partner and partner.benefit_status:
+                    if partner.benefit_status == 'bonification':
+                        discount = 50.0
+                        benefit_text = " - Bonification 50%"
+                    elif partner.benefit_status == 'exemption':
+                        discount = 100.0
+                        benefit_text = " - Exemption 100%"
+                line.discount = discount
+                if benefit_text and benefit_text not in line.name:
+                    line.name = f"{line.name}{benefit_text}"
+                    
     @api.constrains('product_id', 'order_id')
     def _check_unique_enrollment_item(self):
         """Database security validation on save."""

@@ -28,6 +28,32 @@ class ProductTemplate(models.Model):
         default=False
     )
 
+    # For use with generic products, like fees that will be applied on levels.
+    ems_level_ids = fields.Many2many(
+        comodel_name='ems.level',
+        relation='product_template_ems_level_rel',
+        column1='product_template_id',
+        column2='ems_level_id',
+        string="Allowed Levels",
+        help="Levels where this generic product is available (e.g. VET, Bachelor)."
+    )    
+
+    # Flag to know if it's a calculated fee
+    ems_is_enrollment_fee = fields.Boolean(
+        string="Is Enrollment Fee", 
+        default=False,
+        help="Check this if this product represents a calculated fee (e.g. Matricula). "
+             "It triggers automatic price calculation logic."
+    )
+
+    # Unitary cost of a subject in this level to calculate the fee
+    ems_subject_unit_cost = fields.Float(
+        string="Subject Unit Cost",
+        digits=(10, 2),
+        default=0.0,
+        help="Unit cost per subject (e.g. 65.00) used for fee calculation."
+    )
+
     @api.depends('ems_subject_ids.study_ids')
     def _compute_ems_study_ids(self):
         for product in self:

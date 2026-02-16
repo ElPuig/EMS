@@ -20,8 +20,8 @@
 
                 <div name="options" position="replace">
                     <span class="d-inline-block">
-                        <field name="is_generic" widget="boolean_toggle"/> 
-                        <label for="is_generic"/>
+                        <field name="is_generic" widget="boolean_toggle" readonly="1"/> 
+                        <label for="is_generic" readonly="1"/>
                     </span>
                 </div>
 
@@ -31,8 +31,16 @@
                             <group>
                                 <group string="Academic Data">
                                     <field name="ems_study_ids" widget="many2many_tags"/>
-                                    <field name="type" readonly="1"/>
-                                    <field name="default_code" required="1"/>
+                                    <field name="ems_level_ids" widget="many2many_tags" 
+                                        invisible="is_generic == False"/>
+                                    <field name="ems_is_enrollment_fee" widget="boolean_toggle"
+                                        invisible="is_generic == False"
+                                        required="is_generic == True"/>
+                                    <field name="ems_subject_unit_cost" 
+                                        invisible="ems_is_enrollment_fee == False"
+                                        required="ems_is_enrollment_fee == True"/>
+                                    <field name="default_code" required="1"
+                                            invisible="is_generic == False"/>
                                 </group>
                                 <group string="Financial">
                                     <field name="list_price" string="Enrollment Fee"/>
@@ -48,7 +56,7 @@
                                     <field name="description_sale" placeholder="Text to appear on the enrollment receipt/invoice..."/>
                                 </group>
                                 <group string="System">
-                                    <field name="default_code" required="1"/>
+                                    <field name="default_code" required="1" readonly="1"/>
                                     <field name="barcode"/>
                                     <field name="active" widget="boolean_toggle"/>
                                 </group>

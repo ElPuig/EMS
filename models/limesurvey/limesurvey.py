@@ -40,7 +40,9 @@ class ems_limesurvey_header(models.Model):
 		#			1.2. If don't, fires exceptions and requires to create manually the group using the same user (suggest also the description).
 		#
 		#		2. Every survey will be created into the same group, because the EMS will keep track between every recipient and its survey.
-		#		3. The surveys will be created as {DisplayName} - yyyyMMddHHmmssmmmmm
+		#		3. The surveys will be created as "{DisplayName} - {hasCode}". The hashCode will be computed as:
+		#		   Sort subject codes.
+		#			
 		#		4. A new sheet called "Current recipients" will contain the relation between recipients (Name, email, survey_recipient_selection, limesurvey survey name, limsurvey survey link).
 		#		5. Buttons (or a kind of wizard with progress like in emails section) in the following order:
 		#			5.1. Create the surveys in LimeSurvey (once used, disables the option).
@@ -56,7 +58,7 @@ class ems_limesurvey_header(models.Model):
 		ems_grp = self._get_ems_group()
 		if not ems_grp:
 			# The API does not allow to create groups.
-			raise UserError("<TODO>")
+			raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))
 			#ems_grp = self._create_group("ems", "DO NOT TOUCH! This group has been automatically created and is managed by the EMS.") 
 		
 		if not ems_grp:

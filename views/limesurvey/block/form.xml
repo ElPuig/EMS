@@ -17,13 +17,13 @@
 
                         <group string="Special behaviour" col="4" invisible="not special">
                             <group>
-                                <field string="Course" help="The block appears only for students enrolled in this course." name="special_course"/>
+                                <field string="Course filter" help="The block appears only for students enrolled in this course (0 = all)." name="special_course"/>
                             </group>                            
                             <group>
-                                <field string="Subject" help="This block will be generated once per enrollred subject." name="special_subject_enrolled"/>
+                                <field string="Repeat per subject" help="This block will be generated once per enrollred subject." name="special_subject_enrolled"/>
                             </group>
                             <group>
-                                <field string="WPI" help="The block appears only for students enrolled in a WorkPlace Intership." name="special_wpi_enrolled"/>
+                                <field string="WPI enrollment" help="The block appears only for students enrolled in a WorkPlace Intership." name="special_wpi_enrolled"/>
                             </group>
                         </group>
 

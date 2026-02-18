@@ -21,8 +21,14 @@
                                 <field name="recipient"/>
                             </group>
                             <group colspan="2">
-                                <field name="level" widget="many2many_tags"/>
-                            </group>                                                                       
+                                <field name="level_ids" widget="many2many_tags"/>
+                            </group>     
+                            <group>
+                                <field name="title"/>
+                            </group>     
+                            <group colspan="3">
+                                <field name="description"/>
+                            </group>                                                             
                         </group>
                         <group string="Header's content (tab separated)">
                             <field string="" name="tsv_raw_text" widget="ace" options="{'mode': 'text'}" style="min-height: 300px;"/>

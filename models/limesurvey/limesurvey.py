@@ -13,22 +13,24 @@ class ems_limesurvey_header(models.Model):
 	
 	name = fields.Char(string="Name", required=True)
 	recipient = fields.Selection(string="Recipient", selection=survey_recipient_selection)
-	level = fields.Many2many(string="Level", comodel_name="ems.level")
+	level_ids = fields.Many2many(string="Level", comodel_name="ems.level")
 	tsv_raw_text = fields.Text(string="Header's content (tab separated)", required=True)
 	limesurvey_block_ids = fields.One2many(string="Blocks", comodel_name="ems.limesurvey_block", inverse_name="limesurvey_header_id")
+	title = fields.Char(string="Title", required=True)
+	description = fields.Char(string="Description", required=True)
 	notes = fields.Text(string="Notes")
-
-	@api.depends("name", "recipient", "level")
+	
+	@api.depends("name", "recipient", "level_ids")
 	def _compute_display_name(self):			
 		for rec in self:				
 			recipient = dict(survey_recipient_selection).get(rec.recipient)		
-			if not rec.level and not rec.recipient:
+			if not rec.level_ids and not rec.recipient:
 				rec.display_name = "" if not rec.name else rec.name
-			elif not rec.level:
+			elif not rec.level_ids:
 				rec.display_name = "%s: %s" % (rec.name, recipient)
 			else:
 				levels = []
-				for l in rec.level:
+				for l in rec.level_ids:
 					levels.append(l.acronym)
 				level_str = str.join(", ", levels)				
 				rec.display_name = "%s: %s (%s)" % (rec.name, recipient, level_str) if rec.recipient else "%s (%s)" % (rec.name, level_str)
@@ -61,26 +63,73 @@ class ems_limesurvey_header(models.Model):
 			raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))
 			#ems_grp = self._create_group("ems", "DO NOT TOUCH! This group has been automatically created and is managed by the EMS.") 
 		
-		if not ems_grp:
-			return {
-					'type': 'ir.actions.client',
-					'tag': 'display_notification',
-					'params': {
-						'title': 'No encontrado',
-						'message': f"No existe ningún grupo con el nombre '{self.name}'",
-						'type': 'warning',
-						'sticky': False,
-					}
-				}
-		else:
-			return {
-				'effect': {
-					'fadeout': 'slow',
-					'message': f"¡Éxito! El grupo existe. ID: {ems_grp['gsid']}",
-					'type': 'rainbow_man',
-				}
-			}			
+		if(self.recipient == "students"): self._setup_students_surveys()
+		elif(self.recipient == "teachers"): self._setup_teachers_surveys()
+		elif(self.recipient == "asp"): self._setup_asp_surveys()
+		
+		# if not ems_grp:
+		# 	return {
+		# 			'type': 'ir.actions.client',
+		# 			'tag': 'display_notification',
+		# 			'params': {
+		# 				'title': 'No encontrado',
+		# 				'message': f"No existe ningún grupo con el nombre '{self.name}'",
+		# 				'type': 'warning',
+		# 				'sticky': False,
+		# 			}
+		# 		}
+		# else:
+		# 	return {
+		# 		'effect': {
+		# 			'fadeout': 'slow',
+		# 			'message': f"¡Éxito! El grupo existe. ID: {ems_grp['gsid']}",
+		# 			'type': 'rainbow_man',
+		# 		}
+		# 	}			
 
+	def _setup_students_surveys(self):
+		for l in self.level_ids:
+			students = self.env["res.partner"].search([("level_id", "=", l.id)]) or False
+
+			surveys = dict()
+			for s in students:
+				name = self.name
+				content = self.tsv_raw_text
+				content = content.replace("{'TITLE'}", self.title)
+				content = content.replace("{'DESCRIPTION'}", self.description)
+
+				for b in self.limesurvey_block_ids:
+					append = not b.special
+					if b.special:
+						if b.special_course == 0 or (b.special_course > 0 and b.special_course == s.main_group_id.course):
+							# NOTE: special_course can be combined with WPI or Subject.
+							if not b.special_subject and not b.special_wpi: append = True								
+							elif b.special_wpi and s.wpi_enrolled: append = True
+							elif b.special_subject:
+								# NOTE: repeat the block for every enrolled subject.
+								for e in s.enrollment_ids:
+									name += f" | {b.name}_{e.subject_id.code}"
+									content += b.tsv_raw_text.replace("{'X'}", e.subject_id.code)
+					if append:
+						name += f" | {b.name}"
+						c = b.tsv_raw_text
+						c = c.replace("{'TITLE'}", b.name)
+						c = c.replace("{'LEVEL'}", l.acronym)
+						c = c.replace("{'TOPIC'}", b.name)
+						c = c.replace("{'S_CODE'}", b.name) # NOTE: this is not a mistake, the block name (topic) is used here also.
+						c = c.replace("{'S_NAME'}", b.name) # NOTE: this is not a mistake, the block name (topic) is used here also.
+						c = c.replace("{'DEGREE'}", s.study_id.acronym)
+						c = c.replace("{'GROUP'}", s.main_group_id.acronym)
+						c = c.replace("{'TRAINER'}", "")
+
+						content += b.tsv_raw_text
+				surveys.append(content)
+
+	def _setup_teachers_surveys(self):
+		fake = 0
+
+	def _setup_asp_surveys(self):
+		fake = 0
 
 	def _run_api_request(self, method, params=[]):
 		self.ensure_one()
@@ -160,8 +209,14 @@ class ems_limesurvey_block(models.Model):
 	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header")
 	sort = fields.Integer(string="Sort", default=1)
 	special = fields.Boolean(string="Special behaviour", default=False)
-	special_course = fields.Integer(string="Course", default=1)
+	special_course = fields.Integer(string="Course", default=0)
 	special_wpi_enrolled = fields.Boolean(string="WorkPlace Intership (if enrolled)", default=False)
 	special_subject_enrolled = fields.Boolean(string="Subject (all enrolled)", default=False)
 	notes = fields.Text(string="Notes")	
 
+	@api.onchange("special_wpi_enrolled", "special_subject_enrolled")
+	def _onchange_special(self):	
+		for rec in self:	
+			# TODO: mutually excluded, check if it's more appropiate to use radios instead of checkboxes.
+			if rec.special_wpi_enrolled: rec.special_subject_enrolled = False
+			elif rec.special_subject_enrolled: rec.special_wpi_enrolled = False

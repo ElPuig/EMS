@@ -117,6 +117,10 @@
                             </group>
 
                             <separator name="enrollment" string="Enrollment Data"/>
+                            <!-- TODO: a WIC section in order to add a link to the QBid's student data?  -->
+                            <group>
+                                <field name="wpi_enrolled" />
+                            </group>
                             <field name="enrollment_ids" string="" context="{'default_group_id': main_group_id}" readonly="main_group_id == False or read_only_user">                            
                                 <list editable="top" default_order="subject_id asc, group_id asc">
                                     <field name="subject_id" domain="[('id','not in', inuse_subject_ids)]"/>

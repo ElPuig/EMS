@@ -31,6 +31,7 @@ class ems_contact(models.Model):
     auth_share = fields.Boolean(string="Share with family", help="If marked, the student (even if adult) allows to share its educational information with its family.")
     car_plate = fields.Char(string="Car Plate")
     is_adult = fields.Boolean(string="Adult", compute="_compute_is_adult", store=False)
+    wpi_enrolled = fields.Boolean(string="WPI enrolled")
 
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)

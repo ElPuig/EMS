@@ -57,16 +57,20 @@ class ems_limesurvey_header(models.Model):
 		# TODO: Metabase import could be in a phase 2. But would be nice to do not use Metabase and keep everything within Odoo. 
 		#		In that case, download the data and metabase import can wait, the priority is to create and manage recipients in
 		#		order to detect and fix problems quickly. 
-		ems_grp = self._get_ems_group()
-		if not ems_grp:
-			# The API does not allow to create groups.
-			raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))
-			#ems_grp = self._create_group("ems", "DO NOT TOUCH! This group has been automatically created and is managed by the EMS.") 
 		
-		if(self.recipient == "students"): self._setup_students_surveys()
-		elif(self.recipient == "teachers"): self._setup_teachers_surveys()
-		elif(self.recipient == "asp"): self._setup_asp_surveys()
+		# TODO: uncomment once the LimeSurvey container becomes ready.
+		# ems_grp = self._get_ems_group()
+		# if not ems_grp:
+		# 	# The API does not allow to create groups.
+		# 	raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
 		
+		if(self.recipient == "students"): surveys = self._setup_students_surveys()
+		elif(self.recipient == "teachers"): surveys = self._setup_teachers_surveys()
+		elif(self.recipient == "asp"): surveys = self._setup_asp_surveys()
+		
+		for key in surveys:
+			data = surveys[key]
+
 		# if not ems_grp:
 		# 	return {
 		# 			'type': 'ir.actions.client',
@@ -101,15 +105,27 @@ class ems_limesurvey_header(models.Model):
 				for b in self.limesurvey_block_ids:
 					append = not b.special
 					if b.special:
-						if b.special_course == 0 or (b.special_course > 0 and b.special_course == s.main_group_id.course):
+						if b.special_course_filter == 0 or (b.special_course_filter > 0 and b.special_course_filter == s.main_group_id.course):
 							# NOTE: special_course can be combined with WPI or Subject.
-							if not b.special_subject and not b.special_wpi: append = True								
-							elif b.special_wpi and s.wpi_enrolled: append = True
-							elif b.special_subject:
-								# NOTE: repeat the block for every enrolled subject.
+							if not b.special_subject_enrolled and not b.special_wpi_enrolled: append = True								
+							elif b.special_wpi_enrolled and s.wpi_enrolled: append = True
+							elif b.special_subject_enrolled:
+								# NOTE: Repeat the block for every enrolled subject.
+								# TODO: performance will be boosted if we check first if the survey already exists? It's the same loop twice, but only to generate the key... I'm not sure if this will speed up anything...																
 								for e in s.enrollment_ids:
 									name += f" | {b.name}_{e.subject_id.code}"
-									content += b.tsv_raw_text.replace("{'X'}", e.subject_id.code)
+									c = b.tsv_raw_text
+									c = c.replace("{'X'}", e.subject_id.code)
+									c = c.replace("{'TITLE'}", b.name)
+									c = c.replace("{'LEVEL'}", l.acronym)
+									c = c.replace("{'TOPIC'}", b.name)
+									c = c.replace("{'S_CODE'}", e.subject_id.code)
+									c = c.replace("{'S_NAME'}", b.subject_id.name)
+									c = c.replace("{'DEGREE'}", s.study_id.acronym)
+									c = c.replace("{'GROUP'}", s.main_group_id.acronym)
+									c = c.replace("{'TRAINER'}", "")
+									content += c
+
 					if append:
 						name += f" | {b.name}"
 						c = b.tsv_raw_text
@@ -121,9 +137,12 @@ class ems_limesurvey_header(models.Model):
 						c = c.replace("{'DEGREE'}", s.study_id.acronym)
 						c = c.replace("{'GROUP'}", s.main_group_id.acronym)
 						c = c.replace("{'TRAINER'}", "")
-
-						content += b.tsv_raw_text
-				surveys.append(content)
+						content += c
+				
+				name = hash(name)
+				if not name in surveys:
+					surveys[name] = content
+		return surveys
 
 	def _setup_teachers_surveys(self):
 		fake = 0
@@ -209,7 +228,7 @@ class ems_limesurvey_block(models.Model):
 	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header")
 	sort = fields.Integer(string="Sort", default=1)
 	special = fields.Boolean(string="Special behaviour", default=False)
-	special_course = fields.Integer(string="Course", default=0)
+	special_course_filter = fields.Integer(string="Course", default=0)
 	special_wpi_enrolled = fields.Boolean(string="WorkPlace Intership (if enrolled)", default=False)
 	special_subject_enrolled = fields.Boolean(string="Subject (all enrolled)", default=False)
 	notes = fields.Text(string="Notes")	

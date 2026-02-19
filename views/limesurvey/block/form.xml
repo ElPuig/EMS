@@ -17,7 +17,7 @@
 
                         <group string="Special behaviour" col="4" invisible="not special">
                             <group>
-                                <field string="Course filter" help="The block appears only for students enrolled in this course (0 = all)." name="special_course"/>
+                                <field string="Course filter" help="The block appears only for students enrolled in this course (0 = all)." name="special_course_filter"/>
                             </group>                            
                             <group>
                                 <field string="Repeat per subject" help="This block will be generated once per enrollred subject." name="special_subject_enrolled"/>

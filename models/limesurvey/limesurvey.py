@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 import requests, json, html, re
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
@@ -59,17 +60,31 @@ class ems_limesurvey_header(models.Model):
 		#		order to detect and fix problems quickly. 
 		
 		# TODO: uncomment once the LimeSurvey container becomes ready.
-		# ems_grp = self._get_ems_group()
-		# if not ems_grp:
-		# 	# The API does not allow to create groups.
-		# 	raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
+		ems_grp = self._get_ems_group()
+		if not ems_grp:
+			# The API does not allow to create groups.
+			raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
 		
+		start_time = time.time()
 		if(self.recipient == "students"): surveys = self._setup_students_surveys()
 		elif(self.recipient == "teachers"): surveys = self._setup_teachers_surveys()
 		elif(self.recipient == "asp"): surveys = self._setup_asp_surveys()
-		
-		for key in surveys:
-			data = surveys[key]
+		end_time = time.time()
+		execution_time = (end_time - start_time) * 1000
+
+		return {
+			'effect': {
+				'fadeout': 'slow',
+				'message': f"¡Éxito! Tiempo: {execution_time}ms",
+				'type': 'rainbow_man',
+			}
+		}			
+
+		# OPTIM -> 270 - 280 ms
+		# NO OP -> 1400 - 1500 ms
+
+		# for key in surveys:
+		# 	data = surveys[key]
 
 		# if not ems_grp:
 		# 	return {
@@ -91,59 +106,74 @@ class ems_limesurvey_header(models.Model):
 		# 		}
 		# 	}			
 
+	def _compute_survey_data(self, student, level, only_key):
+		name = f" | {self.name}_{level.acronym}"
+		if not only_key:
+			content = self.tsv_raw_text
+			content = content.replace("{'TITLE'}", self.title)
+			content = content.replace("{'DESCRIPTION'}", self.description)
+
+		for block in self.limesurvey_block_ids:
+			append = not block.special
+			if block.special:
+				if block.special_course_filter == 0 or (block.special_course_filter > 0 and block.special_course_filter == student.main_group_id.course):
+					# NOTE: special_course can be combined with WPI or Subject.
+					if not block.special_subject_enrolled and not block.special_wpi_enrolled: append = True	# Just course filter							
+					elif block.special_wpi_enrolled and student.wpi_enrolled: append = True
+					elif block.special_subject_enrolled:
+						# NOTE: Repeat the block for every enrolled subject.
+						for enroll in student.enrollment_ids:
+							name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.acronym}"
+							if not only_key:
+								tmp = block.tsv_raw_text
+								tmp = tmp.replace("{'X'}", enroll.subject_id.code)
+								tmp = tmp.replace("{'TITLE'}", block.name)
+								tmp = tmp.replace("{'LEVEL'}", level.acronym)
+								tmp = tmp.replace("{'TOPIC'}", block.name)
+								tmp = tmp.replace("{'S_CODE'}", enroll.subject_id.code)
+								tmp = tmp.replace("{'S_NAME'}", enroll.subject_id.name)
+								tmp = tmp.replace("{'DEGREE'}", student.study_id.acronym)
+								tmp = tmp.replace("{'GROUP'}", enroll.group_id.acronym)
+
+								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
+								teachers_names = "UNKNOWN" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
+								tmp = tmp.replace("{'TRAINER'}", teachers_names)
+								content += tmp
+			if append:
+				name += f" | {block.name}"	
+				if not only_key:
+					tmp = block.tsv_raw_text
+					tmp = tmp.replace("{'TITLE'}", block.name)
+					tmp = tmp.replace("{'LEVEL'}", level.acronym)
+					tmp = tmp.replace("{'TOPIC'}", block.name)
+					tmp = tmp.replace("{'S_CODE'}", block.name) # NOTE: this is not a mistake, the block name (topic) is used here also.
+					tmp = tmp.replace("{'S_NAME'}", block.name) # NOTE: this is not a mistake, the block name (topic) is used here also.
+					tmp = tmp.replace("{'DEGREE'}", student.study_id.acronym)
+					tmp = tmp.replace("{'GROUP'}", student.main_group_id.acronym)
+					tmp = tmp.replace("{'TRAINER'}", "")
+					content += tmp
+		return {
+			"key": hash(name), 
+			"raw_tsv": None if only_key else content
+		}
+
 	def _setup_students_surveys(self):
-		for l in self.level_ids:
-			students = self.env["res.partner"].search([("level_id", "=", l.id)]) or False
-
-			surveys = dict()
-			for s in students:
-				name = self.name
-				content = self.tsv_raw_text
-				content = content.replace("{'TITLE'}", self.title)
-				content = content.replace("{'DESCRIPTION'}", self.description)
-
-				for b in self.limesurvey_block_ids:
-					append = not b.special
-					if b.special:
-						if b.special_course_filter == 0 or (b.special_course_filter > 0 and b.special_course_filter == s.main_group_id.course):
-							# NOTE: special_course can be combined with WPI or Subject.
-							if not b.special_subject_enrolled and not b.special_wpi_enrolled: append = True								
-							elif b.special_wpi_enrolled and s.wpi_enrolled: append = True
-							elif b.special_subject_enrolled:
-								# NOTE: Repeat the block for every enrolled subject.
-								# TODO: performance will be boosted if we check first if the survey already exists? It's the same loop twice, but only to generate the key... I'm not sure if this will speed up anything...																
-								for e in s.enrollment_ids:
-									name += f" | {b.name}_{e.subject_id.code}"
-									c = b.tsv_raw_text
-									c = c.replace("{'X'}", e.subject_id.code)
-									c = c.replace("{'TITLE'}", b.name)
-									c = c.replace("{'LEVEL'}", l.acronym)
-									c = c.replace("{'TOPIC'}", b.name)
-									c = c.replace("{'S_CODE'}", e.subject_id.code)
-									c = c.replace("{'S_NAME'}", b.subject_id.name)
-									c = c.replace("{'DEGREE'}", s.study_id.acronym)
-									c = c.replace("{'GROUP'}", s.main_group_id.acronym)
-									c = c.replace("{'TRAINER'}", "")
-									content += c
-
-					if append:
-						name += f" | {b.name}"
-						c = b.tsv_raw_text
-						c = c.replace("{'TITLE'}", b.name)
-						c = c.replace("{'LEVEL'}", l.acronym)
-						c = c.replace("{'TOPIC'}", b.name)
-						c = c.replace("{'S_CODE'}", b.name) # NOTE: this is not a mistake, the block name (topic) is used here also.
-						c = c.replace("{'S_NAME'}", b.name) # NOTE: this is not a mistake, the block name (topic) is used here also.
-						c = c.replace("{'DEGREE'}", s.study_id.acronym)
-						c = c.replace("{'GROUP'}", s.main_group_id.acronym)
-						c = c.replace("{'TRAINER'}", "")
-						content += c
-				
-				name = hash(name)
-				if not name in surveys:
-					surveys[name] = content
+		surveys = dict()
+		for level in self.level_ids:
+			# NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).
+			students = self.env["res.partner"].search([("level_id", "=", level.id), ("main_group_id", "!=", False)])			
+			for student in students:
+				# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
+				#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).
+				key = self._compute_survey_data(student, level, True)["key"]
+				if key in surveys: surveys[key]["students"].append(student)
+				else: 
+					surveys[key] = {
+						"students": [student],
+						"raw_tsv": self._compute_survey_data(student, level, False)["raw_tsv"]
+					}					
 		return surveys
-
+	
 	def _setup_teachers_surveys(self):
 		fake = 0
 
@@ -198,7 +228,7 @@ class ems_limesurvey_header(models.Model):
 
 	def _get_ems_group(self):
 		result = self._run_api_request("list_survey_groups", [None])		
-		group_found = False if result is None else next((g for g in result if g['name'] == "ems"), None)
+		group_found = False if result is None else next((g for g in result if g['name'] == "EMS"), None)
 		return None if not group_found else group_found	
 
 	def _get_session_key(self, headers):

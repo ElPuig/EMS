@@ -29,7 +29,7 @@ class SaleOrder(models.Model):
         course = self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
         if not course:
             course = self.env['ems.course'].search([('is_current', '=', True)], limit=1)
-        return course
+        return course.id if course else False
 
     # Campo auxiliar para el filtro de la vista
     ems_existing_product_ids = fields.Many2many(
@@ -54,9 +54,18 @@ class SaleOrder(models.Model):
         required=True
     )
 
+    # Campo para seleccionar el nivel de estudios en la matrícula
+    ems_level_id = fields.Many2one(
+        comodel_name="ems.level",
+        string="Level",
+        related="ems_study_id.level_id", 
+        store=True # Recomendado para poder agrupar y filtrar por nivel en la vista lista
+    )
+
     # Modificamos el campo nativo 'sale_order_template_id' (Plantilla de Presupuesto)
     # Le aplicamos un dominio dinámico: Solo mostrar plantillas del estudio seleccionado arriba
     sale_order_template_id = fields.Many2one(
+        comodel_name='sale.order.template', 
         domain="[('ems_study_id', '=', ems_study_id)]"
     )
 
@@ -68,5 +77,5 @@ class SaleOrder(models.Model):
     @api.depends('order_line.product_template_id')
     def _compute_existing_products(self):
         for order in self:
-            # Extraemos los productos de las líneas actuales
-            order.ems_existing_product_ids = order.order_line.mapped('product_template_id')
+            valid_lines = order.order_line.filtered(lambda l: l.product_template_id)
+            order.ems_existing_product_ids = valid_lines.mapped('product_template_id')

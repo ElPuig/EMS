@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_sales_order_filter_inherit_ems_enrollment" model="ir.ui.view">
+            <field name="name">sale.order.search.inherit.ems.enrollment</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+            <field name="arch" type="xml">
+                
+                <xpath expr="//field[@name='name']" position="attributes">
+                    <attribute name="string">All Fields</attribute>
+                    <attribute name="filter_domain">['|', '|', '|', '|', '|', '|', '|', 
+                        ('name', 'ilike', self), 
+                        ('partner_id', 'ilike', self), 
+                        ('ems_level_id.name', 'ilike', self), 
+                        ('ems_level_id.acronym', 'ilike', self), 
+                        ('ems_study_id.name', 'ilike', self), 
+                        ('ems_study_id.acronym', 'ilike', self), 
+                        ('ems_study_id.code', 'ilike', self), 
+                        ('ems_course_id', 'ilike', self)]</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="string">Student</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="ems_level_id" string="Level" 
+                           filter_domain="['|', ('ems_level_id.name', 'ilike', self), ('ems_level_id.acronym', 'ilike', self)]"/>
+                    
+                    <field name="ems_study_id" string="Study" 
+                           filter_domain="['|', '|', ('ems_study_id.name', 'ilike', self), ('ems_study_id.acronym', 'ilike', self), ('ems_study_id.code', 'ilike', self)]"/>
+                           
+                    <field name="ems_course_id" string="Course"/>
+                </xpath>
+
+                <xpath expr="//field[@name='user_id']" position="attributes">
+                    <attribute name="invisible">1</attribute> </xpath>
+                <xpath expr="//field[@name='team_id']" position="attributes">
+                    <attribute name="invisible">1</attribute> </xpath>
+                <xpath expr="//field[@name='order_line']" position="attributes">
+                    <attribute name="invisible">1</attribute> </xpath>
+
+                <xpath expr="//filter[@name='salesperson']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//filter[@name='customer']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//filter[@name='order_month']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//group" position="inside">
+                    <filter string="Level" name="groupby_ems_level" context="{'group_by': 'ems_level_id'}"/>
+                    <filter string="Study" name="groupby_ems_study" context="{'group_by': 'ems_study_id'}"/>
+                    <filter string="Course" name="groupby_ems_course" context="{'group_by': 'ems_course_id'}"/>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

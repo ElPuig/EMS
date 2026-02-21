@@ -112,3 +112,9 @@ ems.access_ems_course_teacher,ems.access_ems_course_teacher,ems.model_ems_course
 
 ems.access_ems_student_benefit_admin,ems.access_ems_student_benefit_admin,ems.model_ems_student_benefit,ems.group_admin,1,1,1,1
 ems.access_ems_student_benefit_teacher,ems.access_ems_student_benefit_teacher,ems.model_ems_student_benefit,ems.group_teacher,1,0,0,0
+
+access_ems_authorization_template_admin,access.ems.authorization.template_admin,model_ems_authorization_template,ems.group_admin,1,1,1,1
+access_ems_authorization_template_teacher,access.ems.authorization.template_teacher,model_ems_authorization_template,ems.group_teacher,1,0,0,0
+
+access_ems_authorization_admin,access.ems.authorization_admin,model_ems_authorization,ems.group_admin,1,1,1,1
+access_ems_authorization_teacher,access.ems.authorization_teacher,model_ems_authorization,ems.group_teacher,1,0,0,0

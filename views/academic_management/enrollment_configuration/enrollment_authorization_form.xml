@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_ems_authorization_template_form" model="ir.ui.view">
+            <field name="name">ems.authorization.template.form</field>
+            <field name="model">ems.authorization.template</field>
+            <field name="arch" type="xml">
+                <form string="Authorization Template">
+                    <header>
+                        <button name="action_apply_to_open_enrollments" 
+                                type="object" 
+                                string="Apply to Pre-Enrollments" 
+                                class="oe_highlight" 
+                                confirm="Are you sure you want to add this authorization to all Pre-enrollments matching the criteria?"
+                                help="Search for pre-enrollments that match the levels and studies, and add this authorization if they don't have it yet."/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" placeholder="e.g. Image and Sound Use Authorization"/>
+                            </h1>
+                        </div>
+                        
+                        <group>
+                            <group string="Configuration">
+                                <field name="is_required" widget="boolean_toggle"/>
+                            </group>
+                            <group string="Scope of Application">
+                                <field name="ems_level_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                <field name="ems_study_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Legal Text" name="legal_text">
+                                <field name="legal_text" widget="html" options="{'style-inline': true}" placeholder="Enter the full legal text here..."/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

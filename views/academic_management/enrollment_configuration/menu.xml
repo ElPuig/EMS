@@ -11,6 +11,12 @@
                   parent="menu_ems_configuration"
                   action="action_ems_enrollment_items"
                   sequence="10"/>
+        
+        <menuitem id="menu_ems_authorization_forms"
+                  name="Authorization Forms"
+                  parent="menu_ems_configuration"
+                  action="action_ems_authorization_template"
+                  sequence="20"/>
 
     </data>
 </odoo>

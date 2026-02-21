@@ -186,6 +186,9 @@
         'views/academic_management/enrollment/enrollment_search.xml',
         'views/academic_management/enrollment_configuration/enrollment_items_form.xml',
         'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
+        'views/academic_management/enrollment_configuration/enrollment_authorization_search.xml',
+        'views/academic_management/enrollment_configuration/enrollment_authorization_view.xml',
+        'views/academic_management/enrollment_configuration/enrollment_authorization_form.xml',
         'views/academic_management/enrollment_configuration/menu.xml',
         
         'views/sales/product_view.xml',

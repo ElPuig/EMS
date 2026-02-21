@@ -1,0 +1,115 @@
+# -*- coding: utf-8 -*-
+from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+
+class EmsAuthorizationTemplate(models.Model):
+    _name = 'ems.authorization.template'
+    _description = 'Authorization Template'
+
+    name = fields.Char(string='Title', required=True, help="E.g., Image and Sound Use Authorization")
+    legal_text = fields.Html(string='Legal Text', required=True)
+    is_required = fields.Boolean(string='Mandatory to Respond', default=True)
+    
+    ems_level_ids = fields.Many2many(
+        'ems.level', 
+        string='Applies to Levels',
+        help="Select the levels this applies to."
+    )
+    
+    ems_study_ids = fields.Many2many(
+        'ems.study',
+        string='Applies to Studies',
+        help="Select the specific studies this applies to. If both Levels and Studies are empty, it applies to all enrollments."
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """
+        Override the template creation so that, as soon as it is created,
+        it is automatically linked to open enrollments.
+        """
+        # 1. Create the templates using Odoo's original method
+        templates = super(EmsAuthorizationTemplate, self).create(vals_list)
+        
+        # 2. Apply retroactive logic to each new template
+        for template in templates:
+            template.action_apply_to_open_enrollments()
+            
+        return templates
+
+    def action_apply_to_open_enrollments(self):
+        """
+        Search for pre-enrollments and add this authorization
+        if they match the Level and Study criteria.
+        """
+        self.ensure_one()
+        
+        # Only search for unconfirmed enrollments (draft = Quotation, sent = Quotation Sent)
+        domain = [('state', 'in', ['draft', 'sent'])]
+        
+        # If the template is restricted to specific levels, filter enrollments by those levels
+        if self.ems_level_ids:
+            domain.append(('ems_level_id', 'in', self.ems_level_ids.ids))
+            
+        # Same for studies
+        if self.ems_study_ids:
+            domain.append(('ems_study_id', 'in', self.ems_study_ids.ids))
+            
+        # Execute the database search
+        open_enrollments = self.env['sale.order'].search(domain)
+        
+        # Prepare a list of records to create (batch creation is much faster)
+        auths_to_create = []
+        for enrollment in open_enrollments:
+            # As a safety measure, check if this enrollment already has this template
+            existing = enrollment.ems_authorization_ids.filtered(lambda a: a.template_id == self)
+            if not existing:
+                auths_to_create.append({
+                    'enrollment_id': enrollment.id,
+                    'template_id': self.id,
+                    'status': 'pending',
+                })
+        
+        # Create the authorizations if there are valid candidates
+        if auths_to_create:
+            self.env['ems.authorization'].create(auths_to_create)    
+
+class EmsAuthorization(models.Model):
+    _name = 'ems.authorization'
+    _description = 'Enrollment Authorization'
+
+    enrollment_id = fields.Many2one('sale.order', string='Enrollment', ondelete='cascade', required=True)
+    template_id = fields.Many2one('ems.authorization.template', string='Template', required=True)
+    
+    legal_text = fields.Html(related='template_id.legal_text', string="Legal Text", readonly=True)
+    
+    status = fields.Selection([
+        ('pending', 'Pending'),
+        ('yes', 'Accepted'),
+        ('no', 'Rejected')
+    ], string='Status', default='pending', required=True)
+    
+    response_date = fields.Datetime(string='Response Date', readonly=True)
+    signed_document = fields.Binary(string='Signed Document', attachment=True)
+    signed_document_name = fields.Char(string='Document Name')
+
+    _sql_constraints = [
+        ('unique_enrollment_template', 'unique(enrollment_id, template_id)', 'This authorization is already requested in this enrollment.')
+    ]
+
+    def write(self, vals):
+        """
+        Intercepts the write method to enforce that internal users (admins/staff)
+        must attach a document if they manually change the status.
+        """
+        # Check if the 'status' is being changed to something other than 'pending'
+        if 'status' in vals and vals['status'] != 'pending':
+            for auth in self:
+                # Get the document from the current save operation, or from the database if it was already there
+                current_doc = vals.get('signed_document', auth.signed_document)
+                
+                # Check if the user is an internal user (staff/admin) and the document is missing
+                if not current_doc and self.env.user.has_group('base.group_user'):
+                    raise ValidationError("You must attach a signed PDF document to manually change the authorization status.")
+                    
+        return super(EmsAuthorization, self).write(vals)

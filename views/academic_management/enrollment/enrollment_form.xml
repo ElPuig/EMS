@@ -42,8 +42,12 @@
                 <attribute name="domain">
                     [
                         '&amp;',
-                        '|', ('ems_study_ids', '=', parent.ems_study_id), ('is_generic', '=', True),
-                        ('id', 'not in', parent.ems_existing_product_ids)
+                            '|', 
+                                ('ems_study_ids', '=', parent.ems_study_id), 
+                                '&amp;',
+                                    ('is_generic', '=', True),
+                                    ('ems_level_ids', 'in', parent.ems_level_id ),
+                            ('id', 'not in', parent.ems_existing_product_ids)
                     ]
                 </attribute>
                 <attribute name="options">{'no_create': True, 'no_open': True}</attribute>

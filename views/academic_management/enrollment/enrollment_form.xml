@@ -100,7 +100,7 @@
                 <page string="Authorizations" name="ems_authorizations">
                     <field name="ems_authorization_ids">
                         <list editable="bottom" create="0">
-                            <field name="template_id" options="{'no_open': True, 'no_create': True}" readonly="1"/>
+                            <field name="template_id" options="{'no_open': True, 'no_create': True}" readonly="1" force_save="1"/>
                             
                             <field name="status" 
                                    decoration-danger="status == 'no'" 
@@ -110,7 +110,7 @@
                             <field name="signed_document" filename="signed_document_name" widget="binary"/>
                             <field name="signed_document_name" column_invisible="True"/>
                             
-                            <field name="response_date" readonly="1"/>
+                            <field name="response_date" readonly="1" force_save="1"/>
                         </list>
                     </field>
                 </page>

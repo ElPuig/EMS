@@ -269,3 +269,12 @@ class ems_limesurvey_block(models.Model):
 			# TODO: mutually excluded, check if it's more appropiate to use radios instead of checkboxes.
 			if rec.special_wpi_enrolled: rec.special_subject_enrolled = False
 			elif rec.special_subject_enrolled: rec.special_wpi_enrolled = False
+
+class ems_limesurvey_recipient(models.Model):
+	_name = "ems.limesurvey_recipient"
+	_description = "LimeSurvey recipient: contains the relation between a recipient and its survey."
+	_inherit = ['ems.base']
+	
+	recipient_mail = fields.Char(string="Recipient's email", requiered=True)
+	survey_name = fields.Char(string="Survey's Name", requiered=True)
+	

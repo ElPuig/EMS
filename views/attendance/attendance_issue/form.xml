@@ -69,13 +69,16 @@
                                         <field name="group_id"  width="100px"/>
                                         <field name="space_id" width="150px"/>
                                         <field name="teacher_id" widget="many2one_avatar" width="200px"/>
+                                        
                                         <field name="attendance_status" string="Attendance" width="100px" />                                        
                                         <field name="notes" width="500px" />
                                         <!-- 
                                             TODO: develop a custom component to work as tags but using the email field (or beeing able to choose the field). Then, change the field to res.partner relation instead of Char. 
                                             https://github.com/ElPuig/EMS/issues/103
                                         -->
-                                        <field name="send_to" width="500px"/>
+                                        <field name="student_partner_id" column_invisible="True"/>
+                                        <!-- We still need send_to to show email-->
+                                        <field name="send_to" width="500px" widget="open_popup_info" options="{'related_id_field': 'student_partner_id','res_model': 'res.partner','title': 'Información de contacto'}"/>
                                         <field name="schedule_date" width="150px"/>
                                         <field name="notification_status" string="Notification" width="100px"/>
                                         

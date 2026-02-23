@@ -72,6 +72,9 @@ class ems_attendance_issue_status(models.Model):
 	pending = fields.Boolean(string="Pending", compute="_compute_pending", store=False)
 	rectified_by = fields.Many2one(string="Rectified by", comodel_name="ems.attendance_issue_status", ondelete='cascade')
 	rectification = fields.Boolean(string="Rectification", default=False)
+
+	# ID of contact needed to open on form model page
+	student_partner_id = fields.One2many(string="Contacto", related="attendance_issue_student_id.student_id.child_ids")
 	
 	# NOTE: tutor needed for permission purposes
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 	

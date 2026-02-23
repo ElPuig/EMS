@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="ems.PopupInfo" owl="1">
+        <div class="o_field_widget d-flex flex-wrap gap-1 align-items-center">
+            <t t-foreach="tags" t-as="tag" t-key="tag.id">
+                
+                <span t-on-click="() => this.openTag(tag.resId)"
+                      t-att-class="tag.isClickable ? 'badge rounded-pill text-bg-info cursor-pointer' : 'badge rounded-pill text-bg-light'"
+                      t-att-style="tag.isClickable ? 'cursor: pointer;' : ''"
+                      title="Abrir ficha">
+                    
+                    <t t-esc="tag.text"/>
+                    <i t-if="tag.isClickable" class="fa fa-external-link ms-1" style="font-size: 0.7em; opacity:0.8;"></i>
+                </span>
+
+            </t>
+        </div>
+    </t>
+
+</templates>

@@ -18,7 +18,7 @@
                                 <field name="name"/>
                             </group>
                             <group>
-                                <field name="recipient"/>
+                                <field name="target"/>
                             </group>
                             <group colspan="2">
                                 <field name="level_ids" widget="many2many_tags"/>
@@ -40,6 +40,15 @@
                                     <list>
                                         <field name="sort" widget="handle"/>
                                         <field name="name"/>                                        
+                                    </list>
+                                </field>
+                            </page>
+
+                            <page string="Recipients">
+                                <field name="limesurvey_recipient_ids" readonly="True" force_save="True">
+                                    <list sort="recipient_mail" no_open="True">
+                                        <field name="recipient"/>
+                                        <field name="survey"/>                                        
                                     </list>
                                 </field>
                             </page>

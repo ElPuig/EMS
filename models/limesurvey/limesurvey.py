@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import time
 import requests, json, html, re
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
-survey_recipient_selection = [("students", "Students"), ("teachers", "Teachers"), ("asp", "ASP")]
+survey_target_selection = [("students", "Students"), ("teachers", "Teachers"), ("asp", "ASP")]
 
 class ems_limesurvey_header(models.Model):
 	_name = "ems.limesurvey_header"
@@ -13,28 +12,30 @@ class ems_limesurvey_header(models.Model):
 	_inherit = ['ems.base']
 	
 	name = fields.Char(string="Name", required=True)
-	recipient = fields.Selection(string="Recipient", selection=survey_recipient_selection)
+	title = fields.Char(string="Title", required=True)
+	description = fields.Char(string="Description", required=True)
+	target = fields.Selection(string="Target", selection=survey_target_selection)
 	level_ids = fields.Many2many(string="Level", comodel_name="ems.level")
 	tsv_raw_text = fields.Text(string="Header's content (tab separated)", required=True)
 	limesurvey_block_ids = fields.One2many(string="Blocks", comodel_name="ems.limesurvey_block", inverse_name="limesurvey_header_id")
-	title = fields.Char(string="Title", required=True)
-	description = fields.Char(string="Description", required=True)
+	limesurvey_recipient_ids = fields.One2many(string="Recipients", comodel_name="ems.limesurvey_recipient", inverse_name="limesurvey_header_id")
+	
 	notes = fields.Text(string="Notes")
 	
-	@api.depends("name", "recipient", "level_ids")
+	@api.depends("name", "target", "level_ids")
 	def _compute_display_name(self):			
 		for rec in self:				
-			recipient = dict(survey_recipient_selection).get(rec.recipient)		
-			if not rec.level_ids and not rec.recipient:
+			target = dict(survey_target_selection).get(rec.target)		
+			if not rec.level_ids and not rec.target:
 				rec.display_name = "" if not rec.name else rec.name
 			elif not rec.level_ids:
-				rec.display_name = "%s: %s" % (rec.name, recipient)
+				rec.display_name = "%s: %s" % (rec.name, target)
 			else:
 				levels = []
 				for l in rec.level_ids:
 					levels.append(l.acronym)
 				level_str = str.join(", ", levels)				
-				rec.display_name = "%s: %s (%s)" % (rec.name, recipient, level_str) if rec.recipient else "%s (%s)" % (rec.name, level_str)
+				rec.display_name = "%s: %s (%s)" % (rec.name, target, level_str) if rec.target else "%s (%s)" % (rec.name, level_str)
 
 	def action_test(self):
 		# TODO: Expected behaviour:
@@ -42,11 +43,11 @@ class ems_limesurvey_header(models.Model):
 		#			1.1. If exists, keeps its ID.
 		#			1.2. If don't, fires exceptions and requires to create manually the group using the same user (suggest also the description).
 		#
-		#		2. Every survey will be created into the same group, because the EMS will keep track between every recipient and its survey.
+		#		2. Every survey will be created into the same group, because the EMS will keep track between every target and its survey.
 		#		3. The surveys will be created as "{DisplayName} - {hasCode}". The hashCode will be computed as:
 		#		   Sort subject codes.
 		#			
-		#		4. A new sheet called "Current recipients" will contain the relation between recipients (Name, email, survey_recipient_selection, limesurvey survey name, limsurvey survey link).
+		#		4. A new sheet called "Recipients" will contain the relation between recipients (Name, email, survey_target_selection, limesurvey survey name, limsurvey survey link).
 		#		5. Buttons (or a kind of wizard with progress like in emails section) in the following order:
 		#			5.1. Create the surveys in LimeSurvey (once used, disables the option).
 		#			5.2. Enable the surveys in LimeSurvey and send invitations (once used, disables the option).
@@ -65,17 +66,18 @@ class ems_limesurvey_header(models.Model):
 			# The API does not allow to create groups.
 			raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
 		
-		start_time = time.time()
-		if(self.recipient == "students"): surveys = self._setup_students_surveys()
-		elif(self.recipient == "teachers"): surveys = self._setup_teachers_surveys()
-		elif(self.recipient == "asp"): surveys = self._setup_asp_surveys()
-		end_time = time.time()
-		execution_time = (end_time - start_time) * 1000
+		gsid = ems_grp["gsid"]
+		if(self.target == "students"): surveys = self._setup_students_surveys(gsid)
+		elif(self.target == "teachers"): surveys = self._setup_teachers_surveys(gsid)
+		elif(self.target == "asp"): surveys = self._setup_asp_surveys(gsid)
+		
+		self._setup_recipients(surveys)
+		self._upload_surveys(surveys)
 
 		return {
 			'effect': {
 				'fadeout': 'slow',
-				'message': f"¡Éxito! Tiempo: {execution_time}ms",
+				'message': f"¡Éxito!",
 				'type': 'rainbow_man',
 			}
 		}			
@@ -106,10 +108,32 @@ class ems_limesurvey_header(models.Model):
 		# 		}
 		# 	}			
 
-	def _compute_survey_data(self, student, level, only_key):
+	def _setup_recipients(self, surveys):
+		# TODO: current items should be deleted (not just unlinked), but this should not happen till a complete refresh...
+		recipients = [[5]]
+		for srv in surveys:
+			for code in surveys[srv]["recipients"]:
+				recipients.append([0, 0, {
+					"survey": srv,
+					"recipient": code				
+				}])
+
+		self.write({
+			"limesurvey_recipient_ids": recipients
+		})
+
+	def _upload_surveys(self, surveys):
+		for srv in surveys:
+			data = surveys[srv]["raw_tsv"]
+			result = self._run_api_request("import_survey", [data, "txt"])		
+			# group_found = False if result is None else next((g for g in result if g['name'] == "EMS"), None)
+			# return None if not group_found else group_found	
+
+	def _compute_survey_data(self, gsid, student, level, only_key):
 		name = f" | {self.name}_{level.acronym}"
 		if not only_key:
 			content = self.tsv_raw_text
+			content = content.replace("{'GSID'}", str(gsid))
 			content = content.replace("{'TITLE'}", self.title)
 			content = content.replace("{'DESCRIPTION'}", self.description)
 
@@ -157,7 +181,7 @@ class ems_limesurvey_header(models.Model):
 			"raw_tsv": None if only_key else content
 		}
 
-	def _setup_students_surveys(self):
+	def _setup_students_surveys(self, gsid):
 		surveys = dict()
 		for level in self.level_ids:
 			# NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).
@@ -165,19 +189,19 @@ class ems_limesurvey_header(models.Model):
 			for student in students:
 				# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
 				#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).
-				key = self._compute_survey_data(student, level, True)["key"]
-				if key in surveys: surveys[key]["students"].append(student)
+				key = self._compute_survey_data(gsid, student, level, True)["key"]
+				if key in surveys: surveys[key]["recipients"].append(student.student_email)
 				else: 
 					surveys[key] = {
-						"students": [student],
-						"raw_tsv": self._compute_survey_data(student, level, False)["raw_tsv"]
+						"recipients": [student.student_email],
+						"raw_tsv": self._compute_survey_data(gsid, student, level, False)["raw_tsv"]
 					}					
 		return surveys
 	
-	def _setup_teachers_surveys(self):
+	def _setup_teachers_surveys(self, gsid):
 		fake = 0
 
-	def _setup_asp_surveys(self):
+	def _setup_asp_surveys(self, gsid):
 		fake = 0
 
 	def _run_api_request(self, method, params=[]):
@@ -269,12 +293,13 @@ class ems_limesurvey_block(models.Model):
 			# TODO: mutually excluded, check if it's more appropiate to use radios instead of checkboxes.
 			if rec.special_wpi_enrolled: rec.special_subject_enrolled = False
 			elif rec.special_subject_enrolled: rec.special_wpi_enrolled = False
-
 class ems_limesurvey_recipient(models.Model):
 	_name = "ems.limesurvey_recipient"
 	_description = "LimeSurvey recipient: contains the relation between a recipient and its survey."
 	_inherit = ['ems.base']
 	
-	recipient_mail = fields.Char(string="Recipient's email", requiered=True)
-	survey_name = fields.Char(string="Survey's Name", requiered=True)
+	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header")
+	recipient = fields.Char(string="Recipient's email", required=True)
+	survey = fields.Char(string="Survey's Code", required=True)
+	
 	

@@ -1,22 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 
-class SaleOrderTemplate(models.Model):
-    _inherit = "sale.order.template"
-
-    # Campo para vincular la plantilla (Pack) a un Estudio concreto
-    ems_study_id = fields.Many2one(
-        'ems.study', 
-        string="Academic Study",
-        help="Define which study this enrollment belongs to."
-    )
-    # Campo auxiliar para ver el nivel (CFGS, Grado, etc) automáticamente
-    ems_level_id = fields.Many2one(
-        related='ems_study_id.level_id', 
-        store=True, 
-        string="Nivel"
-    )
-
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 

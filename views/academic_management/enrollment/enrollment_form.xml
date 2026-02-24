@@ -115,34 +115,6 @@
                     </field>
                 </page>
             </xpath>            
-<!--        <xpath expr="//notebook" position="inside">
-                <page string="Authorizations" name="ems_authorizations">
-                    <field name="ems_authorization_ids">
-                        <list editable="bottom" create="0">
-                            <field name="template_id" options="{'no_open': True, 'no_create': True}"/>
-                            <field name="status" widget="badge" 
-                                   decoration-danger="status == 'no'" 
-                                   decoration-success="status == 'yes'" 
-                                   decoration-warning="status == 'pending'"/>
-                            <field name="response_date"/>
-                        </list>
-                    </field>
-                </page>
-            </xpath>-->
-        </field>
-    </record>
-
-    <record id="sale_order_template_view_form_inherit_ems" model="ir.ui.view">
-        <field name="name">sale.order.template.form.ems</field>
-        <field name="model">sale.order.template</field>
-        <field name="inherit_id" ref="sale_management.sale_order_template_view_form"/>
-        <field name="arch" type="xml">
-            
-            <field name="name" position="after">
-                <field name="ems_study_id" required="1" options="{'no_create': True}"/>
-                <field name="ems_level_id" readonly="1" force_save="1"/>
-            </field>
-
         </field>
     </record>
 

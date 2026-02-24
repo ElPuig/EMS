@@ -18,5 +18,11 @@
                   action="action_ems_authorization_template"
                   sequence="20"/>
 
+        <menuitem id="menu_ems_enrollment_templates"
+                  name="Enrollment Templates"
+                  parent="menu_ems_configuration"
+                  action="action_ems_enrollment_template"
+                  sequence="30"/>
+
     </data>
 </odoo>

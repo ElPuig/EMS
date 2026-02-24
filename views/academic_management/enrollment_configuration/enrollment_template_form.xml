@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_sale_order_template_form_inherit_ems" model="ir.ui.view">
+            <field name="name">sale.order.template.form.inherit.ems</field>
+            <field name="model">sale.order.template</field>
+            <field name="inherit_id" ref="sale_management.sale_order_template_view_form"/>
+            <field name="arch" type="xml">
+                
+                <xpath expr="//label[@for='name']" position="attributes">
+                    <attribute name="string">Enrollment Template</attribute>
+                </xpath>
+                
+                <xpath expr="//page[@name='order_lines']" position="attributes">
+                    <attribute name="string">Enrollment Items</attribute>
+                </xpath>
+
+                <xpath expr="//sheet/group[1]" position="before">
+                    <group>
+                        <group name="ems_academic_info" string="Academic Information">
+                            <field name="ems_study_id" required="1" options="{'no_create': True}"/>
+                            <field name="ems_level_id" readonly="1" force_save="1"/>
+                        </group>
+                    </group>
+                    <field name="ems_existing_product_ids" invisible="1"/>
+                </xpath>
+
+                <xpath expr="//label[@for='number_of_days']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='number_of_days']/.." position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='mail_template_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='journal_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='require_signature']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                
+                <xpath expr="//label[@for='require_payment']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='require_payment']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//page[@name='optional_products']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//page[field[@name='note']]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='sale_order_template_line_ids']/list//field[@name='product_id']" position="attributes">
+                    <attribute name="domain">
+                        [
+                            '&amp;',
+                                '|', 
+                                    ('ems_study_ids', '=', parent.ems_study_id), 
+                                    '&amp;',
+                                        ('is_generic', '=', True),
+                                        ('ems_level_ids', 'in', parent.ems_level_id ),
+                                ('id', 'not in', parent.ems_existing_product_ids)
+                        ]
+                    </attribute>
+                    <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
+                    <attribute name="string">Enrollment Item</attribute>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

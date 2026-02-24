@@ -72,7 +72,28 @@ class EmsAuthorizationTemplate(models.Model):
         
         # Create the authorizations if there are valid candidates
         if auths_to_create:
-            self.env['ems.authorization'].create(auths_to_create)    
+            self.env['ems.authorization'].create(auths_to_create)
+
+    def action_remove_from_open_enrollments(self):
+        """
+        Search for pending authorizations linked to this template
+        in open pre-enrollments (draft/sent) and remove them.
+        Signed/Answered authorizations are protected and ignored.
+        """
+        self.ensure_one()
+        
+        # Buscamos las autorizaciones que cumplen los criterios de eliminación
+        auths_to_delete = self.env['ems.authorization'].search([
+            ('template_id', '=', self.id),
+            ('status', '=', 'pending'), # Protección vital: solo borramos las pendientes
+            ('enrollment_id.state', 'in', ['draft', 'sent'])
+        ])
+        
+        # Si encuentra alguna, la elimina (unlink)
+        if auths_to_delete:
+            # Opcional: Podrías contar cuántas se borran si quisieras devolver un mensaje,
+            # pero el método unlink() directo es la forma más limpia en Odoo.
+            auths_to_delete.unlink()
 
 class EmsAuthorization(models.Model):
     _name = 'ems.authorization'

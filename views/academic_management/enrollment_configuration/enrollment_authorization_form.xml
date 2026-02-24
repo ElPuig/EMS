@@ -13,6 +13,12 @@
                                 class="oe_highlight" 
                                 confirm="Are you sure you want to add this authorization to all Pre-enrollments matching the criteria?"
                                 help="Search for pre-enrollments that match the levels and studies, and add this authorization if they don't have it yet."/>
+                        
+                        <button name="action_remove_from_open_enrollments" 
+                                type="object" 
+                                string="Remove from Pre-Enrollments" 
+                                confirm="Are you sure you want to remove this authorization from all Pre-enrollments? (It is recommended to only remove unsigned ones)."
+                                help="Search for pre-enrollments that have this authorization and remove it."/>
                     </header>
                     <sheet>
                         <div class="oe_title">

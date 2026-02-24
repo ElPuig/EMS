@@ -99,7 +99,7 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Authorizations" name="ems_authorizations">
                     <field name="ems_authorization_ids">
-                        <list editable="bottom" create="0">
+                        <list editable="bottom" create="0" delete="0">
                             <field name="template_id" options="{'no_open': True, 'no_create': True}" readonly="1" force_save="1"/>
                             
                             <field name="status" 

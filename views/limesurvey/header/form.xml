@@ -48,7 +48,8 @@
                                 <field name="limesurvey_recipient_ids" readonly="True" force_save="True">
                                     <list sort="recipient_mail" no_open="True">
                                         <field name="recipient"/>
-                                        <field name="survey"/>                                        
+                                        <field name="external_id"/>                                        
+                                        <field name="internal_id"/>                                        
                                     </list>
                                 </field>
                             </page>

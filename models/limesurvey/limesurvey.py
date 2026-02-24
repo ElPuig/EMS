@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import requests, json, html, re
+import requests, json, html, re, base64
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
@@ -66,13 +66,12 @@ class ems_limesurvey_header(models.Model):
 			# The API does not allow to create groups.
 			raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
 		
-		gsid = ems_grp["gsid"]
-		if(self.target == "students"): surveys = self._setup_students_surveys(gsid)
-		elif(self.target == "teachers"): surveys = self._setup_teachers_surveys(gsid)
-		elif(self.target == "asp"): surveys = self._setup_asp_surveys(gsid)
+		if(self.target == "students"): surveys = self._setup_students_surveys()
+		elif(self.target == "teachers"): surveys = self._setup_teachers_surveys()
+		elif(self.target == "asp"): surveys = self._setup_asp_surveys()
 		
+		self._upload_surveys(surveys, ems_grp["gsid"])
 		self._setup_recipients(surveys)
-		self._upload_surveys(surveys)
 
 		return {
 			'effect': {
@@ -111,29 +110,34 @@ class ems_limesurvey_header(models.Model):
 	def _setup_recipients(self, surveys):
 		# TODO: current items should be deleted (not just unlinked), but this should not happen till a complete refresh...
 		recipients = [[5]]
-		for srv in surveys:
-			for code in surveys[srv]["recipients"]:
+		for key in surveys:
+			for mail in surveys[key]["recipients"]:
 				recipients.append([0, 0, {
-					"survey": srv,
-					"recipient": code				
+					"internal_id": key,
+					"external_id": surveys[key]["external_id"],
+					"recipient": mail				
 				}])
 
 		self.write({
 			"limesurvey_recipient_ids": recipients
 		})
 
-	def _upload_surveys(self, surveys):
-		for srv in surveys:
-			data = surveys[srv]["raw_tsv"]
-			result = self._run_api_request("import_survey", [data, "txt"])		
-			# group_found = False if result is None else next((g for g in result if g['name'] == "EMS"), None)
-			# return None if not group_found else group_found	
+	def _upload_surveys(self, surveys, gsid):
+		for key in surveys:			
+			data = base64.b64encode(surveys[key]["raw_tsv"].encode('utf-8')).decode('utf-8')
+			id = self._run_api_request("import_survey", [data, "txt"])
+			
+			if isinstance(id, int) or (isinstance(id, str) and id.isdigit()):
+				# TODO: impprting via XML allows to set the GSID, would be nice to reduce the amount of calls to the API (is slow)!
+				surveys[key]["external_id"] = id
+				result = self._run_api_request("set_survey_properties", [id, {"gsid": gsid}])				
 
-	def _compute_survey_data(self, gsid, student, level, only_key):
+	def _compute_survey_data(self, student, level, only_key):
 		name = f" | {self.name}_{level.acronym}"
 		if not only_key:
 			content = self.tsv_raw_text
-			content = content.replace("{'GSID'}", str(gsid))
+			#content = content.replace("{'SID'}", "str(key)") # it's better to set it automatically and relate it with our hash internally
+			#content = content.replace("{'GSID'}", str(gsid)) # ignored by the import engine using TSV...
 			content = content.replace("{'TITLE'}", self.title)
 			content = content.replace("{'DESCRIPTION'}", self.description)
 
@@ -176,12 +180,13 @@ class ems_limesurvey_header(models.Model):
 					tmp = tmp.replace("{'GROUP'}", student.main_group_id.acronym)
 					tmp = tmp.replace("{'TRAINER'}", "")
 					content += tmp
+		
 		return {
 			"key": hash(name), 
 			"raw_tsv": None if only_key else content
 		}
 
-	def _setup_students_surveys(self, gsid):
+	def _setup_students_surveys(self):
 		surveys = dict()
 		for level in self.level_ids:
 			# NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).
@@ -189,19 +194,19 @@ class ems_limesurvey_header(models.Model):
 			for student in students:
 				# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
 				#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).
-				key = self._compute_survey_data(gsid, student, level, True)["key"]
+				key = self._compute_survey_data(student, level, True)["key"]
 				if key in surveys: surveys[key]["recipients"].append(student.student_email)
 				else: 
 					surveys[key] = {
 						"recipients": [student.student_email],
-						"raw_tsv": self._compute_survey_data(gsid, student, level, False)["raw_tsv"]
+						"raw_tsv": self._compute_survey_data(student, level, False)["raw_tsv"]
 					}					
 		return surveys
 	
-	def _setup_teachers_surveys(self, gsid):
+	def _setup_teachers_surveys(self):
 		fake = 0
 
-	def _setup_asp_surveys(self, gsid):
+	def _setup_asp_surveys(self):
 		fake = 0
 
 	def _run_api_request(self, method, params=[]):
@@ -300,6 +305,7 @@ class ems_limesurvey_recipient(models.Model):
 	
 	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header")
 	recipient = fields.Char(string="Recipient's email", required=True)
-	survey = fields.Char(string="Survey's Code", required=True)
+	external_id = fields.Char(string="External ID", required=True)
+	internal_id = fields.Char(string="Internal ID", required=True)
 	
 	

@@ -6,11 +6,38 @@
             <field name="arch" type="xml">
                 <form string="Survey">
                     <header>
-                        <button name="action_test" 
-                                string="TEST" 
+                        <button name="action_next" 
+                                string="Upload surveys" 
                                 type="object" 
                                 class="oe_highlight" 
-                                icon="fa-search"/>
+                                icon="fa-play"
+                                invisible="state != 'draft'"/>
+
+                        <!-- This approach does not work :( -->
+                        <!-- <button name="action_next" 
+                                string="Open surveys" 
+                                type="object" 
+                                class="oe_highlight" 
+                                icon="fa-arrow-right"
+                                readonly="state != 'uploaded'"
+                                invisible="state not in ('uploading', 'uploaded')"/> -->
+
+                        <button name="action_next" 
+                                string="Open surveys" 
+                                type="object" 
+                                class="oe_highlight" 
+                                icon="fa-arrow-right"
+                                disabled="True"
+                                invisible="state != 'uploading'"/>
+
+                        <button name="action_next" 
+                                string="Open surveys" 
+                                type="object" 
+                                class="oe_highlight" 
+                                icon="fa-arrow-right"
+                                invisible="state != 'uploaded'"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,uploading,uploaded,open,closed,downloaded"/>
                     </header>
                     <sheet>
                         <group string="Main data" col="4">

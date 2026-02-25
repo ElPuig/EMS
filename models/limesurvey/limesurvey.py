@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import requests, json, html, re, base64
-from odoo import models, fields, api, _
+import requests, json, html, re, base64, threading
+from odoo import models, fields, api, registry, _
 from odoo.exceptions import UserError
+from markupsafe import Markup
 
 survey_target_selection = [("students", "Students"), ("teachers", "Teachers"), ("asp", "ASP")]
 
@@ -60,27 +61,46 @@ class ems_limesurvey_header(models.Model):
 		#		In that case, download the data and metabase import can wait, the priority is to create and manage recipients in
 		#		order to detect and fix problems quickly. 
 		
-		# TODO: uncomment once the LimeSurvey container becomes ready.
 		ems_grp = self._get_ems_group()
 		if not ems_grp:
-			# The API does not allow to create groups.
+			#NOTE: The LimeSurvey's API does not allow to create groups.
 			raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
-		
+			
 		if(self.target == "students"): surveys = self._setup_students_surveys()
 		elif(self.target == "teachers"): surveys = self._setup_teachers_surveys()
 		elif(self.target == "asp"): surveys = self._setup_asp_surveys()
 		
-		self._upload_surveys(surveys, ems_grp["gsid"])
-		self._upload_recipients(surveys)
-		self._store_recipients(surveys)
+		user_id = self.env.uid
+		db_name = self.env.cr.dbname
 
+		threaded_sync = threading.Thread(
+            target=self._thread_import, 
+            args=(surveys, ems_grp, user_id, db_name)
+        )
+		
+		threaded_sync.start()
 		return {
-			'effect': {
-				'fadeout': 'slow',
-				'message': f"¡Éxito!",
-				'type': 'rainbow_man',
-			}
-		}			
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("LimeSurvey Import"),
+                'message': _("Starting process in the background..."),
+                'type': 'info', # Can be: 'success', 'warning', 'danger', 'info'
+                'sticky': True, # If True, the user should close it manually
+            }
+        }
+
+		# self._upload_surveys(surveys, ems_grp["gsid"])
+		# self._upload_recipients(surveys)
+		# self._store_recipients(surveys)
+
+		# return {
+		# 	'effect': {
+		# 		'fadeout': 'slow',
+		# 		'message': f"¡Éxito!",
+		# 		'type': 'rainbow_man',
+		# 	}
+		# }			
 
 		# OPTIM -> 270 - 280 ms
 		# NO OP -> 1400 - 1500 ms
@@ -108,23 +128,63 @@ class ems_limesurvey_header(models.Model):
 		# 		}
 		# 	}			
 
-	def _store_recipients(self, surveys):
+	def _notify(self, cr, message, type, sticky):
+		self.env["bus.bus"]._sendone(
+			self.env.user.partner_id, "simple_notification", {
+				"title": _("LimeSurvey import"), 
+				"message": message, 
+				"type": type,
+				"sticky": sticky
+			}
+		)
+		cr.commit()
+
+	def _thread_import(self, surveys, ems_grp, user_id, db_name):
+		# NOTE: important to avoid timeouts, because the main Odoo window becomes blocked till the method finishes...
+		db_registry = registry(db_name)
+		with db_registry.cursor() as cr:			
+			self.env = api.Environment(cr, user_id, {})
+			success = True
+			try:
+				success = success and self._upload_surveys(cr, surveys, ems_grp["gsid"])								
+				success = success and self._upload_recipients(cr, surveys)				
+				success = success and self._store_recipients(cr, surveys)				
+				cr.commit()
+
+			except Exception as e:
+				success = False
+				self._notify(cr, _(f"Something failed: {e}"), "danger", True)				
+				
+			if success: self._notify(cr, _("Importation process successfully completed!"), "success", True)
+			else: self._notify(cr, _("Importation process completed with some errors."), "warning", True)
+			# finally:
+			# 	# NOTE: otherwise the notifications ren't sent
+			# 	new_cr.commit()
+
+	def _store_recipients(self, cr, surveys):
 		# TODO: current items should be deleted (not just unlinked), but this should not happen till a complete refresh...
-		recipients = [[5]]
-		for key in surveys:
-			for r in surveys[key]["recipients"]:
-				recipients.append([0, 0, {
-					"name": r["firstname"],
-					"email": r["email"],
-					"internal_id": key,
-					"external_id": surveys[key]["external_id"]
-				}])
+		try:
+			recipients = [[5]]
+			for key in surveys:
+				for r in surveys[key]["recipients"]:
+					recipients.append([0, 0, {
+						"name": r["firstname"],
+						"email": r["email"],
+						"internal_id": key,
+						"external_id": surveys[key]["external_id"]
+					}])
 
-		self.write({
-			"limesurvey_recipient_ids": recipients
-		})
+			self.write({
+				"limesurvey_recipient_ids": recipients
+			})
 
-	def _upload_recipients(self, surveys):	
+			return True
+		except Exception as e:
+			self._notify(cr, _(f"Something failed when trying to store recipients and survey IDs correlation: {e}"), "danger", True)			
+			return False
+
+	def _upload_recipients(self, cr, surveys):			
+		success = True
 		for key in surveys:
 			id = surveys[key]["external_id"]
 			recipients = surveys[key]["recipients"]
@@ -133,20 +193,32 @@ class ems_limesurvey_header(models.Model):
 			errors = []
 			for index, row in enumerate(resultados):
 				if isinstance(row, dict) and "error" in row:
-					errors.append(f"Error adding the recipient '{recipients[index]['firstname']}' with email '{recipients[index]['email']}': {row['error']}")				
-		return errors
+					errors.append(f"- '{recipients[index]['firstname']}' with email '{recipients[index]['email']}': {row['error']}")
 
-	def _upload_surveys(self, surveys, gsid):
+			if len(errors) == 0:
+				self._notify(cr, _(f"Recipients succesfully added to the survey with external ID: {id}"), "info", False)
+				
+			else:
+				success = False
+				self._notify(cr, Markup(_(f"Some recipients failed on adding to the survey with external ID: {id}<br>" + "<br>".join(errors))), "danger", True)				
+		return success
+
+	def _upload_surveys(self, cr, surveys, gsid):		
+		success = True
 		for key in surveys:			
 			data = base64.b64encode(surveys[key]["raw_tsv"].encode('utf-8')).decode('utf-8')
 			id = self._run_api_request("import_survey", [data, "txt"])
 			
-			if isinstance(id, int) or (isinstance(id, str) and id.isdigit()):
+			if isinstance(id, int) or (isinstance(id, str) and id.isdigit()):				
 				# TODO: importing via XML allows to set the GSID, would be nice to reduce the amount of calls to the API (is slow)!
 				surveys[key]["external_id"] = id
 				self._run_api_request("set_survey_properties", [id, {"gsid": gsid}])	
 				self._run_api_request("activate_tokens", [id, [0]])
-
+				self._notify(cr, _(f"Survey succesfully imported with external ID: {id}"), "info", False)
+			else:
+				success = False
+				self._notify(cr, _(f"Unable to import the survey with internal ID: {surveys[key]['internal_id']}"), "danger", True)				
+		return success
 
 	def _compute_survey_data(self, student, level, only_key):
 		name = f" | {self.name}_{level.acronym}"
@@ -233,6 +305,7 @@ class ems_limesurvey_header(models.Model):
 
 	def _run_api_request(self, method, params=[]):
 		self.ensure_one()
+				
 		headers = {'content-type': 'application/json'}
 		session_key = self._get_session_key(headers)
 
@@ -240,13 +313,13 @@ class ems_limesurvey_header(models.Model):
 			raise UserError(_("Unable to get the LimeSurvey's session key."))
 		
 		try:
-			session = [self._get_session_key(headers)]
+			session = [session_key]
 			payload = {
                 "method": method,
                 "params": [*session, *params], 
                 "id": 1
             }
-
+			
 			response = requests.post(self.env.company.limesurvey_api, data=json.dumps(payload), headers=headers)
 			if response.status_code != 200:
 				raise UserError(f"LimeSurvey API call error: {response.reason} \n\n {self._extract_limesurvey_html_error(response.text)}")
@@ -291,7 +364,7 @@ class ems_limesurvey_header(models.Model):
 		response = requests.post(self.env.company.limesurvey_api, data=json.dumps(payload), headers=headers)
 		return response.json().get('result')
 	
-	def _release_session_key(self, session_key, headers):
+	def _release_session_key(self, session_key, headers):		
 		payload = {
 			"method": "release_session_key",
 			"params": [session_key],

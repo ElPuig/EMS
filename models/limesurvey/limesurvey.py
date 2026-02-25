@@ -12,14 +12,15 @@ class ems_limesurvey_header(models.Model):
 	_description = "LimeSurvey header: contains the survey's header and its content."
 	_inherit = ['ems.base']
 	
-	state = fields.Selection([
+	# NOTE: this field is used to track the wizard progress.
+	state = fields.Selection(string='Status', selection=[
         ('draft', 'Draft'),
 		('uploading', 'Uploading surveys'),
         ('uploaded', 'Surveys uploaded'),
         ('open', 'Surveys open'),
         ('closed', 'Surveys closed'),
 		('downloaded', 'Data downloaded')
-    ], string='Status', default='draft')
+    ], default='draft')
 
 	name = fields.Char(string="Name", required=True)
 	title = fields.Char(string="Title", required=True)
@@ -152,12 +153,21 @@ class ems_limesurvey_header(models.Model):
 		try:
 			recipients = [[5]]
 			for key in surveys:
+				s_error = surveys[key]["error"]
 				for r in surveys[key]["recipients"]:
+					u_error = r["error"]
+
+					error = None
+					if s_error is not None or u_error is not None:
+						error = s_error if s_error is not None else u_error
+
 					recipients.append([0, 0, {
 						"name": r["firstname"],
 						"email": r["email"],
 						"internal_id": key,
-						"external_id": surveys[key]["external_id"]
+						"external_id": surveys[key]["external_id"],
+						"status": "success" if error is None else "error",
+						"error": error,
 					}])
 
 			self.write({
@@ -173,6 +183,8 @@ class ems_limesurvey_header(models.Model):
 	def _upload_recipients(self, cr, surveys):			
 		success = True
 		for key in surveys:
+			# TODO: if any exception, the error should be also added
+
 			id = surveys[key]["external_id"]
 			recipients = surveys[key]["recipients"]
 			resultados = self._run_api_request("add_participants", [id, recipients])
@@ -180,7 +192,10 @@ class ems_limesurvey_header(models.Model):
 			errors = []
 			for index, row in enumerate(resultados):
 				if isinstance(row, dict) and "error" in row:
+					recipients[index]["error"] = row["error"]
 					errors.append(f"- '{recipients[index]['firstname']}' " + _("with email") + f"'{recipients[index]['email']}': {row['error']}")
+				else:
+					recipients[index]["error"] = None
 
 			if len(errors) == 0:
 				# TODO: use the chatter. 
@@ -190,11 +205,13 @@ class ems_limesurvey_header(models.Model):
 				success = False
 				# TODO: no HTML allowed, use the chatter to write the details of the errors. 
 				self._notify(_(f"Some recipients failed on adding to the survey with external ID: {id}") + "<br><br>".join(errors), "danger", True, cr)
+				
 		return success
 
 	def _upload_surveys(self, cr, surveys, gsid):		
 		success = True
 		for key in surveys:			
+			# TODO: if any exception, the error should be also added
 			data = base64.b64encode(surveys[key]["raw_tsv"].encode('utf-8')).decode('utf-8')
 			id = self._run_api_request("import_survey", [data, "txt"])
 			
@@ -202,11 +219,13 @@ class ems_limesurvey_header(models.Model):
 			if isinstance(id, int) or (isinstance(id, str) and id.isdigit()):				
 				# TODO: importing via XML allows to set the GSID, would be nice to reduce the amount of calls to the API (is slow)!
 				surveys[key]["external_id"] = id
+				surveys[key]["error"] = None
 				self._run_api_request("set_survey_properties", [id, {"gsid": gsid}])	
 				self._run_api_request("activate_tokens", [id, [0]])
 				self._notify(_(f"Survey succesfully imported with external ID: {id}"), "info", False, cr)
 			else:
 				success = False
+				surveys[key]["error"] = "Unable to import the survey"
 				self._notify(_(f"Unable to import the survey with internal ID: {surveys[key]['internal_id']}"), "danger", True, cr)
 		return success
 
@@ -393,5 +412,7 @@ class ems_limesurvey_recipient(models.Model):
 	email = fields.Char(string="Email", required=True)
 	external_id = fields.Char(string="External ID (LimeSurvey)", required=True)
 	internal_id = fields.Char(string="Internal ID (EMS)", required=True)
+	status = fields.Selection(string='Status', selection=[('pending', 'Pending'), ('success', 'Success'), ('error', 'Error')], default='pending')
+	error = fields.Char(string="Error details")
 	
 	

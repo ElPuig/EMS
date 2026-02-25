@@ -76,8 +76,9 @@
                                     <list sort="name" no_open="True">
                                         <field name="name"/>
                                         <field name="email"/>
-                                        <field name="external_id"/>                                        
-                                        <field name="internal_id"/>                                        
+                                        <field name="external_id"/>                                                                               
+                                        <field name="status"/> 
+                                        <field name="error"/> 
                                     </list>
                                 </field>
                             </page>

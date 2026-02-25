@@ -46,8 +46,9 @@
 
                             <page string="Recipients">
                                 <field name="limesurvey_recipient_ids" readonly="True" force_save="True">
-                                    <list sort="recipient_mail" no_open="True">
-                                        <field name="recipient"/>
+                                    <list sort="name" no_open="True">
+                                        <field name="name"/>
+                                        <field name="email"/>
                                         <field name="external_id"/>                                        
                                         <field name="internal_id"/>                                        
                                     </list>

@@ -14,7 +14,7 @@ class ems_limesurvey_header(models.Model):
 	name = fields.Char(string="Name", required=True)
 	title = fields.Char(string="Title", required=True)
 	description = fields.Char(string="Description", required=True)
-	target = fields.Selection(string="Target", selection=survey_target_selection)
+	target = fields.Selection(string="Target", selection=survey_target_selection, required=True)
 	level_ids = fields.Many2many(string="Level", comodel_name="ems.level")
 	tsv_raw_text = fields.Text(string="Header's content (tab separated)", required=True)
 	limesurvey_block_ids = fields.One2many(string="Blocks", comodel_name="ems.limesurvey_block", inverse_name="limesurvey_header_id")
@@ -71,7 +71,8 @@ class ems_limesurvey_header(models.Model):
 		elif(self.target == "asp"): surveys = self._setup_asp_surveys()
 		
 		self._upload_surveys(surveys, ems_grp["gsid"])
-		self._setup_recipients(surveys)
+		self._upload_recipients(surveys)
+		self._store_recipients(surveys)
 
 		return {
 			'effect': {
@@ -107,20 +108,33 @@ class ems_limesurvey_header(models.Model):
 		# 		}
 		# 	}			
 
-	def _setup_recipients(self, surveys):
+	def _store_recipients(self, surveys):
 		# TODO: current items should be deleted (not just unlinked), but this should not happen till a complete refresh...
 		recipients = [[5]]
 		for key in surveys:
-			for mail in surveys[key]["recipients"]:
+			for r in surveys[key]["recipients"]:
 				recipients.append([0, 0, {
+					"name": r["firstname"],
+					"email": r["email"],
 					"internal_id": key,
-					"external_id": surveys[key]["external_id"],
-					"recipient": mail				
+					"external_id": surveys[key]["external_id"]
 				}])
 
 		self.write({
 			"limesurvey_recipient_ids": recipients
 		})
+
+	def _upload_recipients(self, surveys):	
+		for key in surveys:
+			id = surveys[key]["external_id"]
+			recipients = surveys[key]["recipients"]
+			resultados = self._run_api_request("add_participants", [id, recipients])
+			
+			errors = []
+			for index, row in enumerate(resultados):
+				if isinstance(row, dict) and "error" in row:
+					errors.append(f"Error adding the recipient '{recipients[index]['firstname']}' with email '{recipients[index]['email']}': {row['error']}")				
+		return errors
 
 	def _upload_surveys(self, surveys, gsid):
 		for key in surveys:			
@@ -128,16 +142,18 @@ class ems_limesurvey_header(models.Model):
 			id = self._run_api_request("import_survey", [data, "txt"])
 			
 			if isinstance(id, int) or (isinstance(id, str) and id.isdigit()):
-				# TODO: impprting via XML allows to set the GSID, would be nice to reduce the amount of calls to the API (is slow)!
+				# TODO: importing via XML allows to set the GSID, would be nice to reduce the amount of calls to the API (is slow)!
 				surveys[key]["external_id"] = id
-				result = self._run_api_request("set_survey_properties", [id, {"gsid": gsid}])				
+				self._run_api_request("set_survey_properties", [id, {"gsid": gsid}])	
+				self._run_api_request("activate_tokens", [id, [0]])
+
 
 	def _compute_survey_data(self, student, level, only_key):
 		name = f" | {self.name}_{level.acronym}"
 		if not only_key:
 			content = self.tsv_raw_text
 			#content = content.replace("{'SID'}", "str(key)") # it's better to set it automatically and relate it with our hash internally
-			#content = content.replace("{'GSID'}", str(gsid)) # ignored by the import engine using TSV...
+			#content = content.replace("{'GSID'}", str(gsid)) # ignored by the import engine using TSV... should we change to XML import?
 			content = content.replace("{'TITLE'}", self.title)
 			content = content.replace("{'DESCRIPTION'}", self.description)
 
@@ -195,14 +211,20 @@ class ems_limesurvey_header(models.Model):
 				# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
 				#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).
 				key = self._compute_survey_data(student, level, True)["key"]
-				if key in surveys: surveys[key]["recipients"].append(student.student_email)
+				recipient = {
+					# NOTE: those fields are required by LimeSurvey in order to add recipients to the survey. 
+					"email": student.student_email,
+					"firstname": student.name,
+					"lastname": ""
+				}
+				if key in surveys: surveys[key]["recipients"].append(recipient)
 				else: 
 					surveys[key] = {
-						"recipients": [student.student_email],
+						"recipients": [recipient],
 						"raw_tsv": self._compute_survey_data(student, level, False)["raw_tsv"]
 					}					
-		return surveys
-	
+		return surveys	
+
 	def _setup_teachers_surveys(self):
 		fake = 0
 
@@ -304,8 +326,9 @@ class ems_limesurvey_recipient(models.Model):
 	_inherit = ['ems.base']
 	
 	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header")
-	recipient = fields.Char(string="Recipient's email", required=True)
-	external_id = fields.Char(string="External ID", required=True)
-	internal_id = fields.Char(string="Internal ID", required=True)
+	name = fields.Char(string="Name", required=True)
+	email = fields.Char(string="Email", required=True)
+	external_id = fields.Char(string="External ID (LimeSurvey)", required=True)
+	internal_id = fields.Char(string="Internal ID (EMS)", required=True)
 	
 	

@@ -1,3 +1,4 @@
+import hashlib
 from odoo import models, fields
 
 class ems_base(models.AbstractModel):   
@@ -30,4 +31,7 @@ class ems_base(models.AbstractModel):
         if 'tutor_id' in self.env[self._name]._fields:
             return self.tutor_id.id != False and self.tutor_id.user_id == self.env.user        
     
-  
+    def persistent_hash(self, data):
+        bytes = str(data).encode('utf-8')
+        hash = hashlib.sha256(bytes)
+        return hash.hexdigest()

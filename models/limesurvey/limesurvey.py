@@ -3,7 +3,6 @@
 import requests, json, html, re, base64, threading, time
 from odoo import models, fields, api, registry, _
 from odoo.exceptions import UserError
-from markupsafe import Markup
 
 survey_target_selection = [("students", "Students"), ("teachers", "Teachers"), ("asp", "ASP")]
 
@@ -57,7 +56,7 @@ class ems_limesurvey_header(models.Model):
 			}
 		)
 
-		# NOTE: multithreading, some times the commit fails due transaction blocked, retry needed.
+		# NOTE: multithreading, commit needed to display the message; some times the commit fails due transaction blocked, retry needed.
 		for i in range(0, 5):
 			try:
 				if cr is not None: cr.commit()
@@ -147,34 +146,90 @@ class ems_limesurvey_header(models.Model):
 			success = True
 			exception = None
 			try:				
-				success = success and self._upload_surveys(surveys, ems_grp["gsid"])								
-				success = success and self._upload_recipients(surveys)				
-				success = success and self._store_recipients(surveys)
+				success = self._upload_surveys_multi(surveys, ems_grp["gsid"])
+
+				# If not success, every row will contain the error detail
+				if success:					
+					success = success and self._upload_recipients_multi(surveys)
+
+				# Always must try to save the recipients record
+				self._store_recipients_multi(surveys)
 				self.state = 'uploaded'
-				cr.commit()
-				
 			except Exception as e:
 				success = False
 				exception = e
 			finally:
 				# TODO: force update without refreshing the window. This is dificult because we must create a custom JS component in order to capture the event and reload if we're still within the form. 
-				message = _("Importation process successfully completed! Please, reload the window to see changes.") if success else _("Importation process failed.  Please, reload the window to see changes.")
-				self._notify(message, "success" if success else "warning", True, cr)	
-				
-				error_message = _("check the recipients entry for more details") if exception is None else exception		
-				self._chatter(_("Surveys upload: ") + (_("success") if success else (_("with errors") + f" -> {error_message}")))
+				error = _("check the recipients entry for more details") if exception is None else exception	
+				message = _("Importation process successfully completed! Please, reload the window to see changes.") if success else (_("Importation process failed. Please, reload the window to see changes.") +  f" -> {error}")
+				self._notify(message, "success" if success else "warning", True, cr)						
+				self._chatter(_("Surveys upload: ") + (_("success") if success else (_("with errors") + f" -> {error}")))
 
-	def _store_recipients(self, surveys, recipients = []):
-		# TODO: current items should be deleted (not just unlinked), but this should not happen till a complete refresh...		
+	def _upload_surveys_multi(self, surveys, gsid):		
+		success = True
+		for key in surveys:			
+			try:
+				self._upload_survey_single(surveys[key], gsid)				
+			except Exception as e:
+				success = False
+				for r in surveys[key]["recipients"]:
+					r["error"] = str(e)
+
+		return success
+	
+	def _upload_survey_single(self, survey, gsid):		
+		data = base64.b64encode(survey["raw_tsv"].encode('utf-8')).decode('utf-8')
+		id = self._run_api_request("import_survey", [data, "txt"])
+		
+		if isinstance(id, int) or (isinstance(id, str) and id.isdigit()):				
+			# TODO: importing via XML allows to set the GSID, would be nice to reduce the amount of calls to the API (is slow)!
+			survey["external_id"] = id
+			self._run_api_request("set_survey_properties", [id, {"gsid": gsid}])	
+			self._run_api_request("activate_tokens", [id, [0]])
+		else:
+			raise Exception(_("Unable to import the survey with internal ID: ") + f"{survey['internal_id']}")
+		
+	def _upload_recipients_multi(self, surveys):			
+		success = True
 		for key in surveys:
-			s_error = surveys[key]["error"]
-			for r in surveys[key]["recipients"]:
-				u_error = r["error"]
+			try:
+				self._upload_recipient_single(surveys[key])							
+			except Exception as e:
+				success = False
 
-				error = None
-				if s_error is not None or u_error is not None:
-					error = s_error if s_error is not None else u_error
-				
+		return success
+	
+	def _upload_recipient_single(self, survey):			
+		id = survey["external_id"]
+		recipients = survey["recipients"]
+					
+		errors = False		
+		participants = list(map(lambda x: {k: x[k] for k in ['email', 'firstname', 'lastname']}, recipients))		
+		result = self._run_api_request("add_participants", [id, participants])
+						
+		for index, row in enumerate(result):
+			if isinstance(row, dict) and "error" in row:
+				recipients[index]["error"] = row["error"]
+				errors = True
+			else:
+				recipients[index]["token"] = row["token"]
+				recipients[index]["tid"] = row["tid"]
+		
+		if errors:
+			raise Exception(_("Unable to upload some recipients to the survey with internal ID: ") + f"{survey['internal_id']}.")
+	
+	def _store_recipients_multi(self, surveys):		
+		for key in surveys:
+			self._store_recipients_single(surveys[key])
+	
+	def _store_recipients_single(self, survey, recipients = None):
+		if recipients is None:
+			# NOTE: defaulting recipients to [] causes that comes with data when called from _store_recipients_multi
+			recipients = []
+			
+		try:
+			for r in survey["recipients"]:	
+				error = False if r["error"] is None else r["error"]						
 				recipients.append([0, 0, {
 					"name": r["firstname"],
 					"email": r["email"],
@@ -183,66 +238,23 @@ class ems_limesurvey_header(models.Model):
 					"student_id": r["student_id"].id if r["student_id"] is not None else False,
 					"teacher_id": r["teacher_id"].id if r["teacher_id"] is not None else False,
 					"asp_id": r["asp_id"].id if r["asp_id"] is not None else False,
-					"internal_id": key,
-					"external_id": surveys[key]["external_id"],
-					"status": "success" if error is None else "error",
-					"error": error,										
+					"internal_id": survey["internal_id"],
+					"external_id": survey["external_id"],
+					"status": "success" if not error else "error",
+					"error": r["error"] ,										
 				}])
 
-		self.write({
-			"limesurvey_recipient_ids": recipients
-		})
-		return True		
+			self.write({
+				"limesurvey_recipient_ids": recipients
+			})	
+		except Exception as e:
+			raise Exception(_("Unable to store the 'recipent x survey' assignation: ") + str(e))
 
-	def _upload_recipients(self, surveys):			
-		success = True
-		for key in surveys:
-			id = surveys[key]["external_id"]
-			recipients = surveys[key]["recipients"]
-						
-			try:
-				errors = []		
-				participants = list(map(lambda x: {k: x[k] for k in ['email', 'firstname', 'lastname']}, recipients))		
-				result = self._run_api_request("add_participants", [id, participants])
-								
-				for index, row in enumerate(result):
-					if isinstance(row, dict) and "error" in row:
-						recipients[index]["error"] = row["error"]
-						errors.append(f"- '{recipients[index]['firstname']}' " + _("with email") + f"'{recipients[index]['email']}': {row['error']}")
-					else:
-						recipients[index]["token"] = row["token"]
-						recipients[index]["tid"] = row["tid"]
-
-				if len(errors) > 0: 
-					success = False				
-			except Exception as e:
-				success = False		
-				error = _("Unable to upload some recipients to the survey with internal ID: ") + f"{surveys[key]['internal_id']}.{e}"
-				for r in recipients:
-					recipients[r]["error"] = error												
-		return success
-
-	def _upload_surveys(self, surveys, gsid):		
-		success = True
-		for key in surveys:			
-			try:
-				data = base64.b64encode(surveys[key]["raw_tsv"].encode('utf-8')).decode('utf-8')
-				id = self._run_api_request("import_survey", [data, "txt"])
-				
-				if isinstance(id, int) or (isinstance(id, str) and id.isdigit()):				
-					# TODO: importing via XML allows to set the GSID, would be nice to reduce the amount of calls to the API (is slow)!
-					surveys[key]["external_id"] = id
-					surveys[key]["error"] = None
-					self._run_api_request("set_survey_properties", [id, {"gsid": gsid}])	
-					self._run_api_request("activate_tokens", [id, [0]])
-				else:
-					raise Exception("")
-			except Exception as e:
-				success = False
-				surveys[key]["error"] = _("Unable to import the survey with internal ID: ") + f"{surveys[key]['internal_id']}. {e}"
-
-		return success
-
+	def _delete_recipients_single(self, survey_id, part_ids):		
+		result = self._run_api_request("delete_participants", [survey_id, part_ids])																			
+		if result['1'] != "Deleted":			
+			raise Exception(_("Unable to delete the recipient from the current survey: ") + result['1'] )				
+	
 	def _compute_survey_data(self, student, only_key):
 		name = f"{self.name}_{student.level_id.acronym}"
 		if not only_key:
@@ -275,7 +287,7 @@ class ems_limesurvey_header(models.Model):
 					content += self._replace_block_content(block.tsv_raw_text, block.name, student.level_id.acronym, block.name, block.name, student.study_id.acronym, student.main_group_id.acronym)					
 		
 		return {
-			"key": hash(name), 
+			"key": self.persistent_hash(name), 
 			"raw_tsv": None if only_key else content
 		}
 
@@ -303,6 +315,7 @@ class ems_limesurvey_header(models.Model):
 				if key in surveys: surveys[key]["recipients"].append(recipient)
 				else: 
 					surveys[key] = {
+						"internal_id": key,
 						"recipients": [recipient],
 						"raw_tsv": self._compute_survey_data(student, False)["raw_tsv"]
 					}					
@@ -453,46 +466,40 @@ class ems_limesurvey_recipient(models.Model):
 		self.ensure_one()
 		if self.student_id:
 			key = self.limesurvey_header_id._compute_survey_data(self.student_id, True)["key"]
-			if str(key) == self.internal_id:
+			if key == self.internal_id:
 				self.limesurvey_header_id._notify(_("Everything is up to date (nothing to resfresh)."), "info", False)				
 			else:				
-				try:					
-					success = True
-					exception = None
-
-					self.limesurvey_header_id._notify(_("Refreshing the student's survey..."), "info", False)
-					result = self.limesurvey_header_id._run_api_request("delete_participants", [self.external_id, [self.tid]])																			
-					#if result['1'] != "Deleted":
-					#	raise Exception(_("Unable to delete the recipient from the current survey: ") + result['1'] )					
-					
-					exists = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", key)]).mapped("external_id") or False					
-					if not exists:					
+				try:
+					self.limesurvey_header_id._notify(_("Refreshing the student's survey..."), "info", False)					
+					existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", key)], limit=1) or False					
+					if not existing:					
 						# Uploading the survey if is a new one
-						ems_grp = self.limesurvey_header_id._get_ems_group()		
-						surveys = {
-							key: self.limesurvey_header_id._compute_survey_data(self.student_id, False)
-						}						
-						success = success and self.limesurvey_header_id._upload_surveys(surveys, ems_grp["gsid"])								
+						created = True							
+						ems_grp = self.limesurvey_header_id._get_ems_group()
+						survey = self.limesurvey_header_id._compute_survey_data(self.student_id, False)
+						self.limesurvey_header_id._upload_survey_single(survey, ems_grp["gsid"])
 					else:
 						# Rebuilding the mandatory data
-						surveys = {
-							key: {
-								"external_id": exists,
-							}
+						survey = { 
+							"external_id": existing["external_id"],
+							"internal_id": existing["internal_id"],
 						}
-					# The recipients must be uploaded always (for new or existing one)
-					surveys[key]["recipients"] = [self.limesurvey_header_id._setup_student_recipient(self.student_id)]
-					success = self.limesurvey_header_id._upload_recipients(surveys)
-					# NOTE: we also send the order to remove the current one
-					success = success and self.limesurvey_header_id._store_recipients(surveys, [(2, self.id)]) 									
-
-				except Exception as e:
-					exception = e
-					success = False
-
-				finally:
-					message = _("Refresh process successfully completed!") if success else _("Refresh process failed.")
-					self.limesurvey_header_id._notify(message, "success" if success else "warning", True)		
 					
-					error_message = _("check the recipients entry for more details") if exception is None else exception		
-					self.limesurvey_header_id._chatter(_(f"Refresh for '{self.email}': ") + (_("success") if success else (_("with errors") + f" -> {error_message}")))
+					# The recipients must be uploaded always (for new or existing one)
+					survey["recipients"] = [self.limesurvey_header_id._setup_student_recipient(self.student_id)]
+					self.limesurvey_header_id._upload_recipient_single(survey)					
+					self.limesurvey_header_id._store_recipients_single(survey)
+										
+					# Remove from the old survey
+					self.limesurvey_header_id._delete_recipients_single(self.external_id, [self.tid])
+					
+					# TODO: if something fails, resotre the LimeSurvey status	
+
+					self.limesurvey_header_id._notify(_("Refresh process successfully completed!"), "success", True)
+					self.limesurvey_header_id._chatter(_(f"Refresh for '{self.email}': ") + _("success"))
+
+					# NOTE: removing the entry must be the last step (otherwise any access to 'self' fails).
+					self.unlink()
+				except Exception as e:
+					self.limesurvey_header_id._notify(_("Refresh process failed."), "warning", True)						
+					self.limesurvey_header_id._chatter(_(f"Refresh for '{self.email}': ") + (_("with errors") + f" -> {e}"))

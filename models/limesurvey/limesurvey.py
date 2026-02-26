@@ -112,7 +112,10 @@ class ems_limesurvey_header(models.Model):
 		if not ems_grp:
 			#NOTE: The LimeSurvey's API does not allow to create groups.
 			raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
-			
+		
+		message = _("Starting process in the background, you'll be notified on completion (it can take a while).")
+		self._notify(message, "info", True)
+
 		if(self.target == "students"): surveys = self._setup_students_surveys()
 		elif(self.target == "teachers"): surveys = self._setup_teachers_surveys()
 		elif(self.target == "asp"): surveys = self._setup_asp_surveys()
@@ -124,9 +127,7 @@ class ems_limesurvey_header(models.Model):
 			target = self._thread_import, 
 			args = (surveys, ems_grp, user_id, db_name)
 		)
-				
-		message = _("Starting process in the background, you'll be notified on completion (it can take a while).")
-		self._notify( message, "info", True)		
+								
 		threaded_sync.start()
 		return True
 	
@@ -152,7 +153,7 @@ class ems_limesurvey_header(models.Model):
 				# TODO: force update without refreshing the window. This is dificult because we must create a custom JS component in order to capture the event and reload if we're still within the form. 
 				message = _("Importation process successfully completed! Please, reload the window to see changes.") if success else _("Importation process completed with some errors.  Please, reload the window to see changes.")
 				self._notify(message, "success" if success else "warning", True, cr)			
-				self._chatter(_("Surveys uploaded: ") + _("success") if success else _("with errors"))
+				self._chatter(_("Surveys uploaded: ") + (_("success") if success else _("with errors")))
 
 	def _store_recipients(self, surveys):
 		# TODO: current items should be deleted (not just unlinked), but this should not happen till a complete refresh...		
@@ -165,14 +166,18 @@ class ems_limesurvey_header(models.Model):
 				error = None
 				if s_error is not None or u_error is not None:
 					error = s_error if s_error is not None else u_error
-
+				
 				recipients.append([0, 0, {
 					"name": r["firstname"],
 					"email": r["email"],
+					"token": r["token"],
+					"student_id": r["student_id"].id if r["student_id"] is not None else False,
+					"teacher_id": r["teacher_id"].id if r["teacher_id"] is not None else False,
+					"asp_id": r["asp_id"].id if r["asp_id"] is not None else False,
 					"internal_id": key,
 					"external_id": surveys[key]["external_id"],
 					"status": "success" if error is None else "error",
-					"error": error,
+					"error": error,										
 				}])
 
 		self.write({
@@ -185,17 +190,19 @@ class ems_limesurvey_header(models.Model):
 		for key in surveys:
 			id = surveys[key]["external_id"]
 			recipients = surveys[key]["recipients"]
-			
+						
 			try:
-				errors = []				
-				resultados = self._run_api_request("add_participants", [id, recipients])
+				errors = []		
+				participants = list(map(lambda x: {k: x[k] for k in ['email', 'firstname', 'lastname']}, recipients))		
+				resultados = self._run_api_request("add_participants", [id, participants])
 								
 				for index, row in enumerate(resultados):
 					if isinstance(row, dict) and "error" in row:
 						recipients[index]["error"] = row["error"]
 						errors.append(f"- '{recipients[index]['firstname']}' " + _("with email") + f"'{recipients[index]['email']}': {row['error']}")
 					else:
-						recipients[index]["error"] = None
+						recipients[index]["token"] = row["token"]
+
 				if len(errors) > 0: 
 					success = False				
 			except Exception as e:
@@ -226,8 +233,8 @@ class ems_limesurvey_header(models.Model):
 
 		return success
 
-	def _compute_survey_data(self, student, level, only_key):
-		name = f" | {self.name}_{level.acronym}"
+	def _compute_survey_data(self, student, only_key):
+		name = f"{self.name}_{student.level_id.acronym}"
 		if not only_key:
 			content = self.tsv_raw_text
 			#content = content.replace("{'SID'}", "str(key)") # it's better to set it automatically and relate it with our hash internally
@@ -247,38 +254,31 @@ class ems_limesurvey_header(models.Model):
 						for enroll in student.enrollment_ids:
 							name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.acronym}"
 							if not only_key:
-								tmp = block.tsv_raw_text
-								tmp = tmp.replace("{'X'}", enroll.subject_id.code)
-								tmp = tmp.replace("{'TITLE'}", block.name)
-								tmp = tmp.replace("{'LEVEL'}", level.acronym)
-								tmp = tmp.replace("{'TOPIC'}", block.name)
-								tmp = tmp.replace("{'S_CODE'}", enroll.subject_id.code)
-								tmp = tmp.replace("{'S_NAME'}", enroll.subject_id.name)
-								tmp = tmp.replace("{'DEGREE'}", student.study_id.acronym)
-								tmp = tmp.replace("{'GROUP'}", enroll.group_id.acronym)
-
 								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
 								teachers_names = "UNKNOWN" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
-								tmp = tmp.replace("{'TRAINER'}", teachers_names)
+								tmp = self._replace_block_content(block.tsv_raw_text, block.name, student.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, student.study_id.acronym, enroll.group_id.acronym, teachers_names)
+								tmp = tmp.replace("{'X'}", enroll.subject_id.code)								
 								content += tmp
 			if append:
 				name += f" | {block.name}"	
 				if not only_key:
-					tmp = block.tsv_raw_text
-					tmp = tmp.replace("{'TITLE'}", block.name)
-					tmp = tmp.replace("{'LEVEL'}", level.acronym)
-					tmp = tmp.replace("{'TOPIC'}", block.name)
-					tmp = tmp.replace("{'S_CODE'}", block.name) # NOTE: this is not a mistake, the block name (topic) is used here also.
-					tmp = tmp.replace("{'S_NAME'}", block.name) # NOTE: this is not a mistake, the block name (topic) is used here also.
-					tmp = tmp.replace("{'DEGREE'}", student.study_id.acronym)
-					tmp = tmp.replace("{'GROUP'}", student.main_group_id.acronym)
-					tmp = tmp.replace("{'TRAINER'}", "")
-					content += tmp
+					content += self._replace_block_content(block.tsv_raw_text, block.name, student.level_id.acronym, block.name, block.name, student.study_id.acronym, student.main_group_id.acronym)					
 		
 		return {
 			"key": hash(name), 
 			"raw_tsv": None if only_key else content
 		}
+
+	def _replace_block_content(self, content, b_name, l_acro, s_code, s_name, d_acro, g_acro, trainer=""):
+		content = content.replace("{'TITLE'}", b_name)
+		content = content.replace("{'TOPIC'}", b_name)
+		content = content.replace("{'LEVEL'}", l_acro)		
+		content = content.replace("{'S_CODE'}", s_code) # NOTE: this is not a mistake, the block name (topic) is used here also.
+		content = content.replace("{'S_NAME'}", s_name) # NOTE: this is not a mistake, the block name (topic) is used here also.
+		content = content.replace("{'DEGREE'}", d_acro)
+		content = content.replace("{'GROUP'}", g_acro)
+		content = content.replace("{'TRAINER'}", trainer)
+		return content
 
 	def _setup_students_surveys(self):
 		surveys = dict()
@@ -288,18 +288,22 @@ class ems_limesurvey_header(models.Model):
 			for student in students:
 				# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
 				#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).
-				key = self._compute_survey_data(student, level, True)["key"]
+				key = self._compute_survey_data(student, True)["key"]
 				recipient = {
-					# NOTE: those fields are required by LimeSurvey in order to add recipients to the survey. 
 					"email": student.student_email,
 					"firstname": student.name,
-					"lastname": ""
+					"lastname": "",
+					"token": None,
+					"student_id": student,
+					"teacher_id": None,
+					"asp_id": None,
+					"error": None
 				}
 				if key in surveys: surveys[key]["recipients"].append(recipient)
 				else: 
 					surveys[key] = {
 						"recipients": [recipient],
-						"raw_tsv": self._compute_survey_data(student, level, False)["raw_tsv"]
+						"raw_tsv": self._compute_survey_data(student, False)["raw_tsv"]
 					}					
 		return surveys	
 
@@ -404,12 +408,40 @@ class ems_limesurvey_recipient(models.Model):
 	_description = "LimeSurvey recipient: contains the relation between a recipient and its survey."
 	_inherit = ['ems.base']
 	
-	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header")
+	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header", required=True)
 	name = fields.Char(string="Name", required=True)
 	email = fields.Char(string="Email", required=True)
-	external_id = fields.Char(string="External ID (LimeSurvey)", required=True)
-	internal_id = fields.Char(string="Internal ID (EMS)", required=True)
+	external_id = fields.Char(string="Survey's ID (LimeSurvey)")
+	internal_id = fields.Char(string="Survey's ID (EMS)")
+	token = fields.Char(string="User's token")
 	status = fields.Selection(string='Status', selection=[('pending', 'Pending'), ('success', 'Success'), ('error', 'Error')], default='pending')
 	error = fields.Char(string="Error details")
+
+	# The recipients can be students (res_partner) or teachers/asp (hr.employee). Those are needed in order to refresh the data.
+	student_id = fields.Many2one(string="Student", comodel_name="res.partner")
+	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
+	asp_id = fields.Many2one(string="ASP", comodel_name="hr.employee")
 	
+	def open_error_popup(self):
+		self.ensure_one()
+		return {
+			'type': 'ir.actions.act_window',
+			'name': 'Error details',
+			'res_model': self._name,
+			'res_id': self.id,
+			'view_mode': 'form',
+			'view_id': self.env.ref('ems.view_limesurvey_recipient_error_popup').id,
+			'target': 'new', 
+			'flags': {'mode': 'readonly'}
+		}
 	
+	def refresh(self):
+		self.ensure_one()
+
+		if self.student_id:
+			key = self.limesurvey_header_id._compute_survey_data(self.student_id, True)["key"]
+			if str(key) != self.internal_id:
+				# Something changed: remove the student and add it to the new survey
+				self.limesurvey_header_id._notify(_("Refreshing the student's survey..."), "info", False)
+			else:
+				self.limesurvey_header_id._notify(_("Everything is up to date (nothing to resfresh)."), "info", False)

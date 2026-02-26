@@ -56,12 +56,12 @@
                             <group colspan="3">
                                 <field name="description"/>
                             </group>                                                             
-                        </group>
-                        <group string="Header's content (tab separated)">
-                            <field string="" name="tsv_raw_text" widget="ace" options="{'mode': 'text'}" style="min-height: 300px;"/>
-                        </group>
-                        
+                        </group>                        
                         <notebook>
+                             <page string="Header's content (TSV)">
+                                <field string="" name="tsv_raw_text" widget="ace" options="{'mode': 'text'}" style="min-height: 300px;"/>
+                            </page>
+
                             <page string="Blocks">
                                 <field name="limesurvey_block_ids">
                                     <list>
@@ -73,12 +73,14 @@
 
                             <page string="Recipients">
                                 <field name="limesurvey_recipient_ids" readonly="True" force_save="True">
-                                    <list sort="name" no_open="True">
+                                    <list default_order="name" no_open="True">
                                         <field name="name"/>
                                         <field name="email"/>
                                         <field name="external_id"/>                                                                               
                                         <field name="status"/> 
-                                        <field name="error"/> 
+                                        <!-- TODO: popup plugin -->
+                                        <button name="open_error_popup" type="object" icon="fa-info-circle" title="Open error details." invisible="not error" width="30px"/> 
+                                        <button name="refresh" type="object" icon="fa-refresh" title="Refresh (moves the student to a new survey if needed)." width="30px"/> 
                                     </list>
                                 </field>
                             </page>
@@ -92,6 +94,21 @@
                    <chatter/>
                 </form>
             </field>			
+        </record>
+
+        <record model="ir.ui.view" id="view_limesurvey_recipient_error_popup">
+            <field name="name">ems.limesurvey_recipient_error.popup</field>
+            <field name="model">ems.limesurvey_recipient</field> 
+            <field name="arch" type="xml">
+                <form string="Error details">
+                    <sheet>
+                        <field name="error" readonly="1" widget="text"/>
+                    </sheet>
+                    <footer>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
         </record>
     </data>
 </odoo>

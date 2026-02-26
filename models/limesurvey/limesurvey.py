@@ -70,7 +70,7 @@ class ems_limesurvey_header(models.Model):
             message_type = 'notification',
             subtype_xmlid='mail.mt_note'
         )	
-
+	
 	def action_next(self):
 		# TODO: Expected behaviour:
 		#		1. Check if exists the main "ems" group:
@@ -164,6 +164,7 @@ class ems_limesurvey_header(models.Model):
 				message = _("Importation process successfully completed! Please, reload the window to see changes.") if success else (_("Importation process failed. Please, reload the window to see changes.") +  f" -> {error}")
 				self._notify(message, "success" if success else "warning", True, cr)						
 				self._chatter(_("Surveys upload: ") + (_("success") if success else (_("with errors") + f" -> {error}")))
+				self.request_form_update()
 
 	def _upload_surveys_multi(self, surveys, gsid):		
 		success = True

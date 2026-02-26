@@ -35,3 +35,12 @@ class ems_base(models.AbstractModel):
         bytes = str(data).encode('utf-8')
         hash = hashlib.sha256(bytes)
         return hash.hexdigest()
+    
+    def request_form_update(self, message="Data updated"):
+        channel = self.env.user
+        type = "form_reload"
+        mensaje = {
+            "record_id": self.id,
+            "message": message
+        }		
+        self.env['bus.bus']._sendone(channel, type, mensaje)

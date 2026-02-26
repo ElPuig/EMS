@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import requests, json, html, re, base64, threading
+import requests, json, html, re, base64, threading, time
 from odoo import models, fields, api, registry, _
 from odoo.exceptions import UserError
 from markupsafe import Markup
@@ -47,6 +47,31 @@ class ems_limesurvey_header(models.Model):
 				level_str = str.join(", ", levels)				
 				rec.display_name = "%s: %s (%s)" % (rec.name, target, level_str) if rec.target else "%s (%s)" % (rec.name, level_str)
 
+	def _notify(self, message, type, sticky, cr=None):
+		self.env["bus.bus"]._sendone(
+			self.env.user.partner_id, "simple_notification", {
+				"title": _("LimeSurvey import"), 
+				"message": message, 
+				"type": type,
+				"sticky": sticky
+			}
+		)
+
+		# NOTE: multithreading, some times the commit fails due transaction blocked, retry needed.
+		for i in range(0, 5):
+			try:
+				if cr is not None: cr.commit()
+				break
+			except Exception as e:
+				time.sleep(i)
+				
+	def _chatter(self, message):
+		self.message_post(
+            body = message,
+            message_type = 'notification',
+            subtype_xmlid='mail.mt_note'
+        )	
+
 	def action_next(self):
 		# TODO: Expected behaviour:
 		#		1. Check if exists the main "ems" group:
@@ -89,24 +114,6 @@ class ems_limesurvey_header(models.Model):
 			elif rec.state == 'downloaded':
 				rec.state = 'draft'			
 
-	def _notify(self, message, type, sticky, cr=None):
-		self.env["bus.bus"]._sendone(
-			self.env.user.partner_id, "simple_notification", {
-				"title": _("LimeSurvey import"), 
-				"message": message, 
-				"type": type,
-				"sticky": sticky
-			}
-		)
-		if cr is not None: cr.commit()
-				
-	def _chatter(self, message):
-		self.message_post(
-            body = message,
-            message_type = 'notification',
-            subtype_xmlid='mail.mt_note'
-        )	
-
 	def _action_import(self):
 		ems_grp = self._get_ems_group()
 		if not ems_grp:
@@ -144,16 +151,15 @@ class ems_limesurvey_header(models.Model):
 				success = success and self._store_recipients(surveys)
 				self.state = 'uploaded'
 				cr.commit()
-
+				
 			except Exception as e:
 				success = False
-				self._notify(_("Something failed: ") + str(e), "danger", True, cr)
 
 			finally:
 				# TODO: force update without refreshing the window. This is dificult because we must create a custom JS component in order to capture the event and reload if we're still within the form. 
-				message = _("Importation process successfully completed! Please, reload the window to see changes.") if success else _("Importation process completed with some errors.  Please, reload the window to see changes.")
+				message = _("Importation process successfully completed! Please, reload the window to see changes.") if success else _("Importation process failed.  Please, reload the window to see changes.")
 				self._notify(message, "success" if success else "warning", True, cr)			
-				self._chatter(_("Surveys uploaded: ") + (_("success") if success else _("with errors")))
+				self._chatter(_("Surveys upload: ") + (_("success") if success else _("with errors")))
 
 	def _store_recipients(self, surveys):
 		# TODO: current items should be deleted (not just unlinked), but this should not happen till a complete refresh...		
@@ -171,6 +177,7 @@ class ems_limesurvey_header(models.Model):
 					"name": r["firstname"],
 					"email": r["email"],
 					"token": r["token"],
+					"tid": r["tid"],
 					"student_id": r["student_id"].id if r["student_id"] is not None else False,
 					"teacher_id": r["teacher_id"].id if r["teacher_id"] is not None else False,
 					"asp_id": r["asp_id"].id if r["asp_id"] is not None else False,
@@ -194,14 +201,15 @@ class ems_limesurvey_header(models.Model):
 			try:
 				errors = []		
 				participants = list(map(lambda x: {k: x[k] for k in ['email', 'firstname', 'lastname']}, recipients))		
-				resultados = self._run_api_request("add_participants", [id, participants])
+				result = self._run_api_request("add_participants", [id, participants])
 								
-				for index, row in enumerate(resultados):
+				for index, row in enumerate(result):
 					if isinstance(row, dict) and "error" in row:
 						recipients[index]["error"] = row["error"]
 						errors.append(f"- '{recipients[index]['firstname']}' " + _("with email") + f"'{recipients[index]['email']}': {row['error']}")
 					else:
 						recipients[index]["token"] = row["token"]
+						recipients[index]["tid"] = row["tid"]
 
 				if len(errors) > 0: 
 					success = False				
@@ -289,16 +297,7 @@ class ems_limesurvey_header(models.Model):
 				# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
 				#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).
 				key = self._compute_survey_data(student, True)["key"]
-				recipient = {
-					"email": student.student_email,
-					"firstname": student.name,
-					"lastname": "",
-					"token": None,
-					"student_id": student,
-					"teacher_id": None,
-					"asp_id": None,
-					"error": None
-				}
+				recipient = self._setup_student_recipient(student)
 				if key in surveys: surveys[key]["recipients"].append(recipient)
 				else: 
 					surveys[key] = {
@@ -306,6 +305,18 @@ class ems_limesurvey_header(models.Model):
 						"raw_tsv": self._compute_survey_data(student, False)["raw_tsv"]
 					}					
 		return surveys	
+	
+	def _setup_student_recipient(self, student):		
+		return {
+			"email": student.student_email,
+			"firstname": student.name,
+			"lastname": "",
+			"token": None,
+			"student_id": student,
+			"teacher_id": None,
+			"asp_id": None,
+			"error": None
+		}
 
 	def _setup_teachers_surveys(self):
 		fake = 0
@@ -413,7 +424,8 @@ class ems_limesurvey_recipient(models.Model):
 	email = fields.Char(string="Email", required=True)
 	external_id = fields.Char(string="Survey's ID (LimeSurvey)")
 	internal_id = fields.Char(string="Survey's ID (EMS)")
-	token = fields.Char(string="User's token")
+	token = fields.Char(string="User's token (LimeSurvey)")
+	tid = fields.Integer(string="User's ID (LimeSurvey)")
 	status = fields.Selection(string='Status', selection=[('pending', 'Pending'), ('success', 'Success'), ('error', 'Error')], default='pending')
 	error = fields.Char(string="Error details")
 
@@ -440,8 +452,47 @@ class ems_limesurvey_recipient(models.Model):
 
 		if self.student_id:
 			key = self.limesurvey_header_id._compute_survey_data(self.student_id, True)["key"]
-			if str(key) != self.internal_id:
-				# Something changed: remove the student and add it to the new survey
-				self.limesurvey_header_id._notify(_("Refreshing the student's survey..."), "info", False)
-			else:
-				self.limesurvey_header_id._notify(_("Everything is up to date (nothing to resfresh)."), "info", False)
+			if str(key) == self.internal_id:
+				self.limesurvey_header_id._notify(_("Everything is up to date (nothing to resfresh)."), "info", False)				
+			else:				
+				try:
+					# TODO: cascade errors: display the concrete error and stop.
+					#		replicate on creation
+
+					self.limesurvey_header_id._notify(_("Refreshing the student's survey..."), "info", False)
+					result = self.limesurvey_header_id._run_api_request("delete_participants", [self.external_id, [self.tid]])																			
+					if result['1'] != "Deleted":
+						raise Exception("Unable to delete the recipient from the current survey")
+					
+					success = True
+					exists = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", key)]).mapped("external_id") or False					
+					if not exists:					
+						# Uploading the survey if is a new one
+						ems_grp = self.limesurvey_header_id._get_ems_group()		
+						surveys = {
+							key: self.limesurvey_header_id._compute_survey_data(self.student_id, False)
+						}						
+						success = success and self.limesurvey_header_id._upload_surveys(surveys, ems_grp["gsid"])								
+					else:
+						# Rebuilding the mandatory data
+						surveys = {
+							key: {
+								"external_id": exists,
+							}
+						}
+					# The recipients must be uploaded always (for new or existing one)
+					surveys[key]["recipients"] = [self.limesurvey_header_id._setup_student_recipient(self.student_id)]
+					success = self.limesurvey_header_id._upload_recipients(surveys)
+					success = success and self.limesurvey_header_id._store_recipients(surveys)
+					
+					# _store_recipients creates new entries, so the current one must be removed. 
+					# TODO: fix this unlink (fails due null, should be removed
+					self.unlink()						
+
+				except Exception as e:
+					success = False
+
+				finally:
+					message = _("Refresh process successfully completed!") if success else _("Refresh process failed.")
+					self.limesurvey_header_id._notify(message, "success" if success else "warning", True)			
+					self.limesurvey_header_id._chatter(_(f"Refresh for '{self.email}': ") + (_("success") if success else _("with errors")))

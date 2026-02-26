@@ -10,7 +10,7 @@ survey_target_selection = [("students", "Students"), ("teachers", "Teachers"), (
 class ems_limesurvey_header(models.Model):
 	_name = "ems.limesurvey_header"
 	_description = "LimeSurvey header: contains the survey's header and its content."
-	_inherit = ['ems.base']
+	_inherit = ['ems.base', 'mail.thread', 'mail.activity.mixin']
 	
 	# NOTE: this field is used to track the wizard progress.
 	state = fields.Selection(string='Status', selection=[
@@ -99,6 +99,13 @@ class ems_limesurvey_header(models.Model):
 			}
 		)
 		if cr is not None: cr.commit()
+				
+	def _chatter(self, message):
+		self.message_post(
+            body = message,
+            message_type = 'notification',
+            subtype_xmlid='mail.mt_note'
+        )	
 
 	def _action_import(self):
 		ems_grp = self._get_ems_group()
@@ -117,9 +124,10 @@ class ems_limesurvey_header(models.Model):
 			target = self._thread_import, 
 			args = (surveys, ems_grp, user_id, db_name)
 		)
-		
+				
+		message = _("Starting process in the background, you'll be notified on completion (it can take a while).")
+		self._notify( message, "info", True)		
 		threaded_sync.start()
-		self._notify( _("Starting process in the background..."), "info", True)		
 		return True
 	
 	def _thread_import(self, surveys, ems_grp, user_id, db_name):
@@ -129,104 +137,93 @@ class ems_limesurvey_header(models.Model):
 			self.env = api.Environment(cr, user_id, {})
 			success = True
 		
-			try:
-				success = success and self._upload_surveys(cr, surveys, ems_grp["gsid"])								
-				success = success and self._upload_recipients(cr, surveys)				
-				success = success and self._store_recipients(cr, surveys)
+			try:				
+				success = success and self._upload_surveys(surveys, ems_grp["gsid"])								
+				success = success and self._upload_recipients(surveys)				
+				success = success and self._store_recipients(surveys)
 				self.state = 'uploaded'
 				cr.commit()
 
 			except Exception as e:
 				success = False
-				self._notify(_(f"Something failed: {e}"), "danger", True, cr)
-								
-			if success: self._notify(_("Importation process successfully completed!"), "success", True, cr)
-			else: self._notify(_("Importation process completed with some errors."), "warning", True, cr)	
+				self._notify(_("Something failed: ") + str(e), "danger", True, cr)
 
-			# TODO: start and end through notifications: use the chatter for details (like errors and adding the link in order to update the current page).
-			# message = _("Click here to see changes.")
-			#url = f"/web#id={self.id}&model=ems.limesurvey_header&view_type=form"			
-			#link = f"<br><br><a href='{url}' target='_blank' style='color: #017e84; font-weight: bold;'>{message}</a>"		
+			finally:
+				# TODO: force update without refreshing the window. This is dificult because we must create a custom JS component in order to capture the event and reload if we're still within the form. 
+				message = _("Importation process successfully completed! Please, reload the window to see changes.") if success else _("Importation process completed with some errors.  Please, reload the window to see changes.")
+				self._notify(message, "success" if success else "warning", True, cr)			
+				self._chatter(_("Surveys uploaded: ") + _("success") if success else _("with errors"))
 
-	def _store_recipients(self, cr, surveys):
-		# TODO: current items should be deleted (not just unlinked), but this should not happen till a complete refresh...
-		try:
-			recipients = [[5]]
-			for key in surveys:
-				s_error = surveys[key]["error"]
-				for r in surveys[key]["recipients"]:
-					u_error = r["error"]
+	def _store_recipients(self, surveys):
+		# TODO: current items should be deleted (not just unlinked), but this should not happen till a complete refresh...		
+		recipients = [[5]]
+		for key in surveys:
+			s_error = surveys[key]["error"]
+			for r in surveys[key]["recipients"]:
+				u_error = r["error"]
 
-					error = None
-					if s_error is not None or u_error is not None:
-						error = s_error if s_error is not None else u_error
+				error = None
+				if s_error is not None or u_error is not None:
+					error = s_error if s_error is not None else u_error
 
-					recipients.append([0, 0, {
-						"name": r["firstname"],
-						"email": r["email"],
-						"internal_id": key,
-						"external_id": surveys[key]["external_id"],
-						"status": "success" if error is None else "error",
-						"error": error,
-					}])
+				recipients.append([0, 0, {
+					"name": r["firstname"],
+					"email": r["email"],
+					"internal_id": key,
+					"external_id": surveys[key]["external_id"],
+					"status": "success" if error is None else "error",
+					"error": error,
+				}])
 
-			self.write({
-				"limesurvey_recipient_ids": recipients
-			})
+		self.write({
+			"limesurvey_recipient_ids": recipients
+		})
+		return True		
 
-			return True
-		except Exception as e:
-			# TODO: use the chatter. 
-			self._notify(_(f"Something failed when trying to store recipients and survey IDs correlation: {e}"), "danger", True, cr)
-			return False
-
-	def _upload_recipients(self, cr, surveys):			
+	def _upload_recipients(self, surveys):			
 		success = True
 		for key in surveys:
-			# TODO: if any exception, the error should be also added
-
 			id = surveys[key]["external_id"]
 			recipients = surveys[key]["recipients"]
-			resultados = self._run_api_request("add_participants", [id, recipients])
 			
-			errors = []
-			for index, row in enumerate(resultados):
-				if isinstance(row, dict) and "error" in row:
-					recipients[index]["error"] = row["error"]
-					errors.append(f"- '{recipients[index]['firstname']}' " + _("with email") + f"'{recipients[index]['email']}': {row['error']}")
-				else:
-					recipients[index]["error"] = None
-
-			if len(errors) == 0:
-				# TODO: use the chatter. 
-				self._notify(_(f"Recipients succesfully added to the survey with external ID: {id}"), "info", False, cr)
-				
-			else:
-				success = False
-				# TODO: no HTML allowed, use the chatter to write the details of the errors. 
-				self._notify(_(f"Some recipients failed on adding to the survey with external ID: {id}") + "<br><br>".join(errors), "danger", True, cr)
-				
+			try:
+				errors = []				
+				resultados = self._run_api_request("add_participants", [id, recipients])
+								
+				for index, row in enumerate(resultados):
+					if isinstance(row, dict) and "error" in row:
+						recipients[index]["error"] = row["error"]
+						errors.append(f"- '{recipients[index]['firstname']}' " + _("with email") + f"'{recipients[index]['email']}': {row['error']}")
+					else:
+						recipients[index]["error"] = None
+				if len(errors) > 0: 
+					success = False				
+			except Exception as e:
+				success = False		
+				error = _("Unable to upload some recipients to the survey with internal ID: ") + f"{surveys[key]['internal_id']}.{e}"
+				for r in recipients:
+					recipients[r]["error"] = error												
 		return success
 
-	def _upload_surveys(self, cr, surveys, gsid):		
+	def _upload_surveys(self, surveys, gsid):		
 		success = True
 		for key in surveys:			
-			# TODO: if any exception, the error should be also added
-			data = base64.b64encode(surveys[key]["raw_tsv"].encode('utf-8')).decode('utf-8')
-			id = self._run_api_request("import_survey", [data, "txt"])
-			
-			# TODO: use the chatter to notify progreess
-			if isinstance(id, int) or (isinstance(id, str) and id.isdigit()):				
-				# TODO: importing via XML allows to set the GSID, would be nice to reduce the amount of calls to the API (is slow)!
-				surveys[key]["external_id"] = id
-				surveys[key]["error"] = None
-				self._run_api_request("set_survey_properties", [id, {"gsid": gsid}])	
-				self._run_api_request("activate_tokens", [id, [0]])
-				self._notify(_(f"Survey succesfully imported with external ID: {id}"), "info", False, cr)
-			else:
+			try:
+				data = base64.b64encode(surveys[key]["raw_tsv"].encode('utf-8')).decode('utf-8')
+				id = self._run_api_request("import_survey", [data, "txt"])
+				
+				if isinstance(id, int) or (isinstance(id, str) and id.isdigit()):				
+					# TODO: importing via XML allows to set the GSID, would be nice to reduce the amount of calls to the API (is slow)!
+					surveys[key]["external_id"] = id
+					surveys[key]["error"] = None
+					self._run_api_request("set_survey_properties", [id, {"gsid": gsid}])	
+					self._run_api_request("activate_tokens", [id, [0]])
+				else:
+					raise Exception("")
+			except Exception as e:
 				success = False
-				surveys[key]["error"] = "Unable to import the survey"
-				self._notify(_(f"Unable to import the survey with internal ID: {surveys[key]['internal_id']}"), "danger", True, cr)
+				surveys[key]["error"] = _("Unable to import the survey with internal ID: ") + f"{surveys[key]['internal_id']}. {e}"
+
 		return success
 
 	def _compute_survey_data(self, student, level, only_key):

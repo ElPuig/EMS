@@ -143,8 +143,9 @@ class ems_limesurvey_header(models.Model):
 		db_registry = registry(db_name)
 		with db_registry.cursor() as cr:			
 			self.env = api.Environment(cr, user_id, {})
+			
 			success = True
-		
+			exception = None
 			try:				
 				success = success and self._upload_surveys(surveys, ems_grp["gsid"])								
 				success = success and self._upload_recipients(surveys)				
@@ -154,16 +155,17 @@ class ems_limesurvey_header(models.Model):
 				
 			except Exception as e:
 				success = False
-
+				exception = e
 			finally:
 				# TODO: force update without refreshing the window. This is dificult because we must create a custom JS component in order to capture the event and reload if we're still within the form. 
 				message = _("Importation process successfully completed! Please, reload the window to see changes.") if success else _("Importation process failed.  Please, reload the window to see changes.")
-				self._notify(message, "success" if success else "warning", True, cr)			
-				self._chatter(_("Surveys upload: ") + (_("success") if success else _("with errors")))
+				self._notify(message, "success" if success else "warning", True, cr)	
+				
+				error_message = _("check the recipients entry for more details") if exception is None else exception		
+				self._chatter(_("Surveys upload: ") + (_("success") if success else (_("with errors") + f" -> {error_message}")))
 
-	def _store_recipients(self, surveys):
+	def _store_recipients(self, surveys, recipients = []):
 		# TODO: current items should be deleted (not just unlinked), but this should not happen till a complete refresh...		
-		recipients = [[5]]
 		for key in surveys:
 			s_error = surveys[key]["error"]
 			for r in surveys[key]["recipients"]:
@@ -449,22 +451,20 @@ class ems_limesurvey_recipient(models.Model):
 	
 	def refresh(self):
 		self.ensure_one()
-
 		if self.student_id:
 			key = self.limesurvey_header_id._compute_survey_data(self.student_id, True)["key"]
 			if str(key) == self.internal_id:
 				self.limesurvey_header_id._notify(_("Everything is up to date (nothing to resfresh)."), "info", False)				
 			else:				
-				try:
-					# TODO: cascade errors: display the concrete error and stop.
-					#		replicate on creation
+				try:					
+					success = True
+					exception = None
 
 					self.limesurvey_header_id._notify(_("Refreshing the student's survey..."), "info", False)
 					result = self.limesurvey_header_id._run_api_request("delete_participants", [self.external_id, [self.tid]])																			
-					if result['1'] != "Deleted":
-						raise Exception("Unable to delete the recipient from the current survey")
+					#if result['1'] != "Deleted":
+					#	raise Exception(_("Unable to delete the recipient from the current survey: ") + result['1'] )					
 					
-					success = True
 					exists = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", key)]).mapped("external_id") or False					
 					if not exists:					
 						# Uploading the survey if is a new one
@@ -483,16 +483,16 @@ class ems_limesurvey_recipient(models.Model):
 					# The recipients must be uploaded always (for new or existing one)
 					surveys[key]["recipients"] = [self.limesurvey_header_id._setup_student_recipient(self.student_id)]
 					success = self.limesurvey_header_id._upload_recipients(surveys)
-					success = success and self.limesurvey_header_id._store_recipients(surveys)
-					
-					# _store_recipients creates new entries, so the current one must be removed. 
-					# TODO: fix this unlink (fails due null, should be removed
-					self.unlink()						
+					# NOTE: we also send the order to remove the current one
+					success = success and self.limesurvey_header_id._store_recipients(surveys, [(2, self.id)]) 									
 
 				except Exception as e:
+					exception = e
 					success = False
 
 				finally:
 					message = _("Refresh process successfully completed!") if success else _("Refresh process failed.")
-					self.limesurvey_header_id._notify(message, "success" if success else "warning", True)			
-					self.limesurvey_header_id._chatter(_(f"Refresh for '{self.email}': ") + (_("success") if success else _("with errors")))
+					self.limesurvey_header_id._notify(message, "success" if success else "warning", True)		
+					
+					error_message = _("check the recipients entry for more details") if exception is None else exception		
+					self.limesurvey_header_id._chatter(_(f"Refresh for '{self.email}': ") + (_("success") if success else (_("with errors") + f" -> {error_message}")))

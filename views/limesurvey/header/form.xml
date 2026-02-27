@@ -5,8 +5,13 @@
             <field name="model">ems.limesurvey_header</field>
             <field name="arch" type="xml">
                 <form string="Survey">
-                    <header>
-                         <button name="action_prev" 
+                    <div class="alert alert-warning w-100 text-center mb-2" role="alert" invisible="not is_running">
+                        <i title="sping" class="fa fa-circle-o-notch fa-spin me-2"/> 
+                        <strong>Processing!</strong> We are uploading the changes to the external API; this may take a few seconds...
+                    </div>
+                    
+                    <header>                        
+                        <button name="action_prev" 
                                 string="Return to draft" 
                                 type="object" 
                                 class="oe_highlight" 
@@ -42,9 +47,9 @@
                                 type="object" 
                                 class="oe_highlight" 
                                 icon="fa-arrow-right"
-                                invisible="state != 'uploaded'"/>
+                                invisible="state != 'uploaded'"/>                        
 
-                        <field name="state" widget="statusbar" statusbar_visible="draft,uploading,uploaded,open,closed,downloaded"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,uploading,uploaded,open,closed,downloaded"/>                       
                     </header>
                     <sheet>
                         <group string="Main data" col="4">

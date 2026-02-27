@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 class ems_teaching(models.Model):
 	_name = "ems.teaching"
 	_description = "Teaching: ternary relation between teacher-group-subject."	
-	_sql_constraints = [
-		('ems_teaching_unique', 
-		'unique(teacher_id, group_id, subject_id)',
-		'The ternary "teacher / group / subject" must be unique!')
-	]
+	_inherit = ['ems.base']
 
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", ondelete='cascade', required=True, domain="[('employee_type', '=', 'teacher')]")	
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", ondelete='cascade', required=True)	
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", ondelete='cascade', required=True)	
-	
+	# TODO: course_id should be added!
+
 	# This field is used to filter the availabe groups within the view (avoiding the selection of repeated groups for the same subject in teaching form).
 	# Note: compute_sudo is needed for read-only access.
-	inuse_group_ids = fields.Many2many('ems.group', compute='_compute_inuse_group_ids', compute_sudo=True, store=False) 	
+	inuse_group_ids = fields.Many2many('ems.group', compute='_compute_inuse_group_ids', compute_sudo=True, store=False) 		
 					
 	@api.depends('subject_id')
 	def _compute_inuse_group_ids(self):				
@@ -32,3 +30,18 @@ class ems_teaching(models.Model):
 	def _compute_display_name(self):              
 		for rec in self:
 			rec.display_name = "%s" % rec.subject_id.display_name
+
+	@api.constrains('teacher_id', 'group_id', 'subject_id')
+	def _check_unique_active(self):
+		for record in self:			
+			domain = [
+				('id', '!=', record.id),
+				('teacher_id', '=', record.teacher_id.id),				                  
+				('group_id', '=', record.group_id.id),
+				('subject_id', '=', record.subject_id.id),
+				('active', '=', True),
+			]
+			
+			# TODO: add the current course!
+			if self.search_count(domain) > 0:
+				raise ValidationError(_("There's another active entry for the same 'teacher / group / subject' ternary. Archive it first."))

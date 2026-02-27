@@ -46,10 +46,10 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
-    <!-- ems.attendance_session -->
+    <!-- ems.attendance_session_header -->
     <record id="rule_attendance_session_admin" model="ir.rule">
         <field name="name">Attendance session: all data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_session"/>
+        <field name="model_id" ref="ems.model_ems_attendance_session_header"/>
         <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
@@ -60,7 +60,7 @@
 
     <record id="rule_attendance_session_teacher_own" model="ir.rule">
         <field name="name">Attendance session: own data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_session"/>
+        <field name="model_id" ref="ems.model_ems_attendance_session_header"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
         <field name="domain_force">
             [
@@ -77,10 +77,10 @@
         <field name="perm_unlink" eval="True"/>
     </record>   
 
-    <!-- ems.attendance_status -->
-    <record id="rule_attendance_status_admin" model="ir.rule">
+    <!-- ems.attendance_session_line -->
+    <record id="rule_attendance_session_line_admin" model="ir.rule">
         <field name="name">Attendance status: all data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_status"/>
+        <field name="model_id" ref="ems.model_ems_attendance_session_line"/>
         <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
@@ -89,9 +89,9 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
-    <record id="rule_attendance_status_teacher_own" model="ir.rule">
+    <record id="rule_attendance_session_line_teacher_own" model="ir.rule">
         <field name="name">Attendance status: own data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_status"/>
+        <field name="model_id" ref="ems.model_ems_attendance_session_line"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
         <field name="domain_force">
             [
@@ -108,10 +108,10 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
-    <record id="rule_attendance_status_teacher_tutor" model="ir.rule">
+    <record id="rule_attendance_session_line_teacher_tutor" model="ir.rule">
         <!-- Must be available for tutors in order to justify. -->
         <field name="name">Attendance status: tutors</field>
-        <field name="model_id" ref="ems.model_ems_attendance_status"/>
+        <field name="model_id" ref="ems.model_ems_attendance_session_line"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
         <field name="domain_force">[('student_id.tutor_id.user_id.id', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
@@ -120,10 +120,10 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
-    <record id="rule_attendance_status_teacher_all_read" model="ir.rule">
+    <record id="rule_attendance_session_line_teacher_all_read" model="ir.rule">
         <!-- Must be available for tutors in order to justify -->
         <field name="name">Attendance status: read all data</field>
-        <field name="model_id" ref="ems.model_ems_attendance_status"/>
+        <field name="model_id" ref="ems.model_ems_attendance_session_line"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>

@@ -1,8 +1,8 @@
 <odoo>
     <data>
         <record model="ir.ui.view" id="view_attendance_session_list">
-            <field name="name">ems.attendance_session.list</field>
-            <field name="model">ems.attendance_session</field>
+            <field name="name">ems.attendance_session_header.list</field>
+            <field name="model">ems.attendance_session_header</field>
             <field name="arch" type="xml">
                 <list default_order="date desc, start_time desc">      
                     <field name="date" width="125px"/>                    

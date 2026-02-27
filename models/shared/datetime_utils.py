@@ -3,21 +3,11 @@ from pytz import UTC
 from datetime import datetime
 from zoneinfo import ZoneInfo # requires Python >= 3.9
 
-from odoo import models, fields
+from odoo import models
 
-class ems_utils(models.AbstractModel):   
-    _name = 'ems.utils'
-    _description = 'EMS utils library (mixin)'
-
-    user_is_admin = fields.Boolean(default=lambda self: self.get_user_is_admin(), store=False)
-    user_is_tutor = fields.Boolean(default=lambda self: self.get_user_is_tutor(), store=False)   
-    active = fields.Boolean(default=True)
-
-    # TODO: Some Odoo models define this method to archive them and also their related fields. 
-    #       Implement this in all our models! Needed, for example, to avoid deleting sessions. 
-    def action_archive(self):
-        for rec in self:
-            rec.active = False    
+class ems_datetime_utils(models.AbstractModel):   
+    _name = 'ems.datetime_utils'
+    _description = 'EMS datetime utils'
 
     def current_tz(self):
         try:
@@ -51,17 +41,11 @@ class ems_utils(models.AbstractModel):
     def time_to_float(self, time):
         return time.hour + time.minute / 60.0
     
-    def get_user_is_admin(self):	
-        return self.env.user.has_group('ems.group_admin')
-
-    def get_user_is_tutor(self):
-        for e in self.env.user.employee_ids:
-            if e.tutorship_ids != False and len(e.tutorship_ids) > 0:
-                return True
-        return False
-
-    def get_user_is_tutor_of_self(self):
-        if 'tutor_id' in self.env[self._name]._fields:
-            return self.tutor_id.id != False and self.tutor_id.user_id == self.env.user        
-    
-  
+    def time_string_to_float(self, value):
+        # To convert from string like "17:45" to float like 17.75
+		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236
+        vals = value.split(':')
+        t, hours = divmod(float(vals[0]), 24)
+        t, minutes = divmod(float(vals[1]), 60)				
+        minutes = (minutes) / 60.0
+        return hours + minutes

@@ -8,7 +8,7 @@
                     <sheet>     
                          <group string="Main data" col="4">                            
                             <group colspan="4">
-                                <field string="Period" name="start_date" widget="daterange" options='{"end_date_field": "end_date"}' readonly="id"/>
+                                <field string="Period" name="start_date" widget="daterange" options='{"end_date_field": "end_date"}' />
                                 <!-- Needed in order to fire 'onchange' for the 'end_date' field -->
                                 <field name="end_date" invisible="True"/>
                             </group>                         
@@ -21,16 +21,18 @@
                         </group>                      
 
                         <notebook>
-                            <page string="Statuses">                                
-                                <field name="attendance_status_ids">
+                            <page string="Affected sessions">                                
+                                <field name="attendance_session_line_ids" readonly="True" force_save="True">
+                                    <!-- NOTE: force_save needed with readonly because otherwise the changes won't be sent to the server (the field does not appear within 'values' field on 'write' method). -->
                                     <list default_order="student_id asc" create="False" edit="False" delete="False" no_open="True">                                                                               
                                         <field string="Session" name="display_name" />
                                         <field name="status" width="175px" />
                                     </list>
                                 </field>
                             </page> 
-                            <page string="Session teachers">                                
-                                <field name="session_teacher_ids">
+                            <page string="Affected teachers">                                
+                                <field name="session_teacher_ids" readonly="True">
+                                    <!-- NOTE: fully computed. -->
                                     <list default_order="name asc" create="False" edit="False" delete="False" no_open="True">                                                                               
                                         <field string="Name" name="name" />
                                     </list>

@@ -15,7 +15,7 @@
                         <th t-esc="overall_status[s]"/>
                     </t> 
                     <t t-foreach="data.breakdown" t-as="s">
-                        <th t-esc="attendance_status[s]"/>
+                        <th t-esc="attendance_session_line[s]"/>
                     </t> 
                 </tr>                                
             </thead>

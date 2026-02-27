@@ -7,6 +7,9 @@
                 <form string="Template">
                     <sheet>
                         <group string="Main data" col="6">   
+                            <!-- This is needed to automatically display the 'archive' option within the cogmenu. -->
+                            <field name="active" invisible="1"/>
+
                             <group colspan="6">
                                 <field name="color" widget="color_picker" readonly="read_only_user"/>
                             </group>

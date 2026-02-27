@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import math, pytz
-from datetime import datetime, time
-from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 class ems_attendance_schedule(models.Model):
 	_name = "ems.attendance_schedule"
 	_description = "Attendance schedule: concretes the weekdays data."
 	_order = 'name asc'
-	_inherit = ['ems.utils']
+	_inherit = ['ems.base', 'ems.datetime_utils']
 	
 	# Note: today.weekday() returns this values, do not alter!
 	weekdays_selection=[
@@ -34,7 +32,7 @@ class ems_attendance_schedule(models.Model):
 	
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
 	attendance_template_id = fields.Many2one(string="Template", comodel_name="ems.attendance_template", ondelete='cascade', required=True)	
-	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_session", inverse_name="attendance_schedule_id")	
+	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_session_header", inverse_name="attendance_schedule_id")	
 	
 	# The teacher_id is used just for permission filtering pruposes.
 	teacher_id = fields.Many2one(string='Teacher', related="attendance_template_id.teacher_id", store=False) 
@@ -70,3 +68,8 @@ class ems_attendance_schedule(models.Model):
 			#weekday_str = rec._fields['weekday'].convert_to_export(rec.weekday, rec)
 			rec.name = "%s | %s | %s" % (rec.attendance_template_id.display_name, weekday_str, rec.time_range)
 			rec.display_name = rec.name
+
+	def unlink(self):
+		if len(self.attendance_session_ids) > 0:
+			raise ValidationError(_("This schedule have been already used to check the student's attendances and cannot be deleted. Please, update its data instead or archive the entire template and create a new one with the correct data."))
+		return super().unlink()

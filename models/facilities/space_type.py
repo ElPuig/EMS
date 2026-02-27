@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields
 
 class ems_space_type(models.Model):
 	_name = "ems.space_type"

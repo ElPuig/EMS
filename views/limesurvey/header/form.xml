@@ -6,7 +6,7 @@
             <field name="arch" type="xml">
                 <form string="Survey">
                     <header>
-                         <button name="action_draft" 
+                         <button name="action_prev" 
                                 string="Return to draft" 
                                 type="object" 
                                 class="oe_highlight" 

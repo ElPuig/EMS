@@ -36,11 +36,9 @@ class ems_base(models.AbstractModel):
         hash = hashlib.sha256(bytes)
         return hash.hexdigest()
     
-    def request_form_update(self, message="Data updated"):
-        channel = self.env.user
-        type = "form_reload"
-        mensaje = {
+    def reload_request(self, message="Data updated on server side, client reload requested."):  
+        # NOTE: for something like a progress bar, cr.commit() is needed. Otherwise, the message is sent on process completion.       
+        self.env.user._bus_send("reload_request", {
             "record_id": self.id,
             "message": message
-        }		
-        self.env['bus.bus']._sendone(channel, type, mensaje)
+        })

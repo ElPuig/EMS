@@ -7,27 +7,17 @@ import { onWillStart, onWillDestroy } from "@odoo/owl";
 
 patch(FormController.prototype, {
     setup() {
-        super.setup(...arguments);
+        super.setup(...arguments);        
         this.busService = useService("bus_service");
 
-        // Escuchamos los mensajes del bus
-        const onMessage = (payload) => {
-            for (const { type, payload: message } of payload) {
-                if (type === "update_request") {
-                    // Si el mensaje es para el registro que tenemos abierto en pantalla...
-                    if (this.model.root.resId === message.record_id) {
-                        // ... ¡Recargamos la vista!
-                        this.model.root.load();
-                    }
-                }
+        this.busService.subscribe("reload_request", (payload, {id: notifyID}) => {
+            console.log("-> onMessage")
+             const {record_id: record_id, message: message} = payload;
+             if (this.model.root.resId === record_id) {
+                this.model.root.load();
             }
-        };
-
-        // Suscribirse al iniciar y desuscribirse al destruir el componente
-        this.busService.addEventListener("notification", onMessage);
-        
-        onWillDestroy(() => {
-            this.busService.removeEventListener("notification", onMessage);
         });
+
+        this.busService.start();
     }
 });

@@ -6,6 +6,13 @@
             <field name="arch" type="xml">
                 <form string="Survey">
                     <header>
+                         <button name="action_draft" 
+                                string="Return to draft" 
+                                type="object" 
+                                class="oe_highlight" 
+                                icon="fa-step-backward"
+                                invisible="state != 'uploaded'"/>
+
                         <button name="action_next" 
                                 string="Upload surveys" 
                                 type="object" 
@@ -71,8 +78,9 @@
                                 </field>
                             </page>
 
-                            <page string="Recipients">
+                            <page string="Recipients">                                
                                 <field name="limesurvey_recipient_ids" readonly="True" force_save="True">
+                                    <!-- TODO: allow changes from the admin? no_open using "not user_id_admin" is not working -->
                                     <list default_order="name" no_open="True">
                                         <field name="name"/>
                                         <field name="email"/>

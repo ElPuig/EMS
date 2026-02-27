@@ -26,7 +26,7 @@ class SaleOrder(models.Model):
     ems_course_id = fields.Many2one(
         'ems.course', 
         string="Academic Year", 
-        required=True, 
+        #required=True #Lo haremos obligatorio en la vista 
         default=_get_default_course,
         help="Academic year for this enrollment."
     )
@@ -34,8 +34,8 @@ class SaleOrder(models.Model):
     # Campo para seleccionar el estudio en la matrícula
     ems_study_id = fields.Many2one(
         'ems.study',
-        string="Studies for enrollment",
-        required=True
+        string="Studies for enrollment"
+        #required=True #Lo haremos obligatorio en la vista
     )
 
     # Campo para seleccionar el nivel de estudios en la matrícula

@@ -250,6 +250,7 @@
         'data/cat/ems.role.csv',    
         'data/cat/ems.workgroup.csv',    
         'data/cat/hr.job.csv',
+        'data/cat/ems_product_category_data.xml',
         'data/cat/ems_fee_data.xml',
         
         

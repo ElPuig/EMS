@@ -247,7 +247,8 @@
         'data/cat/ems.workgroup.csv',    
         'data/cat/hr.job.csv',
         'data/cat/ems_product_category_data.xml',
-        'data/cat/ems_fee_data.xml',
+        'data/cat/ems_product_generic_products.xml',
+        'data/cat/ems_enrollment_template_data.xml',
         
         
         # Custom data entries (adapt it to your needs, for example, ESO subjects can differ between centers)        
@@ -264,6 +265,7 @@
         'data/custom/ems.course.csv',
         'data/custom/crm.team.csv',
         'data/custom/product.category.csv',
+        'data/custom/ems_authorization_template_data.xml',
 
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        

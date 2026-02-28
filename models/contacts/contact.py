@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from ..shared import utils
+from ..shared import base
 import datetime
 from dateutil.relativedelta import relativedelta
 

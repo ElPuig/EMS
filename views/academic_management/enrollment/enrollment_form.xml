@@ -22,6 +22,7 @@
             </xpath>
             <xpath expr="//field[@name='sale_order_template_id']" position="attributes">
                 <attribute name="string">Enrollment Template</attribute>
+                <attribute name="groups"></attribute>
             </xpath>            
             <xpath expr="(//label[@for='date_order'])[1]" position="attributes">
                 <attribute name="string">Pre-Enrollment Date</attribute>

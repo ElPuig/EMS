@@ -333,9 +333,14 @@ class ems_limesurvey_header(models.Model):
 			raise Exception(_("Unable to store the 'recipent x survey' assignation: ") + str(e))
 
 	def _delete_recipients_single(self, survey_id, part_ids):		
+		error = _("Unable to delete the recipient from the current survey: ")
 		result = self._run_api_request("delete_participants", [survey_id, part_ids])
-		if result['1'] != "Deleted":			
-			raise Exception(_("Unable to delete the recipient from the current survey: ") + result['1'] )				
+		if "2" in result:	
+			raise Exception(error + result["2"] )				
+		elif "1" in result and result["1"] != "Deleted":			
+			raise Exception(error + result['1'] )
+		elif not "1" in result:
+			raise Exception(error + "UNKWOWN ERROR")
 
 	def _update_recipient_single(self, survey):			
 		id = survey["external_id"]
@@ -355,6 +360,20 @@ class ems_limesurvey_header(models.Model):
 		
 		if errors:
 			raise Exception(_("Unable to update some recipients to the survey with internal ID: ") + f"{survey['internal_id']}.")
+		
+	def _count_recipient_single(self, survey_id):			
+		error = _("Unable to count the recipients")
+		result = self._run_api_request("list_participants", [survey_id])
+		if isinstance(result, dict) and 'status' in result:
+			if result['status'] == "No permission":							
+				raise Exception(f"{error}: No permission")				
+			elif result['status'] == "No survey participants found.":
+				return 0
+			else:
+				# TODO: test this
+				return len(result['status'])
+		else:
+			raise Exception(f"{error}: unkwown error.")
 		
 	def _delete_survey_single(self, survey_id):
 		error = _("Unable to delete the survey")
@@ -403,7 +422,7 @@ class ems_limesurvey_header(models.Model):
 					content += self._replace_block_content(block.tsv_raw_text, block.name, student.level_id.acronym, block.name, block.name, student.study_id.acronym, student.main_group_id.acronym)					
 		
 		return {
-			"key": self.persistent_hash(name), 
+			"internal_id": self.persistent_hash(name), 
 			"raw_tsv": None if only_key else content
 		}
 
@@ -426,7 +445,7 @@ class ems_limesurvey_header(models.Model):
 			for student in students:
 				# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
 				#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).
-				key = self._compute_survey_data(student, True)["key"]
+				key = self._compute_survey_data(student, True)["internal_id"]
 				recipient = self._setup_student_recipient(student)
 				if key in surveys: surveys[key]["recipients"].append(recipient)
 				else: 
@@ -579,18 +598,23 @@ class ems_limesurvey_recipient(models.Model):
 		}
 	
 	def refresh(self):
+		# TODO: check refresh when the enrolled changed, empty surveys should be removed.
+		# TODO: improve LS methods, input methods (easier) and respose check (errors, etc.).
+
 		self.ensure_one()
 		if self.student_id:
 			title = _("LimeSurvey: refresh recipient")
-			key = self.limesurvey_header_id._compute_survey_data(self.student_id, True)["key"]
-			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", key)], limit=1) or False
-			survey = { 
-				# NOTE: this is the basic survey data to work, more data will be added if needed
-				"external_id": existing["external_id"],
-				"internal_id": existing["internal_id"],
-			}
+			internal_id = self.limesurvey_header_id._compute_survey_data(self.student_id, True)["internal_id"]
+			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", internal_id)], limit=1) or False
+			if existing:
+				survey = { 
+					# NOTE: this is the basic survey data to work, more data will be added if needed
+					"external_id": existing["external_id"],
+					"internal_id": existing["internal_id"],
+				}
+			
 			try:
-				if key == self.internal_id:				
+				if internal_id == self.internal_id:				
 					# The recipient is in the correct survey, checking if its name or email changed:
 					if self.name == self.student_id.name and self.email == self.student_id.student_email:
 						self.limesurvey_header_id._notify(title, _("Everything is up to date (nothing to resfresh)."), "info")
@@ -611,13 +635,17 @@ class ems_limesurvey_recipient(models.Model):
 						self.limesurvey_header_id._upload_survey_single(survey, ems_grp["gsid"])					
 					
 					# The recipients must be uploaded always (for new or existing one)
+					old_survey_id = self.external_id
 					survey["recipients"] = [self.limesurvey_header_id._setup_student_recipient(self.student_id)]
 					self.limesurvey_header_id._upload_recipient_single(survey)					
 					self.limesurvey_header_id._store_recipients_single(survey)
 										
 					# Remove from the old survey
 					self.limesurvey_header_id._delete_recipients_single(self.external_id, [self.tid])
-					
+					count = self.limesurvey_header_id._count_recipient_single(old_survey_id)
+					if(count == 0):
+						self.limesurvey_header_id._delete_survey_single(old_survey_id)
+
 					# TODO: if something fails, resotre the LimeSurvey status	
 					self._completed(title)
 

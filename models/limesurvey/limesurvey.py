@@ -6,6 +6,114 @@ from odoo.exceptions import UserError
 
 survey_target_selection = [("students", "Students"), ("teachers", "Teachers"), ("asp", "ASP")]
 
+# NOTE: this class contains the method to call the LimeSurvey's API. Is used by "header" and "recipients" models. 
+class limesurvey_api():
+	def import_survey(self, raw_tsv):		
+		data = base64.b64encode(raw_tsv.encode('utf-8')).decode('utf-8')
+		result  = self._run_api_request("import_survey", [data, "txt"])
+		
+		if isinstance(result, int) or (isinstance(result, str) and result.isdigit()): return result
+		else: raise Exception(_("Unable to upload the survey.") + result)
+
+	def set_survey_properties(self, survey_id, gsid):
+		# TODO: check result for errors		
+		return self._run_api_request("set_survey_properties", [survey_id, {"gsid": gsid}])
+
+	def activate_tokens(self, survey_id):
+		# TODO: check result for errors		
+		return self._run_api_request("activate_tokens", [survey_id, [0]])
+
+	def add_participants(self, survey_id, recipients):
+		#errors = False		
+		participants = list(map(lambda x: {k: x[k] for k in ['email', 'firstname', 'lastname']}, recipients))		
+		return self._run_api_request("add_participants", [survey_id, participants])
+
+		# TODO: could we return directly "result"?	
+		
+		# for index, row in enumerate(result):
+		# 	if "error" in row:
+		# 		recipients[index]["error"] = row["error"]
+		# 		errors = True
+		# 	else:
+		# 		recipients[index]["token"] = row["token"]
+		# 		recipients[index]["tid"] = row["tid"]
+		
+		# if errors:
+		# 	raise Exception(_("Unable to upload some participants to the survey."))
+
+	def delete_participants(self, survey_id, participant_ids):		
+		error = _("Unable to delete some participants")
+		result = self._run_api_request("delete_participants", [survey_id, participant_ids])
+		if "2" in result: raise Exception(f"{error}: " + result["2"] )
+		elif "1" in result and result["1"] != "Deleted": raise Exception(f"{error}: " + result['1'] )
+		elif not "1" in result: raise Exception(f"{error}: " + "UNKWOWN ERROR!")
+
+	def set_participant_properties(self, survey_id, participant_id, participant_data):			
+		error = _("Unable to update some participants")
+		result = self._run_api_request("set_participant_properties", [survey_id, participant_id, participant_data])
+
+		if "error" in result: raise Exception(f"{error}: " + result["error"])
+		elif not "emailstatus" in result: raise Exception(f"{error}: " + result["status"])
+		elif result["emailstatus"] != "OK": raise Exception(f"{error}: " + result["emailstatus"])
+
+	def list_participants(self, survey_id):			
+		error = _("Unable to count the recipients")
+		result = self._run_api_request("list_participants", [survey_id])
+		if "status" in result:
+			if result["status"] == "No permission":	raise Exception(f"{error}: " + result["status"])				
+			elif result["status"] == "No survey participants found.": return 0
+			else: return len(result["status"])
+		else:
+			raise Exception(f"{error}: UNKWONW ERROR!")
+		
+	def delete_survey(self, survey_id):
+		error = _("Unable to delete the survey")
+		result = self._run_api_request("delete_survey", [survey_id])
+		if "status" in result:
+			if result["status"] == "No permission":			
+				# Deleted ones appears as "no permissions", checking if exists or not...
+				result = self._run_api_request("get_survey_properties", [survey_id])
+				if not "status" in result: raise Exception(f"{error}: No permission.")
+			elif result["status"] != "OK":
+				raise Exception(f"{error}: {result["status"]}")
+		else:
+			raise Exception(f"{error}: UNKWONW ERROR!")
+		
+	def _run_api_request(self, method, params=[]):
+		self.ensure_one()
+				
+		headers = {'content-type': 'application/json'}
+		session_key = self._get_session_key(headers)
+
+		if not session_key:
+			raise UserError(_("Unable to get the LimeSurvey's session key."))
+		
+		try:
+			session = [session_key]
+			payload = {
+                "method": method,
+                "params": [*session, *params], 
+                "id": 1
+            }
+			
+			response = requests.post(self.env.company.limesurvey_api, data=json.dumps(payload), headers=headers)
+			if response.status_code != 200:
+				raise UserError(f"LimeSurvey API call error: {response.reason} \n\n {self._extract_limesurvey_html_error(response.text)}")
+			elif response.json().get('error'):
+				raise UserError(f"LimeSurvey API call error:  {response.json().get('error')}")
+			
+			result = response.json().get('result')
+			if result is None:
+				raise UserError(f"LimeSurvey API call error: unkown (maybe permissions?)")
+			return result			
+
+		except UserError as ue:
+			raise ue
+		except Exception as e:
+			raise UserError(f"Unexpected error: {str(e)}")
+			
+		finally:
+			self._release_session_key(session_key, headers)
 class ems_limesurvey_header(models.Model):
 	_name = "ems.limesurvey_header"
 	_description = "LimeSurvey header: contains the survey's header and its content."

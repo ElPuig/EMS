@@ -15,9 +15,9 @@ class limesurvey_api():
 		if isinstance(result, int) or (isinstance(result, str) and result.isdigit()): return result
 		else: raise Exception(_("Unable to upload the survey.") + result)
 
-	def set_survey_properties(self, survey_id, gsid):
+	def set_survey_properties(self, survey_id, props):
 		# TODO: check result for errors		
-		return self._run_api_request("set_survey_properties", [survey_id, {"gsid": gsid}])
+		return self._run_api_request("set_survey_properties", [survey_id, props])
 
 	def activate_tokens(self, survey_id):
 		# TODO: check result for errors		
@@ -367,25 +367,24 @@ class ems_limesurvey_header(models.Model):
 
 		return success
 	
-	def _upload_survey_single(self, survey, gsid):		
-		data = base64.b64encode(survey["raw_tsv"].encode('utf-8')).decode('utf-8')
-		id = self._run_api_request("import_survey", [data, "txt"])
-		
-		if isinstance(id, int) or (isinstance(id, str) and id.isdigit()):				
-			# TODO: importing via XML allows to set the GSID, would be nice to reduce the amount of calls to the API (is slow)!
-			survey["external_id"] = id
-			self._run_api_request("set_survey_properties", [id, {"gsid": gsid}])	
-			self._run_api_request("activate_tokens", [id, [0]])
-		else:
-			raise Exception(_("Unable to import the survey with internal ID: ") + f"{survey['internal_id']}")
+	def _upload_survey_single(self, survey, gsid):	
+		try:
+			survey["external_id"] = limesurvey_api.import_survey(survey["raw_tsv"])
+			limesurvey_api.set_survey_properties(survey["external_id"],  {"gsid": gsid})
+			limesurvey_api.activate_tokens(survey["external_id"])
+		except Exception as e:
+			# TODO: remove the created survey if something fails
+			raise Exception(f"{_("Unable to import the survey with internal ID")}: {survey['internal_id']}")
 		
 	def _upload_recipients_multi(self, surveys):			
 		success = True
 		for key in surveys:
 			try:
 				self._upload_recipient_single(surveys[key])							
-			except Exception as e:
+			except Exception as e:				
 				success = False
+				for rec in surveys.recipients:
+					rec["error"] = e
 
 		return success
 	

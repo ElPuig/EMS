@@ -337,6 +337,25 @@ class ems_limesurvey_header(models.Model):
 		if result['1'] != "Deleted":			
 			raise Exception(_("Unable to delete the recipient from the current survey: ") + result['1'] )				
 
+	def _update_recipient_single(self, survey):			
+		id = survey["external_id"]
+		recipients = survey["recipients"]
+					
+		errors = False		
+		tid = recipients[0]["tid"]
+		data = list(map(lambda x: {k: x[k] for k in ['email', 'firstname', 'lastname']}, recipients))[0]
+		result = self._run_api_request("set_participant_properties", [id, tid, data])
+
+		errors = True
+		if "error" in result: result["error"] = result["error"]			
+		elif "emailstatus" in result:
+			if result["emailstatus"] == "OK": errors = False
+			else: result["error"] = result["emailstatus"]
+		else: result["error"] = result["status"]
+		
+		if errors:
+			raise Exception(_("Unable to update some recipients to the survey with internal ID: ") + f"{survey['internal_id']}.")
+		
 	def _delete_survey_single(self, survey_id):
 		error = _("Unable to delete the survey")
 		result = self._run_api_request("delete_survey", [survey_id])
@@ -564,27 +583,32 @@ class ems_limesurvey_recipient(models.Model):
 		if self.student_id:
 			title = _("LimeSurvey: refresh recipient")
 			key = self.limesurvey_header_id._compute_survey_data(self.student_id, True)["key"]
-			if key == self.internal_id:				
-				message = _("Everything is up to date (nothing to resfresh).")
-				self.limesurvey_header_id._notify(title, message, "info")				
-			else:				
-				try:
-					message = _("Refreshing the student's survey...")
-					self.limesurvey_header_id._notify(title, message, "info")		
+			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", key)], limit=1) or False
+			survey = { 
+				# NOTE: this is the basic survey data to work, more data will be added if needed
+				"external_id": existing["external_id"],
+				"internal_id": existing["internal_id"],
+			}
+			try:
+				if key == self.internal_id:				
+					# The recipient is in the correct survey, checking if its name or email changed:
+					if self.name == self.student_id.name and self.email == self.student_id.student_email:
+						self.limesurvey_header_id._notify(title, _("Everything is up to date (nothing to resfresh)."), "info")
+					else:
+						reci = self.limesurvey_header_id._setup_student_recipient(self.student_id)
+						reci["tid"] = self.tid
+						
+						survey["recipients"] = [reci]
+						self.limesurvey_header_id._update_recipient_single(survey)
+						self._completed(title)
 
-					existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", key)], limit=1) or False					
+				else:								
+					self.limesurvey_header_id._notify(title, _("Refreshing the student's survey..."), "info")		
 					if not existing:					
 						# Uploading the survey if is a new one
-						created = True							
 						ems_grp = self.limesurvey_header_id._get_ems_group()
 						survey = self.limesurvey_header_id._compute_survey_data(self.student_id, False)
-						self.limesurvey_header_id._upload_survey_single(survey, ems_grp["gsid"])
-					else:
-						# Rebuilding the mandatory data
-						survey = { 
-							"external_id": existing["external_id"],
-							"internal_id": existing["internal_id"],
-						}
+						self.limesurvey_header_id._upload_survey_single(survey, ems_grp["gsid"])					
 					
 					# The recipients must be uploaded always (for new or existing one)
 					survey["recipients"] = [self.limesurvey_header_id._setup_student_recipient(self.student_id)]
@@ -595,12 +619,15 @@ class ems_limesurvey_recipient(models.Model):
 					self.limesurvey_header_id._delete_recipients_single(self.external_id, [self.tid])
 					
 					# TODO: if something fails, resotre the LimeSurvey status	
-
-					self.limesurvey_header_id._notify(title, _("Refresh process successfully completed!"), "success")
-					self.limesurvey_header_id._chatter(title, _(f"Refresh for '{self.email}': ") + _("success"))
+					self._completed(title)
 
 					# NOTE: removing the entry must be the last step (otherwise any access to 'self' fails).
 					self.unlink()
-				except Exception as e:
-					self.limesurvey_header_id._notify(title, _("Refresh process failed."), "warning")						
-					self.limesurvey_header_id._chatter(title, _(f"Refresh for '{self.email}': ") + (_("with errors") + f" -> {e}"))
+
+			except Exception as e:
+				self.limesurvey_header_id._notify(title, _("Refresh process failed."), "warning")						
+				self.limesurvey_header_id._chatter(_(f"Refresh for '{self.email}': ") + (_("with errors") + f" -> {e}"))
+
+	def _completed(self, title):
+		self.limesurvey_header_id._notify(title, _("Refresh process successfully completed!"), "success")
+		self.limesurvey_header_id._chatter(_(f"Refresh for '{self.email}': ") + _("success"))

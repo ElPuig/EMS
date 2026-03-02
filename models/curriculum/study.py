@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import date
 from odoo import models, fields, api
 
 class ems_study(models.Model):
@@ -22,6 +23,7 @@ class ems_study(models.Model):
     @api.depends('acronym', 'name')
     def _compute_display_name(self):              
         for rec in self:
-            rec.display_name = "%s (%s): %s" % (rec.acronym, rec.date.year, rec.name)
+            year = date.today().year if rec.date is False else rec.date.year
+            rec.display_name = "%s (%s): %s" % (rec.acronym, year, rec.name)
 
             

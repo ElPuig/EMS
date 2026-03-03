@@ -152,7 +152,7 @@ class ems_limesurvey_header(models.Model):
 	limesurvey_recipient_ids = fields.One2many(string="Recipients", comodel_name="ems.limesurvey_recipient", inverse_name="limesurvey_header_id")	
 	notes = fields.Text(string="Notes")
 	is_running = fields.Boolean(string="Running", default=False)
-	
+		
 	def action_prev(self):
 		for rec in self:			
 			if not rec._already_running():
@@ -474,7 +474,7 @@ class ems_limesurvey_header(models.Model):
 		key = f"upload_surveys"
 		ls_api = limesurvey_api(self.env)
 		if not changes.get(key, False):
-			gsid = ls_api.get_group("EMS")					
+			gsid = ls_api.get_group("EMS")["gsid"]		
 			for key in surveys:		
 				success = success and self.upload_survey(gsid, surveys[key])				
 			changes[key] = success
@@ -488,7 +488,7 @@ class ems_limesurvey_header(models.Model):
 				success = success and self.upload_survey_recipients(surveys[key])
 			changes[key] = success
 		return success		
-
+	
 	def _replace_block_content(self, content, b_name, l_acro, s_code, s_name, d_acro, g_acro, trainer=""):
 		content = content.replace("{'TITLE'}", b_name)
 		content = content.replace("{'TOPIC'}", b_name)
@@ -620,27 +620,27 @@ class ems_limesurvey_recipient(models.Model):
 						survey["recipients"] = [reci]
 						self._update_recipient(survey)
 						self._completed(title)
-
-				else:								
+				else:
+					success = True								
 					self.limesurvey_header_id._notify(title, _("Refreshing the student's survey..."), "info")		
 					if not existing:					
 						# Uploading the survey if is a new one
-						ems_grp = ls_api.get_group("EMS")
+						gsid = ls_api.get_group("EMS")["gsid"]
 						survey = self.limesurvey_header_id.compute_survey_data(self.student_id, False)
-						self.limesurvey_header_id._upload_survey_single(survey, ems_grp["gsid"])					
+						success = self.limesurvey_header_id.upload_survey(gsid, survey)
+						if not success: raise Exception(survey["error"])					
 					
 					# The recipients must be uploaded always (for new or existing one)
 					old_survey_id = self.external_id
 					survey["recipients"] = [self.limesurvey_header_id.setup_recipient_student(self.student_id)]
-					ls_api.add_participants(survey["external_id"], survey["recipients"])
-					self.limesurvey_header_id.store_recipients(survey)
+					success = self.limesurvey_header_id.upload_survey_recipients(survey)
+					if not success: raise Exception(survey["recipients"][0]["error"])
+					self.limesurvey_header_id.store_recipients(survey["internal_id"], survey["external_id"], survey["recipients"])
 										
 					# Remove from the old survey
-					#self.limesurvey_header_id._delete_recipients_single(self.external_id, [self.tid])
 					ls_api.delete_participants(self.external_id, [self.tid])
 					count = ls_api.count_participants(old_survey_id)
-					if(count == 0):
-						ls_api.delete_survey(old_survey_id)
+					if(count == 0): ls_api.delete_survey(old_survey_id)
 
 					# TODO: if something fails, resotre the LimeSurvey status	
 					self._completed(title)
@@ -649,8 +649,9 @@ class ems_limesurvey_recipient(models.Model):
 					self.unlink()
 
 			except Exception as e:
-				self.limesurvey_header_id._notify(title, _("Refresh process failed."), "warning")						
-				self.limesurvey_header_id._chatter(_(f"Refresh for '{self.email}': ") + (_("with errors") + f" -> {e}"))
+				message = f"{_('Refresh process failed.')} {e}"
+				self.limesurvey_header_id._notify(title, message, "warning")						
+				self.limesurvey_header_id._chatter(message)
 
 	def _update_recipient(self, survey):			
 		sid = survey["external_id"]
@@ -660,6 +661,9 @@ class ems_limesurvey_recipient(models.Model):
 
 		ls_api = limesurvey_api(self.env)
 		ls_api.update_participant_data(sid, tid, data)
+		
+		self.name = data["firstname"]
+		self.email = data["email"]
 
 	def _completed(self, title):
 		self.limesurvey_header_id._notify(title, _("Refresh process successfully completed!"), "success")

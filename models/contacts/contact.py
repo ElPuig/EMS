@@ -93,6 +93,7 @@ class ems_contact(models.Model):
     def _get_read_only_user(self):
         is_admin = base.ems_base.get_user_is_admin(self)
         is_tutor = False
+        # TODO: call self.get_user_is_tutor()
         for t in self.env.user.employee_ids:
             if t.id != False and len(t.tutorship_ids) > 0:
                 if self.tutor_id == t:

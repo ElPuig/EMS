@@ -471,21 +471,21 @@ class ems_limesurvey_header(models.Model):
 
 	def _upload_surveys(self, changes, surveys):
 		success = True
-		key = f"upload_surveys"
+		key = f"_upload_surveys"
 		ls_api = limesurvey_api(self.env)
 		if not changes.get(key, False):
 			gsid = ls_api.get_group("EMS")["gsid"]		
 			for key in surveys:		
-				success = success and self.upload_survey(gsid, surveys[key])				
+				success = self.upload_survey(gsid, surveys[key])				
 			changes[key] = success
 		return success	
 	
 	def _upload_surveys_recipients(self, changes, surveys):
 		success = True
-		key = f"upload_recipients"
+		key = f"_upload_surveys_recipients"
 		if not changes.get(key, False):						
 			for key in surveys:
-				success = success and self.upload_survey_recipients(surveys[key])
+				success = self.upload_survey_recipients(surveys[key])
 			changes[key] = success
 		return success		
 	

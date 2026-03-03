@@ -7,7 +7,7 @@
                 <form string="Survey">
                     <div class="alert alert-warning w-100 text-center mb-2" role="alert" invisible="not is_running">
                         <i title="sping" class="fa fa-circle-o-notch fa-spin me-2"/> 
-                        <strong>Processing!</strong> We are uploading the changes to the external API; this may take a few seconds...
+                        <strong>Processing!</strong> We are uploading the changes to the external API; this may take a few minutes...
                     </div>
                     
                     <header>                        

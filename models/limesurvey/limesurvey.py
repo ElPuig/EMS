@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import requests, json, html, re, base64, threading, psycopg2, time
+from datetime import datetime
 from odoo import models, fields, api, registry, _
 from odoo.exceptions import UserError
 
@@ -25,7 +26,7 @@ class limesurvey_api():
 				self.delete_survey(result)
 				raise			
 		else: 			
-			raise Exception(_("Unable to upload the survey.") + result)
+			raise Exception(f"{_('Unable to create the survey.')} {result}")
 	
 	def add_participants(self, survey_id, participants):	
 		participants = list(map(lambda x: {k: x[k] for k in ['email', 'firstname', 'lastname']}, participants))		
@@ -76,6 +77,18 @@ class limesurvey_api():
 		result = self._run_api_request("list_survey_groups", [None])		
 		group_found = False if result is None else next((g for g in result if g['name'] == name), None)
 		return None if not group_found else group_found	
+
+	def activate_survey(self, survey_id):
+		error = _("Unable to activate the survey")
+		try:
+			self._run_api_request("set_survey_properties", [survey_id,  {"expires": None, "startdate": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])		
+			result  = self._run_api_request("activate_survey", [survey_id])	
+			if "status" not in result:
+				raise Exception(f"{error}: {result}")
+			if "status" in result and result["status"] != "OK":
+				raise Exception(f"{error}: {result['status']}")			
+		except Exception as e: 			
+			raise Exception(f"{error}: {e}")
 
 	def _run_api_request(self, method, params=[]):		
 		headers = {'content-type': 'application/json'}
@@ -137,8 +150,11 @@ class ems_limesurvey_header(models.Model):
         ('draft', 'Draft'),
 		('uploading', 'Uploading surveys'),
         ('uploaded', 'Surveys uploaded'),
+		('opening', 'Opening surveys'),
         ('open', 'Surveys open'),
-        ('closed', 'Surveys closed'),
+        ('closing', 'Closing surveys'),
+		('closed', 'Surveys closed'),
+		('downloading', 'Downloading surveys'),
 		('downloaded', 'Data downloaded')
     ], default='draft')
 
@@ -160,6 +176,11 @@ class ems_limesurvey_header(models.Model):
 				if rec.state == 'uploaded':				
 					rec.state = 'uploading'
 					return rec._action_draft()								
+
+	def action_remind(self):
+		for rec in self:			
+			if not rec._already_running():
+				return True
 
 	def action_next(self):
 		# TODO: Expected behaviour:
@@ -188,11 +209,12 @@ class ems_limesurvey_header(models.Model):
 				rec.is_running = True
 				if rec.state == 'draft':				
 					rec.state = 'uploading'
-					return rec._action_import()
+					return rec._action_upload()
 				
 				elif rec.state == 'uploaded':				
-					rec.state = 'open'
-					
+					rec.state = 'opening'		
+					return rec._action_open()
+
 				elif rec.state == 'open':				
 					rec.state = 'closed'
 					
@@ -376,10 +398,7 @@ class ems_limesurvey_header(models.Model):
 			_("Starting process in the background, you'll be notified on completion (it can take a while)."), 
 			"info"
 		)
-
-		self.state = 'uploading'
-		self.is_running = True
-
+		
 		def code(self, changes):
 			# NOTE: This code runs in a new thread, changes is a dictionary created in _run_in_thread
 			#		When working with threads, BBDD changes could faul due to concurrent updates.
@@ -427,7 +446,7 @@ class ems_limesurvey_header(models.Model):
 		self._run_in_thread(code)
 		return True
 	
-	def _action_import(self):
+	def _action_upload(self):
 		ls_api = limesurvey_api(self.env)
 		ems_grp = ls_api.get_group("EMS")
 		if not ems_grp:
@@ -475,6 +494,55 @@ class ems_limesurvey_header(models.Model):
 				#NOTE: because this is running in another thread, a message will be sent to the client in order to load new data (see also "form_reload.js").
 				self.is_running = False
 				self.reload_request()		
+		
+		self._run_in_thread(code)
+		return True
+
+	def _action_open(self):		
+		self._notify(
+			_("LimeSurvey: open surveys"), 
+			_("Starting process in the background, you'll be notified on completion (it can take a while)."), 
+			"info"
+		)
+		
+		def code(self, changes):
+			# NOTE: This code runs in a new thread, changes is a dictionary created in _run_in_thread
+			#		When working with threads, BBDD changes could faul due to concurrent updates.
+			#		Odoo manages transactions well, so retries can be done, but changes to LimeSurvey must be
+			#		tracked and repetitions should be avoided. This is for what "changes" is used for. 
+			#		Each LimeSurvey change is tracked in "changes", and its done only if "changes" does not
+			#		its flag. 
+
+			errors = []
+			success = True			
+			ls_api = limesurvey_api(self.env)
+			survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))				
+			for sid in survey_ids:
+				try:					
+					action = f"activate_survey{sid}"
+					if not changes.get(action, False):
+						ls_api.activate_survey(sid)
+						changes[action] = True					
+				except Exception as e:
+					success = False
+					errors.append(f"Unable to open the survey with external ID '{sid}'. {e}")
+
+			title = _("LimeSurvey: open surveys")
+			if success:				
+				message = _("Open process successfully completed!")
+				self.state = 'open'
+				self._notify(title, message, "success")	
+				self._chatter(message)
+			else:
+				details = "\n".join(str(e) for e in errors)
+				message = f"{_('Open process failed.')}. {details}"				
+				self.state = 'uploaded'
+				self._notify(title, message, "warning")	
+				self._chatter(message)
+			
+			#NOTE: because this is running in another thread, a message will be sent to the client in order to load new data (see also "form_reload.js").			
+			self.is_running = False
+			self.reload_request()	
 		
 		self._run_in_thread(code)
 		return True

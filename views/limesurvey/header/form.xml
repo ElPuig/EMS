@@ -10,46 +10,146 @@
                         <strong>Processing!</strong> We are uploading the changes to the external API; this may take a few minutes...
                     </div>
                     
-                    <header>                        
-                        <button name="action_prev" 
-                                string="Return to draft" 
-                                type="object" 
-                                class="oe_highlight" 
-                                icon="fa-step-backward"
-                                invisible="state != 'uploaded'"/>
+                    <header>
+                        <!-- NOTE: Odoo does not evaluate 'disabled' as does with invisible :(  -->
+                        
+                        <!-- DRAFT -->
+                        <button string="Upload surveys" 
+                            name="action_next" 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-play"
+                            invisible="state != 'draft'"
+                        />
 
-                        <button name="action_next" 
-                                string="Upload surveys" 
-                                type="object" 
-                                class="oe_highlight" 
-                                icon="fa-play"
-                                invisible="state != 'draft'"/>
+                        <!-- UPLOADING-->
+                        <button string="Upload surveys"
+                            disabled="True"
+                            name="action_next" 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-play"
+                            invisible="state != 'uploading'"
+                        />
+                        
+                        <!-- UPLOADED -->
+                        <button string="Return to draft" 
+                            name="action_prev"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-step-backward"
+                            invisible="state != 'uploaded'"
+                        />
 
-                        <!-- This approach does not work :( -->
-                        <!-- <button name="action_next" 
-                                string="Open surveys" 
-                                type="object" 
-                                class="oe_highlight" 
-                                icon="fa-arrow-right"
-                                readonly="state != 'uploaded'"
-                                invisible="state not in ('uploading', 'uploaded')"/> -->
+                        <button string="Open surveys" 
+                            name="action_next"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-envelope"
+                            invisible="state != 'uploaded'"
+                        />
 
-                        <button name="action_next" 
-                                string="Open surveys" 
-                                type="object" 
-                                class="oe_highlight" 
-                                icon="fa-arrow-right"
-                                disabled="True"
-                                invisible="state != 'uploading'"/>
+                        <!-- OPENING -->
+                        <button string="Return to draft"   
+                            disabled="True" 
+                            name="action_prev"                              
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-step-backward"
+                            invisible="state != 'opening'"
+                        />
 
-                        <button name="action_next" 
-                                string="Open surveys" 
-                                type="object" 
-                                class="oe_highlight" 
-                                icon="fa-arrow-right"
-                                invisible="state != 'uploaded'"/>                        
+                        <button string="Open surveys"  
+                            disabled="True"
+                            name="action_next"                             
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-envelope "
+                            invisible="state != 'opening'"
+                        />
 
-                        <field name="state" widget="statusbar" statusbar_visible="draft,uploading,uploaded,open,closed,downloaded"/>                       
+                        <!-- OPEN -->      
+                        <button string="Send reminders" 
+                            name="action_remind"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-bell"
+                            invisible="state != 'open'"
+                        />
+
+                        <button string="Close surveys" 
+                            name="action_next"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-stop"
+                            invisible="state != 'open'"
+                        />
+
+                        <!-- CLOSING -->        
+                        <button string="Send reminders" 
+                            disabled="True"
+                            name="action_remind"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-bell"
+                            invisible="state != 'closing'"
+                        />
+
+                        <button string="Close surveys"   
+                            disabled="True"
+                            name="action_next"                               
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-stop"
+                            invisible="state != 'closing'"
+                        />  
+
+                        <!-- CLOSED -->   
+                        <button string="Open surveys"  
+                            name="action_prev"                             
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-envelope "
+                            invisible="state != 'closed'"
+                        />
+
+                        <button string="Download data" 
+                            name="action_next"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-cloud-download"
+                            invisible="state != 'closed'"
+                        />    
+
+                        <!-- DOWNLOADING -->   
+                        <button string="Open surveys"  
+                            disabled="True"
+                            name="action_prev"                             
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-envelope "
+                            invisible="state != 'downloading'"
+                        />
+
+                        <button string="Download data" 
+                            disabled="True"
+                            name="action_next"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-cloud-download"
+                            invisible="state != 'downloading'"
+                        />     
+
+                        <!-- DOWNLOADED -->   
+                        <button string="Return to draft"   
+                            name="action_prev"                              
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-step-backward"
+                            invisible="state != 'downloaded'"
+                        />       
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,uploading,uploaded,opening,open,closing,closed,downloading,downloaded"/>                       
                     </header>
                     <sheet>
                         <group string="Main data" col="4">

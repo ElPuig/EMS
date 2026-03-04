@@ -522,7 +522,9 @@ class ems_limesurvey_header(models.Model):
 					action = f"activate_survey{sid}"
 					if not changes.get(action, False):
 						ls_api.activate_survey(sid)
-						changes[action] = True					
+						changes[action] = True
+					
+					# TODO: send_invitations
 				except Exception as e:
 					success = False
 					errors.append(f"Unable to open the survey with external ID '{sid}'. {e}")

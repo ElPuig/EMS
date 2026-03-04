@@ -343,10 +343,12 @@ class ems_limesurvey_header(models.Model):
 		record_ids = self.ids 
 		model_name = self._name
 			
-		def _threaded_worker():
+		def _threaded_worker():			
 			db_registry = registry(dbname)
 			changes = {}
 
+			# NOTE: I checked that, in some environments and situations, the first run always fails due to concurrent updates.
+			#		I'm not sure if waiting a second prior to the first run is faster than the first retry (which waits 0 seconds)...
 			for current_try in range(max_retries):
 				try:					
 					with db_registry.cursor() as cr:
@@ -357,7 +359,7 @@ class ems_limesurvey_header(models.Model):
 
 				except psycopg2.errors.SerializationFailure:
 					if current_try == max_retries: raise
-					time.sleep(current_try)								
+					time.sleep(current_try)
 		
 		thread = threading.Thread(target=_threaded_worker)
 		thread.start()
@@ -379,16 +381,23 @@ class ems_limesurvey_header(models.Model):
 		self.is_running = True
 
 		def code(self, changes):
+			# NOTE: This code runs in a new thread, changes is a dictionary created in _run_in_thread
+			#		When working with threads, BBDD changes could faul due to concurrent updates.
+			#		Odoo manages transactions well, so retries can be done, but changes to LimeSurvey must be
+			#		tracked and repetitions should be avoided. This is for what "changes" is used for. 
+			#		Each LimeSurvey change is tracked in "changes", and its done only if "changes" does not
+			#		its flag. 
+
 			errors = []
 			success = True			
 			ls_api = limesurvey_api(self.env)
 			survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))				
 			for sid in survey_ids:
 				try:					
-					key = f"delete_survey{sid}"
-					if not changes.get(key, False):
+					action = f"delete_survey{sid}"
+					if not changes.get(action, False):
 						ls_api.delete_survey(sid)
-						changes[key] = True
+						changes[action] = True
 					for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):
 						# NOTE: We could remove all the entries at the end, but this ensure removing the entries only if the survery has been deleted in LimeSurvey.
 						#		Slower but more scure. 
@@ -407,6 +416,7 @@ class ems_limesurvey_header(models.Model):
 			else:
 				details = "\n".join(str(e) for e in errors)
 				message = f"{_('Return to draft process failed.')}. {details}"				
+				self.state = 'uploaded'
 				self._notify(title, message, "warning")	
 				self._chatter(message)
 			
@@ -471,22 +481,22 @@ class ems_limesurvey_header(models.Model):
 
 	def _upload_surveys(self, changes, surveys):
 		success = True
-		key = f"_upload_surveys"
+		action = f"upload_surveys"
 		ls_api = limesurvey_api(self.env)
-		if not changes.get(key, False):
+		if not changes.get(action, False):
 			gsid = ls_api.get_group("EMS")["gsid"]		
 			for key in surveys:		
-				success = self.upload_survey(gsid, surveys[key])				
-			changes[key] = success
+				success = success and self.upload_survey(gsid, surveys[key])				
+			changes[action] = success
 		return success	
 	
 	def _upload_surveys_recipients(self, changes, surveys):
 		success = True
-		key = f"_upload_surveys_recipients"
-		if not changes.get(key, False):						
+		action = f"upload_recipients"
+		if not changes.get(action, False):						
 			for key in surveys:
-				success = self.upload_survey_recipients(surveys[key])
-			changes[key] = success
+				success = success and self.upload_survey_recipients(surveys[key])
+			changes[action] = success
 		return success		
 	
 	def _replace_block_content(self, content, b_name, l_acro, s_code, s_name, d_acro, g_acro, trainer=""):

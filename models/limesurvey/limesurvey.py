@@ -89,6 +89,21 @@ class limesurvey_api():
 				raise Exception(f"{error}: {result['status']}")			
 		except Exception as e: 			
 			raise Exception(f"{error}: {e}")
+		
+	def invite_participants(self, survey_id):
+		success = []
+		error = _("Unable to invite some participants")		
+		try:
+			result  = self._run_api_request("invite_participants", [survey_id])
+			for r in result:
+				if "status" not in r:
+					success.append(r)
+				if "status" in r and r["status"] != "OK":
+					success.append(r['status'])			
+			if len(success) > 0:
+				raise Exception(f"{error}: {"\n".join(success)}")
+		except Exception as e: 			
+			raise Exception(f"{error}: {e}")
 
 	def _run_api_request(self, method, params=[]):		
 		headers = {'content-type': 'application/json'}
@@ -341,6 +356,13 @@ class ems_limesurvey_header(models.Model):
 				level_str = str.join(", ", levels)				
 				rec.display_name = "%s: %s (%s)" % (rec.name, target, level_str) if rec.target else "%s (%s)" % (rec.name, level_str)
 
+	def _execute_once(self, changes, func, *args, **kwargs):
+		# TODO: get "action" as function name
+		action = str(func)
+		if not changes.get(action, False):
+			func(self, args, kwargs)
+			changes[action] = True
+
 	def _notify(self, title, message, type, sticky=False):
 		self.env["bus.bus"]._sendone(
 			self.env.user.partner_id, "simple_notification", {
@@ -518,13 +540,19 @@ class ems_limesurvey_header(models.Model):
 			ls_api = limesurvey_api(self.env)
 			survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))				
 			for sid in survey_ids:
-				try:					
-					action = f"activate_survey{sid}"
-					if not changes.get(action, False):
-						ls_api.activate_survey(sid)
-						changes[action] = True
+				try:	
+					# TODO: test
+					self._execute_once(changes, ls_api.activate_survey, sid)				
+					# action = f"activate_survey{sid}"
+					# if not changes.get(action, False):
+					# 	ls_api.activate_survey(sid)
+					# 	changes[action] = True
 					
-					# TODO: send_invitations
+					action = f"invite_participants{sid}"
+					if not changes.get(action, False):
+						ls_api.invite_participants(sid)
+						changes[action] = True
+
 				except Exception as e:
 					success = False
 					errors.append(f"Unable to open the survey with external ID '{sid}'. {e}")

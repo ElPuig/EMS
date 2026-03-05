@@ -208,13 +208,14 @@ class ems_contact(models.Model):
 
     def _get_read_only_user(self):
         is_admin = base.ems_base.get_user_is_admin(self)
+        is_secretary = self.env.user.has_group('ems.group_secretary')
         is_tutor = False
         for t in self.env.user.employee_ids:
             if t.id != False and len(t.tutorship_ids) > 0:
                 if self.tutor_id == t:
                     is_tutor = True                    
                     break
-        return not (is_admin or is_tutor)
+        return not (is_admin or is_secretary or is_tutor)
     
     def open_form(self):
         return {

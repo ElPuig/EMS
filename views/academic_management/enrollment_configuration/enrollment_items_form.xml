@@ -8,6 +8,14 @@
             <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="mode">primary</field> 
             <field name="arch" type="xml">
+                <xpath expr="//form" position="attributes">
+                    <attribute name="edit">0</attribute>
+                    <attribute name="create">0</attribute>
+                </xpath>
+                <xpath expr="//form" position="attributes" groups="ems.group_admin,ems.group_secretary">
+                    <attribute name="edit">1</attribute>
+                    <attribute name="create">1</attribute>
+                </xpath>
                 
                 <xpath expr="//label[@for='name']" position="attributes">
                     <attribute name="string">Enrollment Item</attribute>

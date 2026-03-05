@@ -185,6 +185,10 @@ class ems_limesurvey_header(models.Model):
 	is_running = fields.Boolean(string="Running", default=False)
 	
 	# NOTE: This is not an Odoo field, this is used to prevent data replication on retries on multi-threading executions.
+	# 		When working with threads, BBDD changes could fail due to concurrent updates. Odoo manages transactions well, 
+	# 		so retries can be done, but changes to LimeSurvey must be tracked and repetitions should be avoided. This is 
+	# 		for what "changes" is used for. Each LimeSurvey change is tracked in "changes", and its done only if "changes" 
+	# 		does not its flag. 
 	changes = {}
 	
 	def action_upload(self):
@@ -215,8 +219,8 @@ class ems_limesurvey_header(models.Model):
 				
 				# This method runs at the end, in order to store the correct state and send the notifications to the user
 				def end(self, success, exception=None):
-					error = _("check the recipients entry for more details") if exception is None else exception	
-					message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {error}")
+					details = _("check the recipients entry for more details") if exception is None else exception	
+					message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {details}")
 					self._notify( _("LimeSurvey: upload surveys"), message, "success" if success else "warning")						
 					self._chatter(message)					
 					self.is_running = False
@@ -249,9 +253,11 @@ class ems_limesurvey_header(models.Model):
 						try:							
 							for key in surveys:
 								ls_api.delete_survey(surveys[key]["external_id"])
-						finally:							
 							end(self, False, e)
 							self.reload_request()
+						except Exception as e:
+							end(self, False, e)
+							self.reload_request()						
 				
 				# Thread execution
 				self._run_in_thread(run)				
@@ -259,7 +265,115 @@ class ems_limesurvey_header(models.Model):
 				end(self, False, e)				
 			finally:
 				return True
+			
+	def action_draft(self):
+		self.ensure_one()
+		if not self._already_running():
+			try:
+				self.is_running = True
+				self.state = 'uploading'
+				
+				self._notify(
+					_("LimeSurvey: return to draft"), 
+					_("Starting process in the background, you'll be notified on completion (it can take a while)."), 
+					"info"
+				)
+				
+				def end(self, success, errors=[]):		
+					details = "\n".join(str(e) for e in errors)
+					message = _("Return to draft process successfully completed!") if success else f"{_('Return to draft process failed.')}. {details}"	
+					self._notify(_("LimeSurvey: upload surveys"), message, "success" if success else "warning")	
+					self._chatter(message)					
+					self.is_running = False
+					self.state = 'draft' if success else 'uploaded'
+				
+				def run(self):
+					errors = []
+					success = True		
 
+					try:	
+						ls_api = limesurvey_api(self.env)
+						survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))																
+						for sid in survey_ids:
+							try:
+								success = self._execute_once(ls_api.delete_survey, f"delete_survey_{sid}", sid)
+								for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):								
+									rec.unlink()
+							except Exception as e:
+								success = False
+								errors.append(f"Unable to remove the survey with external ID '{sid}'. {e}")
+
+						end(self, success, errors)					
+						self.reload_request()
+					
+					except psycopg2.errors.SerializationFailure:
+						# NOTE: _run_in_thread method will retry, the surveys won't be uploaded again due the use of _execute_once.
+						raise
+					
+					except Exception as e:						
+						end(self, False, [str(e)])
+						self.reload_request()
+				
+				self._run_in_thread(run)				
+			except Exception as e:
+				end(self, False, e)				
+			finally:
+				return True
+
+	def _action_draft(self):				
+		self._notify(
+			_("LimeSurvey: return to draft"), 
+			_("Starting process in the background, you'll be notified on completion (it can take a while)."), 
+			"info"
+		)
+		
+		def code(self, changes):
+			# NOTE: This code runs in a new thread, changes is a dictionary created in _run_in_thread
+			#		When working with threads, BBDD changes could faul due to concurrent updates.
+			#		Odoo manages transactions well, so retries can be done, but changes to LimeSurvey must be
+			#		tracked and repetitions should be avoided. This is for what "changes" is used for. 
+			#		Each LimeSurvey change is tracked in "changes", and its done only if "changes" does not
+			#		its flag. 
+
+			errors = []
+			success = True			
+			ls_api = limesurvey_api(self.env)
+			survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))				
+			for sid in survey_ids:
+				try:					
+					action = f"delete_survey{sid}"
+					if not changes.get(action, False):
+						ls_api.delete_survey(sid)
+						changes[action] = True
+					for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):
+						# NOTE: We could remove all the entries at the end, but this ensure removing the entries only if the survery has been deleted in LimeSurvey.
+						#		Slower but more scure. 
+						rec.unlink()
+
+				except Exception as e:
+					success = False
+					errors.append(f"Unable to remove the survey with external ID '{sid}'. {e}")
+
+			title = _("LimeSurvey: upload surveys")
+			if success:				
+				message = _("Return to draft process successfully completed!")
+				self.state = 'draft'
+				self._notify(title, message, "success")	
+				self._chatter(message)
+			else:
+				details = "\n".join(str(e) for e in errors)
+				message = f"{_('Return to draft process failed.')}. {details}"				
+				self.state = 'uploaded'
+				self._notify(title, message, "warning")	
+				self._chatter(message)
+			
+			#NOTE: because this is running in another thread, a message will be sent to the client in order to load new data (see also "form_reload.js").			
+			self.is_running = False
+			self.reload_request()
+		
+		self._run_in_thread(code)
+		return True
+	
 	# TODO: continue here: prepare the "action_draft" method as the "action_upload". 
 
 	def action_prev(self):
@@ -477,6 +591,7 @@ class ems_limesurvey_header(models.Model):
 		model_name = self._name
 			
 		def _threaded_worker():			
+			self.changes.clear()
 			db_registry = registry(dbname)
 			# NOTE: I checked that, in some environments and situations, the first run always fails due to concurrent updates.
 			#		I'm not sure if waiting a second prior to the first run is faster than the first retry (which waits 0 seconds)...
@@ -501,59 +616,7 @@ class ems_limesurvey_header(models.Model):
 			self._notify(_("LimeSurvey: already running"), _("Process already running, maybe by another user?"), "danger")		
 		return self.is_running
 
-	def _action_draft(self):				
-		self._notify(
-			_("LimeSurvey: return to draft"), 
-			_("Starting process in the background, you'll be notified on completion (it can take a while)."), 
-			"info"
-		)
-		
-		def code(self, changes):
-			# NOTE: This code runs in a new thread, changes is a dictionary created in _run_in_thread
-			#		When working with threads, BBDD changes could faul due to concurrent updates.
-			#		Odoo manages transactions well, so retries can be done, but changes to LimeSurvey must be
-			#		tracked and repetitions should be avoided. This is for what "changes" is used for. 
-			#		Each LimeSurvey change is tracked in "changes", and its done only if "changes" does not
-			#		its flag. 
-
-			errors = []
-			success = True			
-			ls_api = limesurvey_api(self.env)
-			survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))				
-			for sid in survey_ids:
-				try:					
-					action = f"delete_survey{sid}"
-					if not changes.get(action, False):
-						ls_api.delete_survey(sid)
-						changes[action] = True
-					for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):
-						# NOTE: We could remove all the entries at the end, but this ensure removing the entries only if the survery has been deleted in LimeSurvey.
-						#		Slower but more scure. 
-						rec.unlink()
-
-				except Exception as e:
-					success = False
-					errors.append(f"Unable to remove the survey with external ID '{sid}'. {e}")
-
-			title = _("LimeSurvey: upload surveys")
-			if success:				
-				message = _("Return to draft process successfully completed!")
-				self.state = 'draft'
-				self._notify(title, message, "success")	
-				self._chatter(message)
-			else:
-				details = "\n".join(str(e) for e in errors)
-				message = f"{_('Return to draft process failed.')}. {details}"				
-				self.state = 'uploaded'
-				self._notify(title, message, "warning")	
-				self._chatter(message)
-			
-			#NOTE: because this is running in another thread, a message will be sent to the client in order to load new data (see also "form_reload.js").			
-			self.is_running = False
-			self.reload_request()
-		
-		self._run_in_thread(code)
-		return True
+	
 	
 
 	def _action_open(self):		

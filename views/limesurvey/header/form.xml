@@ -34,7 +34,7 @@
                         
                         <!-- UPLOADED -->
                         <button string="Return to draft" 
-                            name="action_prev"                                 
+                            name="action_draft"                                 
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-step-backward"

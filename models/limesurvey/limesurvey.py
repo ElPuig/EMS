@@ -101,7 +101,7 @@ class limesurvey_api():
 				if "status" in r and r["status"] != "OK":
 					success.append(r['status'])			
 			if len(success) > 0:
-				raise Exception(f"{error}: {"\n".join(success)}")
+				raise Exception(f"{error}: " + "\n".join(success))
 		except Exception as e: 			
 			raise Exception(f"{error}: {e}")
 
@@ -183,21 +183,108 @@ class ems_limesurvey_header(models.Model):
 	limesurvey_recipient_ids = fields.One2many(string="Recipients", comodel_name="ems.limesurvey_recipient", inverse_name="limesurvey_header_id")	
 	notes = fields.Text(string="Notes")
 	is_running = fields.Boolean(string="Running", default=False)
-		
+	
+	# NOTE: This is not an Odoo field, this is used to prevent data replication on retries on multi-threading executions.
+	changes = {}
+	
+	def action_upload(self):
+		self.ensure_one()
+		if not self._already_running():
+			try:
+				self.is_running = True
+				self.state = 'uploading'
+
+				# EMS group verification
+				ls_api = limesurvey_api(self.env)
+				ems_grp = ls_api.get_group("EMS")
+				if not ems_grp:
+					#NOTE: The LimeSurvey's API does not allow to create groups.
+					raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
+				
+				# Background warning
+				self._notify(
+					_("LimeSurvey: upload surveys"), 
+					_("Starting process in the background, you'll be notified on completion (it can take a while)."), 
+					"info"
+				)
+
+				# Settings up the distinct types of surveys
+				if(self.target == "students"): surveys = self._setup_students_surveys()
+				elif(self.target == "teachers"): surveys = self._setup_teachers_surveys()
+				elif(self.target == "asp"): surveys = self._setup_asp_surveys()
+				
+				# This method runs at the end, in order to store the correct state and send the notifications to the user
+				def end(self, success, exception=None):
+					error = _("check the recipients entry for more details") if exception is None else exception	
+					message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {error}")
+					self._notify( _("LimeSurvey: upload surveys"), message, "success" if success else "warning")						
+					self._chatter(message)					
+					self.is_running = False
+					self.state = 'uploaded'	if success else 'draft'
+				
+				# The main code will run on another thread to prevent Odoo timeouts
+				def run(self):
+					success = True
+					try:				
+						ls_api = limesurvey_api(self.env)	
+						gsid = ls_api.get_group("EMS")["gsid"]		
+						
+						# Upload the surveys and recipients
+						for key in surveys:
+							survey = surveys[key]
+							success = success and self._execute_once(self.upload_survey, f"upload_survey_{key}", gsid, survey)
+							if success:
+								success = success and self._execute_once(self.upload_recipients, f"upload_recipients{key}", survey)							
+							# BBDD recipients act like a log, should be saved always if possible (contains error messages).
+							self.store_recipients(survey["internal_id"], survey["external_id"], survey["recipients"])										
+						
+						end(self, success)
+						self.reload_request()
+					
+					except psycopg2.errors.SerializationFailure:
+						# NOTE: _run_in_thread method will retry, the surveys won't be uploaded again due the use of _execute_once.
+						raise
+					
+					except Exception as e:
+						try:							
+							for key in surveys:
+								ls_api.delete_survey(surveys[key]["external_id"])
+						finally:							
+							end(self, False, e)
+							self.reload_request()
+				
+				# Thread execution
+				self._run_in_thread(run)				
+			except Exception as e:
+				end(self, False, e)				
+			finally:
+				return True
+
+	# TODO: continue here: prepare the "action_draft" method as the "action_upload". 
+
 	def action_prev(self):
-		for rec in self:			
-			if not rec._already_running():
-				rec.is_running = True
-				if rec.state == 'uploaded':				
-					rec.state = 'uploading'
-					return rec._action_draft()								
+		return True
+		# for rec in self:			
+		# 	if not rec._already_running():
+		# 		rec.is_running = True
+		# 		if rec.state == 'uploaded':				
+		# 			rec.state = 'uploading'
+		# 			return rec._action_draft()								
 
 	def action_remind(self):
 		for rec in self:			
 			if not rec._already_running():
 				return True
 
+	def action_none(self):
+		return True
+
+
+
+
+
 	def action_next(self):
+		return True
 		# TODO: Expected behaviour:
 		#		1. Check if exists the main "ems" group:
 		#			1.1. If exists, keeps its ID.
@@ -219,25 +306,25 @@ class ems_limesurvey_header(models.Model):
 		# TODO: Metabase import could be in a phase 2. But would be nice to do not use Metabase and keep everything within Odoo. 
 		#		In that case, download the data and metabase import can wait, the priority is to create and manage recipients in
 		#		order to detect and fix problems quickly. 
-		for rec in self:			
-			if not rec._already_running():
-				rec.is_running = True
-				if rec.state == 'draft':				
-					rec.state = 'uploading'
-					return rec._action_upload()
+		# for rec in self:			
+		# 	if not rec._already_running():
+		# 		rec.is_running = True
+		# 		if rec.state == 'draft':				
+		# 			rec.state = 'uploading'
+		# 			return rec._action_upload()
 				
-				elif rec.state == 'uploaded':				
-					rec.state = 'opening'		
-					return rec._action_open()
+		# 		elif rec.state == 'uploaded':				
+		# 			rec.state = 'opening'		
+		# 			return rec._action_open()
 
-				elif rec.state == 'open':				
-					rec.state = 'closed'
+		# 		elif rec.state == 'open':				
+		# 			rec.state = 'closed'
 					
-				elif rec.state == 'closed':
-					rec.state = 'downloaded'
+		# 		elif rec.state == 'closed':
+		# 			rec.state = 'downloaded'
 
-				elif rec.state == 'downloaded':
-					rec.state = 'draft'			
+		# 		elif rec.state == 'downloaded':
+		# 			rec.state = 'draft'			
 
 	def compute_survey_data(self, student, only_key):
 		name = f"{self.name}_{student.level_id.acronym}"
@@ -321,7 +408,7 @@ class ems_limesurvey_header(models.Model):
 			
 		return success	
 	
-	def upload_survey_recipients(self, survey):
+	def upload_recipients(self, survey):
 		success = True		
 		ls_api = limesurvey_api(self.env)
 		try:
@@ -356,12 +443,14 @@ class ems_limesurvey_header(models.Model):
 				level_str = str.join(", ", levels)				
 				rec.display_name = "%s: %s (%s)" % (rec.name, target, level_str) if rec.target else "%s (%s)" % (rec.name, level_str)
 
-	def _execute_once(self, changes, func, *args, **kwargs):
-		# TODO: get "action" as function name
-		action = str(func)
-		if not changes.get(action, False):
-			func(self, args, kwargs)
-			changes[action] = True
+	def _execute_once(self, func, key=None, *args, **kwargs):
+		result = True
+		if key is None: key = func.__func__.__name__
+
+		if not self.changes.get(key, False):
+			result = func(*args, **kwargs)
+			self.changes[key] = True
+		return result
 
 	def _notify(self, title, message, type, sticky=False):
 		self.env["bus.bus"]._sendone(
@@ -389,8 +478,6 @@ class ems_limesurvey_header(models.Model):
 			
 		def _threaded_worker():			
 			db_registry = registry(dbname)
-			changes = {}
-
 			# NOTE: I checked that, in some environments and situations, the first run always fails due to concurrent updates.
 			#		I'm not sure if waiting a second prior to the first run is faster than the first retry (which waits 0 seconds)...
 			for current_try in range(max_retries):
@@ -398,7 +485,7 @@ class ems_limesurvey_header(models.Model):
 					with db_registry.cursor() as cr:
 						env = api.Environment(cr, uid, context)
 						n_self = env[model_name].browse(record_ids)
-						func(n_self, changes, *args, **kwargs)
+						func(n_self, *args, **kwargs)
 						break
 
 				except psycopg2.errors.SerializationFailure:
@@ -468,57 +555,6 @@ class ems_limesurvey_header(models.Model):
 		self._run_in_thread(code)
 		return True
 	
-	def _action_upload(self):
-		ls_api = limesurvey_api(self.env)
-		ems_grp = ls_api.get_group("EMS")
-		if not ems_grp:
-			#NOTE: The LimeSurvey's API does not allow to create groups.
-			raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
-		
-		self._notify(
-			_("LimeSurvey: upload surveys"), 
-			_("Starting process in the background, you'll be notified on completion (it can take a while)."), 
-			"info"
-		)
-
-		if(self.target == "students"): surveys = self._setup_students_surveys()
-		elif(self.target == "teachers"): surveys = self._setup_teachers_surveys()
-		elif(self.target == "asp"): surveys = self._setup_asp_surveys()
-			
-		def code(self, changes):
-			success = True
-			exception = None
-			try:	
-				success = self._upload_surveys(changes, surveys)
-				if success:
-					success = self._upload_surveys_recipients(changes, surveys)
-
-				# Always must try to save the recipients record (works like a log).
-				for key in surveys:
-					self.store_recipients(surveys[key]["internal_id"], surveys[key]["external_id"], surveys[key]["recipients"])
-
-				self.state = 'uploaded'
-			except Exception as e:
-				try:
-					ls_api = limesurvey_api(self.env)
-					for key in surveys:
-						ls_api.delete_survey(surveys[key]["external_id"])
-				finally:
-					success = False
-					exception = e
-					self.state = 'draft'
-			finally:
-				error = _("check the recipients entry for more details") if exception is None else exception	
-				message = _("Importation process successfully completed!") if success else (f"{_('Importation process failed.')} {error}")
-				self._notify( _("LimeSurvey: upload surveys"), message, "success" if success else "warning")						
-				self._chatter(message)
-				
-				#NOTE: because this is running in another thread, a message will be sent to the client in order to load new data (see also "form_reload.js").
-				self.is_running = False
-				self.reload_request()		
-		
-		self._run_in_thread(code)
-		return True
 
 	def _action_open(self):		
 		self._notify(
@@ -548,10 +584,11 @@ class ems_limesurvey_header(models.Model):
 					# 	ls_api.activate_survey(sid)
 					# 	changes[action] = True
 					
-					action = f"invite_participants{sid}"
-					if not changes.get(action, False):
-						ls_api.invite_participants(sid)
-						changes[action] = True
+					self._execute_once(changes, ls_api.invite_participants, sid)
+					# action = f"invite_participants{sid}"
+					# if not changes.get(action, False):
+					# 	ls_api.invite_participants(sid)
+					# 	changes[action] = True
 
 				except Exception as e:
 					success = False
@@ -576,26 +613,8 @@ class ems_limesurvey_header(models.Model):
 		
 		self._run_in_thread(code)
 		return True
-
-	def _upload_surveys(self, changes, surveys):
-		success = True
-		action = f"upload_surveys"
-		ls_api = limesurvey_api(self.env)
-		if not changes.get(action, False):
-			gsid = ls_api.get_group("EMS")["gsid"]		
-			for key in surveys:		
-				success = success and self.upload_survey(gsid, surveys[key])				
-			changes[action] = success
-		return success	
 	
-	def _upload_surveys_recipients(self, changes, surveys):
-		success = True
-		action = f"upload_recipients"
-		if not changes.get(action, False):						
-			for key in surveys:
-				success = success and self.upload_survey_recipients(surveys[key])
-			changes[action] = success
-		return success		
+	
 	
 	def _replace_block_content(self, content, b_name, l_acro, s_code, s_name, d_acro, g_acro, trainer=""):
 		content = content.replace("{'TITLE'}", b_name)

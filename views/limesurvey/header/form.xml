@@ -15,7 +15,7 @@
                         
                         <!-- DRAFT -->
                         <button string="Upload surveys" 
-                            name="action_next" 
+                            name="action_upload" 
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-play"
@@ -25,7 +25,7 @@
                         <!-- UPLOADING-->
                         <button string="Upload surveys"
                             disabled="True"
-                            name="action_next" 
+                            name="action_none" 
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-play"

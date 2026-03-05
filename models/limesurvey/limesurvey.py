@@ -85,23 +85,17 @@ class limesurvey_api():
 			result  = self._run_api_request("activate_survey", [survey_id])	
 			if "status" not in result:
 				raise Exception(f"{error}: {result}")
-			if "status" in result and result["status"] != "OK":
+			if "status" in result and result["status"] not in ("OK", "Error: Survey already active"):
 				raise Exception(f"{error}: {result['status']}")			
 		except Exception as e: 			
 			raise Exception(f"{error}: {e}")
 		
 	def invite_participants(self, survey_id):
-		success = []
 		error = _("Unable to invite some participants")		
 		try:
 			result  = self._run_api_request("invite_participants", [survey_id])
-			for r in result:
-				if "status" not in r:
-					success.append(r)
-				if "status" in r and r["status"] != "OK":
-					success.append(r['status'])			
-			if len(success) > 0:
-				raise Exception(f"{error}: " + "\n".join(success))
+			if "2" in result: raise Exception(f"{error}: " + result["2"] )			
+			elif not "1" in result: raise Exception(f"{error}: " + "UNKWOWN ERROR!")			
 		except Exception as e: 			
 			raise Exception(f"{error}: {e}")
 
@@ -194,7 +188,7 @@ class ems_limesurvey_header(models.Model):
 	def action_upload(self):
 		self.ensure_one()
 		if not self._already_running():
-			try:
+			try:				
 				self.is_running = True
 				self.state = 'uploading'
 
@@ -206,11 +200,8 @@ class ems_limesurvey_header(models.Model):
 					raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
 				
 				# Background warning
-				self._notify(
-					_("LimeSurvey: upload surveys"), 
-					_("Starting process in the background, you'll be notified on completion (it can take a while)."), 
-					"info"
-				)
+				title = _("LimeSurvey: upload surveys")
+				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
 
 				# Settings up the distinct types of surveys
 				if(self.target == "students"): surveys = self._setup_students_surveys()
@@ -221,26 +212,26 @@ class ems_limesurvey_header(models.Model):
 				def end(self, success, exception=None):
 					details = _("check the recipients entry for more details") if exception is None else exception	
 					message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {details}")
-					self._notify( _("LimeSurvey: upload surveys"), message, "success" if success else "warning")						
+					self._notify(title, message, "success" if success else "warning")						
 					self._chatter(message)					
 					self.is_running = False
 					self.state = 'uploaded'	if success else 'draft'
 				
 				# The main code will run on another thread to prevent Odoo timeouts
-				def run(self):
-					success = True
-					try:				
+				def run(self):					
+					try:	
+						success = True			
 						ls_api = limesurvey_api(self.env)	
 						gsid = ls_api.get_group("EMS")["gsid"]		
 						
 						# Upload the surveys and recipients
 						for key in surveys:
 							survey = surveys[key]
-							success = success and self._execute_once(self.upload_survey, f"upload_survey_{key}", gsid, survey)
-							if success:
-								success = success and self._execute_once(self.upload_recipients, f"upload_recipients{key}", survey)							
+							ok = self._execute_once(self.upload_survey, f"upload_survey_{key}", gsid, survey)
+							if ok: ok = self._execute_once(self.upload_recipients, f"upload_recipients{key}", survey)							
 							# BBDD recipients act like a log, should be saved always if possible (contains error messages).
-							self.store_recipients(survey["internal_id"], survey["external_id"], survey["recipients"])										
+							self.store_recipients(survey["internal_id"], survey["external_id"], survey["recipients"])
+							success = ok and success										
 						
 						end(self, success)
 						self.reload_request()
@@ -269,34 +260,31 @@ class ems_limesurvey_header(models.Model):
 	def action_draft(self):
 		self.ensure_one()
 		if not self._already_running():
-			try:
+			try:				
 				self.is_running = True
-				self.state = 'uploading'
+				self.state = 'uploading'				
 				
-				self._notify(
-					_("LimeSurvey: return to draft"), 
-					_("Starting process in the background, you'll be notified on completion (it can take a while)."), 
-					"info"
-				)
+				title = _("LimeSurvey: return to draft")
+				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
 				
 				def end(self, success, errors=[]):		
 					details = "\n".join(str(e) for e in errors)
-					message = _("Return to draft process successfully completed!") if success else f"{_('Return to draft process failed.')}. {details}"	
-					self._notify(_("LimeSurvey: upload surveys"), message, "success" if success else "warning")	
+					message = _("Return to draft process successfully completed!") if success else f"{_('Return to draft process failed.')} {details}"	
+					self._notify(title, message, "success" if success else "warning")	
 					self._chatter(message)					
 					self.is_running = False
 					self.state = 'draft' if success else 'uploaded'
 				
-				def run(self):
-					errors = []
-					success = True		
-
+				def run(self):									
 					try:	
+						errors = []	
+						success = True		
 						ls_api = limesurvey_api(self.env)
 						survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))																
+						
 						for sid in survey_ids:
 							try:
-								success = self._execute_once(ls_api.delete_survey, f"delete_survey_{sid}", sid)
+								success = success and self._execute_once(ls_api.delete_survey, f"delete_survey_{sid}", sid)
 								for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):								
 									rec.unlink()
 							except Exception as e:
@@ -311,7 +299,7 @@ class ems_limesurvey_header(models.Model):
 						raise
 					
 					except Exception as e:						
-						end(self, False, [str(e)])
+						end(self, False, [e])
 						self.reload_request()
 				
 				self._run_in_thread(run)				
@@ -320,61 +308,61 @@ class ems_limesurvey_header(models.Model):
 			finally:
 				return True
 
-	def _action_draft(self):				
-		self._notify(
-			_("LimeSurvey: return to draft"), 
-			_("Starting process in the background, you'll be notified on completion (it can take a while)."), 
-			"info"
-		)
-		
-		def code(self, changes):
-			# NOTE: This code runs in a new thread, changes is a dictionary created in _run_in_thread
-			#		When working with threads, BBDD changes could faul due to concurrent updates.
-			#		Odoo manages transactions well, so retries can be done, but changes to LimeSurvey must be
-			#		tracked and repetitions should be avoided. This is for what "changes" is used for. 
-			#		Each LimeSurvey change is tracked in "changes", and its done only if "changes" does not
-			#		its flag. 
+	def action_open(self):
+		self.ensure_one()
+		if not self._already_running():
+			try:
+				self.is_running = True
+				self.state = 'opening'
+				
+				title = _("LimeSurvey: open surveys")
+				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
+				
+				def end(self, success, errors=[]):		
+					details = "\n".join(str(e) for e in errors)
+					message = _("Open process successfully completed!") if success else f"{_('Open process failed.')} {details}"	
+					self._notify(title, message, "success" if success else "warning")	
+					self._chatter(message)					
+					self.is_running = False
+					self.state = 'open' if success else 'uploaded'
+				
+				def run(self):					
+					try:	
+						errors = []
+						success = True		
+						ls_api = limesurvey_api(self.env)
+						survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))																
+						
+						for sid in survey_ids:
+							try:
+								self._execute_once(ls_api.activate_survey, f"activate_survey_{sid}", sid)	
+								self._execute_once(ls_api.invite_participants, f"invite_participants_{sid}", sid)
+							except Exception as e:
+								success = False
+								errors.append(f"Unable to open the survey with external ID '{sid}'. {e}")					
 
-			errors = []
-			success = True			
-			ls_api = limesurvey_api(self.env)
-			survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))				
-			for sid in survey_ids:
-				try:					
-					action = f"delete_survey{sid}"
-					if not changes.get(action, False):
-						ls_api.delete_survey(sid)
-						changes[action] = True
-					for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):
-						# NOTE: We could remove all the entries at the end, but this ensure removing the entries only if the survery has been deleted in LimeSurvey.
-						#		Slower but more scure. 
-						rec.unlink()
-
-				except Exception as e:
-					success = False
-					errors.append(f"Unable to remove the survey with external ID '{sid}'. {e}")
-
-			title = _("LimeSurvey: upload surveys")
-			if success:				
-				message = _("Return to draft process successfully completed!")
-				self.state = 'draft'
-				self._notify(title, message, "success")	
-				self._chatter(message)
-			else:
-				details = "\n".join(str(e) for e in errors)
-				message = f"{_('Return to draft process failed.')}. {details}"				
-				self.state = 'uploaded'
-				self._notify(title, message, "warning")	
-				self._chatter(message)
-			
-			#NOTE: because this is running in another thread, a message will be sent to the client in order to load new data (see also "form_reload.js").			
-			self.is_running = False
-			self.reload_request()
-		
-		self._run_in_thread(code)
-		return True
+						end(self, success, errors)
+						self.reload_request()
+					
+					except psycopg2.errors.SerializationFailure:
+						# NOTE: _run_in_thread method will retry, the surveys won't be uploaded again due the use of _execute_once.
+						raise
+					
+					except Exception as e:						
+						end(self, False, [e])
+						self.reload_request()
+				
+				self._run_in_thread(run)				
+			except Exception as e:
+				end(self, False, e)				
+			finally:
+				return True
 	
-	# TODO: continue here: prepare the "action_draft" method as the "action_upload". 
+
+
+
+	
+	# TODO: continue here: prepare the action methods as the "action_upload". 
 
 	def action_prev(self):
 		return True
@@ -619,63 +607,7 @@ class ems_limesurvey_header(models.Model):
 	
 	
 
-	def _action_open(self):		
-		self._notify(
-			_("LimeSurvey: open surveys"), 
-			_("Starting process in the background, you'll be notified on completion (it can take a while)."), 
-			"info"
-		)
-		
-		def code(self, changes):
-			# NOTE: This code runs in a new thread, changes is a dictionary created in _run_in_thread
-			#		When working with threads, BBDD changes could faul due to concurrent updates.
-			#		Odoo manages transactions well, so retries can be done, but changes to LimeSurvey must be
-			#		tracked and repetitions should be avoided. This is for what "changes" is used for. 
-			#		Each LimeSurvey change is tracked in "changes", and its done only if "changes" does not
-			#		its flag. 
-
-			errors = []
-			success = True			
-			ls_api = limesurvey_api(self.env)
-			survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))				
-			for sid in survey_ids:
-				try:	
-					# TODO: test
-					self._execute_once(changes, ls_api.activate_survey, sid)				
-					# action = f"activate_survey{sid}"
-					# if not changes.get(action, False):
-					# 	ls_api.activate_survey(sid)
-					# 	changes[action] = True
-					
-					self._execute_once(changes, ls_api.invite_participants, sid)
-					# action = f"invite_participants{sid}"
-					# if not changes.get(action, False):
-					# 	ls_api.invite_participants(sid)
-					# 	changes[action] = True
-
-				except Exception as e:
-					success = False
-					errors.append(f"Unable to open the survey with external ID '{sid}'. {e}")
-
-			title = _("LimeSurvey: open surveys")
-			if success:				
-				message = _("Open process successfully completed!")
-				self.state = 'open'
-				self._notify(title, message, "success")	
-				self._chatter(message)
-			else:
-				details = "\n".join(str(e) for e in errors)
-				message = f"{_('Open process failed.')}. {details}"				
-				self.state = 'uploaded'
-				self._notify(title, message, "warning")	
-				self._chatter(message)
-			
-			#NOTE: because this is running in another thread, a message will be sent to the client in order to load new data (see also "form_reload.js").			
-			self.is_running = False
-			self.reload_request()	
-		
-		self._run_in_thread(code)
-		return True
+	
 	
 	
 	

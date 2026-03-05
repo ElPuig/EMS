@@ -42,7 +42,7 @@
                         />
 
                         <button string="Open surveys" 
-                            name="action_next"                                 
+                            name="action_open"                                 
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-envelope"
@@ -52,7 +52,7 @@
                         <!-- OPENING -->
                         <button string="Return to draft"   
                             disabled="True" 
-                            name="action_prev"                              
+                            name="action_none"                              
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-step-backward"
@@ -61,7 +61,7 @@
 
                         <button string="Open surveys"  
                             disabled="True"
-                            name="action_next"                             
+                            name="action_none"                             
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-envelope "

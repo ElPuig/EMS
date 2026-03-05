@@ -18,6 +18,7 @@
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="ems_level_id" optional="show"/>
                     <field name="ems_study_id" optional="show"/>
+                    <field name="ems_shift" optional="show"/>
                     <field name="ems_course_id" optional="show"/>
                 </xpath>
 

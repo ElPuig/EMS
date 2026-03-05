@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
@@ -46,6 +47,18 @@ class SaleOrder(models.Model):
         store=True # Recomendado para poder agrupar y filtrar por nivel en la vista lista
     )
 
+    # Shift (Turno) ---
+    ems_shift = fields.Selection(
+        selection=[
+            ('morning', 'Morning'),
+            ('afternoon', 'Afternoon'),
+        ],
+        string="Shift",
+        #required=True,
+        #default='morning',
+        help="Morning or afternoon shift for this enrollment."
+    )
+
     # Modificamos el campo nativo 'sale_order_template_id' (Plantilla de Presupuesto)
     # Le aplicamos un dominio dinámico: Solo mostrar plantillas del estudio seleccionado arriba
     sale_order_template_id = fields.Many2one(
@@ -63,6 +76,7 @@ class SaleOrder(models.Model):
     @api.onchange('ems_study_id')
     def _onchange_ems_study_id(self):
         self.sale_order_template_id = False
+        self.order_line = [(5, 0, 0)]
 
     @api.depends('order_line.product_template_id')
     def _compute_existing_products(self):
@@ -112,3 +126,30 @@ class SaleOrder(models.Model):
             # 3. Aplicar cambios
             if new_authorizations:
                 rec.ems_authorization_ids = new_authorizations
+
+    @api.constrains('partner_id', 'ems_course_id', 'state')
+    def _check_unique_enrollment_per_course(self):
+        """
+        Evita que un mismo alumno (partner_id) tenga más de una matrícula
+        activa (que no esté cancelada) en el mismo año académico (ems_course_id).
+        """
+        for order in self:
+            # Si el registro actual está cancelado o no tiene curso/alumno, lo ignoramos
+            if order.state == 'cancel' or not order.partner_id or not order.ems_course_id:
+                continue
+            
+            # Buscamos si existe otra orden para el mismo alumno y curso que NO esté cancelada
+            domain = [
+                ('id', '!=', order.id), # Excluir el registro actual
+                ('partner_id', '=', order.partner_id.id),
+                ('ems_course_id', '=', order.ems_course_id.id),
+                ('state', '!=', 'cancel')
+            ]
+            
+            existing_enrollment = self.search(domain, limit=1)
+            
+            if existing_enrollment:
+                raise ValidationError(
+                    f"The student {order.partner_id.name} already has a pre-enrolment or "
+                    f"active enrolment for the academic year {order.ems_course_id.display_name}."
+                )

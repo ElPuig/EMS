@@ -117,5 +117,20 @@
                 ref('ems.level_pfi')
             ])]"/>
         </record>
+        <record id="auth_template_comunicacio_families" model="ems.authorization.template">
+            <field name="name">AUTORITZACIÓ COMUNICACIÓ FAMÍLIES (MAJORS 18 ANYS)</field>
+            <field name="is_required" eval="True"/>
+            <field name="legal_text"><![CDATA[
+                <p>Autoritzo l'Institut Puig Castellar a comunicar-se amb les persones que tinc registrades com a contactes familiars a la base de dades del centre, per tal de rebre informació acadèmica rellevant sobre la meva evolució lectiva, qualificacions, comunicacions generals i altres assumptes relacionats amb la meva vida acadèmica. Aquesta autorització inclou la informació acadèmica i butlletins de notes.</p>
+                <p>En confirmar aquesta autorització mitjançant el portal, confirmo que les persones registrades com a contactes familiars a la base de dades del centre són les autoritzades per rebre aquesta informació.</p>
+            ]]></field>
+            <field name="ems_level_ids" eval="[(6, 0, [
+                ref('ems.level_btx'), 
+                ref('ems.level_cfgm'), 
+                ref('ems.level_cfgs'),
+                ref('ems.level_efps'),
+                ref('ems.level_cfpb')
+            ])]"/>
+        </record>
     </data>
 </odoo>

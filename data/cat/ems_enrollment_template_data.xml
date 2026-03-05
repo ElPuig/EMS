@@ -301,5 +301,809 @@
             <field name="product_uom_qty">1</field>
         </record>
 
+        <!-- Template ASIX-1-->
+        <record id="enrollment_template_asix_1" model="sale.order.template">
+            <field name="name">ASIX-1</field>
+            <field name="ems_study_id" ref="ems.study_cfgs_ica0_asix_2024"/>
+        </record>
+
+        <record id="line_asix1_enrollment_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_enrollment'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_ampa_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_ampa'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_tasa_cfgs" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.fee_cfgs'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_0369" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0369'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_0370" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0370'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_0371" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0371'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_0372" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0372'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_0373" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0373'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_opt2" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_OPT2'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_1665" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1665'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_1708" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1708'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_1709" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1709'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_0179" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0179'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_tut" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_T1_CFGS_ICA0_ASIX'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <!-- Template ASIX-2 -->
+        <record id="enrollment_template_asix_2" model="sale.order.template">
+            <field name="name">ASIX-2</field>
+            <field name="ems_study_id" ref="ems.study_cfgs_ica0_asix_2024"/>
+        </record>
+
+        <record id="line_asix2_enrollment_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_enrollment'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix2_ampa_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_ampa'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix2_tasa_cfgs" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.fee_cfgs'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix2_0377" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0377'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix2_0374" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0374'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix2_0375" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0375'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix2_0376" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0376'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix2_0378" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0378'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix2_1710" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1710'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix2_0379" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0379'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix2_tut" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_asix_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_T2_CFGS_ICA0_ASIX'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <!--Template DAW-1-->
+        <record id="enrollment_template_daw_1" model="sale.order.template">
+            <field name="name">DAW-1</field>
+            <field name="ems_study_id" ref="ems.study_cfgs_icc0_daw_2024"/>
+        </record>
+
+        <record id="line_daw1_enrollment_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_enrollment'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_ampa_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_ampa'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_tasa_cfgs" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.fee_cfgs'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_0373" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0373'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_0483" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0483'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_0484" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0484'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_0485" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0485'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_0487" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0487'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_0614" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0614'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_1665" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1665'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_1708" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1708'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_1709" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1709'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_0179" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0179'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw1_tut" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_T1_CFGS_ICC0_DAW'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <!--Template DWA-2-->
+        <record id="enrollment_template_daw_2" model="sale.order.template">
+            <field name="name">DAW-2</field>
+            <field name="ems_study_id" ref="ems.study_cfgs_icc0_daw_2024"/>
+        </record>
+
+        <record id="line_daw2_enrollment_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_enrollment'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw2_ampa_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_ampa'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw2_tasa_cfgs" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.fee_cfgs'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw2_0612" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0612'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw2_0613" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0613'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw2_0615" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0615'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw2_opt3" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_OPT3'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw2_1710" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1710'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw2_0616" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0616'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw2_tut" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_daw_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_T2_CFGS_ICC0_DAW'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <!--Template AD1-->
+        <record id="enrollment_template_ad_1" model="sale.order.template">
+            <field name="name">AD-1</field>
+            <field name="ems_study_id" ref="ems.study_cfgs_aga0_ad_2024"/>
+        </record>
+
+        <record id="line_ad1_enrollment_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_enrollment'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_ampa_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_ampa'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_tasa_cfgs" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.fee_cfgs'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_0647" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0647'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_0648" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0648'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_0649" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0649'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_0650" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0650'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_0651" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0651'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_c076" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_C076'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_0179" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0179'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_1665" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1665'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_1708" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1708'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_1709" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1709'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad1_tut" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_T1_CFGS_AGA0_AD'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <!--Template AD-2-->
+        <record id="enrollment_template_ad_2" model="sale.order.template">
+            <field name="name">AD-2</field>
+            <field name="ems_study_id" ref="ems.study_cfgs_aga0_ad_2024"/>
+        </record>
+
+        <record id="line_ad2_enrollment_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_enrollment'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad2_ampa_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_ampa'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad2_tasa_cfgs" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.fee_cfgs'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad2_0661" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0661'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad2_0662" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0662'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad2_0663" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0663'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad2_0180" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0180'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad2_0664" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0664'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad2_1710" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1710'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad2_opt6" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_OPT6'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad2_tut" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_T2_CFGS_AGA0_AD'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <!--Template AiF-1-->
+        <record id="enrollment_template_aif_1" model="sale.order.template">
+            <field name="name">AIF-1</field>
+            <field name="ems_study_id" ref="ems.study_cfgs_agb0_aif_2024"/>
+        </record>
+
+        <record id="line_aif1_enrollment_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_enrollment'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_ampa_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_ampa'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_tasa_cfgs" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.fee_cfgs'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_0651" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0651'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_0647" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0647'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_0650" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0650'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_0649" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0649'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_0179" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0179'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_c076" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_C076'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_0648" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0648'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_1709" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1709'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_1665" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1665'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_1708" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1708'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif1_tut" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_T1_CFGS_AGB0_AIF'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+        
+        <!--Template AiF-2-->
+        <record id="enrollment_template_aif_2" model="sale.order.template">
+            <field name="name">AIF-2</field>
+            <field name="ems_study_id" ref="ems.study_cfgs_agb0_aif_2024"/>
+        </record>
+
+        <record id="line_aif2_enrollment_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_enrollment'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_ampa_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_ampa'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_tasa_cfgs" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.fee_cfgs'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_0648" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0648'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_0653" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0653'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_0654" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0654'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_0655" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0655'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_0656" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0656'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_0657" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0657'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_1708" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1708'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_1710" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1710'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_opt" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_OPT5'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_tut" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_T2_CFGS_AGB0_AIF'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <!--Template GA-1-->
+        <record id="enrollment_template_ga_1" model="sale.order.template">
+            <field name="name">GA-1</field>
+            <field name="ems_study_id" ref="ems.study_cfgm_ag10_ga_2024"/>
+        </record>
+
+        <record id="line_ga1_enrollment_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_enrollment'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga1_ampa_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_ampa'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga1_0437" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0437'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga1_0438" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0438'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga1_0442" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0442'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga1_0441" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0441'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga1_0440" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0440'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga1_0156" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0156'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga1_0439" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0439'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga1_1709" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1709'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga1_c056" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_C056'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga1_tut" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_T1_CFGM_AG10_GA'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <!--Template GA-2-->
+        <record id="enrollment_template_ga_2" model="sale.order.template">
+            <field name="name">GA-2</field>
+            <field name="ems_study_id" ref="ems.study_cfgm_ag10_ga_2024"/>
+        </record>
+
+        <record id="line_ga2_enrollment_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_enrollment'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga2_ampa_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_ampa'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga2_0443" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0443'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga2_opt4" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_OPT4'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga2_0448" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0448'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga2_1713" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1713'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga2_0446" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_0446'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga2_1664" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1664'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga2_1708" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1708'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga2_1710" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_1710'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga2_tut" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_T2_CFGM_AG10_GA'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
     </data>
 </odoo>

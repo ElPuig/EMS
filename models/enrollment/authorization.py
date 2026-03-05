@@ -9,6 +9,15 @@ class EmsAuthorizationTemplate(models.Model):
     name = fields.Char(string='Title', required=True, help="E.g., Image and Sound Use Authorization")
     legal_text = fields.Html(string='Legal Text', required=True)
     is_required = fields.Boolean(string='Mandatory to Respond', default=True)
+    template_download_url = fields.Char(string='Template Download URL', help='URL to download the physical document template.')
+    auth_type = fields.Selection([
+        ('image', 'Image Rights'),
+        ('trip', 'Scholar Trips'),
+        ('health', 'Health Data'),
+        ('share', 'Share with Family'),
+        ('other', 'Other / General')
+    ], string="Authorization Type", default='other', 
+    help="Select the specific type to automatically update the student's file.")
     
     ems_level_ids = fields.Many2many(
         'ems.level', 
@@ -101,8 +110,10 @@ class EmsAuthorization(models.Model):
 
     enrollment_id = fields.Many2one('sale.order', string='Enrollment', ondelete='cascade', required=True)
     template_id = fields.Many2one('ems.authorization.template', string='Template', required=True)
+    course_id = fields.Many2one(related='enrollment_id.ems_course_id', string="Academic Year", readonly=True)
     
     legal_text = fields.Html(related='template_id.legal_text', string="Legal Text", readonly=True)
+    template_download_url = fields.Char(related='template_id.template_download_url', string="Template URL", readonly=True)
     
     status = fields.Selection([
         ('pending', 'Pending'),

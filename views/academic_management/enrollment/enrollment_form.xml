@@ -30,6 +30,9 @@
             <xpath expr="(//label[@for='date_order'])[2]" position="attributes">
                 <attribute name="string">Enrollment Date</attribute>
             </xpath>
+            <xpath expr="//field[@name='payment_term_id']" position="before">
+                <field name="ems_shift" required="1" options="{'no_create': True}"/>
+            </xpath>
             <xpath expr="//group[@name='order_details']" position="inside">
                 <field name="ems_course_id" required="1" options="{'no_create': True, 'no_open': True}"/>
             </xpath>
@@ -110,8 +113,8 @@
                                    
                             <field name="signed_document" filename="signed_document_name" widget="binary"/>
                             <field name="signed_document_name" column_invisible="True"/>
-                            
                             <field name="response_date" readonly="1" force_save="1"/>
+                            <field name="template_download_url" widget="url" text="Link" string="Plantilla" readonly="1"/>
                         </list>
                     </field>
                 </page>

@@ -9,14 +9,15 @@
                 
                 <xpath expr="//field[@name='name']" position="attributes">
                     <attribute name="string">All Fields</attribute>
-                    <attribute name="filter_domain">['|', '|', '|', '|', '|', '|', '|', 
+                    <attribute name="filter_domain">['|', '|', '|', '|', '|', '|', '|', '|',
                         ('name', 'ilike', self), 
                         ('partner_id', 'ilike', self), 
                         ('ems_level_id.name', 'ilike', self), 
                         ('ems_level_id.acronym', 'ilike', self), 
                         ('ems_study_id.name', 'ilike', self), 
                         ('ems_study_id.acronym', 'ilike', self), 
-                        ('ems_study_id.code', 'ilike', self), 
+                        ('ems_study_id.code', 'ilike', self),
+                        ('ems_shift', 'ilike', self), 
                         ('ems_course_id', 'ilike', self)]</attribute>
                 </xpath>
 
@@ -32,6 +33,8 @@
                            filter_domain="['|', '|', ('ems_study_id.name', 'ilike', self), ('ems_study_id.acronym', 'ilike', self), ('ems_study_id.code', 'ilike', self)]"/>
                            
                     <field name="ems_course_id" string="Course"/>
+
+                    <field name="ems_shift" string="Shift"/>
                 </xpath>
 
                 <xpath expr="//field[@name='user_id']" position="attributes">
@@ -54,6 +57,7 @@
                 <xpath expr="//group" position="inside">
                     <filter string="Level" name="groupby_ems_level" context="{'group_by': 'ems_level_id'}"/>
                     <filter string="Study" name="groupby_ems_study" context="{'group_by': 'ems_study_id'}"/>
+                    <filter string="Shift" name="groupby_ems_shift" context="{'group_by': 'ems_shift'}"/>
                     <filter string="Course" name="groupby_ems_course" context="{'group_by': 'ems_course_id'}"/>
                 </xpath>
 

@@ -76,10 +76,14 @@ class ems_contact(models.Model):
     birth_date = fields.Date(string="Birth Date")
     birth_country_id = fields.Many2one(string="Birth Country", comodel_name='res.country')
     citizenship_id =  fields.Many2one(string="Citizenship", comodel_name='res.country')
-    auth_image = fields.Boolean(string="Image Rights")
-    auth_trip = fields.Boolean(string="Scholar Trips")
-    auth_healt = fields.Boolean(string="Health Data")
-    auth_share = fields.Boolean(string="Share with family", help="If marked, the student (even if adult) allows to share its educational information with its family.")
+    #auth_image = fields.Boolean(string="Image Rights")
+    #auth_trip = fields.Boolean(string="Scholar Trips")
+    #auth_healt = fields.Boolean(string="Health Data")
+    #auth_share = fields.Boolean(string="Share with family", help="If marked, the student (even if adult) allows to share its educational information with its family.")
+    auth_image = fields.Boolean(string="Image Rights", compute="_compute_auth_booleans")
+    auth_trip = fields.Boolean(string="Scholar Trips", compute="_compute_auth_booleans")
+    auth_healt = fields.Boolean(string="Health Data", compute="_compute_auth_booleans")
+    auth_share = fields.Boolean(string="Share with family", compute="_compute_auth_booleans", help="If marked, the student (even if adult) allows to share its educational information with its family.")
     car_plate = fields.Char(string="Car Plate")
     is_adult = fields.Boolean(string="Adult", compute="_compute_is_adult", store=False)
 
@@ -91,8 +95,45 @@ class ems_contact(models.Model):
         ('exemption', 'Exemption')
     ], string="Benefits", compute="_compute_benefit_status", store=True)
 
+    ems_authorization_ids = fields.Many2many(
+        'ems.authorization',
+        compute='_compute_ems_authorization_ids',
+        string='Authorizations'
+    )
+
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
+
+    @api.depends('ems_authorization_ids')
+    def _compute_auth_booleans(self):
+        for student in self:
+            # 1. Por defecto, todo a False
+            image, trip, health, share = False, False, False, False
+            
+            # 2. Revisamos las autorizaciones del alumno
+            for auth in student.ems_authorization_ids:
+                if auth.status == 'yes': # ¡Aquí usamos la clave interna!
+                    # Si está aceptada, marcamos el booleano correspondiente
+                    if auth.template_id.auth_type == 'image':
+                        image = True
+                    elif auth.template_id.auth_type == 'trip':
+                        trip = True
+                    elif auth.template_id.auth_type == 'health':
+                        health = True
+                    elif auth.template_id.auth_type == 'share':
+                        share = True
+            
+            # 3. Asignamos los valores finales al alumno
+            student.auth_image = image
+            student.auth_trip = trip
+            student.auth_healt = health
+            student.auth_share = share
+
+    def _compute_ems_authorization_ids(self):
+        for partner in self:
+            # Buscamos las matrículas (sale.order) de este alumno y sacamos sus autorizaciones
+            enrollments = self.env['sale.order'].search([('partner_id', '=', partner.id)])
+            partner.ems_authorization_ids = enrollments.mapped('ems_authorization_ids')
 
     @api.depends('benefit_ids', 'benefit_ids.category')
     def _compute_benefit_status(self):

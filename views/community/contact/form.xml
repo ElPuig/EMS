@@ -88,22 +88,46 @@
                                 <field name="birth_date" readonly="read_only_user" />
                                 <field name="birth_country_id" invisible="read_only_user"  />    
                                 <field name="citizenship_id" invisible="read_only_user"  />
-                                <field name="benefit_status" 
-                                    widget="badge" 
-                                    decoration-success="benefit_status == 'exemption'" 
-                                    decoration-info="benefit_status == 'bonification'" 
-                                    decoration-muted="benefit_status == 'none'"/>                                
-                            </group>                            
+                                <span class="o_form_label">Benefits</span>
+                                <div class="o_row">
+                                    <field name="benefit_status" invisible="1"/>
+                                    <span class="badge text-bg-success" invisible="benefit_status != 'exemption'">Exemption</span>
+                                    <span class="badge text-bg-info" invisible="benefit_status != 'bonification'">Bonification</span>
+                                    <span class="badge text-bg-secondary" invisible="benefit_status != 'none'">None</span>
+                                </div>
+                            </group> 
 
                             <separator name="data" string="Authorizations"/>
                             <group>
-                                <field name="auth_image" readonly="read_only_user" />
-                                <field name="auth_trip" readonly="read_only_user" />
+                                <span class="o_form_label">Image Rights</span>
+                                <div class="o_row">
+                                    <field name="auth_image" invisible="1"/>
+                                    <span class="badge text-bg-success" invisible="auth_image == False">Yes</span>
+                                    <span class="badge text-bg-secondary" invisible="auth_image == True">No</span>
+                                </div>     
+                                <span class="o_form_label">Scholar Trips</span>
+                                <div class="o_row">
+                                    <field name="auth_trip" invisible="1"/>
+                                    <span class="badge text-bg-success" invisible="auth_trip == False">Yes</span>
+                                    <span class="badge text-bg-secondary" invisible="auth_trip == True">No</span>
+                                </div>
                             </group>    
                             <group>
-                                <field name="auth_healt" readonly="read_only_user" />
-                                <field name="auth_share" readonly="read_only_user" />
-                            </group>  
+                                <span class="o_form_label">Health Data</span>
+                                <div class="o_row">
+                                    <field name="auth_healt" invisible="1"/>
+                                    <span class="badge text-bg-success" invisible="auth_healt == False">Yes</span>
+                                    <span class="badge text-bg-secondary" invisible="auth_healt == True">No</span>
+                                </div>
+                                <span class="o_form_label" title="If marked, the student (even if adult) allows to share its educational information with its family.">Share with family</span>
+                                <div class="o_row">
+                                    <field name="auth_share" invisible="1"/>
+                                    <span class="badge text-bg-success" invisible="auth_share == False">Yes</span>
+                                    <span class="badge text-bg-secondary" invisible="auth_share == True">No</span>
+                                </div>
+                            </group>
+
+
                         </group>                        
                     </page>
                 </xpath>
@@ -134,7 +158,6 @@
                     <page name="secretary" string="Secretary" invisible="contact_type != 'student'">
                         <group>
                             <separator string="Bonifications &amp; Exemptions" colspan="2"/>
-                                                       
                             <field name="benefit_ids" nolabel="1" colspan="2" readonly="read_only_user">
                                 <list editable="bottom" decoration-info="category == 'bonification'" decoration-success="category == 'exemption'">
                                     <field name="benefit_type"/>
@@ -143,6 +166,20 @@
                                     <field name="document_name" column_invisible="1"/>
                                     <field name="renewal_date" widget="remaining_days"/>
                                     <field name="notes" optional="hide"/>
+                                </list>
+                            </field>
+                            <separator string="Enrollment Authorizations" colspan="2"/>
+                            <field name="ems_authorization_ids" nolabel="1" colspan="2" readonly="1">
+                                <list create="0" delete="0" edit="0">
+                                    <field name="template_id" string="Authorization"/>
+                                    <field name="course_id" string="Enrollment / Year"/>
+                                    <field name="status" 
+                                            decoration-danger="status == 'no'" 
+                                            decoration-success="status == 'yes'" 
+                                            decoration-warning="status == 'pending'"/>
+                                    <field name="response_date"/>
+                                    <field name="signed_document" filename="signed_document_name" widget="binary"/>
+                                    <field name="signed_document_name" column_invisible="1"/>
                                 </list>
                             </field>
                         </group>

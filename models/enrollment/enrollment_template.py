@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 
-class SaleOrderTemplate(models.Model):
+class ems_SaleOrderTemplate(models.Model):
     _inherit = "sale.order.template"
 
     # Campo para vincular la plantilla (Pack) a un Estudio concreto

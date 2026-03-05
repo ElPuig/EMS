@@ -266,6 +266,7 @@
         'data/custom/crm.team.csv',
         'data/custom/product.category.csv',
         'data/custom/ems_authorization_template_data.xml',
+        'data/custom/ems.sequence.enrollment.xml',
 
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        

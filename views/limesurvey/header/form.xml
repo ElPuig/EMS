@@ -20,21 +20,11 @@
                             class="oe_highlight" 
                             icon="fa-play"
                             invisible="state != 'draft'"
-                        />
-
-                         <!-- COMUTING-->
-                        <button string="Compute recipients"
-                            disabled="True"
-                            name="action_none" 
-                            type="object" 
-                            class="oe_highlight" 
-                            icon="fa-play"
-                            invisible="state != 'computing'"
-                        />
+                        />                      
 
                         <!-- COMPUTED -->
                         <button string="Return to draft" 
-                            name="action_none"                                 
+                            name="action_draft"                                 
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-step-backward"
@@ -42,10 +32,10 @@
                         />
 
                         <button string="Reload participants" 
-                            name="action_none"                                 
+                            name="action_reload"                                 
                             type="object" 
                             class="oe_highlight" 
-                            icon="fa-reload"
+                            icon="fa-refresh"
                             invisible="state != 'computed'"
                         />
 

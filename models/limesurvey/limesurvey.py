@@ -186,30 +186,65 @@ class ems_limesurvey_header(models.Model):
 	# 		does not its flag. 
 	changes = {}
 	
-	# TODO: chatter messages could be confusing, specially with errors. Improve it!
-	def action_compute(self):
+	def action_compute(self, title=None, message_ok=None, message_ko=None):
 		self.ensure_one()
 
 		# NOTE: there's no API integration when computing recipients, multithreading not needed
 		try:	
-			title = _("LimeSurvey: compute recipients")
+			if title is None: title = _("LimeSurvey: compute recipients")
+			if message_ok is None: message_ok = _("Recipients successfully computed!")
+			if message_ko is None: message_ko =_('Recipients compute failed. ')
+
 			# Settings up the distinct types of surveys
 			if(self.target == "students"): self._compute_recipients_students()
 			elif(self.target == "teachers"): self._compute_recipients_teachers()
 			elif(self.target == "asp"): self._compute_recipients_asp()
 						
-			message = _("Recipients compute successfully completed!")
-			self._notify(title , message, "success")
-			self._chatter(message)					
-
+			self._notify(title , message_ok, "success")
+			self._chatter(message_ok)					
 			self.state = 'computed'
 		except Exception as e:	
-			message = f"{_('Recipients compute failed. ')} {e}"
+			message_ko = f"{message_ko} {e}"
+			self._notify(title, message_ko, "warning")
+			self._chatter(message_ko)					
+			self.env.cr.commit() # To save the messages	(previous changes have been rollbacked).		
+		finally:
+			return True
+
+	def action_draft(self):
+		self.ensure_one()
+
+		# NOTE: there's no API integration when computing recipients, multithreading not needed
+		try:	
+			title = _("LimeSurvey: return to draft")			
+			for rec in self.limesurvey_recipient_ids:
+				rec.unlink()					
+						
+			message = _("Recipients successfully removed!")
+			self._notify(title , message, "success")
+			self._chatter(message)					
+			self.state = 'draft'
+		except Exception as e:	
+			message = f"{_('Recipients remove failed. ')} {e}"
 			self._notify(title, message, "warning")
 			self._chatter(message)					
 			self.env.cr.commit() # To save the messages	(previous changes have been rollbacked).		
 		finally:
 			return True
+
+	def action_reload(self):
+		return self.action_compute(_("LimeSurvey: reload recipients"), _("Recipients successfully reloaded!"), _('Recipients reload failed. '))		
+
+	# TODO: error messages are beeing displayed? It seems that _notify is not working ok...
+
+
+
+
+
+
+
+
+
 
 	def action_upload(self):
 		self.ensure_one()
@@ -283,56 +318,56 @@ class ems_limesurvey_header(models.Model):
 			finally:
 				return True
 			
-	def action_draft(self):
-		self.ensure_one()
-		if not self._already_running():
-			try:				
-				self.is_running = True
-				self.state = 'uploading'				
+	# def action_draft(self):
+	# 	self.ensure_one()
+	# 	if not self._already_running():
+	# 		try:				
+	# 			self.is_running = True
+	# 			self.state = 'uploading'				
 				
-				title = _("LimeSurvey: return to draft")
-				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
+	# 			title = _("LimeSurvey: return to draft")
+	# 			self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
 				
-				def end(self, success, errors=[]):		
-					details = "\n".join(str(e) for e in errors)
-					message = _("Return to draft process successfully completed!") if success else f"{_('Return to draft process failed.')} {details}"	
-					self._notify(title, message, "success" if success else "warning")	
-					self._chatter(message)					
-					self.is_running = False
-					self.state = 'draft' if success else 'uploaded'
+	# 			def end(self, success, errors=[]):		
+	# 				details = "\n".join(str(e) for e in errors)
+	# 				message = _("Return to draft process successfully completed!") if success else f"{_('Return to draft process failed.')} {details}"	
+	# 				self._notify(title, message, "success" if success else "warning")	
+	# 				self._chatter(message)					
+	# 				self.is_running = False
+	# 				self.state = 'draft' if success else 'uploaded'
 				
-				def run(self):									
-					try:	
-						errors = []	
-						success = True		
-						ls_api = limesurvey_api(self.env)
-						survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))																
+	# 			def run(self):									
+	# 				try:	
+	# 					errors = []	
+	# 					success = True		
+	# 					ls_api = limesurvey_api(self.env)
+	# 					survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))																
 						
-						for sid in survey_ids:
-							try:
-								success = success and self._execute_once(ls_api.delete_survey, f"delete_survey_{sid}", sid)
-								for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):								
-									rec.unlink()
-							except Exception as e:
-								success = False
-								errors.append(f"Unable to remove the survey with external ID '{sid}'. {e}")
+	# 					for sid in survey_ids:
+	# 						try:
+	# 							success = success and self._execute_once(ls_api.delete_survey, f"delete_survey_{sid}", sid)
+	# 							for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):								
+	# 								rec.unlink()
+	# 						except Exception as e:
+	# 							success = False
+	# 							errors.append(f"Unable to remove the survey with external ID '{sid}'. {e}")
 
-						end(self, success, errors)					
-						self.reload_request()
+	# 					end(self, success, errors)					
+	# 					self.reload_request()
 					
-					except psycopg2.errors.SerializationFailure:
-						# NOTE: _run_in_thread method will retry, the surveys won't be uploaded again due the use of _execute_once.
-						raise
+	# 				except psycopg2.errors.SerializationFailure:
+	# 					# NOTE: _run_in_thread method will retry, the surveys won't be uploaded again due the use of _execute_once.
+	# 					raise
 					
-					except Exception as e:						
-						end(self, False, [e])
-						self.reload_request()
+	# 				except Exception as e:						
+	# 					end(self, False, [e])
+	# 					self.reload_request()
 				
-				self._run_in_thread(run)				
-			except Exception as e:
-				end(self, False, e)				
-			finally:
-				return True
+	# 			self._run_in_thread(run)				
+	# 		except Exception as e:
+	# 			end(self, False, e)				
+	# 		finally:
+	# 			return True
 
 	def action_open(self):
 		self.ensure_one()
@@ -455,7 +490,7 @@ class ems_limesurvey_header(models.Model):
 		# 			rec.state = 'draft'			
 
 	def _compute_recipients_students(self):
-		reci = [[5]]
+		reci = []
 		for level in self.level_ids:
 			# NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).			
 			students = self.env["res.partner"].search([("level_id", "=", level.id), ("main_group_id", "!=", False)])			
@@ -473,7 +508,11 @@ class ems_limesurvey_header(models.Model):
 					"student_id": student.id,
 					"limesurvey_enrollment_ids": enrollments					
 				}])				
-	
+		
+		# NOTE: I don't know why [[5]] fails...
+		for rec in self.limesurvey_recipient_ids:
+			rec.unlink()	
+
 		self.write({
 			"limesurvey_recipient_ids": reci
 		})
@@ -862,7 +901,7 @@ class ems_limesurvey_enrollment(models.Model):
 	_description = "LimeSurvey enrollment: contains a copy of the enrollment model for the related student, in order to allow changes on the fly when preparing the surveys (only secretarial staff should be allowed to modify the real enrollments)."
 	_inherit = ['ems.base']
 
-	limesurvey_recipient_id = fields.Many2one(string="Recipient", comodel_name="ems.limesurvey_recipient", required=True)
+	limesurvey_recipient_id = fields.Many2one(string="Recipient", comodel_name="ems.limesurvey_recipient", required=True, ondelete="cascade") # removing the recipient should remove all its enrollments
 	student_id = fields.Many2one(string="Student", related="limesurvey_recipient_id.student_id")
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")

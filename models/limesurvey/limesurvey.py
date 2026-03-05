@@ -157,6 +157,7 @@ class ems_limesurvey_header(models.Model):
 	# NOTE: this field is used to track the wizard progress.
 	state = fields.Selection(string='Status', selection=[
         ('draft', 'Draft'),
+		('computed', 'Recipients computed'),
 		('uploading', 'Uploading surveys'),
         ('uploaded', 'Surveys uploaded'),
 		('opening', 'Opening surveys'),
@@ -186,6 +187,29 @@ class ems_limesurvey_header(models.Model):
 	changes = {}
 	
 	# TODO: chatter messages could be confusing, specially with errors. Improve it!
+	def action_compute(self):
+		self.ensure_one()
+
+		# NOTE: there's no API integration when computing recipients, multithreading not needed
+		try:	
+			title = _("LimeSurvey: compute recipients")
+			# Settings up the distinct types of surveys
+			if(self.target == "students"): self._compute_recipients_students()
+			elif(self.target == "teachers"): self._compute_recipients_teachers()
+			elif(self.target == "asp"): self._compute_recipients_asp()
+						
+			message = _("Recipients compute successfully completed!")
+			self._notify(title , message, "success")
+			self._chatter(message)					
+
+			self.state = 'computed'
+		except Exception as e:	
+			message = f"{_('Recipients compute failed. ')} {e}"
+			self._notify(title, message, "warning")
+			self._chatter(message)					
+			self.env.cr.commit() # To save the messages	(previous changes have been rollbacked).		
+		finally:
+			return True
 
 	def action_upload(self):
 		self.ensure_one()
@@ -429,6 +453,36 @@ class ems_limesurvey_header(models.Model):
 
 		# 		elif rec.state == 'downloaded':
 		# 			rec.state = 'draft'			
+
+	def _compute_recipients_students(self):
+		reci = [[5]]
+		for level in self.level_ids:
+			# NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).			
+			students = self.env["res.partner"].search([("level_id", "=", level.id), ("main_group_id", "!=", False)])			
+			for student in students:
+				enrollments = []
+				for enroll in student.enrollment_ids:
+					enrollments.append([0,0, {
+						"student_id": student.id,
+						"group_id": enroll.group_id.id,
+						"subject_id": enroll.subject_id.id
+					}])
+				reci.append([0,0, {
+					"name": student.name,
+					"email": student.student_email,					
+					"student_id": student.id,
+					"limesurvey_enrollment_ids": enrollments					
+				}])				
+	
+		self.write({
+			"limesurvey_recipient_ids": reci
+		})
+	
+	def _compute_recipients_teachers(self):
+		return False
+
+	def _compute_recipients_asp(self):
+		return False
 
 	def compute_survey_data(self, student, only_key):
 		name = f"{self.name}_{student.level_id.acronym}"

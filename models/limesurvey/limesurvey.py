@@ -185,6 +185,8 @@ class ems_limesurvey_header(models.Model):
 	# 		does not its flag. 
 	changes = {}
 	
+	# TODO: chatter messages could be confusing, specially with errors. Improve it!
+
 	def action_upload(self):
 		self.ensure_one()
 		if not self._already_running():

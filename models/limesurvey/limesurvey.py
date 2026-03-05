@@ -695,11 +695,15 @@ class ems_limesurvey_recipient(models.Model):
 	tid = fields.Integer(string="User's ID (LimeSurvey)")
 	status = fields.Selection(string='Status', selection=[('pending', 'Pending'), ('success', 'Success'), ('error', 'Error')], default='pending')
 	error = fields.Char(string="Error details")
+	notes = fields.Text(string="Notes")	
 
 	# The recipients can be students (res_partner) or teachers/asp (hr.employee). Those are needed in order to refresh the data.
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner")
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
 	asp_id = fields.Many2one(string="ASP", comodel_name="hr.employee")
+
+	# This field is used to compute the enrollments and allow modification by an authorized user (independent of 'real' enrollments, which should be modified only by secretarial staff).
+	limesurvey_enrollment_ids = fields.One2many(string="Enrollments", comodel_name="ems.limesurvey_enrollment", inverse_name="limesurvey_recipient_id")
 	
 	def open_error_popup(self):
 		self.ensure_one()
@@ -714,6 +718,12 @@ class ems_limesurvey_recipient(models.Model):
 			'flags': {'mode': 'readonly'}
 		}
 	
+	def action_restore(self):
+		return True
+
+	def action_upload(self):
+		return True
+
 	def refresh(self):
 		# TODO: check refresh when the enrolled changed, empty surveys should be removed.
 		# TODO: improve LS methods, input methods (easier) and respose check (errors, etc.).
@@ -792,3 +802,21 @@ class ems_limesurvey_recipient(models.Model):
 	def _completed(self, title):
 		self.limesurvey_header_id._notify(title, _("Refresh process successfully completed!"), "success")
 		self.limesurvey_header_id._chatter(_(f"Refresh for '{self.email}': ") + _("success"))
+
+class ems_limesurvey_enrollment(models.Model):
+	_name = "ems.limesurvey_enrollment"
+	_description = "LimeSurvey enrollment: contains a copy of the enrollment model for the related student, in order to allow changes on the fly when preparing the surveys (only secretarial staff should be allowed to modify the real enrollments)."
+	_inherit = ['ems.base']
+
+	limesurvey_recipient_id = fields.Many2one(string="Recipient", comodel_name="ems.limesurvey_recipient", required=True)
+	student_id = fields.Many2one(string="Student", related="limesurvey_recipient_id.student_id")
+	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
+	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
+	inuse_subject_ids = fields.Many2many('ems.subject', compute='_compute_inuse_subject_ids', store=False) 	
+
+	@api.depends('student_id')
+	def _compute_inuse_subject_ids(self):
+		for rec in self:
+			rec.inuse_subject_ids = False
+			if rec.student_id:
+				rec.inuse_subject_ids = rec.mapped('student_id.enrollment_ids.subject_id')

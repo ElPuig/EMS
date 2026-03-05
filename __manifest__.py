@@ -138,6 +138,7 @@
             'views/limesurvey/header/form.xml',
             'views/limesurvey/header/menu.xml',
             'views/limesurvey/block/form.xml',
+            'views/limesurvey/recipient/form.xml',
             
 
         # 'views/community/tracking/list.xml',

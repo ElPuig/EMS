@@ -184,16 +184,16 @@
                             </page>
 
                             <page string="Recipients">                                
-                                <field name="limesurvey_recipient_ids" readonly="True" force_save="True">
-                                    <!-- TODO: allow changes from the admin? no_open using "not user_id_admin" is not working -->
-                                    <list default_order="name" no_open="True">
+                                <!-- <field name="limesurvey_recipient_ids" readonly="True" force_save="True"> -->
+                                <field name="limesurvey_recipient_ids">
+                                    <list default_order="name" create="False" delete="False" >
                                         <field name="name"/>
                                         <field name="email"/>
                                         <field name="external_id"/>                                                                               
                                         <field name="status"/> 
                                         <!-- TODO: popup plugin -->
                                         <button name="open_error_popup" type="object" icon="fa-info-circle" title="Open error details." invisible="not error" width="30px"/> 
-                                        <button name="refresh" type="object" icon="fa-refresh" title="Refresh (moves the student to a new survey if needed)." width="30px"/> 
+                                        <!-- <button name="refresh" type="object" icon="fa-refresh" title="Refresh (moves the student to a new survey if needed)." width="30px"/>  -->
                                     </list>
                                 </field>
                             </page>

@@ -1,0 +1,73 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_limesurvey_recipient_form">
+            <field name="name">ems.limesurvey_recipient.form</field>
+            <field name="model">ems.limesurvey_recipient</field>
+            <field name="arch" type="xml">
+                <form string="recipient">
+                    <header>
+                        <button string="Restore enrollments" 
+                            name="action_restore" 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-undo"
+                        />
+
+                        <button string="Upload changes" 
+                            name="action_upload" 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-cloud-upload"
+                        />
+                    </header>
+
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group colspan="2">
+                                <field name="name"/>
+                            </group>
+                            <group colspan="2">
+                                <field name="email" readonly="False"/>
+                            </group>                          
+                        </group>
+
+                        <group string="LimeSurvey" col="4">
+                            <group colspan="3">
+                                <field name="internal_id" readonly="not user_is_admin"/>
+                            </group>                           
+                            <group>
+                                <field string="Survey's ID (LS)" name="external_id" readonly="not user_is_admin"/>
+                            </group>
+                            <group>
+                                <field name="status" readonly="True"/>
+                            </group>                                                                          
+                        </group>
+
+                        <notebook> 
+                            <page string="Error details" invisible="not error">
+                                <field string="" name="error" widget="text"/>
+                            </page>  
+                            <page string="Enrollments" invisible="not student_id">                           
+                                <field name="limesurvey_enrollment_ids">
+                                    <list default_order="subject_id.display_name" >
+                                        <field name="subject_id"/>
+                                        <field name="group_id"/>                                        
+                                    </list>
+
+                                    <list editable="top" default_order="subject_id asc, group_id asc">
+                                        <field name="subject_id" domain="[('id','not in', inuse_subject_ids)]"/>
+                                        <field name="group_id" domain="[('study_id','=', student_id.study_id)]"/>
+                                        <field name="inuse_subject_ids" column_invisible="True"/>
+                                    </list>
+                                </field>
+                            </page>           
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

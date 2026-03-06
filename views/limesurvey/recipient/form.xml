@@ -37,10 +37,16 @@
                             </group>                           
                             <group>
                                 <field string="Survey's ID (LS)" name="external_id" readonly="not user_is_admin"/>
-                            </group>
+                            </group>                           
+                            <group>
+                                <field string="User's ID (LS)" name="tid" readonly="not user_is_admin"/>
+                            </group>  
+                            <group>
+                                <field string="User's token (LS)" name="token" readonly="not user_is_admin"/>
+                            </group>  
                             <group>
                                 <field name="status" readonly="True"/>
-                            </group>                                                                          
+                            </group>                                                                           
                         </group>
 
                         <notebook> 

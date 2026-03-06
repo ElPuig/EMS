@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import requests, json, html, re, base64, threading, psycopg2, time
+import requests, json, html, re, base64, threading, psycopg2, time, traceback
+from markupsafe import Markup
 from datetime import datetime
 from odoo import models, fields, api, registry, _
 from odoo.exceptions import UserError
@@ -28,8 +29,7 @@ class limesurvey_api():
 		else: 			
 			raise Exception(f"{_('Unable to create the survey.')} {result}")
 	
-	def add_participants(self, survey_id, participants):	
-		participants = list(map(lambda x: {k: x[k] for k in ['email', 'firstname', 'lastname']}, participants))		
+	def add_participants(self, survey_id, participants):			
 		return self._run_api_request("add_participants", [survey_id, participants])		
 
 	def delete_participants(self, survey_id, participant_ids):		
@@ -133,6 +133,17 @@ class limesurvey_api():
 		finally:
 			self._release_session_key(session_key, headers)
 
+	def _extract_limesurvey_html_error(self, html_content):		
+		match = re.search(r'<h2[^>]*class="error-title"[^>]*>(.*?)</h2>', html_content, re.IGNORECASE | re.DOTALL)
+		
+		if match:
+			raw_text = match.group(1)			
+			clean_text = " ".join(raw_text.split())			
+			final_text = html.unescape(clean_text)			
+			return final_text
+			
+		return html_content
+
 	def _get_session_key(self, headers):
 		payload = {
 			"method": "get_session_key",
@@ -166,7 +177,7 @@ class ems_limesurvey_header(models.Model):
 		('closed', 'Surveys closed'),
 		('downloading', 'Downloading surveys'),
 		('downloaded', 'Data downloaded')
-    ], default='draft')
+    ], default='draft', tracking=True)
 
 	name = fields.Char(string="Name", required=True)
 	title = fields.Char(string="Title", required=True)
@@ -186,6 +197,7 @@ class ems_limesurvey_header(models.Model):
 	# 		does not its flag. 
 	changes = {}
 	
+	# MAIN ACTIONS
 	def action_compute(self, title=None, message_ok=None, message_ko=None):
 		self.ensure_one()
 
@@ -200,13 +212,11 @@ class ems_limesurvey_header(models.Model):
 			elif(self.target == "teachers"): self._compute_recipients_teachers()
 			elif(self.target == "asp"): self._compute_recipients_asp()
 						
-			self._notify(title , message_ok, "success")
-			self._chatter(message_ok)					
 			self.state = 'computed'
+			self._notify(title , message_ok, "success")			
 		except Exception as e:	
-			message_ko = f"{message_ko} {e}"
-			self._notify(title, message_ko, "warning")
-			self._chatter(message_ko)					
+			self._chatter_exception(e)
+			self._notify(title,  f"{message_ko} {e}", "warning")					
 			self.env.cr.commit() # To save the messages	(previous changes have been rollbacked).		
 		finally:
 			return True
@@ -220,31 +230,17 @@ class ems_limesurvey_header(models.Model):
 			for rec in self.limesurvey_recipient_ids:
 				rec.unlink()					
 						
-			message = _("Recipients successfully removed!")
-			self._notify(title , message, "success")
-			self._chatter(message)					
 			self.state = 'draft'
-		except Exception as e:	
-			message = f"{_('Recipients remove failed. ')} {e}"
-			self._notify(title, message, "warning")
-			self._chatter(message)					
+			self._notify(title , _("Recipients successfully removed!"), "success")
+		except Exception as e:
+			self._chatter_exception(e)
+			self._notify(title, f"{_('Recipients remove failed. ')} {e}", "warning")			
 			self.env.cr.commit() # To save the messages	(previous changes have been rollbacked).		
 		finally:
 			return True
 
 	def action_reload(self):
 		return self.action_compute(_("LimeSurvey: reload recipients"), _("Recipients successfully reloaded!"), _('Recipients reload failed. '))		
-
-	# TODO: error messages are beeing displayed? It seems that _notify is not working ok...
-
-
-
-
-
-
-
-
-
 
 	def action_upload(self):
 		self.ensure_one()
@@ -260,38 +256,36 @@ class ems_limesurvey_header(models.Model):
 					#NOTE: The LimeSurvey's API does not allow to create groups.
 					raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
 				
+				# Settings up the distinct types of surveys (only computed once, changes remain between retries)
+				if(self.target == "students"): surveys = self._compute_students_surveys()
+				elif(self.target == "teachers"): surveys = self._compute_teachers_surveys()
+				elif(self.target == "asp"): surveys = self._compute_asp_surveys()
+					
 				# Background warning
 				title = _("LimeSurvey: upload surveys")
 				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
 
-				# Settings up the distinct types of surveys
-				if(self.target == "students"): surveys = self._setup_students_surveys()
-				elif(self.target == "teachers"): surveys = self._setup_teachers_surveys()
-				elif(self.target == "asp"): surveys = self._setup_asp_surveys()
-				
 				# This method runs at the end, in order to store the correct state and send the notifications to the user
 				def end(self, success, exception=None):
 					details = _("check the recipients entry for more details") if exception is None else exception	
 					message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {details}")
-					self._notify(title, message, "success" if success else "warning")						
-					self._chatter(message)					
+					if not success: self._chatter(message)
+					self._notify(title, message, "success" if success else "warning")
 					self.is_running = False
-					self.state = 'uploaded'	if success else 'draft'
+					self.state = 'uploaded'	if success else 'computed'
 				
 				# The main code will run on another thread to prevent Odoo timeouts
 				def run(self):					
 					try:	
-						success = True			
-						ls_api = limesurvey_api(self.env)	
-						gsid = ls_api.get_group("EMS")["gsid"]		
-						
+						success = True
+
 						# Upload the surveys and recipients
 						for key in surveys:
 							survey = surveys[key]
-							ok = self._execute_once(self.upload_survey, f"upload_survey_{key}", gsid, survey)
+							ok = self._execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)
 							if ok: ok = self._execute_once(self.upload_recipients, f"upload_recipients{key}", survey)							
 							# BBDD recipients act like a log, should be saved always if possible (contains error messages).
-							self.store_recipients(survey["internal_id"], survey["external_id"], survey["recipients"])
+							self.store_recipients_data(survey)
 							success = ok and success										
 						
 						end(self, success)
@@ -317,58 +311,8 @@ class ems_limesurvey_header(models.Model):
 				end(self, False, e)				
 			finally:
 				return True
-			
-	# def action_draft(self):
-	# 	self.ensure_one()
-	# 	if not self._already_running():
-	# 		try:				
-	# 			self.is_running = True
-	# 			self.state = 'uploading'				
-				
-	# 			title = _("LimeSurvey: return to draft")
-	# 			self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
-				
-	# 			def end(self, success, errors=[]):		
-	# 				details = "\n".join(str(e) for e in errors)
-	# 				message = _("Return to draft process successfully completed!") if success else f"{_('Return to draft process failed.')} {details}"	
-	# 				self._notify(title, message, "success" if success else "warning")	
-	# 				self._chatter(message)					
-	# 				self.is_running = False
-	# 				self.state = 'draft' if success else 'uploaded'
-				
-	# 			def run(self):									
-	# 				try:	
-	# 					errors = []	
-	# 					success = True		
-	# 					ls_api = limesurvey_api(self.env)
-	# 					survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))																
-						
-	# 					for sid in survey_ids:
-	# 						try:
-	# 							success = success and self._execute_once(ls_api.delete_survey, f"delete_survey_{sid}", sid)
-	# 							for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):								
-	# 								rec.unlink()
-	# 						except Exception as e:
-	# 							success = False
-	# 							errors.append(f"Unable to remove the survey with external ID '{sid}'. {e}")
 
-	# 					end(self, success, errors)					
-	# 					self.reload_request()
-					
-	# 				except psycopg2.errors.SerializationFailure:
-	# 					# NOTE: _run_in_thread method will retry, the surveys won't be uploaded again due the use of _execute_once.
-	# 					raise
-					
-	# 				except Exception as e:						
-	# 					end(self, False, [e])
-	# 					self.reload_request()
-				
-	# 			self._run_in_thread(run)				
-	# 		except Exception as e:
-	# 			end(self, False, e)				
-	# 		finally:
-	# 			return True
-
+	# TODO: check those ones
 	def action_open(self):
 		self.ensure_one()
 		if not self._already_running():
@@ -423,16 +367,7 @@ class ems_limesurvey_header(models.Model):
 
 
 	
-	# TODO: continue here: prepare the action methods as the "action_upload". 
-
-	def action_prev(self):
-		return True
-		# for rec in self:			
-		# 	if not rec._already_running():
-		# 		rec.is_running = True
-		# 		if rec.state == 'uploaded':				
-		# 			rec.state = 'uploading'
-		# 			return rec._action_draft()								
+			return rec._action_draft()								
 
 	def action_remind(self):
 		for rec in self:			
@@ -442,52 +377,139 @@ class ems_limesurvey_header(models.Model):
 	def action_none(self):
 		return True
 
+	# PUBLIC METHODS (CAN BE CALLED INDIVIDUALLY FOR A CONCRETE RECIPIENT)
+	def get_tmp_student(self, recipient):		
+		return {
+			"recipient": recipient,
+			"student_id": recipient.student_id.id,
+			"name": recipient.student_id.name,
+			"email": recipient.student_id.student_email,															
+			"tid": None,
+			"token": None,
+			"error": None
+		}
+
+	def compute_survey_data(self, student, only_key):
+		name = f"{self.name}_{student.level_id.acronym}"
+		if not only_key:
+			content = self.tsv_raw_text
+			#content = content.replace("{'SID'}", "str(key)") # it's better to set it automatically and relate it with our hash internally
+			#content = content.replace("{'GSID'}", str(gsid)) # ignored by the import engine using TSV... should we change to XML import?
+			content = content.replace("{'TITLE'}", self.title)
+			content = content.replace("{'DESCRIPTION'}", self.description)
+
+		def replace_block_content(content, b_name, l_acro, s_code, s_name, d_acro, g_acro, trainer=""):
+			content = content.replace("{'TITLE'}", b_name)
+			content = content.replace("{'TOPIC'}", b_name)
+			content = content.replace("{'LEVEL'}", l_acro)		
+			content = content.replace("{'S_CODE'}", s_code) # NOTE: this is not a mistake, the block name (topic) is used here also.
+			content = content.replace("{'S_NAME'}", s_name) # NOTE: this is not a mistake, the block name (topic) is used here also.
+			content = content.replace("{'DEGREE'}", d_acro)
+			content = content.replace("{'GROUP'}", g_acro)
+			content = content.replace("{'TRAINER'}", trainer)
+			return content
 
 
+		for block in self.limesurvey_block_ids:
+			append = not block.special
+			if block.special:
+				if block.special_course_filter == 0 or (block.special_course_filter > 0 and block.special_course_filter == student.main_group_id.course):
+					# NOTE: special_course can be combined with WPI or Subject.
+					if not block.special_subject_enrolled and not block.special_wpi_enrolled: append = True	# Just course filter							
+					elif block.special_wpi_enrolled and student.wpi_enrolled: append = True
+					elif block.special_subject_enrolled:
+						# NOTE: Repeat the block for every enrolled subject.
+						for enroll in student.enrollment_ids:
+							name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.acronym}"
+							if not only_key:
+								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
+								teachers_names = "UNKNOWN" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
+								tmp = replace_block_content(block.tsv_raw_text, block.name, student.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, student.study_id.acronym, enroll.group_id.acronym, teachers_names)
+								tmp = tmp.replace("{'X'}", enroll.subject_id.code)								
+								content += tmp
+			if append:
+				name += f" | {block.name}"	
+				if not only_key:
+					content += replace_block_content(block.tsv_raw_text, block.name, student.level_id.acronym, block.name, block.name, student.study_id.acronym, student.main_group_id.acronym)					
+		
+		return {
+			"internal_id": self.persistent_hash(name), 
+			"raw_tsv": None if only_key else content
+		}
+			
+	def store_recipients_data(self, survey):
+		recipients = survey.get("recipients", [])
+		for rec in recipients:	
+			# NOTE: BBDD object won't be attached because different threads uses diferent cursors, but can be restored.
+			r = rec.get("recipient", None).with_env(self.env)
+			error = rec.get("error", None)
+			
+			r.tid = rec.get("tid", None)
+			r.token = rec.get("token", None)			
+			r.internal_id = survey.get("internal_id", None)
+			r.external_id = survey.get("external_id", None)
+			
+			r.error = error
+			r.status = "success" if error is None else "error"			
 
+	def upload_survey(self, gsid, survey):		
+		success = True
+		ls_api = limesurvey_api(self.env)
 
-	def action_next(self):
-		return True
-		# TODO: Expected behaviour:
-		#		1. Check if exists the main "ems" group:
-		#			1.1. If exists, keeps its ID.
-		#			1.2. If don't, fires exceptions and requires to create manually the group using the same user (suggest also the description).
-		#
-		#		2. Every survey will be created into the same group, because the EMS will keep track between every target and its survey.
-		#		3. The surveys will be created as "{DisplayName} - {hasCode}". The hashCode will be computed as:
-		#		   Sort subject codes.
-		#			
-		#		4. A new sheet called "Recipients" will contain the relation between recipients (Name, email, survey_target_selection, limesurvey survey name, limsurvey survey link).
-		#		5. Buttons (or a kind of wizard with progress like in emails section) in the following order:
-		#			5.1. Create the surveys in LimeSurvey (once used, disables the option).
-		#			5.2. Enable the surveys in LimeSurvey and send invitations (once used, disables the option).
-		#			5.3. Send reminders (disables on closing the survey).
-		#			5.4. Close the survey in LimeSurvey (once used, disables the option).
-		#			5.5. PHASE 2: Downloads the data from LimeSurvey [and trasnfers it to Metabase <- can we handle it within Odoo?] (once used, disables the option).
-		#			5.6. Remove the survey from LimeSurvey, cleans the recipients data. Do not remove already downloaded data! (once used, disables the option BUT enables the first one again).
+		try:
+			survey["external_id"] = ls_api.create_survey(gsid, survey["raw_tsv"])
+		except Exception as e:
+			success = False
+			survey["error"] = str(e)
+			
+		return success	
+	
+	def upload_recipients(self, survey):
+		success = True		
+		ls_api = limesurvey_api(self.env)
+		
+		try:			
+			# NOTE: must convert the limesurvey_recipient model to the list of API values
+			recipients = []
+			for r in survey["recipients"]:
+				recipients.append({
+					"firstname": r.get("name", ""),
+					"email": r.get("email", ""),
+					"lastname": ""
+				})
+			result = ls_api.add_participants(survey["external_id"], recipients)
 
-		# TODO: Metabase import could be in a phase 2. But would be nice to do not use Metabase and keep everything within Odoo. 
-		#		In that case, download the data and metabase import can wait, the priority is to create and manage recipients in
-		#		order to detect and fix problems quickly. 
-		# for rec in self:			
-		# 	if not rec._already_running():
-		# 		rec.is_running = True
-		# 		if rec.state == 'draft':				
-		# 			rec.state = 'uploading'
-		# 			return rec._action_upload()
-				
-		# 		elif rec.state == 'uploaded':				
-		# 			rec.state = 'opening'		
-		# 			return rec._action_open()
+			recipients = survey["recipients"]
+			for index, row in enumerate(result):
+				if "error" in row:
+					recipients[index]["error"] = row["error"]
+					success = False
+				else:
+					recipients[index]["token"] = row["token"]
+					recipients[index]["tid"] = row["tid"]
+		
+		except Exception as e:				
+			success = False
+			for rec in survey["recipients"]:
+				rec["error"] = e
 
-		# 		elif rec.state == 'open':				
-		# 			rec.state = 'closed'
-					
-		# 		elif rec.state == 'closed':
-		# 			rec.state = 'downloaded'
-
-		# 		elif rec.state == 'downloaded':
-		# 			rec.state = 'draft'			
+		return success	
+	
+	# PRIVATE COMPUTE/STORE METHODS
+	@api.depends("name", "target", "level_ids")
+	def _compute_display_name(self):			
+		for rec in self:				
+			target = dict(survey_target_selection).get(rec.target)		
+			if not rec.level_ids and not rec.target:
+				rec.display_name = "" if not rec.name else rec.name
+			elif not rec.level_ids:
+				rec.display_name = "%s: %s" % (rec.name, target)
+			else:
+				levels = []
+				for l in rec.level_ids:
+					levels.append(l.acronym)
+				level_str = str.join(", ", levels)				
+				rec.display_name = "%s: %s (%s)" % (rec.name, target, level_str) if rec.target else "%s (%s)" % (rec.name, level_str)
 
 	def _compute_recipients_students(self):
 		reci = []
@@ -523,123 +545,30 @@ class ems_limesurvey_header(models.Model):
 	def _compute_recipients_asp(self):
 		return False
 
-	def compute_survey_data(self, student, only_key):
-		name = f"{self.name}_{student.level_id.acronym}"
-		if not only_key:
-			content = self.tsv_raw_text
-			#content = content.replace("{'SID'}", "str(key)") # it's better to set it automatically and relate it with our hash internally
-			#content = content.replace("{'GSID'}", str(gsid)) # ignored by the import engine using TSV... should we change to XML import?
-			content = content.replace("{'TITLE'}", self.title)
-			content = content.replace("{'DESCRIPTION'}", self.description)
+	def _compute_students_surveys(self):
+		surveys = dict()				
+		for rec in self.limesurvey_recipient_ids:
+			# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
+			#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).			
+			data = self.get_tmp_student(rec)
+			key = self.compute_survey_data(rec.student_id, True)["internal_id"]						
+			if key in surveys: surveys[key]["recipients"].append(data)
+			else: 
+				surveys[key] = {
+					"internal_id": key,
+					"recipients": [data],
+					"raw_tsv": self.compute_survey_data(rec.student_id, False)["raw_tsv"]
+				}					
+		return surveys		
 
-		for block in self.limesurvey_block_ids:
-			append = not block.special
-			if block.special:
-				if block.special_course_filter == 0 or (block.special_course_filter > 0 and block.special_course_filter == student.main_group_id.course):
-					# NOTE: special_course can be combined with WPI or Subject.
-					if not block.special_subject_enrolled and not block.special_wpi_enrolled: append = True	# Just course filter							
-					elif block.special_wpi_enrolled and student.wpi_enrolled: append = True
-					elif block.special_subject_enrolled:
-						# NOTE: Repeat the block for every enrolled subject.
-						for enroll in student.enrollment_ids:
-							name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.acronym}"
-							if not only_key:
-								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
-								teachers_names = "UNKNOWN" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
-								tmp = self._replace_block_content(block.tsv_raw_text, block.name, student.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, student.study_id.acronym, enroll.group_id.acronym, teachers_names)
-								tmp = tmp.replace("{'X'}", enroll.subject_id.code)								
-								content += tmp
-			if append:
-				name += f" | {block.name}"	
-				if not only_key:
-					content += self._replace_block_content(block.tsv_raw_text, block.name, student.level_id.acronym, block.name, block.name, student.study_id.acronym, student.main_group_id.acronym)					
-		
-		return {
-			"internal_id": self.persistent_hash(name), 
-			"raw_tsv": None if only_key else content
-		}
-	
-	def setup_recipient_student(self, student):		
-		return {
-			"email": student.student_email,
-			"firstname": student.name,
-			"lastname": "",
-			"token": None,
-			"student_id": student,
-			"teacher_id": None,
-			"asp_id": None,
-			"error": None
-		}
-	
-	def store_recipients(self, internal_id, external_id, recipients):		
-		entities = []			
-		for r in recipients:	
-			error = False if r["error"] is None else r["error"]						
-			entities.append([0, 0, {
-				"name": r["firstname"],
-				"email": r["email"],
-				"token": r["token"],
-				"tid": r["tid"],
-				"student_id": r["student_id"].id if r["student_id"] is not None else False,
-				"teacher_id": r["teacher_id"].id if r["teacher_id"] is not None else False,
-				"asp_id": r["asp_id"].id if r["asp_id"] is not None else False,
-				"internal_id": internal_id,
-				"external_id": external_id,
-				"status": "success" if not error else "error",
-				"error": r["error"] ,										
-			}])
+	def _compute_teachers_surveys(self):
+		fake = 0
 
-		self.write({
-			"limesurvey_recipient_ids": entities
-		})			
-	
-	def upload_survey(self, gsid, survey):		
-		success = True
-		ls_api = limesurvey_api(self.env)
+	def _compute_asp_surveys(self):
+		fake = 0
 
-		try:
-			survey["external_id"] = ls_api.create_survey(gsid, survey["raw_tsv"])
-		except Exception as e:
-			success = False
-			survey["error"] = str(e)
-			
-		return success	
-	
-	def upload_recipients(self, survey):
-		success = True		
-		ls_api = limesurvey_api(self.env)
-		try:
-			recipients = survey["recipients"]
-			result = ls_api.add_participants(survey["external_id"], recipients)
-			for index, row in enumerate(result):
-				if "error" in row:
-					recipients[index]["error"] = row["error"]
-					success = False
-				else:
-					recipients[index]["token"] = row["token"]
-					recipients[index]["tid"] = row["tid"]
-		except Exception as e:				
-			success = False
-			for rec in survey["recipients"]:
-				rec["error"] = e
 
-		return success	
-	
-	@api.depends("name", "target", "level_ids")
-	def _compute_display_name(self):			
-		for rec in self:				
-			target = dict(survey_target_selection).get(rec.target)		
-			if not rec.level_ids and not rec.target:
-				rec.display_name = "" if not rec.name else rec.name
-			elif not rec.level_ids:
-				rec.display_name = "%s: %s" % (rec.name, target)
-			else:
-				levels = []
-				for l in rec.level_ids:
-					levels.append(l.acronym)
-				level_str = str.join(", ", levels)				
-				rec.display_name = "%s: %s (%s)" % (rec.name, target, level_str) if rec.target else "%s (%s)" % (rec.name, level_str)
-
+	# PRIVATE AUX METHODS
 	def _execute_once(self, func, key=None, *args, **kwargs):
 		result = True
 		if key is None: key = func.__func__.__name__
@@ -666,6 +595,28 @@ class ems_limesurvey_header(models.Model):
             subtype_xmlid='mail.mt_note'
         )	
 	
+	def _chatter_exception(self, exception):
+		self._chatter(
+			Markup(f"""
+				<div class="alert alert-danger mb-0" role="alert">
+					<h5 class="alert-heading mb-1">
+						<i class="fa fa-exclamation-triangle me-1"></i> 
+						{_("An error occurred during the process")}
+					</h5>
+					<p class="mb-2">{exception}</p>
+					<hr class="mt-1 mb-2">
+					
+					<details>
+						<summary class="text-muted fw-bold" style="cursor: pointer;">
+							<i class="fa fa-bug me-1"></i> {_("See technical details (Exception)")}
+						</summary>
+						
+						<pre class="mt-2 p-2 bg-light border text-dark rounded" style="font-size: 0.85em; white-space: pre-wrap; max-height: 250px; overflow-y: auto;">{traceback.format_exc()}</pre>
+					</details>
+				</div>
+			""")
+		)
+
 	def _run_in_thread(self, func, max_retries=5, *args, **kwargs):
 		uid = self.env.uid
 		dbname = self.env.cr.dbname
@@ -700,58 +651,56 @@ class ems_limesurvey_header(models.Model):
 		return self.is_running
 
 	
+
+
+	# def action_next(self):
+	# 	return True
+	# 	# TODO: Expected behaviour:
+	# 	#		1. Check if exists the main "ems" group:
+	# 	#			1.1. If exists, keeps its ID.
+	# 	#			1.2. If don't, fires exceptions and requires to create manually the group using the same user (suggest also the description).
+	# 	#
+	# 	#		2. Every survey will be created into the same group, because the EMS will keep track between every target and its survey.
+	# 	#		3. The surveys will be created as "{DisplayName} - {hasCode}". The hashCode will be computed as:
+	# 	#		   Sort subject codes.
+	# 	#			
+	# 	#		4. A new sheet called "Recipients" will contain the relation between recipients (Name, email, survey_target_selection, limesurvey survey name, limsurvey survey link).
+	# 	#		5. Buttons (or a kind of wizard with progress like in emails section) in the following order:
+	# 	#			5.1. Create the surveys in LimeSurvey (once used, disables the option).
+	# 	#			5.2. Enable the surveys in LimeSurvey and send invitations (once used, disables the option).
+	# 	#			5.3. Send reminders (disables on closing the survey).
+	# 	#			5.4. Close the survey in LimeSurvey (once used, disables the option).
+	# 	#			5.5. PHASE 2: Downloads the data from LimeSurvey [and trasnfers it to Metabase <- can we handle it within Odoo?] (once used, disables the option).
+	# 	#			5.6. Remove the survey from LimeSurvey, cleans the recipients data. Do not remove already downloaded data! (once used, disables the option BUT enables the first one again).
+
+	# 	# TODO: Metabase import could be in a phase 2. But would be nice to do not use Metabase and keep everything within Odoo. 
+	# 	#		In that case, download the data and metabase import can wait, the priority is to create and manage recipients in
+	# 	#		order to detect and fix problems quickly. 
+	# 	# for rec in self:			
+	# 	# 	if not rec._already_running():
+	# 	# 		rec.is_running = True
+	# 	# 		if rec.state == 'draft':				
+	# 	# 			rec.state = 'uploading'
+	# 	# 			return rec._action_upload()
+				
+	# 	# 		elif rec.state == 'uploaded':				
+	# 	# 			rec.state = 'opening'		
+	# 	# 			return rec._action_open()
+
+	# 	# 		elif rec.state == 'open':				
+	# 	# 			rec.state = 'closed'
+					
+	# 	# 		elif rec.state == 'closed':
+	# 	# 			rec.state = 'downloaded'
+
+	# 	# 		elif rec.state == 'downloaded':
+	# 	# 			rec.state = 'draft'			
+
 	
 
 	
 	
 	
-	
-	def _replace_block_content(self, content, b_name, l_acro, s_code, s_name, d_acro, g_acro, trainer=""):
-		content = content.replace("{'TITLE'}", b_name)
-		content = content.replace("{'TOPIC'}", b_name)
-		content = content.replace("{'LEVEL'}", l_acro)		
-		content = content.replace("{'S_CODE'}", s_code) # NOTE: this is not a mistake, the block name (topic) is used here also.
-		content = content.replace("{'S_NAME'}", s_name) # NOTE: this is not a mistake, the block name (topic) is used here also.
-		content = content.replace("{'DEGREE'}", d_acro)
-		content = content.replace("{'GROUP'}", g_acro)
-		content = content.replace("{'TRAINER'}", trainer)
-		return content
-
-	def _setup_students_surveys(self):
-		surveys = dict()
-		for level in self.level_ids:
-			# NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).
-			students = self.env["res.partner"].search([("level_id", "=", level.id), ("main_group_id", "!=", False)])			
-			for student in students:
-				# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
-				#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).
-				key = self.compute_survey_data(student, True)["internal_id"]
-				recipient = self.setup_recipient_student(student)
-				if key in surveys: surveys[key]["recipients"].append(recipient)
-				else: 
-					surveys[key] = {
-						"internal_id": key,
-						"recipients": [recipient],
-						"raw_tsv": self.compute_survey_data(student, False)["raw_tsv"]
-					}					
-		return surveys	
-
-	def _setup_teachers_surveys(self):
-		fake = 0
-
-	def _setup_asp_surveys(self):
-		fake = 0
-
-	def _extract_limesurvey_html_error(self, html_content):		
-		match = re.search(r'<h2[^>]*class="error-title"[^>]*>(.*?)</h2>', html_content, re.IGNORECASE | re.DOTALL)
-		
-		if match:
-			raw_text = match.group(1)			
-			clean_text = " ".join(raw_text.split())			
-			final_text = html.unescape(clean_text)			
-			return final_text
-			
-		return html_content
 class ems_limesurvey_block(models.Model):
 	_name = "ems.limesurvey_block"
 	_description = "LimeSurvey block: contains the main data about a LimeSurvey's session block."
@@ -841,7 +790,7 @@ class ems_limesurvey_recipient(models.Model):
 					if self.name == self.student_id.name and self.email == self.student_id.student_email:
 						self.limesurvey_header_id._notify(title, _("Everything is up to date (nothing to resfresh)."), "info")
 					else:
-						reci = self.limesurvey_header_id.setup_recipient_student(self.student_id)
+						reci = self.limesurvey_header_id.get_tmp_student(self.student_id)
 						reci["tid"] = self.tid
 						
 						survey["recipients"] = [reci]
@@ -859,10 +808,10 @@ class ems_limesurvey_recipient(models.Model):
 					
 					# The recipients must be uploaded always (for new or existing one)
 					old_survey_id = self.external_id
-					survey["recipients"] = [self.limesurvey_header_id.setup_recipient_student(self.student_id)]
+					survey["recipients"] = [self.limesurvey_header_id.get_tmp_student(self.student_id)]
 					success = self.limesurvey_header_id.upload_survey_recipients(survey)
 					if not success: raise Exception(survey["recipients"][0]["error"])
-					self.limesurvey_header_id.store_recipients(survey["internal_id"], survey["external_id"], survey["recipients"])
+					self.limesurvey_header_id.store_recipients_data(survey["recipients"], survey["internal_id"], survey["external_id"])
 										
 					# Remove from the old survey
 					ls_api.delete_participants(self.external_id, [self.tid])

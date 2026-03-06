@@ -18,7 +18,7 @@
                             name="action_compute" 
                             type="object" 
                             class="oe_highlight" 
-                            icon="fa-play"
+                            icon="fa-users"
                             invisible="state != 'draft'"
                         />                      
 
@@ -27,7 +27,7 @@
                             name="action_draft"                                 
                             type="object" 
                             class="oe_highlight" 
-                            icon="fa-step-backward"
+                            icon="fa-pencil-square-o"
                             invisible="state != 'computed'"
                         />
 
@@ -43,34 +43,52 @@
                             name="action_upload"                                 
                             type="object" 
                             class="oe_highlight" 
-                            icon="fa-refresh"
+                            icon="fa-cloud-upload"
                             invisible="state != 'computed'"
                         />
 
                         <!-- UPLOADING-->
-                        <button string="Upload surveys"
-                            disabled="True"
-                            name="action_none" 
+                         <button string="Return to draft" 
+                            disabled="True" 
+                            name="action_none"                                 
                             type="object" 
                             class="oe_highlight" 
-                            icon="fa-play"
+                            icon="fa-pencil-square-o"
+                            invisible="state != 'uploading'"
+                        />
+
+                        <button string="Reload participants"
+                            disabled="True" 
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-refresh"
+                            invisible="state != 'uploading'"
+                        />
+
+                        <button string="Upload surveys"
+                            disabled="True" 
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-cloud-upload"
                             invisible="state != 'uploading'"
                         />
                         
                         <!-- UPLOADED -->
-                        <button string="Return to draft" 
-                            name="action_draft"                                 
+                        <button string="Remove surveys" 
+                            name="action_remove"                                 
                             type="object" 
                             class="oe_highlight" 
-                            icon="fa-step-backward"
+                            icon="fa-trash"
                             invisible="state != 'uploaded'"
-                        />
+                        />                       
 
-                        <button string="Open surveys" 
-                            name="action_open"                                 
+                        <button string="Open surveys"  
+                            name="action_none"                             
                             type="object" 
                             class="oe_highlight" 
-                            icon="fa-envelope"
+                            icon="fa-play "
                             invisible="state != 'uploaded'"
                         />
 

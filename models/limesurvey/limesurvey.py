@@ -276,34 +276,63 @@ class ems_limesurvey_header(models.Model):
 				
 				# The main code will run on another thread to prevent Odoo timeouts
 				def run(self):					
-					try:	
-						success = True
+					success = True
 
-						# Upload the surveys and recipients
-						for key in surveys:
-							survey = surveys[key]
-							ok = self._execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)
-							if ok: ok = self._execute_once(self.upload_recipients, f"upload_recipients{key}", survey)							
-							# BBDD recipients act like a log, should be saved always if possible (contains error messages).
-							self.store_recipients_data(survey)
-							success = ok and success										
-						
-						end(self, success)
-						self.reload_request()
+					# Upload the surveys and recipients
+					for key in surveys:
+						survey = surveys[key]
+						ok = self._execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)
+						if ok: ok = self._execute_once(self.upload_recipients, f"upload_recipients{key}", survey)							
+						# BBDD recipients act like a log, should be saved always if possible (contains error messages).
+						self.store_recipients_data(survey)
+						success = ok and success										
 					
-					except psycopg2.errors.SerializationFailure:
-						# NOTE: _run_in_thread method will retry, the surveys won't be uploaded again due the use of _execute_once.
-						raise
+					end(self, success)
+					self.reload_request()
 					
-					except Exception as e:
-						try:							
-							for key in surveys:
-								ls_api.delete_survey(surveys[key]["external_id"])
-							end(self, False, e)
-							self.reload_request()
-						except Exception as e:
-							end(self, False, e)
-							self.reload_request()						
+				# Thread execution
+				self._run_in_thread(run)				
+			except Exception as e:
+				end(self, False, e)				
+			finally:
+				return True
+			
+	def action_remove(self):
+		self.ensure_one()
+		if not self._already_running():
+			try:				
+				self.is_running = True
+				self.state = 'uploading'
+				
+				# Background warning
+				title = _("LimeSurvey: remove surveys")
+				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
+
+				# This method runs at the end, in order to store the correct state and send the notifications to the user
+				def end(self, success, exception=None):
+					details = _("check the recipients entry for more details") if exception is None else exception
+					message = _("Remove process successfully completed!") if success else (f"{_('Remove process failed.')} {details}")
+					if not success: self._chatter(message)
+					self._notify(title, message, "success" if success else "warning")
+					self.is_running = False
+					self.state = 'computed'	if success else 'uploaded'
+				
+				# The main code will run on another thread to prevent Odoo timeouts
+				def run(self):					
+					# Upload the surveys and recipients
+					ls_api = limesurvey_api(self.env)
+					surveys = list(set(self.limesurvey_recipient_ids.mapped("external_id")))
+					for sid in surveys:							
+						self._execute_once(ls_api.delete_survey, f"delete_survey_{sid}", sid)						
+						for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):
+							rec.external_id = None
+							rec.internal_id = None
+							rec.tid = None
+							rec.token = None
+							rec.status = "pending"
+																		
+					end(self, True)
+					self.reload_request()
 				
 				# Thread execution
 				self._run_in_thread(run)				

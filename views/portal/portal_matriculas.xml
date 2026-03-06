@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="portal_gestion_matriculas" name="Gestión de Matrículas">
+            <t t-call="portal.portal_layout">
+                <t t-set="my_details" t-value="True"/>
+                
+                <div class="oe_structure">
+                    <h3 class="my-4">Gestión de Matrículas</h3>
+                    <div class="o_portal_docs row g-4 mt-2">
+                        
+                        <t t-call="portal.portal_docs_entry">
+                            <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'"/>
+                            <t t-set="title">Pre-matrículas</t>
+                            <t t-set="url" t-value="'/my/quotes'"/>
+                            <t t-set="text">Revise, acepte o rechace sus pre-matrículas</t>
+                            <t t-set="placeholder_count" t-value="'quotation_count'"/>
+                            <t t-set="config_card" t-value="True"/> 
+                        </t>
+
+                        <t t-call="portal.portal_docs_entry">
+                            <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'"/> 
+                            <t t-set="title">Matrículas Formalizadas</t>
+                            <t t-set="url" t-value="'/my/orders'"/>
+                            <t t-set="text">Siga, vea o pague sus matrículas</t>
+                            <t t-set="placeholder_count" t-value="'order_count'"/>
+                            <t t-set="config_card" t-value="True"/>
+                        </t>
+
+                        <t t-call="portal.portal_docs_entry">
+                            <t t-set="icon" t-value="'/account/static/src/img/Bill.svg'"/> 
+                            <t t-set="title">Recibos Escolares</t> 
+                            <t t-set="url" t-value="'/my/invoices'"/>
+                            <t t-set="text">Consulte, descargue o pague sus recibos</t> 
+                            <t t-set="placeholder_count" t-value="'invoice_count'"/>
+                            <t t-set="config_card" t-value="True"/>
+                        </t>
+
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="portal_gestion_matriculas_breadcrumbs" inherit_id="portal.portal_breadcrumbs" priority="100">
+            <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+                <li t-if="page_name == 'gestion_matriculas'" class="breadcrumb-item active">
+                    <span>Gestión de Matrículas</span>
+                </li>
+            </xpath>
+        </template>
+
+        <template id="ems_portal_my_quotations_rename" inherit_id="sale.portal_my_quotations">
+            <xpath expr="//thead/tr" position="replace">
+                <tr class="active">
+                    <th>Pre-matrícula#</th>
+                    <th class="text-end">Fecha de pre-matrícula</th>
+                    <th class="text-end">Válido hasta</th>
+                    <th class="text-center"/>
+                    <th class="text-end">Total</th>
+                </tr>
+            </xpath>            
+        </template>
+
+        <template id="ems_portal_breadcrumbs_quotes_rename" inherit_id="sale.portal_my_home_menu_sale">
+            <xpath expr="//li[contains(@t-if, 'quote')]" position="replace">
+                <li t-if="page_name == 'quote' or sale_order and sale_order.state in ('draft', 'sent', 'cancel')" t-attf-class="breadcrumb-item #{'active ' if not sale_order else ''}">
+                    <a t-if="sale_order" t-attf-href="/my/quotes?{{ keep_query() }}">Pre-matrículas</a>
+                    <t t-else="">Pre-matrículas</t>
+                </li>
+            </xpath>
+        </template>
+
+        <template id="ems_sale_order_portal_content_inherit" inherit_id="sale.sale_order_portal_content">
+            
+            <xpath expr="//div[@id='introduction']//h2" position="replace">
+                <h2 class="my-0">
+                    <t t-if="sale_order.name.startswith('M/')">
+                        <t t-if="sale_order.state in ['draft', 'sent']">Pre-matrícula</t>
+                        <t t-else="">Matrícula</t>
+                    </t>
+                    <t t-else="">
+                        <t t-if="sale_order.state in ['draft', 'sent']">Presupuesto</t>
+                        <t t-else="">Pedido</t>
+                    </t>
+                    
+                    - <em t-esc="sale_order.name"/>
+                </h2>
+            </xpath>
+
+        </template>
+        
+    </data>
+</odoo>

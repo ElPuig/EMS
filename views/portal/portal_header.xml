@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ems_portal_custom_header_menu" inherit_id="portal.frontend_layout">
+        <xpath expr="//a[hasclass('navbar-brand')]" position="after">
+            
+            <t t-if="not request.env.user._is_public()">
+                <ul class="nav navbar-nav me-auto ms-4 d-none d-md-flex flex-row ems-custom-navbar">
+                    
+                    <li class="nav-item">
+                        <a href="/my/home" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/my/asistencia" class="nav-link">Attendance</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/my/calificaciones" class="nav-link">Grades</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/my/gestion-matriculas" class="nav-link">Enrollment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/my/comunicaciones" class="nav-link">Communications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/my/documentacion" class="nav-link">Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/my/account" class="nav-link">Profile</a>
+                    </li>
+                    
+                </ul>
+
+                <script type="text/javascript">
+                    //<![CDATA[
+                    document.addEventListener("DOMContentLoaded", function() {
+                        var path = window.location.pathname;
+                        var links = document.querySelectorAll('.ems-custom-navbar .nav-link');
+                        
+                        links.forEach(function(link) {
+                            var href = link.getAttribute('href');
+                            
+                            // 1. Lógica exclusiva para Home
+                            if (href === '/my/home' && (path === '/my' || path === '/my/' || path === '/my/home')) {
+                                link.classList.add('active');
+                            }
+                            // 2. Lógica para Enrollment (incluyendo presupuestos y pedidos)
+                            else if (href === '/my/gestion-matriculas' && (path.includes('gestion-matriculas') || path.includes('quotes') || path.includes('orders'))) {
+                                link.classList.add('active');
+                            }
+                            // 3. Lógica para el resto de apartados
+                            else if (href !== '/my/home' && href !== '/my/gestion-matriculas' && path.includes(href)) {
+                                link.classList.add('active');
+                            }
+                        });
+                    });
+                    //]]>
+                </script>
+            </t>
+        </xpath>
+    </template>
+</odoo>

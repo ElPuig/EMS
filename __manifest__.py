@@ -176,20 +176,25 @@
             'views/attendance/attendance_reports/group_wizard.xml', 
 
         'views/academic_management/menu.xml',
-        'views/academic_management/enrollment/menu.xml',
-        'views/academic_management/enrollment/enrollment_form.xml',
-        'views/academic_management/enrollment/enrollment_list.xml',
-        'views/academic_management/enrollment/enrollment_search.xml',
-        'views/academic_management/enrollment_configuration/enrollment_items_form.xml',
-        'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
-        'views/academic_management/enrollment_configuration/enrollment_authorization_search.xml',
-        'views/academic_management/enrollment_configuration/enrollment_authorization_view.xml',
-        'views/academic_management/enrollment_configuration/enrollment_authorization_form.xml',
-        'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
-        'views/academic_management/enrollment_configuration/enrollment_template_view.xml',
-        'views/academic_management/enrollment_configuration/menu.xml',
-        
+            'views/academic_management/enrollment/menu.xml',
+            'views/academic_management/enrollment/enrollment_form.xml',
+            'views/academic_management/enrollment/enrollment_list.xml',
+            'views/academic_management/enrollment/enrollment_search.xml',
+            'views/academic_management/enrollment_configuration/enrollment_items_form.xml',
+            'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
+            'views/academic_management/enrollment_configuration/enrollment_authorization_search.xml',
+            'views/academic_management/enrollment_configuration/enrollment_authorization_view.xml',
+            'views/academic_management/enrollment_configuration/enrollment_authorization_form.xml',
+            'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
+            'views/academic_management/enrollment_configuration/enrollment_template_view.xml',
+            'views/academic_management/enrollment_configuration/menu.xml',
+      
         'views/sales/product_view.xml',
+
+        'views/portal/portal_main.xml',
+            'views/portal/portal_matriculas.xml',
+            'views/portal/portal_header.xml',
+            'views/portal/portal_under_construction.xml',
 
         'views/documentation/menu.xml',       
             'views/documentation/minutes/menu.xml',       
@@ -197,6 +202,7 @@
             'views/documentation/minutes/form.xml',   
 
         'views/shared/attachment/form.xml',  
+
 
         ### Mailing templates ###
         'mails/attendance/attendance_issue_status.xml', 
@@ -325,6 +331,7 @@
         ],       
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',
+           'ems/static/src/scss/frontend/**/*',
         ],
         'web.assets_common': [
             #'ems/static/src/css/**/*',      

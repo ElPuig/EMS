@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="sale.portal_my_home_sale" model="ir.ui.view">
+            <field name="active" eval="False"/>
+        </record>
+        
+        <record id="account.portal_my_home_invoice" model="ir.ui.view">
+            <field name="active" eval="False"/>
+        </record>
+
+
+        <template id="portal_my_home_ems_master" name="EMS Portal Layout" inherit_id="portal.portal_my_home" priority="99">
+            
+            <xpath expr="//div[hasclass('o_portal_docs')]/*[1]" position="before">
+                
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'"/>
+                    <t t-set="title">Pre-matrículas</t>
+                    <t t-set="url" t-value="'/my/quotes'"/>
+                    <t t-set="text">Revise, acepte o rechace sus pre-matrículas</t>
+                    <t t-set="placeholder_count" t-value="'quotation_count'"/>
+                    <t t-set="config_card" t-value="True"/> 
+                </t>
+
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'"/> 
+                    <t t-set="title">Matrículas Formalizadas</t>
+                    <t t-set="url" t-value="'/my/orders'"/>
+                    <t t-set="text">Siga, vea o pague sus matrículas</t>
+                    <t t-set="placeholder_count" t-value="'order_count'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/account/static/src/img/Bill.svg'"/> 
+                    <t t-set="title">Recibos Escolares</t> 
+                    <t t-set="url" t-value="'/my/invoices'"/>
+                    <t t-set="text">Consulte, descargue o pague sus recibos</t> 
+                    <t t-set="placeholder_count" t-value="'invoice_count'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+
+            </xpath>
+        </template>
+
+    </data>
+</odoo>

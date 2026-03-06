@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_under_construction_page" name="Under Construction">
+        <t t-call="portal.frontend_layout">
+            
+            <div class="container my-5 text-center">
+                <div class="row justify-content-center py-5">
+                    <div class="col-md-8 col-lg-6">
+                        
+                        <div class="mb-4">
+                            <i class="fa fa-cogs fa-5x" style="color: #e88a1a;"></i>
+                        </div>
+                        
+                        <h1 class="display-5 fw-bold mb-3 text-dark">
+                            Under Development
+                        </h1>
+                        <p class="lead text-muted mb-5">
+                            We are currently working on this section to bring you the best experience. It will be available very soon!
+                        </p>
+                        
+                        <a href="/my/home" class="btn btn-primary btn-lg px-4">
+                            <i class="fa fa-home me-2"></i> Back to Home
+                        </a>
+                        
+                    </div>
+                </div>
+            </div>
+            
+        </t>
+    </template>
+</odoo>

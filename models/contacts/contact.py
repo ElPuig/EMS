@@ -80,12 +80,18 @@ class ems_contact(models.Model):
     #auth_trip = fields.Boolean(string="Scholar Trips")
     #auth_healt = fields.Boolean(string="Health Data")
     #auth_share = fields.Boolean(string="Share with family", help="If marked, the student (even if adult) allows to share its educational information with its family.")
-    auth_image = fields.Boolean(string="Image Rights", compute="_compute_auth_booleans")
-    auth_trip = fields.Boolean(string="Scholar Trips", compute="_compute_auth_booleans")
-    auth_healt = fields.Boolean(string="Health Data", compute="_compute_auth_booleans")
-    auth_share = fields.Boolean(string="Share with family", compute="_compute_auth_booleans", help="If marked, the student (even if adult) allows to share its educational information with its family.")
+    #auth_image = fields.Boolean(string="Image Rights", compute="_compute_auth_booleans")
+    #auth_trip = fields.Boolean(string="Scholar Trips", compute="_compute_auth_booleans")
+    #auth_healt = fields.Boolean(string="Health Data", compute="_compute_auth_booleans")
+    #auth_share = fields.Boolean(string="Share with family", compute="_compute_auth_booleans", help="If marked, the student (even if adult) allows to share its educational information with its family.")
+    auth_image = fields.Boolean(string="Image Rights", compute="_compute_auth_booleans", store=True)
+    auth_trip  = fields.Boolean(string="Scholar Trips", compute="_compute_auth_booleans", store=True)
+    auth_healt = fields.Boolean(string="Health Data", compute="_compute_auth_booleans", store=True)
+    auth_share = fields.Boolean(string="Share with family", compute="_compute_auth_booleans", store=True, help="If marked, the student (even if adult) allows to share its educational information with its family.")
+    
     car_plate = fields.Char(string="Car Plate")
     is_adult = fields.Boolean(string="Adult", compute="_compute_is_adult", store=False)
+    
 
     # Fields to store student Benefits:
     benefit_ids = fields.One2many(string='Benefits & Exemptions', comodel_name='ems.student.benefit', inverse_name='student_id')
@@ -104,26 +110,24 @@ class ems_contact(models.Model):
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
 
-    @api.depends('ems_authorization_ids')
+    @api.depends(
+    'sale_order_ids.ems_authorization_ids.status',
+    'sale_order_ids.ems_authorization_ids.template_id.auth_type',
+    )
     def _compute_auth_booleans(self):
         for student in self:
-            # 1. Por defecto, todo a False
             image, trip, health, share = False, False, False, False
-            
-            # 2. Revisamos las autorizaciones del alumno
-            for auth in student.ems_authorization_ids:
-                if auth.status == 'yes': # ¡Aquí usamos la clave interna!
-                    # Si está aceptada, marcamos el booleano correspondiente
-                    if auth.template_id.auth_type == 'image':
-                        image = True
-                    elif auth.template_id.auth_type == 'trip':
-                        trip = True
-                    elif auth.template_id.auth_type == 'health':
-                        health = True
-                    elif auth.template_id.auth_type == 'share':
-                        share = True
-            
-            # 3. Asignamos los valores finales al alumno
+            for order in student.sale_order_ids:
+                for auth in order.ems_authorization_ids:
+                    if auth.status == 'yes':
+                        if auth.template_id.auth_type == 'image':
+                            image = True
+                        elif auth.template_id.auth_type == 'trip':
+                            trip = True
+                        elif auth.template_id.auth_type == 'health':
+                            health = True
+                        elif auth.template_id.auth_type == 'share':
+                            share = True
             student.auth_image = image
             student.auth_trip = trip
             student.auth_healt = health
@@ -155,7 +159,7 @@ class ems_contact(models.Model):
     @api.depends('birth_date')
     def _compute_is_adult(self):	
         for rec in self:	
-            rec.is_adult = (relativedelta(datetime.date.today(), rec.birth_date).years >= 18)
+            rec.is_adult = bool(rec.birth_date) and (relativedelta(datetime.date.today(), rec.birth_date).years >= 18)
 
     @api.onchange('level_id')
     def _onchange_level_id(self):	

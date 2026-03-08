@@ -35,3 +35,26 @@
     border-color: #b3b3b3 !important;
     color: #8A1B31 !important;
 }
+
+/* Forzamos que el contenido sea opaco y el scroll visible */
+.modal-content {
+    background: #ffffff !important;
+    opacity: 1 !important;
+}
+
+/* Aseguramos que el cuerpo tenga scroll si el texto es largo */
+.modal-dialog-scrollable .modal-body {
+    overflow-y: auto !important;
+    max-height: 70vh !important; /* Evita que crezca más que la pantalla */
+}
+
+/* Estilo de la barra de scroll para que NO sea invisible */
+.modal-body::-webkit-scrollbar {
+    width: 12px;
+    display: block !important;
+}
+.modal-body::-webkit-scrollbar-thumb {
+    background-color: #8A1B31 !important; /* Tu color burdeos */
+    border-radius: 10px;
+    border: 3px solid #ffffff;
+}

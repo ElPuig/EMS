@@ -88,3 +88,76 @@ header nav.navbar .ems-custom-navbar .nav-link.active {
     color: #e88a1a !important; /* Texto en naranja corporativo */
     border-bottom: 4px solid #e88a1a !important; /* Franja inferior naranja gruesa */
 }
+
+/* 7. BURBUJAS DE COMUNICACIONES - Colores corporativos */
+
+/* Mensajes del alumno/familia - Burdeos */
+.ems-bubble-student {
+    background-color: #db697e !important;
+    color: #ffffff !important;
+}
+
+.ems-bubble-student small {
+    color: #fce5cd !important;
+}
+
+/* Mensajes del centro - Naranja corporativo suave */
+.ems-bubble-center {
+    background-color: #fce5cd !important;
+    color: #333333 !important;
+}
+
+.ems-bubble-center small {
+    color: #9e1c34 !important;
+}
+
+/* 8. BOTONES CORPORATIVOS PORTAL */
+
+/* Botón outline (Answer, Close) */
+.btn-outline-ems {
+    color: #9e1c34 !important;
+    border-color: #9e1c34 !important;
+    background-color: transparent !important;
+}
+
+.btn-outline-ems:hover,
+.btn-outline-ems:focus {
+    background-color: #9e1c34 !important;
+    color: #ffffff !important;
+}
+
+/* Botón primario (Confirm Enrollment) */
+.btn-ems {
+    background-color: #9e1c34 !important;
+    border-color: #9e1c34 !important;
+    color: #ffffff !important;
+}
+
+.btn-ems:hover,
+.btn-ems:focus {
+    background-color: #7a1528 !important;
+    border-color: #7a1528 !important;
+    color: #ffffff !important;
+}
+
+.btn-ems.disabled,
+.btn-ems:disabled {
+    background-color: #c88a96 !important;
+    border-color: #c88a96 !important;
+    color: #ffffff !important;
+}
+
+/* 9. Colores corporativos para usar en diferentes elementos del portal */
+
+.bg-ems-primary {
+    background-color: #9e1c34 !important;
+    color: #ffffff !important;
+}
+.bg-ems-secondary {
+    background-color: #e88a1a !important;
+    color: #ffffff !important;
+}
+
+.text-ems-primary {
+    color: #9e1c34 !important;
+}

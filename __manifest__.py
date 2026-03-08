@@ -48,6 +48,7 @@
         'security/groups.xml',        
         'security/rules/attendance.xml',
         'security/rules/contacts.xml',
+        'security/rules/portal.xml',
         'security/ir.model.access.csv',                        
         
         'views/menu.xml',
@@ -192,8 +193,9 @@
         'views/sales/product_view.xml',
 
         'views/portal/portal_main.xml',
-            'views/portal/portal_matriculas.xml',
             'views/portal/portal_header.xml',
+            'views/portal/portal_matriculas.xml',
+            'views/portal/portal_comunicaciones.xml',
             'views/portal/portal_under_construction.xml',
 
         'views/documentation/menu.xml',       

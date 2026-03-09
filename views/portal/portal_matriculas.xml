@@ -189,7 +189,8 @@
                                                 
                                                 <div class="modal-footer bg-light">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                    <button type="submit" name="decision" value="no" class="btn btn-danger">Reject</button>
+                                                    <button t-if="not auth.template_id.acceptance_only"
+                                                        type="submit" name="decision" value="no" class="btn btn-danger">Reject</button>
                                                     <button type="submit" name="decision" value="yes" class="btn btn-success ms-2">Accept Authorization</button>
                                                 </div>
                                             </form>

@@ -105,6 +105,8 @@
                     <field name="ems_authorization_ids">
                         <list editable="bottom" create="0" delete="0">
                             <field name="template_id" options="{'no_open': True, 'no_create': True}" readonly="1" force_save="1"/>
+
+                            <field name="acceptance_only" string="Accept only" widget="boolean" readonly="1"/>
                             
                             <field name="status" 
                                    decoration-danger="status == 'no'" 

@@ -67,6 +67,13 @@ class EMSPortalController(CustomerPortal):
             )
             return request.redirect('/my/gestion-matriculas')
 
+        if auth.template_id.acceptance_only and post.get('decision') == 'no':
+            _logger.warning(
+                "Rejection attempt on acceptance-only authorization: user %s, auth_id %s",
+                request.env.user.id, auth_id
+            )
+            return request.redirect('/my/gestion-matriculas')
+
         decision = post.get('decision')
         if decision in ('yes', 'no'):
             auth.write({

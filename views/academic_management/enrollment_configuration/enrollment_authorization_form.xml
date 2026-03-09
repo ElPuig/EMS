@@ -31,6 +31,7 @@
                         <group>
                             <group string="Configuration">
                                 <field name="is_required" widget="boolean_toggle"/>
+                                <field name="acceptance_only" widget="boolean_toggle"/>
                                 <field name="template_download_url" widget="url" placeholder="https://ejemplo.com/plantilla.pdf"/>
                                 <field name="auth_type"/>
                             </group>

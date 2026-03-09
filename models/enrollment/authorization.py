@@ -9,6 +9,11 @@ class EmsAuthorizationTemplate(models.Model):
     name = fields.Char(string='Title', required=True, help="E.g., Image and Sound Use Authorization")
     legal_text = fields.Html(string='Legal Text', required=True)
     is_required = fields.Boolean(string='Mandatory to Respond', default=True)
+    acceptance_only = fields.Boolean(
+        string='Acceptance Only',
+        default=False,
+        help="If enabled, this authorization can only be accepted."
+    )
     template_download_url = fields.Char(string='Template Download URL', help='URL to download the physical document template.')
     auth_type = fields.Selection([
         ('image', 'Image Rights'),
@@ -120,6 +125,13 @@ class EmsAuthorization(models.Model):
         ('yes', 'Accepted'),
         ('no', 'Rejected')
     ], string='Status', default='pending', required=True)
+
+    acceptance_only = fields.Boolean(
+        related='template_id.acceptance_only',
+        string='Acceptance Only',
+        readonly=True,
+        store=False,
+    )    
     
     response_date = fields.Datetime(string='Response Date', readonly=True)
     signed_document = fields.Binary(string='Signed Document', attachment=True)
@@ -134,6 +146,13 @@ class EmsAuthorization(models.Model):
         Intercepts the write method to enforce that internal users (admins/staff)
         must attach a document if they manually change the status.
         """
+        if 'status' in vals and vals['status'] == 'no':
+            for auth in self:
+                if auth.template_id.acceptance_only:
+                    raise ValidationError(
+                        "The authorization '%s' can only be accepted, not rejected." % auth.template_id.name
+                    )
+                
         # Check if the 'status' is being changed to something other than 'pending'
         if 'status' in vals and vals['status'] != 'pending':
             for auth in self:
@@ -143,5 +162,8 @@ class EmsAuthorization(models.Model):
                 # Check if the user is an internal user (staff/admin) and the document is missing
                 if not current_doc and self.env.user.has_group('base.group_user'):
                     raise ValidationError("You must attach a signed PDF document to manually change the authorization status.")
+
+        if 'status' in vals and vals['status'] != 'pending':
+            vals['response_date'] = fields.Datetime.now()
                     
         return super(EmsAuthorization, self).write(vals)

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields
+from odoo.tools import config
+from odoo import models, fields, api
+from cryptography.fernet import Fernet
 
 class ems_company(models.Model):
     _inherit = 'res.company'
@@ -13,6 +15,38 @@ class ems_company(models.Model):
 
     limesurvey_api = fields.Char()
     limesurvey_usr = fields.Char()
-    limesurvey_pwd = fields.Char()
+    limesurvey_pwd = fields.Char(compute='_compute_limesurvey_pwd', inverse='_inverse_limesurvey_pwd', store=False)
+    limesurvey_pwd_encrypted = fields.Char(copy=False)
 
     current_course_id = fields.Many2one(comodel_name="ems.course")
+
+    @api.model
+    def _get_fernet_key(self):
+        key = config.get('secret') 
+        if not key:
+            raise ValueError("Unable to locate a 'secret' value within odoo.conf")
+        return key
+
+    @api.depends('limesurvey_pwd_encrypted')
+    def _compute_limesurvey_pwd(self):        
+        key = self._get_fernet_key()
+        f = Fernet(key)
+        
+        for record in self:
+            if record.limesurvey_pwd_encrypted:
+                try:
+                    record.limesurvey_pwd = f.decrypt(record.limesurvey_pwd_encrypted.encode()).decode()
+                except Exception:
+                    record.limesurvey_pwd = False
+            else:
+                record.limesurvey_pwd = False
+
+    def _inverse_limesurvey_pwd(self):
+        key = self._get_fernet_key()
+        f = Fernet(key)
+        
+        for record in self:
+            if record.limesurvey_pwd:
+                record.limesurvey_pwd_encrypted = f.encrypt(record.limesurvey_pwd.encode()).decode()
+            else:
+                record.limesurvey_pwd_encrypted = False

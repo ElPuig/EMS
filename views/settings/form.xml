@@ -49,7 +49,7 @@
                             </setting>
 
                             <setting string="LimeSurvey's password" help="User's password to log in the LimeSurvey server." id="limesurvey_pwd">
-                                <field name="limesurvey_pwd" />                              
+                                <field name="limesurvey_pwd" password="True" />                              
                             </setting>
                         </block>
                     </app>

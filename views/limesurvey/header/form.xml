@@ -214,7 +214,7 @@
                         </group>                        
                         <notebook>
                              <page string="Header's content (TSV)">
-                                <field string="" name="tsv_raw_text" widget="ace" options="{'mode': 'text'}" style="min-height: 300px;"/>
+                                <field string="" name="tsv_raw_text" widget="code" style="min-height: 300px;"/>
                             </page>
 
                             <page string="Blocks">

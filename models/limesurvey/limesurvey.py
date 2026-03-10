@@ -455,11 +455,11 @@ class ems_limesurvey_header(models.Model):
 					elif block.special_subject_enrolled and recipient.student_id:
 						# NOTE: Repeat the block for every enrolled subject.
 						for enroll in recipient.student_id.enrollment_ids:
-							name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.acronym}"
+							name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.display_name}"
 							if not only_key:
 								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
 								teachers_names = "UNKNOWN" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
-								tmp = replace_block_content(block.tsv_raw_text, block.name, recipient.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, recipient.student_id.study_id.acronym, enroll.student_id.group_id.acronym, teachers_names)
+								tmp = replace_block_content(block.tsv_raw_text, block.name, recipient.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, recipient.student_id.study_id.acronym, enroll.student_id.main_group_id.acronym, teachers_names)
 								tmp = tmp.replace("{'X'}", enroll.subject_id.code)								
 								content += tmp
 			if append:
@@ -558,12 +558,13 @@ class ems_limesurvey_header(models.Model):
 					enrollments.append([0,0, {
 						"student_id": student.id,
 						"group_id": enroll.group_id.id,
-						"subject_id": enroll.subject_id.id
+						"subject_id": enroll.subject_id.id,
 					}])
+					
 				reci.append([0,0, {
 					"name": student.name,
 					"email": student.student_email,
-					"level_id": student.level_id,
+					"level_id": student.level_id.id,
 					"student_id": student.id,
 					"wpi_enrolled": student.wpi_enrolled,
 					"limesurvey_enrollment_ids": enrollments					
@@ -724,6 +725,7 @@ class ems_limesurvey_recipient(models.Model):
 		if self.student_id:
 			self.name = self.student_id.name
 			self.email = self.student_id.student_email
+			self.level_id = self.student_id.level_id
 
 			enrollments = [[5]]
 			for enroll in self.student_id.enrollment_ids:

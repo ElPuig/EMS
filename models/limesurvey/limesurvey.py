@@ -6,6 +6,13 @@ from datetime import datetime
 from odoo import models, fields, api, registry, _
 from odoo.exceptions import UserError
 
+# TO CLEAN THE BBDD DURING TESTING
+# delete from ems_limesurvey_recipient;
+# update ems_limesurvey_header elh set state='draft' where elh.id=1;
+# update ems_limesurvey_header elh set is_running=false where elh.id=1;
+# DELETE FROM mail_message WHERE model = 'ems.limesurvey_header';
+
+
 survey_target_selection = [("students", "Students"), ("teachers", "Teachers"), ("asp", "ASP")]
 
 # NOTE: This class contains the method to call the LimeSurvey's API. Is used by "header" and "recipients" models. 
@@ -75,7 +82,7 @@ class limesurvey_api():
 	
 	def get_group(self, name):
 		result = self._run_api_request("list_survey_groups", [None])		
-		group_found = False if result is None else next((g for g in result if g['name'] == name), None)
+		group_found = False if result is None else next((g for g in result if g['name'].lower() == name), None)
 		return None if not group_found else group_found	
 
 	def activate_survey(self, survey_id):
@@ -245,34 +252,34 @@ class ems_limesurvey_header(models.Model):
 	def action_upload(self):
 		self.ensure_one()
 		if not self._already_running():
+			# This method runs at the end, in order to store the correct state and send the notifications to the user
+			title = _("LimeSurvey: upload surveys")
+			def end(self, success, exception=None):
+				details = _("check the recipients entry for more details") if exception is None else exception	
+				message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {details}")
+				if not success: self._chatter(message)
+				self._notify(title, message, "success" if success else "warning")
+				self.is_running = False
+				self.state = 'uploaded'	if success else 'computed'
+
 			try:				
 				self.is_running = True
 				self.state = 'uploading'
 
 				# EMS group verification
 				ls_api = limesurvey_api(self.env)
-				ems_grp = ls_api.get_group("EMS")
+				ems_grp = ls_api.get_group("ems")
 				if not ems_grp:
 					#NOTE: The LimeSurvey's API does not allow to create groups.
-					raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group called 'EMS' and try again; the EMS will use this group in order to generate all the surveys."))		
+					raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group using the code 'ems' and try again; the EMS will use this group in order to generate all the surveys."))		
 				
 				# Settings up the distinct types of surveys (only computed once, changes remain between retries)
 				if(self.target == "students"): surveys = self._compute_students_surveys()
 				elif(self.target == "teachers"): surveys = self._compute_teachers_surveys()
 				elif(self.target == "asp"): surveys = self._compute_asp_surveys()
 					
-				# Background warning
-				title = _("LimeSurvey: upload surveys")
-				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
-
-				# This method runs at the end, in order to store the correct state and send the notifications to the user
-				def end(self, success, exception=None):
-					details = _("check the recipients entry for more details") if exception is None else exception	
-					message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {details}")
-					if not success: self._chatter(message)
-					self._notify(title, message, "success" if success else "warning")
-					self.is_running = False
-					self.state = 'uploaded'	if success else 'computed'
+				# Background warning				
+				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
 				
 				# The main code will run on another thread to prevent Odoo timeouts
 				def run(self):					
@@ -299,23 +306,23 @@ class ems_limesurvey_header(models.Model):
 			
 	def action_remove(self):
 		self.ensure_one()
-		if not self._already_running():
+		if not self._already_running():			
+			# This method runs at the end, in order to store the correct state and send the notifications to the user
+			title = _("LimeSurvey: remove surveys")
+			def end(self, success, exception=None):
+				details = _("check the recipients entry for more details") if exception is None else exception
+				message = _("Remove process successfully completed!") if success else (f"{_('Remove process failed.')} {details}")
+				if not success: self._chatter(message)
+				self._notify(title, message, "success" if success else "warning")
+				self.is_running = False
+				self.state = 'computed'	if success else 'uploaded'
+				
 			try:				
 				self.is_running = True
 				self.state = 'uploading'
 				
-				# Background warning
-				title = _("LimeSurvey: remove surveys")
-				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
-
-				# This method runs at the end, in order to store the correct state and send the notifications to the user
-				def end(self, success, exception=None):
-					details = _("check the recipients entry for more details") if exception is None else exception
-					message = _("Remove process successfully completed!") if success else (f"{_('Remove process failed.')} {details}")
-					if not success: self._chatter(message)
-					self._notify(title, message, "success" if success else "warning")
-					self.is_running = False
-					self.state = 'computed'	if success else 'uploaded'
+				# Background warning				
+				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
 				
 				# The main code will run on another thread to prevent Odoo timeouts
 				def run(self):					
@@ -345,21 +352,20 @@ class ems_limesurvey_header(models.Model):
 	def action_open(self):
 		self.ensure_one()
 		if not self._already_running():
+			title = _("LimeSurvey: open surveys")
+			def end(self, success, errors=[]):		
+				details = "\n".join(str(e) for e in errors)
+				message = _("Open process successfully completed!") if success else f"{_('Open process failed.')} {details}"	
+				self._notify(title, message, "success" if success else "warning")	
+				self._chatter(message)					
+				self.is_running = False
+				self.state = 'open' if success else 'uploaded'
+				
 			try:
 				self.is_running = True
-				self.state = 'opening'
-				
-				title = _("LimeSurvey: open surveys")
+				self.state = 'opening'								
 				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
-				
-				def end(self, success, errors=[]):		
-					details = "\n".join(str(e) for e in errors)
-					message = _("Open process successfully completed!") if success else f"{_('Open process failed.')} {details}"	
-					self._notify(title, message, "success" if success else "warning")	
-					self._chatter(message)					
-					self.is_running = False
-					self.state = 'open' if success else 'uploaded'
-				
+											
 				def run(self):					
 					try:	
 						errors = []
@@ -724,11 +730,6 @@ class ems_limesurvey_header(models.Model):
 
 	# 	# 		elif rec.state == 'downloaded':
 	# 	# 			rec.state = 'draft'			
-
-	
-
-	
-	
 	
 class ems_limesurvey_block(models.Model):
 	_name = "ems.limesurvey_block"

@@ -4,6 +4,12 @@ echo "Setting up the EMS for a developement environment:"
 echo "Stopping the Odoo service..."
 sudo service odoo stop
 
+read -p "Do you want to enable the debugger on Odoo startup? [Y/n]: " answer
+if [[ -z "$answer" || "$answer" =~ ^[Yy]$ ]]; then
+    sudo sed -i 's@ExecStart=/usr/bin/odoo --config /etc/odoo/odoo.conf --logfile /var/log/odoo/odoo-server.log@ExecStart=/usr/bin/python3 -m debugpy --listen 0.0.0.0:5678 /usr/bin/odoo --config /etc/odoo/odoo.conf --logfile /var/log/odoo/odoo-server.log@' /lib/systemd/system/odoo.service
+    sudo systemctl daemon-reload
+fi
+
 read -p "Do you want to cancel all pending emails and jobs? [Y/n]: " answer
 if [[ -z "$answer" || "$answer" =~ ^[Yy]$ ]]; then
     sudo -u odoo bash -c "psql -d ems -c \"UPDATE queue_job SET state='cancelled' WHERE state IN ('started', 'enqueued', 'pending');\""

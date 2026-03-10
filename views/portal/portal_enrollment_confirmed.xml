@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_enrollment_confirmed" name="Enrollment Confirmed">
+        <t t-call="portal.portal_layout">
+            <div id="enrollment_content" class="container mt-4">
+                <div class="row">
+                    <div class="col-12">
+
+                        <t t-if="not enrollment">
+                            <div class="alert alert-info">No enrollment found.</div>
+                        </t>
+
+                        <t t-if="enrollment">
+                            <!-- Cabecera -->
+                            <div class="mb-4">
+                                <h3 class="mb-1">
+                                    Enrollment <strong><span t-field="enrollment.name"/></strong>
+                                </h3>
+                                <div class="d-flex flex-wrap gap-2 mt-2">
+                                    <span class="badge rounded-pill bg-ems-primary fs-6">
+                                        <i class="fa fa-graduation-cap me-1"/>
+                                        <span t-field="enrollment.ems_level_id.name"/>
+                                    </span>
+                                    <span class="badge rounded-pill bg-secondary fs-6">
+                                        <i class="fa fa-book me-1"/>
+                                        <span t-field="enrollment.ems_study_id.name"/>
+                                    </span>
+                                    <span class="badge rounded-pill bg-info text-dark fs-6">
+                                        <i class="fa fa-clock-o me-1"/>
+                                        <span t-field="enrollment.ems_shift"/>
+                                    </span>
+                                    <span class="badge rounded-pill bg-light text-dark border fs-6">
+                                        <i class="fa fa-calendar me-1"/>
+                                        <span t-field="enrollment.ems_course_id.name"/>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Bloque 1: Matrícula tramitada -->
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header bg-light d-flex align-items-center justify-content-between">
+                                    <h4 class="mb-0">1. Enrollment details</h4>
+                                    <span class="badge rounded-pill fs-6" style="background-color: #8fbc8f; color: #2d5a2d;">
+                                        <i class="fa fa-check-circle me-1"/>
+                                        Enrollment confirmed
+                                    </span>
+                                </div>
+                                <div class="card-body p-4">
+                                    <table class="table table-sm table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Item</th>
+                                                <th class="text-end">Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="enrollment.order_line" t-as="line">
+                                                <td><span t-field="line.name"/></td>
+                                                <td class="text-end">
+                                                    <t t-if="line.price_unit > 0">
+                                                        <t t-if="line.discount > 0">
+                                                            <span class="text-decoration-line-through text-muted me-1">
+                                                                <t t-esc="'%.2f €' % line.price_unit"/>
+                                                            </span>
+                                                            <span class="badge bg-success me-1">
+                                                                <t t-esc="'-%d' % line.discount + '%'"/>
+                                                            </span>
+                                                        </t>
+                                                        <span><t t-esc="'%.2f €' % line.price_subtotal"/></span>
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="row justify-content-end mt-2">
+                                        <div class="col-12 col-md-4">
+                                            <table class="table table-sm mb-0">
+                                                <tr class="fw-bold">
+                                                    <td>Total</td>
+                                                    <td class="text-end">
+                                                        <t t-esc="'%.2f €' % enrollment.amount_total"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bloque 2: Pago -->
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header bg-light">
+                                    <h4 class="mb-0">2. Payment</h4>
+                                </div>
+                                <div class="card-body p-4">
+                                    <t t-if="enrollment.payment_term_id">
+                                        <div class="d-flex align-items-center gap-2 mb-3">
+                                            <i class="fa fa-check-circle text-success fa-lg"/>
+                                            <span class="fw-bold">Selected payment plan:</span>
+                                            <span class="badge rounded-pill bg-ems-secondary fs-6">
+                                                <t t-esc="enrollment.payment_term_id.name"/>
+                                            </span>
+                                        </div>
+                                    </t>
+                                    <div class="text-center py-4">
+                                        <i class="fa fa-credit-card fa-3x text-muted mb-3"/>
+                                        <p class="text-muted">Online payment will be available here soon.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bloque 3: Communications -->
+                            <t t-if="enrollment_messages">
+                                <div class="card shadow-sm mt-4">
+                                    <div class="card-header bg-light">
+                                        <h4 class="mb-0">3. Communications</h4>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <t t-foreach="enrollment_messages" t-as="msg">
+                                            <div t-attf-class="d-flex mb-3 #{'justify-content-end' if msg.author_id == enrollment.partner_id else ''}">
+                                                <div t-attf-class="card border-0 shadow-sm px-3 py-2 #{'ems-bubble-student' if msg.author_id == enrollment.partner_id else 'ems-bubble-center'}"
+                                                     style="max-width: 75%;">
+                                                    <div class="d-flex justify-content-between gap-3 mb-1">
+                                                        <small class="fw-bold"><t t-esc="msg.author_id.name"/></small>
+                                                        <small class="opacity-75">
+                                                            <t t-esc="msg.date" t-options='{"widget": "datetime"}'/>
+                                                        </small>
+                                                    </div>
+                                                    <div t-out="msg.body"/>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

@@ -264,14 +264,40 @@
                                                 placeholder="Please describe your comments about the marked items..."/>
                                         </div>
 
+                                        <!-- Selector de forma de pago -->
+                                        <div class="mt-4 pt-3 border-top">
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-credit-card me-2 text-ems-primary"/>
+                                                Payment plan
+                                            </label>
+                                            <div class="d-flex flex-column gap-2 mt-2">
+                                                <t t-foreach="payment_terms" t-as="term">
+                                                    <div class="form-check">
+                                                        <input type="radio" 
+                                                               class="form-check-input" 
+                                                               name="payment_term_id" 
+                                                               t-att-id="'term_' + str(term.id)"
+                                                               t-att-value="term.id"
+                                                               t-att-checked="'checked' if enrollment.payment_term_id == term else None"
+                                                               required="required"/>
+                                                        <label class="form-check-label" t-att-for="'term_' + str(term.id)">
+                                                            <t t-esc="term.name"/>
+                                                        </label>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                                 <div class="mt-4 text-center">
                                     <t t-set="pending_required" t-value="enrollment.ems_authorization_ids.filtered(lambda a: a.template_id.is_required and a.status == 'pending')"/>
+                                    <t t-set="missing_payment_term" t-value="not enrollment.payment_term_id"/>
+                                    <t t-set="blocked" t-value="pending_required or missing_payment_term"/>
                                     <button type="submit" id="ems-confirm-btn" 
-                                            t-attf-class="btn btn-ems btn-lg px-5 #{'disabled' if pending_required else ''}"
-                                            t-att-disabled="'disabled' if pending_required else None"
-                                            t-att-title="'Please complete all required authorizations first' if pending_required else 'Confirm your enrollment'">
+                                            t-attf-class="btn btn-ems btn-lg px-5 #{'disabled' if blocked else ''}"
+                                            t-att-disabled="'disabled' if blocked else None"
+                                            t-att-title="'Please complete all required authorizations first' if pending_required else 'Please select a payment plan' if missing_payment_term else 'Confirm your enrollment'">
                                         Confirm Enrollment
                                     </button>
                                 </div>
@@ -308,16 +334,35 @@
                                 </div>
                             </t>                            
 
-                            <script>                  
-                                // Cambio de texto del botón según si hay checks marcados
+                            <script>
                                 var confirmBtn = document.getElementById('ems-confirm-btn');
+                                var hasPaymentTerm = <t t-if="enrollment.payment_term_id">true</t><t t-else="">false</t>;
+
+                                function updateConfirmBtn() {
+                                    var anyChecked = document.querySelectorAll('.ems-comment-check:checked').length > 0;
+                                    var paymentSelected = hasPaymentTerm || document.querySelector('input[name="payment_term_id"]:checked');
+
+                                    if (paymentSelected) {
+                                        confirmBtn.classList.remove('disabled');
+                                        confirmBtn.removeAttribute('disabled');
+                                    } else {
+                                        confirmBtn.classList.add('disabled');
+                                        confirmBtn.setAttribute('disabled', 'disabled');
+                                    }
+
+                                    document.getElementById('ems-comments-block').style.display = anyChecked ? 'block' : 'none';
+                                    confirmBtn.textContent = anyChecked ? 'Comments for the secretary\'s office' : 'Confirm Enrollment';
+                                    confirmBtn.title = anyChecked ? 'Send your comments to the secretary\'s office'
+                                                    : !paymentSelected ? 'Please select a payment plan'
+                                                    : 'Confirm your enrollment';
+                                }
+
+                                document.querySelectorAll('input[name="payment_term_id"]').forEach(function(radio) {
+                                    radio.addEventListener('change', updateConfirmBtn);
+                                });
+
                                 document.querySelectorAll('.ems-comment-check').forEach(function(checkbox) {
-                                    checkbox.addEventListener('change', function() {
-                                        var anyChecked = document.querySelectorAll('.ems-comment-check:checked').length > 0;
-                                        document.getElementById('ems-comments-block').style.display = anyChecked ? 'block' : 'none';
-                                        confirmBtn.textContent = anyChecked ? 'Comments for the secretary\'s office' : 'Confirm Enrollment';
-                                        confirmBtn.title = anyChecked ? 'Send your comments to the secretary\'s office' : 'Confirm your enrollment';
-                                    });
+                                    checkbox.addEventListener('change', updateConfirmBtn);
                                 });
 
                                 // Abrir modal de confirmación si hay mensaje enviado
@@ -326,7 +371,7 @@
                                     var modal = new bootstrap.Modal(sentModal);
                                     modal.show();
                                 }
-                            </script>                           
+                            </script>                                                       
                         </t>
                     </div>
                 </div>

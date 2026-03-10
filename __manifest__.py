@@ -191,11 +191,13 @@
             'views/academic_management/enrollment_configuration/menu.xml',
       
         'views/sales/product_view.xml',
+        'views/accounting/payment_term_views.xml',
 
         'views/portal/portal_main.xml',
             'views/portal/portal_header.xml',
-            'views/portal/portal_matriculas.xml',
-            'views/portal/portal_comunicaciones.xml',
+            'views/portal/portal_enrollment_draft.xml',
+            'views/portal/portal_enrollment_confirmed.xml',
+            'views/portal/portal_comms.xml',
             'views/portal/portal_under_construction.xml',
 
         'views/documentation/menu.xml',       

@@ -31,7 +31,7 @@ class EMSPortalController(CustomerPortal):
         partner = request.env.user.partner_id
         enrollment = request.env['sale.order'].search([
             ('partner_id', '=', partner.id),
-            ('state', 'in', ['draft', 'sent']),
+            ('state', 'in', ['draft', 'sent', 'sale']),
             ('ems_course_id', '=', current_course.id if current_course else False),
         ], limit=1)     
 
@@ -46,15 +46,22 @@ class EMSPortalController(CustomerPortal):
 
         # 3. Actualizamos los valores para la vista
         message_sent = request.session.pop('ems_message_sent', None)
+        payment_terms = request.env['account.payment.term'].sudo().search([
+            ('ems_portal_visible', '=', True)
+        ])
         values.update({
             'enrollment': enrollment,
             'page_name': 'gestion-matriculas', # Mantén este nombre para que el menú naranja funcione
             'message_sent': message_sent,
             'enrollment_messages': enrollment_messages,
+            'payment_terms': payment_terms,
         })
         
-        # 4. Renderizamos la NUEVA plantilla (Asegúrate que el ID en el XML sea este)
-        return request.render("ems.portal_enrollment_process", values)
+        # 4. Renderizamos la plantilla en funcion del estado de la matricula
+        if enrollment and enrollment.state == 'sale':
+            return request.render("ems.portal_enrollment_confirmed", values)
+        else:
+            return request.render("ems.portal_enrollment_process", values)        
 
     @http.route(['/my/gestion-matriculas/authorize/<int:auth_id>'], type='http', auth="user", methods=['POST'], website=True)
     def portal_enrollment_authorize(self, auth_id, **post):
@@ -116,10 +123,21 @@ class EMSPortalController(CustomerPortal):
         if pending_required:
             _logger.warning("Enrollment confirm: user %s has pending required authorizations", request.env.user.id)
             return request.redirect('/my/gestion-matriculas?error=pending_authorizations')
+        if not enrollment.payment_term_id and not post.get('payment_term_id'):
+            _logger.warning("Enrollment confirm: user %s has not selected a payment term", request.env.user.id)
+            return request.redirect('/my/gestion-matriculas?error=missing_payment_term')        
+
+        payment_term_id = post.get('payment_term_id')
+        if payment_term_id:
+            try:
+                term = request.env['account.payment.term'].sudo().browse(int(payment_term_id))
+                if term.exists():
+                    enrollment.sudo().write({'payment_term_id': term.id})
+            except (ValueError, TypeError):
+                pass
 
         # 3. Recogemos comentarios del POST
         comments = post.get('comments', '').strip()
-
         if comments:
             # 4a. Hay comentarios: publicar en el chatter y mantener estado
             # Recuperamos los nombres de las líneas marcadas

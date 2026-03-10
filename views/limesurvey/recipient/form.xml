@@ -55,7 +55,7 @@
                                 <field name="name"/>
                             </group>
                             <group colspan="2">
-                                <field name="email" readonly="False"/>
+                                <field name="email"/>
                             </group>                          
                         </group>
 
@@ -81,7 +81,11 @@
                             <page string="Error details" invisible="not error">
                                 <field string="" name="error" widget="text"/>
                             </page>  
-                            <page string="Enrollments" invisible="not student_id">                           
+
+                            <page string="Enrollments" invisible="not student_id">
+                                <group>
+                                    <field name="wpi_enrolled" />
+                                </group>
                                 <field name="limesurvey_enrollment_ids">
                                     <list default_order="subject_id.display_name" >
                                         <field name="subject_id"/>
@@ -95,6 +99,7 @@
                                     </list>
                                 </field>
                             </page>
+
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>
                             </page>

@@ -347,9 +347,6 @@ class ems_limesurvey_header(models.Model):
 			finally:
 				return True
 
-
-
-
 	# TODO: check those ones
 	def action_open(self):
 		self.ensure_one()
@@ -419,6 +416,7 @@ class ems_limesurvey_header(models.Model):
 		return {
 			"recipient": recipient,
 			"student_id": recipient.student_id.id,
+			"level_id": recipient.level_id.id,
 			"name": recipient.student_id.name,
 			"email": recipient.student_id.student_email,															
 			"tid": None,
@@ -426,8 +424,8 @@ class ems_limesurvey_header(models.Model):
 			"error": None
 		}
 
-	def compute_survey_data(self, student, only_key):
-		name = f"{self.name}_{student.level_id.acronym}"
+	def compute_survey_data(self, recipient, only_key):
+		name = f"{self.name}_{recipient.level_id.acronym}"
 		if not only_key:
 			content = self.tsv_raw_text
 			#content = content.replace("{'SID'}", "str(key)") # it's better to set it automatically and relate it with our hash internally
@@ -446,29 +444,31 @@ class ems_limesurvey_header(models.Model):
 			content = content.replace("{'TRAINER'}", trainer)
 			return content
 
-
+		# TODO: check behaviour with teachers and ASP
 		for block in self.limesurvey_block_ids:
 			append = not block.special
 			if block.special:
-				if block.special_course_filter == 0 or (block.special_course_filter > 0 and block.special_course_filter == student.main_group_id.course):
+				if block.special_course_filter == 0 or (block.special_course_filter > 0 and recipient.student_id and block.special_course_filter == recipient.student_id.main_group_id.course):
 					# NOTE: special_course can be combined with WPI or Subject.
 					if not block.special_subject_enrolled and not block.special_wpi_enrolled: append = True	# Just course filter							
-					elif block.special_wpi_enrolled and student.wpi_enrolled: append = True
-					elif block.special_subject_enrolled:
+					elif block.special_wpi_enrolled and recipient.student_id and recipient.student_id.wpi_enrolled: append = True
+					elif block.special_subject_enrolled and recipient.student_id:
 						# NOTE: Repeat the block for every enrolled subject.
-						for enroll in student.enrollment_ids:
+						for enroll in recipient.student_id.enrollment_ids:
 							name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.acronym}"
 							if not only_key:
 								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
 								teachers_names = "UNKNOWN" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
-								tmp = replace_block_content(block.tsv_raw_text, block.name, student.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, student.study_id.acronym, enroll.group_id.acronym, teachers_names)
+								tmp = replace_block_content(block.tsv_raw_text, block.name, recipient.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, recipient.student_id.study_id.acronym, enroll.student_id.group_id.acronym, teachers_names)
 								tmp = tmp.replace("{'X'}", enroll.subject_id.code)								
 								content += tmp
 			if append:
 				name += f" | {block.name}"	
 				if not only_key:
-					content += replace_block_content(block.tsv_raw_text, block.name, student.level_id.acronym, block.name, block.name, student.study_id.acronym, student.main_group_id.acronym)					
-		
+					study = "NONE" if not recipient.student_id else recipient.student_id.study_id.acronym
+					group = "NONE" if not recipient.student_id else recipient.student_id.main_group_id.acronym
+					content += replace_block_content(block.tsv_raw_text, block.name, recipient.level_id.acronym, block.name, block.name, study, group)					
+
 		return {
 			"internal_id": self.persistent_hash(name), 
 			"raw_tsv": None if only_key else content
@@ -562,8 +562,10 @@ class ems_limesurvey_header(models.Model):
 					}])
 				reci.append([0,0, {
 					"name": student.name,
-					"email": student.student_email,					
+					"email": student.student_email,
+					"level_id": student.level_id,
 					"student_id": student.id,
+					"wpi_enrolled": student.wpi_enrolled,
 					"limesurvey_enrollment_ids": enrollments					
 				}])				
 		
@@ -576,6 +578,7 @@ class ems_limesurvey_header(models.Model):
 		})
 	
 	def _compute_recipients_teachers(self):
+		# TODO: WARNING: do not repeat teachers (for example, if the same teacher is in CFGM and CFGS). Which level should be used? The first one?
 		return False
 
 	def _compute_recipients_asp(self):
@@ -587,13 +590,13 @@ class ems_limesurvey_header(models.Model):
 			# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
 			#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).			
 			data = self.get_tmp_student(rec)
-			key = self.compute_survey_data(rec.student_id, True)["internal_id"]						
+			key = self.compute_survey_data(rec, True)["internal_id"]						
 			if key in surveys: surveys[key]["recipients"].append(data)
 			else: 
 				surveys[key] = {
 					"internal_id": key,
 					"recipients": [data],
-					"raw_tsv": self.compute_survey_data(rec.student_id, False)["raw_tsv"]
+					"raw_tsv": self.compute_survey_data(rec, False)["raw_tsv"]
 				}					
 		return surveys		
 
@@ -679,6 +682,7 @@ class ems_limesurvey_recipient(models.Model):
 	_inherit = ['ems.base', 'ems.multithreading']
 	
 	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header", required=True)
+	level_id = fields.Many2one(string='Level', comodel_name='ems.level')  
 	name = fields.Char(string="Name", required=True)
 	email = fields.Char(string="Email", required=True)
 	external_id = fields.Char(string="Survey's ID (LimeSurvey)")
@@ -698,7 +702,8 @@ class ems_limesurvey_recipient(models.Model):
 
 	# This field is used to compute the enrollments and allow modification by an authorized user (independent of 'real' enrollments, which should be modified only by secretarial staff).
 	limesurvey_enrollment_ids = fields.One2many(string="Enrollments", comodel_name="ems.limesurvey_enrollment", inverse_name="limesurvey_recipient_id")
-	
+	wpi_enrolled = fields.Boolean(string="WPI enrolled")
+
 	def open_error_popup(self):
 		self.ensure_one()
 		return {
@@ -761,10 +766,12 @@ class ems_limesurvey_recipient(models.Model):
 
 	def _upload_student(self, callback):
 		try:
+			header = self.limesurvey_header_id			
 			ls_api = limesurvey_api(self.env)
-			internal_id = self.limesurvey_header_id.compute_survey_data(self.student_id, True)["internal_id"]
+			internal_id = header.compute_survey_data(self, True)["internal_id"]
 			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", internal_id)], limit=1) or False
 
+			success = True
 			if existing:				
 				if internal_id == self.internal_id:				
 					# The recipient is in the correct survey, updating participant data.	
@@ -775,45 +782,30 @@ class ems_limesurvey_recipient(models.Model):
 				else:
 					# The recipient should be moved to an existing survey
 					old_survey_id = self.external_id
-					self.execute_once(ls_api.delete_participants, f"delete_participants_{self.tid}", old_survey_id, [self.tid])					
-					self.execute_once(self.limesurvey_header_id.upload_recipients, f"upload_recipients_{self.tid}", existing["external_id"], [self])
+					self.execute_once(ls_api.delete_participants, f"delete_participants_{self.tid}", old_survey_id, [self.tid])										
 
 					# Remove the old survey if empty
-					count = ls_api.count_participants(old_survey_id)
-					if(count == 0): self.execute_once(ls_api.delete_survey, f"delete_survey_{self.old_survey_id}", old_survey_id)
+					count = ls_api.count_participants(old_survey_id) # TODO: test if this fails if the survey does not exists. 
+					if(count == 0): self.execute_once(ls_api.delete_survey, f"delete_survey_{self.old_survey_id}", old_survey_id)		
 			
-			callback(self, True)
-			# survey = { 
-			# 	# NOTE: this is the basic survey data to work, more data will be added if needed
-			# 	"external_id": existing["external_id"],
-			# 	"internal_id": existing["internal_id"],
-			# }
-			
-			#if not existing:					
-				# Uploading the survey if is a new one
+			if not existing:					
+				# A new survey must be created
+				data = header.get_tmp_student(self)
+				survey = {
+					"internal_id": internal_id,
+					"recipients": [data],
+					"raw_tsv": header.compute_survey_data(self, False)["raw_tsv"]
+				}				
+				
+				gsid = ls_api.get_group("EMS")["gsid"]
+				success = self.execute_once(header.upload_survey, f"upload_survey_{internal_id}", gsid, survey)				
 
-					# 	gsid = ls_api.get_group("EMS")["gsid"]
-					# 	survey = self.limesurvey_header_id.compute_survey_data(self.student_id, False)
-					# 	success = self.limesurvey_header_id.upload_survey(gsid, survey)
-					# 	if not success: raise Exception(survey["error"])					
-					
-					# # The recipients must be uploaded always (for new or existing one)
-					# old_survey_id = self.external_id
-					# survey["recipients"] = [self.limesurvey_header_id.get_tmp_student(self.student_id)]
-					# success = self.limesurvey_header_id.upload_survey_recipients(survey)
-					# if not success: raise Exception(survey["recipients"][0]["error"])
-					# self.limesurvey_header_id.store_recipients_data(survey["recipients"], survey["internal_id"], survey["external_id"])
-										
-					# # Remove from the old survey
-					# ls_api.delete_participants(self.external_id, [self.tid])
-					# count = ls_api.count_participants(old_survey_id)
-					# if(count == 0): ls_api.delete_survey(old_survey_id)
+			if success and not existing or (existing and internal_id != self.internal_id):
+				# The participant must be uploaded to the survey
+				success = self.execute_once(header.upload_recipients, f"upload_recipients_{internal_id}", survey["external_id"], [self])							
+				header.store_recipients_data(survey)
 
-					# # TODO: if something fails, resotre the LimeSurvey status	
-					# self._completed(title)
-
-					# # NOTE: removing the entry must be the last step (otherwise any access to 'self' fails).
-					# self.unlink()
+			callback(self, success)												
 		except Exception as e:
 			callback(self, False, e)
 		finally:
@@ -840,7 +832,7 @@ class ems_limesurvey_recipient(models.Model):
 
 		if self.student_id:
 			title = _("LimeSurvey: refresh recipient")
-			internal_id = self.limesurvey_header_id.compute_survey_data(self.student_id, True)["internal_id"]
+			internal_id = self.limesurvey_header_id.compute_survey_data(self, True)["internal_id"]
 			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", internal_id)], limit=1) or False
 			if existing:
 				survey = { 
@@ -867,7 +859,7 @@ class ems_limesurvey_recipient(models.Model):
 					if not existing:					
 						# Uploading the survey if is a new one
 						gsid = ls_api.get_group("EMS")["gsid"]
-						survey = self.limesurvey_header_id.compute_survey_data(self.student_id, False)
+						survey = self.limesurvey_header_id.compute_survey_data(self, False)
 						success = self.limesurvey_header_id.upload_survey(gsid, survey)
 						if not success: raise Exception(survey["error"])					
 					
@@ -910,7 +902,6 @@ class ems_limesurvey_recipient(models.Model):
 		self.limesurvey_header_id.notify(title, _("Refresh process successfully completed!"), "success")
 		self.limesurvey_header_id.chatter(_(f"Refresh for '{self.email}': ") + _("success"))
 
-	
 class ems_limesurvey_enrollment(models.Model):
 	_name = "ems.limesurvey_enrollment"
 	_description = "LimeSurvey enrollment: contains a copy of the enrollment model for the related student, in order to allow changes on the fly when preparing the surveys (only secretarial staff should be allowed to modify the real enrollments)."
@@ -921,7 +912,7 @@ class ems_limesurvey_enrollment(models.Model):
 	study_id = fields.Many2one(string="Study", related="student_id.study_id")
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
-	inuse_subject_ids = fields.Many2many('ems.subject', compute='_compute_inuse_subject_ids', store=False) 	
+	inuse_subject_ids = fields.Many2many('ems.subject', compute='_compute_inuse_subject_ids', store=False) 		
 
 	@api.depends('student_id')
 	def _compute_inuse_subject_ids(self):

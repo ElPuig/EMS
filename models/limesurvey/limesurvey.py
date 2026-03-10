@@ -289,9 +289,7 @@ class ems_limesurvey_header(models.Model):
 							survey["recipients"] = recips
 
 							ok = self.execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)
-							if ok: ok = self.execute_once(self.upload_recipients, f"upload_recipients_{key}", survey["external_id"], survey["recipients"])							
-							# BBDD recipients act like a log, should be saved always if possible (contains error messages).
-							self.store_recipients_data(survey)
+							if ok: ok = self.execute_once(self.upload_recipients, f"upload_recipients_{key}", survey["internal_id"], survey["external_id"], survey["recipients"])							
 							success = ok and success																
 						end(self, success)
 					except Exception as e:
@@ -469,14 +467,6 @@ class ems_limesurvey_header(models.Model):
 			"internal_id": self.persistent_hash(name), 
 			"raw_tsv": None if only_key else content
 		}
-			
-	def store_recipients_data(self, survey):
-		recipients = survey.get("recipients", [])
-		for rec in recipients:
-			rec.internal_id = survey.get("internal_id", None)
-			rec.external_id = survey.get("external_id", None)
-			rec.status = "success" if not rec.error else "error"
-			# TODO: tid and token is not beeing stored. WHY!!!???
 
 	def upload_survey(self, gsid, survey):		
 		success = True
@@ -490,7 +480,7 @@ class ems_limesurvey_header(models.Model):
 			
 		return success	
 	
-	def upload_recipients(self, external_id, recipients):
+	def upload_recipients(self, internal_id, external_id, recipients):
 		success = True		
 		ls_api = limesurvey_api(self.env)
 		
@@ -510,15 +500,20 @@ class ems_limesurvey_header(models.Model):
 				rec = recipients[index]
 				if "error" in row:
 					success = False
-					rec.error = row["error"]					
+					rec.error = row["error"]
+					rec.status = "error"
 				else:
+					rec.internal_id = internal_id
+					rec.external_id = external_id
 					rec.token = row["token"]
 					rec.tid = row["tid"]
+					rec.status = "success"
 		
 		except Exception as e:				
 			success = False
 			for rec in recipients:
-				rec["error"] = e
+				rec.error = e
+				rec.status = "error"
 
 		return success	
 	
@@ -796,8 +791,7 @@ class ems_limesurvey_recipient(models.Model):
 				
 				# The participant must be uploaded to the survey
 				if success:					
-					success = self.execute_once(header.upload_recipients, f"upload_recipients_{internal_id}", survey["external_id"], [self])							
-					header.store_recipients_data(survey)
+					success = self.execute_once(header.upload_recipients, f"upload_recipients_{internal_id}", survey["internal_id"], survey["external_id"], [self])							
 
 			callback(self, success)												
 		except Exception as e:

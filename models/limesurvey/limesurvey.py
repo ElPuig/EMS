@@ -281,6 +281,13 @@ class ems_limesurvey_header(models.Model):
 						# Upload the surveys and recipients
 						for key in surveys:
 							survey = surveys[key]
+
+							# The recipient has been opened in the main thread so the cursor must be restored to the current thread							
+							recips = []							
+							for r in survey["recipients"]:
+								recips.append(r.with_env(self.env))
+							survey["recipients"] = recips
+
 							ok = self.execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)
 							if ok: ok = self.execute_once(self.upload_recipients, f"upload_recipients_{key}", survey["external_id"], survey["recipients"])							
 							# BBDD recipients act like a log, should be saved always if possible (contains error messages).
@@ -412,18 +419,6 @@ class ems_limesurvey_header(models.Model):
 		return True
 
 	# PUBLIC METHODS (CAN BE CALLED INDIVIDUALLY FOR A CONCRETE RECIPIENT)
-	def get_tmp_student(self, recipient):		
-		return {
-			"recipient": recipient,
-			"student_id": recipient.student_id.id,
-			"level_id": recipient.level_id.id,
-			"name": recipient.student_id.name,
-			"email": recipient.student_id.student_email,															
-			"tid": None,
-			"token": None,
-			"error": None
-		}
-
 	def compute_survey_data(self, recipient, only_key):
 		name = f"{self.name}_{recipient.level_id.acronym}"
 		if not only_key:
@@ -444,6 +439,7 @@ class ems_limesurvey_header(models.Model):
 			content = content.replace("{'TRAINER'}", trainer)
 			return content
 
+		# NOTE: real enrollment data is not used, because modifying the survey content should be allowed by someone without permissions, the recipient's one is used instead.
 		# TODO: check behaviour with teachers and ASP
 		for block in self.limesurvey_block_ids:
 			append = not block.special
@@ -451,10 +447,10 @@ class ems_limesurvey_header(models.Model):
 				if block.special_course_filter == 0 or (block.special_course_filter > 0 and recipient.student_id and block.special_course_filter == recipient.student_id.main_group_id.course):
 					# NOTE: special_course can be combined with WPI or Subject.
 					if not block.special_subject_enrolled and not block.special_wpi_enrolled: append = True	# Just course filter							
-					elif block.special_wpi_enrolled and recipient.student_id and recipient.student_id.wpi_enrolled: append = True
+					elif block.special_wpi_enrolled and recipient.student_id and recipient.wpi_enrolled: append = True
 					elif block.special_subject_enrolled and recipient.student_id:
 						# NOTE: Repeat the block for every enrolled subject.
-						for enroll in recipient.student_id.enrollment_ids:
+						for enroll in recipient.limesurvey_enrollment_ids:
 							name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.display_name}"
 							if not only_key:
 								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
@@ -476,18 +472,10 @@ class ems_limesurvey_header(models.Model):
 			
 	def store_recipients_data(self, survey):
 		recipients = survey.get("recipients", [])
-		for rec in recipients:	
-			# NOTE: BBDD object won't be attached because different threads uses diferent cursors, but can be restored.
-			r = rec.get("recipient", None).with_env(self.env)
-			error = rec.get("error", None)
-			
-			r.tid = rec.get("tid", None)
-			r.token = rec.get("token", None)			
-			r.internal_id = survey.get("internal_id", None)
-			r.external_id = survey.get("external_id", None)
-			
-			r.error = error
-			r.status = "success" if error is None else "error"			
+		for rec in recipients:
+			rec.internal_id = survey.get("internal_id", None)
+			rec.external_id = survey.get("external_id", None)
+			rec.status = "success" if not rec.error else "error"
 
 	def upload_survey(self, gsid, survey):		
 		success = True
@@ -508,21 +496,23 @@ class ems_limesurvey_header(models.Model):
 		try:			
 			# NOTE: must convert the limesurvey_recipient model to the list of API values
 			parts = []
-			for r in recipients:
+			for r in recipients:				
 				parts.append({
-					"firstname": r.get("name", ""),
-					"email": r.get("email", ""),
+					"firstname": r.name,
+					"email": r.email,
 					"lastname": ""
 				})
 			result = ls_api.add_participants(external_id, parts)
 
+			# New data will come in the same order as sent
 			for index, row in enumerate(result):
+				rec = recipients[index]
 				if "error" in row:
-					recipients[index]["error"] = row["error"]
 					success = False
+					rec.error = row["error"]					
 				else:
-					recipients[index]["token"] = row["token"]
-					recipients[index]["tid"] = row["tid"]
+					rec.token = row["token"]
+					rec.tid = row["tid"]
 		
 		except Exception as e:				
 			success = False
@@ -590,13 +580,12 @@ class ems_limesurvey_header(models.Model):
 		for rec in self.limesurvey_recipient_ids:
 			# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
 			#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).			
-			data = self.get_tmp_student(rec)
 			key = self.compute_survey_data(rec, True)["internal_id"]						
-			if key in surveys: surveys[key]["recipients"].append(data)
+			if key in surveys: surveys[key]["recipients"].append(rec)
 			else: 
 				surveys[key] = {
 					"internal_id": key,
-					"recipients": [data],
+					"recipients": [rec],
 					"raw_tsv": self.compute_survey_data(rec, False)["raw_tsv"]
 				}					
 		return surveys		
@@ -792,14 +781,13 @@ class ems_limesurvey_recipient(models.Model):
 			
 			if not existing:					
 				# A new survey must be created
-				data = header.get_tmp_student(self)
 				survey = {
 					"internal_id": internal_id,
-					"recipients": [data],
+					"recipients": [self],
 					"raw_tsv": header.compute_survey_data(self, False)["raw_tsv"]
 				}				
 				
-				gsid = ls_api.get_group("EMS")["gsid"]
+				gsid = ls_api.get_group("ems")["gsid"]
 				success = self.execute_once(header.upload_survey, f"upload_survey_{internal_id}", gsid, survey)				
 
 			if success and not existing or (existing and internal_id != self.internal_id):
@@ -825,68 +813,6 @@ class ems_limesurvey_recipient(models.Model):
 
 
 
-	def refresh(self):
-		# TODO: check refresh when the enrolled changed, empty surveys should be removed.
-		# TODO: improve LS methods, input methods (easier) and respose check (errors, etc.).
-
-		self.ensure_one()
-		ls_api = limesurvey_api(self.env)
-
-		if self.student_id:
-			title = _("LimeSurvey: refresh recipient")
-			internal_id = self.limesurvey_header_id.compute_survey_data(self, True)["internal_id"]
-			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", internal_id)], limit=1) or False
-			if existing:
-				survey = { 
-					# NOTE: this is the basic survey data to work, more data will be added if needed
-					"external_id": existing["external_id"],
-					"internal_id": existing["internal_id"],
-				}
-			
-			try:
-				if internal_id == self.internal_id:				
-					# The recipient is in the correct survey, checking if its name or email changed:
-					if self.name == self.student_id.name and self.email == self.student_id.student_email:
-						self.limesurvey_header_id.notify(title, _("Everything is up to date (nothing to resfresh)."), "info")
-					else:
-						reci = self.limesurvey_header_id.get_tmp_student(self.student_id)
-						reci["tid"] = self.tid
-						
-						survey["recipients"] = [reci]
-						self._update_recipient(survey)
-						self._completed(title)
-				else:
-					success = True								
-					self.limesurvey_header_id.notify(title, _("Refreshing the student's survey..."), "info")		
-					if not existing:					
-						# Uploading the survey if is a new one
-						gsid = ls_api.get_group("EMS")["gsid"]
-						survey = self.limesurvey_header_id.compute_survey_data(self, False)
-						success = self.limesurvey_header_id.upload_survey(gsid, survey)
-						if not success: raise Exception(survey["error"])					
-					
-					# The recipients must be uploaded always (for new or existing one)
-					old_survey_id = self.external_id
-					survey["recipients"] = [self.limesurvey_header_id.get_tmp_student(self.student_id)]
-					success = self.limesurvey_header_id.upload_survey_recipients(survey)
-					if not success: raise Exception(survey["recipients"][0]["error"])
-					self.limesurvey_header_id.store_recipients_data(survey["recipients"], survey["internal_id"], survey["external_id"])
-										
-					# Remove from the old survey
-					ls_api.delete_participants(self.external_id, [self.tid])
-					count = ls_api.count_participants(old_survey_id)
-					if(count == 0): ls_api.delete_survey(old_survey_id)
-
-					# TODO: if something fails, resotre the LimeSurvey status	
-					self._completed(title)
-
-					# NOTE: removing the entry must be the last step (otherwise any access to 'self' fails).
-					self.unlink()
-
-			except Exception as e:
-				message = f"{_('Refresh process failed.')} {e}"
-				self.limesurvey_header_id.notify(title, message, "warning")						
-				self.limesurvey_header_id.chatter(message)
 
 	def _update_recipient(self, survey):			
 		sid = survey["external_id"]

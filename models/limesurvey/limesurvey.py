@@ -55,17 +55,13 @@ class limesurvey_api():
 		elif result["emailstatus"] != "OK": raise Exception(f"{error}: " + result["emailstatus"])
 
 	def list_participants(self, survey_id):			
-		error = _("Unable to count the recipients")
-		result = self._run_api_request("list_participants", [survey_id])
-		if "status" in result:
-			if result["status"] == "No permission":	raise Exception(f"{error}: " + result["status"])				
-			elif result["status"] == "No survey participants found.": return []
-			else: return result["status"]
-		else:
-			raise Exception(f"{error}: UNKWONW ERROR!")
+		return self._run_api_request("list_participants", [survey_id])
 	
-	def count_participants(self, survey_id):			
-		return len(self.list_participants(survey_id))		
+	def count_participants(self, survey_id):
+		try:			
+			return len(self.list_participants(survey_id))		
+		except:
+			return -1
 		
 	def delete_survey(self, survey_id):
 		error = _("Unable to delete the survey")
@@ -280,20 +276,16 @@ class ems_limesurvey_header(models.Model):
 						success = True										
 						# Upload the surveys and recipients
 						for key in surveys:
-							survey = surveys[key]
-
-							# The recipient has been opened in the main thread so the cursor must be restored to the current thread							
-							recips = []							
-							for r in survey["recipients"]:
-								recips.append(r.with_env(self.env))
-							survey["recipients"] = recips
-
-							ok = self.execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)
+							survey = surveys[key]				
+							ok = self.execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)							
 							if ok: ok = self.execute_once(self.upload_recipients, f"upload_recipients_{key}", survey["internal_id"], survey["external_id"], survey["recipients"])							
+							self.store_recipients_data(survey["recipients"])
 							success = ok and success																
 						end(self, success)
+					
 					except Exception as e:
 						end(self, False, e)
+					
 					finally:
 						self.reload_request()
 					
@@ -467,6 +459,20 @@ class ems_limesurvey_header(models.Model):
 			"internal_id": self.persistent_hash(name), 
 			"raw_tsv": None if only_key else content
 		}
+			
+	def store_recipients_data(self, recipients):
+		# NOTE: The limesurvey_recipient_ids entries will be reset if an exception occurs, but LS opps will be done and won't be repeated (execute_once).
+		#		So, it's important to store changes in a non-attached object, and do it even if the LS opps have been completed (commit retry support).
+		for rec in recipients:
+			original = rec["original"].with_env(self.env)
+			original.write({
+				"tid": rec["tid"],
+				"token": rec["token"],
+				"error": rec["error"],
+				"status": rec["status"],
+				"internal_id": rec["internal_id"],
+				"external_id": rec["external_id"]
+			})			
 
 	def upload_survey(self, gsid, survey):		
 		success = True
@@ -489,8 +495,8 @@ class ems_limesurvey_header(models.Model):
 			parts = []
 			for r in recipients:				
 				parts.append({
-					"firstname": r.name,
-					"email": r.email,
+					"firstname": r["name"],
+					"email": r["email"],
 					"lastname": ""
 				})
 			result = ls_api.add_participants(external_id, parts)
@@ -500,20 +506,21 @@ class ems_limesurvey_header(models.Model):
 				rec = recipients[index]
 				if "error" in row:
 					success = False
-					rec.error = row["error"]
-					rec.status = "error"
+					rec["error"] = row["error"]		
+					rec["status"] = "error"
+
 				else:
-					rec.internal_id = internal_id
-					rec.external_id = external_id
-					rec.token = row["token"]
-					rec.tid = row["tid"]
-					rec.status = "success"
+					rec["tid"] = row["tid"]
+					rec["token"] = row["token"]
+					rec["internal_id"] = internal_id
+					rec["external_id"] = external_id
+					rec["status"] = "success"
 		
 		except Exception as e:				
 			success = False
 			for rec in recipients:
-				rec.error = e
-				rec.status = "error"
+				rec["error"] = e
+				rec["status"] = "error"
 
 		return success	
 	
@@ -572,16 +579,16 @@ class ems_limesurvey_header(models.Model):
 		return False
 
 	def _compute_students_surveys(self):
-		surveys = dict()				
+		surveys = dict()		
 		for rec in self.limesurvey_recipient_ids:
 			# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
 			#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).			
 			key = self.compute_survey_data(rec, True)["internal_id"]						
-			if key in surveys: surveys[key]["recipients"].append(rec)
+			if key in surveys: surveys[key]["recipients"].append(rec.copy_data())
 			else: 
 				surveys[key] = {
 					"internal_id": key,
-					"recipients": [rec],
+					"recipients": [rec.copy_data()],
 					"raw_tsv": self.compute_survey_data(rec, False)["raw_tsv"]
 				}					
 		return surveys		
@@ -690,6 +697,11 @@ class ems_limesurvey_recipient(models.Model):
 	limesurvey_enrollment_ids = fields.One2many(string="Enrollments", comodel_name="ems.limesurvey_enrollment", inverse_name="limesurvey_recipient_id")
 	wpi_enrolled = fields.Boolean(string="WPI enrolled")
 
+	def copy_data(self):
+		data = self.read()[0]
+		data["original"] = self
+		return data
+
 	def open_error_popup(self):
 		self.ensure_one()
 		return {
@@ -770,7 +782,7 @@ class ems_limesurvey_recipient(models.Model):
 				# A new survey must be created
 				survey = {
 					"internal_id": internal_id,
-					"recipients": [self],
+					"recipients": [self.copy_data()],
 					"raw_tsv": header.compute_survey_data(self, False)["raw_tsv"]
 				}				
 				
@@ -781,20 +793,21 @@ class ems_limesurvey_recipient(models.Model):
 			if success and not existing or (existing and internal_id != self.internal_id):
 				# The participant must be removed from the old survey
 				old_survey_id = self.external_id
-				success = self.execute_once(ls_api.delete_participants, f"delete_participants_{self.tid}", old_survey_id, [self.tid])		
+				self.execute_once(ls_api.delete_participants, f"delete_participants_{self.tid}", old_survey_id, [self.tid])		
 
-				# Remove the old survey if empty
-				if success:
-					count = ls_api.count_participants(old_survey_id) # TODO: test if this fails if the survey does not exists. 
-					if(count == 0): 
-						success = self.execute_once(ls_api.delete_survey, f"delete_survey_{self.old_survey_id}", old_survey_id)
+				# Remove the old survey if empty (remove participants raises an exception if fails)				
+				count = ls_api.count_participants(old_survey_id) # TODO: test if this fails if the survey does not exists. 
+				if(count == 0): self.execute_once(ls_api.delete_survey, f"delete_survey_{self.old_survey_id}", old_survey_id)
 				
-				# The participant must be uploaded to the survey
-				if success:					
-					success = self.execute_once(header.upload_recipients, f"upload_recipients_{internal_id}", survey["internal_id"], survey["external_id"], [self])							
+				# The participant must be uploaded to the survey			
+				self.execute_once(header.upload_recipients, f"upload_recipients_{internal_id}", survey["internal_id"], survey["external_id"], [self])							
+				
+				# Always tries to store the recipient data with error messages and so...
+				header.store_recipients_data(survey["recipients"])
 
 			callback(self, success)												
 		except Exception as e:
+			# TODO: TEST!!! external_id beeing lost on retry (when moving a student from a survey to another one, no survey empty and deleted)
 			callback(self, False, e)
 		finally:
 			self.reload_request()

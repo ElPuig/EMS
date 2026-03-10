@@ -69,7 +69,7 @@
                             <group>
                                 <field string="User's ID (LS)" name="tid" readonly="not user_is_admin"/>
                             </group>  
-                            <group>
+                            <group colspan="2">
                                 <field string="User's token (LS)" name="token" readonly="not user_is_admin"/>
                             </group>  
                             <group>

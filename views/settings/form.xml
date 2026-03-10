@@ -40,6 +40,10 @@
                         </block>
 
                          <block title="LimeSurvey Settings" name="ems_limesurvey_settings">
+                            <div class="alert alert-warning w-100" role="alert">
+                                The LimeSurvey API does not allow to create survey groups so, in order to operate properly, a group with the code 'ems' must be created manually. 
+                            </div>
+
                             <setting string="LimeSurvey's API endpoint" help="API endpoint (host address) where the LimeSurvey server is listening." id="limesurvey_api">
                                 <field name="limesurvey_api" />                              
                             </setting>

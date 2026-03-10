@@ -5,12 +5,20 @@
             <field name="model">ems.limesurvey_recipient</field>
             <field name="arch" type="xml">
                 <form string="recipient">
+                     <div class="alert alert-warning w-100 text-center mb-2" role="alert" invisible="not is_running">
+                        <i title="sping" class="fa fa-circle-o-notch fa-spin me-2"/> 
+                        <strong>Processing!</strong> We are uploading the changes to the external API; this may take a few minutes...
+                    </div>
+
                     <header>
-                        <button string="Restore enrollments" 
+                        <!-- NOT IN USE -->
+                        <button string="Restore data" 
                             name="action_restore" 
+                            confirm="This action will restore the 'main data' and the 'enrollments', saving the changes immediately. It cannot be undone. Do you wish to continue?"
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-undo"
+                            invisible="is_running"
                         />
 
                         <button string="Upload changes" 
@@ -18,6 +26,26 @@
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-cloud-upload"
+                            invisible="is_running"
+                        />
+
+                         <!-- IN USE -->
+                        <button string="Restore data" 
+                            disabled="True"
+                            name="action_none"
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-undo"
+                            invisible="not is_running"
+                        />
+
+                        <button string="Upload changes" 
+                            disabled="True"
+                            name="action_none"
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-cloud-upload"
+                            invisible="not is_running"
                         />
                     </header>
 

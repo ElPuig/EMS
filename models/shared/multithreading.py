@@ -30,12 +30,8 @@ class ems_multithreading(models.AbstractModel):
 
         if not self.changes.get(key, False):
             if isinstance(func, str):
-                method_to_call = getattr(self, func)
-                result = method_to_call(*args, **kwargs)
-
-            elif callable(func):
-                result = func(self, *args, **kwargs)
-                            
+                func = getattr(self, func)                
+            result = func(*args, **kwargs)                            
             self.changes[key] = True
         return result            
 

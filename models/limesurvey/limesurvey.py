@@ -51,7 +51,7 @@ class limesurvey_api():
 		result = self._run_api_request("set_participant_properties", [survey_id, participant_id, participant_data])
 
 		if "error" in result: raise Exception(f"{error}: " + result["error"])
-		elif not "emailstatus" in result: raise Exception(f"{error}: " + result["status"])
+		elif not "emailstatus" in result: raise Exception(f"{error}: " + str(result["status"]))
 		elif result["emailstatus"] != "OK": raise Exception(f"{error}: " + result["emailstatus"])
 
 	def list_participants(self, survey_id):			
@@ -170,7 +170,7 @@ class limesurvey_api():
 class ems_limesurvey_header(models.Model):
 	_name = "ems.limesurvey_header"
 	_description = "LimeSurvey header: contains the survey's header and its content."
-	_inherit = ['ems.base', 'mail.thread', 'mail.activity.mixin']
+	_inherit = ['ems.base', 'ems.multithreading']
 	
 	# NOTE: this field is used to track the wizard progress.
 	state = fields.Selection(string='Status', selection=[
@@ -194,15 +194,8 @@ class ems_limesurvey_header(models.Model):
 	tsv_raw_text = fields.Text(string="Header's content (tab separated)", required=True)
 	limesurvey_block_ids = fields.One2many(string="Blocks", comodel_name="ems.limesurvey_block", inverse_name="limesurvey_header_id")
 	limesurvey_recipient_ids = fields.One2many(string="Recipients", comodel_name="ems.limesurvey_recipient", inverse_name="limesurvey_header_id")	
-	notes = fields.Text(string="Notes")
 	is_running = fields.Boolean(string="Running", default=False)
-	
-	# NOTE: This is not an Odoo field, this is used to prevent data replication on retries on multi-threading executions.
-	# 		When working with threads, BBDD changes could fail due to concurrent updates. Odoo manages transactions well, 
-	# 		so retries can be done, but changes to LimeSurvey must be tracked and repetitions should be avoided. This is 
-	# 		for what "changes" is used for. Each LimeSurvey change is tracked in "changes", and its done only if "changes" 
-	# 		does not its flag. 
-	changes = {}
+	notes = fields.Text(string="Notes")		
 	
 	# MAIN ACTIONS
 	def action_compute(self, title=None, message_ok=None, message_ko=None):
@@ -220,10 +213,10 @@ class ems_limesurvey_header(models.Model):
 			elif(self.target == "asp"): self._compute_recipients_asp()
 						
 			self.state = 'computed'
-			self._notify(title , message_ok, "success")			
+			self.notify(title , message_ok, "success")			
 		except Exception as e:	
-			self._chatter_exception(e)
-			self._notify(title,  f"{message_ko} {e}", "warning")					
+			self.chatter_exception(e)
+			self.notify(title,  f"{message_ko} {e}", "warning")					
 			self.env.cr.commit() # To save the messages	(previous changes have been rollbacked).		
 		finally:
 			return True
@@ -238,10 +231,10 @@ class ems_limesurvey_header(models.Model):
 				rec.unlink()					
 						
 			self.state = 'draft'
-			self._notify(title , _("Recipients successfully removed!"), "success")
+			self.notify(title , _("Recipients successfully removed!"), "success")
 		except Exception as e:
-			self._chatter_exception(e)
-			self._notify(title, f"{_('Recipients remove failed. ')} {e}", "warning")			
+			self.chatter_exception(e)
+			self.notify(title, f"{_('Recipients remove failed. ')} {e}", "warning")			
 			self.env.cr.commit() # To save the messages	(previous changes have been rollbacked).		
 		finally:
 			return True
@@ -251,14 +244,14 @@ class ems_limesurvey_header(models.Model):
 
 	def action_upload(self):
 		self.ensure_one()
-		if not self._already_running():
+		if not self.already_running():
 			# This method runs at the end, in order to store the correct state and send the notifications to the user
 			title = _("LimeSurvey: upload surveys")
 			def end(self, success, exception=None):
 				details = _("check the recipients entry for more details") if exception is None else exception	
 				message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {details}")
-				if not success: self._chatter(message)
-				self._notify(title, message, "success" if success else "warning")
+				if not success: self.chatter(message)
+				self.notify(title, message, "success" if success else "warning")
 				self.is_running = False
 				self.state = 'uploaded'	if success else 'computed'
 
@@ -279,26 +272,28 @@ class ems_limesurvey_header(models.Model):
 				elif(self.target == "asp"): surveys = self._compute_asp_surveys()
 					
 				# Background warning				
-				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
+				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
 				
 				# The main code will run on another thread to prevent Odoo timeouts
 				def run(self):					
-					success = True
-
-					# Upload the surveys and recipients
-					for key in surveys:
-						survey = surveys[key]
-						ok = self._execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)
-						if ok: ok = self._execute_once(self.upload_recipients, f"upload_recipients{key}", survey)							
-						# BBDD recipients act like a log, should be saved always if possible (contains error messages).
-						self.store_recipients_data(survey)
-						success = ok and success										
-					
-					end(self, success)
-					self.reload_request()
+					try:
+						success = True										
+						# Upload the surveys and recipients
+						for key in surveys:
+							survey = surveys[key]
+							ok = self.execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)
+							if ok: ok = self.execute_once(self.upload_recipients, f"upload_recipients{key}", survey)							
+							# BBDD recipients act like a log, should be saved always if possible (contains error messages).
+							self.store_recipients_data(survey)
+							success = ok and success																
+						end(self, success)
+					except Exception as e:
+						end(self, False, e)
+					finally:
+						self.reload_request()
 					
 				# Thread execution
-				self._run_in_thread(run)				
+				self.run_in_thread(run)				
 			except Exception as e:
 				end(self, False, e)				
 			finally:
@@ -306,14 +301,14 @@ class ems_limesurvey_header(models.Model):
 			
 	def action_remove(self):
 		self.ensure_one()
-		if not self._already_running():			
+		if not self.already_running():			
 			# This method runs at the end, in order to store the correct state and send the notifications to the user
 			title = _("LimeSurvey: remove surveys")
 			def end(self, success, exception=None):
 				details = _("check the recipients entry for more details") if exception is None else exception
 				message = _("Remove process successfully completed!") if success else (f"{_('Remove process failed.')} {details}")
-				if not success: self._chatter(message)
-				self._notify(title, message, "success" if success else "warning")
+				if not success: self.chatter(message)
+				self.notify(title, message, "success" if success else "warning")
 				self.is_running = False
 				self.state = 'computed'	if success else 'uploaded'
 				
@@ -322,49 +317,56 @@ class ems_limesurvey_header(models.Model):
 				self.state = 'uploading'
 				
 				# Background warning				
-				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
+				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
 				
 				# The main code will run on another thread to prevent Odoo timeouts
 				def run(self):					
-					# Upload the surveys and recipients
-					ls_api = limesurvey_api(self.env)
-					surveys = list(set(self.limesurvey_recipient_ids.mapped("external_id")))
-					for sid in surveys:							
-						self._execute_once(ls_api.delete_survey, f"delete_survey_{sid}", sid)						
-						for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):
-							rec.external_id = None
-							rec.internal_id = None
-							rec.tid = None
-							rec.token = None
-							rec.status = "pending"
-																		
-					end(self, True)
-					self.reload_request()
-				
+					try:
+						# Upload the surveys and recipients
+						ls_api = limesurvey_api(self.env)
+						surveys = list(set(self.limesurvey_recipient_ids.mapped("external_id")))
+						for sid in surveys:							
+							self.execute_once(ls_api.delete_survey, f"delete_survey_{sid}", sid)						
+							for rec in self.limesurvey_recipient_ids.search([("external_id", "=", sid)]):
+								rec.external_id = None
+								rec.internal_id = None
+								rec.tid = None
+								rec.token = None
+								rec.status = "pending"
+																			
+						end(self, True)
+					except Exception as e:
+						end(self, False, e)
+					finally:
+						self.reload_request()
+
 				# Thread execution
-				self._run_in_thread(run)				
+				self.run_in_thread(run)				
 			except Exception as e:
 				end(self, False, e)				
 			finally:
 				return True
 
+
+
+
 	# TODO: check those ones
 	def action_open(self):
 		self.ensure_one()
-		if not self._already_running():
+		if not self.already_running():
 			title = _("LimeSurvey: open surveys")
 			def end(self, success, errors=[]):		
 				details = "\n".join(str(e) for e in errors)
 				message = _("Open process successfully completed!") if success else f"{_('Open process failed.')} {details}"	
-				self._notify(title, message, "success" if success else "warning")	
-				self._chatter(message)					
+				self.notify(title, message, "success" if success else "warning")	
+				self.chatter(message)					
 				self.is_running = False
 				self.state = 'open' if success else 'uploaded'
 				
 			try:
 				self.is_running = True
 				self.state = 'opening'								
-				self._notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
+				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
 											
 				def run(self):					
 					try:	
@@ -375,8 +377,8 @@ class ems_limesurvey_header(models.Model):
 						
 						for sid in survey_ids:
 							try:
-								self._execute_once(ls_api.activate_survey, f"activate_survey_{sid}", sid)	
-								self._execute_once(ls_api.invite_participants, f"invite_participants_{sid}", sid)
+								self.execute_once(ls_api.activate_survey, f"activate_survey_{sid}", sid)	
+								self.execute_once(ls_api.invite_participants, f"invite_participants_{sid}", sid)
 							except Exception as e:
 								success = False
 								errors.append(f"Unable to open the survey with external ID '{sid}'. {e}")					
@@ -385,14 +387,14 @@ class ems_limesurvey_header(models.Model):
 						self.reload_request()
 					
 					except psycopg2.errors.SerializationFailure:
-						# NOTE: _run_in_thread method will retry, the surveys won't be uploaded again due the use of _execute_once.
+						# NOTE: run_in_thread method will retry, the surveys won't be uploaded again due the use of execute_once.
 						raise
 					
 					except Exception as e:						
 						end(self, False, [e])
 						self.reload_request()
 				
-				self._run_in_thread(run)				
+				self.run_in_thread(run)				
 			except Exception as e:
 				end(self, False, e)				
 			finally:
@@ -406,7 +408,7 @@ class ems_limesurvey_header(models.Model):
 
 	def action_remind(self):
 		for rec in self:			
-			if not rec._already_running():
+			if not rec.already_running():
 				return True
 
 	def action_none(self):
@@ -602,89 +604,7 @@ class ems_limesurvey_header(models.Model):
 	def _compute_asp_surveys(self):
 		fake = 0
 
-
 	# PRIVATE AUX METHODS
-	def _execute_once(self, func, key=None, *args, **kwargs):
-		result = True
-		if key is None: key = func.__func__.__name__
-
-		if not self.changes.get(key, False):
-			result = func(*args, **kwargs)
-			self.changes[key] = True
-		return result
-
-	def _notify(self, title, message, type, sticky=False):
-		self.env["bus.bus"]._sendone(
-			self.env.user.partner_id, "simple_notification", {
-				"title": title, 
-				"message": message, 
-				"type": type,
-				"sticky": sticky
-			}
-		)
-				
-	def _chatter(self, message):
-		self.message_post(
-            body = message,
-            message_type = 'notification',
-            subtype_xmlid='mail.mt_note'
-        )	
-	
-	def _chatter_exception(self, exception):
-		self._chatter(
-			Markup(f"""
-				<div class="alert alert-danger mb-0" role="alert">
-					<h5 class="alert-heading mb-1">
-						<i class="fa fa-exclamation-triangle me-1"></i> 
-						{_("An error occurred during the process")}
-					</h5>
-					<p class="mb-2">{exception}</p>
-					<hr class="mt-1 mb-2">
-					
-					<details>
-						<summary class="text-muted fw-bold" style="cursor: pointer;">
-							<i class="fa fa-bug me-1"></i> {_("See technical details (Exception)")}
-						</summary>
-						
-						<pre class="mt-2 p-2 bg-light border text-dark rounded" style="font-size: 0.85em; white-space: pre-wrap; max-height: 250px; overflow-y: auto;">{traceback.format_exc()}</pre>
-					</details>
-				</div>
-			""")
-		)
-
-	def _run_in_thread(self, func, max_retries=5, *args, **kwargs):
-		uid = self.env.uid
-		dbname = self.env.cr.dbname
-		context = dict(self.env.context)
-		record_ids = self.ids 
-		model_name = self._name
-			
-		def _threaded_worker():			
-			self.changes.clear()
-			db_registry = registry(dbname)
-			# NOTE: I checked that, in some environments and situations, the first run always fails due to concurrent updates.
-			#		I'm not sure if waiting a second prior to the first run is faster than the first retry (which waits 0 seconds)...
-			for current_try in range(max_retries):
-				try:					
-					with db_registry.cursor() as cr:
-						env = api.Environment(cr, uid, context)
-						n_self = env[model_name].browse(record_ids)
-						func(n_self, *args, **kwargs)
-						break
-
-				except psycopg2.errors.SerializationFailure:
-					if current_try == max_retries: raise
-					time.sleep(current_try)
-		
-		thread = threading.Thread(target=_threaded_worker)
-		thread.start()
-		return thread
-		
-	def _already_running(self):
-		if self.is_running:
-			self._notify(_("LimeSurvey: already running"), _("Process already running, maybe by another user?"), "danger")		
-		return self.is_running
-
 	
 
 
@@ -712,7 +632,7 @@ class ems_limesurvey_header(models.Model):
 	# 	#		In that case, download the data and metabase import can wait, the priority is to create and manage recipients in
 	# 	#		order to detect and fix problems quickly. 
 	# 	# for rec in self:			
-	# 	# 	if not rec._already_running():
+	# 	# 	if not rec.already_running():
 	# 	# 		rec.is_running = True
 	# 	# 		if rec.state == 'draft':				
 	# 	# 			rec.state = 'uploading'
@@ -753,10 +673,11 @@ class ems_limesurvey_block(models.Model):
 			# TODO: mutually excluded, check if it's more appropiate to use radios instead of checkboxes.
 			if rec.special_wpi_enrolled: rec.special_subject_enrolled = False
 			elif rec.special_subject_enrolled: rec.special_wpi_enrolled = False
+
 class ems_limesurvey_recipient(models.Model):
 	_name = "ems.limesurvey_recipient"
 	_description = "LimeSurvey recipient: contains the relation between a recipient and its survey."
-	_inherit = ['ems.base']
+	_inherit = ['ems.base', 'ems.multithreading']
 	
 	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header", required=True)
 	name = fields.Char(string="Name", required=True)
@@ -767,6 +688,8 @@ class ems_limesurvey_recipient(models.Model):
 	tid = fields.Integer(string="User's ID (LimeSurvey)")
 	status = fields.Selection(string='Status', selection=[('pending', 'Pending'), ('success', 'Success'), ('error', 'Error')], default='pending')
 	error = fields.Char(string="Error details")
+	is_running = fields.Boolean(string="Running", default=False)
+
 	notes = fields.Text(string="Notes")	
 
 	# The recipients can be students (res_partner) or teachers/asp (hr.employee). Those are needed in order to refresh the data.
@@ -790,11 +713,119 @@ class ems_limesurvey_recipient(models.Model):
 			'flags': {'mode': 'readonly'}
 		}
 	
-	def action_restore(self):
+	def action_none(self):
 		return True
+	
+	def action_restore(self):
+		if self.student_id:
+			self.name = self.student_id.name
+			self.email = self.student_id.student_email
+
+			enrollments = [[5]]
+			for enroll in self.student_id.enrollment_ids:
+				enrollments.append([0,0, {
+					"student_id": self.student_id.id,
+					"group_id": enroll.group_id.id,
+					"subject_id": enroll.subject_id.id
+				}])
+			self.limesurvey_enrollment_ids = enrollments
+		else:
+			return False		
 
 	def action_upload(self):
-		return True
+		self.ensure_one()
+		if not self.already_running():
+			# This method runs at the end, in order to store the correct state and send the notifications to the user
+			title = _("LimeSurvey: refresh recipient")
+			def end(self, success, exception=None):
+				details = _("check the recipients entry for more details") if exception is None else exception	
+				message = _("Refresh process successfully completed!") if success else (f"{_('Refresh process failed.')} {details}")
+				if not success: self.chatter(message)
+				self.notify(title, message, "success" if success else "warning")
+				self.is_running = False
+		
+			try:				
+				self.is_running = True
+				
+				# Background warning				
+				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
+								
+				# Thread execution
+				if self.student_id:
+					self.run_in_thread("_upload_student", callback=end)
+				# TODO: also for teachers and ASP
+
+			except Exception as e:
+				end(self, False, e)				
+			finally:
+				return True
+
+	def _upload_student(self, callback):
+		try:
+			ls_api = limesurvey_api(self.env)
+			internal_id = self.limesurvey_header_id.compute_survey_data(self.student_id, True)["internal_id"]
+			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", internal_id)], limit=1) or False
+
+			if existing:
+				survey = { 
+					# NOTE: this is the basic survey data to work, more data will be added if needed
+					"external_id": existing["external_id"],
+					"internal_id": existing["internal_id"],
+				}
+
+				if internal_id == self.internal_id:				
+					# The recipient is in the correct survey, updating participant data.
+					
+					ls_api.update_participant_data(existing["external_id"], self.tid, {
+						"firstname": self.name,
+						"email": self.email
+					})
+					callback(self, True)
+				else:
+					callback(self, False)
+					# success = True								
+					# self.limesurvey_header_id.notify(title, _("Refreshing the student's survey..."), "info")		
+					# if not existing:					
+					# 	# Uploading the survey if is a new one
+					# 	gsid = ls_api.get_group("EMS")["gsid"]
+					# 	survey = self.limesurvey_header_id.compute_survey_data(self.student_id, False)
+					# 	success = self.limesurvey_header_id.upload_survey(gsid, survey)
+					# 	if not success: raise Exception(survey["error"])					
+					
+					# # The recipients must be uploaded always (for new or existing one)
+					# old_survey_id = self.external_id
+					# survey["recipients"] = [self.limesurvey_header_id.get_tmp_student(self.student_id)]
+					# success = self.limesurvey_header_id.upload_survey_recipients(survey)
+					# if not success: raise Exception(survey["recipients"][0]["error"])
+					# self.limesurvey_header_id.store_recipients_data(survey["recipients"], survey["internal_id"], survey["external_id"])
+										
+					# # Remove from the old survey
+					# ls_api.delete_participants(self.external_id, [self.tid])
+					# count = ls_api.count_participants(old_survey_id)
+					# if(count == 0): ls_api.delete_survey(old_survey_id)
+
+					# # TODO: if something fails, resotre the LimeSurvey status	
+					# self._completed(title)
+
+					# # NOTE: removing the entry must be the last step (otherwise any access to 'self' fails).
+					# self.unlink()
+			return True
+		except Exception as e:
+			callback(self, False, e)
+		finally:
+			self.reload_request()
+	
+	def already_running(self):
+		if self.is_running:
+			self.notify(_("LimeSurvey: already running"), _("Process already running, maybe by another user?"), "danger")		
+		return self.is_running
+	
+
+
+
+
+
+
 
 	def refresh(self):
 		# TODO: check refresh when the enrolled changed, empty surveys should be removed.
@@ -818,7 +849,7 @@ class ems_limesurvey_recipient(models.Model):
 				if internal_id == self.internal_id:				
 					# The recipient is in the correct survey, checking if its name or email changed:
 					if self.name == self.student_id.name and self.email == self.student_id.student_email:
-						self.limesurvey_header_id._notify(title, _("Everything is up to date (nothing to resfresh)."), "info")
+						self.limesurvey_header_id.notify(title, _("Everything is up to date (nothing to resfresh)."), "info")
 					else:
 						reci = self.limesurvey_header_id.get_tmp_student(self.student_id)
 						reci["tid"] = self.tid
@@ -828,7 +859,7 @@ class ems_limesurvey_recipient(models.Model):
 						self._completed(title)
 				else:
 					success = True								
-					self.limesurvey_header_id._notify(title, _("Refreshing the student's survey..."), "info")		
+					self.limesurvey_header_id.notify(title, _("Refreshing the student's survey..."), "info")		
 					if not existing:					
 						# Uploading the survey if is a new one
 						gsid = ls_api.get_group("EMS")["gsid"]
@@ -856,8 +887,8 @@ class ems_limesurvey_recipient(models.Model):
 
 			except Exception as e:
 				message = f"{_('Refresh process failed.')} {e}"
-				self.limesurvey_header_id._notify(title, message, "warning")						
-				self.limesurvey_header_id._chatter(message)
+				self.limesurvey_header_id.notify(title, message, "warning")						
+				self.limesurvey_header_id.chatter(message)
 
 	def _update_recipient(self, survey):			
 		sid = survey["external_id"]
@@ -872,9 +903,10 @@ class ems_limesurvey_recipient(models.Model):
 		self.email = data["email"]
 
 	def _completed(self, title):
-		self.limesurvey_header_id._notify(title, _("Refresh process successfully completed!"), "success")
-		self.limesurvey_header_id._chatter(_(f"Refresh for '{self.email}': ") + _("success"))
+		self.limesurvey_header_id.notify(title, _("Refresh process successfully completed!"), "success")
+		self.limesurvey_header_id.chatter(_(f"Refresh for '{self.email}': ") + _("success"))
 
+	
 class ems_limesurvey_enrollment(models.Model):
 	_name = "ems.limesurvey_enrollment"
 	_description = "LimeSurvey enrollment: contains a copy of the enrollment model for the related student, in order to allow changes on the fly when preparing the surveys (only secretarial staff should be allowed to modify the real enrollments)."

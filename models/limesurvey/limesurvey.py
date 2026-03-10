@@ -42,9 +42,11 @@ class limesurvey_api():
 	def delete_participants(self, survey_id, participant_ids):		
 		error = _("Unable to delete some participants")
 		result = self._run_api_request("delete_participants", [survey_id, participant_ids])
-		if "2" in result: raise Exception(f"{error}: " + result["2"] )
-		elif "1" in result and result["1"] != "Deleted": raise Exception(f"{error}: " + result['1'] )
-		elif not "1" in result: raise Exception(f"{error}: " + "UNKWOWN ERROR!")
+		values = list(result.values())
+
+		# Trying to delete something that does not exists, is not an error for us (maybe it's a retry).
+		if not "Deleted" in values and not "Invalid token ID" in values:
+			raise Exception(f"{error}: " + " | ".join(values))
 
 	def update_participant_data(self, survey_id, participant_id, participant_data):			
 		error = _("Unable to update some participants")
@@ -755,7 +757,7 @@ class ems_limesurvey_recipient(models.Model):
 								
 				# Thread execution
 				if self.student_id:
-					self.run_in_thread("_upload_student", callback=end)
+					self.run_in_thread("_upload_student", survey={}, callback=end)
 				# TODO: also for teachers and ASP
 
 			except Exception as e:
@@ -763,7 +765,8 @@ class ems_limesurvey_recipient(models.Model):
 			finally:
 				return True
 
-	def _upload_student(self, callback):
+	def _upload_student(self, survey, callback):
+		# NOTE: the 'survey' must be created BEFORE this method runs in another thread, in order to store data between executions on retries. 
 		try:
 			header = self.limesurvey_header_id			
 			ls_api = limesurvey_api(self.env)
@@ -780,17 +783,20 @@ class ems_limesurvey_recipient(models.Model):
 						
 			if not existing:
 				# A new survey must be created
-				survey = {
-					"internal_id": internal_id,
-					"recipients": [self.copy_data()],
-					"raw_tsv": header.compute_survey_data(self, False)["raw_tsv"]
-				}				
+				if survey.get("internal_id", None) is None:
+					survey = {
+						"internal_id": internal_id,
+						"recipients": [self.copy_data()],
+						"raw_tsv": header.compute_survey_data(self, False)["raw_tsv"]
+					}				
 				
 				gsid = ls_api.get_group("ems")["gsid"]
 				success = self.execute_once(header.upload_survey, f"upload_survey_{internal_id}", gsid, survey)
 
-			# Now, we ensure that the survey exists, so the participant must be moved
+			# Now, we ensure that the survey exists, so the participant must be moved			
 			if success and not existing or (existing and internal_id != self.internal_id):
+				# TODO: survey cannot be used here because maybe does not exists!!! Use individual vars and ensure lifetime during retries.
+				
 				# The participant must be removed from the old survey
 				old_survey_id = self.external_id
 				self.execute_once(ls_api.delete_participants, f"delete_participants_{self.tid}", old_survey_id, [self.tid])		
@@ -799,13 +805,13 @@ class ems_limesurvey_recipient(models.Model):
 				count = ls_api.count_participants(old_survey_id) # TODO: test if this fails if the survey does not exists. 
 				if(count == 0): self.execute_once(ls_api.delete_survey, f"delete_survey_{self.old_survey_id}", old_survey_id)
 				
-				# The participant must be uploaded to the survey			
-				self.execute_once(header.upload_recipients, f"upload_recipients_{internal_id}", survey["internal_id"], survey["external_id"], [self])							
+				# The participant must be uploaded to the survey						
+				self.execute_once(header.upload_recipients, f"upload_recipients_{internal_id}", survey["internal_id"], survey["external_id"], survey["recipients"])
 				
 				# Always tries to store the recipient data with error messages and so...
 				header.store_recipients_data(survey["recipients"])
 
-			callback(self, success)												
+			callback(self, success)
 		except Exception as e:
 			# TODO: TEST!!! external_id beeing lost on retry (when moving a student from a survey to another one, no survey empty and deleted)
 			callback(self, False, e)

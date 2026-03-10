@@ -90,15 +90,15 @@
 
                                     <list editable="top" default_order="subject_id asc, group_id asc">
                                         <field name="subject_id" domain="[('id','not in', inuse_subject_ids)]"/>
-                                        <field name="group_id" domain="[('study_id','=', student_id.study_id)]"/>
+                                        <field name="group_id" domain="[('study_id','=', study_id)]"/>
                                         <field name="inuse_subject_ids" column_invisible="True"/>
                                     </list>
                                 </field>
-                            </page>           
+                            </page>
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>
                             </page>
-                        </notebook>                
+                        </notebook>
                     </sheet>	
                 </form>
             </field>			

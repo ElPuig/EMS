@@ -282,7 +282,7 @@ class ems_limesurvey_header(models.Model):
 						for key in surveys:
 							survey = surveys[key]
 							ok = self.execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)
-							if ok: ok = self.execute_once(self.upload_recipients, f"upload_recipients{key}", survey)							
+							if ok: ok = self.execute_once(self.upload_recipients, f"upload_recipients_{key}", survey["external_id"], survey["recipients"])							
 							# BBDD recipients act like a log, should be saved always if possible (contains error messages).
 							self.store_recipients_data(survey)
 							success = ok and success																
@@ -501,22 +501,21 @@ class ems_limesurvey_header(models.Model):
 			
 		return success	
 	
-	def upload_recipients(self, survey):
+	def upload_recipients(self, external_id, recipients):
 		success = True		
 		ls_api = limesurvey_api(self.env)
 		
 		try:			
 			# NOTE: must convert the limesurvey_recipient model to the list of API values
-			recipients = []
-			for r in survey["recipients"]:
-				recipients.append({
+			parts = []
+			for r in recipients:
+				parts.append({
 					"firstname": r.get("name", ""),
 					"email": r.get("email", ""),
 					"lastname": ""
 				})
-			result = ls_api.add_participants(survey["external_id"], recipients)
+			result = ls_api.add_participants(external_id, parts)
 
-			recipients = survey["recipients"]
 			for index, row in enumerate(result):
 				if "error" in row:
 					recipients[index]["error"] = row["error"]
@@ -527,7 +526,7 @@ class ems_limesurvey_header(models.Model):
 		
 		except Exception as e:				
 			success = False
-			for rec in survey["recipients"]:
+			for rec in recipients:
 				rec["error"] = e
 
 		return success	
@@ -766,27 +765,33 @@ class ems_limesurvey_recipient(models.Model):
 			internal_id = self.limesurvey_header_id.compute_survey_data(self.student_id, True)["internal_id"]
 			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", internal_id)], limit=1) or False
 
-			if existing:
-				survey = { 
-					# NOTE: this is the basic survey data to work, more data will be added if needed
-					"external_id": existing["external_id"],
-					"internal_id": existing["internal_id"],
-				}
-
+			if existing:				
 				if internal_id == self.internal_id:				
-					# The recipient is in the correct survey, updating participant data.
-					
-					ls_api.update_participant_data(existing["external_id"], self.tid, {
+					# The recipient is in the correct survey, updating participant data.	
+					self.execute_once(ls_api.update_participant_data, f"update_participant_data_{self.tid}", existing["external_id"], self.tid, {
 						"firstname": self.name,
 						"email": self.email
-					})
-					callback(self, True)
+					})														
 				else:
-					callback(self, False)
-					# success = True								
-					# self.limesurvey_header_id.notify(title, _("Refreshing the student's survey..."), "info")		
-					# if not existing:					
-					# 	# Uploading the survey if is a new one
+					# The recipient should be moved to an existing survey
+					old_survey_id = self.external_id
+					self.execute_once(ls_api.delete_participants, f"delete_participants_{self.tid}", old_survey_id, [self.tid])					
+					self.execute_once(self.limesurvey_header_id.upload_recipients, f"upload_recipients_{self.tid}", existing["external_id"], [self])
+
+					# Remove the old survey if empty
+					count = ls_api.count_participants(old_survey_id)
+					if(count == 0): self.execute_once(ls_api.delete_survey, f"delete_survey_{self.old_survey_id}", old_survey_id)
+			
+			callback(self, True)
+			# survey = { 
+			# 	# NOTE: this is the basic survey data to work, more data will be added if needed
+			# 	"external_id": existing["external_id"],
+			# 	"internal_id": existing["internal_id"],
+			# }
+			
+			#if not existing:					
+				# Uploading the survey if is a new one
+
 					# 	gsid = ls_api.get_group("EMS")["gsid"]
 					# 	survey = self.limesurvey_header_id.compute_survey_data(self.student_id, False)
 					# 	success = self.limesurvey_header_id.upload_survey(gsid, survey)
@@ -809,7 +814,6 @@ class ems_limesurvey_recipient(models.Model):
 
 					# # NOTE: removing the entry must be the last step (otherwise any access to 'self' fails).
 					# self.unlink()
-			return True
 		except Exception as e:
 			callback(self, False, e)
 		finally:
@@ -914,6 +918,7 @@ class ems_limesurvey_enrollment(models.Model):
 
 	limesurvey_recipient_id = fields.Many2one(string="Recipient", comodel_name="ems.limesurvey_recipient", required=True, ondelete="cascade") # removing the recipient should remove all its enrollments
 	student_id = fields.Many2one(string="Student", related="limesurvey_recipient_id.student_id")
+	study_id = fields.Many2one(string="Study", related="student_id.study_id")
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	inuse_subject_ids = fields.Many2many('ems.subject', compute='_compute_inuse_subject_ids', store=False) 	

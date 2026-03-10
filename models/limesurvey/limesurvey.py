@@ -476,6 +476,7 @@ class ems_limesurvey_header(models.Model):
 			rec.internal_id = survey.get("internal_id", None)
 			rec.external_id = survey.get("external_id", None)
 			rec.status = "success" if not rec.error else "error"
+			# TODO: tid and token is not beeing stored. WHY!!!???
 
 	def upload_survey(self, gsid, survey):		
 		success = True
@@ -763,23 +764,14 @@ class ems_limesurvey_recipient(models.Model):
 			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", internal_id)], limit=1) or False
 
 			success = True
-			if existing:				
-				if internal_id == self.internal_id:				
-					# The recipient is in the correct survey, updating participant data.	
-					self.execute_once(ls_api.update_participant_data, f"update_participant_data_{self.tid}", existing["external_id"], self.tid, {
-						"firstname": self.name,
-						"email": self.email
-					})														
-				else:
-					# The recipient should be moved to an existing survey
-					old_survey_id = self.external_id
-					self.execute_once(ls_api.delete_participants, f"delete_participants_{self.tid}", old_survey_id, [self.tid])										
-
-					# Remove the old survey if empty
-					count = ls_api.count_participants(old_survey_id) # TODO: test if this fails if the survey does not exists. 
-					if(count == 0): self.execute_once(ls_api.delete_survey, f"delete_survey_{self.old_survey_id}", old_survey_id)		
-			
-			if not existing:					
+			if existing and internal_id == self.internal_id:				
+				# The recipient is in the correct survey, updating participant data.	
+				self.execute_once(ls_api.update_participant_data, f"update_participant_data_{self.tid}", existing["external_id"], self.tid, {
+					"firstname": self.name,
+					"email": self.email
+				})																
+						
+			if not existing:
 				# A new survey must be created
 				survey = {
 					"internal_id": internal_id,
@@ -788,12 +780,24 @@ class ems_limesurvey_recipient(models.Model):
 				}				
 				
 				gsid = ls_api.get_group("ems")["gsid"]
-				success = self.execute_once(header.upload_survey, f"upload_survey_{internal_id}", gsid, survey)				
+				success = self.execute_once(header.upload_survey, f"upload_survey_{internal_id}", gsid, survey)
 
+			# Now, we ensure that the survey exists, so the participant must be moved
 			if success and not existing or (existing and internal_id != self.internal_id):
+				# The participant must be removed from the old survey
+				old_survey_id = self.external_id
+				success = self.execute_once(ls_api.delete_participants, f"delete_participants_{self.tid}", old_survey_id, [self.tid])		
+
+				# Remove the old survey if empty
+				if success:
+					count = ls_api.count_participants(old_survey_id) # TODO: test if this fails if the survey does not exists. 
+					if(count == 0): 
+						success = self.execute_once(ls_api.delete_survey, f"delete_survey_{self.old_survey_id}", old_survey_id)
+				
 				# The participant must be uploaded to the survey
-				success = self.execute_once(header.upload_recipients, f"upload_recipients_{internal_id}", survey["external_id"], [self])							
-				header.store_recipients_data(survey)
+				if success:					
+					success = self.execute_once(header.upload_recipients, f"upload_recipients_{internal_id}", survey["external_id"], [self])							
+					header.store_recipients_data(survey)
 
 			callback(self, success)												
 		except Exception as e:

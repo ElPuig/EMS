@@ -31,7 +31,8 @@
                             invisible="state != 'computed'"
                         />
 
-                        <button string="Reload participants" 
+                        <button string="Reload recipients" 
+                            confirm="This action will clean and recreate the recipients, saving the changes immediately. It cannot be undone. Do you wish to continue?"
                             name="action_reload"                                 
                             type="object" 
                             class="oe_highlight" 
@@ -57,7 +58,7 @@
                             invisible="state != 'uploading'"
                         />
 
-                        <button string="Reload participants"
+                        <button string="Reload recipients"
                             disabled="True" 
                             name="action_none"                                 
                             type="object" 

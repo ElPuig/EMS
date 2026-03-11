@@ -23,7 +23,7 @@ class ems_multithreading(models.AbstractModel):
             "message": message
         })
 
-    # The 'func' method will run only once avoiding repetitions. Useful when runnint within a thread with retries (due to BBDD commit's concurrent exception)
+    # The 'func' method will run only once avoiding repetitions. Useful when runnint within a thread with retries (due to BBDD commit's concurrent exception)   
     def execute_once(self, func, key=None, *args, **kwargs):
         result = True
         if key is None: key = func.__func__.__name__
@@ -33,7 +33,7 @@ class ems_multithreading(models.AbstractModel):
                 func = getattr(self, func)                
             result = func(*args, **kwargs)                            
             self.changes[key] = True
-        return result            
+        return result
 
     # Allows running the 'func' method in a new thread with retries (due to BBDD commit's concurrent exception).
     def run_in_thread(self, func, max_retries=5, *args, **kwargs):
@@ -74,5 +74,8 @@ class ems_multithreading(models.AbstractModel):
     # Useful to abort executions if the current entry is already running, also notifies.
     def already_running(self):
         if self.is_running:
-            self.notify(_("LimeSurvey: already running"), _("Process already running, maybe by another user?"), "danger")		
+            # notify is a "ems.base" method, notifying only if the main entity is also inheriting from "ems.base"
+            has_notify = getattr(self, 'notify', None)
+            if callable(has_notify):
+                self.notify(_("LimeSurvey: already running"), _("Process already running, maybe by another user?"), "danger")		
         return self.is_running

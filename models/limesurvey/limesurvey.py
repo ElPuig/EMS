@@ -361,9 +361,7 @@ class ems_limesurvey_header(models.Model):
 
 			try:				
 				self.is_running = True
-				self.state = 'opening'				
-				ls_api = limesurvey_api(self.env)
-				survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))	
+				self.state = 'opening'								
 
 				# Background warning				
 				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")						
@@ -374,6 +372,8 @@ class ems_limesurvey_header(models.Model):
 						errors = []
 						success = True														
 						
+						ls_api = limesurvey_api(self.env)
+						survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))	
 						for sid in survey_ids:
 							try:
 								self.execute_once(ls_api.activate_survey, f"activate_survey_{sid}", sid)	

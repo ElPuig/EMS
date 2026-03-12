@@ -86,20 +86,20 @@
                         />                       
 
                         <button string="Open surveys"  
-                            name="action_none"                             
+                            name="action_open"                             
                             type="object" 
                             class="oe_highlight" 
-                            icon="fa-play "
+                            icon="fa-play"
                             invisible="state != 'uploaded'"
                         />
 
                         <!-- OPENING -->
-                        <button string="Return to draft"   
+                        <button string="Remove surveys" 
                             disabled="True" 
                             name="action_none"                              
                             type="object" 
                             class="oe_highlight" 
-                            icon="fa-step-backward"
+                            icon="fa-trash"
                             invisible="state != 'opening'"
                         />
 
@@ -108,7 +108,7 @@
                             name="action_none"                             
                             type="object" 
                             class="oe_highlight" 
-                            icon="fa-envelope "
+                            icon="fa-play"
                             invisible="state != 'opening'"
                         />
 

@@ -146,7 +146,7 @@ class ems_SaleOrder(models.Model):
     @api.onchange('ems_study_id')
     def _onchange_ems_study_id(self):
         self.sale_order_template_id = False
-        self.order_line = [(5, 0, 0)]
+        self.with_context(skip_tutoria_check=True).order_line = [(5, 0, 0)]
 
     @api.depends('order_line.product_template_id')
     def _compute_existing_products(self):

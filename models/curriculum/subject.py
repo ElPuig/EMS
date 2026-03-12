@@ -52,6 +52,7 @@ class ems_subject(models.Model):
                 'list_price': 0.0,
                 'sale_ok': True,
                 'purchase_ok': False,
+                'ems_is_tutoria': vals.get('code', '').startswith(('T1_', 'T2_')),
             }
             if categ_id:
                 product_vals['categ_id'] = categ_id
@@ -90,6 +91,7 @@ class ems_subject(models.Model):
                     update_vals['name'] = record.name
                 if 'code' in vals:
                     update_vals['default_code'] = record.code
+                    update_vals['ems_is_tutoria'] = record.code.startswith(('T1_', 'T2_'))
                 
                 if update_vals:
                     record.product_id.write(update_vals)

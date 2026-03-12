@@ -18,7 +18,15 @@ class ProductTemplate(models.Model):
         'ems.study', 
         string="Allowed Studies",
         compute='_compute_ems_study_ids',
+        readonly=False,
         store=True # By saving it in BD, we can use it in domains and quick filters.
+    )
+
+    # Tutoring is the key to knowing which group the student is enrolled in.
+    ems_is_tutoria = fields.Boolean(
+        string='Is Tutoria',
+        default=False,
+        help="If enabled, this subject cannot be removed from an enrollment individually."
     )
 
     # Select as generic so that it can be included in all enrollments
@@ -54,8 +62,13 @@ class ProductTemplate(models.Model):
         help="Unit cost per subject (e.g. 65.00) used for fee calculation."
     )
 
-    @api.depends('ems_subject_ids.study_ids')
+    @api.depends('ems_subject_ids.study_ids', 'is_generic')
     def _compute_ems_study_ids(self):
         for product in self:
-            # We look for studies on all subjects related to this product.
-            product.ems_study_ids = product.ems_subject_ids.mapped('study_ids')
+            if product.is_generic:
+                # No sobreescribimos — el usuario lo edita manualmente solo inicializamos si está vacío
+                if not product.ems_study_ids:
+                    product.ems_study_ids = False
+            else:
+                # Asignaturas: calculamos desde el sujeto vinculado
+                product.ems_study_ids = product.ems_subject_ids.mapped('study_ids')

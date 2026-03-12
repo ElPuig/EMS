@@ -46,11 +46,13 @@
                 <attribute name="domain">
                     [
                         '&amp;',
-                            '|', 
-                                ('ems_study_ids', '=', parent.ems_study_id), 
+                            '|',
+                                ('ems_study_ids', '=', parent.ems_study_id),
                                 '&amp;',
                                     ('is_generic', '=', True),
-                                    ('ems_level_ids', 'in', parent.ems_level_id ),
+                                    '|',
+                                        ('ems_level_ids', 'in', parent.ems_level_id),
+                                        ('ems_study_ids', '=', parent.ems_study_id),
                             ('id', 'not in', parent.ems_existing_product_ids)
                     ]
                 </attribute>
@@ -88,6 +90,23 @@
             <xpath expr="//field[@name='order_line']/list//field[@name='qty_invoiced']" position="attributes">
                 <attribute name="column_invisible">1</attribute>
             </xpath>
+
+            <!-- Campo invisible para usar en la condición del botón eliminar -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='qty_invoiced']" position="after">
+                <field name="ems_is_tutoria" column_invisible="1"/>
+            </xpath>
+
+            <!-- Ocultar el botón de eliminar en líneas de tutoría -->
+            <xpath expr="//field[@name='order_line']/list" position="attributes">
+                <attribute name="delete">0</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/list//field[@name='qty_invoiced']" position="after">
+                <button name="unlink" string="" icon="fa-trash" type="object"
+                        invisible="ems_is_tutoria == True"
+                        confirm="Are you sure you want to remove this item?"/>
+            </xpath>
+
             <xpath expr="//page[@name='order_lines']" position="attributes">
                 <attribute name="string">Enrollment Items</attribute>
             </xpath>            

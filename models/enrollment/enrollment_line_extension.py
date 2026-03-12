@@ -5,6 +5,13 @@ from odoo.exceptions import ValidationError
 class ems_SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
+    ems_is_tutoria = fields.Boolean(
+        related='product_template_id.ems_is_tutoria',
+        string='Is Tutoria',
+        readonly=True,
+        store=False,
+    )
+
     @api.onchange('product_id')
     def _onchange_product_id_check_duplicate(self):
         """Immediate warning if the subject is already in the list."""
@@ -29,7 +36,7 @@ class ems_SaleOrderLine(models.Model):
             if line.product_template_id.ems_is_enrollment_fee:
                 # 1. Contamos asignaturas (no genéricos) en el pedido padre
                 subject_lines = line.order_id.order_line.filtered(
-                    lambda l: l.product_template_id and not l.product_template_id.is_generic
+                    lambda l: l.product_template_id and not l.product_template_id.is_generic and not l.product_template_id.ems_is_tutoria
                 )
                 count = len(subject_lines)
                 

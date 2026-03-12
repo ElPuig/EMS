@@ -38,10 +38,11 @@
                         <page string="General Information" name="general_info">
                             <group>
                                 <group string="Academic Data">
-                                    <field name="ems_study_ids" widget="many2many_tags"
-                                        invisible="is_generic == True"/>
+                                    <field name="ems_study_ids" widget="many2many_tags"/>
                                     <field name="ems_level_ids" widget="many2many_tags" 
                                         invisible="is_generic == False"/>
+                                    <field name="ems_is_tutoria" widget="boolean_toggle"
+                                        invisible="is_generic == True"/>
                                     <field name="ems_is_enrollment_fee" widget="boolean_toggle"
                                         invisible="is_generic == False"
                                         required="is_generic == True"/>

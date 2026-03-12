@@ -115,9 +115,15 @@ class ems_contact(models.Model):
     'sale_order_ids.ems_authorization_ids.template_id.auth_type',
     )
     def _compute_auth_booleans(self):
+        current_course = self.env['ems.course'].search([
+            ('is_current', '=', True)
+        ], limit=1)
+
         for student in self:
             image, trip, health, share = False, False, False, False
-            for order in student.sale_order_ids:
+            for order in student.sale_order_ids.filtered(
+                lambda o: o.ems_course_id == current_course
+            ):
                 for auth in order.ems_authorization_ids:
                     if auth.status == 'yes':
                         if auth.template_id.auth_type == 'image':
@@ -131,12 +137,19 @@ class ems_contact(models.Model):
             student.auth_image = image
             student.auth_trip = trip
             student.auth_healt = health
-            student.auth_share = share
+            student.auth_share = share        
 
     def _compute_ems_authorization_ids(self):
+        current_course = self.env['ems.course'].search([
+            ('is_current', '=', True)
+        ], limit=1)
+
         for partner in self:
             # Buscamos las matrículas (sale.order) de este alumno y sacamos sus autorizaciones
-            enrollments = self.env['sale.order'].search([('partner_id', '=', partner.id)])
+            enrollments = self.env['sale.order'].search([
+                ('partner_id', '=', partner.id),
+                ('ems_course_id', '=', current_course.id if current_course else False),
+            ])
             partner.ems_authorization_ids = enrollments.mapped('ems_authorization_ids')
 
     @api.depends('benefit_ids', 'benefit_ids.category')

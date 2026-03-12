@@ -345,33 +345,34 @@ class ems_limesurvey_header(models.Model):
 				end(self, False, e)				
 			finally:
 				return True
-	# endregion
-
-
-	# TODO: check those ones
+	
 	def action_open(self):
 		self.ensure_one()
 		if not self.already_running():
+			# This method runs at the end, in order to store the correct state and send the notifications to the user
 			title = _("LimeSurvey: open surveys")
-			def end(self, success, errors=[]):		
-				details = "\n".join(str(e) for e in errors)
-				message = _("Open process successfully completed!") if success else f"{_('Open process failed.')} {details}"	
-				self.notify(title, message, "success" if success else "warning")	
-				self.chatter(message)					
+			def end(self, success, exception=None):
+				details = _("check the recipients entry for more details") if exception is None else exception	
+				message = _("Open process successfully completed!") if success else (f"{_('Open process failed.')} {details}")
+				if not success: self.chatter(message)
+				self.notify(title, message, "success" if success else "warning")
 				self.is_running = False
-				self.state = 'open' if success else 'uploaded'
-				
-			try:
+				self.state = 'open'	if success else 'uploaded'
+
+			try:				
 				self.is_running = True
-				self.state = 'opening'								
-				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
-											
+				self.state = 'opening'				
+				ls_api = limesurvey_api(self.env)
+				survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))	
+
+				# Background warning				
+				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")						
+				
+				# The main code will run on another thread to prevent Odoo timeouts
 				def run(self):					
-					try:	
+					try:
 						errors = []
-						success = True		
-						ls_api = limesurvey_api(self.env)
-						survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))																
+						success = True														
 						
 						for sid in survey_ids:
 							try:
@@ -382,27 +383,77 @@ class ems_limesurvey_header(models.Model):
 								errors.append(f"Unable to open the survey with external ID '{sid}'. {e}")					
 
 						end(self, success, errors)
+					
+					except Exception as e:
+						end(self, False, e)
+					
+					finally:
 						self.reload_request()
 					
-					except psycopg2.errors.SerializationFailure:
-						# NOTE: run_in_thread method will retry, the surveys won't be uploaded again due the use of execute_once.
-						raise
-					
-					except Exception as e:						
-						end(self, False, [e])
-						self.reload_request()
-				
+				# Thread execution
 				self.run_in_thread(run)				
 			except Exception as e:
 				end(self, False, e)				
 			finally:
 				return True
+	# endregion
+
+
+	# TODO: check those ones
+	# def action_open(self):
+	# 	self.ensure_one()
+	# 	if not self.already_running():
+	# 		title = _("LimeSurvey: open surveys")
+	# 		def end(self, success, errors=[]):		
+	# 			details = "\n".join(str(e) for e in errors)
+	# 			message = _("Open process successfully completed!") if success else f"{_('Open process failed.')} {details}"	
+	# 			self.notify(title, message, "success" if success else "warning")	
+	# 			self.chatter(message)					
+	# 			self.is_running = False
+	# 			self.state = 'open' if success else 'uploaded'
+				
+	# 		try:
+	# 			self.is_running = True
+	# 			self.state = 'opening'								
+	# 			self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
+											
+	# 			def run(self):					
+	# 				try:	
+	# 					errors = []
+	# 					success = True		
+	# 					ls_api = limesurvey_api(self.env)
+	# 					survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))																
+						
+	# 					for sid in survey_ids:
+	# 						try:
+	# 							self.execute_once(ls_api.activate_survey, f"activate_survey_{sid}", sid)	
+	# 							self.execute_once(ls_api.invite_participants, f"invite_participants_{sid}", sid)
+	# 						except Exception as e:
+	# 							success = False
+	# 							errors.append(f"Unable to open the survey with external ID '{sid}'. {e}")					
+
+	# 					end(self, success, errors)
+	# 					self.reload_request()
+					
+	# 				except psycopg2.errors.SerializationFailure:
+	# 					# NOTE: run_in_thread method will retry, the surveys won't be uploaded again due the use of execute_once.
+	# 					raise
+					
+	# 				except Exception as e:						
+	# 					end(self, False, [e])
+	# 					self.reload_request()
+				
+	# 			self.run_in_thread(run)				
+	# 		except Exception as e:
+	# 			end(self, False, e)				
+	# 		finally:
+	# 			return True
 	
 
 
 
 	
-			return rec._action_draft()								
+	# 		return rec._action_draft()								
 
 	def action_remind(self):
 		for rec in self:			

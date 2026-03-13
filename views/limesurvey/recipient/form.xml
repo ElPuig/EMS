@@ -34,7 +34,7 @@
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-bell"
-                            invisible="is_running or limesurvey_header_id.status in ('open')"
+                            invisible="is_running or state not in ('open')"
                         />
 
                          <!-- IN USE -->

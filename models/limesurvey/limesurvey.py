@@ -615,6 +615,7 @@ class ems_limesurvey_recipient(models.Model):
 	internal_id = fields.Char(string="Survey's ID (EMS)")
 	token = fields.Char(string="User's token (LimeSurvey)")
 	tid = fields.Integer(string="User's ID (LimeSurvey)")
+	state = fields.Selection(string="State", related="limesurvey_header_id.state")
 	status = fields.Selection(string='Status', selection=[('pending', 'Pending'), ('success', 'Success'), ('error', 'Error')], default='pending')
 	error = fields.Char(string="Error details")
 	is_running = fields.Boolean(string="Running", default=False)

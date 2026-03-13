@@ -36,7 +36,7 @@ class ems_multithreading(models.AbstractModel):
         return result
 
     # Allows running the 'func' method in a new thread with retries (due to BBDD commit's concurrent exception).
-    def run_in_thread(self, func, max_retries=5, *args, **kwargs):
+    def run_in_thread(self, func, max_retries=5, reload=True, *args, **kwargs):
         uid = self.env.uid
         dbname = self.env.cr.dbname
         context = dict(self.env.context)
@@ -57,9 +57,11 @@ class ems_multithreading(models.AbstractModel):
                         if isinstance(func, str):
                             method_to_call = getattr(n_self, func)
                             method_to_call(*args, **kwargs)
-
                         elif callable(func):
                             func(n_self, *args, **kwargs)
+
+                        if reload: 
+                            n_self.reload_request()
 
                         break
 

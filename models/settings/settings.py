@@ -13,3 +13,4 @@ class ems_settings(models.TransientModel):
    limesurvey_api = fields.Char(related="company_id.limesurvey_api", readonly=False)
    limesurvey_usr = fields.Char(related="company_id.limesurvey_usr", readonly=False)
    limesurvey_pwd = fields.Char(related="company_id.limesurvey_pwd", readonly=False)
+   limesurvey_gid = fields.Integer(related="company_id.limesurvey_gid", readonly=False)

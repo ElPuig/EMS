@@ -14,9 +14,10 @@ class ems_company(models.Model):
     attendance_issue_tutor_default = fields.Float(default=21.0)
 
     limesurvey_api = fields.Char()
-    limesurvey_usr = fields.Char()
+    limesurvey_usr = fields.Char()    
     limesurvey_pwd = fields.Char(compute='_compute_limesurvey_pwd', inverse='_inverse_limesurvey_pwd', store=False)
     limesurvey_pwd_encrypted = fields.Char(copy=False)
+    limesurvey_gid = fields.Integer(default=1)
 
     current_course_id = fields.Many2one(comodel_name="ems.course")
 

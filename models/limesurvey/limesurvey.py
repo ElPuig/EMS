@@ -257,70 +257,127 @@ class ems_limesurvey_header(models.Model):
 	def action_reload(self):
 		return self.action_compute(_("LimeSurvey: reload recipients"), _("Recipients successfully reloaded!"), _('Recipients reload failed. '))		
 
-	def action_upload(self):
+	def _end(self, success, title, action, status_ok, status_ko, exception=None):
+		details = _("check the recipients entry for more details") if exception is None else exception	
+		message = f"{action}  {_('process successfully completed!')}" if success else (f"{action}  {_('process failed.')} {details}")
+
+		if not success: self.chatter(message)
+		self.notify(title, message, "success" if success else "warning")
+		self.is_running = False
+		self.state = status_ok if success else status_ko
+		
+	def _run_action(self, title, action, status_w, status_ok, status_ko, pre, code):
 		self.ensure_one()
-		if not self.already_running():
-			# This method runs at the end, in order to store the correct state and send the notifications to the user
-			title = _("LimeSurvey: upload surveys")
-			action = _("Upload")
-			status_ok = "uploaded"
-			status_ko = "computed"
-			
-			# def end(self, success, exception=None):
-			# 	details = _("check the recipients entry for more details") if exception is None else exception	
-			# 	message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {details}")
-			# 	if not success: self.chatter(message)
-			# 	self.notify(title, message, "success" if success else "warning")
-			# 	self.is_running = False
-			# 	self.state = 'uploaded'	if success else 'computed'
-
-			try:				
+		if not self.already_running():			
+			try:
 				self.is_running = True
-				self.state = 'uploading'
-
-				# EMS group verification
-				ls_api = limesurvey_api(self.env)
-				ems_grp = ls_api.get_group("ems")
-				if not ems_grp:
-					#NOTE: The LimeSurvey's API does not allow to create groups.
-					raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group using the code 'ems' and try again; the EMS will use this group in order to generate all the surveys."))		
+				self.state = status_w				
+				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
 				
-				# Settings up the distinct types of surveys (only computed once, changes remain between retries)
-				if(self.target == "students"): surveys = self._compute_students_surveys()
-				elif(self.target == "teachers"): surveys = self._compute_teachers_surveys()
-				elif(self.target == "asp"): surveys = self._compute_asp_surveys()
-					
-				# Background warning				
-				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
-				
-				# The main code will run on another thread to prevent Odoo timeouts
-				def run(self):					
-					try:
-						success = True										
-						# Upload the surveys and recipients
-						for key in surveys:
-							survey = surveys[key]				
-							ok = self.execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)							
-							if ok: ok = self.execute_once(self.upload_recipients, f"upload_recipients_{key}", survey["internal_id"], survey["external_id"], survey["recipients"])							
-							self.store_recipients_data(survey["recipients"])
-							success = ok and success																
-						#end(self, success)
-						self._end(success, title, action, status_ok, status_ko)
-					
-					except Exception as e:
-						#end(self, False, e)
-						self._end(success, title, action, status_ok, status_ko, e)
-					
-					finally:
-						self.reload_request()
-					
-				# Thread execution
-				self.run_in_thread(run)				
+				pre(self)
+				self.run_in_thread(code)	
 			except Exception as e:
-				#end(self, False, e)
 				self._end(False, title, action, status_ok, status_ko, e)
 			finally:
 				return True
+
+	def action_upload(self):	
+		title = _("LimeSurvey: upload surveys")
+		action = _("Upload")
+		status_w = "uploading"
+		status_ok = "uploaded"
+		status_ko = "computed"
+		
+		if not self.env.company.limesurvey_gid:
+			raise UserError(_("LimeSurvey's group ID not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, provide a valid group ID; the EMS will use this group in order to generate all the surveys within it."))		
+		
+		# NOTE: The action will run in a diferent thread with retries if the commit fails. In order to avoid LS repetitions (like creating the same survey twice)
+		#		this kind of calls will be executed only once, but the returned data must be persistent between retries (Odoo models rollback changes on exceptions).
+		#		This is the reason because the "survey" is created here as an empty one, and shared across methods, so its data will prevail between retries. 
+		surveys = {}
+		
+		def pre(self):
+			if(self.target == "students"): self._compute_students_surveys(surveys)
+			elif(self.target == "teachers"): self._compute_teachers_surveys(surveys)
+			elif(self.target == "asp"): self._compute_asp_surveys(surveys)
+
+		def run(self):					
+			success = True										
+			for key in surveys:
+				survey = surveys[key]				
+				ok = self.execute_once(self.upload_survey, f"upload_survey_{key}", survey)							
+				if ok: ok = self.execute_once(self.upload_recipients, f"upload_recipients_{key}", survey["internal_id"], survey["external_id"], survey["recipients"])							
+				self.store_recipients_data(survey["recipients"])
+				success = ok and success																				
+			self._end(success, title, action, status_ok, status_ko)
+				
+		self._run_action(title, action, status_w, status_ok, status_ko, pre, run)		
+		return True
+			
+	# def action_upload(self):
+	# 	self.ensure_one()
+	# 	if not self.already_running():
+	# 		# This method runs at the end, in order to store the correct state and send the notifications to the user
+	# 		title = _("LimeSurvey: upload surveys")
+	# 		action = _("Upload")
+	# 		status_ok = "uploaded"
+	# 		status_ko = "computed"
+			
+	# 		# def end(self, success, exception=None):
+	# 		# 	details = _("check the recipients entry for more details") if exception is None else exception	
+	# 		# 	message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {details}")
+	# 		# 	if not success: self.chatter(message)
+	# 		# 	self.notify(title, message, "success" if success else "warning")
+	# 		# 	self.is_running = False
+	# 		# 	self.state = 'uploaded'	if success else 'computed'
+
+	# 		try:				
+	# 			self.is_running = True
+	# 			self.state = 'uploading'
+
+	# 			# EMS group verification
+	# 			ls_api = limesurvey_api(self.env)
+	# 			ems_grp = ls_api.get_group("ems")
+	# 			if not ems_grp:
+	# 				#NOTE: The LimeSurvey's API does not allow to create groups.
+	# 				raise UserError(_("LimeSurvey's EMS group not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, use the EMS user to crate a survey group using the code 'ems' and try again; the EMS will use this group in order to generate all the surveys."))		
+				
+	# 			# Settings up the distinct types of surveys (only computed once, changes remain between retries)
+	# 			if(self.target == "students"): surveys = self._compute_students_surveys()
+	# 			elif(self.target == "teachers"): surveys = self._compute_teachers_surveys()
+	# 			elif(self.target == "asp"): surveys = self._compute_asp_surveys()
+					
+	# 			# Background warning				
+	# 			self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")				
+				
+	# 			# The main code will run on another thread to prevent Odoo timeouts
+	# 			def run(self):					
+	# 				try:
+	# 					success = True										
+	# 					# Upload the surveys and recipients
+	# 					for key in surveys:
+	# 						survey = surveys[key]				
+	# 						ok = self.execute_once(self.upload_survey, f"upload_survey_{key}", ems_grp["gsid"], survey)							
+	# 						if ok: ok = self.execute_once(self.upload_recipients, f"upload_recipients_{key}", survey["internal_id"], survey["external_id"], survey["recipients"])							
+	# 						self.store_recipients_data(survey["recipients"])
+	# 						success = ok and success																
+	# 					#end(self, success)
+	# 					self._end(success, title, action, status_ok, status_ko)
+					
+	# 				except Exception as e:
+	# 					#end(self, False, e)
+	# 					self._end(success, title, action, status_ok, status_ko, e)
+					
+	# 				finally:
+	# 					self.reload_request()
+					
+	# 			# Thread execution
+	# 			self.run_in_thread(run)				
+	# 		except Exception as e:
+	# 			#end(self, False, e)
+	# 			self._end(False, title, action, status_ok, status_ko, e)
+	# 		finally:
+	# 			return True
 			
 	def action_remove(self):
 		self.ensure_one()
@@ -579,12 +636,12 @@ class ems_limesurvey_header(models.Model):
 				"external_id": rec["external_id"]
 			})			
 
-	def upload_survey(self, gsid, survey):		
+	def upload_survey(self, survey):		
 		success = True
 		ls_api = limesurvey_api(self.env)
 
 		try:
-			survey["external_id"] = ls_api.create_survey(gsid, survey["raw_tsv"])
+			survey["external_id"] = ls_api.create_survey(self.env.company.limesurvey_gid, survey["raw_tsv"])
 		except Exception as e:
 			success = False
 			survey["error"] = str(e)
@@ -684,8 +741,7 @@ class ems_limesurvey_header(models.Model):
 	def _compute_recipients_asp(self):
 		raise NotImplemented("Coming soon...")
 
-	def _compute_students_surveys(self):
-		surveys = dict()		
+	def _compute_students_surveys(self, surveys):
 		for rec in self.limesurvey_recipient_ids:
 			# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
 			#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).			
@@ -699,22 +755,15 @@ class ems_limesurvey_header(models.Model):
 				}					
 		return surveys		
 
-	def _compute_teachers_surveys(self):
+	def _compute_teachers_surveys(self, surveys):
 		raise NotImplemented("Coming soon...")
 
-	def _compute_asp_surveys(self):
+	def _compute_asp_surveys(self, surveys):
 		raise NotImplemented("Coming soon...")
 	# endregion	
 	
 	# region PRIVATE AUX METHODS
-	def _end(self, success, title, action, status_ok, status_ko, exception=None):
-		details = _("check the recipients entry for more details") if exception is None else exception	
-		message = f"{action}  {_('process successfully completed!')}" if success else (f"{action}  {_('process failed.')} {details}")
-
-		if not success: self.chatter(message)
-		self.notify(title, message, "success" if success else "warning")
-		self.is_running = False
-		self.state = status_ok if success else status_ko
+	
 	# endregion
 class ems_limesurvey_block(models.Model):
 	_name = "ems.limesurvey_block"
@@ -930,9 +979,8 @@ class ems_limesurvey_recipient(models.Model):
 				if existing: survey["external_id"] = survey.get("external_id", existing["external_id"])
 				else:
 					# The "upload_survey" method stores the external_id (LS) into the survey dictionary.
-					gsid = ls_api.get_group("ems")["gsid"]	
 					survey["raw_tsv"] = survey.get("raw_tsv", header.compute_survey_data(self, False)["raw_tsv"])			
-					success = self.execute_once(header.upload_survey, f"upload_survey_{internal_id}", gsid, survey)				
+					success = self.execute_once(header.upload_survey, f"upload_survey_{internal_id}", survey)				
 				
 				if success:				
 					# The participant must be removed from the old survey

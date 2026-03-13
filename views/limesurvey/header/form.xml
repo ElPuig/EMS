@@ -100,7 +100,7 @@
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-trash"
-                            invisible="state != 'opening'"
+                            invisible="state not in ('opening', 'removing')"
                         />
 
                         <button string="Open surveys"  
@@ -109,7 +109,7 @@
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-play"
-                            invisible="state != 'opening'"
+                            invisible="state not in ('opening', 'removing')"
                         />
 
                         <!-- OPEN -->      

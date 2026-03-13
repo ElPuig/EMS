@@ -41,6 +41,7 @@ class ems_base(models.AbstractModel):
     
     # To send a notification (won't be sent till a BBDD commit)
     def notify(self, title, message, type, sticky=False):
+        # types: success; warning; danger; info
         self.env["bus.bus"]._sendone(
             self.env.user.partner_id, "simple_notification", {
                 "title": title, 

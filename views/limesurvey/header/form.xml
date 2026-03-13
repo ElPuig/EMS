@@ -122,7 +122,7 @@
                         />
 
                         <button string="Close surveys" 
-                            name="action_none"                                 
+                            name="action_close"                                 
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-stop"
@@ -130,7 +130,7 @@
                         />
 
                         <!-- CLOSING -->        
-                        <button string="Send reminders" 
+                        <!-- <button string="Send reminders" 
                             disabled="True"
                             name="action_remind"                                 
                             type="object" 
@@ -146,10 +146,10 @@
                             class="oe_highlight" 
                             icon="fa-stop"
                             invisible="state != 'closing'"
-                        />  
+                        />   -->
 
                         <!-- CLOSED -->   
-                        <button string="Open surveys"  
+                        <!-- <button string="Open surveys"  
                             name="action_none"                             
                             type="object" 
                             class="oe_highlight" 
@@ -163,10 +163,10 @@
                             class="oe_highlight" 
                             icon="fa-cloud-download"
                             invisible="state != 'closed'"
-                        />    
+                        />     -->
 
                         <!-- DOWNLOADING -->   
-                        <button string="Open surveys"  
+                        <!-- <button string="Open surveys"  
                             disabled="True"
                             name="action_none"                             
                             type="object" 
@@ -182,16 +182,16 @@
                             class="oe_highlight" 
                             icon="fa-cloud-download"
                             invisible="state != 'downloading'"
-                        />     
+                        />      -->
 
                         <!-- DOWNLOADED -->   
-                        <button string="Return to draft"   
+                        <!-- <button string="Return to draft"   
                             name="action_none"                              
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-step-backward"
                             invisible="state != 'downloaded'"
-                        />       
+                        />        -->
 
                         <field name="state" widget="statusbar" statusbar_visible="draft,computed,uploading,uploaded,opening,open,closing,closed,downloading,downloaded"/>                       
                     </header>

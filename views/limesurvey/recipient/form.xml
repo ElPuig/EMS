@@ -54,7 +54,16 @@
                             class="oe_highlight" 
                             icon="fa-cloud-upload"
                             invisible="not is_running or status in ('pending')"
-                        />                       
+                        />
+
+                        <button string="Send reminder" 
+                            disabled="True"
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-bell"
+                            invisible="not is_running or status in ('pending')"
+                        />
                     </header>
 
                     <sheet>

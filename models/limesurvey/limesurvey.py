@@ -472,7 +472,7 @@ class ems_limesurvey_header(models.Model):
 	# endregion	
 	# region PUBLIC METHODS (CAN BE CALLED INDIVIDUALLY FROM A CONCRETE RECIPIENT)
 	def compute_survey_data(self, recipient, only_key):
-		name = f"{self.name}_{recipient.level_id.acronym}"
+		survey_name = f"{self.name}_{recipient.level_id.acronym}"
 		if not only_key:
 			content = self.tsv_raw_text
 			#content = content.replace("{'SID'}", "str(key)") # it's better to set it automatically and relate it with our hash internally
@@ -489,6 +489,15 @@ class ems_limesurvey_header(models.Model):
 			content = content.replace("{'DEGREE'}", d_acro)
 			content = content.replace("{'GROUP'}", g_acro)
 			content = content.replace("{'TRAINER'}", trainer)
+			
+			if recipient.student_id:
+				content = content.replace("{'RECIPIENT'}", "STUDENTS")
+			elif recipient.teacher_id:
+				content = content.replace("{'RECIPIENT'}", "TEACHERS")
+			elif recipient.asp_id:
+				content = content.replace("{'RECIPIENT'}", "ASP")
+			else:
+				content = content.replace("{'RECIPIENT'}", "UNKNOWN")
 			return content
 
 		# NOTE: real enrollment data is not used, because modifying the survey content should be allowed by someone without permissions, the recipient's one is used instead.
@@ -501,24 +510,27 @@ class ems_limesurvey_header(models.Model):
 					if not block.special_subject_enrolled and not block.special_wpi_enrolled: append = True	# Just course filter							
 					elif block.special_wpi_enrolled and recipient.student_id and recipient.wpi_enrolled: append = True
 					elif block.special_subject_enrolled and recipient.student_id:
-						# NOTE: Repeat the block for every enrolled subject.
+						# NOTE: Repeat the block for every enrolled subject. Each question must have a unique numerical id, for subject it should star with 4 (400, 4001, 4002...)
+						qID = 4
 						for enroll in recipient.limesurvey_enrollment_ids:
-							name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.display_name}"
+							survey_name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.display_name}"
 							if not only_key:
 								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
 								teachers_names = "UNKNOWN" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
-								tmp = replace_block_content(block.tsv_raw_text, block.name, recipient.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, recipient.student_id.study_id.acronym, enroll.student_id.main_group_id.acronym, teachers_names)
-								tmp = tmp.replace("{'X'}", enroll.subject_id.code)								
+								title = f"{enroll.subject_id.acronym}: {enroll.subject_id.name} | {enroll.group_id.display_name} | {teachers_names}"
+								tmp = replace_block_content(block.tsv_raw_text, title, recipient.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, recipient.student_id.study_id.acronym, enroll.student_id.main_group_id.acronym, teachers_names)
+								tmp = tmp.replace("{'X'}", str(qID))
 								content += tmp
+								qID += 1
 			if append:
-				name += f" | {block.name}"	
+				survey_name += f" | {block.name}"	
 				if not only_key:
 					study = "NONE" if not recipient.student_id else recipient.student_id.study_id.acronym
 					group = "NONE" if not recipient.student_id else recipient.student_id.main_group_id.acronym
 					content += replace_block_content(block.tsv_raw_text, block.name, recipient.level_id.acronym, block.name, block.name, study, group)					
 
 		return {
-			"internal_id": self.persistent_hash(name), 
+			"internal_id": self.persistent_hash(survey_name), 
 			"raw_tsv": None if only_key else content
 		}
 			
@@ -636,10 +648,10 @@ class ems_limesurvey_header(models.Model):
 	
 	def _compute_recipients_teachers(self):
 		# TODO: WARNING: do not repeat teachers (for example, if the same teacher is in CFGM and CFGS). Which level should be used? The first one?
-		return False
+		raise NotImplemented("Coming soon...")
 
 	def _compute_recipients_asp(self):
-		return False
+		raise NotImplemented("Coming soon...")
 
 	def _compute_students_surveys(self):
 		surveys = dict()		
@@ -657,58 +669,11 @@ class ems_limesurvey_header(models.Model):
 		return surveys		
 
 	def _compute_teachers_surveys(self):
-		fake = 0
+		raise NotImplemented("Coming soon...")
 
 	def _compute_asp_surveys(self):
-		fake = 0
-	# endregion
-
-	# region PRIVATE AUX METHODS
-	# endregion
-
-
-	# def action_next(self):
-	# 	return True
-	# 	# TODO: Expected behaviour:
-	# 	#		1. Check if exists the main "ems" group:
-	# 	#			1.1. If exists, keeps its ID.
-	# 	#			1.2. If don't, fires exceptions and requires to create manually the group using the same user (suggest also the description).
-	# 	#
-	# 	#		2. Every survey will be created into the same group, because the EMS will keep track between every target and its survey.
-	# 	#		3. The surveys will be created as "{DisplayName} - {hasCode}". The hashCode will be computed as:
-	# 	#		   Sort subject codes.
-	# 	#			
-	# 	#		4. A new sheet called "Recipients" will contain the relation between recipients (Name, email, survey_target_selection, limesurvey survey name, limsurvey survey link).
-	# 	#		5. Buttons (or a kind of wizard with progress like in emails section) in the following order:
-	# 	#			5.1. Create the surveys in LimeSurvey (once used, disables the option).
-	# 	#			5.2. Enable the surveys in LimeSurvey and send invitations (once used, disables the option).
-	# 	#			5.3. Send reminders (disables on closing the survey).
-	# 	#			5.4. Close the survey in LimeSurvey (once used, disables the option).
-	# 	#			5.5. PHASE 2: Downloads the data from LimeSurvey [and trasnfers it to Metabase <- can we handle it within Odoo?] (once used, disables the option).
-	# 	#			5.6. Remove the survey from LimeSurvey, cleans the recipients data. Do not remove already downloaded data! (once used, disables the option BUT enables the first one again).
-
-	# 	# TODO: Metabase import could be in a phase 2. But would be nice to do not use Metabase and keep everything within Odoo. 
-	# 	#		In that case, download the data and metabase import can wait, the priority is to create and manage recipients in
-	# 	#		order to detect and fix problems quickly. 
-	# 	# for rec in self:			
-	# 	# 	if not rec.already_running():
-	# 	# 		rec.is_running = True
-	# 	# 		if rec.state == 'draft':				
-	# 	# 			rec.state = 'uploading'
-	# 	# 			return rec._action_upload()
-				
-	# 	# 		elif rec.state == 'uploaded':				
-	# 	# 			rec.state = 'opening'		
-	# 	# 			return rec._action_open()
-
-	# 	# 		elif rec.state == 'open':				
-	# 	# 			rec.state = 'closed'
-					
-	# 	# 		elif rec.state == 'closed':
-	# 	# 			rec.state = 'downloaded'
-
-	# 	# 		elif rec.state == 'downloaded':
-	# 	# 			rec.state = 'draft'			
+		raise NotImplemented("Coming soon...")
+	# endregion	
 	
 class ems_limesurvey_block(models.Model):
 	_name = "ems.limesurvey_block"

@@ -106,9 +106,12 @@ class limesurvey_api():
 		except Exception as e:
 			raise Exception(f"{error}: {e}")
 
-	def remind_participants(self, survey_id):
+	def remind_participants(self, survey_id, part_ids=None):
 		error = _("Unable to invite some participants")		
 		try:
+			data = [survey_id]
+			if part_ids is not None: data.append(part_ids)
+
 			for current_try in range(5):
 				result  = self._run_api_request("remind_participants", [survey_id])
 				if "status" not in result: raise Exception(f"{error}: " + "UNKWOWN ERROR!")
@@ -259,13 +262,17 @@ class ems_limesurvey_header(models.Model):
 		if not self.already_running():
 			# This method runs at the end, in order to store the correct state and send the notifications to the user
 			title = _("LimeSurvey: upload surveys")
-			def end(self, success, exception=None):
-				details = _("check the recipients entry for more details") if exception is None else exception	
-				message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {details}")
-				if not success: self.chatter(message)
-				self.notify(title, message, "success" if success else "warning")
-				self.is_running = False
-				self.state = 'uploaded'	if success else 'computed'
+			action = _("Upload")
+			status_ok = "uploaded"
+			status_ko = "computed"
+			
+			# def end(self, success, exception=None):
+			# 	details = _("check the recipients entry for more details") if exception is None else exception	
+			# 	message = _("Upload process successfully completed!") if success else (f"{_('Upload process failed.')} {details}")
+			# 	if not success: self.chatter(message)
+			# 	self.notify(title, message, "success" if success else "warning")
+			# 	self.is_running = False
+			# 	self.state = 'uploaded'	if success else 'computed'
 
 			try:				
 				self.is_running = True
@@ -297,10 +304,12 @@ class ems_limesurvey_header(models.Model):
 							if ok: ok = self.execute_once(self.upload_recipients, f"upload_recipients_{key}", survey["internal_id"], survey["external_id"], survey["recipients"])							
 							self.store_recipients_data(survey["recipients"])
 							success = ok and success																
-						end(self, success)
+						#end(self, success)
+						self._end(success, title, action, status_ok, status_ko)
 					
 					except Exception as e:
-						end(self, False, e)
+						#end(self, False, e)
+						self._end(success, title, action, status_ok, status_ko, e)
 					
 					finally:
 						self.reload_request()
@@ -308,7 +317,8 @@ class ems_limesurvey_header(models.Model):
 				# Thread execution
 				self.run_in_thread(run)				
 			except Exception as e:
-				end(self, False, e)				
+				#end(self, False, e)
+				self._end(False, title, action, status_ok, status_ko, e)
 			finally:
 				return True
 			
@@ -317,13 +327,17 @@ class ems_limesurvey_header(models.Model):
 		if not self.already_running():			
 			# This method runs at the end, in order to store the correct state and send the notifications to the user
 			title = _("LimeSurvey: remove surveys")
-			def end(self, success, exception=None):
-				details = _("check the recipients entry for more details") if exception is None else exception
-				message = _("Remove process successfully completed!") if success else (f"{_('Remove process failed.')} {details}")
-				if not success: self.chatter(message)
-				self.notify(title, message, "success" if success else "warning")
-				self.is_running = False
-				self.state = 'computed'	if success else 'uploaded'
+			action = _("Remove")
+			status_ok = "computed"
+			status_ko = "uploaded"
+
+			# def end(self, success, exception=None):
+			# 	details = _("check the recipients entry for more details") if exception is None else exception
+			# 	message = _("Remove process successfully completed!") if success else (f"{_('Remove process failed.')} {details}")
+			# 	if not success: self.chatter(message)
+			# 	self.notify(title, message, "success" if success else "warning")
+			# 	self.is_running = False
+			# 	self.state = 'computed'	if success else 'uploaded'
 				
 			try:				
 				self.is_running = True
@@ -347,16 +361,19 @@ class ems_limesurvey_header(models.Model):
 								rec.token = None
 								rec.status = "pending"
 																			
-						end(self, True)
+						#end(self, True)
+						self._end(True, title, action, status_ok, status_ko)
 					except Exception as e:
-						end(self, False, e)
+						#end(self, False, e)
+						self._end(False, title, action, status_ok, status_ko, e)
 					finally:
 						self.reload_request()
 
 				# Thread execution
 				self.run_in_thread(run)				
 			except Exception as e:
-				end(self, False, e)				
+				#end(self, False, e)
+				self._end(False, title, action, status_ok, status_ko, e)
 			finally:
 				return True
 	
@@ -365,13 +382,17 @@ class ems_limesurvey_header(models.Model):
 		if not self.already_running():
 			# This method runs at the end, in order to store the correct state and send the notifications to the user
 			title = _("LimeSurvey: open surveys")
-			def end(self, success, exception=None):
-				details = _("check the recipients entry for more details") if exception is None else exception	
-				message = _("Open process successfully completed!") if success else (f"{_('Open process failed.')} {details}")
-				if not success: self.chatter(message)
-				self.notify(title, message, "success" if success else "warning")
-				self.is_running = False
-				self.state = 'open'	if success else 'uploaded'
+			action = _("Open")
+			status_ok = "open"
+			status_ko = "uploaded"
+
+			# def end(self, success, exception=None):
+			# 	details = _("check the recipients entry for more details") if exception is None else exception	
+			# 	message = _("Open process successfully completed!") if success else (f"{_('Open process failed.')} {details}")
+			# 	if not success: self.chatter(message)
+			# 	self.notify(title, message, "success" if success else "warning")
+			# 	self.is_running = False
+			# 	self.state = 'open'	if success else 'uploaded'
 
 			try:				
 				self.is_running = True
@@ -396,10 +417,12 @@ class ems_limesurvey_header(models.Model):
 								success = False
 								errors.append(f"Unable to open the survey with external ID '{sid}'. {e}")					
 
-						end(self, success, errors)
+						#end(self, success, errors)
+						self._end(success, title, action, status_ok, status_ko, None if len(errors) == 0 else errors)
 					
 					except Exception as e:
-						end(self, False, e)
+						#end(self, False, e)
+						self._end(False, title, action, status_ok, status_ko, e)
 					
 					finally:
 						self.reload_request()
@@ -407,7 +430,8 @@ class ems_limesurvey_header(models.Model):
 				# Thread execution
 				self.run_in_thread(run)				
 			except Exception as e:
-				end(self, False, e)				
+				#end(self, False, e)
+				self._end(False, title, action, status_ok, status_ko, e)
 			finally:
 				return True
 	
@@ -422,13 +446,17 @@ class ems_limesurvey_header(models.Model):
 		if not self.already_running():
 			# This method runs at the end, in order to store the correct state and send the notifications to the user
 			title = _("LimeSurvey: send reminders")
-			def end(self, success, exception=None):
-				details = _("check the recipients entry for more details") if exception is None else exception	
-				message = _("Remind process successfully completed!") if success else (f"{_('Remind process failed.')} {details}")
-				if not success: self.chatter(message)
-				self.notify(title, message, "success" if success else "warning")
-				self.is_running = False
-				self.state = 'open'
+			action = _("Remind")
+			status_ok = "open"
+			status_ko = "open"
+
+			# def end(self, success, exception=None):
+			# 	details = _("check the recipients entry for more details") if exception is None else exception	
+			# 	message = _("Remind process successfully completed!") if success else (f"{_('Remind process failed.')} {details}")
+			# 	if not success: self.chatter(message)
+			# 	self.notify(title, message, "success" if success else "warning")
+			# 	self.is_running = False
+			# 	self.state = 'open'
 
 			try:				
 				self.is_running = True
@@ -452,10 +480,12 @@ class ems_limesurvey_header(models.Model):
 								success = False
 								errors.append(f"Unable to send reminders for the survey with external ID '{sid}'. {e}")					
 
-						end(self, success, errors)
+						#end(self, success, errors)
+						self._end(success, title, action, status_ok, status_ko, None if len(errors) == 0 else errors)
 					
 					except Exception as e:
-						end(self, False, e)
+						#end(self, False, e)
+						self._end(False, title, action, status_ok, status_ko, e)
 					
 					finally:
 						self.reload_request()
@@ -463,7 +493,8 @@ class ems_limesurvey_header(models.Model):
 				# Thread execution
 				self.run_in_thread(run)				
 			except Exception as e:
-				end(self, False, e)				
+				#end(self, False, e)
+				self._end(False, title, action, status_ok, status_ko, e)
 			finally:
 				return True
 	
@@ -675,6 +706,16 @@ class ems_limesurvey_header(models.Model):
 		raise NotImplemented("Coming soon...")
 	# endregion	
 	
+	# region PRIVATE AUX METHODS
+	def _end(self, success, title, action, status_ok, status_ko, exception=None):
+		details = _("check the recipients entry for more details") if exception is None else exception	
+		message = f"{action}  {_('process successfully completed!')}" if success else (f"{action}  {_('process failed.')} {details}")
+
+		if not success: self.chatter(message)
+		self.notify(title, message, "success" if success else "warning")
+		self.is_running = False
+		self.state = status_ok if success else status_ko
+	# endregion
 class ems_limesurvey_block(models.Model):
 	_name = "ems.limesurvey_block"
 	_description = "LimeSurvey block: contains the main data about a LimeSurvey's session block."
@@ -752,12 +793,19 @@ class ems_limesurvey_recipient(models.Model):
 		if not self.already_running():
 			# This method runs at the end, in order to store the correct state and send the notifications to the user
 			title = _("LimeSurvey: refresh recipient")
-			def end(self, success, exception=None):
-				details = _("check the recipients entry for more details") if exception is None else exception	
-				message = _("Refresh process successfully completed!") if success else (f"{_('Refresh process failed.')} {details}")
-				if not success: self.chatter(message)
-				self.notify(title, message, "success" if success else "warning")
-				self.is_running = False
+			action = _("Refresh")
+
+			# def end(self, success, exception=None):
+			# 	details = _("check the recipients entry for more details") if exception is None else exception	
+			# 	message = _("Refresh process successfully completed!") if success else (f"{_('Refresh process failed.')} {details}")
+				
+			# 	if success: self.error = None
+			# 	else:
+			# 		self.error = e
+			# 		self.chatter(message)
+
+			# 	self.notify(title, message, "success" if success else "warning")
+			# 	self.is_running = False
 		
 			try:				
 				self.is_running = True
@@ -767,11 +815,71 @@ class ems_limesurvey_recipient(models.Model):
 			
 				if self.student_id:
 					# NOTE: must be done this way, otherwise the survey data does not persisnt between retries if a commit fails
-					self.run_in_thread("_upload_student", survey={}, callback=end)
+					self.run_in_thread("_upload_student", survey={}, callback=self._end, title=title, action=action)
 				# TODO: also for teachers and ASP
+				elif self.teacher_id:
+					raise NotImplemented("Coming soon...")
+				elif self.asp_id:
+					raise NotImplemented("Coming soon...")
+				else:
+					raise Exception("Recipient not specified.")				
 
 			except Exception as e:
-				end(self, False, e)				
+				#end(self, False, e)				
+				self._end(False, title, action, e)
+			finally:
+				return True
+	
+	def action_remind(self):
+		self.ensure_one()
+		if not self.already_running():
+			# This method runs at the end, in order to store the correct state and send the notifications to the user
+			title = _("LimeSurvey: send reminder")
+			action = _("Remind")
+			
+			# def end(self, success, exception=None):
+			# 	details = _("check the recipients entry for more details") if exception is None else exception	
+			# 	message = _("Remind process successfully completed!") if success else (f"{_('Remind process failed.')} {details}")
+				
+			# 	if success: self.error = None
+			# 	else:
+			# 		self.error = e
+			# 		self.chatter(message)
+
+			# 	self.notify(title, message, "success" if success else "warning")
+			# 	self.is_running = False
+
+			try:				
+				self.is_running = True
+
+				# Background warning				
+				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")						
+				
+				# The main code will run on another thread to prevent Odoo timeouts
+				def run(self):					
+					try:						
+						ls_api = limesurvey_api(self.env)
+						sid = self.external_id						
+						try:
+							self.execute_once(ls_api.remind_participants, f"remind_participants_{sid}", sid, [self.tid])
+							#end(self, True)
+							self._end(True, title, action)
+						except Exception as e:
+							#end(self, False, e)
+							self._end(False, title, action, e)
+					
+					except Exception as e:
+						#end(self, False, e)
+						self._end(False, title, action, e)
+					
+					finally:
+						self.reload_request()
+					
+				# Thread execution
+				self.run_in_thread(run)				
+			except Exception as e:
+				#end(self, False, e)				
+				self._end(False, title, action, e)
 			finally:
 				return True
 	# endregion
@@ -796,8 +904,8 @@ class ems_limesurvey_recipient(models.Model):
 		}
 	# endregion
 
-	# region PRIVATE COMPUTE/STORE METHODS
-	def _upload_student(self, survey, callback):
+	# region PRIVATE COMPUTE/AUX METHODS
+	def _upload_student(self, survey, callback, title, action):
 		# NOTE: the 'survey' must be created BEFORE this method runs in another thread, in order to store data between executions on retries. 
 		try:
 			header = self.limesurvey_header_id			
@@ -844,12 +952,27 @@ class ems_limesurvey_recipient(models.Model):
 					# Always tries to store the recipient data with error messages and so...
 					header.store_recipients_data(survey["recipients"])
 
-			callback(self, success)
+			#callback(self, success)
+			#end(self, False, e)		
+			callback(self, success, title, action)
 		except Exception as e:
-			callback(self, False, e)
+			#callback(self, False, e)
+			callback(self, False, title, action, e)
 		finally:
 			self.reload_request()
+	
+	def _end(self, success, title, action, exception=None):		
+		message = f"{action}  {_('process successfully completed!')}" if success else (f"{action}  {_('process failed.')} {exception}")
+		
+		if success: self.error = None
+		else:
+			self.error = str(exception)
+			self.chatter(message)
+
+		self.notify(title, message, "success" if success else "danger")
+		self.is_running = False
 	# endregion
+
 class ems_limesurvey_enrollment(models.Model):
 	_name = "ems.limesurvey_enrollment"
 	_description = "LimeSurvey enrollment: contains a copy of the enrollment model for the related student, in order to allow changes on the fly when preparing the surveys (only secretarial staff should be allowed to modify the real enrollments)."

@@ -29,6 +29,14 @@
                             invisible="is_running or status in ('pending')"
                         />
 
+                        <button string="Send reminder" 
+                            name="action_remind"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-bell"
+                            invisible="is_running or limesurvey_header_id.status in ('open')"
+                        />
+
                          <!-- IN USE -->
                         <button string="Restore data" 
                             disabled="True"
@@ -46,7 +54,7 @@
                             class="oe_highlight" 
                             icon="fa-cloud-upload"
                             invisible="not is_running or status in ('pending')"
-                        />
+                        />                       
                     </header>
 
                     <sheet>

@@ -378,7 +378,8 @@ class ems_limesurvey_header(models.Model):
 	# 			self._end(False, title, action, status_ok, status_ko, e)
 	# 		finally:
 	# 			return True
-			
+	
+	# TODO: continue refactoring multithreading actions (the main-thread ones are too simple, no need to refactor those)
 	def action_remove(self):
 		self.ensure_one()
 		if not self.already_running():			

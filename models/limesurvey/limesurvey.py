@@ -102,7 +102,18 @@ class limesurvey_api():
 				result  = self._run_api_request("invite_participants", [survey_id])
 				if "status" not in result: raise Exception(f"{error}: " + "UNKWOWN ERROR!")
 				elif result["status"] in ("0 left to send", "Error: No candidate tokens"): break
-				else: time.sleep(15*(current_try+1))
+				else: time.sleep(15*(current_try))
+		except Exception as e:
+			raise Exception(f"{error}: {e}")
+
+	def remind_participants(self, survey_id):
+		error = _("Unable to invite some participants")		
+		try:
+			for current_try in range(5):
+				result  = self._run_api_request("remind_participants", [survey_id])
+				if "status" not in result: raise Exception(f"{error}: " + "UNKWOWN ERROR!")
+				elif result["status"] in ("0 left to send", "Error: No candidate tokens"): break
+				else: time.sleep(15*(current_try))
 		except Exception as e:
 			raise Exception(f"{error}: {e}")
 
@@ -180,6 +191,7 @@ class ems_limesurvey_header(models.Model):
         ('uploaded', 'Surveys uploaded'),
 		('opening', 'Opening surveys'),
         ('open', 'Surveys open'),
+		('reminding', 'Sending reminders'),
         ('closing', 'Closing surveys'),
 		('closed', 'Surveys closed'),
 		('downloading', 'Downloading surveys'),
@@ -408,14 +420,56 @@ class ems_limesurvey_header(models.Model):
 	def action_remind(self):
 		self.ensure_one()
 		if not self.already_running():
-			# TODO: implement this!
-			self.notify("Not implemented", "Comming soon...", "danger")
-			return False
-	# endregion	
+			# This method runs at the end, in order to store the correct state and send the notifications to the user
+			title = _("LimeSurvey: send reminders")
+			def end(self, success, exception=None):
+				details = _("check the recipients entry for more details") if exception is None else exception	
+				message = _("Remind process successfully completed!") if success else (f"{_('Remind process failed.')} {details}")
+				if not success: self.chatter(message)
+				self.notify(title, message, "success" if success else "warning")
+				self.is_running = False
+				self.state = 'open'
 
+			try:				
+				self.is_running = True
+				self.state = 'reminding'								
+
+				# Background warning				
+				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")						
+				
+				# The main code will run on another thread to prevent Odoo timeouts
+				def run(self):					
+					try:
+						errors = []
+						success = True														
+						
+						ls_api = limesurvey_api(self.env)
+						survey_ids = list(set(self.limesurvey_recipient_ids.mapped('external_id')))	
+						for sid in survey_ids:
+							try:
+								self.execute_once(ls_api.remind_participants, f"remind_participants_{sid}", sid)
+							except Exception as e:
+								success = False
+								errors.append(f"Unable to send reminders for the survey with external ID '{sid}'. {e}")					
+
+						end(self, success, errors)
+					
+					except Exception as e:
+						end(self, False, e)
+					
+					finally:
+						self.reload_request()
+					
+				# Thread execution
+				self.run_in_thread(run)				
+			except Exception as e:
+				end(self, False, e)				
+			finally:
+				return True
+	
 	def action_none(self):
 		return True
-
+	# endregion	
 	# region PUBLIC METHODS (CAN BE CALLED INDIVIDUALLY FROM A CONCRETE RECIPIENT)
 	def compute_survey_data(self, recipient, only_key):
 		name = f"{self.name}_{recipient.level_id.acronym}"

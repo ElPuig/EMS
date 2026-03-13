@@ -129,6 +129,25 @@
                             invisible="state != 'open'"
                         />
 
+                         <!-- REMINDING -->      
+                        <button string="Send reminders" 
+                            disabled="True"
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-bell"
+                            invisible="state != 'reminding'"
+                        />
+
+                        <button string="Close surveys"
+                            disabled="True" 
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-stop"
+                            invisible="state != 'reminding'"
+                        />
+
                         <!-- CLOSING -->        
                         <!-- <button string="Send reminders" 
                             disabled="True"
@@ -193,7 +212,7 @@
                             invisible="state != 'downloaded'"
                         />        -->
 
-                        <field name="state" widget="statusbar" statusbar_visible="draft,computed,uploading,uploaded,opening,open,closing,closed,downloading,downloaded"/>                       
+                        <field name="state" widget="statusbar" statusbar_visible="draft,computed,uploaded,open,closed,downloaded"/>                       
                     </header>
                     <sheet>
                         <group string="Main data" col="4">

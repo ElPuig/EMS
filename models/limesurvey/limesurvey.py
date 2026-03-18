@@ -475,75 +475,65 @@ class ems_limesurvey_header(models.Model):
 		return success	
 	# endregion
 
-	# region PRIVATE COMPUTE/STORE METHODS
-	@api.depends("name", "target", "level_ids")
-	def _compute_display_name(self):			
-		for rec in self:				
-			target = dict(survey_target_selection).get(rec.target)		
-			if not rec.level_ids and not rec.target:
-				rec.display_name = "" if not rec.name else rec.name
-			elif not rec.level_ids:
-				rec.display_name = "%s: %s" % (rec.name, target)
-			else:
-				levels = []
-				for l in rec.level_ids:
-					levels.append(l.acronym)
-				level_str = str.join(", ", levels)				
-				rec.display_name = "%s: %s (%s)" % (rec.name, target, level_str) if rec.target else "%s (%s)" % (rec.name, level_str)
-
+	# region PRIVATE ONCHANGE/COMPUTE/STORE METHODS	
 	@api.onchange('level_ids')
 	def _onchange_level_ids(self):	
 		ids = []
 		for rec in self:
 			for std in self.study_ids:
-				if std.level_id in self.level_ids:
+				if std.level_id.id in self.level_ids._origin.ids:
 					ids.append(std.id)
 			rec.study_ids = [Command.set(ids)]
 
 	@api.onchange('study_ids')
-	def _onchange_study_ids(self):	
+	def _onchange_study_ids(self):
+		ids = []
 		for rec in self:
-			if not self.study_ids:	
-				rec.group_ids = [Command.clear()]
+			for grp in self.group_ids:
+				if grp.study_id.id in self.study_ids._origin.ids:
+					ids.append(grp.id)
+			rec.group_ids = [Command.set(ids)]
 
-	def _compute_recipients_students(self):
-		reci = []
-
+	def _compute_recipients_students(self):		
 		# NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).
 		# TODO: this will change with Juan's enrollment changes. 
 		domain = [("main_group_id", "!=", False)]
 
-		for level in self.level_ids:
-			domain.append(("level_id", "=", level.id))
+		if self.level_ids:
+			domain.append(("level_id", "in", self.level_ids.ids))
 		
+		if self.study_ids:
+			domain.append(("study_id", "in", self.study_ids.ids))
 
+		if self.group_ids:
+			domain.append(("main_group_id", "in", self.group_ids.ids))
 
-						
-			students = self.env["res.partner"].search([("level_id", "=", level.id), ("main_group_id", "!=", False)])			
-			for student in students:
-				enrollments = []
-				for enroll in student.enrollment_ids:
-					enrollments.append([0,0, {
-						"student_id": student.id,
-						"group_id": enroll.group_id.id,
-						"subject_id": enroll.subject_id.id,
-					}])
-					
-				reci.append([0,0, {
-					"name": student.name,
-					"email": student.student_email,
-					"level_id": student.level_id.id,
+		rec_ids = []				
+		students = self.env["res.partner"].search(domain)
+		for student in students:
+			enrollments = []
+			for enroll in student.enrollment_ids:
+				enrollments.append([0,0, {
 					"student_id": student.id,
-					"wpi_enrolled": student.wpi_enrolled,
-					"limesurvey_enrollment_ids": enrollments					
-				}])				
+					"group_id": enroll.group_id.id,
+					"subject_id": enroll.subject_id.id,
+				}])
+				
+			rec_ids.append([0,0, {
+				"name": student.name,
+				"email": student.student_email,
+				"level_id": student.level_id.id,
+				"student_id": student.id,
+				"wpi_enrolled": student.wpi_enrolled,
+				"limesurvey_enrollment_ids": enrollments					
+			}])				
 		
 		# NOTE: I don't know why [[5]] fails...
 		for rec in self.limesurvey_recipient_ids:
 			rec.unlink()	
 
 		self.write({
-			"limesurvey_recipient_ids": reci
+			"limesurvey_recipient_ids": rec_ids
 		})
 	
 	def _compute_recipients_teachers(self):

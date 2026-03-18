@@ -221,25 +221,30 @@
                             </group>
 
                              <group>
-                                <field name="title"/>
+                                <field name="title" readonly="state not in ('draft', 'computed')"/>
                             </group>  
                             <group colspan="2">
-                                <field name="description"/>
+                                <field name="description" readonly="state not in ('draft', 'computed')"/>
                             </group>   
                         </group>
 
                         <group string="Participant's filter" col="4">
                             <group>
-                                <field name="target"/>
+                                <field name="target" readonly="state not in ('draft', 'computed')"/>
+                            </group>
+                            <group invisible="target == 'students'" colspan="3">
+                                <div class="alert alert-danger w-100 text-center mb-2" role="alert">                                
+                                    <strong>Not implemented!</strong> Coming soon...
+                                </div>
                             </group>
                             <group>
-                                <field name="level_ids" widget="many2many_tags"/>
+                                <field name="level_ids" widget="many2many_tags" invisible="target != 'students'" readonly="state not in ('draft', 'computed')"/>
                             </group>     
                             <group>
-                                <field name="study_ids" widget="many2many_tags" readonly="not level_ids" domain="[('level_id','in', level_ids)]"/>
+                                <field name="study_ids" widget="many2many_tags" invisible="target != 'students'" readonly="not level_ids or state not in ('draft', 'computed')" domain="[('level_id','in', level_ids)]"/>
                             </group>
                             <group>
-                                <field name="group_ids" widget="many2many_tags" readonly="not study_ids" domain="[('study_id','in', study_ids)]"/>
+                                <field name="group_ids" widget="many2many_tags" invisible="target != 'students'" readonly="not study_ids or state not in ('draft', 'computed')" domain="[('study_id','in', study_ids)]"/>
                             </group>                                                                                     
                         </group>   
 

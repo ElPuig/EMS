@@ -341,9 +341,20 @@ class ems_limesurvey_header(models.Model):
 			callback(self, success, None if len(errors) == 0 else errors)
 		
 		return self._run_action(_("LimeSurvey: send surveys"), _("Remind"), "open", "open", "reminding", run)		
-	
+		
 	def action_none(self):
 		return True
+	
+	def open_add_student_popup(self):
+		self.ensure_one()
+		return {
+			'type': 'ir.actions.act_window',
+			'name': _('Select the student to add'),
+			'res_model': 'ems.limesurvey_recipient',
+			'view_mode': 'form',
+			'view_id': self.env.ref('ems.view_limesurvey_recipient_add_student_popup').id,
+			'target': 'new'			
+		}
 	# endregion	
 	
 	# region PUBLIC METHODS (CAN BE CALLED INDIVIDUALLY FROM A CONCRETE RECIPIENT)
@@ -631,16 +642,20 @@ class ems_limesurvey_recipient(models.Model):
 	token = fields.Char(string="User's token (LimeSurvey)")
 	tid = fields.Integer(string="User's ID (LimeSurvey)")
 	state = fields.Selection(string="State", related="limesurvey_header_id.state")
-	status = fields.Selection(string='Status', selection=[('pending', 'Pending'), ('success', 'Success'), ('error', 'Error')], default='pending')
+	status = fields.Selection(string='Status', selection=[('manual', 'Manual'), ('pending', 'Pending'), ('success', 'Success'), ('error', 'Error')], default='pending')
 	error = fields.Char(string="Error details")
 	is_running = fields.Boolean(string="Running", default=False)
 
 	notes = fields.Text(string="Notes")	
 
 	# The recipients can be students (res_partner) or teachers/asp (hr.employee). Those are needed in order to refresh the data.
-	student_id = fields.Many2one(string="Student", comodel_name="res.partner")
+	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
 	asp_id = fields.Many2one(string="ASP", comodel_name="hr.employee")
+
+	# The following "inuse" fields are used to manually add recipients
+	inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 		
+
 
 	# This field is used to compute the enrollments and allow modification by an authorized user (independent of 'real' enrollments, which should be modified only by secretarial staff).
 	limesurvey_enrollment_ids = fields.One2many(string="Enrollments", comodel_name="ems.limesurvey_enrollment", inverse_name="limesurvey_recipient_id")
@@ -669,10 +684,10 @@ class ems_limesurvey_recipient(models.Model):
 
 	def action_upload(self):
 		survey={}
-		def run(self, callback):					
-			if self.student_id:				
+		def run(self, callback):		
+			if self.student_id:
 				success = self._upload_student(survey)
-				callback(self, success)			
+				callback(self, success)
 			
 			elif self.teacher_id:
 				raise NotImplemented("Coming soon...")
@@ -683,7 +698,7 @@ class ems_limesurvey_recipient(models.Model):
 			else:
 				raise Exception("Recipient not specified.")			
 		
-		return self._run_action(_("LimeSurvey: refresh recipient"), _("Refresh"), run)	
+		return self._run_action(_("LimeSurvey: upload recipient"), _("Upload"), run)	
 	
 	def action_remind(self):
 		self.ensure_one()
@@ -693,20 +708,45 @@ class ems_limesurvey_recipient(models.Model):
 			self.execute_once(ls_api.remind_participants, f"remind_participants_{sid}", sid, [self.tid])
 			callback(self, True)				
 
-		return self._run_action(_("LimeSurvey: refresh recipient"), _("Refresh"), run)			
+		return self._run_action(_("LimeSurvey: send reminder"), _("Remind"), run)			
 	# endregion
 
 	# region PUBLIC METHODS (CAN BE CALLED INDIVIDUALLY FOR A CONCRETE RECIPIENT)
+	@api.model_create_multi
+	def create(self, values):
+		for v in values:
+			if v.get("status", "pending") == "manual":
+				s = self.env["res.partner"].browse([v["student_id"]])
+				if not "name" in v:
+					v["name"] = s.name
+				if not "email" in v:
+					v["email"] = s.student_email
+		
+		recips = super().create(values)
+		for r in recips:
+			if r.status == "manual":
+				r.status = "pending"
+				r.action_restore()
+
+				if r.limesurvey_header_id.state in ("uploaded", "open"):
+					self.env.cr.commit() # NOTE: commit needed, otherwise the action cannot work properly
+					r.action_upload()
+					
+					# TODO: newly created surveys should open / if existing, reminders should be sent...
+					# OPTION 1: Allow a list of callbacks, in order to run them sequentialy.
+					# OPTION 2: Execute upload and remind in the same thread, avoiding copy/paste (new parameter to run the actions)			
+		return recips
+	
 	def copy_data(self):
 		data = self.read()[0]
 		data["original"] = self
-		return data
-
+		return data	
+	
 	def open_error_popup(self):
 		self.ensure_one()
 		return {
 			'type': 'ir.actions.act_window',
-			'name': 'Error details',
+			'name': _('Error details'),
 			'res_model': self._name,
 			'res_id': self.id,
 			'view_mode': 'form',
@@ -717,6 +757,13 @@ class ems_limesurvey_recipient(models.Model):
 	# endregion
 
 	# region PRIVATE AUX METHODS
+	@api.depends('status')
+	def _compute_inuse_student_ids(self):
+		for rec in self:
+			rec.inuse_student_ids = False
+			if rec.status == "manual":
+				rec.inuse_student_ids = rec.mapped('limesurvey_header_id.limesurvey_recipient_ids.student_id')
+
 	def _upload_student(self, survey):
 		# NOTE: the 'survey' must be created BEFORE this method runs in another thread, in order to store data between executions on retries. 		
 		header = self.limesurvey_header_id			
@@ -744,18 +791,19 @@ class ems_limesurvey_recipient(models.Model):
 				survey["raw_tsv"] = survey.get("raw_tsv", header.compute_survey_data(self, False)["raw_tsv"])			
 				success = self.execute_once(header.upload_survey, f"upload_survey_{internal_id}", survey)				
 			
-			if success:				
-				# The participant must be removed from the old survey
-				old_survey_id = self.external_id
-				self.execute_once(ls_api.delete_participants, f"delete_participants_{self.tid}", old_survey_id, [self.tid])		
+			if success:								
+				if self.external_id:
+					# The participant must be removed from the old survey
+					old_survey_id = self.external_id
+					self.execute_once(ls_api.delete_participants, f"delete_participants_{self.tid}", old_survey_id, [self.tid])		
 
-				# Remove the old survey if empty, we don't care if counting fails due to retries by failed commits.
-				try:	
-					count = -1
-					count = ls_api.count_participants(old_survey_id)
-				finally:
-					if(count == 0): self.execute_once(ls_api.delete_survey, f"delete_survey_{old_survey_id}", old_survey_id)
-				
+					# Remove the old survey if empty, we don't care if counting fails due to retries by failed commits.
+					try:	
+						count = -1
+						count = ls_api.count_participants(old_survey_id)
+					finally:
+						if(count == 0): self.execute_once(ls_api.delete_survey, f"delete_survey_{old_survey_id}", old_survey_id)
+					
 				# The participant must be uploaded to the survey						
 				self.execute_once(header.upload_recipients, f"upload_recipients_{survey['internal_id']}", survey["internal_id"], survey["external_id"], survey["recipients"])
 				

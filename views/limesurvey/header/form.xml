@@ -32,7 +32,7 @@
                         />
 
                         <button string="Reload recipients" 
-                            confirm="This action will clean and recreate the recipients, saving the changes immediately. It cannot be undone. Do you wish to continue?"
+                            confirm="This action will clean and recreate the recipients, removing all custom changes and saving the data immediately. It cannot be undone. Do you wish to continue?"
                             name="action_reload"                                 
                             type="object" 
                             class="oe_highlight" 
@@ -264,6 +264,15 @@
 
                             <page string="Recipients">                                
                                 <!-- <field name="limesurvey_recipient_ids" readonly="True" force_save="True"> -->
+                                <div class="pb-2" invisible="target != 'students' or state == 'draft'">
+                                    <field name="id" invisible="True"/>
+                                    <button name="open_add_student_popup" type="object"  string="Add a new student"  icon="fa-plus" class="btn-link fw-bold" context="{
+                                            'default_limesurvey_header_id': id,
+                                            'default_status': 'manual'
+                                        }"
+                                    />
+                                </div>
+
                                 <field name="limesurvey_recipient_ids">
                                     <list default_order="name" create="False" delete="False" >
                                         <field name="name"/>
@@ -271,7 +280,7 @@
                                         <field name="external_id"/>                                                                               
                                         <field name="status"/> 
                                         <!-- TODO: popup plugin -->
-                                        <button name="open_error_popup" type="object" icon="fa-info-circle" title="Open error details." invisible="not error" width="30px"/> 
+                                        <button name="open_error_popup" type="object" icon="fa-info-circle" title="Open error details." invisible="not error" width="30px" /> 
                                         <!-- <button name="refresh" type="object" icon="fa-refresh" title="Refresh (moves the student to a new survey if needed)." width="30px"/>  -->
                                     </list>
                                 </field>
@@ -286,6 +295,26 @@
                    <chatter/>
                 </form>
             </field>			
+        </record>
+
+        <record model="ir.ui.view" id="view_limesurvey_recipient_add_student_popup">
+            <field name="name">ems.limesurvey_recipient_add_student.popup</field>
+            <field name="model">ems.limesurvey_recipient</field> 
+            <field name="arch" type="xml">
+                <form string="Select the student to add">
+                    <sheet>
+                        <group>
+                            <field name="limesurvey_header_id" invisible="True"/>
+                            <field name="status" invisible="True"/>
+                            <field name="student_id" domain="[('contact_type', '=', 'student'), ('id','not in', inuse_student_ids)]"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Add"    special="save"  class="btn-primary"     data-hotkey="q"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"  data-hotkey="x"/>
+                    </footer>
+                </form>
+            </field>
         </record>
 
         <record model="ir.ui.view" id="view_limesurvey_recipient_error_popup">

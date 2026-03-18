@@ -31,7 +31,7 @@ class EMSPortalController(CustomerPortal):
         partner = request.env.user.partner_id
         enrollment = request.env['sale.order'].search([
             ('partner_id', '=', partner.id),
-            ('state', 'in', ['draft', 'sent', 'sale']),
+            ('state', 'in', ['sent', 'sale']),
             ('ems_course_id', '=', current_course.id if current_course else False),
         ], limit=1)     
 
@@ -108,7 +108,7 @@ class EMSPortalController(CustomerPortal):
 
         enrollment = request.env['sale.order'].search([
             ('partner_id', '=', partner.id),
-            ('state', 'in', ['draft', 'sent']),
+            ('state', 'in', ['sent']),
             ('ems_course_id', '=', current_course.id if current_course else False),
         ], limit=1)
 

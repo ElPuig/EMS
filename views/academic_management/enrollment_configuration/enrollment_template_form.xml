@@ -19,6 +19,7 @@
                     <group>
                         <group name="ems_academic_info" string="Academic Information">
                             <field name="ems_study_id" required="1" options="{'no_create': True}"/>
+                            <field name="course"/>
                             <field name="ems_level_id" readonly="1" force_save="1"/>
                         </group>
                     </group>

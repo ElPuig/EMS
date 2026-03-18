@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista de búsqueda sin panel lateral -->
+        <record model="ir.ui.view" id="view_student_search_tutor">
+            <field name="name">ems.student.search.tutor</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" string="Student"/>
+                    <field name="main_group_id" string="Group"/>
+                    <field name="tutor_id" string="Tutor"/>
+                    <field name="study_id" string="Study"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Vista lista específica para tutores -->
+        <record model="ir.ui.view" id="view_contact_list_tutor">
+            <field name="name">ems.contact.list.tutor</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <list string="Students - Tutor View"
+                      default_order="main_group_id asc, name asc"
+                      decoration-muted="not active">
+                    <header>
+                        <button name="action_create_second_year_enrollments"
+                                type="object"
+                                string="Matricular de tot 2n"/>
+                    </header>
+                    <field name="name" string="Student"/>
+                    <field name="main_group_id" optional="show"/>
+                    <field name="tutor_id" optional="hide"/>
+                    <field name="study_id" optional="hide"/>
+                    <field name="level_id" optional="hide"/>
+                    <field name="student_email" optional="hide"/>
+                    <field name="phone" optional="show"/>
+                    <field name="mobile" optional="show"/>
+                    <field name="birth_date" optional="hide"/>
+                    <field name="is_adult" optional="show"/>
+                    <field name="auth_image" optional="show" widget="boolean_toggle" readonly="1"/>
+                    <field name="auth_trip" optional="show" widget="boolean_toggle" readonly="1"/>
+                    <field name="auth_healt" optional="show" widget="boolean_toggle" readonly="1"/>
+                    <field name="auth_share" optional="show" widget="boolean_toggle" readonly="1"/>
+                    <field name="benefit_status" optional="hide"/>
+
+                    <field name="ems_current_enrollment_id" optional="show"/>
+                    <button name="action_open_current_enrollment"
+                            type="object"
+                            string="Open Enrollment"
+                            icon="fa-external-link"
+                            invisible="ems_current_enrollment_id == False"/>
+                    <button name="action_new_enrollment"
+                            type="object"
+                            string="New Enrollment"
+                            icon="fa-plus"
+                            invisible="ems_current_enrollment_id != False"/>
+
+
+                                    </list>
+                                </field>
+        </record>
+
+        <!-- Acción para la vista de tutores -->
+        <record model="ir.actions.act_window" id="action_student_tutor_view">
+            <field name="name">Students - Tutor View</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('contact_type', '=', 'student')]</field>
+            <field name="context">{'default_contact_type': 'student', 'no_breadcrumbs': False}</field>
+            <!--<field name="search_view_id" ref="view_student_search_tutor"/>-->
+            <field name="search_view_id" ref="ems.view_student_search"/>
+        </record>        
+
+        <!-- Enlace acción → vista lista tutor -->
+        <record id="action_student_tutor_view_list_link" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_contact_list_tutor"/>
+            <field name="act_window_id" ref="action_student_tutor_view"/>
+        </record>
+
+    </data>
+</odoo>

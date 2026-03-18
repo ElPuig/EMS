@@ -303,8 +303,7 @@
                                 </div>
                             </form>    
 
-                            <t t-if="enrollment_messages"> 
-<!--                            <t t-if="True"> -->
+                            <t t-if="enrollment_messages">
                                 <div class="card shadow-sm mt-4">
                                     <div class="card-header bg-light">
                                         <h4 class="mb-0 d-flex align-items-center gap-2">

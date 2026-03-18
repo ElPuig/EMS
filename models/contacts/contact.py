@@ -76,14 +76,6 @@ class ems_contact(models.Model):
     birth_date = fields.Date(string="Birth Date")
     birth_country_id = fields.Many2one(string="Birth Country", comodel_name='res.country')
     citizenship_id =  fields.Many2one(string="Citizenship", comodel_name='res.country')
-    #auth_image = fields.Boolean(string="Image Rights")
-    #auth_trip = fields.Boolean(string="Scholar Trips")
-    #auth_healt = fields.Boolean(string="Health Data")
-    #auth_share = fields.Boolean(string="Share with family", help="If marked, the student (even if adult) allows to share its educational information with its family.")
-    #auth_image = fields.Boolean(string="Image Rights", compute="_compute_auth_booleans")
-    #auth_trip = fields.Boolean(string="Scholar Trips", compute="_compute_auth_booleans")
-    #auth_healt = fields.Boolean(string="Health Data", compute="_compute_auth_booleans")
-    #auth_share = fields.Boolean(string="Share with family", compute="_compute_auth_booleans", help="If marked, the student (even if adult) allows to share its educational information with its family.")
     auth_image = fields.Boolean(string="Image Rights", compute="_compute_auth_booleans", store=True)
     auth_trip  = fields.Boolean(string="Scholar Trips", compute="_compute_auth_booleans", store=True)
     auth_healt = fields.Boolean(string="Health Data", compute="_compute_auth_booleans", store=True)
@@ -105,6 +97,14 @@ class ems_contact(models.Model):
         'ems.authorization',
         compute='_compute_ems_authorization_ids',
         string='Authorizations'
+    )
+
+    ems_current_enrollment_id = fields.Many2one(
+        'sale.order',
+        string='Current Enrollment',
+        compute='_compute_current_enrollment',
+        store=False,
+        search='_search_current_enrollment',  # ← hace el campo searchable
     )
 
     # NOTE: this field is computed when loaded within a form or list
@@ -152,6 +152,103 @@ class ems_contact(models.Model):
             ])
             partner.ems_authorization_ids = enrollments.mapped('ems_authorization_ids')
 
+    def _search_current_enrollment(self, operator, value):
+        return [('sale_order_ids.name', operator, value)]
+
+    def _compute_current_enrollment(self):
+        current_course = self.env['ems.course'].search([
+            ('is_enrollment_default', '=', True)
+        ], limit=1)
+        if not current_course:
+            current_course = self.env['ems.course'].search([
+                ('is_current', '=', True)
+            ], limit=1)
+        for partner in self:
+            enrollment = self.env['sale.order'].search([
+                ('partner_id', '=', partner.id),
+                ('ems_course_id', '=', current_course.id if current_course else False),
+                ('state', 'in', ['draft', 'sent', 'sale']),
+            ], limit=1)
+            partner.ems_current_enrollment_id = enrollment
+
+    def action_open_current_enrollment(self):
+        self.ensure_one()
+        if not self.ems_current_enrollment_id:
+            return
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order',
+            'res_id': self.ems_current_enrollment_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def action_new_enrollment(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order',
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {
+                'default_partner_id': self.id,
+                'default_ems_study_id': self.study_id.id if self.study_id else False,
+                'default_ems_shift': self.main_group_id.ems_shift if self.main_group_id else False,
+            }
+        }
+    
+    def action_create_second_year_enrollments(self):
+        students = self.filtered(lambda p: p.contact_type == 'student')
+        current_course = self.env['ems.course'].search([
+            ('is_enrollment_default', '=', True)
+        ], limit=1)
+        if not current_course:
+            current_course = self.env['ems.course'].search([
+                ('is_current', '=', True)
+            ], limit=1)
+
+        created = 0
+        skipped = 0
+        for student in students:
+            # Evitar duplicados
+            existing = self.env['sale.order'].search([
+                ('partner_id', '=', student.id),
+                ('ems_course_id', '=', current_course.id if current_course else False),
+                ('state', 'not in', ['cancel']),
+            ], limit=1)
+            if existing:
+                skipped += 1
+                continue
+
+            # Buscar plantilla de 2º para el estudio del alumno
+            template = self.env['sale.order.template'].search([
+                ('ems_study_id', '=', student.study_id.id),
+                ('course', '=', 2),
+            ], limit=1)
+
+            order = self.env['sale.order'].create({
+                'partner_id': student.id,
+                'ems_study_id': student.study_id.id if student.study_id else False,
+                'ems_course_id': current_course.id if current_course else False,
+                'ems_shift': student.main_group_id.ems_shift if student.main_group_id else False,
+                'sale_order_template_id': template.id if template else False,
+            })
+            if template:
+                order._onchange_sale_order_template_id()
+            order.apply_authorizations()
+            created += 1   
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Enrollments created',
+                'message': '%d created, %d skipped (already had enrollment).' % (created, skipped),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.act_window_close'},
+            }
+        }
+    
     @api.depends('benefit_ids', 'benefit_ids.category')
     def _compute_benefit_status(self):
         for rec in self:

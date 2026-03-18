@@ -73,6 +73,24 @@ class ems_SaleOrder(models.Model):
         string="Authorizations"
     )
 
+    ems_enrollment_status_label = fields.Char(
+        string='Enrollment Status',
+        compute='_compute_enrollment_status_label',
+        store=False,
+    )    
+
+    @api.depends('state')
+    def _compute_enrollment_status_label(self):
+        labels = {
+            'draft': 'Pre-enrollment',
+            'sent': 'Sent to student',
+            'sale': 'Confirmed',
+            'cancel': 'Cancelled',
+            'done': 'Locked',
+        }
+        for rec in self:
+            rec.ems_enrollment_status_label = labels.get(rec.state, rec.state)
+
     def _get_dynamic_enrollment_name(self):
         """Build the enrollment code dynamically using acronyms and shortening the year."""
         self.ensure_one()
@@ -156,38 +174,43 @@ class ems_SaleOrder(models.Model):
     
     @api.onchange('ems_level_id', 'ems_study_id')
     def _onchange_ems_level_study_for_authorizations(self):
-        """
-        Autofills authorizations based on the selected Level and Study.
-        """
+        """Autofills authorizations based on the selected Level and Study."""
         for rec in self:
-            # 1. Construir la búsqueda (Domain) dinámicamente
-            # Por defecto, buscamos las globales (sin nivel Y sin estudio)
-            domain = ['&', ('ems_level_ids', '=', False), ('ems_study_ids', '=', False)] 
-            # Si hay nivel, añadimos la condición "O que coincida con este nivel"
-            if rec.ems_level_id:
-                domain = ['|', ('ems_level_ids', 'in', rec.ems_level_id.id)] + domain
-            # Si hay estudio, añadimos la condición "O que coincida con este estudio"
-            if rec.ems_study_id:
-                domain = ['|', ('ems_study_ids', 'in', rec.ems_study_id.id)] + domain
-            # Ejecutamos la búsqueda de plantillas que aplican
-            templates = rec.env['ems.authorization.template'].search(domain)
-            # 2. Preparar las líneas a añadir o eliminar
-            new_authorizations = []
-            # Borramos cualquier autorización actual cuya plantilla no esté en la lista de 'templates' que acabamos de buscar.
-            to_remove = rec.ems_authorization_ids.filtered(lambda a: a.template_id not in templates)
-            for auth in to_remove:
-                new_authorizations.append((2, auth.id, 0))
-            # Añadimos las que falten
-            for template in templates:
-                existing = rec.ems_authorization_ids.filtered(lambda a: a.template_id == template)
-                if not existing:
-                    new_authorizations.append((0, 0, {
-                        'template_id': template.id,
-                        'status': 'pending',
-                    }))
-            # 3. Aplicar cambios
-            if new_authorizations:
-                rec.ems_authorization_ids = new_authorizations
+            rec.ems_authorization_ids = rec._get_authorization_commands()
+
+    def _get_authorization_commands(self):
+        """Devuelve los comandos ORM para sincronizar autorizaciones."""
+        self.ensure_one()
+        domain = ['&', ('ems_level_ids', '=', False), ('ems_study_ids', '=', False)]
+        if self.ems_level_id:
+            domain = ['|', ('ems_level_ids', 'in', self.ems_level_id.id)] + domain
+        if self.ems_study_id:
+            domain = ['|', ('ems_study_ids', 'in', self.ems_study_id.id)] + domain
+
+        templates = self.env['ems.authorization.template'].search(domain)
+        commands = []
+        to_remove = self.ems_authorization_ids.filtered(
+            lambda a: a.template_id not in templates
+        )
+        for auth in to_remove:
+            commands.append((2, auth.id, 0))
+        for template in templates:
+            existing = self.ems_authorization_ids.filtered(
+                lambda a: a.template_id == template
+            )
+            if not existing:
+                commands.append((0, 0, {
+                    'template_id': template.id,
+                    'status': 'pending',
+                }))
+        return commands
+
+    def apply_authorizations(self):
+        """Aplica autorizaciones persistiendo en BD. Llamable desde código."""
+        for rec in self:
+            commands = rec._get_authorization_commands()
+            if commands:
+                rec.write({'ems_authorization_ids': commands})
 
     @api.constrains('partner_id', 'ems_course_id', 'state')
     def _check_unique_enrollment_per_course(self):

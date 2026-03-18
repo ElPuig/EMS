@@ -70,6 +70,7 @@
             'views/community/workgroup/menu.xml',  
             
             'views/community/contact/list.xml',
+            'views/community/contact/list_tutor.xml',
             'views/community/contact/form.xml',            
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',

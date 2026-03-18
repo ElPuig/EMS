@@ -23,6 +23,8 @@ class ems_SaleOrderTemplate(models.Model):
         string="Enrolled Products (Technical)"
     )
 
+    course = fields.Integer(string="Course")
+
     @api.depends('sale_order_template_line_ids.product_id')
     def _compute_existing_products(self):
         for template in self:

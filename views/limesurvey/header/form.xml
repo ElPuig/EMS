@@ -219,19 +219,30 @@
                             <group>
                                 <field name="name"/>
                             </group>
+
+                             <group>
+                                <field name="title"/>
+                            </group>  
+                            <group colspan="2">
+                                <field name="description"/>
+                            </group>   
+                        </group>
+
+                        <group string="Participant's filter" col="4">
                             <group>
                                 <field name="target"/>
                             </group>
-                            <group colspan="2">
+                            <group>
                                 <field name="level_ids" widget="many2many_tags"/>
                             </group>     
                             <group>
-                                <field name="title"/>
-                            </group>     
-                            <group colspan="3">
-                                <field name="description"/>
-                            </group>                                                             
-                        </group>                        
+                                <field name="study_ids" widget="many2many_tags" readonly="not level_ids" domain="[('level_id','in', level_ids)]"/>
+                            </group>
+                            <group>
+                                <field name="group_ids" widget="many2many_tags" readonly="not study_ids" domain="[('study_id','in', study_ids)]"/>
+                            </group>                                                                                     
+                        </group>   
+
                         <notebook>
                              <page string="Header's content (TSV)">
                                 <field string="" name="tsv_raw_text" widget="code" style="min-height: 300px;"/>

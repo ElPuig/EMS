@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import requests, json, html, re, base64, threading, psycopg2, time, traceback
-from markupsafe import Markup
+import requests, json, html, re, base64, time
 from datetime import datetime
-from odoo import models, fields, api, registry, _
+from odoo import models, fields, api, Command, _
 from odoo.exceptions import UserError
 
 # TO CLEAN THE BBDD DURING TESTING
@@ -207,6 +206,8 @@ class ems_limesurvey_header(models.Model):
 	description = fields.Char(string="Description", required=True)
 	target = fields.Selection(string="Target", selection=survey_target_selection, required=True)
 	level_ids = fields.Many2many(string="Level", comodel_name="ems.level")
+	study_ids = fields.Many2many(string="Studies", comodel_name="ems.study")
+	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
 	tsv_raw_text = fields.Text(string="Header's content (tab separated)", required=True)
 	limesurvey_block_ids = fields.One2many(string="Blocks", comodel_name="ems.limesurvey_block", inverse_name="limesurvey_header_id")
 	limesurvey_recipient_ids = fields.One2many(string="Recipients", comodel_name="ems.limesurvey_recipient", inverse_name="limesurvey_header_id")	
@@ -490,10 +491,34 @@ class ems_limesurvey_header(models.Model):
 				level_str = str.join(", ", levels)				
 				rec.display_name = "%s: %s (%s)" % (rec.name, target, level_str) if rec.target else "%s (%s)" % (rec.name, level_str)
 
+	@api.onchange('level_ids')
+	def _onchange_level_ids(self):	
+		ids = []
+		for rec in self:
+			for std in self.study_ids:
+				if std.level_id in self.level_ids:
+					ids.append(std.id)
+			rec.study_ids = [Command.set(ids)]
+
+	@api.onchange('study_ids')
+	def _onchange_study_ids(self):	
+		for rec in self:
+			if not self.study_ids:	
+				rec.group_ids = [Command.clear()]
+
 	def _compute_recipients_students(self):
 		reci = []
+
+		# NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).
+		# TODO: this will change with Juan's enrollment changes. 
+		domain = [("main_group_id", "!=", False)]
+
 		for level in self.level_ids:
-			# NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).			
+			domain.append(("level_id", "=", level.id))
+		
+
+
+						
 			students = self.env["res.partner"].search([("level_id", "=", level.id), ("main_group_id", "!=", False)])			
 			for student in students:
 				enrollments = []

@@ -4,7 +4,7 @@ from odoo import http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from datetime import datetime
-from markupsafe import Markup
+from markupsafe import Markup, escape
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -131,7 +131,7 @@ class EMSPortalController(CustomerPortal):
         if payment_term_id:
             try:
                 term = request.env['account.payment.term'].sudo().browse(int(payment_term_id))
-                if term.exists():
+                if term.exists() and term.ems_portal_visible:
                     enrollment.sudo().write({'payment_term_id': term.id})
             except (ValueError, TypeError):
                 pass
@@ -152,14 +152,14 @@ class EMSPortalController(CustomerPortal):
                     pass
 
             # Construimos el cuerpo del mensaje
-            lines_html = ''
+            lines_html = Markup('')
             if line_names:
-                items = ''.join('<li>%s</li>' % name for name in line_names)
-                lines_html = '<br/><b>Marked items:</b><ul>%s</ul>' % items
+                items = Markup('').join(Markup('<li>%s</li>') % escape(name) for name in line_names)
+                lines_html = Markup('<br/><b>Marked items:</b><ul>%s</ul>') % items
 
             enrollment.sudo().message_post(
-                body=Markup(
-                    '<b>Comments from student/family portal:</b><br/>%s%s' % (comments, lines_html)
+                body=Markup('<b>Comments from student/family portal:</b><br/>%s%s') % (
+                    escape(comments), lines_html
                 ),
                 message_type='comment',
                 subtype_xmlid='mail.mt_comment',

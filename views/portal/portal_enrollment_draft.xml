@@ -336,12 +336,13 @@
                             <script>
                                 var confirmBtn = document.getElementById('ems-confirm-btn');
                                 var hasPaymentTerm = <t t-if="enrollment.payment_term_id">true</t><t t-else="">false</t>;
+                                var hasPendingRequiredAuths = <t t-if="pending_required">true</t><t t-else="">false</t>;
 
                                 function updateConfirmBtn() {
                                     var anyChecked = document.querySelectorAll('.ems-comment-check:checked').length > 0;
                                     var paymentSelected = hasPaymentTerm || document.querySelector('input[name="payment_term_id"]:checked');
 
-                                    if (paymentSelected) {
+                                    if (paymentSelected &amp;&amp; !hasPendingRequiredAuths) {
                                         confirmBtn.classList.remove('disabled');
                                         confirmBtn.removeAttribute('disabled');
                                     } else {

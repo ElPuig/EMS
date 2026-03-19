@@ -863,9 +863,7 @@ class ems_limesurvey_recipient(models.Model):
 			'target': 'new', 
 			'flags': {'mode': 'readonly'}
 		}
-	# endregion
-
-	
+	# endregion	
 
 	# region PUBLIC DATA MANAGEMENT METHODS (CREATE / COPY / ETC)
 	@api.model_create_multi
@@ -896,7 +894,6 @@ class ems_limesurvey_recipient(models.Model):
 		data["original"] = self
 		return data		
 	# endregion
-
 	
 	# region PRIVATE AUX METHODS
 	@api.depends('state')
@@ -960,7 +957,7 @@ class ems_limesurvey_recipient(models.Model):
 				callback(self, traceback.format_exc())
 			finally:
 				return True		
-		
+	# endregion
 class ems_limesurvey_enrollment(models.Model):
 	_name = "ems.limesurvey_enrollment"
 	_description = "LimeSurvey enrollment: contains a copy of the enrollment model for the related student, in order to allow changes on the fly when preparing the surveys (only secretarial staff should be allowed to modify the real enrollments)."

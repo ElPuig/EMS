@@ -121,12 +121,13 @@ def do_upload_changes(ls_api, survey):
 		else:	
 			# The recipient is NOT in the correct survey
 			if existing: 
+				# manually set the new codes 
 				rec["internal_id"] = rec["new_internal_id"]
 				rec["external_id"] = rec["new_external_id"]
 			else:					
 				# The survey must be created					
-				success = success and do_upload_survey(ls_api, survey)
-				if success: success = success and do_upload_recipients(ls_api, survey)	
+				success = success and do_upload_survey(ls_api, survey) # setups the new survey internal and external codes.
+				if success: success = success and do_upload_recipients(ls_api, survey)	# popuales the survey codes to the recipients
 
 				# A student can be added when the surveys are already open, so the new survey should be also open
 				if success and survey["state"] == 'open':

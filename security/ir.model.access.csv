@@ -156,15 +156,15 @@ ems.access_ems_authorization_template_teacher,ems.access_ems_authorization_templ
 ems.access_ems_authorization_template_secretary,ems.access_ems_authorization_template_secretary,ems.model_ems_authorization_template,ems.group_secretary,1,1,1,1
 
 ems.access_ems_authorization_admin,ems.access_ems_authorization_admin,ems.model_ems_authorization,ems.group_admin,1,1,1,1
-ems.access_ems_authorization_teacher,ems.access_ems_authorization_teacher,ems.model_ems_authorization,ems.group_teacher,1,0,0,0
+ems.access_ems_authorization_teacher,ems.access_ems_authorization_teacher,ems.model_ems_authorization,ems.group_teacher,1,1,1,0
 ems.access_ems_authorization_secretary,ems.access_ems_authorization_secretary,ems.model_ems_authorization,ems.group_secretary,1,1,1,1
 
 ems.access_sale_order_admin,ems.access_sale_order_admin,sale.model_sale_order,ems.group_admin,1,1,1,1
-ems.access_sale_order_teacher,ems.access_sale_order_teacher,sale.model_sale_order,ems.group_teacher,1,0,0,0
+ems.access_sale_order_teacher,ems.access_sale_order_teacher,sale.model_sale_order,ems.group_teacher,1,1,1,0
 ems.access_sale_order_secretary,ems.access_sale_order_secretary,sale.model_sale_order,ems.group_secretary,1,1,1,1
 
 ems.access_sale_order_line_admin,ems.access_sale_order_line_admin,sale.model_sale_order_line,ems.group_admin,1,1,1,1
-ems.access_sale_order_line_teacher,ems.access_sale_order_line_teacher,sale.model_sale_order_line,ems.group_teacher,1,0,0,0
+ems.access_sale_order_line_teacher,ems.access_sale_order_line_teacher,sale.model_sale_order_line,ems.group_teacher,1,1,1,1
 ems.access_sale_order_line_secretary,ems.access_sale_order_line_secretary,sale.model_sale_order_line,ems.group_secretary,1,1,1,1
 
 ems.access_sale_order_template_admin,ems.access_sale_order_template_admin,sale_management.model_sale_order_template,ems.group_admin,1,1,1,1

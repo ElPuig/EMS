@@ -67,7 +67,7 @@
             <field name="name">Students - Tutor View</field>
             <field name="res_model">res.partner</field>
             <field name="view_mode">list,form</field>
-            <field name="domain">[('contact_type', '=', 'student')]</field>
+            <field name="domain">[('contact_type', '=', 'student'), ('tutor_id.user_id', '=', uid)]</field>
             <field name="context">{'default_contact_type': 'student', 'no_breadcrumbs': False}</field>
             <!--<field name="search_view_id" ref="view_student_search_tutor"/>-->
             <field name="search_view_id" ref="ems.view_student_search"/>

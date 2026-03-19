@@ -24,51 +24,6 @@ class ems_multithreading(models.AbstractModel):
             "message": message
         })
 
-    # # The 'func' method will run only once avoiding repetitions. Useful when runnint within a thread with retries (due to BBDD commit's concurrent exception)   
-    # def execute_once(self, func, key=None, *args, **kwargs):
-    #     if key is None: key = func.__func__.__name__
-
-    #     if not self.changes.get(key, False):
-    #         if isinstance(func, str):
-    #             func = getattr(self, func)                
-    #         result = func(*args, **kwargs)                            
-    #         self.changes[key] = result
-    #     return self.changes[key]
-         
-    # # Allows running the 'func' method in a new thread with retries (due to BBDD commit's concurrent exception).
-    # def run_in_thread(self, func, max_retries=5, *args, **kwargs):
-    #     uid = self.env.uid
-    #     dbname = self.env.cr.dbname
-    #     context = dict(self.env.context)
-    #     record_ids = self.ids 
-    #     model_name = self._name
-            
-    #     def threaded_worker():			
-    #         self.changes.clear()
-    #         db_registry = registry(dbname)
-    #         # NOTE: I checked that, in some environments and situations, the first run always fails due to concurrent updates.
-    #         #		I'm not sure if waiting a second prior to the first run is faster than the first retry (which waits 0 seconds)...
-    #         for current_try in range(max_retries):
-    #             try:					
-    #                 with db_registry.cursor() as cr:
-    #                     env = api.Environment(cr, uid, context)
-    #                     n_self = env[model_name].browse(record_ids)
-
-    #                     if isinstance(func, str):
-    #                         method_to_call = getattr(n_self, func)
-    #                         method_to_call(*args, **kwargs)
-    #                     elif callable(func):
-    #                         func(n_self, *args, **kwargs)
-    #                     break
-
-    #             except (SerializationFailure, DeadlockDetected):
-    #                 if current_try == max_retries - 1: raise
-    #                 time.sleep(0.5 * (current_try + 1))
-        
-    #     thread = threading.Thread(target=threaded_worker)
-    #     thread.start()
-    #     return thread
-    
     # Allows running the 'func' method in a new thread with retries (due to BBDD commit's concurrent exception).
     def run_in_thread(self, setup, compute, store, callback, max_retries=5, *args, **kwargs):
         uid = self.env.uid

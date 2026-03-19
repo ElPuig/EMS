@@ -107,15 +107,6 @@ def do_send_reminders(ls_api, survey):
 	return _do(survey, code)
 
 def do_upload_changes(ls_api, survey):
-######################################################################
-######################################################################
-######################################################################
-######################################################################
-# TODO: this method fails, keep testing updating recipient changes!
-######################################################################
-######################################################################
-######################################################################
-######################################################################
 	def code():
 		# NOTE: just for a single participant, but can be adapted for a batch of them if needed.
 		success = True
@@ -143,7 +134,16 @@ def do_upload_changes(ls_api, survey):
 			
 			if success:
 				if rec["old_external_id"] is not None:
-					# The participant must be removed from the old survey					
+					# The participant must be removed from the old survey	
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+# TODO: this line fails (delete participants)
+######################################################################
+######################################################################
+######################################################################
+######################################################################									
 					ls_api.delete_participants(rec["old_external_id"], rec["tid"])									
 					count = ls_api.count_participants(rec["old_external_id"])
 					if(count == 0): ls_api.delete_survey(rec["old_external_id"])
@@ -861,21 +861,16 @@ class ems_limesurvey_recipient(models.Model):
 
 		def post_setup(self):
 			# This method runs post-setup, it will be used to computed extra data in order to know if the recipient must be moved to another survey			
-			(key, srv), = persistent_data["surveys"].items()
-			srv["state"] = self.limesurvey_header_id.state
+			(key, new), = persistent_data["surveys"].items()
+			new["state"] = self.limesurvey_header_id.state			
 			
-			updated = srv["recipients"][0]
-			(key, current), = load_persistent_data(self, False).items()
-			
-			updated["new_external_id"] = None
-			updated["new_internal_id"] = None
-			updated["old_external_id"] = current["external_id"]
-			updated["old_internal_id"] = current["internal_id"]			
-			
-			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", updated["internal_id"])], limit=1) or False
-			if existing:				
-				updated["new_external_id"] = existing["external_id"]
-				updated["new_internal_id"] = existing["internal_id"]
+			rec = new["recipients"][0]
+			rec["new_internal_id"] = new["internal_id"]
+			rec["old_external_id"] = self.external_id
+			rec["old_internal_id"] = self.internal_id
+
+			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", new["internal_id"])], limit=1) or False
+			rec["new_external_id"] = None if not existing else existing["external_id"]		
 
 		def compute():			
 			success = persistent_data["success"]

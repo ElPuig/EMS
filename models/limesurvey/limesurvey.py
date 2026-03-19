@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import requests, json, html, re, base64, time
+import requests, json, html, re, base64, time, traceback
 from datetime import datetime
 from odoo import models, fields, api, Command, _
 from odoo.exceptions import UserError
@@ -43,25 +43,7 @@ survey_target_selection = [("students", "Students"), ("teachers", "Teachers"), (
 #	The same structure as the header but just for a single survey/recipient.
 #	The action_xxx methods runs actions for a single recipient, so no need to iterate.	
 
-# region DETACHED PRIVATE METHODS
-# def _populate_error(survey, error):
-# 	for rec in survey["recipients"]:
-# 		rec["error"] = error
-# 		rec["status"] = "error"
 
-def _do(survey, code, *args, **kwargs):
-	# Ensures that all operations works in the same way (storing errors in recipients if needed).
-	success = True		
-	try:
-		code(*args, **kwargs)
-	except Exception as e:
-		success = False
-		for rec in survey["recipients"]:
-			rec["error"] = e
-			rec["status"] = "error"
-	return success
-
-# endregion
 
 # region DETACHED PUBLIC METHODS: DO NOT WORK WITH THE BBDD, JUST DICTIONARIES AND LS API CALLS
 def do_upload_survey(ls_api, survey):	
@@ -78,7 +60,7 @@ def do_remove_survey(ls_api, survey):
 			rec["tid"] = None
 			rec["token"] = None
 			rec["error"] = None
-			rec["status"] = "pending"	
+			rec["state"] = "pending"	
 	return _do(survey, code)	
 
 def do_upload_recipients(ls_api, survey):
@@ -95,20 +77,20 @@ def do_upload_recipients(ls_api, survey):
 		result = ls_api.add_participants(survey["external_id"], parts)
 
 		# New data will come in the same order as sent
+		success = True
 		for index, row in enumerate(result):
 			rec = survey["recipients"][index]
 			if "error" in row:
 				success = False
 				rec["error"] = row["error"]		
-				rec["status"] = "error"
-
 			else:
 				rec["tid"] = row["tid"]
 				rec["token"] = row["token"]				
 				rec["internal_id"] = survey["internal_id"]
 				rec["external_id"] = survey["external_id"]
-				rec["status"] = "success"
+				rec["state"] = "uploaded"
 				rec["error"] = None	
+		return success
 	return _do(survey, code)	
 
 def do_open_survey(ls_api, survey):	
@@ -124,6 +106,93 @@ def do_send_reminders(ls_api, survey):
 		ls_api.remind_participants(sid)
 	return _do(survey, code)
 
+def do_upload_changes(ls_api, survey):
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+# TODO: this method fails, keep testing updating recipient changes!
+######################################################################
+######################################################################
+######################################################################
+######################################################################
+	def code():							
+		# NOTE: just for a single participant, but can be adapted for a batch of them if needed.		
+		rec = survey["participants"][0] 
+		existing = survey["external_id"] is not None			
+		
+		existing = rec["new_external_id"] is not None			
+		if existing and survey["old_internal_id"] == survey["new_internal_id"]:
+			# The recipient is in the correct survey, updating participant data.				
+			ls_api.update_participant_data(existing["external_id"], rec["tid"], {
+				"firstname": rec["name"],
+				"email": rec["email"]
+			})
+		else:	
+			# The recipient is NOT in the correct survey
+			if existing: 
+				survey["internal_id"] = survey["new_internal_id"]
+				survey["external_id"] = survey["new_external_id"]
+			else:					
+				# The survey must be created					
+				success = success and do_upload_survey(ls_api, survey)
+				if success: success = success and do_upload_recipients(ls_api, survey)	
+
+				# A student can be added when the surveys are already open, so the new survey should be also open
+				if success and survey["state"] == 'open':
+					success = do_open_survey(ls_api, survey)
+			
+			if success:
+				if survey["old_external_id"] is not None:
+					# The participant must be removed from the old survey					
+					ls_api.delete_participants(survey["old_external_id"], rec["tid"])									
+					count = ls_api.count_participants(survey["old_external_id"])
+					if(count == 0): ls_api.delete_survey(survey["old_external_id"])
+					
+				# The participant must be uploaded to the survey										
+				success = do_upload_recipients(ls_api, survey)
+				if success and survey["state"] == 'open':
+					success = do_send_reminders(ls_api, survey)
+		return success		
+	return _do(survey, code)
+# endregion
+
+# region ATTACHED & SHARED METHODS BETWEEN HEADER AND RECIPIENT
+def load_persistent_data(self, compute_survey_data=True):
+	surveys = {}
+	def load_recipient(head, rec):
+		# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
+		#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).			
+		key = rec.internal_id if not compute_survey_data else head.compute_survey_data(rec, True)["internal_id"]
+		if key in surveys: surveys[key]["recipients"].append(rec.copy_data())
+		else: 
+			surveys[key] = {
+				"internal_id": key,
+				"external_id": rec.external_id,
+				"recipients": [rec.copy_data()],
+				"raw_tsv": None if not compute_survey_data else head.compute_survey_data(rec, False)["raw_tsv"]
+			}
+
+	if self._name == 'ems.limesurvey_recipient': 
+		load_recipient(self.limesurvey_header_id, self)
+	elif self._name == 'ems.limesurvey_header':
+		for rec in self.limesurvey_recipient_ids:
+			load_recipient(self, rec)
+	else: 
+		raise NotImplemented("This method only works for 'ems.limesurvey_recipient' and 'ems.limesurvey_header'")		
+	return surveys	
+# endregion
+
+# region DETACHED PRIVATE METHODS
+def _do(survey, code, *args, **kwargs):
+	# Ensures that all operations works in the same way (storing errors in recipients if needed).
+	try:
+		success = code(*args, **kwargs)
+	except Exception as e:
+		success = False
+		for rec in survey["recipients"]:
+			rec["error"] = traceback.format_exc()
+	return True if success is None else success
 # endregion
 class limesurvey_api():
 	def __init__(self, env):
@@ -299,7 +368,7 @@ class ems_limesurvey_header(models.Model):
 	_inherit = ['ems.base', 'ems.multithreading']
 	
 	# NOTE: this field is used to track the wizard progress.
-	state = fields.Selection(string='Status', selection=[
+	state = fields.Selection(string='State', selection=[
         ('draft', 'Draft'),
 		('computed', 'Recipients computed'),
 		('removing', 'Removing surveys'),
@@ -527,13 +596,13 @@ class ems_limesurvey_header(models.Model):
 				"tid": rec.get("tid", None),
 				"token": rec.get("token", None),
 				"error": rec.get("error", None),
-				"status": rec.get("status", None),
+				"state": rec.get("state", None),
 				"internal_id": rec.get("internal_id", None),
 				"external_id": rec.get("external_id", None)				
 			})			
 	# endregion
 
-	# region PRIVATE COMPUTE / LOAD METHODS	
+	# region PRIVATE COMPUTE METHODS	
 	def _compute_recipients_students(self):		
 		# NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).
 		# TODO: this will change with Juan's enrollment changes. 
@@ -582,24 +651,7 @@ class ems_limesurvey_header(models.Model):
 
 	def _compute_recipients_asp(self):
 		raise NotImplemented("Coming soon...")
-
-	def _load_persistent_data(self, compute_survey_data=True):
-		surveys = {}
-		for rec in self.limesurvey_recipient_ids:
-			# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
-			#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).			
-			key = rec.internal_id if not compute_survey_data else self.compute_survey_data(rec, True)["internal_id"]						
-			if key in surveys: surveys[key]["recipients"].append(rec.copy_data())
-			else: 
-				surveys[key] = {
-					"internal_id": key,
-					"external_id": rec.external_id,
-					"recipients": [rec.copy_data()],
-					"raw_tsv": None if not compute_survey_data else self.compute_survey_data(rec, False)["raw_tsv"]
-				}					
-		return surveys	
-	# endregion	
-	
+		
 	# region PRIVATE AUX METHODS	
 	def _run_action(self, title, action, status_w, status_ok, status_ko, compute, persistent_data, compute_survey_data=False):
 		self.ensure_one()
@@ -608,11 +660,11 @@ class ems_limesurvey_header(models.Model):
 				persistent_data["success"] = True
 				persistent_data["ls_api"] = limesurvey_api(self.env)
 				try:
-					# TODO: maybe is better to use diferent _load_persistent_data methods for teachers or ASP...
-					persistent_data["surveys"] = self._load_persistent_data(compute_survey_data)
-				except Exception as e:
+					# TODO: maybe is better to use diferent load_persistent_data methods for teachers or ASP...
+					persistent_data["surveys"] = load_persistent_data(self, compute_survey_data)
+				except Exception:
 					persistent_data["success"] = False
-					persistent_data["error"] = e
+					persistent_data["error"] = traceback.format_exc()
 						
 			def store(self):
 				# Store: Moves data from persistent_data to Odoo objects in order to store changes in the BBDD.
@@ -626,7 +678,7 @@ class ems_limesurvey_header(models.Model):
 							"tid": rec.get("tid", None),
 							"token": rec.get("token", None),
 							"error": rec.get("error", None),
-							"status": rec.get("status", None),
+							"state": rec.get("state", None),
 							"internal_id": rec.get("internal_id", None),
 							"external_id": rec.get("external_id", None)				
 						})			
@@ -647,8 +699,8 @@ class ems_limesurvey_header(models.Model):
 				self.state = status_w				
 				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")												
 				self.run_in_thread(setup, compute, store, callback)
-			except Exception as e:
-				callback(self, e)
+			except Exception:
+				callback(self, traceback.format_exc())
 			finally:
 				return True			
 	# endregion
@@ -699,6 +751,14 @@ class ems_limesurvey_recipient(models.Model):
 	_description = "LimeSurvey recipient: contains the relation between a recipient and its survey."
 	_inherit = ['ems.base', 'ems.multithreading']
 	
+	state = fields.Selection(string='State', selection=[
+		('manual', 'Manual'), 
+		('pending', 'Pending'), 
+		('uploaded', 'Uploaded'), 
+		('updating', 'Updating'), 
+		('reminding', 'Reminding')
+	], default='pending')
+
 	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header", required=True)
 	level_id = fields.Many2one(string='Level', comodel_name='ems.level')  
 	name = fields.Char(string="Name", required=True)
@@ -706,9 +766,7 @@ class ems_limesurvey_recipient(models.Model):
 	external_id = fields.Char(string="Survey's ID (LimeSurvey)")
 	internal_id = fields.Char(string="Survey's ID (EMS)")
 	token = fields.Char(string="User's token (LimeSurvey)")
-	tid = fields.Integer(string="User's ID (LimeSurvey)")
-	state = fields.Selection(string="State", related="limesurvey_header_id.state")
-	status = fields.Selection(string='Status', selection=[('manual', 'Manual'), ('pending', 'Pending'), ('success', 'Success'), ('error', 'Error')], default='pending')
+	tid = fields.Integer(string="User's ID (LimeSurvey)")	
 	error = fields.Char(string="Error details")
 	is_running = fields.Boolean(string="Running", default=False)
 
@@ -727,10 +785,7 @@ class ems_limesurvey_recipient(models.Model):
 	limesurvey_enrollment_ids = fields.One2many(string="Enrollments", comodel_name="ems.limesurvey_enrollment", inverse_name="limesurvey_recipient_id")
 	wpi_enrolled = fields.Boolean(string="WPI enrolled")
 	
-	# region MAIN ACTIONS
-	def action_none(self):
-		return True
-	
+	# region MAIN ACTIONS	
 	def action_restore(self):
 		if self.student_id:
 			self.name = self.student_id.name
@@ -748,26 +803,38 @@ class ems_limesurvey_recipient(models.Model):
 		else:
 			return False		
 
-	def action_upload(self):
-		survey={}
+	def action_upload(self):					
+		persistent_data = {}
 
-		def pre(self):
-			if self.student_id:
-				self._rebuild_students_survey(survey)
-			elif self.teacher_id:
-				raise NotImplemented("Coming soon...")
-			elif self.asp_id:
-				raise NotImplemented("Coming soon...")			
-			else:
-				raise Exception("Recipient not specified.")	
+		def post_setup(self):
+			# This method runs post-setup, it will be used to computed extra data in order to know if the recipient must be moved to another survey			
+			(key, srv), = persistent_data["surveys"].items()
+			srv["state"] = self.limesurvey_header_id.state
+			
+			updated = srv["recipients"][0]
+			(key, current), = load_persistent_data(self, False).items()
+			
+			updated["new_external_id"] = None
+			updated["new_internal_id"] = None
+			updated["old_external_id"] = current["external_id"]
+			updated["old_internal_id"] = current["internal_id"]			
+			
+			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", updated["internal_id"])], limit=1) or False
+			if existing:				
+				updated["new_external_id"] = existing["external_id"]
+				updated["new_internal_id"] = existing["internal_id"]
 
-		def run(self, callback):		
-			key = survey["external_id"]
-			success = self.execute_once(self._do_upload_changes, f"_do_upload_changes_{key}", survey)
-			self.limesurvey_header_id.fill_recipients_data(survey["recipients"], survey["error"])
-			callback(self, success)
-		
-		return self._run_action(_("LimeSurvey: upload recipient"), _("Upload"), run, pre=pre)	
+		def compute():			
+			success = persistent_data["success"]
+			if success:
+				for key in persistent_data["surveys"]:
+					ls_api = persistent_data["ls_api"]
+					survey = persistent_data["surveys"][key]
+					success = success and do_upload_survey(ls_api, survey)
+					if success: success = success and do_upload_changes(ls_api, survey)			
+				if not success: persistent_data["error"] = _("Something failed when trying to upload the changes for a recipient, please check the recipient entries for more details.")
+				persistent_data["success"] = success
+		return self._run_action(_("LimeSurvey: upload changes"), _("Upload"), "updating", compute, persistent_data, True, post_setup)		
 	
 	def action_remind(self):
 		self.ensure_one()
@@ -778,6 +845,9 @@ class ems_limesurvey_recipient(models.Model):
 			callback(self, True)				
 
 		return self._run_action(_("LimeSurvey: send reminder"), _("Remind"), run)			
+	
+	def action_none(self):
+		return True	
 	# endregion
 
 	# region OTHER ACTIONS (POPUPS AND SO)
@@ -795,78 +865,13 @@ class ems_limesurvey_recipient(models.Model):
 		}
 	# endregion
 
-	# region PRIVATE DO METHODS (OVER A SINGLE SURVEY / RECIPIENT)
-	def _do_upload_changes(self, survey):
-		# NOTE: the 'survey' must be created BEFORE this method runs in another thread, in order to store data between executions on retries. 		
-		success = True
-		try:
-			header = self.limesurvey_header_id			
-			ls_api = limesurvey_api(self.env)
-			internal_id = header.compute_survey_data(self, True)["internal_id"]
-			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", internal_id)], limit=1) or False
-
-			# A survey template must be prepared (only if empty due to retries if a commit failed)
-			if survey.get("internal_id", None) is None:
-				survey["internal_id"] = internal_id
-				survey["recipients"] = [self.copy_data()]
-				
-			if existing and internal_id == self.internal_id:				
-				# The recipient is in the correct survey, updating participant data.
-				# self.execute_once(ls_api.update_participant_data, f"update_participant_data_{self.tid}", existing["external_id"], self.tid, {
-				# 	"firstname": self.name,
-				# 	"email": self.email
-				# })
-				ls_api.update_participant_data(existing["external_id"], self.tid, {
-					"firstname": self.name,
-					"email": self.email
-				})
-			else:	
-				# The recipient is NOT in the correct survey
-				if existing: survey["external_id"] = survey.get("external_id", existing["external_id"])
-				else:
-					# The "do_upload_survey" method stores the external_id (LS) into the survey dictionary.
-					survey["raw_tsv"] = survey.get("raw_tsv", header.compute_survey_data(self, False)["raw_tsv"])			
-					#success = self.execute_once(header.do_upload_survey, f"do_upload_survey_{internal_id}", survey)
-					success = header.do_upload_survey(survey)
-
-					# A student can be added when the surveys are already open, so the new survey should be also open
-					if success and header.state == 'open':
-						#success = self.execute_once(header.do_open_survey, f"do_open_survey_{internal_id}", survey)
-						success = header.do_open_survey(survey)
-				
-				if success:
-					if self.external_id:
-						# The participant must be removed from the old survey
-						old_survey_id = self.external_id
-						#self.execute_once(ls_api.delete_participants, f"delete_participants_{self.tid}", old_survey_id, [self.tid])		
-						ls_api.delete_participants(old_survey_id, [self.tid])
-
-						# Remove the old survey if empty, we don't care if counting fails due to retries by failed commits.
-						try:
-							count = -1
-							count = ls_api.count_participants(old_survey_id)
-						finally:
-							#if(count == 0): self.execute_once(ls_api.delete_survey, f"delete_survey_{old_survey_id}", old_survey_id)
-							if(count == 0): ls_api.delete_survey(old_survey_id)
-						
-					# The participant must be uploaded to the survey						
-					#success = self.execute_once(header.do_upload_recipients, f"do_upload_recipients_{survey['internal_id']}", survey)
-					success = header.do_upload_recipients(survey)
-					if success and header.state == 'open':
-						#success = self.execute_once(header.do_send_reminders, f"do_send_reminders_{internal_id}", survey)
-						success = header.do_send_reminders(survey)		
-		except Exception as e:
-			# NOTE: every do_xxx method setups also survey["error"] data.
-			success = False
-			survey["error"] = str(e)
-		return success
-	# endregion
+	
 
 	# region PUBLIC DATA MANAGEMENT METHODS (CREATE / COPY / ETC)
 	@api.model_create_multi
 	def create(self, values):
 		for v in values:
-			if v.get("status", "pending") == "manual":
+			if v.get("state", "pending") == "manual":
 				s = self.env["res.partner"].browse([v["student_id"]])
 				if not "name" in v:
 					v["name"] = s.name
@@ -875,8 +880,8 @@ class ems_limesurvey_recipient(models.Model):
 		
 		recips = super().create(values)
 		for r in recips:
-			if r.status == "manual":
-				r.status = "pending"
+			if r.state == "manual":
+				r.state = "pending"
 				r.action_restore()
 
 				if r.limesurvey_header_id.state in ("uploaded", "open"):
@@ -892,60 +897,70 @@ class ems_limesurvey_recipient(models.Model):
 		return data		
 	# endregion
 
-	# region PRIVATE REBUILD METHODS
-	def _rebuild_students_survey(self, survey):				
-		survey["external_id"] = self.external_id
-		survey["internal_id"] = self.internal_id
-		survey["recipients"] = [self.copy_data()]			
 	
-	def _rebuild_teachers_survey(self, survey):
-		raise NotImplemented("Coming soon...")
-
-	def _rebuild_asp_survey(self, survey):
-		raise NotImplemented("Coming soon...")
-	# endregion
-
 	# region PRIVATE AUX METHODS
-	@api.depends('status')
+	@api.depends('state')
 	def _compute_inuse_student_ids(self):
 		for rec in self:
 			rec.inuse_student_ids = False
-			if rec.status == "manual":
+			if rec.state == "manual":
 				rec.inuse_student_ids = rec.mapped('limesurvey_header_id.limesurvey_recipient_ids.student_id')
 	
-	def _end(self, success, title, action, exception=None):
-		message = f"{action}  {_('process successfully completed!')}" if success else (f"{action}  {_('process failed.')} {exception}")
-
-		# Errors beeing stored on fill_recipients_data
-		# if success: self.error = None
-		# else:
-		# 	self.error = str(exception)
-		# 	self.chatter(message)
-
-		if not success: self.chatter(message)
-		self.notify(title, message, "success" if success else "warning")
-		self.is_running = False
-		
-	def _run_action(self, title, action, code, pre=None):
+	def _run_action(self, title, action, status_w, compute, persistent_data, compute_survey_data=False, post_setup=None):		
 		self.ensure_one()
-		if not self.already_running():			
+		if not self.already_running():
+			original_state = self.state
+			def setup(self):			
+				persistent_data["success"] = True
+				persistent_data["ls_api"] = limesurvey_api(self.env)
+				try:
+					persistent_data["surveys"] = load_persistent_data(self, compute_survey_data)
+					# NOTE: post_setup not needed in header's _run_action(), but if it's needed sometime, it can be done like this one. 
+					if post_setup is not None: 
+						post_setup(self)
+				
+				except Exception:
+					persistent_data["success"] = False
+					persistent_data["error"] = traceback.format_exc()
+						
+			def store(self):
+				# Store: Moves data from persistent_data to Odoo objects in order to store changes in the BBDD.
+				# All actions must do this. Also it will be retried if commit fails.
+				# NOTE: "original" is an Odoo recipient entry, must be restores to the current BBDD env/context. 
+				for key in persistent_data.get("surveys", []):
+					survey = persistent_data["surveys"][key]
+					for rec in survey.get("recipients", []):
+						original = rec["original"].with_env(self.env)
+						original.write({
+							"tid": rec.get("tid", None),
+							"token": rec.get("token", None),
+							"error": rec.get("error", None),
+							"state": rec.get("state", None),
+							"internal_id": rec.get("internal_id", None),
+							"external_id": rec.get("external_id", None)				
+						})			
+							
+			def callback(self):
+				error = persistent_data.get("error", None)
+				success = error is None
+				message = f"{action}  {_('process successfully completed!')}" if success else (f"{action}  {_('process failed.')} {error}")
+
+				if not success: self.chatter(message)
+				self.notify(title, message, "success" if success else "warning")
+				self.is_running = False
+				self.error = error
+				self.state = original_state
+				self.reload_request()				
 			try:
 				self.is_running = True
-				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
-				
-				if pre is not None: 
-					pre(self)
-
-				def callback(self, success, error=None):
-					self._end(success, title, action, error)
-					self.reload_request()
-
-				self.run_in_thread(code, callback=callback)
-			except Exception as e:
-				self._end(False, title, action, e)
+				self.state = status_w
+				self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")												
+				self.run_in_thread(setup, compute, store, callback)
+			except Exception:
+				callback(self, traceback.format_exc())
 			finally:
-				return True
-	# endregion
+				return True		
+		
 class ems_limesurvey_enrollment(models.Model):
 	_name = "ems.limesurvey_enrollment"
 	_description = "LimeSurvey enrollment: contains a copy of the enrollment model for the related student, in order to allow changes on the fly when preparing the surveys (only secretarial staff should be allowed to modify the real enrollments)."

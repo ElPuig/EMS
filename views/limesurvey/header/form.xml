@@ -268,7 +268,7 @@
                                     <field name="id" invisible="True"/>
                                     <button name="open_add_student_popup" type="object"  string="Add a new student"  icon="fa-plus" class="btn-link fw-bold" context="{
                                             'default_limesurvey_header_id': id,
-                                            'default_status': 'manual'
+                                            'default_state': 'manual'
                                         }"
                                     />
                                 </div>
@@ -278,9 +278,9 @@
                                         <field name="name"/>
                                         <field name="email"/>
                                         <field name="external_id"/>                                                                               
-                                        <field name="status"/> 
+                                        <field name="state"/> 
                                         <!-- TODO: popup plugin -->
-                                        <button name="open_error_popup" type="object" icon="fa-info-circle" title="Open error details." invisible="not error" width="30px" /> 
+                                        <button name="open_error_popup" type="object" icon="fa-exclamation-triangle" title="Open error details." invisible="not error" width="30px" /> 
                                         <!-- <button name="refresh" type="object" icon="fa-refresh" title="Refresh (moves the student to a new survey if needed)." width="30px"/>  -->
                                     </list>
                                 </field>
@@ -305,7 +305,7 @@
                     <sheet>
                         <group>
                             <field name="limesurvey_header_id" invisible="True"/>
-                            <field name="status" invisible="True"/>
+                            <field name="state" invisible="True"/>
                             <field name="student_id" domain="[('contact_type', '=', 'student'), ('id','not in', inuse_student_ids)]"/>
                         </group>
                     </sheet>

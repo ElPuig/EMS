@@ -106,6 +106,26 @@ def do_send_reminders(ls_api, survey):
 		ls_api.remind_participants(sid)
 	return _do(survey, code)
 
+def do_remove_recipients(ls_api, survey):
+	def code():
+		# TODO: get unique external_id to avoid repeated calls.
+		success = True
+		for rec in survey["recipients"]:
+			if rec["external_id"] is not None:
+				try:
+					ls_api.delete_participants(rec["external_id"], [rec["tid"]])					
+				except Exception:
+					success = False
+					rec["error"] = traceback.format_exc()
+		
+		for rec in survey["recipients"]:
+			if rec["external_id"] is not None:
+				count = ls_api.count_participants(rec["external_id"])
+				if(count == 0): ls_api.delete_survey(rec["external_id"])
+		return success
+	return _do(survey, code)	
+	
+
 def do_upload_changes(ls_api, survey):
 	def code():
 		# NOTE: just for a single participant, but can be adapted for a batch of them if needed.

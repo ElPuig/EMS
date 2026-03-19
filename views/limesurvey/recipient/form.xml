@@ -26,7 +26,7 @@
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-cloud-upload"
-                            invisible="is_running or state not in ('pending', 'uploaded')"
+                            invisible="is_running or state not in ('uploaded')"
                         />
 
                         <!-- RESTORE (always available) -->
@@ -46,7 +46,7 @@
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-cloud-upload"
-                            invisible="not is_running or state in ('pending', 'uploaded')"
+                            invisible="not is_running or state in ('uploaded')"
                         />
 
                         <button string="Send reminder" 

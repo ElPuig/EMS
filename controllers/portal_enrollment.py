@@ -85,7 +85,8 @@ class EMSPortalController(CustomerPortal):
         if decision in ('yes', 'no'):
             auth.write({
                 'status': decision,
-                'response_date': datetime.now()
+                'response_date': datetime.now(),
+                'response_uid': request.env.user.id,
             })
         else:
             _logger.warning(
@@ -133,8 +134,18 @@ class EMSPortalController(CustomerPortal):
                 term = request.env['account.payment.term'].sudo().browse(int(payment_term_id))
                 if term.exists() and term.ems_portal_visible:
                     enrollment.sudo().write({'payment_term_id': term.id})
+                else:
+                    _logger.warning(
+                        "Enrollment confirm: payment_term_id %s not found or not portal-visible, user %s",
+                        payment_term_id, request.env.user.id
+                    )
+                    return request.redirect('/my/gestion-matriculas?error=invalid_payment_term')
             except (ValueError, TypeError):
-                pass
+                _logger.warning(
+                    "Enrollment confirm: invalid payment_term_id '%s' from user %s",
+                    payment_term_id, request.env.user.id
+                )
+                return request.redirect('/my/gestion-matriculas?error=invalid_payment_term')
 
         # 3. Recogemos comentarios del POST
         comments = post.get('comments', '').strip()

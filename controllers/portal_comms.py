@@ -16,9 +16,11 @@ class EMSPortalCommsController(CustomerPortal):
         MESSAGES_PER_PAGE = 10
 
         # Buscamos los IDs de las matrículas/pedidos del alumno
-        sale_order_ids = request.env['sale.order'].sudo().search([
-            ('partner_id', '=', partner.id)
-        ]).ids
+        sale_order_ids = request.env['sale.order'].sudo().search(
+            [('partner_id', '=', partner.id)],
+            fields=['id'],
+            limit=100,
+        ).ids
 
         # Dominio combinado: mensajes dirigidos al partner O mensajes del chatter de sus documentos
         domain = [

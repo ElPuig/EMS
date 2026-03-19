@@ -134,6 +134,12 @@ class EmsAuthorization(models.Model):
     )    
     
     response_date = fields.Datetime(string='Response Date', readonly=True)
+    response_uid = fields.Many2one(
+        'res.users',
+        string='Responded by',
+        readonly=True,
+        help="User who responded to this authorization (portal student/family or internal staff)."
+    )
     signed_document = fields.Binary(string='Signed Document', attachment=True)
     signed_document_name = fields.Char(string='Document Name')
 
@@ -165,5 +171,6 @@ class EmsAuthorization(models.Model):
 
         if 'status' in vals and vals['status'] != 'pending':
             vals['response_date'] = fields.Datetime.now()
-                    
+            vals['response_uid'] = self.env.user.id
+
         return super(EmsAuthorization, self).write(vals)

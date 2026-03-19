@@ -45,7 +45,7 @@ survey_target_selection = [("students", "Students"), ("teachers", "Teachers"), (
 
 
 
-# region DETACHED PUBLIC METHODS: DO NOT WORK WITH THE BBDD, JUST DICTIONARIES AND LS API CALLS
+# region DETACHED PUBLIC METHODS: DO NOT WORK WITH THE BBDD, JUST DICTIONARIES AND LS API CALLS. CALLED FROM HEAD AND RECIPIENTS
 def do_upload_survey(ls_api, survey):	
 	def code():
 		survey["external_id"] = ls_api.create_survey(survey["raw_tsv"])	

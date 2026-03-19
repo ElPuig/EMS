@@ -116,23 +116,22 @@ def do_upload_changes(ls_api, survey):
 ######################################################################
 ######################################################################
 ######################################################################
-	def code():							
-		# NOTE: just for a single participant, but can be adapted for a batch of them if needed.		
-		rec = survey["participants"][0] 
-		existing = survey["external_id"] is not None			
-		
-		existing = rec["new_external_id"] is not None			
-		if existing and survey["old_internal_id"] == survey["new_internal_id"]:
+	def code():
+		# NOTE: just for a single participant, but can be adapted for a batch of them if needed.
+		success = True
+		rec = survey["recipients"][0]
+		existing = rec["new_external_id"] is not None
+		if existing and rec["old_internal_id"] == rec["new_internal_id"]:
 			# The recipient is in the correct survey, updating participant data.				
-			ls_api.update_participant_data(existing["external_id"], rec["tid"], {
+			ls_api.update_participant_data(rec["external_id"], rec["tid"], {
 				"firstname": rec["name"],
 				"email": rec["email"]
 			})
 		else:	
 			# The recipient is NOT in the correct survey
 			if existing: 
-				survey["internal_id"] = survey["new_internal_id"]
-				survey["external_id"] = survey["new_external_id"]
+				rec["internal_id"] = rec["new_internal_id"]
+				rec["external_id"] = rec["new_external_id"]
 			else:					
 				# The survey must be created					
 				success = success and do_upload_survey(ls_api, survey)
@@ -143,11 +142,11 @@ def do_upload_changes(ls_api, survey):
 					success = do_open_survey(ls_api, survey)
 			
 			if success:
-				if survey["old_external_id"] is not None:
+				if rec["old_external_id"] is not None:
 					# The participant must be removed from the old survey					
-					ls_api.delete_participants(survey["old_external_id"], rec["tid"])									
-					count = ls_api.count_participants(survey["old_external_id"])
-					if(count == 0): ls_api.delete_survey(survey["old_external_id"])
+					ls_api.delete_participants(rec["old_external_id"], rec["tid"])									
+					count = ls_api.count_participants(rec["old_external_id"])
+					if(count == 0): ls_api.delete_survey(rec["old_external_id"])
 					
 				# The participant must be uploaded to the survey										
 				success = do_upload_recipients(ls_api, survey)
@@ -883,16 +882,15 @@ class ems_limesurvey_recipient(models.Model):
 			if success:
 				for key in persistent_data["surveys"]:
 					ls_api = persistent_data["ls_api"]
-					survey = persistent_data["surveys"][key]
-					success = success and do_upload_survey(ls_api, survey)
-					if success: success = success and do_upload_changes(ls_api, survey)			
+					survey = persistent_data["surveys"][key]					
+					success = success and do_upload_changes(ls_api, survey)
 				if not success: persistent_data["error"] = _("Something failed when trying to upload the changes for a recipient, please check the recipient entries for more details.")
 				persistent_data["success"] = success
 		return run_action(self, _("LimeSurvey: upload changes"), _("Upload"), "updating", self.state, self.state, compute, persistent_data, True, post_setup)
 	
 
 
-	
+
 	def action_remind(self):
 		self.ensure_one()
 		def run(self, callback):

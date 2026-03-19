@@ -139,7 +139,24 @@
                         </list>
                     </field>
                 </page>
-            </xpath>            
+            </xpath>
+
+            <!-- Ocultar botones de cambio de estado para tutores (solo visibles para admins y secretaría) -->
+            <xpath expr="//header/button[@id='send_by_email_primary']" position="attributes">
+                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='send_by_email']" position="attributes">
+                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='action_confirm']" position="attributes">
+                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_confirm' and not(@id)]" position="attributes">
+                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_cancel']" position="attributes">
+                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+            </xpath>
         </field>
     </record>
 

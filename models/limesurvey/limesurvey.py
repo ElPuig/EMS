@@ -31,10 +31,11 @@ survey_target_selection = [("students", "Students"), ("teachers", "Teachers"), (
 # ems.limesurvey_header
 #	We just store info about the recipients and which survey ID (internal and external) have they assigned.
 #	The action_xxx methods runs actions for a batch of recipients.#		
-#		Defines the "compute" method (API calls and business logic):
+#		Defines the "post_setup" method: all setups are shared between actions (all of them loads the same initial data), but in some concrete cases there's some extra needs, like when updating a single recipient.
+#		Defines the "compute" method (API calls and business logic).
 # 		Runs the _run_action() method which:
 # 			Ensures that there's no other thread already running for the same actions. 
-#			Defines the "setup" method (BBDD to persistent_data), always the same (computing survey data on upload; otherwise uses the BBDD data).
+#			Defines the "setup" method (BBDD to persistent_data), always the same (computing survey data on upload; otherwise uses the BBDD data). The post_setup runs within it. 
 #			Defines the "store" method (persistent_data to BBDD), the same for all actions.
 # 			Defines the callback method (common for all actions).
 # 			Calls the "run_in_thread" method seding setup, compute, store and callback.  

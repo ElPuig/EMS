@@ -108,25 +108,57 @@ def do_send_reminders(ls_api, survey):
 
 def do_remove_recipients(ls_api, survey):
 	def code():
-		# TODO: get unique external_id to avoid repeated calls.
+		# NOTE: The data that should be used is always within the recipients, not the survey.
+		#		The recipients should be all from the same survey, but better to be sure.
+		data = {}
 		success = True
 		for rec in survey["recipients"]:
 			if rec["external_id"] is not None:
-				try:
-					ls_api.delete_participants(rec["external_id"], [rec["tid"]])					
-				except Exception:
-					success = False
-					rec["error"] = traceback.format_exc()
-		
+				if rec["external_id"] not in data:
+					data[rec["external_id"]] = [rec]
+				else:
+					data[rec["external_id"]].append(rec)
+
+		for key in data:
+			try:
+				recs = data[key]
+				tids = [r["tid"] for r in recs]
+				ls_api.delete_participants(key, tids)
+			except Exception:
+				success = False
+				for r in recs:
+					r["error"] = traceback.format_exc()
+		return success
+
+	return _do(survey, code)	
+
+def do_remove_survey_if_empty(ls_api, survey):
+	def code():
+		# NOTE: The data that should be used is always within the recipients, not the survey.
+		#		The recipients should be all from the same survey, but better to be sure.
+		data = {}
+		success = True
 		for rec in survey["recipients"]:
 			if rec["external_id"] is not None:
-				count = ls_api.count_participants(rec["external_id"])
-				if(count == 0): ls_api.delete_survey(rec["external_id"])
-		return success
-	return _do(survey, code)	
-	
+				if rec["external_id"] not in data:
+					data[rec["external_id"]] = [rec]
+				else:
+					data[rec["external_id"]].append(rec)
 
-def do_upload_changes(ls_api, survey):
+		for key in data:
+			try:
+				recs = data[key]
+				count = ls_api.count_participants(key)
+				if(count == 0): ls_api.delete_survey(key)
+			except Exception:
+				success = False
+				for r in recs:
+					r["error"] = traceback.format_exc()
+		return success
+
+	return _do(survey, code)	
+
+def do_upload_recipient_changes(ls_api, survey):
 	def code():
 		# NOTE: just for a single participant, but can be adapted for a batch of them if needed.
 		#		Within survey: the NEW internal_id and external_id
@@ -146,30 +178,26 @@ def do_upload_changes(ls_api, survey):
 			})
 		else:	
 			# The recipient is NOT in the correct survey
-			old_external_id = rec["external_id"] # will be updated soon, must keep
-			if existing: 
-				# manually set the new codes from the survey to the recipient
-				rec["internal_id"] = survey["internal_id"]
-				rec["external_id"] = survey["external_id"]
-			else:					
-				# The survey must be created					
-				success = success and do_upload_survey(ls_api, survey) # gets the new external_id for the survey
-				
-				# A student can be added when the surveys are already open, so the new survey should be also open
-				if success and survey["state"] == 'open':
-					success = do_open_survey(ls_api, survey)
-			
-			if success:
-				if old_external_id is not None:
-					# The participant must be removed from the old survey										
-					ls_api.delete_participants(old_external_id, [rec["tid"]])
-					count = ls_api.count_participants(old_external_id)
-					if(count == 0): ls_api.delete_survey(old_external_id)
+			# Removing from the old one (the method does not remove if the recipient is not uploaded)			
+			success = do_remove_recipients(ls_api, survey)
+			if success: 
+				success = do_remove_survey_if_empty(ls_api, survey)
+				if success and existing: 
+					# The survey already exists, so the IDs must be updated manually
+					rec["internal_id"] = survey["internal_id"]
+					rec["external_id"] = survey["external_id"]
+				elif success:
+					# The survey must be created, the new IDs will be computed and set automatically					
+					success = do_upload_survey(ls_api, survey)
 					
-				# The participant must be uploaded to the survey										
-				success = do_upload_recipients(ls_api, survey)
-				if success and survey["state"] == 'open':
-					success = do_send_reminders(ls_api, survey)
+					# A student can be added when the surveys are already open, so the new survey should be also open
+					if success and survey["state"] == 'open':
+						success = do_open_survey(ls_api, survey)
+						
+				if success: 
+					success = do_upload_recipients(ls_api, survey)
+					if success and survey["state"] == 'open':
+						success = do_send_reminders(ls_api, survey)
 		return success		
 	return _do(survey, code)
 # endregion
@@ -898,13 +926,14 @@ class ems_limesurvey_recipient(models.Model):
 				for key in persistent_data["surveys"]:
 					ls_api = persistent_data["ls_api"]
 					survey = persistent_data["surveys"][key]					
-					success = success and do_upload_changes(ls_api, survey)
+					success = success and do_upload_recipient_changes(ls_api, survey)
 				if not success: persistent_data["error"] = _("Something failed when trying to upload the changes for a recipient, please check the recipient entries for more details.")
 				persistent_data["success"] = success
 		return run_action(self, _("LimeSurvey: upload changes"), _("Upload"), "updating", self.state, self.state, compute, persistent_data, True, post_setup)
 	
-
-
+	###########################
+	#   TODO: CONTINUE HERE	  #
+	###########################
 
 	def action_remind(self):
 		self.ensure_one()

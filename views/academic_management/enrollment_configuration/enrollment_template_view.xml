@@ -16,7 +16,7 @@
                     <attribute name="string">Enrollment Template</attribute>
                 </xpath>
                 <xpath expr="//field[@name='name']" position="after">
-                    <field name="course"/>
+                    <field name="study_year"/>
                     <field name="ems_level_id"/>
                     <field name="ems_study_id"/>
                 </xpath>

@@ -5,6 +5,7 @@
         <record id="enrollment_template_smx_1" model="sale.order.template">
             <field name="name">SMX-1</field>
             <field name="ems_study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="study_year">1</field>
         </record>
 
         <record id="line_smx1_enrollment_fee" model="sale.order.template.line">
@@ -89,6 +90,7 @@
         <record id="enrollment_template_smx_2" model="sale.order.template">
             <field name="name">SMX-2</field>
             <field name="ems_study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="study_year">2</field>
         </record>
 
         <record id="line_smx2_enrollment_fee" model="sale.order.template.line">
@@ -143,6 +145,7 @@
         <record id="enrollment_template_dam_1" model="sale.order.template">
             <field name="name">DAM-1</field>
             <field name="ems_study_id" ref="ems.study_cfgs_icb0_dam_2024"/>
+            <field name="study_year">1</field>
         </record>
 
         <record id="line_dam1_enrollment_fee" model="sale.order.template.line">
@@ -233,6 +236,7 @@
         <record id="enrollment_template_dam_2" model="sale.order.template">
             <field name="name">DAM-2</field>
             <field name="ems_study_id" ref="ems.study_cfgs_icb0_dam_2024"/>
+            <field name="study_year">2</field>
         </record>
 
         <record id="line_dam2_enrollment_fee" model="sale.order.template.line">
@@ -305,6 +309,7 @@
         <record id="enrollment_template_asix_1" model="sale.order.template">
             <field name="name">ASIX-1</field>
             <field name="ems_study_id" ref="ems.study_cfgs_ica0_asix_2024"/>
+            <field name="study_year">1</field>
         </record>
 
         <record id="line_asix1_enrollment_fee" model="sale.order.template.line">
@@ -395,6 +400,7 @@
         <record id="enrollment_template_asix_2" model="sale.order.template">
             <field name="name">ASIX-2</field>
             <field name="ems_study_id" ref="ems.study_cfgs_ica0_asix_2024"/>
+            <field name="study_year">2</field>
         </record>
 
         <record id="line_asix2_enrollment_fee" model="sale.order.template.line">
@@ -467,6 +473,7 @@
         <record id="enrollment_template_daw_1" model="sale.order.template">
             <field name="name">DAW-1</field>
             <field name="ems_study_id" ref="ems.study_cfgs_icc0_daw_2024"/>
+            <field name="study_year">1</field>
         </record>
 
         <record id="line_daw1_enrollment_fee" model="sale.order.template.line">
@@ -557,6 +564,7 @@
         <record id="enrollment_template_daw_2" model="sale.order.template">
             <field name="name">DAW-2</field>
             <field name="ems_study_id" ref="ems.study_cfgs_icc0_daw_2024"/>
+            <field name="study_year">2</field>
         </record>
 
         <record id="line_daw2_enrollment_fee" model="sale.order.template.line">
@@ -623,6 +631,7 @@
         <record id="enrollment_template_ad_1" model="sale.order.template">
             <field name="name">AD-1</field>
             <field name="ems_study_id" ref="ems.study_cfgs_aga0_ad_2024"/>
+            <field name="study_year">1</field>
         </record>
 
         <record id="line_ad1_enrollment_fee" model="sale.order.template.line">
@@ -713,6 +722,7 @@
         <record id="enrollment_template_ad_2" model="sale.order.template">
             <field name="name">AD-2</field>
             <field name="ems_study_id" ref="ems.study_cfgs_aga0_ad_2024"/>
+            <field name="study_year">2</field>
         </record>
 
         <record id="line_ad2_enrollment_fee" model="sale.order.template.line">
@@ -785,6 +795,7 @@
         <record id="enrollment_template_aif_1" model="sale.order.template">
             <field name="name">AIF-1</field>
             <field name="ems_study_id" ref="ems.study_cfgs_agb0_aif_2024"/>
+            <field name="study_year">1</field>
         </record>
 
         <record id="line_aif1_enrollment_fee" model="sale.order.template.line">
@@ -875,6 +886,7 @@
         <record id="enrollment_template_aif_2" model="sale.order.template">
             <field name="name">AIF-2</field>
             <field name="ems_study_id" ref="ems.study_cfgs_agb0_aif_2024"/>
+            <field name="study_year">2</field>
         </record>
 
         <record id="line_aif2_enrollment_fee" model="sale.order.template.line">
@@ -959,6 +971,7 @@
         <record id="enrollment_template_ga_1" model="sale.order.template">
             <field name="name">GA-1</field>
             <field name="ems_study_id" ref="ems.study_cfgm_ag10_ga_2024"/>
+            <field name="study_year">1</field>
         </record>
 
         <record id="line_ga1_enrollment_fee" model="sale.order.template.line">
@@ -1037,6 +1050,7 @@
         <record id="enrollment_template_ga_2" model="sale.order.template">
             <field name="name">GA-2</field>
             <field name="ems_study_id" ref="ems.study_cfgm_ag10_ga_2024"/>
+            <field name="study_year">2</field>
         </record>
 
         <record id="line_ga2_enrollment_fee" model="sale.order.template.line">

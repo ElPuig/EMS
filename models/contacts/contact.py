@@ -223,7 +223,7 @@ class ems_contact(models.Model):
             # Buscar plantilla de 2º para el estudio del alumno
             template = self.env['sale.order.template'].search([
                 ('ems_study_id', '=', student.study_id.id),
-                ('course', '=', 2),
+                ('study_year', '=', 2),
             ], limit=1)
 
             order = self.env['sale.order'].create({

@@ -114,7 +114,7 @@ class EmsAuthorization(models.Model):
     _description = 'Enrollment Authorization'
 
     enrollment_id = fields.Many2one('sale.order', string='Enrollment', ondelete='cascade', required=True)
-    template_id = fields.Many2one('ems.authorization.template', string='Template', required=True)
+    template_id = fields.Many2one('ems.authorization.template', string='Template', required=True, ondelete='restrict')
     course_id = fields.Many2one(related='enrollment_id.ems_course_id', string="Academic Year", readonly=True)
     
     legal_text = fields.Html(related='template_id.legal_text', string="Legal Text", readonly=True)

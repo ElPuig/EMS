@@ -148,7 +148,7 @@ class EMSPortalController(CustomerPortal):
                 return request.redirect('/my/gestion-matriculas?error=invalid_payment_term')
 
         # 3. Recogemos comentarios del POST
-        comments = post.get('comments', '').strip()
+        comments = post.get('comments', '').strip()[:2000]
         if comments:
             # 4a. Hay comentarios: publicar en el chatter y mantener estado
             # Recuperamos los nombres de las líneas marcadas

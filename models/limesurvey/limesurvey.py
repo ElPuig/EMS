@@ -769,60 +769,7 @@ class ems_limesurvey_header(models.Model):
 		raise NotImplemented("Coming soon...")
 
 	def _compute_recipients_asp(self):
-		raise NotImplemented("Coming soon...")
-		
-	# region PRIVATE AUX METHODS	
-	# def _run_action(self, title, action, status_w, status_ok, status_ko, compute, persistent_data, compute_survey_data=False):
-	# 	self.ensure_one()
-	# 	if not self.already_running():
-	# 		def setup(self):			
-	# 			persistent_data["success"] = True
-	# 			persistent_data["ls_api"] = limesurvey_api(self.env)
-	# 			try:
-	# 				# TODO: maybe is better to use diferent load_persistent_data methods for teachers or ASP...
-	# 				persistent_data["surveys"] = load_persistent_data(self, compute_survey_data)
-	# 			except Exception:
-	# 				persistent_data["success"] = False
-	# 				persistent_data["error"] = traceback.format_exc()
-						
-	# 		def store(self):
-	# 			# Store: Moves data from persistent_data to Odoo objects in order to store changes in the BBDD.
-	# 			# All actions must do this. Also it will be retried if commit fails.
-	# 			# NOTE: "original" is an Odoo recipient entry, must be restores to the current BBDD env/context. 
-	# 			for key in persistent_data.get("surveys", []):
-	# 				survey = persistent_data["surveys"][key]
-	# 				for rec in survey.get("recipients", []):
-	# 					original = rec["original"].with_env(self.env)
-	# 					original.write({
-	# 						"tid": rec.get("tid", None),
-	# 						"token": rec.get("token", None),
-	# 						"error": rec.get("error", None),
-	# 						"state": rec.get("state", None),
-	# 						"internal_id": rec.get("internal_id", None),
-	# 						"external_id": rec.get("external_id", None)				
-	# 					})			
-							
-	# 		def callback(self):
-	# 			error = persistent_data.get("error", None)
-	# 			success = error is None
-	# 			message = f"{action}  {_('process successfully completed!')}" if success else (f"{action}  {_('process failed.')} {error}")
-
-	# 			if not success: self.chatter(message)
-	# 			self.notify(title, message, "success" if success else "warning")
-	# 			self.is_running = False
-	# 			self.state = status_ok if success else status_ko
-	# 			self.reload_request()
-				
-	# 		try:
-	# 			self.is_running = True
-	# 			self.state = status_w				
-	# 			self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")												
-	# 			self.run_in_thread(setup, compute, store, callback)
-	# 		except Exception:
-	# 			callback(self, traceback.format_exc())
-	# 		finally:
-	# 			return True			
-	# endregion
+		raise NotImplemented("Coming soon...")		
 
 	# region PRIVATE ONCHANGE METHODS (JUST FOR VIEWS)
 	@api.onchange('level_ids')
@@ -941,19 +888,16 @@ class ems_limesurvey_recipient(models.Model):
 				persistent_data["success"] = success
 		return run_action(self, _("LimeSurvey: upload changes"), _("Upload"), "updating", self.state, self.state, compute, persistent_data, True, post_setup)
 	
-	###########################
-	#   TODO: CONTINUE HERE	  #
-	###########################
-
-	def action_remind(self):
-		self.ensure_one()
-		def run(self, callback):
-			sid = self.external_id
-			ls_api = limesurvey_api(self.env)					
-			self.execute_once(ls_api.remind_participants, f"remind_participants_{sid}", sid, [self.tid])
-			callback(self, True)				
-
-		return run_action(self, _("LimeSurvey: send reminder"), _("Remind"), run)			
+	def action_remind(self):					
+		persistent_data = {}		
+		def compute():						
+			for key in persistent_data["surveys"]:
+				ls_api = persistent_data["ls_api"]
+				survey = persistent_data["surveys"][key]					
+				success = do_send_reminders(ls_api, survey)
+			if not success: persistent_data["error"] = _("Something failed when trying to send a reminder to a recipient, please check the recipient entries for more details.")
+			persistent_data["success"] = success
+		return run_action(self, _("LimeSurvey: send reminder"), _("Remind"), "reminding", self.state, self.state, compute, persistent_data)
 	
 	def action_none(self):
 		return True	

@@ -29,6 +29,15 @@
                             invisible="is_running or state not in ('uploaded')"
                         />
 
+                        <!-- UPLOADED -->
+                        <button string="Send reminder" 
+                            name="action_remind"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-bell"
+                            invisible="is_running or state not in ('uploaded')"
+                        />                       
+
                         <!-- RESTORE (always available) -->
                         <button string="Restore data" 
                             disabled="True"
@@ -49,34 +58,15 @@
                             invisible="not is_running or state in ('uploaded')"
                         />
 
+                        <!-- REMINDING -->
                         <button string="Send reminder" 
                             disabled="True"
                             name="action_none"                                 
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-bell"
-                            invisible="not is_running or state in ('updating')"
-                        />
-
-
-
-
-
-                        <!-- OPEN -->
-                        <button string="Send reminder" 
-                            name="action_remind"                                 
-                            type="object" 
-                            class="oe_highlight" 
-                            icon="fa-bell"
-                            invisible="is_running or state not in ('open')"
-                        />
-
-                       
-
-
-                        
-
-                        
+                            invisible="not is_running or state not in ('reminding', 'updating')"
+                        />                      
                     </header>
 
                     <sheet>

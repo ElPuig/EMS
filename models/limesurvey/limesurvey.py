@@ -101,6 +101,12 @@ def do_open_survey(ls_api, survey):
 		ls_api.invite_participants(sid)
 	return _do(survey, code)		
 
+def do_send_invitations(ls_api, survey):
+	def code():		
+		sid = survey["external_id"]		
+		ls_api.invite_participants(sid)
+	return _do(survey, code)
+
 def do_send_reminders(ls_api, survey):
 	def code():		
 		sid = survey["external_id"]		
@@ -192,13 +198,16 @@ def do_upload_recipient_changes(ls_api, survey):
 					success = do_upload_survey(ls_api, survey)
 					
 					# A student can be added when the surveys are already open, so the new survey should be also open
-					if success and survey["state"] == 'open':
-						success = do_open_survey(ls_api, survey)
+					# if success and survey["state"] == 'open':
+					# 	success = do_open_survey(ls_api, survey)
 						
 				if success: 
 					success = do_upload_recipients(ls_api, survey)
-					if success and survey["state"] == 'open':
-						success = do_send_reminders(ls_api, survey)
+				
+				if success and survey["state"] == 'open':
+					# Surveys must be open always after adding the participants (sends also the invitations), otherwise just send reminders.
+					if existing: success = do_send_invitations(ls_api, survey)
+					else: success = do_open_survey(ls_api, survey)
 		return success		
 	return _do(survey, code)
 # endregion

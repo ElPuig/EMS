@@ -236,7 +236,7 @@
                                                         </t>
                                                     </td>
                                                     <td class="text-center">
-                                                        <input type="checkbox" class="form-check-input ems-comment-check" 
+                                                        <input type="checkbox" class="form-check-input ems-comment-check"
                                                             name="commented_lines" t-att-value="line.id"/>
                                                     </td>
                                                 </tr>

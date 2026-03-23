@@ -22,6 +22,8 @@ class EMSPortalCommsController(CustomerPortal):
         ).ids
 
         # Dominio combinado: mensajes dirigidos al partner O mensajes del chatter de sus documentos
+        # Excluimos notas internas (mail.mt_note) para que no sean visibles en el portal
+        note_subtype = request.env.ref('mail.mt_note')
         domain = [
             '|',
                 ('partner_ids', 'in', partner.id),
@@ -29,6 +31,7 @@ class EMSPortalCommsController(CustomerPortal):
                     ('model', '=', 'sale.order'),
                     ('res_id', 'in', sale_order_ids),
             ('message_type', 'in', ['email', 'comment', 'notification']),
+            ('subtype_id', '!=', note_subtype.id),
         ]
 
         # Total para la paginación

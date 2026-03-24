@@ -150,15 +150,15 @@ class ems_attendance_session_header(models.Model):
 				# 		data should be almost the same). 
 				previous = self.env["ems.attendance_session_header"].search(
 					[
-						("date", "=", datetime.now()), 						
+						("date", "=", self.date), 
 						("attendance_schedule_id.attendance_template_id.id", "=", rec.attendance_schedule_id.attendance_template_id.sudo().id),
 						("attendance_schedule_id.weekday", "=", rec.attendance_schedule_id.weekday)
 					], order="end_time DESC", limit=1)
 				
 				if previous:
 					end = previous.end_time
-					start = self.utc_datetime_to_local(datetime.now())
-					rec.is_next = (end <= self.time_to_float(start.time()))	
+					start = self.start_time
+					rec.is_next = (end <= start)	
 
 					if rec.is_next:
 						# Load new entries but with the previous session's data
@@ -321,7 +321,7 @@ class ems_attendance_session_header(models.Model):
 	def _setup_next_session_line_data(self, previous):
 		return  {
 			"student_id": previous.student_id,
-			"status": "a_attended" if previous.status == "a_delay" else previous.status,
+			"status": "a_attended" if previous.status == "a_delayed" else previous.status,
 			"notes": previous.notes,
 			"attendance_justification_id": previous.attendance_justification_id,
 			"attendance_prevision_id" : previous.attendance_prevision_id,

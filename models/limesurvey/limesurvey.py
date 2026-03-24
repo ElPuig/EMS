@@ -826,6 +826,7 @@ class ems_limesurvey_recipient(models.Model):
 	], default='pending')
 
 	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header", required=True)
+	header_state = fields.Selection(related="limesurvey_header_id.state", store=False)
 	level_id = fields.Many2one(string='Level', comodel_name='ems.level')  
 	name = fields.Char(string="Name", required=True)
 	email = fields.Char(string="Email", required=True)

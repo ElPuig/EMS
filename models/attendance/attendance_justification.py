@@ -197,6 +197,7 @@ class ems_attendance_justification(models.Model):
 				#old_lines_map[record.id] = set(record.attendance_session_line_ids.ids)
 				old_lines_map[rec.id] = set(rec.attendance_session_line_ids)			
 			
+			# TODO: issue #140: https://github.com/ElPuig/EMS/issues/140
 			updated = super(ems_attendance_justification, self).write(vals) 
 
 			for rec in self:				

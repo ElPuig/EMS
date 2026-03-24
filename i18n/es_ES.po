@@ -2749,8 +2749,8 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "The current schedules will be replaced by the new ones."
-msgstr "Los horarios actuales serán reemplazados por los nuevos."
+msgid "The current working schedules will be updated according to the provided ones (none will be removed)."
+msgstr "Los horarios del profesorado actuales serán actualizados en función de los aportados (ninguno será eliminado)."
 
 #. module: ems
 #. odoo-python
@@ -2768,8 +2768,7 @@ msgstr ""
 msgid ""
 "The current subject assignations will be updated to match the new schedules."
 msgstr ""
-"La asignación de materias actual se actualizará para coincidir con los "
-"nuevos horarios."
+"La assignación de materias del profesorado se actualitzará para conincidir con los nuevos horarios aportados."
 
 #. module: ems
 #. odoo-python

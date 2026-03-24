@@ -132,6 +132,14 @@
             'views/planning_grading/planning/list.xml',
             'views/planning_grading/planning/form.xml',
             'views/planning_grading/planning/menu.xml',
+            
+            'views/limesurvey/menu.xml',
+            'views/limesurvey/header/list.xml',
+            'views/limesurvey/header/form.xml',
+            'views/limesurvey/header/menu.xml',
+            'views/limesurvey/block/form.xml',
+            'views/limesurvey/recipient/form.xml',
+            
 
         # 'views/community/tracking/list.xml',
         # 'views/community/tracking/form.xml',  

@@ -1,0 +1,44 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_limesurvey_block_form">
+            <field name="name">ems.limesurvey_block.form</field>
+            <field name="model">ems.limesurvey_block</field>
+            <field name="arch" type="xml">
+                <form string="Block">
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group colspan="3">
+                                <field name="name"/>
+                            </group>
+                            <group>
+                                <field help="Enables block's special behaviour." name="special"/>
+                            </group>         
+                        </group>
+
+                        <group string="Special behaviour" col="4" invisible="not special">
+                            <group>
+                                <field string="Course filter" help="The block appears only for students enrolled in this course (0 = all)." name="special_course_filter"/>
+                            </group>                            
+                            <group>
+                                <field string="Repeat per subject" help="This block will be generated once per enrollred subject." name="special_subject_enrolled"/>
+                            </group>
+                            <group>
+                                <field string="WPI enrollment" help="The block appears only for students enrolled in a WorkPlace Intership." name="special_wpi_enrolled"/>
+                            </group>
+                        </group>
+
+                        <group string="Block's content (tab separated)">
+                            <field string="" name="tsv_raw_text" widget="code" style="min-height: 300px;"/>
+                        </group>
+                        
+                        <notebook>                          
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

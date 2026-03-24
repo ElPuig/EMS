@@ -2748,8 +2748,8 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "The current schedules will be replaced by the new ones."
-msgstr "Els horaris actuals seran reemplaçats pels nous."
+msgid "The current working schedules will be updated according to the provided ones (none will be removed)."
+msgstr "Els horaris del professorat actuals seran actualitzats en funció dels aportats (cap serà esborrat)."
 
 #. module: ems
 #. odoo-python
@@ -2766,7 +2766,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid ""
 "The current subject assignations will be updated to match the new schedules."
-msgstr "Els horaris actuals seran reemplaçats pels nous."
+msgstr "L'assignació de matèries del professorat s'actualitzarà per a conincidir amb els nous horaris aportats."
 
 #. module: ems
 #. odoo-python

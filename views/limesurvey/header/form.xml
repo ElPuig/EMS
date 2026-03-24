@@ -1,0 +1,335 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_limesurvey_header_form">
+            <field name="name">ems.limesurvey_header.form</field>
+            <field name="model">ems.limesurvey_header</field>
+            <field name="arch" type="xml">
+                <form string="Survey">
+                    <div class="alert alert-warning w-100 text-center mb-2" role="alert" invisible="not is_running">
+                        <i title="sping" class="fa fa-circle-o-notch fa-spin me-2"/> 
+                        <strong>Processing!</strong> We are uploading the changes to the external API; this may take a few minutes...
+                    </div>
+                    
+                    <header>
+                        <!-- NOTE: Odoo does not evaluate 'disabled' as does with invisible :(  -->
+                        
+                        <!-- DRAFT -->
+                        <button string="Compute recipients" 
+                            name="action_compute" 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-users"
+                            invisible="state != 'draft'"
+                        />                      
+
+                        <!-- COMPUTED -->
+                        <button string="Return to draft" 
+                            name="action_draft"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-pencil-square-o"
+                            invisible="state != 'computed'"
+                        />
+
+                        <button string="Reload recipients" 
+                            confirm="This action will clean and recreate the recipients, removing all custom changes and saving the data immediately. It cannot be undone. Do you wish to continue?"
+                            name="action_reload"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-refresh"
+                            invisible="state != 'computed'"
+                        />
+
+                        <button string="Upload surveys" 
+                            name="action_upload"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-cloud-upload"
+                            invisible="state != 'computed'"
+                        />
+
+                        <!-- UPLOADING-->
+                         <button string="Return to draft" 
+                            disabled="True" 
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-pencil-square-o"
+                            invisible="state != 'uploading'"
+                        />
+
+                        <button string="Reload recipients"
+                            disabled="True" 
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-refresh"
+                            invisible="state != 'uploading'"
+                        />
+
+                        <button string="Upload surveys"
+                            disabled="True" 
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-cloud-upload"
+                            invisible="state != 'uploading'"
+                        />
+                        
+                        <!-- UPLOADED -->
+                        <button string="Remove surveys" 
+                            name="action_remove"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-trash"
+                            invisible="state != 'uploaded'"
+                        />                       
+
+                        <button string="Open surveys"  
+                            name="action_open"                             
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-play"
+                            invisible="state != 'uploaded'"
+                        />
+
+                        <!-- OPENING -->
+                        <button string="Remove surveys" 
+                            disabled="True" 
+                            name="action_none"                              
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-trash"
+                            invisible="state not in ('opening', 'removing')"
+                        />
+
+                        <button string="Open surveys"  
+                            disabled="True"
+                            name="action_none"                             
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-play"
+                            invisible="state not in ('opening', 'removing')"
+                        />
+
+                        <!-- OPEN -->      
+                        <button string="Send reminders" 
+                            name="action_remind"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-bell"
+                            invisible="state != 'open'"
+                        />
+
+                        <button string="Close surveys" 
+                            name="action_close"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-stop"
+                            invisible="state != 'open'"
+                        />
+
+                         <!-- REMINDING -->      
+                        <button string="Send reminders" 
+                            disabled="True"
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-bell"
+                            invisible="state != 'reminding'"
+                        />
+
+                        <button string="Close surveys"
+                            disabled="True" 
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-stop"
+                            invisible="state != 'reminding'"
+                        />
+
+                        <!-- CLOSING -->        
+                        <!-- <button string="Send reminders" 
+                            disabled="True"
+                            name="action_remind"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-bell"
+                            invisible="state != 'closing'"
+                        />
+
+                        <button string="Close surveys"   
+                            disabled="True"
+                            name="action_none"                               
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-stop"
+                            invisible="state != 'closing'"
+                        />   -->
+
+                        <!-- CLOSED -->   
+                        <!-- <button string="Open surveys"  
+                            name="action_none"                             
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-envelope "
+                            invisible="state != 'closed'"
+                        />
+
+                        <button string="Download data" 
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-cloud-download"
+                            invisible="state != 'closed'"
+                        />     -->
+
+                        <!-- DOWNLOADING -->   
+                        <!-- <button string="Open surveys"  
+                            disabled="True"
+                            name="action_none"                             
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-envelope "
+                            invisible="state != 'downloading'"
+                        />
+
+                        <button string="Download data" 
+                            disabled="True"
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-cloud-download"
+                            invisible="state != 'downloading'"
+                        />      -->
+
+                        <!-- DOWNLOADED -->   
+                        <!-- <button string="Return to draft"   
+                            name="action_none"                              
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-step-backward"
+                            invisible="state != 'downloaded'"
+                        />        -->
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,computed,uploaded,open,closed,downloaded"/>                       
+                    </header>
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group>
+                                <field name="name"/>
+                            </group>
+
+                             <group>
+                                <field name="title" readonly="state not in ('draft', 'computed')"/>
+                            </group>  
+                            <group colspan="2">
+                                <field name="description" readonly="state not in ('draft', 'computed')"/>
+                            </group>   
+                        </group>
+
+                        <group string="Participant's filter" col="4">
+                            <group>
+                                <field name="target" readonly="state not in ('draft', 'computed')"/>
+                            </group>
+                            <group invisible="target == 'students'" colspan="3">
+                                <div class="alert alert-danger w-100 text-center mb-2" role="alert">                                
+                                    <strong>Not implemented!</strong> Coming soon...
+                                </div>
+                            </group>
+                            <group>
+                                <field name="level_ids" widget="many2many_tags" invisible="target != 'students'" readonly="state not in ('draft', 'computed')"/>
+                            </group>     
+                            <group>
+                                <field name="study_ids" widget="many2many_tags" invisible="target != 'students'" readonly="not level_ids or state not in ('draft', 'computed')" domain="[('level_id','in', level_ids)]"/>
+                            </group>
+                            <group>
+                                <field name="group_ids" widget="many2many_tags" invisible="target != 'students'" readonly="not study_ids or state not in ('draft', 'computed')" domain="[('study_id','in', study_ids)]"/>
+                            </group>                                                                                     
+                        </group>   
+
+                        <notebook>
+                             <page string="Header's content (TSV)">
+                                <field string="" name="tsv_raw_text" widget="code" style="min-height: 300px;"/>
+                            </page>
+
+                            <page string="Blocks">
+                                <field name="limesurvey_block_ids">
+                                    <list>
+                                        <field name="sort" widget="handle"/>
+                                        <field name="name"/>                                        
+                                    </list>
+                                </field>
+                            </page>
+
+                            <page string="Recipients">                                
+                                <!-- <field name="limesurvey_recipient_ids" readonly="True" force_save="True"> -->
+                                <div class="pb-2" invisible="target != 'students' or state == 'draft'">
+                                    <field name="id" invisible="True"/>
+                                    <button name="open_add_student_popup" type="object"  string="Add a new student"  icon="fa-plus" class="btn-link fw-bold" context="{
+                                            'default_limesurvey_header_id': id,
+                                            'default_state': 'manual'
+                                        }"
+                                    />
+                                </div>
+
+                                <field name="limesurvey_recipient_ids">
+                                    <list default_order="name" create="False" delete="False" >
+                                        <field name="name"/>
+                                        <field name="email"/>
+                                        <field name="external_id"/>                                                                               
+                                        <field name="state"/> 
+                                        <!-- TODO: popup plugin -->
+                                        <button name="open_error_popup" type="object" icon="fa-exclamation-triangle" title="Open error details." invisible="not error" width="30px" /> 
+                                        <!-- <button name="refresh" type="object" icon="fa-refresh" title="Refresh (moves the student to a new survey if needed)." width="30px"/>  -->
+                                    </list>
+                                </field>
+                            </page>
+                            
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>                
+                    </sheet>	
+
+                   <chatter/>
+                </form>
+            </field>			
+        </record>
+
+        <record model="ir.ui.view" id="view_limesurvey_recipient_add_student_popup">
+            <field name="name">ems.limesurvey_recipient_add_student.popup</field>
+            <field name="model">ems.limesurvey_recipient</field> 
+            <field name="arch" type="xml">
+                <form string="Select the student to add">
+                    <sheet>
+                        <group>
+                            <field name="limesurvey_header_id" invisible="True"/>
+                            <field name="state" invisible="True"/>
+                            <field name="student_id" domain="[('contact_type', '=', 'student'), ('id','not in', inuse_student_ids)]"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Add"    special="save"  class="btn-primary"     data-hotkey="q"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"  data-hotkey="x"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_limesurvey_recipient_error_popup">
+            <field name="name">ems.limesurvey_recipient_error.popup</field>
+            <field name="model">ems.limesurvey_recipient</field> 
+            <field name="arch" type="xml">
+                <form string="Error details">
+                    <sheet>
+                        <field name="error" readonly="1" widget="text"/>
+                    </sheet>
+                    <footer>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

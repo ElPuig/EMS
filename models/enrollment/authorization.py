@@ -35,6 +35,7 @@ class EmsAuthorizationTemplate(models.Model):
         string='Applies to Studies',
         help="Select the specific studies this applies to. If both Levels and Studies are empty, it applies to all enrollments."
     )
+    field_ids = fields.One2many('ems.authorization.field', 'template_id', string='Data Fields')
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -109,6 +110,23 @@ class EmsAuthorizationTemplate(models.Model):
             # pero el método unlink() directo es la forma más limpia en Odoo.
             auths_to_delete.unlink()
 
+class EmsAuthorizationField(models.Model):
+    _name = 'ems.authorization.field'
+    _description = 'Authorization Template Field'
+    _order = 'sequence, id'
+
+    template_id = fields.Many2one('ems.authorization.template', required=True, ondelete='cascade')
+    sequence = fields.Integer(default=10)
+    label = fields.Char(string='Label', required=True)
+    field_type = fields.Selection([
+        ('char', 'Short Text'),
+        ('text', 'Long Text'),
+        ('date', 'Date'),
+    ], string='Type', default='char', required=True)
+    placeholder = fields.Char(string='Placeholder/Example')
+    is_required = fields.Boolean(string='Required when accepting', default=True)
+
+
 class EmsAuthorization(models.Model):
     _name = 'ems.authorization'
     _description = 'Enrollment Authorization'
@@ -140,8 +158,29 @@ class EmsAuthorization(models.Model):
         readonly=True,
         help="User who responded to this authorization (portal student/family or internal staff)."
     )
-    signed_document = fields.Binary(string='Signed Document', attachment=True)
+    signed_document = fields.Binary(string='Document', attachment=True)
     signed_document_name = fields.Char(string='Document Name')
+    response_field_ids = fields.One2many('ems.authorization.response', 'authorization_id', string='Field Responses')
+
+    legal_text_rendered = fields.Html(
+        string='Legal Text (Rendered)',
+        compute='_compute_legal_text_rendered',
+        sanitize=False,
+    )
+
+    @api.depends('template_id.legal_text', 'enrollment_id.partner_id.name',
+                 'enrollment_id.ems_course_id.name', 'enrollment_id.ems_study_id.name')
+    def _compute_legal_text_rendered(self):
+        for auth in self:
+            text = auth.template_id.legal_text or ''
+            replacements = {
+                '{{student_name}}': auth.enrollment_id.partner_id.name or '',
+                '{{academic_year}}': auth.enrollment_id.ems_course_id.name or '',
+                '{{study_name}}': auth.enrollment_id.ems_study_id.name or '',
+            }
+            for placeholder, value in replacements.items():
+                text = text.replace(placeholder, value)
+            auth.legal_text_rendered = text
 
     _sql_constraints = [
         ('unique_enrollment_template', 'unique(enrollment_id, template_id)', 'This authorization is already requested in this enrollment.')
@@ -173,4 +212,19 @@ class EmsAuthorization(models.Model):
             vals['response_date'] = fields.Datetime.now()
             vals['response_uid'] = self.env.user.id
 
+        # Si se elimina el documento, limpiar también la fecha de respuesta
+        if 'signed_document' in vals and not vals['signed_document']:
+            vals['response_date'] = False
+            vals['response_uid'] = False
+
         return super(EmsAuthorization, self).write(vals)
+
+
+class EmsAuthorizationResponse(models.Model):
+    _name = 'ems.authorization.response'
+    _description = 'Authorization Field Response'
+
+    authorization_id = fields.Many2one('ems.authorization', required=True, ondelete='cascade')
+    field_id = fields.Many2one('ems.authorization.field', required=True, ondelete='cascade')
+    label = fields.Char(related='field_id.label', string='Label', readonly=True)
+    value = fields.Char(string='Value')

@@ -43,7 +43,26 @@
 
                         <notebook>
                             <page string="Legal Text" name="legal_text">
+                                <div class="alert alert-info mb-3" role="alert">
+                                    <strong>Available variables for the legal text:</strong>
+                                    <ul class="mb-0 mt-1">
+                                        <li><code>{{student_name}}</code> — Full name of the student</li>
+                                        <li><code>{{academic_year}}</code> — Academic year (e.g. 2025-2026)</li>
+                                        <li><code>{{study_name}}</code> — Study name (e.g. DAM)</li>
+                                    </ul>
+                                </div>
                                 <field name="legal_text" widget="html" options="{'style-inline': true}" placeholder="Enter the full legal text here..."/>
+                            </page>
+                            <page string="Data Fields" name="data_fields">
+                                <field name="field_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="label"/>
+                                        <field name="field_type"/>
+                                        <field name="placeholder"/>
+                                        <field name="is_required"/>
+                                    </list>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>

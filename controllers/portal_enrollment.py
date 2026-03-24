@@ -83,11 +83,51 @@ class EMSPortalController(CustomerPortal):
 
         decision = post.get('decision')
         if decision in ('yes', 'no'):
+            # Recoger y validar campos de datos de la plantilla
+            field_responses = []
+            for field in auth.template_id.field_ids:
+                value = post.get('field_response_%d' % field.id, '').strip()[:500]
+                if decision == 'yes' and field.is_required and not value:
+                    _logger.warning(
+                        "Missing required field '%s' for auth_id %s by user %s",
+                        field.label, auth_id, request.env.user.id
+                    )
+                    return request.redirect('/my/gestion-matriculas?error=missing_required_fields')
+                field_responses.append((field.id, value))
+
             auth.write({
                 'status': decision,
                 'response_date': datetime.now(),
                 'response_uid': request.env.user.id,
             })
+
+            # Guardar respuestas de campos (reemplaza las anteriores si ya existían)
+            ResponseModel = request.env['ems.authorization.response'].sudo()
+            auth.sudo().response_field_ids.unlink()
+            for field_id, value in field_responses:
+                if value:
+                    ResponseModel.create({
+                        'authorization_id': auth.id,
+                        'field_id': field_id,
+                        'value': value,
+                    })
+
+            # Generar certificado PDF y adjuntarlo como documento de la autorización
+            try:
+                    pdf_content, _ = request.env['ir.actions.report'].sudo()._render_qweb_pdf(
+                        'ems.report_authorization_certificate', [auth.id]
+                    )
+                    auth.sudo().write({
+                        'signed_document': base64.b64encode(pdf_content),
+                        'signed_document_name': 'Cert_%s_%s.pdf' % (
+                            auth.enrollment_id.name,
+                            auth.template_id.name[:30],
+                        ),
+                    })
+            except Exception:
+                _logger.exception(
+                    "Failed to generate authorization certificate for auth_id %s", auth_id
+                )
         else:
             _logger.warning(
                 "Invalid decision value '%s' received from user %s for auth_id %s",

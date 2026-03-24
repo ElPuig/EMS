@@ -74,7 +74,7 @@
                                             <tr>
                                                 <th>Title</th>
                                                 <th>Status</th>
-                                                <th>Signed Doc</th>
+                                                <th>Document</th>
                                                 <th>Response Date</th>
                                                 <th class="text-end">Answer</th>
                                             </tr>
@@ -100,7 +100,7 @@
                                                     <t t-else="">-</t>
                                                 </td>
                                                 <td>
-                                                    <span t-field="auth.response_date" t-options='{"widget": "date"}'/>
+                                                    <span t-field="auth.response_date" t-options='{"widget": "datetime", "format": "dd/MM/yyyy HH:mm"}'/>
                                                 </td>
                                                 <td class="text-end">
                                                     <button type="button" class="btn btn-sm btn-outline-ems" data-bs-toggle="modal" t-attf-data-bs-target="#modal_auth_#{auth.id}">
@@ -175,7 +175,7 @@
                                 <div class="modal fade" t-attf-id="modal_auth_#{auth.id}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
                                     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
                                         <div class="modal-content border-0 shadow-lg">
-                                            <form t-attf-action="/my/gestion-matriculas/authorize/#{auth.id}" method="post">
+                                            <form t-attf-action="/my/gestion-matriculas/authorize/#{auth.id}" method="post" data-auth-form="1">
                                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                                 
                                                 <div class="modal-header bg-light">
@@ -184,7 +184,40 @@
                                                 </div>
                                                 
                                                 <div class="modal-body text-start p-4" style="min-height: 300px;">
-                                                    <div class="article-content" t-field="auth.legal_text"/>
+                                                    <div class="article-content" t-field="auth.legal_text_rendered"/>
+                                                    <t t-if="auth.template_id.field_ids">
+                                                        <hr class="my-3"/>
+                                                        <p class="fw-bold small text-muted mb-2">Please fill in the following data:</p>
+                                                        <t t-foreach="auth.template_id.field_ids" t-as="field">
+                                                            <div class="mb-3">
+                                                                <label t-attf-for="field_response_#{field.id}" class="form-label">
+                                                                    <t t-esc="field.label"/>
+                                                                    <t t-if="field.is_required"><span class="text-danger"> *</span></t>
+                                                                </label>
+                                                                <input t-if="field.field_type == 'char'"
+                                                                       type="text"
+                                                                       t-attf-name="field_response_#{field.id}"
+                                                                       t-attf-id="field_response_#{field.id}"
+                                                                       t-attf-placeholder="#{field.placeholder or ''}"
+                                                                       class="form-control"
+                                                                       t-att-data-auth-required="'true' if field.is_required else None"/>
+                                                                <textarea t-if="field.field_type == 'text'"
+                                                                       t-attf-name="field_response_#{field.id}"
+                                                                       t-attf-id="field_response_#{field.id}"
+                                                                       t-attf-placeholder="#{field.placeholder or ''}"
+                                                                       rows="3"
+                                                                       class="form-control"
+                                                                       t-att-data-auth-required="'true' if field.is_required else None"></textarea>
+                                                                <input t-if="field.field_type == 'date'"
+                                                                       type="date"
+                                                                       t-attf-name="field_response_#{field.id}"
+                                                                       t-attf-id="field_response_#{field.id}"
+                                                                       class="form-control"
+                                                                       t-att-data-auth-required="'true' if field.is_required else None"/>
+                                                                <div class="invalid-feedback">This field is required to accept the authorization.</div>
+                                                            </div>
+                                                        </t>
+                                                    </t>
                                                 </div>
                                                 
                                                 <div class="modal-footer bg-light">
@@ -198,6 +231,29 @@
                                     </div>
                                 </div>  
                             </t>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    document.querySelectorAll('form[data-auth-form]').forEach(function(form) {
+                                        form.addEventListener('submit', function(e) {
+                                            var submitter = e.submitter;
+                                            if (submitter &amp;&amp; submitter.value === 'yes') {
+                                                var fields = form.querySelectorAll('[data-auth-required="true"]');
+                                                var valid = true;
+                                                fields.forEach(function(f) {
+                                                    if (!f.value.trim()) {
+                                                        f.classList.add('is-invalid');
+                                                        valid = false;
+                                                    } else {
+                                                        f.classList.remove('is-invalid');
+                                                    }
+                                                });
+                                                if (!valid) { e.preventDefault(); }
+                                            }
+                                        });
+                                    });
+                                });
+                            </script>
+
                             <form action="/my/gestion-matriculas/confirm" method="post">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>                        
                                 <div class="card shadow-sm">

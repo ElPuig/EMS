@@ -159,6 +159,14 @@ ems.access_ems_authorization_admin,ems.access_ems_authorization_admin,ems.model_
 ems.access_ems_authorization_teacher,ems.access_ems_authorization_teacher,ems.model_ems_authorization,ems.group_teacher,1,1,1,0
 ems.access_ems_authorization_secretary,ems.access_ems_authorization_secretary,ems.model_ems_authorization,ems.group_secretary,1,1,1,1
 
+ems.access_ems_authorization_field_admin,ems.access_ems_authorization_field_admin,ems.model_ems_authorization_field,ems.group_admin,1,1,1,1
+ems.access_ems_authorization_field_teacher,ems.access_ems_authorization_field_teacher,ems.model_ems_authorization_field,ems.group_teacher,1,0,0,0
+ems.access_ems_authorization_field_secretary,ems.access_ems_authorization_field_secretary,ems.model_ems_authorization_field,ems.group_secretary,1,1,1,1
+
+ems.access_ems_authorization_response_admin,ems.access_ems_authorization_response_admin,ems.model_ems_authorization_response,ems.group_admin,1,1,1,1
+ems.access_ems_authorization_response_teacher,ems.access_ems_authorization_response_teacher,ems.model_ems_authorization_response,ems.group_teacher,1,0,0,0
+ems.access_ems_authorization_response_secretary,ems.access_ems_authorization_response_secretary,ems.model_ems_authorization_response,ems.group_secretary,1,1,1,1
+
 ems.access_sale_order_admin,ems.access_sale_order_admin,sale.model_sale_order,ems.group_admin,1,1,1,1
 ems.access_sale_order_teacher,ems.access_sale_order_teacher,sale.model_sale_order,ems.group_teacher,1,1,1,0
 ems.access_sale_order_secretary,ems.access_sale_order_secretary,sale.model_sale_order,ems.group_secretary,1,1,1,1
@@ -189,6 +197,8 @@ ems.access_sale_order_option_secretary,ems.access_sale_order_option_secretary,sa
 
 access_ems_auth_portal,ems.auth.portal,model_ems_authorization,base.group_portal,1,1,0,0
 access_ems_auth_template_portal,ems.auth.template.portal,model_ems_authorization_template,base.group_portal,1,0,0,0
+access_ems_auth_field_portal,ems.auth.field.portal,model_ems_authorization_field,base.group_portal,1,0,0,0
+access_ems_auth_response_portal,ems.auth.response.portal,model_ems_authorization_response,base.group_portal,1,1,1,0
 access_ems_course_portal,ems.course.portal,model_ems_course,base.group_portal,1,0,0,0
 access_ems_level_portal,ems.level.portal,model_ems_level,base.group_portal,1,0,0,0
 access_ems_study_portal,ems.study.portal,model_ems_study,base.group_portal,1,0,0,0

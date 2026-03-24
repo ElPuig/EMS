@@ -9,14 +9,7 @@ patch(FormController.prototype, {
     setup() {
         super.setup(...arguments);     
         this.busService = useService("bus_service");
-        
-        this.myReloadListener = (payload, {id: notifyID}) => {
-            const {model: model, record_id: record_id, message: message} = payload;
-            if (this.props.resModel === model && this.model.root.resId == record_id) {
-                this.model.root.load();
-            }
-        };
-
+               
         this.myReloadListener = (payload, {id: notifyID}) => {
             const { model, record_id } = payload;
              
@@ -39,14 +32,21 @@ patch(FormController.prototype, {
                 // One2many or Many2many child
                 if (Array.isArray(fieldData.records)) {
                     const childRecord = fieldData.records.find(r => r.resId == record_id);
-                    if (childRecord && typeof childRecord.load === "function") {
-                        childRecord.load();
+                    // if (childRecord && typeof childRecord.load === "function") {
+                    //     childRecord.load();
+                    //     return;
+                    // }
+                    if (childRecord) {
+                        // Always reload the full parent, this prevents errors when removing children. 
+                        this.model.root.load();
                         return;
                     }
                 } 
                 // Many2one child
                 else if (typeof fieldData.load === "function" && fieldData.resId == record_id) {
-                    fieldData.load();
+                    //fieldData.load();
+                    // Always reload the full parent, this prevents errors when removing children. 
+                    this.model.root.load();
                     return;
                 }
             }

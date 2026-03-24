@@ -32,6 +32,7 @@ survey_target_selection = [("students", "Students"), ("teachers", "Teachers"), (
 #	We just store info about the recipients and which survey ID (internal and external) have they assigned.
 #	The action_xxx methods runs actions for a batch of recipients.#		
 #		Defines the "post_setup" method: all setups are shared between actions (all of them loads the same initial data), but in some concrete cases there's some extra needs, like when updating a single recipient.
+#		Defines the "post_store" method: all setups are shared between actions (all of them loads the same initial data), but in some concrete cases there's some extra needs, like when deleting a single recipient.
 #		Defines the "compute" method (API calls and business logic).
 # 		Runs the _run_action() method which:
 # 			Ensures that there's no other thread already running for the same actions. 
@@ -117,10 +118,11 @@ def do_remove_recipients(ls_api, survey):
 	def code():
 		# NOTE: The data that should be used is always within the recipients, not the survey.
 		#		The recipients should be all from the same survey, but better to be sure.
+		#		Also, could have no survey, in that case must be skipped
 		data = {}
 		success = True
 		for rec in survey["recipients"]:
-			if rec["external_id"] is not None:
+			if rec["external_id"]:
 				if rec["external_id"] not in data:
 					data[rec["external_id"]] = [rec]
 				else:
@@ -213,7 +215,7 @@ def do_upload_recipient_changes(ls_api, survey):
 # endregion
 
 # region ATTACHED & SHARED METHODS BETWEEN HEADER AND RECIPIENT
-def run_action(self, title, action, status_w, status_ok, status_ko, compute, persistent_data, compute_survey_data=False, post_setup=None):
+def run_action(self, title, action, status_w, status_ok, status_ko, compute, persistent_data, compute_survey_data=False, post_setup=None, post_store=None):
 	self.ensure_one()
 	if not self.already_running():
 		def setup(self):			
@@ -242,7 +244,8 @@ def run_action(self, title, action, status_w, status_ok, status_ko, compute, per
 						"state": rec.get("state", None),
 						"internal_id": rec.get("internal_id", None),
 						"external_id": rec.get("external_id", None)				
-					})			
+					})
+			if post_store is not None: post_store(self)
 						
 		def callback(self):
 			error = persistent_data.get("error", None)
@@ -821,12 +824,13 @@ class ems_limesurvey_recipient(models.Model):
 		('manual', 'Manual'), 
 		('pending', 'Pending'), 
 		('uploaded', 'Uploaded'), 
-		('updating', 'Updating'), 
-		('reminding', 'Reminding')
+		('uploading', 'Uploading'), 
+		('reminding', 'Reminding'),
+		('deleting', 'Deleting')
 	], default='pending')
 
 	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header", required=True)
-	header_state = fields.Selection(related="limesurvey_header_id.state", store=False)
+	header_state = fields.Selection(string="Header's sate", related="limesurvey_header_id.state", store=False)
 	level_id = fields.Many2one(string='Level', comodel_name='ems.level')  
 	name = fields.Char(string="Name", required=True)
 	email = fields.Char(string="Email", required=True)
@@ -887,7 +891,7 @@ class ems_limesurvey_recipient(models.Model):
 					success = success and do_upload_recipient_changes(ls_api, survey)
 				if not success: persistent_data["error"] = _("Something failed when trying to upload the changes for a recipient, please check the recipient entries for more details.")
 				persistent_data["success"] = success
-		return run_action(self, _("LimeSurvey: upload changes"), _("Upload"), "updating", self.state, self.state, compute, persistent_data, True, post_setup)
+		return run_action(self, _("LimeSurvey: upload changes"), _("Upload"), "uploading", self.state, self.state, compute, persistent_data, True, post_setup)
 	
 	def action_remind(self):					
 		persistent_data = {}		
@@ -900,6 +904,23 @@ class ems_limesurvey_recipient(models.Model):
 			persistent_data["success"] = success
 		return run_action(self, _("LimeSurvey: send reminder"), _("Remind"), "reminding", self.state, self.state, compute, persistent_data)
 	
+	def action_delete(self):					
+		persistent_data = {}		
+		def compute():						
+			for key in persistent_data["surveys"]:
+				ls_api = persistent_data["ls_api"]
+				survey = persistent_data["surveys"][key]					
+				success = do_remove_recipients(ls_api, survey)
+				if success: success = do_remove_survey_if_empty(ls_api, survey)
+			if not success: persistent_data["error"] = _("Something failed when trying to delete a recipient, please check the recipient entries for more details.")
+			persistent_data["success"] = success
+		
+		def post_store(self):
+			success = persistent_data.get("success", False)
+			if success: self.unlink()
+
+		return run_action(self, _("LimeSurvey: delete reminder"), _("Delete"), "deleting", self.state, self.state, compute, persistent_data, post_store=post_store)
+
 	def action_none(self):
 		return True	
 	# endregion
@@ -939,10 +960,11 @@ class ems_limesurvey_recipient(models.Model):
 				if r.limesurvey_header_id.state in ("uploaded", "open"):
 					# NOTE: commit needed, otherwise the action cannot work properly
 					#		action_upload will also open the survey (if new and should be open), send the invitations (if needed), etc.
+					r.state = "uploaded"
 					self.env.cr.commit() 
 					r.action_upload()							
 		return recips
-	
+		
 	def copy_data(self):
 		data = self.read()[0]
 		data["original"] = self

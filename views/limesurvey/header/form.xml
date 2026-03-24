@@ -274,14 +274,35 @@
                                 </div>
 
                                 <field name="limesurvey_recipient_ids">
-                                    <list default_order="name" create="False" delete="False" >
+                                    <list default_order="name" create="False" delete="False" decoration-muted="is_running" decoration-it="is_running">
                                         <field name="name"/>
                                         <field name="email"/>
                                         <field name="external_id"/>                                                                               
                                         <field name="state"/> 
+                                       
+                                        <button name="action_none" 
+                                            type="object" 
+                                            icon="fa-spinner fa-spin" 
+                                            class="pe-none text-warning" 
+                                            title="Processing..." 
+                                            invisible="not is_running"
+                                        />
+                                        <button name="action_delete" 
+                                            type="object" 
+                                            icon="fa-trash" 
+                                            title="Delete recipient" 
+                                            confirm="Removing the recipient will also, if necessary, remove it from its current survey. This action cannot be undonde, do you wish to continue?" 
+                                            width="30px"
+                                            invisible="is_running"
+                                        />
                                         <!-- TODO: popup plugin -->
-                                        <button name="open_error_popup" type="object" icon="fa-exclamation-triangle" title="Open error details." invisible="not error" width="30px" /> 
-                                        <!-- <button name="refresh" type="object" icon="fa-refresh" title="Refresh (moves the student to a new survey if needed)." width="30px"/>  -->
+                                        <button name="open_error_popup" 
+                                            type="object" 
+                                            icon="fa-exclamation-triangle" 
+                                            title="Open error details." 
+                                            invisible="not error" 
+                                            width="30px" 
+                                        /> 
                                     </list>
                                 </field>
                             </page>

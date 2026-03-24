@@ -3822,16 +3822,18 @@ msgid ""
 "The LimeSurvey API does not allow to create survey groups so, in order to "
 "operate properly, a group must be created and its ID provided."
 msgstr ""
+"La API de LimeSurvey no permite crear grupos de encuestas y, para ello"
+"de operar correctamente, un grupo debe crearse primero a mano y debe indicarse el ID."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "The block appears only for students enrolled in a WorkPlace Intership."
-msgstr ""
+msgstr "El bloque sólo aparecerá por los estudiantes matriculados en FCT."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "The block appears only for students enrolled in this course (0 = all)."
-msgstr ""
+msgstr "El bloque sólo aparecerá por los alumnos matriculados en este curso (0 = todos)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
@@ -3876,6 +3878,8 @@ msgid ""
 "The tutor role cannot be assigned manually, it will be set automatically if "
 "any group is added to the 'tutorship' field."
 msgstr ""
+"El rol de tutor no se puede asignar manualmente, se establecerá automáticamente si "
+"cualquier grupo es añadido al campo 'tutoría'."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -3904,6 +3908,9 @@ msgid ""
 "changes and saving the data immediately. It cannot be undone. Do you wish to"
 " continue?"
 msgstr ""
+"Esta acción vaciará y recreará los destinatarios, borrando cualquier cambio manual"
+"y guardando los datos al momento. Esta acción no se puede deshacer. Todavía quieres"
+" continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
@@ -3911,11 +3918,14 @@ msgid ""
 "This action will restore the 'main data' and the 'enrollments', saving the "
 "changes immediately. It cannot be undone. Do you wish to continue?"
 msgstr ""
+"Esta acción restaurará los 'datos principales' y las 'matriculaciones', guardando "
+"los cambios en el momento. Esta acción no se puede deshacer. ¿Todavía quieres continuar?"
+
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "This block will be generated once per enrollred subject."
-msgstr ""
+msgstr "Este blog se repetirá por cada asignatura matriculada por el estudiante."
 
 #. module: ems
 #. odoo-python
@@ -3960,7 +3970,7 @@ msgstr "Franja horària"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__title
 msgid "Title"
-msgstr ""
+msgstr "Título"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__to_date
@@ -4095,31 +4105,31 @@ msgstr "Tipos"
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to activate the survey"
-msgstr ""
+msgstr "No ha sido posible activar la encuesta"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to delete some participants"
-msgstr ""
+msgstr "No ha sido posible borrar a algunos participantes"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to delete the survey"
-msgstr ""
+msgstr "No ha sido posible borrar la encuesta"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to get the LimeSurvey's session key."
-msgstr ""
+msgstr "No ha sido posible obtener una clave de sesión de LimeSurvey"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to invite some participants"
-msgstr ""
+msgstr "No ha sido posible invitar a algunos participantes"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
@@ -4136,7 +4146,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to update some participants"
-msgstr ""
+msgstr "No ha sido posible actualizar los datos de algunos participantes"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__unipersonal
@@ -4147,32 +4157,32 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Upload"
-msgstr ""
+msgstr "Cargar"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "Upload changes"
-msgstr ""
+msgstr "Cargar cambios"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Upload surveys"
-msgstr ""
+msgstr "Cargar encuestas"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__uploaded
 msgid "Uploaded"
-msgstr ""
+msgstr "Cargado"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__uploading
 msgid "Uploading"
-msgstr ""
+msgstr "Cargando"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__uploading
 msgid "Uploading surveys"
-msgstr ""
+msgstr "Cargando encuestas"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -4224,44 +4234,44 @@ msgstr "El usuario es tutor"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "User's ID (LS)"
-msgstr ""
+msgstr "ID del usuario (LS)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__tid
 msgid "User's ID (LimeSurvey)"
-msgstr ""
+msgstr "ID del usuario (LimeSurvey)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "User's name to log in the LimeSurvey server."
-msgstr ""
+msgstr "Nombre del usuario para conectarse al servidor de LimeSurvey"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "User's password to log in the LimeSurvey server."
-msgstr ""
+msgstr "Contraseña del usuario para conectarse al servidor de LimeSurvey"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "User's token (LS)"
-msgstr ""
+msgstr "Token del usuario (LS)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__token
 msgid "User's token (LimeSurvey)"
-msgstr ""
+msgstr "Token del usuario (LimeSurvey)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__wpi_enrolled
 #: model:ir.model.fields,field_description:ems.field_res_partner__wpi_enrolled
 #: model:ir.model.fields,field_description:ems.field_res_users__wpi_enrolled
 msgid "WPI enrolled"
-msgstr ""
+msgstr "Matriculado en FCT"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "WPI enrollment"
-msgstr ""
+msgstr "Matriculado en FCT"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__website_message_ids
@@ -4330,7 +4340,7 @@ msgstr "lugar de trabajo"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_wpi_enrolled
 msgid "WorkPlace Intership (if enrolled)"
-msgstr ""
+msgstr "Formació en Centros de Trabajo (si matriculado)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__workgroup_id
@@ -4465,7 +4475,7 @@ msgstr "planificación"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "recipient"
-msgstr ""
+msgstr "destinatario"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_role_form

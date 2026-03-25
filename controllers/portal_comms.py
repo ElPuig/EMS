@@ -12,6 +12,11 @@ class EMSPortalCommsController(CustomerPortal):
     def portal_communications(self, page=1, **kw):
         """ Historial de comunicaciones del alumno """
         partner = request.env.user.partner_id
+        # Si el usuario es un familiar, mostrar las comunicaciones del alumno
+        if (partner.contact_type == 'family'
+                and partner.parent_id
+                and partner.parent_id.contact_type == 'student'):
+            partner = partner.parent_id
 
         MESSAGES_PER_PAGE = 10
 

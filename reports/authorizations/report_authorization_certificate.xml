@@ -109,6 +109,10 @@
                                                   t-options='{"widget": "datetime", "format": "dd/MM/yyyy HH:mm:ss"}'/></td>
                                     </tr>
                                     <tr>
+                                        <td>Responded by</td>
+                                        <td><span t-field="auth.response_uid.name"/></td>
+                                    </tr>
+                                    <tr>
                                         <td>Responded from</td>
                                         <td>Student Portal</td>
                                     </tr>

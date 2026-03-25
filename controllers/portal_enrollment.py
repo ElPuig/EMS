@@ -10,13 +10,25 @@ _logger = logging.getLogger(__name__)
 
 class EMSPortalController(CustomerPortal):
 
+    def _get_student_partner(self):
+        """Devuelve el partner del alumno para el usuario actual.
+        - Si es un familiar (contact_type='family'), devuelve parent_id (el alumno).
+        - Si es un alumno u otro tipo, devuelve su propio partner.
+        """
+        partner = request.env.user.partner_id
+        if (partner.contact_type == 'family'
+                and partner.parent_id
+                and partner.parent_id.contact_type == 'student'):
+            return partner.parent_id
+        return partner
+
     # -------------------------------------------------------------
     # (Gestión de Matrículas - ÚNICA FUNCIÓN PARA ESTA RUTA)
     # -------------------------------------------------------------
     @http.route(['/my/gestion-matriculas'], type='http', auth="user", website=True)
     def portal_my_enrollment(self, **kw):
-        """ 
-        Muestra el proceso de matrícula (Autorizaciones + Items) 
+        """
+        Muestra el proceso de matrícula (Autorizaciones + Items)
         al entrar en /my/gestion-matriculas
         """
         # 1. Preparamos valores base y contadores de Odoo
@@ -29,8 +41,9 @@ class EMSPortalController(CustomerPortal):
         if not current_course:
             current_course = request.env['ems.course'].search([('is_current', '=', True)], limit=1)
         partner = request.env.user.partner_id
+        student = self._get_student_partner()
         enrollment = request.env['sale.order'].search([
-            ('partner_id', '=', partner.id),
+            ('partner_id', '=', student.id),
             ('state', 'in', ['sent', 'sale']),
             ('ems_course_id', '=', current_course.id if current_course else False),
         ], limit=1)     
@@ -51,10 +64,12 @@ class EMSPortalController(CustomerPortal):
         ])
         values.update({
             'enrollment': enrollment,
-            'page_name': 'gestion-matriculas', # Mantén este nombre para que el menú naranja funcione
+            'page_name': 'gestion-matriculas',
             'message_sent': message_sent,
             'enrollment_messages': enrollment_messages,
             'payment_terms': payment_terms,
+            'viewing_as_family': student != partner,
+            'student': student,
         })
         
         # 4. Renderizamos la plantilla en funcion del estado de la matricula
@@ -67,7 +82,8 @@ class EMSPortalController(CustomerPortal):
     def portal_enrollment_authorize(self, auth_id, **post):
         """ Procesa la aceptación o rechazo de una autorización """
         auth = request.env['ems.authorization'].browse(auth_id)
-        if not auth.exists() or auth.enrollment_id.partner_id != request.env.user.partner_id:
+        student = self._get_student_partner()
+        if not auth.exists() or auth.enrollment_id.partner_id != student:
             _logger.warning(
                 "Unauthorized authorization attempt: user %s tried to respond to auth_id %s",
                 request.env.user.id, auth_id
@@ -140,7 +156,7 @@ class EMSPortalController(CustomerPortal):
     def portal_enrollment_confirm(self, **post):
         """ Procesa la confirmación de la matrícula """
 
-        partner = request.env.user.partner_id
+        student = self._get_student_partner()
 
         # 1. Recuperamos la matrícula activa
         current_course = request.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
@@ -148,7 +164,7 @@ class EMSPortalController(CustomerPortal):
             current_course = request.env['ems.course'].search([('is_current', '=', True)], limit=1)
 
         enrollment = request.env['sale.order'].search([
-            ('partner_id', '=', partner.id),
+            ('partner_id', '=', student.id),
             ('state', 'in', ['sent']),
             ('ems_course_id', '=', current_course.id if current_course else False),
         ], limit=1)
@@ -234,7 +250,8 @@ class EMSPortalController(CustomerPortal):
     def portal_authorization_document(self, auth_id, **kw):
         """ Sirve el documento firmado de una autorización """
         auth = request.env['ems.authorization'].sudo().browse(auth_id)
-        if not auth.exists() or auth.enrollment_id.partner_id != request.env.user.partner_id:
+        student = self._get_student_partner()
+        if not auth.exists() or auth.enrollment_id.partner_id != student:
             return request.redirect('/my/gestion-matriculas')
         if not auth.signed_document:
             return request.redirect('/my/gestion-matriculas')

@@ -5,7 +5,13 @@
             <div id="enrollment_content" class="container mt-4">
                 <div class="row">
                     <div class="col-12">
-                        
+
+                        <t t-if="viewing_as_family">
+                            <div class="alert alert-info mb-3">
+                                <i class="fa fa-user me-1"/> Viewing enrollment data for: <strong t-esc="student.name"/>
+                            </div>
+                        </t>
+
                         <t t-if="not enrollment">
                             <div class="alert alert-info">No active enrollment process found.</div>
                         </t>

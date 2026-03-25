@@ -356,11 +356,21 @@
                                     <t t-set="pending_required" t-value="enrollment.ems_authorization_ids.filtered(lambda a: a.template_id.is_required and a.status == 'pending')"/>
                                     <t t-set="missing_payment_term" t-value="not enrollment.payment_term_id"/>
                                     <t t-set="blocked" t-value="pending_required or missing_payment_term"/>
-                                    <button type="submit" id="ems-confirm-btn" 
+
+                                    <!-- Botón confirmar: visible por defecto, deshabilitado si faltan condiciones -->
+                                    <button type="submit" name="action" value="confirm" id="ems-confirm-btn"
                                             t-attf-class="btn btn-ems btn-lg px-5 #{'disabled' if blocked else ''}"
                                             t-att-disabled="'disabled' if blocked else None"
                                             t-att-title="'Please complete all required authorizations first' if pending_required else 'Please select a payment plan' if missing_payment_term else 'Confirm your enrollment'">
                                         Confirm Enrollment
+                                    </button>
+
+                                    <!-- Botón comentarios: oculto por defecto, siempre activo cuando se muestra -->
+                                    <button type="submit" name="action" value="comment" id="ems-comment-btn"
+                                            class="btn btn-outline-secondary btn-lg px-5"
+                                            style="display:none;"
+                                            title="Send your comments to the secretary's office">
+                                        <i class="fa fa-comment me-2"/>Comments for the secretary's office
                                     </button>
                                 </div>
                             </form>    
@@ -397,34 +407,37 @@
 
                             <script>
                                 var confirmBtn = document.getElementById('ems-confirm-btn');
+                                var commentBtn = document.getElementById('ems-comment-btn');
                                 var hasPaymentTerm = <t t-if="enrollment.payment_term_id">true</t><t t-else="">false</t>;
                                 var hasPendingRequiredAuths = <t t-if="pending_required">true</t><t t-else="">false</t>;
 
-                                function updateConfirmBtn() {
+                                function updateButtons() {
                                     var anyChecked = document.querySelectorAll('.ems-comment-check:checked').length > 0;
                                     var paymentSelected = hasPaymentTerm || document.querySelector('input[name="payment_term_id"]:checked');
 
-                                    if (paymentSelected &amp;&amp; !hasPendingRequiredAuths) {
-                                        confirmBtn.classList.remove('disabled');
-                                        confirmBtn.removeAttribute('disabled');
-                                    } else {
-                                        confirmBtn.classList.add('disabled');
-                                        confirmBtn.setAttribute('disabled', 'disabled');
-                                    }
+                                    // Mostrar solo uno de los dos botones
+                                    confirmBtn.style.display = anyChecked ? 'none' : '';
+                                    commentBtn.style.display = anyChecked ? '' : 'none';
 
+                                    // Habilitar/deshabilitar el botón de confirmar según condiciones
+                                    var canConfirm = paymentSelected &amp;&amp; !hasPendingRequiredAuths;
+                                    confirmBtn.disabled = !canConfirm;
+                                    confirmBtn.classList.toggle('disabled', !canConfirm);
+
+                                    // Bloque de comentarios
                                     document.getElementById('ems-comments-block').style.display = anyChecked ? 'block' : 'none';
-                                    confirmBtn.textContent = anyChecked ? 'Comments for the secretary\'s office' : 'Confirm Enrollment';
-                                    confirmBtn.title = anyChecked ? 'Send your comments to the secretary\'s office'
-                                                    : !paymentSelected ? 'Please select a payment plan'
-                                                    : 'Confirm your enrollment';
+
+                                    // required en pago solo aplica cuando se va a confirmar (no comentar)
+                                    document.querySelectorAll('input[name="payment_term_id"]').forEach(function(r) {
+                                        r.required = !anyChecked;
+                                    });
                                 }
 
                                 document.querySelectorAll('input[name="payment_term_id"]').forEach(function(radio) {
-                                    radio.addEventListener('change', updateConfirmBtn);
+                                    radio.addEventListener('change', updateButtons);
                                 });
-
                                 document.querySelectorAll('.ems-comment-check').forEach(function(checkbox) {
-                                    checkbox.addEventListener('change', updateConfirmBtn);
+                                    checkbox.addEventListener('change', updateButtons);
                                 });
 
                                 // Abrir modal de confirmación si hay mensaje enviado

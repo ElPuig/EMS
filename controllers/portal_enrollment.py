@@ -173,41 +173,12 @@ class EMSPortalController(CustomerPortal):
             _logger.warning("Enrollment confirm: no active enrollment found for user %s", request.env.user.id)
             return request.redirect('/my/gestion-matriculas')
 
-        # 2. Verificamos autorizaciones obligatorias pendientes
-        pending_required = enrollment.ems_authorization_ids.filtered(
-            lambda a: a.template_id.is_required and a.status == 'pending'
-        )
-        if pending_required:
-            _logger.warning("Enrollment confirm: user %s has pending required authorizations", request.env.user.id)
-            return request.redirect('/my/gestion-matriculas?error=pending_authorizations')
-        if not enrollment.payment_term_id and not post.get('payment_term_id'):
-            _logger.warning("Enrollment confirm: user %s has not selected a payment term", request.env.user.id)
-            return request.redirect('/my/gestion-matriculas?error=missing_payment_term')        
-
-        payment_term_id = post.get('payment_term_id')
-        if payment_term_id:
-            try:
-                term = request.env['account.payment.term'].sudo().browse(int(payment_term_id))
-                if term.exists() and term.ems_portal_visible:
-                    enrollment.sudo().write({'payment_term_id': term.id})
-                else:
-                    _logger.warning(
-                        "Enrollment confirm: payment_term_id %s not found or not portal-visible, user %s",
-                        payment_term_id, request.env.user.id
-                    )
-                    return request.redirect('/my/gestion-matriculas?error=invalid_payment_term')
-            except (ValueError, TypeError):
-                _logger.warning(
-                    "Enrollment confirm: invalid payment_term_id '%s' from user %s",
-                    payment_term_id, request.env.user.id
-                )
-                return request.redirect('/my/gestion-matriculas?error=invalid_payment_term')
-
-        # 3. Recogemos comentarios del POST
+        # 2. Determinar acción: 'comment' o 'confirm'
+        action = post.get('action', 'confirm')
         comments = post.get('comments', '').strip()[:2000]
-        if comments:
-            # 4a. Hay comentarios: publicar en el chatter y mantener estado
-            # Recuperamos los nombres de las líneas marcadas
+        if action == 'comment':
+            # 3a. Hay comentarios: publicar en el chatter y mantener estado
+            # (sin validar auths pendientes ni método de pago)
             commented_line_ids = request.httprequest.form.getlist('commented_lines')
             line_names = []
             for line_id in commented_line_ids:
@@ -218,7 +189,6 @@ class EMSPortalController(CustomerPortal):
                 except (ValueError, TypeError):
                     pass
 
-            # Construimos el cuerpo del mensaje
             lines_html = Markup('')
             if line_names:
                 items = Markup('').join(Markup('<li>%s</li>') % escape(name) for name in line_names)
@@ -233,14 +203,44 @@ class EMSPortalController(CustomerPortal):
             )
             request.session['ems_message_sent'] = comments
         else:
-            # 4b. Sin comentarios: confirmar la matrícula
+            # 3b. Confirmar matrícula: validar auths + pago
+            pending_required = enrollment.ems_authorization_ids.filtered(
+                lambda a: a.template_id.is_required and a.status == 'pending'
+            )
+            if pending_required:
+                _logger.warning("Enrollment confirm: user %s has pending required authorizations", request.env.user.id)
+                return request.redirect('/my/gestion-matriculas?error=pending_authorizations')
+
+            if not enrollment.payment_term_id and not post.get('payment_term_id'):
+                _logger.warning("Enrollment confirm: user %s has not selected a payment term", request.env.user.id)
+                return request.redirect('/my/gestion-matriculas?error=missing_payment_term')
+
+            payment_term_id = post.get('payment_term_id')
+            if payment_term_id:
+                try:
+                    term = request.env['account.payment.term'].sudo().browse(int(payment_term_id))
+                    if term.exists() and term.ems_portal_visible:
+                        enrollment.sudo().write({'payment_term_id': term.id})
+                    else:
+                        _logger.warning(
+                            "Enrollment confirm: payment_term_id %s not found or not portal-visible, user %s",
+                            payment_term_id, request.env.user.id
+                        )
+                        return request.redirect('/my/gestion-matriculas?error=invalid_payment_term')
+                except (ValueError, TypeError):
+                    _logger.warning(
+                        "Enrollment confirm: invalid payment_term_id '%s' from user %s",
+                        payment_term_id, request.env.user.id
+                    )
+                    return request.redirect('/my/gestion-matriculas?error=invalid_payment_term')
+
             enrollment.sudo().action_confirm()
             enrollment.sudo().message_post(
                 body=Markup('<b>Enrollment confirmed by student/family via portal.</b>'),
                 message_type='comment',
                 subtype_xmlid='mail.mt_comment',
             )
-            _logger.info("Enrollment confirm: enrollment %s confirmed by user %s", 
+            _logger.info("Enrollment confirm: enrollment %s confirmed by user %s",
                         enrollment.name, request.env.user.id)
 
         return request.redirect('/my/gestion-matriculas')

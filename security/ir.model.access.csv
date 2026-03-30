@@ -109,3 +109,8 @@ ems.access_ems_working_schedules_import_wizard_teacher,ems.access_ems_working_sc
 
 ems.access_ems_course_admin,ems.access_ems_course_admin,ems.model_ems_course,ems.group_admin,1,1,1,1
 ems.access_ems_course_teacher,ems.access_ems_course_teacher,ems.model_ems_course,ems.group_teacher,1,0,0,0
+
+ems.access_ems_limesurvey_block_admin,ems.access_ems_limesurvey_block_admin,ems.model_ems_limesurvey_block,ems.group_admin,1,1,1,1
+ems.access_ems_limesurvey_header_admin,ems.access_ems_limesurvey_header_admin,ems.model_ems_limesurvey_header,ems.group_admin,1,1,1,1
+ems.access_ems_limesurvey_enrollment_admin,ems.access_ems_limesurvey_enrollment_admin,ems.model_ems_limesurvey_enrollment,ems.group_admin,1,1,1,1
+ems.access_ems_limesurvey_recipient_admin,ems.access_ems_limesurvey_recipient_admin,ems.model_ems_limesurvey_recipient,ems.group_admin,1,1,1,1

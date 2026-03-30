@@ -7,6 +7,7 @@ from odoo.exceptions import UserError
 class ems_enrollment(models.Model):
 	_name = "ems.enrollment"
 	_description = "Enrollment: ternary relation between student-group-uf."	
+	_order = 'student_id, subject_id, group_id'
 	_inherit = ['ems.base']
 	
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", required=True, ondelete='cascade', domain="[('contact_type', '=', 'student')]")	

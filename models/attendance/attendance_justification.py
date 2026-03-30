@@ -183,27 +183,23 @@ class ems_attendance_justification(models.Model):
 					line.write(just.perform_justification(line))
 		return records
 	
-	def write(self, vals):		
+	def write(self, vals):	
+		old_lines_map = {}
+		for rec in self:
+			old_lines_map[rec.id] = set(rec.attendance_session_line_ids)
+
+		# Must be saved after storing previous data
+		updated = super(ems_attendance_justification, self).write(vals)
 		if 'start_date' in vals or 'end_date' in vals:
-			# TODO: update this to new justify and unjustify methods and test all the circuit!
-			
-			# NOTE: this is the only update allowed, no other fields can be edieted.
-			# So, this condition avoids running this method when saving from attendance list.
+			# This method is called when an attendance session is created (because justification is beeing linked to the session)
+			# so only on trying to update dates, the permissions must be checked to avoid unauthorized changes. 
 			if not self._check_permissions():
 				raise UserError(_("Only the student's tutor can update its attendance justifications."))
-		
-			old_lines_map = {}
-			for rec in self:
-				#old_lines_map[record.id] = set(record.attendance_session_line_ids.ids)
-				old_lines_map[rec.id] = set(rec.attendance_session_line_ids)			
 			
-			updated = super(ems_attendance_justification, self).write(vals) 
-
 			for rec in self:				
 				old_lines = old_lines_map.get(rec.id, set())
 				new_lines = set(rec.attendance_session_line_ids)
-
-				# TODO: compare the IDs, not the entire line
+				
 				for ol in old_lines:
 					# Removing old justifications					
 					if ol not in new_lines:
@@ -212,8 +208,7 @@ class ems_attendance_justification(models.Model):
 				for nl in new_lines:
 					# Adding new justifications
 					if nl not in old_lines:
-						nl.write(rec.perform_justification(nl))
-
+						nl.write(rec.perform_justification(nl))		
 		return updated
 
 	def unlink(self):

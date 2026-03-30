@@ -1,0 +1,13 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_limesurvey_header_list">
+            <field name="name">ems.limesurvey_header.list</field>
+            <field name="model">ems.limesurvey_header</field>
+            <field name="arch" type="xml">
+                <list expand="True" >
+                    <field name="display_name"/>                    
+                </list>
+            </field>
+        </record>   
+    </data>
+</odoo>

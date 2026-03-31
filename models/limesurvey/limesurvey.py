@@ -513,7 +513,7 @@ class ems_limesurvey_header(models.Model):
 	study_ids = fields.Many2many(string="Studies", comodel_name="ems.study")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
 	tsv_raw_text = fields.Text(string="Header's content (tab separated)", required=True)
-	limesurvey_block_ids = fields.One2many(string="Blocks", comodel_name="ems.limesurvey_block", inverse_name="limesurvey_header_id")
+	limesurvey_block_ids = fields.One2many(string="Blocks", comodel_name="ems.limesurvey_block", inverse_name="limesurvey_header_id", copy=True)
 	limesurvey_recipient_ids = fields.One2many(string="Recipients", comodel_name="ems.limesurvey_recipient", inverse_name="limesurvey_header_id")	
 	is_running = fields.Boolean(string="Running", default=False)
 	notes = fields.Text(string="Notes")		

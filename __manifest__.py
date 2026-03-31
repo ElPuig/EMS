@@ -32,7 +32,8 @@
         'mass_mailing', 
         'survey', 
         'hr_attendance',
-        'queue_job'
+        'queue_job',
+        'partner_firstname'
     ],
     
     # just for debugging

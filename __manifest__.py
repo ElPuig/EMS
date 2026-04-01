@@ -33,7 +33,8 @@
         'survey', 
         'hr_attendance',
         'queue_job',
-        'partner_firstname'
+        'partner_firstname',
+        'partner_multi_relation'
     ],
     
     # just for debugging
@@ -204,8 +205,9 @@
         'reports/attendance/group.xml',              
         
         ### Data entries (do not alter the order) ###
-        'data/main/ems.space_type.csv',    
-        'data/main/hr.work.location.csv',    
+        'data/main/ems.space_type.csv',
+        'data/main/hr.work.location.csv',
+        'data/main/ems.contact.relation.type.xml',
 
         'data/cat/attachments/asix/ir.attachment.csv',
         'data/cat/attachments/dam/ir.attachment.csv',

@@ -8,5 +8,6 @@
         </record>  
                    
         <menuitem name="Enrollments" sequence="2" id="menu_enrollments" parent="menu_community_config_students" action="action_enrollment_tree"/>
+        <menuitem name="Relation Types" sequence="3" id="menu_relation_types" parent="menu_community_config_students" action="partner_multi_relation.action_res_partner_relation_type"/>
     </data>
 </odoo>

@@ -51,7 +51,7 @@ sudo nano /etc/odoo/odoo.conf
 
 Edit the following lines or add them if does not exist:
 ```
-addons_path = /usr/lib/python3/dist-packages/odoo/addons, /root/myModules, /root/myModules/queue, /root/myModules/partner-contact, /root/myModules/partner_multi_relation
+addons_path = /usr/lib/python3/dist-packages/odoo/addons, /root/myModules, /root/myModules/queue, /root/myModules/partner-contact
 
 server_wide_modules = web,queue_job
 ```

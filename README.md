@@ -41,7 +41,7 @@ rm wkhtmltox_0.12.5.deb
 
 After that, open a browser and go to the IP of the machine using the 8069 port (for example: https://10.0.1.29:8069). You should see your Odoo server working. 
 
-## EMS download and setup
+## EMS (download and setup)
 ### Common
 Run the following commands:
 ```
@@ -127,9 +127,37 @@ ExecStart=/usr/bin/python3 -m debugpy --listen 0.0.0.0:5678 /usr/bin/odoo --conf
 ```
 Save the changes and close the file (CTRL+O; CTRL+X).  
 
+## EMS (install and update)
+First of all, check the `data` folder and fit it to your needs. You'll find the following folders:
+- **cat**: contains the data about the Catalonian Educational System. If you're setting up the EMS in a Catalan school, this should feet your needs; otherwise, you can use it as a template (but please, share with us your setup).
 
+- **custom**: contains custom data for a concrete institution, so here you'll find our data. Feel free to change whatever in order to fit it to your needs.
 
+- **main**: contains basic data that should be fine for all EMS users. Because we are in an early development stage, the data within `main` could be not perfectly selected (please, share with us all your concerns and needs).  
 
-# OLD [pending]
-## Abans d'instal·lar res:
-Algunes dades estan configurades pel nostre institut, les podeu fer servir com a demo (son dades públiques) però un recomanem que, si no voleu importar dades que després eliminareu, reviseu el contingut dels fitxers CSV dins la ruta `data/custom/` i modifiqueu el que considereu necessari (s'han afegit dades inventades d'alumnes i professors per a ajudar-vos a entendre el format d'importació).
+Also, verify the `__manifest__.py` file in order to add or remove files. 
+
+### First install
+If you want to install the EMS with demo data, just run 
+```
+./demo.sh
+```
+**Warning**: demo data could be outdated, due development priorities; request us all the demo data that you need.
+
+Otherwise, if you don't want any demo data, run:
+```
+./install.sh
+```
+
+### Update
+If the EMS is already installed and you want to update it to the last version, just run:
+```
+git pull
+./update.sh
+```
+
+### Development only
+If you're an EMS developer, first of all: THANK YOU! Also, you can run the following script to fix the debugger after an Odoo update, and also perform additional opperations (like changing the customer's emails, disabling the pending tasks, etc.).
+```
+./devel.sh
+```

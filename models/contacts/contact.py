@@ -19,6 +19,8 @@ class ems_contact(models.Model):
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
     contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student'), ('family', 'Family')])   
     family_relation = fields.Char(string="Family relation")
+    document_id = fields.Char(string="Document ID (DNI/NIE)")
+    passport_id = fields.Char(string="Passport")
     student_email = fields.Char(string="Student email")	
     student_id = fields.Char(string="Student ID")
     medical_id = fields.Char(string="Medical ID")

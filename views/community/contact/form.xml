@@ -78,6 +78,8 @@
                             <separator name="data" string="Main Data"/>
                             <group>
                                 <field name="vat" invisible="read_only_user" />
+                                <field name="document_id" invisible="read_only_user" />
+                                <field name="passport_id" invisible="read_only_user" />
                                 <field name="student_id" readonly="read_only_user" />
                                 <field name="medical_id" invisible="read_only_user"  />                                                            
                                 <field name="student_email" readonly="read_only_user" widget="email" />                               

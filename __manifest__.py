@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.5.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
+    'version': '18.0.0.6.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -32,7 +32,9 @@
         'mass_mailing', 
         'survey', 
         'hr_attendance',
-        'queue_job'
+        'queue_job',
+        'partner_firstname',
+        'partner_multi_relation'
     ],
     
     # just for debugging
@@ -203,8 +205,9 @@
         'reports/attendance/group.xml',              
         
         ### Data entries (do not alter the order) ###
-        'data/main/ems.space_type.csv',    
-        'data/main/hr.work.location.csv',    
+        'data/main/ems.space_type.csv',
+        'data/main/hr.work.location.csv',
+        'data/main/ems.contact.relation.type.xml',
 
         'data/cat/attachments/asix/ir.attachment.csv',
         'data/cat/attachments/dam/ir.attachment.csv',

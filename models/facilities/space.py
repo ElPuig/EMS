@@ -15,7 +15,7 @@ class ems_space(models.Model):
 	space_type_id = fields.Many2one(string="Type", comodel_name="ems.space_type", required=True)
 	work_location_id = fields.Many2one(string="Work location", comodel_name="hr.work.location", required=True)	
 
-	@api.depends('name', 'code') #Recalculate the display_name field each time name or code changes.
+	@api.depends('name', 'code')
 	def _compute_display_name(self):
 		for rec in self:
 			rec.display_name = f"{rec.name} ({rec.code})" if rec.code else rec.name

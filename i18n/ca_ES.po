@@ -3261,7 +3261,7 @@ msgstr "Docent de la sessió"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
 msgid "Sessions"
-msgstr "Sesiones"
+msgstr "Sesions"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form

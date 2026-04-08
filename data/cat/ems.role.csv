@@ -11,6 +11,6 @@ id,name,color,employee_type,unipersonal
 "ems.role_coexistence","Coexistence coordinator",10,teacher,true
 "ems.role_orc","Occupational risk coordinator",11,teacher,true
 "ems.role_erasmus","Erasmus coordinator",12,teacher,true
-"ems.role_erasmus","VET coordinator",13,teacher,true
+"ems.role_vetcoord","VET coordinator",13,teacher,true
 "ems.role_schieff","Secretary chieff",1,asp,true
 "ems.role_cchieff","Concierje chieff",2,asp,true

@@ -7,26 +7,29 @@
                 <form string="subject">                   
                     <sheet>                        
                         <group string="Main data" col="4">                            
-                            <group colspan="4">
+                            <group>
                                 <field name="code"/>
-                                <field name="total_hours" />
                             </group>
-                            <group>							
-                                <field name="acronym"/>                                
-                                <field name="internal_hours"/>
-                            </group>  
+                            <group>
+                                <field name="acronym"/>
+                            </group>
                             <group colspan="2">
-                                <group colspan="2">
-                                    <field name="name"/>
-                                </group>    
-                                 <group>			
-                                    <field name="external_hours"/>
-                                </group>                                
-                                <group>                        
-                                    <field name="ects"/>
-                                </group>
-                            </group>                                                                                                                               
-                        </group>
+                                <field name="name"/>
+                            </group>
+
+                            <group>
+                                <field name="total_hours"/>
+                            </group>
+                            <group>
+                                <field name="internal_hours"/>
+                            </group>
+                            <group>
+                                <field name="external_hours"/>
+                            </group>
+                            <group>                        
+                                <field name="ects"/>
+                            </group>
+                        </group>  
                         
                         <notebook>    
                             <page string="Studies">

@@ -246,7 +246,6 @@
         'data/custom/btx/ems.study.csv',
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',
-        'data/custom/ems.role.csv',
         'data/custom/hr.department.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',

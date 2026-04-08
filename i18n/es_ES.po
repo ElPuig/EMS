@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0-20260310\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-24 11:05+0000\n"
-"PO-Revision-Date: 2026-03-24 11:05+0000\n"
+"POT-Creation-Date: 2026-04-08 10:16+0000\n"
+"PO-Revision-Date: 2026-04-08 10:16+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -262,7 +262,9 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "API endpoint (host address) where the LimeSurvey server is listening."
-msgstr "API endpoint (drección del host) donde el servicio de LimeSurvey está escuchando."
+msgstr ""
+"API endpoint (drección del host) donde el servicio de LimeSurvey está "
+"escuchando."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__asp_id
@@ -850,6 +852,11 @@ msgid "Car Plate"
 msgstr "Matrícula de coche"
 
 #. module: ems
+#: model:ems.role,name:ems.role_catskills
+msgid "CatSkills coordinator"
+msgstr "Coordinador/a de CatSkils"
+
+#. module: ems
 #: model:ir.model.fields,help:ems.field_hr_employee__employee_type
 msgid ""
 "Categorize your Employees by type. This field also has an impact on "
@@ -897,6 +904,11 @@ msgid "Code"
 msgstr "Código"
 
 #. module: ems
+#: model:ems.role,name:ems.role_coexistence
+msgid "Coexistence coordinator"
+msgstr "Coordinador/a de convivencia"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
 #: model:ir.model.fields,field_description:ems.field_ems_role__color
 msgid "Color"
@@ -934,6 +946,11 @@ msgstr "Calcular destinatarios"
 #: model:hr.job,name:ems.job_concierje
 msgid "Concierje"
 msgstr "Conserje"
+
+#. module: ems
+#: model:ems.role,name:ems.role_cchieff
+msgid "Concierje chieff"
+msgstr "Jefe de conserjes"
 
 #. module: ems
 #: model:ir.model,name:ems.model_res_config_settings
@@ -1178,6 +1195,11 @@ msgid "Department"
 msgstr "Departamento"
 
 #. module: ems
+#: model:ems.role,name:ems.role_dchieff_cs
+msgid "Department chieff"
+msgstr "Jefe de departamento"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__type__department
 msgid "Department meeting"
 msgstr "Reunión del departamento"
@@ -1195,6 +1217,11 @@ msgid "Deprecated"
 msgstr "Obsoleto"
 
 #. module: ems
+#: model:ems.role,name:ems.role_dhos
+msgid "Deputy head of studies"
+msgstr "Jefe de estudios adjunto/a"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__description
 msgid "Description"
 msgstr "Descripción"
@@ -1205,6 +1232,11 @@ msgstr "Descripción"
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 msgid "Details"
 msgstr "Detalles"
+
+#. module: ems
+#: model:ems.role,name:ems.role_director
+msgid "Director"
+msgstr "Director/a"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__display_name
@@ -1250,6 +1282,12 @@ msgstr "Nombre para mostrar"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__display_warning
 msgid "Display Warning"
 msgstr "Mostrar alerta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__document_id
+#: model:ir.model.fields,field_description:ems.field_res_users__document_id
+msgid "Document ID"
+msgstr "DNI/NIE"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
@@ -1302,7 +1340,7 @@ msgstr "Utilidades para fechas y horas del EMS"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_multithreading
-msgid "EMS multithreading model's code"
+msgid "EMS multithreading model's code)"
 msgstr "Código multihilo para los modelos del EMS"
 
 #. module: ems
@@ -1664,6 +1702,16 @@ msgstr "Guardia"
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__has_message
 msgid "Has Message"
 msgstr "Tiene mensaje"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_has_tutor
+msgid "Has tutor"
+msgstr "Tiene tutor"
+
+#. module: ems
+#: model:ems.role,name:ems.role_hos
+msgid "Head of studies"
+msgstr "Jefe de estudios"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
@@ -2139,9 +2187,10 @@ msgstr "Configuración de LimeSurvey"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_block
 msgid ""
-"LimeSurvey block: contains the main data about a LimeSurvey's survey block."
+"LimeSurvey block: contains the main data about a LimeSurvey's session block."
 msgstr ""
-"LimeSurvey block: contiene los datos principales sobre un bloque de una encuesta de LimeSurvey."
+"LimeSurvey block: contiene los datos principales sobre un bloque de una "
+"encuesta de LimeSurvey."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_enrollment
@@ -2151,15 +2200,17 @@ msgid ""
 "surveys (only secretarial staff should be allowed to modify the real "
 "enrollments)."
 msgstr ""
-"LimeSurvey enrollment: contiene una copia del modelo de matriculación para el "
-"alumno en cuestión, para así poder permitir cambios al vuelo cuando se preparan las "
-"encuestas (solamente el persona de secretaria debería poder modificar los datos reales "
-"de matriculación)."
+"LimeSurvey enrollment: contiene una copia del modelo de matriculación para "
+"el alumno en cuestión, para así poder permitir cambios al vuelo cuando se "
+"preparan las encuestas (solamente el persona de secretaria debería poder "
+"modificar los datos reales de matriculación)."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_header
 msgid "LimeSurvey header: contains the survey's header and its content."
-msgstr "LimeSurvey header: contiene el contenido de una encuesta y sus principales datos."
+msgstr ""
+"LimeSurvey header: contiene el contenido de una encuesta y sus principales "
+"datos."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_recipient
@@ -2167,8 +2218,8 @@ msgid ""
 "LimeSurvey recipient: contains the relation between a recipient and its "
 "survey."
 msgstr ""
-"LimeSurvey recipiente: contiene la relación entre destinatarios y sus"
-"encuestas."
+"LimeSurvey recipiente: contiene la relación entre destinatarios y "
+"susencuestas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -2183,9 +2234,10 @@ msgid ""
 " not allow to create survey groups. Please, provide a valid group ID; the "
 "EMS will use this group in order to generate all the surveys within it."
 msgstr ""
-"No se ha encontrado el ID del grupo de encuestas de LimeSurvey. Lo sentimos, pero la API v6 de LimeSurvey"
-" no permite crear grupos de encuestas. Por favor, indique un ID de grupo correcto; "
-"el EMS utilizará este grupo para generar las encuestas dentro de ese grupo."
+"No se ha encontrado el ID del grupo de encuestas de LimeSurvey. Lo sentimos,"
+" pero la API v6 de LimeSurvey no permite crear grupos de encuestas. Por "
+"favor, indique un ID de grupo correcto; el EMS utilizará este grupo para "
+"generar las encuestas dentro de ese grupo."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -2680,6 +2732,11 @@ msgid "Number of messages with delivery error"
 msgstr "Cantidad de mensajes con error de entrega"
 
 #. module: ems
+#: model:ems.role,name:ems.role_orc
+msgid "Occupational risk coordinator"
+msgstr "Coordinador/a de riesgos laborales"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__modality__online
 msgid "Online"
 msgstr "En línea"
@@ -2808,6 +2865,11 @@ msgid "Participant's filter"
 msgstr "Filtros para los participantes"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__passport_id
+msgid "Passport"
+msgstr "Pasaporte"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__pending
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__pending
 msgid "Pending"
@@ -2898,6 +2960,11 @@ msgstr "Proveedor"
 #: model:ir.ui.menu,name:ems.menu_providers
 msgid "Providers"
 msgstr "Proveedores"
+
+#. module: ems
+#: model:ems.role,name:ems.role_quality
+msgid "Quality coordinator"
+msgstr "Coordinador/a de calidad"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__rating_ids
@@ -2993,6 +3060,11 @@ msgid "Reduction"
 msgstr "Reducción de jornada"
 
 #. module: ems
+#: model:ir.ui.menu,name:ems.menu_relation_types
+msgid "Relation Types"
+msgstr "Tipo de relación"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_study_list
 msgid "Release"
 msgstr "Liberar"
@@ -3040,8 +3112,9 @@ msgid ""
 "Removing the recipient will also, if necessary, remove it from its current "
 "survey. This action cannot be undonde, do you wish to continue?"
 msgstr ""
-"Borrar los destinatarios, los eliminará tambińe (de ser necesario) de las encuestas "
-"en las que se encuentran. Esta acción no se puede deshacer, desea continuar?"
+"Borrar los destinatarios, los eliminará tambińe (de ser necesario) de las "
+"encuestas en las que se encuentran. Esta acción no se puede deshacer, desea "
+"continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
@@ -3197,10 +3270,15 @@ msgid "Score ponderation"
 msgstr "Ponderación de puntuación"
 
 #. module: ems
-#: model:hr.job,name:ems.job_secretary
+#: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary
 #: model:res.groups,name:ems.group_secretary
 msgid "Secretary"
 msgstr "Secretario"
+
+#. module: ems
+#: model:ems.role,name:ems.role_schieff
+msgid "Secretary chieff"
+msgstr "Jefe de conserjes"
 
 #. module: ems
 #: model:res.groups,comment:ems.group_secretary
@@ -3213,6 +3291,11 @@ msgstr "Derechos de acceso del secretario."
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup
 msgid "Select the student to add"
 msgstr "Seleccione el alumno a añadir"
+
+#. module: ems
+#: model:ems.role,name:ems.role_seminar
+msgid "Seminar leader"
+msgstr "Jefe de seminario"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
@@ -3301,8 +3384,8 @@ msgid ""
 "Something failed when trying to delete a recipient, please check the "
 "recipient entries for more details."
 msgstr ""
-"Algo ha fallado cuando se intentaba eliminar un destinatario, por favor, compruebe "
-"el registro del destinatario para más detalles."
+"Algo ha fallado cuando se intentaba eliminar un destinatario, por favor, "
+"compruebe el registro del destinatario para más detalles."
 
 #. module: ems
 #. odoo-python
@@ -3311,8 +3394,9 @@ msgid ""
 "Something failed when trying to open a survey or send the invitations, "
 "please check the recipient entries for more details."
 msgstr ""
-"Algo ha fallado cuando se intentaba abrir una encuesta o enviar las invitaciones, por favor, compruebe "
-"el registro del destinatario para más detalles."
+"Algo ha fallado cuando se intentaba abrir una encuesta o enviar las "
+"invitaciones, por favor, compruebe el registro del destinatario para más "
+"detalles."
 
 #. module: ems
 #. odoo-python
@@ -3321,8 +3405,9 @@ msgid ""
 "Something failed when trying to remove a survey or its recipients, please "
 "check the recipient entries for more details."
 msgstr ""
-"Algo ha fallado cuando se intentaba eliminar una enquesta o sus destinatarios, por favor, compruebe "
-"el registro del destinatario para más detalles."
+"Algo ha fallado cuando se intentaba eliminar una enquesta o sus "
+"destinatarios, por favor, compruebe el registro del destinatario para más "
+"detalles."
 
 #. module: ems
 #. odoo-python
@@ -3331,8 +3416,9 @@ msgid ""
 "Something failed when trying to send a reminder to a recipient, please check"
 " the recipient entries for more details."
 msgstr ""
-"Algo ha fallado cuando se intentaba enviar un recordatorio a un destinatario, por favor, compruebe "
-"el registro del destinatario para más detalles."
+"Algo ha fallado cuando se intentaba enviar un recordatorio a un "
+"destinatario, por favor, compruebe el registro del destinatario para más "
+"detalles."
 
 #. module: ems
 #. odoo-python
@@ -3341,8 +3427,8 @@ msgid ""
 "Something failed when trying to send reminders for a survey, please check "
 "the recipient entries for more details."
 msgstr ""
-"Algo ha fallado cuando se intentaba enviar recordatorios para una encuesta, por favor, compruebe "
-"el registro del destinatario para más detalles."
+"Algo ha fallado cuando se intentaba enviar recordatorios para una encuesta, "
+"por favor, compruebe el registro del destinatario para más detalles."
 
 #. module: ems
 #. odoo-python
@@ -3351,8 +3437,8 @@ msgid ""
 "Something failed when trying to upload a survey or its recipients, please "
 "check the recipient entries for more details."
 msgstr ""
-"Algo ha fallado cuando se intentaba subir una encuesta o sus destinatarios, por favor, compruebe "
-"el registro del destinatario para más detalles."
+"Algo ha fallado cuando se intentaba subir una encuesta o sus destinatarios, "
+"por favor, compruebe el registro del destinatario para más detalles."
 
 #. module: ems
 #. odoo-python
@@ -3361,8 +3447,8 @@ msgid ""
 "Something failed when trying to upload the changes for a recipient, please "
 "check the recipient entries for more details."
 msgstr ""
-"Algo ha fallado cuando se intentaba subir los cambios de un destinatario, por favor, compruebe "
-"el registro del destinatario para más detalles."
+"Algo ha fallado cuando se intentaba subir los cambios de un destinatario, "
+"por favor, compruebe el registro del destinatario para más detalles."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__sort
@@ -3822,8 +3908,9 @@ msgid ""
 "The LimeSurvey API does not allow to create survey groups so, in order to "
 "operate properly, a group must be created and its ID provided."
 msgstr ""
-"La API de LimeSurvey no permite crear grupos de encuestas y, para ello"
-"de operar correctamente, un grupo debe crearse primero a mano y debe indicarse el ID."
+"La API de LimeSurvey no permite crear grupos de encuestas y, para ellode "
+"operar correctamente, un grupo debe crearse primero a mano y debe indicarse "
+"el ID."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
@@ -3833,7 +3920,9 @@ msgstr "El bloque sólo aparecerá por los estudiantes matriculados en FCT."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "The block appears only for students enrolled in this course (0 = all)."
-msgstr "El bloque sólo aparecerá por los alumnos matriculados en este curso (0 = todos)."
+msgstr ""
+"El bloque sólo aparecerá por los alumnos matriculados en este curso (0 = "
+"todos)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
@@ -3878,8 +3967,8 @@ msgid ""
 "The tutor role cannot be assigned manually, it will be set automatically if "
 "any group is added to the 'tutorship' field."
 msgstr ""
-"El rol de tutor no se puede asignar manualmente, se establecerá automáticamente si "
-"cualquier grupo es añadido al campo 'tutoría'."
+"El rol de tutor no se puede asignar manualmente, se establecerá "
+"automáticamente si cualquier grupo es añadido al campo 'tutoría'."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -3908,9 +3997,9 @@ msgid ""
 "changes and saving the data immediately. It cannot be undone. Do you wish to"
 " continue?"
 msgstr ""
-"Esta acción vaciará y recreará los destinatarios, borrando cualquier cambio manual"
-"y guardando los datos al momento. Esta acción no se puede deshacer. Todavía quieres"
-" continuar?"
+"Esta acción vaciará y recreará los destinatarios, borrando cualquier cambio "
+"manualy guardando los datos al momento. Esta acción no se puede deshacer. "
+"Todavía quieres continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
@@ -3918,14 +4007,15 @@ msgid ""
 "This action will restore the 'main data' and the 'enrollments', saving the "
 "changes immediately. It cannot be undone. Do you wish to continue?"
 msgstr ""
-"Esta acción restaurará los 'datos principales' y las 'matriculaciones', guardando "
-"los cambios en el momento. Esta acción no se puede deshacer. ¿Todavía quieres continuar?"
-
+"Esta acción restaurará los 'datos principales' y las 'matriculaciones', "
+"guardando los cambios en el momento. Esta acción no se puede deshacer. "
+"¿Todavía quieres continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "This block will be generated once per enrollred subject."
-msgstr "Este blog se repetirá por cada asignatura matriculada por el estudiante."
+msgstr ""
+"Este blog se repetirá por cada asignatura matriculada por el estudiante."
 
 #. module: ems
 #. odoo-python
@@ -4013,6 +4103,7 @@ msgid "Tuesday"
 msgstr "Martes"
 
 #. module: ems
+#: model:ems.role,name:ems.role_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__tutor_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__tutor_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__tutor_id
@@ -4262,6 +4353,11 @@ msgid "User's token (LimeSurvey)"
 msgstr "Token del usuario (LimeSurvey)"
 
 #. module: ems
+#: model:ems.role,name:ems.role_erasmus
+msgid "VET coordinator"
+msgstr "Coordinador/a de FP"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__wpi_enrolled
 #: model:ir.model.fields,field_description:ems.field_res_partner__wpi_enrolled
 #: model:ir.model.fields,field_description:ems.field_res_users__wpi_enrolled
@@ -4450,6 +4546,11 @@ msgstr "inscripción"
 #: model_terms:ir.ui.view,arch_db:ems.view_attachment_form
 msgid "file"
 msgstr "archivo"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_has_tutor
+msgid "is tutor of"
+msgstr "es tutor de"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form

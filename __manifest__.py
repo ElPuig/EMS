@@ -68,7 +68,8 @@
             'views/community/workgroup/menu.xml',  
             
             'views/community/contact/list.xml',
-            'views/community/contact/form.xml',            
+            'views/community/contact/form.xml',
+            'views/community/contact/relation_wizard.xml',
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
 
@@ -205,6 +206,7 @@
         'reports/attendance/group.xml',              
         
         ### Data entries (do not alter the order) ###
+        'data/main/res.partner.category.xml',
         'data/main/ems.space_type.csv',
         'data/main/hr.work.location.csv',
         'data/main/ems.contact.relation.type.xml',

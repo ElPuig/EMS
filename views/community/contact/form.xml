@@ -68,9 +68,24 @@
                     <attribute name="invisible">read_only_user</attribute>
                 </xpath>   
 
-                <xpath expr="//page[@name='contact_addresses']" position="attributes">
-                    <attribute name="invisible">read_only_user</attribute>
-                </xpath>   
+                <xpath expr="//page[@name='contact_addresses']" position="inside">
+                    <button name="action_open_relation_wizard" type="object"
+                            string="Add contact" class="btn-primary mb-2"
+                            invisible="contact_type != 'student' or read_only_user"/>
+                    <field name="relation_all_ids"
+                           invisible="contact_type != 'student'"
+                           create="False"
+                           context="{'default_this_partner_id': id, 'default_contact_type': 'family'}">
+                        <list no_open="True">
+                            <field name="type_selection_id" column_invisible="True"/>
+                            <field name="other_partner_relation" readonly="True" string="Relation"/>
+                            <field name="other_partner_id" readonly="True" string="Name"/>
+                            <field name="other_partner_phone" readonly="True"/>
+                            <field name="other_partner_mobile" readonly="True"/>
+                            <field name="other_partner_email" readonly="True"/>
+                        </list>
+                    </field>
+                </xpath>
         
                 <xpath expr="//page[@name='contact_addresses']" position="before">
                     <page name="student" string="Student data" invisible="contact_type != 'student'" autofocus="contact_type == 'student">
@@ -135,6 +150,10 @@
                 </xpath> 
 
                 <!-- Hiding or setting up fields when the "add contact" button is used (same form). -->
+                <xpath expr="//field[@name='child_ids']" position="attributes">
+                    <attribute name="invisible">contact_type == 'student'</attribute>
+                </xpath>
+
                 <xpath expr="//field[@name='child_ids']" position="attributes">
                     <attribute name="context">
                         {

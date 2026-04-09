@@ -4614,4 +4614,199 @@ msgstr "a"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
 msgid "workgroup"
-msgstr "grupo de trabajo"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_contact_relation_wizard
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Add contact"
+msgstr "Añadir contacto"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_contact_relation_wizard
+msgid "Add family contact"
+msgstr "Añadir contacto familiar"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_contact_relation_wizard
+msgid "Add family contact and relation"
+msgstr "Añadir contacto familiar y relación"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "New student contact"
+msgstr "Nuevo contacto de alumno"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "New contact"
+msgstr "Nuevo contacto"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Existing contact"
+msgstr "Contacto existente"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Choose relation"
+msgstr "Elige la relación"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Of the student"
+msgstr "Del alumno"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__document_id
+msgid "Document ID (DNI/NIE)"
+msgstr "Documento de identidad (DNI/NIE)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__passport_id
+msgid "Passport"
+msgstr "Pasaporte"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Relation"
+msgstr "Relación"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_relation_types
+msgid "Relation Types"
+msgstr "Tipos de relación"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_has_tutor
+msgid "Tutor"
+msgstr "Tutor/a"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_has_tutor
+msgid "Student"
+msgstr "Alumno/a"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_father
+msgid "Father"
+msgstr "Padre"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_father
+msgid "Son/Daughter"
+msgstr "Hijo/Hija"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_mother
+msgid "Mother"
+msgstr "Madre"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_mother
+msgid "Son/Daughter"
+msgstr "Hijo/Hija"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_grandfather
+msgid "Grandfather"
+msgstr "Abuelo"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_grandfather
+msgid "Grandson/Granddaughter"
+msgstr "Nieto/Nieta"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_grandmother
+msgid "Grandmother"
+msgstr "Abuela"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_grandmother
+msgid "Grandson/Granddaughter"
+msgstr "Nieto/Nieta"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_uncle_aunt
+msgid "Uncle/Aunt"
+msgstr "Tío/Tía"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_uncle_aunt
+msgid "Nephew/Niece"
+msgstr "Sobrino/Sobrina"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_cousin
+msgid "Cousin"
+msgstr "Primo/Prima"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_cousin
+msgid "Cousin"
+msgstr "Primo/Prima"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_sibling
+msgid "Brother/Sister"
+msgstr "Hermano/Hermana"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_sibling
+msgid "Brother/Sister"
+msgstr "Hermano/Hermana"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Address"
+msgstr "Dirección"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "City"
+msgstr "Ciudad"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Country"
+msgstr "País"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "First name"
+msgstr "Nombre"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Last name"
+msgstr "Apellidos"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Mobile"
+msgstr "Móvil"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Phone"
+msgstr "Teléfono"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Save"
+msgstr "Guardar"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Street"
+msgstr "Calle"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Street 2"
+msgstr "Dirección 2"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "ZIP"
+msgstr "Código postal"

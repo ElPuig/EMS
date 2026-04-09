@@ -2,10 +2,94 @@
 <odoo>
     <data noupdate="1">
         <record model="res.partner.relation.type" id="relation_type_has_tutor">
-            <field name="name">Has tutor</field>
-            <field name="name_inverse">is tutor of</field>
+            <field name="name">Tutor</field>
+            <field name="name_inverse">Student</field>
             <field name="contact_type_left">p</field>
             <field name="contact_type_right">p</field>
+            <field name="partner_category_left" ref="ems.partner_category_family"/>
+            <field name="partner_category_right" ref="ems.partner_category_student"/>
+            <field name="is_symmetric">False</field>
+            <field name="allow_self">False</field>
+            <field name="handle_invalid_onchange">restrict</field>
+        </record>
+        <record model="res.partner.relation.type" id="relation_type_father">
+            <field name="name">Father</field>
+            <field name="name_inverse">Son/Daughter</field>
+            <field name="contact_type_left">p</field>
+            <field name="contact_type_right">p</field>
+            <field name="partner_category_left" ref="ems.partner_category_family"/>
+            <field name="partner_category_right" ref="ems.partner_category_student"/>
+            <field name="is_symmetric">False</field>
+            <field name="allow_self">False</field>
+            <field name="handle_invalid_onchange">restrict</field>
+        </record>
+
+        <record model="res.partner.relation.type" id="relation_type_mother">
+            <field name="name">Mother</field>
+            <field name="name_inverse">Son/Daughter</field>
+            <field name="contact_type_left">p</field>
+            <field name="contact_type_right">p</field>
+            <field name="partner_category_left" ref="ems.partner_category_family"/>
+            <field name="partner_category_right" ref="ems.partner_category_student"/>
+            <field name="is_symmetric">False</field>
+            <field name="allow_self">False</field>
+            <field name="handle_invalid_onchange">restrict</field>
+        </record>
+
+        <record model="res.partner.relation.type" id="relation_type_grandfather">
+            <field name="name">Grandfather</field>
+            <field name="name_inverse">Grandson/Granddaughter</field>
+            <field name="contact_type_left">p</field>
+            <field name="contact_type_right">p</field>
+            <field name="partner_category_left" ref="ems.partner_category_family"/>
+            <field name="partner_category_right" ref="ems.partner_category_student"/>
+            <field name="is_symmetric">False</field>
+            <field name="allow_self">False</field>
+            <field name="handle_invalid_onchange">restrict</field>
+        </record>
+
+        <record model="res.partner.relation.type" id="relation_type_grandmother">
+            <field name="name">Grandmother</field>
+            <field name="name_inverse">Grandson/Granddaughter</field>
+            <field name="contact_type_left">p</field>
+            <field name="contact_type_right">p</field>
+            <field name="partner_category_left" ref="ems.partner_category_family"/>
+            <field name="partner_category_right" ref="ems.partner_category_student"/>
+            <field name="is_symmetric">False</field>
+            <field name="allow_self">False</field>
+            <field name="handle_invalid_onchange">restrict</field>
+        </record>
+        <record model="res.partner.relation.type" id="relation_type_uncle_aunt">
+            <field name="name">Uncle/Aunt</field>
+            <field name="name_inverse">Nephew/Niece</field>
+            <field name="contact_type_left">p</field>
+            <field name="contact_type_right">p</field>
+            <field name="partner_category_left" ref="ems.partner_category_family"/>
+            <field name="partner_category_right" ref="ems.partner_category_student"/>
+            <field name="is_symmetric">False</field>
+            <field name="allow_self">False</field>
+            <field name="handle_invalid_onchange">restrict</field>
+        </record>
+
+        <record model="res.partner.relation.type" id="relation_type_cousin">
+            <field name="name">Cousin</field>
+            <field name="name_inverse">Cousin</field>
+            <field name="contact_type_left">p</field>
+            <field name="contact_type_right">p</field>
+            <field name="partner_category_left" ref="ems.partner_category_family"/>
+            <field name="partner_category_right" ref="ems.partner_category_student"/>
+            <field name="is_symmetric">False</field>
+            <field name="allow_self">False</field>
+            <field name="handle_invalid_onchange">restrict</field>
+        </record>
+
+        <record model="res.partner.relation.type" id="relation_type_sibling">
+            <field name="name">Brother/Sister</field>
+            <field name="name_inverse">Brother/Sister</field>
+            <field name="contact_type_left">p</field>
+            <field name="contact_type_right">p</field>
+            <field name="partner_category_left" ref="ems.partner_category_family"/>
+            <field name="partner_category_right" ref="ems.partner_category_student"/>
             <field name="is_symmetric">False</field>
             <field name="allow_self">False</field>
             <field name="handle_invalid_onchange">restrict</field>

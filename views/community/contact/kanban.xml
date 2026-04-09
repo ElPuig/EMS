@@ -17,6 +17,10 @@
                     <field t-else="" name="email" class="text-truncate" />
                 </xpath>
 
+                <xpath expr="//field[@name='category_id'][@widget='many2many_tags']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
                 <xpath expr="//kanban//main/footer" position="before">
                     <span class="text-truncate" t-if="record.main_group_id.raw_value > 0">
                         <div class="ems-kanban-label">

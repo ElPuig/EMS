@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # 1. Dependencias de Python (requirements.txt)
+  # 1. Python dependencies (requirements.txt)
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
@@ -9,7 +9,7 @@ updates:
       - "python"
       - "dependencies"
 
-  # 2. Entorno de Integración Continua (GitHub Actions)
+  # 2. GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -17,8 +17,7 @@ updates:
     labels:
       - "ci"
 
-  # 3. (Opcional) Dependencias de Frontend JS/OWL (package.json)
-  # Si no usas NodeJS/NPM en tu módulo, puedes borrar este bloque
+  # 3. Frontend JS/OWL dependencies (package.json)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:

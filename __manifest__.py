@@ -39,7 +39,11 @@
     
     # just for debugging
     'external_dependencies': {
-        'python': ['debugpy'],
+        'python': [
+            'lxml',
+            'lxml_html_clean', 
+            'phonenumbers'
+        ],
     },
     
     # always loaded

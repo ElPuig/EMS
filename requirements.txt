@@ -1,0 +1,6 @@
+# Just for GitHub's dependabot, in order to get security alerts.
+# Do not install those using pip; use apt instead as specified in the README.md
+# We recommend to enable te unattended-upgrades in order to automatically apply security updates. 
+lxml
+lxml_html_clean
+phonenumbers

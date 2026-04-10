@@ -71,12 +71,12 @@
                 <xpath expr="//page[@name='contact_addresses']" position="inside">
                     <button name="action_open_relation_wizard" type="object"
                             string="Add contact" class="btn-primary mb-2"
-                            invisible="contact_type != 'student' or read_only_user"/>
+                            invisible="contact_type != 'student' or read_only_user" />
                     <field name="relation_all_ids"
                            invisible="contact_type != 'student'"
                            create="False"
-                           context="{'default_this_partner_id': id, 'default_contact_type': 'family'}">
-                        <list no_open="True">
+                           context="{'default_this_partner_id': id, 'default_contact_type': 'family'}" >
+                        <list no_open="True" create="False" >
                             <field name="type_selection_id" column_invisible="True"/>
                             <field name="other_partner_relation" readonly="True" string="Relation"/>
                             <field name="other_partner_id" readonly="True" string="Name"/>

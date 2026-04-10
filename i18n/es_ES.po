@@ -1704,7 +1704,7 @@ msgid "Has Message"
 msgstr "Tiene mensaje"
 
 #. module: ems
-#: model:res.partner.relation.type,name:ems.relation_type_has_tutor
+#: model:res.partner.relation.type,name:ems.relation_type_tutor
 msgid "Has tutor"
 msgstr "Tiene tutor"
 
@@ -4548,7 +4548,7 @@ msgid "file"
 msgstr "archivo"
 
 #. module: ems
-#: model:res.partner.relation.type,name_inverse:ems.relation_type_has_tutor
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_tutor
 msgid "is tutor of"
 msgstr "es tutor de"
 
@@ -4677,12 +4677,12 @@ msgid "Relation Types"
 msgstr "Tipos de relación"
 
 #. module: ems
-#: model:res.partner.relation.type,name:ems.relation_type_has_tutor
+#: model:res.partner.relation.type,name:ems.relation_type_tutor
 msgid "Tutor"
 msgstr "Tutor/a"
 
 #. module: ems
-#: model:res.partner.relation.type,name_inverse:ems.relation_type_has_tutor
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_tutor
 msgid "Student"
 msgstr "Alumno/a"
 

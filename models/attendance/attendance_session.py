@@ -391,8 +391,9 @@ class ems_attendance_session_header(models.Model):
 			
 			send_to = []
 			if attendance_session_line_id.student_id.auth_share or not attendance_session_line_id.student_id.is_adult:
-				for contact in attendance_session_line_id.student_id.child_ids:				
-					send_to.append(contact.email)
+				for relation in attendance_session_line_id.student_id.relation_all_ids:
+					if relation.other_partner_id.contact_type == 'family' and relation.other_partner_id.email:
+						send_to.append(relation.other_partner_id.email)
 
 			# NOTE: The 'send_to' field will be empty if adult or family shared not authorized.
 			#		All entries must be notified to the tutor, always. This trick simplifies a bit the logic.

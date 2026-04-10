@@ -40,7 +40,37 @@ def _move_vat_to_document_id(env):
 
     _logger.info(f"Migration: moved vat to document_id for {len(partners)} partners.")
 
+def _create_family_relations(env):
+    try:
+        relation_type = env.ref('ems.relation_type_tutor')
+    except Exception:
+        _logger.warning("Migration: relation type 'Tutor' not found, skipping.")
+        return
+
+    family_contacts = env['res.partner'].search([
+        ('contact_type', '=', 'family'),
+        ('parent_id', '!=', False),
+    ])
+
+    count = 0
+    for contact in family_contacts:
+        existing = env['res.partner.relation'].search([
+            ('left_partner_id', '=', contact.id),
+            ('right_partner_id', '=', contact.parent_id.id),
+        ], limit=1)
+        if not existing:
+            env['res.partner.relation'].create({
+                'left_partner_id': contact.id,
+                'type_id': relation_type.id,
+                'right_partner_id': contact.parent_id.id,
+            })
+            count += 1
+        contact.parent_id = False
+
+    _logger.info(f"Migration: created {count} family relations out of {len(family_contacts)} candidates.")
+
 def migrate(cr, _version):
     env = api.Environment(cr, 1, {})
     _sync_partner_categories(env)
     _move_vat_to_document_id(env)
+    _create_family_relations(env)

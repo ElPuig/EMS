@@ -385,21 +385,23 @@ class ems_attendance_session_header(models.Model):
 
 	def collect_issue_status_data(self, attendance_session_line_id, status_by_tutor, rectification=False):
 		separator = "; "
+		student_id = attendance_session_line_id.student_id
+
 		if rectification or attendance_session_line_id.status_is_notificable():
-			if attendance_session_line_id.student_id.tutor_id not in status_by_tutor:
-				status_by_tutor[attendance_session_line_id.student_id.tutor_id] = []
+			if student_id.tutor_id not in status_by_tutor:
+				status_by_tutor[student_id.tutor_id] = []
 			
-			send_to = []
-			if attendance_session_line_id.student_id.auth_share or not attendance_session_line_id.student_id.is_adult:
-				for relation in attendance_session_line_id.student_id.relation_all_ids:
+			send_to = [student_id.student_email]
+			if student_id.auth_share or not student_id.is_adult:
+				for relation in student_id.relation_all_ids:
 					if relation.other_partner_id.contact_type == 'family' and relation.other_partner_id.email:
 						send_to.append(relation.other_partner_id.email)
 
 			# NOTE: The 'send_to' field will be empty if adult or family shared not authorized.
 			#		All entries must be notified to the tutor, always. This trick simplifies a bit the logic.
-			status_by_tutor[attendance_session_line_id.student_id.tutor_id].append({
+			status_by_tutor[student_id.tutor_id].append({
 				'attendance_session_line_id': attendance_session_line_id.id,
-				'student_id': attendance_session_line_id.student_id.id,
+				'student_id': student_id.id,
 				'send_to': separator.join(send_to)
 			})	
 	

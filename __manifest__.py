@@ -59,6 +59,7 @@
         'views/settings/menu.xml',                                    
         
         'views/community/contact/search.xml', # Should be loaded prior to menu
+        'views/community/contact_family/search.xml', # Should be loaded prior to menu
         'views/community/menu.xml',  
             'views/community/configuration/menu.xml',            
 
@@ -76,6 +77,8 @@
             'views/community/contact/relation_wizard.xml',
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
+
+            'views/community/contact_family/list.xml',
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',  

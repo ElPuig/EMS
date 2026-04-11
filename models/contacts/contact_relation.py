@@ -5,9 +5,13 @@ class ems_partner_relation_all(models.AbstractModel):
     _inherit = 'res.partner.relation.all'
 
     other_partner_relation = fields.Char(related='type_id.name', string='Relation', readonly=True)
+    other_partner_relation_inverse = fields.Char(related='type_id.name_inverse', string='Relation', readonly=True)
     other_partner_phone = fields.Char(related='other_partner_id.phone', string='Phone')
     other_partner_mobile = fields.Char(related='other_partner_id.mobile', string='Mobile')
     other_partner_email = fields.Char(related='other_partner_id.email', string='Email')
+
+    def action_open_other_partner(self):
+        return self.other_partner_id.get_formview_action()
 
 class ems_contact_relation_wizard(models.TransientModel):
     _name = 'ems.contact.relation.wizard'

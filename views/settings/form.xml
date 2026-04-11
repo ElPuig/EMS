@@ -29,14 +29,17 @@
                             </setting>
                         </block>
 
-                         <block title="Attendance Settings" name="ems_attendance_settings">
+                         <block title="Student's Attendance Settings" name="ems_attendance_settings">
                             <setting string="Issue notification delay (in minutes)" help="Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification." id="attendance_issue_status_delay">
-                                <field name="attendance_issue_status_delay" />                              
+                                <field name="attendance_issue_status_delay" />
                             </setting>
 
                             <setting string="Tutor's attendance report default send time" help="The tutors will receive a daily attendance report at the end of their work tourn but, it its not defined, this time will be used to send the report." id="attendance_issue_tutor_default">
-                                <field name="attendance_issue_tutor_default" widget="float_time" />                              
+                                <field name="attendance_issue_tutor_default" widget="float_time" />
                             </setting>
+
+
+
                         </block>
 
                          <block title="LimeSurvey Settings" name="ems_limesurvey_settings">                          

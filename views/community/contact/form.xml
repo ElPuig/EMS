@@ -84,7 +84,6 @@
                             <field name="other_partner_phone" readonly="True"/>
                             <field name="other_partner_mobile" readonly="True"/>
                             <field name="other_partner_email" readonly="True"/>
-                            <!-- <button name="action_open_other_partner" type="object" icon="fa-external-link" title="Open contact form"/> -->
                             <button name="unlink" type="object" icon="fa-trash" title="Delete relation"
                                     confirm="Are you sure you want to delete this relation? This action cannot be undone."/>
                         </list>
@@ -101,7 +100,6 @@
                             <field name="other_partner_phone" readonly="True"/>
                             <field name="other_partner_mobile" readonly="True"/>
                             <field name="other_partner_email" readonly="True"/>
-                            <!-- <button name="action_open_other_partner" type="object" icon="fa-external-link" title="Open student form"/> -->
                         </list>
                     </field>
                 </xpath>

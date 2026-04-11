@@ -73,6 +73,7 @@
                             string="Add contact" class="btn-primary mb-2"
                             invisible="contact_type != 'student' or read_only_user" />
                     <field name="relation_all_ids"
+                           class="relation_all_list"
                            invisible="contact_type != 'student'"
                            create="False"
                            context="{'default_this_partner_id': id, 'default_contact_type': 'family'}" >
@@ -83,12 +84,13 @@
                             <field name="other_partner_phone" readonly="True"/>
                             <field name="other_partner_mobile" readonly="True"/>
                             <field name="other_partner_email" readonly="True"/>
-                            <button name="action_open_other_partner" type="object" icon="fa-external-link" title="Open contact form"/>
+                            <!-- <button name="action_open_other_partner" type="object" icon="fa-external-link" title="Open contact form"/> -->
                             <button name="unlink" type="object" icon="fa-trash" title="Delete relation"
                                     confirm="Are you sure you want to delete this relation? This action cannot be undone."/>
                         </list>
                     </field>
                     <field name="relation_all_ids"
+                           class="relation_all_list"
                            invisible="contact_type != 'family'"
                            create="False"
                            context="{'default_this_partner_id': id, 'default_contact_type': 'student'}">
@@ -99,7 +101,7 @@
                             <field name="other_partner_phone" readonly="True"/>
                             <field name="other_partner_mobile" readonly="True"/>
                             <field name="other_partner_email" readonly="True"/>
-                            <button name="action_open_other_partner" type="object" icon="fa-external-link" title="Open student form"/>
+                            <!-- <button name="action_open_other_partner" type="object" icon="fa-external-link" title="Open student form"/> -->
                         </list>
                     </field>
                 </xpath>

@@ -10,9 +10,6 @@ class ems_partner_relation_all(models.AbstractModel):
     other_partner_mobile = fields.Char(related='other_partner_id.mobile', string='Mobile')
     other_partner_email = fields.Char(related='other_partner_id.email', string='Email')
 
-    def action_open_other_partner(self):
-        return self.other_partner_id.get_formview_action()
-
 class ems_contact_relation_wizard(models.TransientModel):
     _name = 'ems.contact.relation.wizard'
     _description = 'Add family contact and relation'

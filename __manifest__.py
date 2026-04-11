@@ -77,9 +77,8 @@
             'views/community/contact/form.xml',
             'views/community/contact/relation_wizard.xml',
             'views/community/contact/kanban.xml',
-            'views/community/contact/menu.xml',
-
             'views/community/contact_family/list.xml',
+            'views/community/contact/menu.xml',
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',  

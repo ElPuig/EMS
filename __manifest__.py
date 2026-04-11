@@ -48,14 +48,15 @@
     
     # always loaded
    'data': [
-        'security/groups.xml',        
+        'security/groups.xml',
         'security/rules/attendance.xml',
         'security/rules/contacts.xml',
-        'security/ir.model.access.csv',                        
-        
+        'security/ir.model.access.csv',
+
         'views/menu.xml',
 
         'views/settings/form.xml',
+        'views/settings/hr_attendance_form.xml',
         'views/settings/menu.xml',                                    
         
         'views/community/contact/search.xml', # Should be loaded prior to menu

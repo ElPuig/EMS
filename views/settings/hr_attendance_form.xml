@@ -1,0 +1,33 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="res_config_settings_view_form_hr_attendance_ems">
+            <field name="name">res.config.settings.view.form.inherit.hr.attendance.ems</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="hr_attendance.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <!-- Auto check-in for teachers: separate setting in the Modes block -->
+                <xpath expr="//field[@name='absence_management']/ancestor::setting" position="before">
+                    <setting string="Auto Check-In for Teachers (EMS)" company_dependent="1" help="When a teacher creates a passing list, automatically check them in at their first scheduled working hour if they haven't checked in yet.">
+                        <field name="auto_checkin"/>
+                    </setting>
+                </xpath>
+
+                <!-- Replace the tolerance div with our mode selector + conditional fields -->
+                <xpath expr="//field[@name='auto_check_out']/following-sibling::div" position="replace">
+                    <div invisible="not auto_check_out">
+                        <field name="auto_checkout_mode" class="w-50"/>
+                        <div invisible="auto_checkout_mode != 'native'">
+                            <span class="me-2">Tolerance</span>
+                            <field name="auto_check_out_tolerance" class="text-center" style="width: 5ch;"/>
+                            <span class="ms-2">Hours</span>
+                        </div>
+                        <div invisible="auto_checkout_mode != 'ems'">
+                            <span class="me-2">Check-out at</span>
+                            <field name="auto_checkout_time" widget="float_time" class="text-center" style="width: 5ch;"/>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

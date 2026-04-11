@@ -330,6 +330,8 @@ class ems_attendance_session_header(models.Model):
 
 	def _auto_checkin_teacher(self, teacher, date):
 		"""Auto check-in the teacher if they haven't checked in yet today."""
+		if not self.env.company.auto_checkin:
+			return
 		today = datetime.today().date()
 		if not teacher or not teacher.resource_calendar_id or date != today:
 			return

@@ -5,7 +5,7 @@ class ems_partner_relation_all(models.AbstractModel):
     _inherit = 'res.partner.relation.all'
 
     other_partner_relation = fields.Char(related='type_id.name', string='Relation', readonly=True)
-    other_partner_relation_inverse = fields.Char(related='type_id.name_inverse', string='Relation', readonly=True)
+    other_partner_relation_inverse = fields.Char(related='type_id.name_inverse', string='Relation\u200B', readonly=True) # NOTE: \u200B is a zero width space, used to avoid warnings due to repeated label. 
     other_partner_phone = fields.Char(related='other_partner_id.phone', string='Phone')
     other_partner_mobile = fields.Char(related='other_partner_id.mobile', string='Mobile')
     other_partner_email = fields.Char(related='other_partner_id.email', string='Email')

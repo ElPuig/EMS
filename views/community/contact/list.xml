@@ -2,56 +2,54 @@
     <data>
         <record model="ir.ui.view" id="view_contact_list">
             <field name="name">ems.contact.list</field>
-            <field name="model">res.partner</field>            
-            <field name="inherit_id" ref="base.view_partner_tree"/> 
-            <field name="arch" type="xml">        
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='complete_name']" position="after">
+                    <field name="document_id" column_invisible="context.get('default_contact_type') == 'student'"/>
+                </xpath>
+
                 <xpath expr="//field[@name='email']" position="after">
-                    <field name="student_email" optional="show"/>                    
-                </xpath>   
+                    <field name="student_email" optional="show" column_invisible="context.get('default_contact_type') != 'student'"/>
+                </xpath>
 
                 <xpath expr="//field[@name='user_id']" position="attributes">
-                    <!-- <attribute name="column_invisible">True</attribute> -->
                     <attribute name="column_invisible">True</attribute>
-                </xpath> 
+                </xpath>
 
                 <xpath expr="//field[@name='email']" position="attributes">
-                    <attribute name="column_invisible">True</attribute>
-                </xpath> 
+                    <attribute name="column_invisible">context.get('default_contact_type') == 'student'</attribute>
+                </xpath>
 
                 <xpath expr="//field[@name='phone']" position="attributes">
-                    <attribute name="optional">hide</attribute>
-                    <!-- TODO: tutors or ardmins should be able, why does not work even if I add the field? -->
-                    <!-- <attribute name="column_invisible">read_only_user</attribute> -->
-                </xpath>   
+                    <!-- TODO: tutors or admins should be able, why does not work even if I add the field? -->
+                    <attribute name="optional">show</attribute>
+                </xpath>
 
                 <xpath expr="//field[@name='mobile']" position="attributes">
-                    <!-- <attribute name="optional">show</attribute> -->
-                    <attribute name="column_invisible">True</attribute>
-                </xpath>  
+                    <attribute name="column_invisible">context.get('default_contact_type') == 'student'</attribute>
+                </xpath>
 
                 <xpath expr="//field[@name='city']" position="attributes">
-                    <!-- <attribute name="optional">hide</attribute> -->
                     <attribute name="column_invisible">True</attribute>
-                </xpath>    
+                </xpath>
 
                 <xpath expr="//field[@name='country_id']" position="attributes">
-                    <!-- <attribute name="optional">hide</attribute> -->
                     <attribute name="column_invisible">True</attribute>
-                </xpath>   
+                </xpath>
 
                 <xpath expr="//field[@name='activity_ids']" position="attributes">
-                    <!-- <attribute name="optional">hide</attribute> -->
                     <attribute name="column_invisible">True</attribute>
-                </xpath>  
+                </xpath>
 
                 <xpath expr="//field[@name='company_id']" position="after">
-                    <field name="main_group_id" optional="show"/>
-                </xpath>   
+                    <field name="main_group_id" optional="show" column_invisible="context.get('default_contact_type') != 'student'"/>
+                </xpath>
 
                 <xpath expr="//field[@name='main_group_id']" position="after">
-                    <field name="tutor_id" optional="show"/>
-                </xpath>                                             
-            </field>		      
-        </record>   
+                    <field name="tutor_id" optional="show" column_invisible="context.get('default_contact_type') != 'student'"/>
+                </xpath>
+            </field>
+        </record>
     </data>
 </odoo>

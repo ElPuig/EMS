@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_contact_relation_wizard_form">
+            <field name="name">ems.contact.relation.wizard.form</field>
+            <field name="model">ems.contact.relation.wizard</field>
+            <field name="arch" type="xml">
+                <form string="New student contact">
+                    <group string="Contact">
+                        <group>
+                            <field name="is_new_contact" string="New contact"/>
+                        </group>
+                        <group invisible="is_new_contact">
+                            <field name="partner_id" string="Existing contact"/>
+                        </group>
+                    </group>
+                    <group invisible="not is_new_contact" cols="2">
+                        <group>
+                            <field name="firstname"/>
+                            <field name="lastname"/>
+                            <field name="phone"/>
+                            <field name="mobile"/>
+                            <field name="email"/>
+                            <field name="document_id"/>
+                            <field name="passport_id"/>
+                        </group>
+                        <group string="Address">
+                            <field name="street"/>
+                            <field name="street2"/>
+                            <field name="city"/>
+                            <field name="state_id"/>
+                            <field name="zip"/>
+                            <field name="country_id"/>
+                        </group>
+                    </group>
+                    <group string="Relation">
+                        <field name="type_selection_id" required="True" string="Choose relation"/>
+                    </group>
+                    <group string="Of the student">
+                        <field name="student_id" readonly="True" string="Student"/>
+                    </group>
+                    <footer>
+                        <button name="action_save" type="object" string="Save" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_contact_relation_wizard">
+            <field name="name">Add family contact</field>
+            <field name="res_model">ems.contact.relation.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_contact_relation_wizard_form"/>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

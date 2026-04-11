@@ -7,6 +7,7 @@
             <field name="subject">Attendance notification: daily summary</field>
             <field name="auto_delete" eval="True"/>             
             <field name="email_to">{{object.tutor_id.work_email}}</field> 
+            <field name="lang">{{object.tutor_id.partner_id.lang}}</field>
             <field name="email_from">ems@elpuig.xeill.net</field>
             <!-- TODO: setup reply / bounce email on settings for this purpouses? -->
             <!-- <field name="reply_to">{{object.tutor_id.email}}</field> -->
@@ -29,7 +30,7 @@
                                                 <ul>
                                                     <t t-foreach="student.attendance_issue_status_ids" t-as="status">
                                                         <li t-att-style="'text-decoration: line-through;' if status.rectified_by.id != False else ''">
-                                                            <span t-field="status.attendance_session_id.attendance_schedule_id.attendance_template_id"/> | from <span t-field="status.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="status.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/> | <span t-field="status.attendance_session_line_id"/>
+                                                            <span t-field="status.attendance_session_id.attendance_schedule_id.attendance_template_id"/> | from <span t-field="status.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="status.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/> | <span t-field="status.attendance_status"/>
                                                             <t t-if="status.notes">
                                                                 | <span t-field="status.notes"/>
                                                             </t>

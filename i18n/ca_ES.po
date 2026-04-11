@@ -56,7 +56,7 @@ msgid ""
 "                                <li><strong>Student:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
 "                                <li><strong>Date:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> from <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
 "                                <li><strong>Session:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
-"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_session_line_id\"/></li>\n"
+"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
 "                                <t t-if=\"object.notes\">\n"
 "                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
 "                                </t>\n"
@@ -81,7 +81,7 @@ msgstr ""
 "                                <li><strong>Estudiant:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
 "                                <li><strong>Data:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> de <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
 "                                <li><strong>Sessió:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
-"                                <li><strong>Estat:</strong> <span t-field=\"object.attendance_session_line\"/></li>\n"
+"                                <li><strong>Estat:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
 "                                <t t-if=\"object.notes\">\n"
 "                                    <li><strong>Detalls:</strong> <span t-field=\"object.notes\"/></li>\n"
 "                                </t>\n"
@@ -112,7 +112,7 @@ msgid ""
 "                                <li><strong>Student:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
 "                                <li><strong>Date:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> from <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
 "                                <li><strong>Session:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
-"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_session_line_id\"/></li>\n"
+"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
 "                                <t t-if=\"object.notes\">\n"
 "                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
 "                                </t>\n"
@@ -140,7 +140,7 @@ msgstr ""
 "                                <li><strong>Estudiant:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
 "                                <li><strong>Data:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> de <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
 "                                <li><strong>Sessió:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
-"                                <li><strong>Estat:</strong> <span t-field=\"object.attendance_session_line\"/></li>\n"
+"                                <li><strong>Estat:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
 "                                <t t-if=\"object.notes\">\n"
 "                                    <li><strong>Detalls:</strong> <span t-field=\"object.notes\"/></li>\n"
 "                                </t>\n"
@@ -174,7 +174,7 @@ msgid ""
 "                                                <ul>\n"
 "                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
 "                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\">\n"
-"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_session_line_id\"/>\n"
+"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status\"/>\n"
 "                                                            <t t-if=\"status.notes\">\n"
 "                                                                | <span t-field=\"status.notes\"/>\n"
 "                                                            </t>\n"
@@ -211,7 +211,7 @@ msgstr ""
 "                                                <ul>\n"
 "                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
 "                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\"> \n"
-"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_session_line\"/>\n"
+"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status\"/>\n"
 "                                                            <t t-if=\"status.notes\">\n"
 "                                                                | <span t-field=\"status.notes\"/>\n"
 "                                                            </t>\n"
@@ -1701,7 +1701,7 @@ msgid "Has Message"
 msgstr "Té missatge"
 
 #. module: ems
-#: model:res.partner.relation.type,name:ems.relation_type_has_tutor
+#: model:res.partner.relation.type,name:ems.relation_type_tutor
 msgid "Has tutor"
 msgstr "Té tutor"
 
@@ -4541,7 +4541,7 @@ msgid "file"
 msgstr "fitxer"
 
 #. module: ems
-#: model:res.partner.relation.type,name_inverse:ems.relation_type_has_tutor
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_tutor
 msgid "is tutor of"
 msgstr "és tutor de"
 
@@ -5444,4 +5444,199 @@ msgstr "Assistent per a encuar de nou una selecció de treballs"
 #. module: queue_job
 #: model:ir.model.fields,field_description:queue_job.field_queue_job__worker_pid
 msgid "Worker Pid"
-msgstr "Pid del treballador"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_contact_relation_wizard
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Add contact"
+msgstr "Afegir contacte"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_contact_relation_wizard
+msgid "Add family contact"
+msgstr "Afegir contacte familiar"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_contact_relation_wizard
+msgid "Add family contact and relation"
+msgstr "Afegir contacte familiar i relació"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "New student contact"
+msgstr "Nou contacte d'estudiant"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "New contact"
+msgstr "Nou contacte"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Existing contact"
+msgstr "Contacte existent"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Choose relation"
+msgstr "Tria la relació"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Of the student"
+msgstr "De l'estudiant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__document_id
+msgid "Document ID (DNI/NIE)"
+msgstr "Document d'identitat (DNI/NIE)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__passport_id
+msgid "Passport"
+msgstr "Passaport"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Relation"
+msgstr "Relació"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_relation_types
+msgid "Relation Types"
+msgstr "Tipus de relació"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_tutor
+msgid "Tutor"
+msgstr "Tutor/a"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_tutor
+msgid "Student"
+msgstr "Alumne/a"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_father
+msgid "Father"
+msgstr "Pare"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_father
+msgid "Son/Daughter"
+msgstr "Fill/Filla"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_mother
+msgid "Mother"
+msgstr "Mare"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_mother
+msgid "Son/Daughter"
+msgstr "Fill/Filla"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_grandfather
+msgid "Grandfather"
+msgstr "Avi"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_grandfather
+msgid "Grandson/Granddaughter"
+msgstr "Nét/Néta"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_grandmother
+msgid "Grandmother"
+msgstr "Àvia"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_grandmother
+msgid "Grandson/Granddaughter"
+msgstr "Nét/Néta"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_uncle_aunt
+msgid "Uncle/Aunt"
+msgstr "Oncle/Tia"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_uncle_aunt
+msgid "Nephew/Niece"
+msgstr "Nebot/Neboda"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_cousin
+msgid "Cousin"
+msgstr "Cosí/Cosina"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_cousin
+msgid "Cousin"
+msgstr "Cosí/Cosina"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_sibling
+msgid "Brother/Sister"
+msgstr "Germà/Germana"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_sibling
+msgid "Brother/Sister"
+msgstr "Germà/Germana"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Address"
+msgstr "Adreça"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "City"
+msgstr "Ciutat"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Country"
+msgstr "País"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "First name"
+msgstr "Nom"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Last name"
+msgstr "Cognoms"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Mobile"
+msgstr "Mòbil"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Phone"
+msgstr "Telèfon"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Save"
+msgstr "Desar"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Street"
+msgstr "Carrer"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Street 2"
+msgstr "Adreça 2"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "ZIP"
+msgstr "Codi postal"

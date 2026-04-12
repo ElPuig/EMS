@@ -9,9 +9,9 @@
                     <attribute name="js_class">studentpopup_expand_button</attribute>                    
                 </xpath>     
 
-                <xpath expr="//field[@name='name'][last()]" position="attributes">       
+                <xpath expr="//field[@name='name'][last()]" position="attributes">
                     <attribute name="readonly">read_only_user</attribute>
-                </xpath>   
+                </xpath>
 
                 <xpath expr="//field[@name='image_1920']" position="attributes">       
                     <attribute name="readonly">read_only_user</attribute>
@@ -236,5 +236,19 @@
                 </xpath> 
             </field>		      
         </record>   
+        <record model="ir.ui.view" id="view_contact_form_firstname">
+            <field name="name">ems.contact.form.firstname</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="partner_firstname.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='firstname']" position="attributes">
+                    <attribute name="readonly">read_only_user</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='lastname']" position="attributes">
+                    <attribute name="readonly">read_only_user</attribute>
+                </xpath>
+            </field>
+        </record>
     </data>
 </odoo>

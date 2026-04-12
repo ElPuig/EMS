@@ -46,6 +46,7 @@ patch(FormRenderer.prototype, {
             const clickHandler = async function(event) {
                 const row = event.target.closest('.relation_all_list .o_data_row');
                 if(!row) return;
+                if(event.target.closest('button')) return;
                 event.stopPropagation();
 
                 annotateRows();

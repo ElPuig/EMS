@@ -20,7 +20,7 @@
                 ref('ems.level_cfgm'), 
                 ref('ems.level_cfgs'),
                 ref('ems.level_efps'),
-                ref('ems.level_cfpb'),
+                ref('ems.level_cfgb'),
                 ref('ems.level_pfi')
             ])]"/>
         </record>
@@ -75,7 +75,7 @@
                 ref('ems.level_cfgm'), 
                 ref('ems.level_cfgs'),
                 ref('ems.level_efps'),
-                ref('ems.level_cfpb'),
+                ref('ems.level_cfgb'),
                 ref('ems.level_pfi')
             ])]"/>
         </record>
@@ -95,7 +95,7 @@
                 ref('ems.level_cfgm'), 
                 ref('ems.level_cfgs'),
                 ref('ems.level_efps'),
-                ref('ems.level_cfpb'),
+                ref('ems.level_cfgb'),
                 ref('ems.level_pfi')
             ])]"/>
         </record>
@@ -113,7 +113,7 @@
                 ref('ems.level_cfgm'), 
                 ref('ems.level_cfgs'),
                 ref('ems.level_efps'),
-                ref('ems.level_cfpb'),
+                ref('ems.level_cfgb'),
                 ref('ems.level_pfi')
             ])]"/>
         </record>
@@ -129,7 +129,7 @@
                 ref('ems.level_cfgm'), 
                 ref('ems.level_cfgs'),
                 ref('ems.level_efps'),
-                ref('ems.level_cfpb')
+                ref('ems.level_cfgb')
             ])]"/>
         </record>
     </data>

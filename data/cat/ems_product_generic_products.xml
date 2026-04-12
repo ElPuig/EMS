@@ -29,7 +29,7 @@
                 ref('ems.level_cfgm'), 
                 ref('ems.level_cfgs'), 
                 ref('ems.level_efps'), 
-                ref('ems.level_cfpb'), 
+                ref('ems.level_cfgb'),
                 ref('ems.level_pfi')
             ])]"/>
             <field name="uom_id" ref="uom.product_uom_unit"/>
@@ -46,12 +46,12 @@
             <field name="is_generic">True</field>
             <field name="categ_id" ref="ems_category_academic"/>
             <field name="ems_level_ids" eval="[(6, 0, [
-                ref('ems.level_eso'), 
-                ref('ems.level_btx'), 
-                ref('ems.level_cfgm'), 
-                ref('ems.level_cfgs'), 
-                ref('ems.level_efps'), 
-                ref('ems.level_cfpb'), 
+                ref('ems.level_eso'),
+                ref('ems.level_btx'),
+                ref('ems.level_cfgm'),
+                ref('ems.level_cfgs'),
+                ref('ems.level_efps'),
+                ref('ems.level_cfgb'),
                 ref('ems.level_pfi')
             ])]"/>
             <field name="uom_id" ref="uom.product_uom_unit"/>

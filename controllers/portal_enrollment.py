@@ -10,23 +10,11 @@ _logger = logging.getLogger(__name__)
 
 class EMSPortalController(CustomerPortal):
 
-    def _get_student_partner(self):
-        """Devuelve el partner del alumno para el usuario actual.
-        - Si es un familiar (contact_type='family'), devuelve parent_id (el alumno).
-        - Si es un alumno u otro tipo, devuelve su propio partner.
-        """
-        partner = request.env.user.partner_id
-        if (partner.contact_type == 'family'
-                and partner.parent_id
-                and partner.parent_id.contact_type == 'student'):
-            return partner.parent_id
-        return partner
-
     # -------------------------------------------------------------
     # (Gestión de Matrículas - ÚNICA FUNCIÓN PARA ESTA RUTA)
     # -------------------------------------------------------------
     @http.route(['/my/gestion-matriculas'], type='http', auth="user", website=True)
-    def portal_my_enrollment(self, **kw):
+    def portal_my_enrollment(self, student_id=None, **kw):
         """
         Muestra el proceso de matrícula (Autorizaciones + Items)
         al entrar en /my/gestion-matriculas
@@ -41,12 +29,12 @@ class EMSPortalController(CustomerPortal):
         if not current_course:
             current_course = request.env['ems.course'].search([('is_current', '=', True)], limit=1)
         partner = request.env.user.partner_id
-        student = self._get_student_partner()
-        enrollment = request.env['sale.order'].search([
-            ('partner_id', '=', student.id),
-            ('state', 'in', ['sent', 'sale']),
-            ('ems_course_id', '=', current_course.id if current_course else False),
-        ], limit=1)     
+        students = partner.get_portal_students()
+        effective_id = int(student_id) if student_id else request.session.get('ems_student_id')
+        student = partner.get_portal_student(student_id=effective_id)
+        if len(students) > 1:
+            request.session['ems_student_id'] = student.id
+        enrollment = student.get_portal_enrollment(current_course)
 
         # Mensajes relevantes para el portal
         discussions_subtype = request.env.ref('mail.mt_comment')
@@ -70,6 +58,8 @@ class EMSPortalController(CustomerPortal):
             'payment_terms': payment_terms,
             'viewing_as_family': student != partner,
             'student': student,
+            'students': students,
+            'inner_circle_ids': student.get_portal_inner_circle_ids(),
         })
         
         # 4. Renderizamos la plantilla en funcion del estado de la matricula
@@ -81,21 +71,26 @@ class EMSPortalController(CustomerPortal):
     @http.route(['/my/gestion-matriculas/authorize/<int:auth_id>'], type='http', auth="user", methods=['POST'], website=True)
     def portal_enrollment_authorize(self, auth_id, **post):
         """ Procesa la aceptación o rechazo de una autorización """
-        auth = request.env['ems.authorization'].browse(auth_id)
-        student = self._get_student_partner()
+        student_id = int(post.get('student_id', 0)) or None
+        redirect_base = '/my/gestion-matriculas'
+        if student_id:
+            redirect_base += '?student_id=%d' % student_id
+
+        auth = request.env['ems.authorization'].sudo().browse(auth_id)
+        student = request.env.user.partner_id.get_portal_student(student_id=student_id)
         if not auth.exists() or auth.enrollment_id.partner_id != student:
             _logger.warning(
                 "Unauthorized authorization attempt: user %s tried to respond to auth_id %s",
                 request.env.user.id, auth_id
             )
-            return request.redirect('/my/gestion-matriculas')
+            return request.redirect(redirect_base)
 
         if auth.template_id.acceptance_only and post.get('decision') == 'no':
             _logger.warning(
                 "Rejection attempt on acceptance-only authorization: user %s, auth_id %s",
                 request.env.user.id, auth_id
             )
-            return request.redirect('/my/gestion-matriculas')
+            return request.redirect(redirect_base)
 
         decision = post.get('decision')
         if decision in ('yes', 'no'):
@@ -150,28 +145,29 @@ class EMSPortalController(CustomerPortal):
                 decision, request.env.user.id, auth_id
             )
 
-        return request.redirect('/my/gestion-matriculas')
+        return request.redirect(redirect_base)
 
     @http.route(['/my/gestion-matriculas/confirm'], type='http', auth="user", methods=['POST'], website=True)
     def portal_enrollment_confirm(self, **post):
         """ Procesa la confirmación de la matrícula """
 
-        student = self._get_student_partner()
+        student_id = int(post.get('student_id', 0)) or None
+        redirect_base = '/my/gestion-matriculas'
+        if student_id:
+            redirect_base += '?student_id=%d' % student_id
+
+        student = request.env.user.partner_id.get_portal_student(student_id=student_id)
 
         # 1. Recuperamos la matrícula activa
         current_course = request.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
         if not current_course:
             current_course = request.env['ems.course'].search([('is_current', '=', True)], limit=1)
 
-        enrollment = request.env['sale.order'].search([
-            ('partner_id', '=', student.id),
-            ('state', 'in', ['sent']),
-            ('ems_course_id', '=', current_course.id if current_course else False),
-        ], limit=1)
+        enrollment = student.get_portal_enrollment(current_course)
 
         if not enrollment:
             _logger.warning("Enrollment confirm: no active enrollment found for user %s", request.env.user.id)
-            return request.redirect('/my/gestion-matriculas')
+            return request.redirect(redirect_base)
 
         # 2. Determinar acción: 'comment' o 'confirm'
         action = post.get('action', 'confirm')
@@ -183,9 +179,9 @@ class EMSPortalController(CustomerPortal):
             line_names = []
             for line_id in commented_line_ids:
                 try:
-                    line = request.env['sale.order.line'].browse(int(line_id))
-                    if line.exists() and line.order_id == enrollment:
-                        line_names.append(line.name)
+                    line = enrollment.order_line.filtered(lambda l: l.id == int(line_id))
+                    if line:
+                        line_names.append(line[0].name)
                 except (ValueError, TypeError):
                     pass
 
@@ -209,11 +205,11 @@ class EMSPortalController(CustomerPortal):
             )
             if pending_required:
                 _logger.warning("Enrollment confirm: user %s has pending required authorizations", request.env.user.id)
-                return request.redirect('/my/gestion-matriculas?error=pending_authorizations')
+                return request.redirect(redirect_base + ('&' if student_id else '?') + 'error=pending_authorizations')
 
             if not enrollment.payment_term_id and not post.get('payment_term_id'):
                 _logger.warning("Enrollment confirm: user %s has not selected a payment term", request.env.user.id)
-                return request.redirect('/my/gestion-matriculas?error=missing_payment_term')
+                return request.redirect(redirect_base + ('&' if student_id else '?') + 'error=missing_payment_term')
 
             payment_term_id = post.get('payment_term_id')
             if payment_term_id:
@@ -226,13 +222,13 @@ class EMSPortalController(CustomerPortal):
                             "Enrollment confirm: payment_term_id %s not found or not portal-visible, user %s",
                             payment_term_id, request.env.user.id
                         )
-                        return request.redirect('/my/gestion-matriculas?error=invalid_payment_term')
+                        return request.redirect(redirect_base + ('&' if student_id else '?') + 'error=invalid_payment_term')
                 except (ValueError, TypeError):
                     _logger.warning(
                         "Enrollment confirm: invalid payment_term_id '%s' from user %s",
                         payment_term_id, request.env.user.id
                     )
-                    return request.redirect('/my/gestion-matriculas?error=invalid_payment_term')
+                    return request.redirect(redirect_base + ('&' if student_id else '?') + 'error=invalid_payment_term')
 
             enrollment.sudo().action_confirm()
             enrollment.sudo().message_post(
@@ -243,16 +239,20 @@ class EMSPortalController(CustomerPortal):
             _logger.info("Enrollment confirm: enrollment %s confirmed by user %s",
                         enrollment.name, request.env.user.id)
 
-        return request.redirect('/my/gestion-matriculas')
+        return request.redirect(redirect_base)
 
-    @http.route(['/my/gestion-matriculas/authorization/<int:auth_id>/document'], 
+    @http.route(['/my/gestion-matriculas/authorization/<int:auth_id>/document'],
                 type='http', auth="user", website=True)
-    def portal_authorization_document(self, auth_id, **kw):
+    def portal_authorization_document(self, auth_id, student_id=None, **kw):
         """ Sirve el documento firmado de una autorización """
+        student_id = int(student_id) if student_id else None
         auth = request.env['ems.authorization'].sudo().browse(auth_id)
-        student = self._get_student_partner()
+        student = request.env.user.partner_id.get_portal_student(student_id=student_id)
+        redirect_base = '/my/gestion-matriculas'
+        if student_id:
+            redirect_base += '?student_id=%d' % student_id
         if not auth.exists() or auth.enrollment_id.partner_id != student:
-            return request.redirect('/my/gestion-matriculas')
+            return request.redirect(redirect_base)
         if not auth.signed_document:
             return request.redirect('/my/gestion-matriculas')
 

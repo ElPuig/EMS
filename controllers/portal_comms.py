@@ -9,22 +9,20 @@ class EMSPortalCommsController(CustomerPortal):
 
     @http.route(['/my/comunicaciones', '/my/comunicaciones/page/<int:page>'],
                 type='http', auth='user', website=True)
-    def portal_communications(self, page=1, **kw):
+    def portal_communications(self, page=1, student_id=None, **kw):
         """ Historial de comunicaciones del alumno """
         partner = request.env.user.partner_id
-        # Si el usuario es un familiar, mostrar las comunicaciones del alumno
-        if (partner.contact_type == 'family'
-                and partner.parent_id
-                and partner.parent_id.contact_type == 'student'):
-            partner = partner.parent_id
+        students = partner.get_portal_students()
+        effective_id = int(student_id) if student_id else request.session.get('ems_student_id')
+        partner = partner.get_portal_student(student_id=effective_id)
+        student_id = partner.id if len(students) > 1 else None
+        if len(students) > 1:
+            request.session['ems_student_id'] = partner.id
 
         MESSAGES_PER_PAGE = 10
 
         # Buscamos los IDs de las matrículas/pedidos del alumno
-        sale_order_ids = request.env['sale.order'].sudo().search(
-            [('partner_id', '=', partner.id)],
-            limit=100,
-        ).ids
+        sale_order_ids = partner.get_portal_enrollment_ids()
 
         # Dominio combinado: mensajes dirigidos al partner O mensajes del chatter de sus documentos
         # Excluimos notas internas (mail.mt_note) para que no sean visibles en el portal
@@ -45,6 +43,7 @@ class EMSPortalCommsController(CustomerPortal):
         # Paginador estándar de Odoo
         pager = portal_pager(
             url='/my/comunicaciones',
+            url_args={'student_id': student_id} if student_id else {},
             total=total,
             page=page,
             step=MESSAGES_PER_PAGE,
@@ -64,5 +63,9 @@ class EMSPortalCommsController(CustomerPortal):
             'pager': pager,
             'total_communications': total,
             'page_name': 'comunicaciones',
+            'student': partner,
+            'students': students,
+            'viewing_as_family': partner != request.env.user.partner_id,
+            'inner_circle_ids': partner.get_portal_inner_circle_ids(),
         })
         return request.render('ems.portal_communications', values)

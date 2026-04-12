@@ -183,6 +183,7 @@
                                         <div class="modal-content border-0 shadow-lg">
                                             <form t-attf-action="/my/gestion-matriculas/authorize/#{auth.id}" method="post" data-auth-form="1">
                                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                <input type="hidden" name="student_id" t-att-value="student.id"/>
                                                 
                                                 <div class="modal-header bg-light">
                                                     <h5 class="modal-title font-weight-bold" t-field="auth.template_id.name"/>
@@ -261,7 +262,8 @@
                             </script>
 
                             <form action="/my/gestion-matriculas/confirm" method="post">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>                        
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="student_id" t-att-value="student.id"/>
                                 <div class="card shadow-sm">
                                     <div class="card-header bg-light">
                                         <h4 class="mb-0 d-flex align-items-center gap-2">
@@ -388,8 +390,8 @@
                                     </div>
                                     <div class="card-body p-4">
                                         <t t-foreach="enrollment_messages" t-as="msg">
-                                            <div t-attf-class="d-flex mb-3 #{'justify-content-end' if msg.author_id == enrollment.partner_id else ''}">
-                                                <div t-attf-class="card border-0 shadow-sm px-3 py-2 #{'ems-bubble-student' if msg.author_id == enrollment.partner_id else 'ems-bubble-center'}" 
+                                            <div t-attf-class="d-flex mb-3 #{'justify-content-end' if msg.author_id.id in inner_circle_ids else ''}">
+                                                <div t-attf-class="card border-0 shadow-sm px-3 py-2 #{'ems-bubble-student' if msg.author_id.id in inner_circle_ids else 'ems-bubble-center'}"
                                                     style="max-width: 75%;">
                                                     <div class="d-flex justify-content-between gap-3 mb-1">
                                                         <small class="fw-bold"><t t-esc="msg.author_id.name"/></small>

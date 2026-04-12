@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <record model="res.partner.category" id="partner_category_student">
+            <field name="name">Student</field>
+        </record>
+        <record model="res.partner.category" id="partner_category_family">
+            <field name="name">Family</field>
+        </record>
+        <record model="res.partner.category" id="partner_category_provider">
+            <field name="name">Provider</field>
+        </record>
+    </data>
+</odoo>

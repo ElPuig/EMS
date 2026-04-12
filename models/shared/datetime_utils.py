@@ -1,6 +1,6 @@
 import math
 from pytz import UTC
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo # requires Python >= 3.9
 
 from odoo import models
@@ -41,6 +41,16 @@ class ems_datetime_utils(models.AbstractModel):
     def time_to_float(self, time):
         return time.hour + time.minute / 60.0
     
+    def next_occurrence_utc(self, time_float):
+        """Given a float time (local), return the next occurrence as a naive UTC datetime.
+        Returns today at that time if it hasn't passed yet, otherwise tomorrow."""
+        now_local = self.get_local_datetime()
+        split_time = math.modf(time_float)
+        target_local = now_local.replace(hour=int(split_time[1]), minute=round(split_time[0] * 60), second=0, microsecond=0)
+        if target_local <= now_local:
+            target_local += timedelta(days=1)
+        return self.datetime_to_odoo(self.local_datetime_to_utc(target_local))
+
     def time_string_to_float(self, value):
         # To convert from string like "17:45" to float like 17.75
 		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236

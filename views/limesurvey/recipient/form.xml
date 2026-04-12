@@ -1,0 +1,134 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_limesurvey_recipient_form">
+            <field name="name">ems.limesurvey_recipient.form</field>
+            <field name="model">ems.limesurvey_recipient</field>
+            <field name="arch" type="xml">
+                <form string="recipient">
+                     <div class="alert alert-warning w-100 text-center mb-2" role="alert" invisible="not is_running">
+                        <i title="sping" class="fa fa-circle-o-notch fa-spin me-2"/> 
+                        <strong>Processing!</strong> We are uploading the changes to the external API; this may take a few minutes...
+                    </div>
+
+                    <header>
+                        <!-- PENDING / UPLOADED -->
+                        <button string="Restore data" 
+                            name="action_restore" 
+                            confirm="This action will restore the 'main data' and the 'enrollments', saving the changes immediately. It cannot be undone. Do you wish to continue?"
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-undo"
+                            invisible="is_running"
+                        />
+
+                        <button string="Upload changes" 
+                            name="action_upload" 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-cloud-upload"
+                            invisible="is_running or state not in ('uploaded')"
+                        />
+
+                        <!-- UPLOADED -->
+                        <button string="Send reminder" 
+                            name="action_remind"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-bell"
+                            invisible="is_running or state not in ('uploaded') or header_state not in ('open')"
+                        />                       
+
+                        <!-- RESTORE (always available) -->
+                        <button string="Restore data" 
+                            disabled="True"
+                            name="action_none"
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-undo"
+                            invisible="not is_running"
+                        />
+
+                        <!-- UPDATING -->
+                        <button string="Upload changes" 
+                            disabled="True"
+                            name="action_none"
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-cloud-upload"
+                            invisible="not is_running or state in ('uploaded')"
+                        />
+
+                        <!-- REMINDING -->
+                        <button string="Send reminder" 
+                            disabled="True"
+                            name="action_none"                                 
+                            type="object" 
+                            class="oe_highlight" 
+                            icon="fa-bell"
+                            invisible="not is_running or state not in ('reminding', 'updating') or header_state not in ('open')"
+                        />                      
+                    </header>
+
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <group colspan="2">
+                                <field name="name"/>
+                            </group>
+                            <group colspan="2">
+                                <field name="email"/>
+                            </group>                          
+                        </group>
+
+                        <group string="LimeSurvey" col="4">
+                            <group colspan="3">
+                                <field name="internal_id" readonly="not user_is_admin"/>
+                            </group>                           
+                            <group>
+                                <field string="Survey's ID (LS)" name="external_id" readonly="not user_is_admin"/>
+                            </group>                           
+                            <group>
+                                <field string="User's ID (LS)" name="tid" readonly="not user_is_admin"/>
+                            </group>  
+                            <group colspan="2">
+                                <field string="User's token (LS)" name="token" readonly="not user_is_admin"/>
+                            </group>  
+                            <group>                                 
+                                <field name="state" readonly="True"/>
+                                <!-- header_state is needed to compute some buttons (visible / invisible) -->
+                                <field name="header_state" invisible="True"/>
+                            </group>                                                                           
+                        </group>
+
+                        <notebook> 
+                            <page string="Error details" invisible="not error">
+                                <field string="" name="error" widget="text"/>
+                            </page>  
+
+                            <page string="Enrollments" invisible="not student_id">
+                                <group>
+                                    <field name="wpi_enrolled" />
+                                </group>
+                                <field name="limesurvey_enrollment_ids">
+                                    <list default_order="subject_id.display_name" >
+                                        <field name="subject_id"/>
+                                        <field name="group_id"/>                                        
+                                    </list>
+
+                                    <list editable="top" default_order="subject_id asc, group_id asc">
+                                        <field name="subject_id" domain="[('id','not in', inuse_subject_ids)]"/>
+                                        <field name="group_id" domain="[('study_id','=', study_id)]"/>
+                                        <field name="inuse_subject_ids" column_invisible="True"/>
+                                    </list>
+                                </field>
+                            </page>
+
+                            <page string="Notes">
+                                <field name="notes" placeholder="Write down here your notes..."/>
+                            </page>
+                        </notebook>
+                    </sheet>	
+                </form>
+            </field>			
+        </record>
+    </data>
+</odoo>

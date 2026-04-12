@@ -3,22 +3,35 @@
         <record model="ir.ui.view" id="view_student_search">
             <field name="name">ems.student.search</field>
             <field name="model">res.partner</field>            
-            <field name="arch" type="xml">                                         
-                <search>                    
-                    <searchpanel>       
+            <field name="arch" type="xml">
+                <search>
+                    <field name="display_name" string="Student" filter_domain="['|', ('display_name', 'ilike', self), ('student_email', 'ilike', self)]" />
+                    <searchpanel>
                         <field name="main_group_id" string="Student group" icon="fa-users" enable_counters="1" />
                     </searchpanel>
                 </search>
             </field>		      
         </record>   
 
+         <record model="ir.ui.view" id="view_family_search">
+            <field name="name">ems.family.search</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="display_name" string="Provider"  filter_domain="['|', ('display_name', 'ilike', self), ('email', 'ilike', self), ('document_id', 'ilike', self)]" />
+                    <field name="document_id" string="Document ID"/>
+                </search>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="view_provider_search">
             <field name="name">ems.provider.search</field>
             <field name="model">res.partner</field>            
             <field name="arch" type="xml">                                     
-                <search>                    
-                    <searchpanel>       
-                        <field name="commercial_partner_id" string="Company" icon="fa-building" enable_counters="1" />      
+                <search>
+                    <field name="display_name" string="Provider"  filter_domain="['|', ('display_name', 'ilike', self), ('email', 'ilike', self), ('vat', 'ilike', self)]" />
+                    <searchpanel>
+                        <field name="commercial_partner_id" string="Company" icon="fa-building" enable_counters="1" />
                     </searchpanel>
                 </search>            
             </field>		      

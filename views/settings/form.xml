@@ -29,13 +29,34 @@
                             </setting>
                         </block>
 
-                         <block title="Attendance Settings" name="ems_attendance_settings">
+                         <block title="Student's Attendance Settings" name="ems_attendance_settings">
                             <setting string="Issue notification delay (in minutes)" help="Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification." id="attendance_issue_status_delay">
-                                <field name="attendance_issue_status_delay" />                              
+                                <field name="attendance_issue_status_delay" />
                             </setting>
 
                             <setting string="Tutor's attendance report default send time" help="The tutors will receive a daily attendance report at the end of their work tourn but, it its not defined, this time will be used to send the report." id="attendance_issue_tutor_default">
-                                <field name="attendance_issue_tutor_default" widget="float_time" />                              
+                                <field name="attendance_issue_tutor_default" widget="float_time" />
+                            </setting>
+
+
+
+                        </block>
+
+                         <block title="LimeSurvey Settings" name="ems_limesurvey_settings">                          
+                            <setting string="LimeSurvey's API endpoint" help="API endpoint (host address) where the LimeSurvey server is listening." id="limesurvey_api">
+                                <field name="limesurvey_api" />                              
+                            </setting>
+
+                            <setting string="LimeSurvey's username" help="User's name to log in the LimeSurvey server." id="limesurvey_usr">
+                                <field name="limesurvey_usr" />                              
+                            </setting>
+
+                            <setting string="LimeSurvey's password" help="User's password to log in the LimeSurvey server." id="limesurvey_pwd">
+                                <field name="limesurvey_pwd" password="True" />                              
+                            </setting>
+
+                            <setting string="Survey's group ID" help="The LimeSurvey API does not allow to create survey groups so, in order to operate properly, a group must be created and its ID provided." id="limesurvey_gid">
+                                <field name="limesurvey_gid" />
                             </setting>
                         </block>
                     </app>

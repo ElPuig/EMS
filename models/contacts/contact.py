@@ -70,6 +70,8 @@ class ems_contact(models.Model):
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
     contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student'), ('family', 'Family')])   
     family_relation = fields.Char(string="Family relation")
+    document_id = fields.Char(string="Document ID")
+    passport_id = fields.Char(string="Passport")
     student_email = fields.Char(string="Student email")	
     student_id = fields.Char(string="Student ID")
     medical_id = fields.Char(string="Medical ID")
@@ -83,7 +85,7 @@ class ems_contact(models.Model):
     
     car_plate = fields.Char(string="Car Plate")
     is_adult = fields.Boolean(string="Adult", compute="_compute_is_adult", store=False)
-    
+    wpi_enrolled = fields.Boolean(string="WPI enrolled")
 
     # Fields to store student Benefits:
     benefit_ids = fields.One2many(string='Benefits & Exemptions', comodel_name='ems.student.benefit', inverse_name='student_id')
@@ -104,7 +106,7 @@ class ems_contact(models.Model):
         string='Current Enrollment',
         compute='_compute_current_enrollment',
         store=False,
-        search='_search_current_enrollment',  # ← hace el campo searchable
+        search='_search_current_enrollment',
     )
 
     # NOTE: this field is computed when loaded within a form or list
@@ -298,16 +300,33 @@ class ems_contact(models.Model):
                     entry['contact_type'] = 'provider'
         
         contact = super(ems_contact, self).create(values)
+        contact._sync_category()
 
         return contact
-    
+
     def write(self, values):
         # Fired when the model is updated (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
         # Note: values is a dict (method fired once per entry)
         self._compute_group_data(values)
-        contact =  super(ems_contact, self).write(values)
+        contact = super(ems_contact, self).write(values)
+        if 'contact_type' in values:
+            self._sync_category()
 
         return contact
+
+    def _sync_category(self):
+        category_map = {
+            'student': self.env.ref('ems.partner_category_student'),
+            'family': self.env.ref('ems.partner_category_family'),
+            'provider': self.env.ref('ems.partner_category_provider'),
+        }
+        all_managed = self.env.ref('ems.partner_category_student') | \
+                      self.env.ref('ems.partner_category_family') | \
+                      self.env.ref('ems.partner_category_provider')
+        for record in self:
+            category = category_map.get(record.contact_type)
+            if category:
+                record.category_id = (record.category_id - all_managed) | category
 
     def _compute_group_data(self, values):
         # Avoids incongruences between the main_group, level and studies.     
@@ -324,10 +343,11 @@ class ems_contact(models.Model):
         is_admin = base.ems_base.get_user_is_admin(self)
         is_secretary = self.env.user.has_group('ems.group_secretary')
         is_tutor = False
+        # TODO: call self.get_user_is_tutor()
         for t in self.env.user.employee_ids:
             if t.id != False and len(t.tutorship_ids) > 0:
                 if self.tutor_id == t:
-                    is_tutor = True                    
+                    is_tutor = True
                     break
         return not (is_admin or is_secretary or is_tutor)
     
@@ -335,7 +355,26 @@ class ems_contact(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'res.partner',
-            'res_id': self.id,						
+            'res_id': self.id,
             'view_id': self.env.ref('ems.view_contact_form').id,
             'view_mode': 'form',
-        }   
+        }
+
+    def action_open_relation_wizard(self):
+        wizard = self.env['ems.contact.relation.wizard'].create({
+            'student_id': self.id,
+            'street': self.street,
+            'street2': self.street2,
+            'city': self.city,
+            'state_id': self.state_id.id,
+            'zip': self.zip,
+            'country_id': self.country_id.id,
+        })
+        return {
+            'name': 'New student contact',
+            'type': 'ir.actions.act_window',
+            'res_model': 'ems.contact.relation.wizard',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }

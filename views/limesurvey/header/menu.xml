@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>          
+        <record model="ir.actions.act_window" id="action_limesurvey_header_tree">
+            <field name="name">Surveys</field>
+            <field name="res_model">ems.limesurvey_header</field>
+            <field name="view_mode">list,form</field>
+        </record>
+                
+        <menuitem name="Surveys" sequence="1" id="menu_limesurvey_headers" parent="menu_limesurvey" action="action_limesurvey_header_tree"/>
+    </data>
+</odoo>

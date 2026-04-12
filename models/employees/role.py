@@ -8,7 +8,7 @@ class ems_role(models.Model):
 	_name = "ems.role"
 	_description = "Roles: The coordination position held by the employees."
 
-	name = fields.Char(string="Name", required=True)	
+	name = fields.Char(string="Name", translate=True, required=True)	
 	color = fields.Integer(string="Color")
 	notes = fields.Text(string="Notes")
 	unipersonal = fields.Boolean(string="Unipersonal", default=True)

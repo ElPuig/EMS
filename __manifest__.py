@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.4.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
+    'version': '18.0.0.7.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -33,27 +33,35 @@
         'survey', 
         'hr_attendance',
         'queue_job',
-        'sale_management', 
-        'account', 
-        'spreadsheet_dashboard'
+        'sale_management',
+        'account',
+        'spreadsheet_dashboard',
+        'partner_firstname',
+        'partner_multi_relation'
     ],
     
     # just for debugging
     'external_dependencies': {
-        'python': ['debugpy'],
+        'python': [
+            'lxml',
+            'lxml_html_clean', 
+            'phonenumbers'
+        ],
     },
     
     # always loaded
    'data': [
-        'security/groups.xml',        
+        'security/groups.xml',
         'security/rules/attendance.xml',
         'security/rules/contacts.xml',
         'security/rules/portal.xml',
-        'security/ir.model.access.csv',                        
-        
+        'security/ir.model.access.csv',
+
+
         'views/menu.xml',
 
         'views/settings/form.xml',
+        'views/settings/hr_attendance_form.xml',
         'views/settings/menu.xml',                                    
         
         'views/community/contact/search.xml', # Should be loaded prior to menu
@@ -71,7 +79,8 @@
             
             'views/community/contact/list.xml',
             'views/community/contact/list_tutor.xml',
-            'views/community/contact/form.xml',            
+            'views/community/contact/form.xml',
+            'views/community/contact/relation_wizard.xml',
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
 
@@ -137,6 +146,14 @@
             'views/planning_grading/planning/list.xml',
             'views/planning_grading/planning/form.xml',
             'views/planning_grading/planning/menu.xml',
+            
+            'views/limesurvey/menu.xml',
+            'views/limesurvey/header/list.xml',
+            'views/limesurvey/header/form.xml',
+            'views/limesurvey/header/menu.xml',
+            'views/limesurvey/block/form.xml',
+            'views/limesurvey/recipient/form.xml',
+            
 
         # 'views/community/tracking/list.xml',
         # 'views/community/tracking/form.xml',  
@@ -226,8 +243,10 @@
         'reports/attendance/group.xml',              
         
         ### Data entries (do not alter the order) ###
-        'data/main/ems.space_type.csv',    
-        'data/main/hr.work.location.csv',    
+        'data/main/res.partner.category.xml',
+        'data/main/ems.space_type.csv',
+        'data/main/hr.work.location.csv',
+        'data/main/ems.contact.relation.type.xml',
 
         'data/cat/attachments/asix/ir.attachment.csv',
         'data/cat/attachments/dam/ir.attachment.csv',
@@ -270,7 +289,6 @@
         'data/custom/btx/ems.study.csv',
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',
-        'data/custom/ems.role.csv',
         'data/custom/hr.department.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',

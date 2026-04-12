@@ -158,15 +158,15 @@ class ems_attendance_session_header(models.Model):
 				# 		data should be almost the same). 
 				previous = self.env["ems.attendance_session_header"].search(
 					[
-						("date", "=", datetime.now()), 						
+						("date", "=", self.date), 
 						("attendance_schedule_id.attendance_template_id.id", "=", rec.attendance_schedule_id.attendance_template_id.sudo().id),
 						("attendance_schedule_id.weekday", "=", rec.attendance_schedule_id.weekday)
 					], order="end_time DESC", limit=1)
 				
 				if previous:
 					end = previous.end_time
-					start = self.utc_datetime_to_local(datetime.now())
-					rec.is_next = (end <= self.time_to_float(start.time()))	
+					start = self.start_time
+					rec.is_next = (end <= start)	
 
 					if rec.is_next:
 						# Load new entries but with the previous session's data
@@ -329,28 +329,68 @@ class ems_attendance_session_header(models.Model):
 	def _setup_next_session_line_data(self, previous):
 		return  {
 			"student_id": previous.student_id,
-			"status": "a_attended" if previous.status == "a_delay" else previous.status,
+			"status": "a_attended" if previous.status == "a_delayed" else previous.status,
 			"notes": previous.notes,
 			"attendance_justification_id": previous.attendance_justification_id,
 			"attendance_prevision_id" : previous.attendance_prevision_id,
 			"is_auto_generated" : True 
 		}
 
+	def _auto_checkin_teacher(self, teacher, date):
+		"""Auto check-in the teacher if they haven't checked in yet today."""
+		if not self.env.company.auto_checkin:
+			return
+		today = datetime.today().date()
+		if not teacher or not teacher.resource_calendar_id or date != today:
+			return
+
+		day_start = datetime(date.year, date.month, date.day, 0, 0, 0)
+		day_end = datetime(date.year, date.month, date.day, 23, 59, 59)
+
+		existing = self.env['hr.attendance'].sudo().search([
+			('employee_id', '=', teacher.id),
+			('check_in', '>=', day_start),
+			('check_in', '<=', day_end),
+		], limit=1)
+
+		if existing:
+			return
+
+		# Get the first working hour for today's weekday (0=Monday, 6=Sunday)
+		weekday = str(date.weekday())
+		calendar_attendances = teacher.resource_calendar_id.attendance_ids.filtered(
+			lambda a: a.dayofweek == weekday
+		).sorted(key=lambda a: a.hour_from)
+
+		if not calendar_attendances:
+			return
+
+		first_hour = calendar_attendances[0].hour_from
+		check_in_utc = self.time_float_to_utc_datetime(date, first_hour)
+		check_in_naive = self.datetime_to_odoo(check_in_utc)
+
+		self.env['hr.attendance'].sudo().create({
+			'employee_id': teacher.id,
+			'check_in': check_in_naive,
+		})
+
 	@api.model_create_multi
 	def create(self, vals_list):
 		try:
-			records = super().create(vals_list)	
+			records = super().create(vals_list)
 		except IntegrityError as e:
 			raise e if "attendance_session_is_duped" not in str(e) else ValidationError(_('The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session.'))
-		
+
 		# NOTE: Optional, but computed here for optimization
 		notification_status_eta = self._get_notification_status_eta()
 		notification_tutor_eta = self._get_notification_tutor_eta()
 
-		for record in records:		
-			# NOTE: Collecting all status data first allow some optimizations.	
-			issue_status_by_tutor = dict()			
-			for attendance_session_line in record.attendance_session_line_ids:			
+		for record in records:
+			record._auto_checkin_teacher(record.session_teacher_id, record.date)
+
+			# NOTE: Collecting all status data first allow some optimizations.
+			issue_status_by_tutor = dict()
+			for attendance_session_line in record.attendance_session_line_ids:
 				record.collect_issue_status_data(attendance_session_line, issue_status_by_tutor)
 
 			record.create_notification_entries(issue_status_by_tutor, notification_tutor_eta, notification_status_eta)
@@ -393,20 +433,23 @@ class ems_attendance_session_header(models.Model):
 
 	def collect_issue_status_data(self, attendance_session_line_id, status_by_tutor, rectification=False):
 		separator = "; "
+		student_id = attendance_session_line_id.student_id
+
 		if rectification or attendance_session_line_id.status_is_notificable():
-			if attendance_session_line_id.student_id.tutor_id not in status_by_tutor:
-				status_by_tutor[attendance_session_line_id.student_id.tutor_id] = []
+			if student_id.tutor_id not in status_by_tutor:
+				status_by_tutor[student_id.tutor_id] = []
 			
-			send_to = []
-			if attendance_session_line_id.student_id.auth_share or not attendance_session_line_id.student_id.is_adult:
-				for contact in attendance_session_line_id.student_id.child_ids:				
-					send_to.append(contact.email)
+			send_to = [student_id.student_email]
+			if student_id.auth_share or not student_id.is_adult:
+				for relation in student_id.relation_all_ids:
+					if relation.other_partner_id.contact_type == 'family' and relation.other_partner_id.email:
+						send_to.append(relation.other_partner_id.email)
 
 			# NOTE: The 'send_to' field will be empty if adult or family shared not authorized.
 			#		All entries must be notified to the tutor, always. This trick simplifies a bit the logic.
-			status_by_tutor[attendance_session_line_id.student_id.tutor_id].append({
+			status_by_tutor[student_id.tutor_id].append({
 				'attendance_session_line_id': attendance_session_line_id.id,
-				'student_id': attendance_session_line_id.student_id.id,
+				'student_id': student_id.id,
 				'send_to': separator.join(send_to)
 			})	
 	

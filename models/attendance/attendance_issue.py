@@ -95,15 +95,30 @@ class ems_attendance_issue_status(models.Model):
 		self.notification_id.button_cancelled()
 		return super().unlink()
 	
-	def send_notification(self):		
-		self.ensure_one()		
+	def send_notification(self):
+		self.ensure_one()
 		separator = "; "
 
-		template = self.env.ref('ems.mail_attendance_issue_rectification' if self.rectification else 'ems.mail_attendance_issue_status', raise_if_not_found=True)						
-		# NOTE: there's no BBC field within the email template, and we want to protect personal addresses 
+		template = self.env.ref('ems.mail_attendance_issue_rectification' if self.rectification else 'ems.mail_attendance_issue_status', raise_if_not_found=True)
+
+		# Build an email -> lang map so each recipient gets the mail in their own language.
+		student = self.attendance_issue_student_id.student_id
+		lang_by_email = {}
+		if student.student_email:
+			lang_by_email[student.student_email] = student.lang
+			
+		for relation in student.relation_all_ids:
+			partner = relation.other_partner_id
+			if partner.contact_type == 'family' and partner.email:
+				lang_by_email[partner.email] = partner.lang
+
+		# NOTE: there's no BBC field within the email template, and we want to protect personal addresses
 		# when sending to multiple destinations. So, it will be send one by one setting up here the address.
 		for to in self.send_to.split(separator):
-			template.sudo().send_mail(self.id, force_send=True, email_values={'email_to': to})
+			to = to.strip()
+			lang = lang_by_email.get(to)
+			tmpl = template.with_context(lang=lang).sudo() if lang else template.sudo()
+			tmpl.send_mail(self.id, force_send=True, email_values={'email_to': to})
 		
 		return True
 	

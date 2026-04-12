@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0-20260206\n"
+"Project-Id-Version: Odoo Server 18.0-20260310\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-10 10:45+0000\n"
-"PO-Revision-Date: 2026-02-10 10:45+0000\n"
+"POT-Creation-Date: 2026-04-08 10:16+0000\n"
+"PO-Revision-Date: 2026-04-08 10:16+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -57,7 +57,7 @@ msgid ""
 "                                <li><strong>Student:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
 "                                <li><strong>Date:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> from <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
 "                                <li><strong>Session:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
-"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_session_line\"/></li>\n"
+"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
 "                                <t t-if=\"object.notes\">\n"
 "                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
 "                                </t>\n"
@@ -82,7 +82,7 @@ msgstr ""
 "                                <li><strong>Estudiante:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
 "                                <li><strong>Fecha:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> de <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
 "                                <li><strong>Sesión:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
-"                                <li><strong>Estado:</strong> <span t-field=\"object.attendance_session_line\"/></li>\n"
+"                                <li><strong>Estado:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
 "                                <t t-if=\"object.notes\">\n"
 "                                    <li><strong>Detalles:</strong> <span t-field=\"object.notes\"/></li>\n"
 "                                </t>\n"
@@ -113,7 +113,7 @@ msgid ""
 "                                <li><strong>Student:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
 "                                <li><strong>Date:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> from <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
 "                                <li><strong>Session:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
-"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_session_line\"/></li>\n"
+"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
 "                                <t t-if=\"object.notes\">\n"
 "                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
 "                                </t>\n"
@@ -141,7 +141,7 @@ msgstr ""
 "                                <li><strong>Estudiante:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
 "                                <li><strong>Fecha:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> de <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
 "                                <li><strong>Sesión:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
-"                                <li><strong>Estado:</strong> <span t-field=\"object.attendance_session_line\"/></li>\n"
+"                                <li><strong>Estado:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
 "                                <t t-if=\"object.notes\">\n"
 "                                    <li><strong>Detalles:</strong> <span t-field=\"object.notes\"/></li>\n"
 "                                </t>\n"
@@ -175,7 +175,7 @@ msgid ""
 "                                                <ul>\n"
 "                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
 "                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\">\n"
-"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_session_line\"/>\n"
+"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status\"/>\n"
 "                                                            <t t-if=\"status.notes\">\n"
 "                                                                | <span t-field=\"status.notes\"/>\n"
 "                                                            </t>\n"
@@ -212,7 +212,7 @@ msgstr ""
 "                                                <ul>\n"
 "                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
 "                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\"> \n"
-"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_session_line\"/>\n"
+"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status\"/>\n"
 "                                                            <t t-if=\"status.notes\">\n"
 "                                                                | <span t-field=\"status.notes\"/>\n"
 "                                                            </t>\n"
@@ -234,6 +234,21 @@ msgstr ""
 "            "
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+msgid ""
+"<i title=\"sping\" class=\"fa fa-circle-o-notch fa-spin me-2\"/> \n"
+"                        <strong>Processing!</strong> We are uploading the changes to the external API; this may take a few minutes..."
+msgstr ""
+"<i title=\"sping\" class=\"fa fa-circle-o-notch fa-spin me-2\"/> \n"
+"                        <strong>Processing!</strong> Estamos enviando los cambios a la API externa; esto puede tardar unos cuantos minutos..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "<strong>Not implemented!</strong> Coming soon..."
+msgstr "<strong>¡Sin implementar!</strong> Llegará en breve..."
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
 msgid ""
 "A previous session for the same subject has been detected for today, so "
@@ -245,6 +260,15 @@ msgstr ""
 "modificarlos a su gusto."
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "API endpoint (host address) where the LimeSurvey server is listening."
+msgstr ""
+"API endpoint (drección del host) donde el servicio de LimeSurvey está "
+"escuchando."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__asp_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__asp
 #: model:ir.ui.menu,name:ems.menu_asp
 #: model:ir.ui.menu,name:ems.menu_community_config_asp
 msgid "ASP"
@@ -294,7 +318,20 @@ msgid "Acronym"
 msgstr "Acrónimo"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_base__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__message_needaction
 msgid "Action Needed"
 msgstr "Acción Necesária"
 
@@ -308,33 +345,99 @@ msgstr "Acción Necesária"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__active
 #: model:ir.model.fields,field_description:ems.field_ems_base__active
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__active
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__active
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__active
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__active
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__active
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__active
 msgid "Active"
 msgstr "Activo"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_base__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_ids
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_ids
 msgid "Activities"
 msgstr "Actividades"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_base__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Decorador de la excepción en una actividad"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_base__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_state
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_state
 msgid "Activity State"
 msgstr "Estado de la actividad"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_base__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "Icono de tipo de actividad"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup
+msgid "Add"
+msgstr "Añadir"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Add a new student"
+msgstr "Añadir un nuevo estudiante"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_asp_kanban
@@ -437,7 +540,20 @@ msgid "Attachment"
 msgstr "Archivo adjunto"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_base__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__message_attachment_count
 msgid "Attachment Count"
 msgstr "Cantidad de adjuntos"
 
@@ -697,6 +813,23 @@ msgid "Birth Date"
 msgstr "Fecha de nacimiento"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "Block"
+msgstr "Bloque"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__tsv_raw_text
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "Block's content (tab separated)"
+msgstr "Contenido del bloque (separado por tabulaciones)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__limesurvey_block_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Blocks"
+msgstr "Bloques"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_sumary_table
@@ -707,6 +840,7 @@ msgstr "Desglose"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "Cancel"
 msgstr "Cancelar"
@@ -716,6 +850,11 @@ msgstr "Cancelar"
 #: model:ir.model.fields,field_description:ems.field_res_users__car_plate
 msgid "Car Plate"
 msgstr "Matrícula de coche"
+
+#. module: ems
+#: model:ems.role,name:ems.role_catskills
+msgid "CatSkills coordinator"
+msgstr "Coordinador/a de CatSkils"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_employee__employee_type
@@ -740,8 +879,19 @@ msgstr "Aula"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_status_exception_popup
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_error_popup
 msgid "Close"
 msgstr "Cerrar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Close surveys"
+msgstr "Cerrar encuestas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__closing
+msgid "Closing surveys"
+msgstr "Cerrando encuestas"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_content__code
@@ -752,6 +902,11 @@ msgstr "Cerrar"
 #: model:ir.model.fields,field_description:ems.field_ems_subject__code
 msgid "Code"
 msgstr "Código"
+
+#. module: ems
+#: model:ems.role,name:ems.role_coexistence
+msgid "Coexistence coordinator"
+msgstr "Coordinador/a de convivencia"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
@@ -783,9 +938,19 @@ msgid "Composite"
 msgstr "Composición"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Compute recipients"
+msgstr "Calcular destinatarios"
+
+#. module: ems
 #: model:hr.job,name:ems.job_concierje
 msgid "Concierje"
 msgstr "Conserje"
+
+#. module: ems
+#: model:ems.role,name:ems.role_cchieff
+msgid "Concierje chieff"
+msgstr "Jefe de conserjes"
 
 #. module: ems
 #: model:ir.model,name:ems.model_res_config_settings
@@ -845,6 +1010,7 @@ msgstr "Cargo de Coordinación"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__course
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_course_filter
 msgid "Course"
 msgstr "Curso"
 
@@ -852,6 +1018,11 @@ msgstr "Curso"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Course Management Settings"
 msgstr "Configuración de gestión de cursos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "Course filter"
+msgstr "Filtro de curso"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_course
@@ -882,6 +1053,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_group__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_level__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_planning__create_uid
@@ -918,6 +1093,10 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_group__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_level__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_planning__create_date
@@ -970,6 +1149,11 @@ msgid "Daily report data"
 msgstr "Datos del informe diario"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__downloaded
+msgid "Data downloaded"
+msgstr "Datos descargados"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__issue_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__date
@@ -989,14 +1173,31 @@ msgid "Delegate"
 msgstr "Delegar"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_public_kanban
 msgid "Delete"
 msgstr "Borrar"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Delete recipient"
+msgstr "Borrar destinatario"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__deleting
+msgid "Deleting"
+msgstr "Borrando"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__department_id
 msgid "Department"
 msgstr "Departamento"
+
+#. module: ems
+#: model:ems.role,name:ems.role_dchieff_cs
+msgid "Department chieff"
+msgstr "Jefe de departamento"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__type__department
@@ -1016,11 +1217,26 @@ msgid "Deprecated"
 msgstr "Obsoleto"
 
 #. module: ems
+#: model:ems.role,name:ems.role_dhos
+msgid "Deputy head of studies"
+msgstr "Jefe de estudios adjunto/a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__description
+msgid "Description"
+msgstr "Descripción"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 msgid "Details"
 msgstr "Detalles"
+
+#. module: ems
+#: model:ems.role,name:ems.role_director
+msgid "Director"
+msgstr "Director/a"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__display_name
@@ -1042,6 +1258,10 @@ msgstr "Detalles"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_group__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_level__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_planning__display_name
@@ -1064,10 +1284,26 @@ msgid "Display Warning"
 msgstr "Mostrar alerta"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__document_id
+#: model:ir.model.fields,field_description:ems.field_res_users__document_id
+msgid "Document ID"
+msgstr "DNI/NIE"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_study_form
 msgid "Download File"
 msgstr "Descargar archivo"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__downloading
+msgid "Downloading surveys"
+msgstr "Descargando encuestas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__draft
+msgid "Draft"
+msgstr "Borrador"
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_attendance_session_header_attendance_session_is_duped
@@ -1103,6 +1339,11 @@ msgid "EMS datetime utils"
 msgstr "Utilidades para fechas y horas del EMS"
 
 #. module: ems
+#: model:ir.model,name:ems.model_ems_multithreading
+msgid "EMS multithreading model's code)"
+msgstr "Código multihilo para los modelos del EMS"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_content_form
 #: model_terms:ir.ui.view,arch_db:ems.view_subject_form
 msgid "Edit Content"
@@ -1128,6 +1369,11 @@ msgstr "Comunidad educativa"
 #: model:ir.module.category,description:ems.ems_category_main
 msgid "Educational Management System"
 msgstr "Sistema de gestión educativa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__email
+msgid "Email"
+msgstr "Correo electrónico"
 
 #. module: ems
 #: model:mail.template,name:ems.mail_attendance_issue_status
@@ -1178,6 +1424,11 @@ msgid "Employment types"
 msgstr "tipos de empleo"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "Enables block's special behaviour."
+msgstr "Activa los comportamientos especiales del bloque."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course__end
 msgid "End"
 msgstr "Fin"
@@ -1224,7 +1475,9 @@ msgid "Enrollment: ternary relation between student-group-uf."
 msgstr "Matrícula: relación ternaria entre estudiante-grupo-uf."
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__limesurvey_enrollment_ids
 #: model:ir.ui.menu,name:ems.menu_enrollments
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "Enrollments"
 msgstr "Inscripciones"
 
@@ -1234,8 +1487,13 @@ msgid "Enrollments (student x group x subject)"
 msgstr "Matrículas (alumno x grupo x asignatura)"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__error
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_status_exception_popup
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_error_popup
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "Error details"
 msgstr "Detalles del error"
 
@@ -1293,17 +1551,56 @@ msgid "Follow-up"
 msgstr "Hacer un seguimiento"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_base__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__message_follower_ids
 msgid "Followers"
 msgstr "Segudires"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_base__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seguidores (Compañeros)"
 
 #. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_student__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_schedule__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_base__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_enrollment__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_block__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_header__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_teaching__activity_type_icon
 #: model:ir.model.fields,help:ems.field_hr_employee__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr "Icono de Font Awesome p. ej. fa-tasks"
@@ -1340,6 +1637,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__group_id
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_id
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
@@ -1366,6 +1664,7 @@ msgid "Group:"
 msgstr "Grupo:"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__group_ids
 #: model:ir.ui.menu,name:ems.menu_groups
 msgid "Groups"
 msgstr "Grupos"
@@ -1387,9 +1686,47 @@ msgid "Guard"
 msgstr "Guardia"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_base__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__has_message
 msgid "Has Message"
 msgstr "Tiene mensaje"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_tutor
+msgid "Has tutor"
+msgstr "Tiene tutor"
+
+#. module: ems
+#: model:ems.role,name:ems.role_hos
+msgid "Head of studies"
+msgstr "Jefe de estudios"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Header's content (TSV)"
+msgstr "Contenido de la cabecera (TSV)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__tsv_raw_text
+msgid "Header's content (tab separated)"
+msgstr "Contenido de la cabecera (separado por tabulaciones)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__header_state
+msgid "Header's sate"
+msgstr "Estado de la cabecera"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__auth_healt
@@ -1443,6 +1780,10 @@ msgstr "Híbrido"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__id
 #: model:ir.model.fields,field_description:ems.field_ems_group__id
 #: model:ir.model.fields,field_description:ems.field_ems_level__id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute__id
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__id
 #: model:ir.model.fields,field_description:ems.field_ems_planning__id
@@ -1460,25 +1801,90 @@ msgid "ID"
 msgstr ""
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_base__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_exception_icon
 msgid "Icon"
 msgstr "Icono"
 
 #. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_student__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_schedule__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_base__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_enrollment__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_block__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_header__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_teaching__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_hr_employee__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "Icono para indicar una actividad de excepción."
 
 #. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_student__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_attendance_schedule__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_base__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_enrollment__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_block__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_header__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_teaching__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Si está marcado, nuevos mensajes requieren de su atención. "
 
 #. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_student__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_student__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_schedule__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_schedule__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_base__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_base__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_enrollment__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_enrollment__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_block__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_block__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_header__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_header__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_teaching__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_teaching__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr ""
 "Si está marcado, algunos mensajes fallaron al intentar ser entregados."
@@ -1538,11 +1944,13 @@ msgstr "Grupo en uso"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__inuse_student_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__inuse_student_ids
 msgid "Inuse Student"
 msgstr "Estudiante en uso"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__inuse_subject_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__inuse_subject_ids
 msgid "Inuse Subject"
 msgstr "Tema en uso"
 
@@ -1557,7 +1965,20 @@ msgid "Is Duped"
 msgstr "Está duplicado"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_base__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__message_is_follower
 msgid "Is Follower"
 msgstr "Es seguidor"
 
@@ -1643,6 +2064,10 @@ msgstr "Justificado por"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_group__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_level__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_planning__write_uid
@@ -1679,6 +2104,10 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_group__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_level__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_planning__write_date
@@ -1722,6 +2151,8 @@ msgstr "Resultado del aprendizaje: lo que el estudiante debe aprender."
 #: model:ir.model.fields,field_description:ems.field_ems_content__level
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__level
 #: model:ir.model.fields,field_description:ems.field_ems_group__level_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__level_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__level_id
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__level
 #: model:ir.model.fields,field_description:ems.field_ems_study__level_id
 #: model:ir.model.fields,field_description:ems.field_res_partner__level_id
@@ -1741,6 +2172,177 @@ msgstr "Nivel: Define el nivel de estudios (Universidad, FP, etc.)."
 #: model_terms:ir.ui.view,arch_db:ems.view_study_search
 msgid "Levels"
 msgstr "Niveles"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_limesurvey
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+msgid "LimeSurvey"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "LimeSurvey Settings"
+msgstr "Configuración de LimeSurvey"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_limesurvey_block
+msgid ""
+"LimeSurvey block: contains the main data about a LimeSurvey's session block."
+msgstr ""
+"LimeSurvey block: contiene los datos principales sobre un bloque de una "
+"encuesta de LimeSurvey."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_limesurvey_enrollment
+msgid ""
+"LimeSurvey enrollment: contains a copy of the enrollment model for the "
+"related student, in order to allow changes on the fly when preparing the "
+"surveys (only secretarial staff should be allowed to modify the real "
+"enrollments)."
+msgstr ""
+"LimeSurvey enrollment: contiene una copia del modelo de matriculación para "
+"el alumno en cuestión, para así poder permitir cambios al vuelo cuando se "
+"preparan las encuestas (solamente el persona de secretaria debería poder "
+"modificar los datos reales de matriculación)."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_limesurvey_header
+msgid "LimeSurvey header: contains the survey's header and its content."
+msgstr ""
+"LimeSurvey header: contiene el contenido de una encuesta y sus principales "
+"datos."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_limesurvey_recipient
+msgid ""
+"LimeSurvey recipient: contains the relation between a recipient and its "
+"survey."
+msgstr ""
+"LimeSurvey recipiente: contiene la relación entre destinatarios y "
+"susencuestas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "LimeSurvey's API endpoint"
+msgstr "Endpoint de la API de LimeSurvey"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"LimeSurvey's group ID not found. We're sorry, but the LimeSurvey API v6 does"
+" not allow to create survey groups. Please, provide a valid group ID; the "
+"EMS will use this group in order to generate all the surveys within it."
+msgstr ""
+"No se ha encontrado el ID del grupo de encuestas de LimeSurvey. Lo sentimos,"
+" pero la API v6 de LimeSurvey no permite crear grupos de encuestas. Por "
+"favor, indique un ID de grupo correcto; el EMS utilizará este grupo para "
+"generar las encuestas dentro de ese grupo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "LimeSurvey's password"
+msgstr "Contraseña de LimeSurvey"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "LimeSurvey's username"
+msgstr "Usuario de LimeSurvey"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/multithreading.py:0
+msgid "LimeSurvey: already running"
+msgstr "LimeSurvey: ya está en marcha"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: compute recipients"
+msgstr "LimeSurvey: calcular destinatarios"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: delete reminder"
+msgstr "LimeSurvey: borrar recordatorio"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: open surveys"
+msgstr "LimeSurvey: abrir encuestas"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: reload recipients"
+msgstr "LimeSurvey: recargar destinatarios"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: remove surveys"
+msgstr "LimeSurvey: borrar encuestas"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: return to draft"
+msgstr "LimeSurvey: revertir a borrador"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: send reminder"
+msgstr "LimeSurvey: enviar recordatorio"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: sending reminders"
+msgstr "LimeSurvey: enviando recordatorios"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: upload changes"
+msgstr "LimeSurvey: subir cambios"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: upload surveys"
+msgstr "LimeSurvey: subir encuestas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__limesurvey_api
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__limesurvey_api
+msgid "Limesurvey Api"
+msgstr "API de LimeSurvey"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__limesurvey_gid
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__limesurvey_gid
+msgid "Limesurvey Gid"
+msgstr "Gid de LimeSurvey"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__limesurvey_pwd
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__limesurvey_pwd
+msgid "Limesurvey Pwd"
+msgstr "Contraseña de LimeSurvey"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__limesurvey_pwd_encrypted
+msgid "Limesurvey Pwd Encrypted"
+msgstr "Contraseña encriptada de LimeSurvey"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__limesurvey_usr
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__limesurvey_usr
+msgid "Limesurvey Usr"
+msgstr "Usuario de LimeSurvey"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -1763,6 +2365,9 @@ msgstr "Grupo principal"
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 #: model_terms:ir.ui.view,arch_db:ems.view_level_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model_terms:ir.ui.view,arch_db:ems.view_outcome_form
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_form
@@ -1783,6 +2388,7 @@ msgstr "Cargo de Dirección"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__manual
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__manual
 msgid "Manual"
 msgstr ""
 
@@ -1803,12 +2409,38 @@ msgid "Memebers"
 msgstr "Miembros"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_base__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__message_has_error
 msgid "Message Delivery error"
 msgstr "Error de entrega del mensaje"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_base__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__message_ids
 msgid "Messages"
 msgstr "Mensajes"
 
@@ -1854,7 +2486,20 @@ msgid "Monday"
 msgstr "Lunes"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_base__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Fecha límite de mi actividad"
 
@@ -1865,6 +2510,9 @@ msgstr "Fecha límite de mi actividad"
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__name
 #: model:ir.model.fields,field_description:ems.field_ems_group__name
 #: model:ir.model.fields,field_description:ems.field_ems_level__name
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__name
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__name
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__name
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__name
 #: model:ir.model.fields,field_description:ems.field_ems_planning__name
 #: model:ir.model.fields,field_description:ems.field_ems_role__name
@@ -1883,18 +2531,57 @@ msgid "Nature"
 msgstr "Naturaleza"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_base__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "Fecha límite de la siguiente actividad"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_base__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_summary
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_summary
 msgid "Next Activity Summary"
 msgstr "Resumen de la siguiente actividad"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_base__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_type_id
 msgid "Next Activity Type"
 msgstr "Tipo de la siguiente actividad"
@@ -1920,6 +2607,9 @@ msgstr "No permitido"
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__notes
 #: model:ir.model.fields,field_description:ems.field_ems_group__notes
 #: model:ir.model.fields,field_description:ems.field_ems_level__notes
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__notes
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__notes
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__notes
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__notes
 #: model:ir.model.fields,field_description:ems.field_ems_role__notes
 #: model:ir.model.fields,field_description:ems.field_ems_study__notes
@@ -1936,6 +2626,9 @@ msgstr "No permitido"
 #: model_terms:ir.ui.view,arch_db:ems.view_criteria_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 #: model_terms:ir.ui.view,arch_db:ems.view_level_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 #: model_terms:ir.ui.view,arch_db:ems.view_outcome_form
 #: model_terms:ir.ui.view,arch_db:ems.view_role_form
 #: model_terms:ir.ui.view,arch_db:ems.view_study_form
@@ -1967,24 +2660,81 @@ msgid "Notifications"
 msgstr "Notificaciones"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_base__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Cantidad de acciones"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_base__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__message_has_error_counter
 msgid "Number of errors"
 msgstr "Cantidad de errores"
 
 #. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_student__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_schedule__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_base__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_enrollment__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_block__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_header__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_teaching__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Cantidad de mensajes que requieren de una acción"
 
 #. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_student__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_schedule__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_base__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_enrollment__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_block__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_header__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_teaching__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Cantidad de mensajes con error de entrega"
+
+#. module: ems
+#: model:ems.role,name:ems.role_orc
+msgid "Occupational risk coordinator"
+msgstr "Coordinador/a de riesgos laborales"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__modality__online
@@ -2040,14 +2790,35 @@ msgid "Only tutors can justify student's attendances."
 msgstr "Solamente los/las tutores/as pueden justificar faltas de asistencia."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Open"
+msgstr "Abrir"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
 msgid "Open error details"
 msgstr "Abrir detalles del error"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Open error details."
+msgstr "Obrir detalles del error."
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
 msgid "Open notification details"
 msgstr "Abrir detalles de la notificación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Open surveys"
+msgstr "Abrir encuestas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__opening
+msgid "Opening surveys"
+msgstr "Abriendo encuestas"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__nature__ordinary
@@ -2089,7 +2860,18 @@ msgid "Parent content"
 msgstr "Contenido del antecesor"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Participant's filter"
+msgstr "Filtros para los participantes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__passport_id
+msgid "Passport"
+msgstr "Pasaporte"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__pending
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__pending
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -2158,6 +2940,17 @@ msgid "Print"
 msgstr "Imprimir"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/multithreading.py:0
+msgid "Process already running, maybe by another user?"
+msgstr "El proceso ya está en marcha, ¿quizás lo ha iniciado otro usuario?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Processing..."
+msgstr "Procesando..."
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__provider
 msgid "Provider"
 msgstr "Proveedor"
@@ -2169,7 +2962,25 @@ msgid "Providers"
 msgstr "Proveedores"
 
 #. module: ems
+#: model:ems.role,name:ems.role_quality
+msgid "Quality coordinator"
+msgstr "Coordinador/a de calidad"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_base__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__rating_ids
 msgid "Ratings"
 msgstr "Cualificaciones"
 
@@ -2188,6 +2999,52 @@ msgid "Read only"
 msgstr "Solo lectura"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__limesurvey_recipient_id
+msgid "Recipient"
+msgstr "Destinatario"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__limesurvey_recipient_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Recipients"
+msgstr "Destinatarios"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Recipients compute failed. "
+msgstr "El cálculo de destinatarios ha fallado. "
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__computed
+msgid "Recipients computed"
+msgstr "Destinatarios calculados"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Recipients reload failed. "
+msgstr "La recarga de destinatarios ha fallado. "
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Recipients successfully computed!"
+msgstr "Los destinatarios se han calculado correctamente!"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Recipients successfully reloaded!"
+msgstr "Los destinatarios se han recargado correctamente!"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Recipients successfully removed!"
+msgstr "Los destinatarios se han eliminado correctamente!"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__rectification
 msgid "Rectification"
 msgstr "Rectificación"
@@ -2203,6 +3060,11 @@ msgid "Reduction"
 msgstr "Reducción de jornada"
 
 #. module: ems
+#: model:ir.ui.menu,name:ems.menu_relation_types
+msgid "Relation Types"
+msgstr "Tipo de relación"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_study_list
 msgid "Release"
 msgstr "Liberar"
@@ -2211,6 +3073,53 @@ msgstr "Liberar"
 #: model:ir.model.fields,field_description:ems.field_ems_study__date
 msgid "Release Date"
 msgstr "Fecha de lanzamiento"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Reload recipients"
+msgstr "Recargar participantes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Remind"
+msgstr "Recordar"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__reminding
+msgid "Reminding"
+msgstr "Recordando"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Remove"
+msgstr "Borrar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Remove surveys"
+msgstr "Borrar encuestas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__removing
+msgid "Removing surveys"
+msgstr "Borrando encuestas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid ""
+"Removing the recipient will also, if necessary, remove it from its current "
+"survey. This action cannot be undonde, do you wish to continue?"
+msgstr ""
+"Borrar los destinatarios, los eliminará tambińe (de ser necesario) de las "
+"encuestas en las que se encuentran. Esta acción no se puede deshacer, desea "
+"continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "Repeat per subject"
+msgstr "Repetir por cada asignatura"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_reports
@@ -2223,9 +3132,32 @@ msgid "Resource Working Time"
 msgstr "Tiempo de trabajo de recursos"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_base__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_user_id
 msgid "Responsible User"
 msgstr "Usuario responsable"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+msgid "Restore data"
+msgstr "Restaurar datos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Return to draft"
+msgstr "Restaurar a borrador"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_role_list
@@ -2270,7 +3202,27 @@ msgid "Round"
 msgstr "Ronda"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__is_running
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__is_running
+#: model:ir.model.fields,field_description:ems.field_ems_multithreading__is_running
+msgid "Running"
+msgstr "En ejecución"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_base__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error de entrega de un SMS"
 
@@ -2318,10 +3270,15 @@ msgid "Score ponderation"
 msgstr "Ponderación de puntuación"
 
 #. module: ems
-#: model:hr.job,name:ems.job_secretary
+#: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary
 #: model:res.groups,name:ems.group_secretary
 msgid "Secretary"
 msgstr "Secretario"
+
+#. module: ems
+#: model:ems.role,name:ems.role_schieff
+msgid "Secretary chieff"
+msgstr "Jefe de conserjes"
 
 #. module: ems
 #: model:res.groups,comment:ems.group_secretary
@@ -2329,9 +3286,36 @@ msgid "Secretary's access rights."
 msgstr "Derechos de acceso del secretario."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup
+msgid "Select the student to add"
+msgstr "Seleccione el alumno a añadir"
+
+#. module: ems
+#: model:ems.role,name:ems.role_seminar
+msgid "Seminar leader"
+msgstr "Jefe de seminario"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+msgid "Send reminder"
+msgstr "Enviar recordatorio"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Send reminders"
+msgstr "Enviar recordatorios"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__send_to
 msgid "Send to"
 msgstr "Enviar a"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__reminding
+msgid "Sending reminders"
+msgstr "Enviando recordatorios"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_session_id
@@ -2394,6 +3378,84 @@ msgstr ""
 "quiere entre la cración de la asistencia y su notificación."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"Something failed when trying to delete a recipient, please check the "
+"recipient entries for more details."
+msgstr ""
+"Algo ha fallado cuando se intentaba eliminar un destinatario, por favor, "
+"compruebe el registro del destinatario para más detalles."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"Something failed when trying to open a survey or send the invitations, "
+"please check the recipient entries for more details."
+msgstr ""
+"Algo ha fallado cuando se intentaba abrir una encuesta o enviar las "
+"invitaciones, por favor, compruebe el registro del destinatario para más "
+"detalles."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"Something failed when trying to remove a survey or its recipients, please "
+"check the recipient entries for more details."
+msgstr ""
+"Algo ha fallado cuando se intentaba eliminar una enquesta o sus "
+"destinatarios, por favor, compruebe el registro del destinatario para más "
+"detalles."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"Something failed when trying to send a reminder to a recipient, please check"
+" the recipient entries for more details."
+msgstr ""
+"Algo ha fallado cuando se intentaba enviar un recordatorio a un "
+"destinatario, por favor, compruebe el registro del destinatario para más "
+"detalles."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"Something failed when trying to send reminders for a survey, please check "
+"the recipient entries for more details."
+msgstr ""
+"Algo ha fallado cuando se intentaba enviar recordatorios para una encuesta, "
+"por favor, compruebe el registro del destinatario para más detalles."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"Something failed when trying to upload a survey or its recipients, please "
+"check the recipient entries for more details."
+msgstr ""
+"Algo ha fallado cuando se intentaba subir una encuesta o sus destinatarios, "
+"por favor, compruebe el registro del destinatario para más detalles."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"Something failed when trying to upload the changes for a recipient, please "
+"check the recipient entries for more details."
+msgstr ""
+"Algo ha fallado cuando se intentaba subir los cambios de un destinatario, "
+"por favor, compruebe el registro del destinatario para más detalles."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__sort
+msgid "Sort"
+msgstr "Ordenar"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__space_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__space_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__space_id
@@ -2426,6 +3488,12 @@ msgid "Spaces"
 msgstr "Espacios"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "Special behaviour"
+msgstr "Comportamiento especial"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course__start
 msgid "Start"
 msgstr "Comenzar"
@@ -2449,6 +3517,22 @@ msgid "Start date"
 msgstr "Fecha de inicio"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"Starting process in the background, you'll be notified on completion (it can"
+" take a while)."
+msgstr ""
+"Iniciando el proceso en segundo plano, será notificado cuando termine (puede"
+" tardar un rato)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__state
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__state
+msgid "State"
+msgstr "Estado"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__status
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__status
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_session
@@ -2456,7 +3540,20 @@ msgid "Status"
 msgstr "Estado"
 
 #. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__activity_state
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_student__activity_state
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__activity_state
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__activity_state
+#: model:ir.model.fields,help:ems.field_ems_attendance_schedule__activity_state
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__activity_state
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__activity_state
+#: model:ir.model.fields,help:ems.field_ems_base__activity_state
+#: model:ir.model.fields,help:ems.field_ems_enrollment__activity_state
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_block__activity_state
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__activity_state
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_header__activity_state
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__activity_state
+#: model:ir.model.fields,help:ems.field_ems_teaching__activity_state
 #: model:ir.model.fields,help:ems.field_hr_employee__activity_state
 msgid ""
 "Status based on activities\n"
@@ -2493,6 +3590,8 @@ msgstr "Permanencia en el centro"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__student_id
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__student
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_session
@@ -2563,6 +3662,7 @@ msgstr "Asistencia de los estudiantes"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__attendance_issue_student_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__student_ids
 #: model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__students
 #: model:ir.ui.menu,name:ems.menu_community_config_students
 #: model:ir.ui.menu,name:ems.menu_students
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
@@ -2578,6 +3678,7 @@ msgstr "Estudiantes"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__study_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__study_id
 #: model:ir.model.fields,field_description:ems.field_ems_level__study_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__study_ids
 #: model:ir.model.fields,field_description:ems.field_ems_subject__study_ids
 #: model:ir.model.fields,field_description:ems.field_res_partner__study_id
 #: model:ir.model.fields,field_description:ems.field_res_users__study_id
@@ -2594,6 +3695,7 @@ msgstr "Estudios"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__study_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__study_id
 #: model:ir.model.fields,field_description:ems.field_ems_group__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__study_id
 #: model:ir.model.fields,field_description:ems.field_ems_planning__study_id
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__study_id
 msgid "Study"
@@ -2616,6 +3718,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_content__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__subject_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_planning__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__subject_id
@@ -2624,7 +3727,12 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 msgid "Subject"
-msgstr "Sujeto"
+msgstr "Asignatura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_subject_enrolled
+msgid "Subject (all enrolled)"
+msgstr "Asignatura (todos los matriculados)"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_teaching
@@ -2666,10 +3774,64 @@ msgid "Sunday"
 msgstr "Domingo"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__limesurvey_header_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__limesurvey_header_id
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Survey"
+msgstr "Encuesta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__internal_id
+msgid "Survey's ID (EMS)"
+msgstr "ID de la encuesta (EMS)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+msgid "Survey's ID (LS)"
+msgstr "ID de la encuesta (LS)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__external_id
+msgid "Survey's ID (LimeSurvey)"
+msgstr "ID de la encuesta (LimeSurvey)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Survey's group ID"
+msgstr "ID del grupo de la encuesta"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_limesurvey_header_tree
+#: model:ir.ui.menu,name:ems.menu_limesurvey_headers
+msgid "Surveys"
+msgstr "Encuestas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__closed
+msgid "Surveys closed"
+msgstr "Encuestas cerradas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__open
+msgid "Surveys open"
+msgstr "Encuestas abiertas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__uploaded
+msgid "Surveys uploaded"
+msgstr "Encuestas subidas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__target
+msgid "Target"
+msgstr "Destinatarios"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__teacher_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__teacher
@@ -2704,6 +3866,7 @@ msgstr "Derechos de acceso del profesor."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_employee_kanban
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__teachers
 #: model:ir.ui.menu,name:ems.menu_community_config_teachers
 #: model:ir.ui.menu,name:ems.menu_teachers
 msgid "Teachers"
@@ -2740,17 +3903,34 @@ msgid "Templates"
 msgstr "Plantillas"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"The LimeSurvey API does not allow to create survey groups so, in order to "
+"operate properly, a group must be created and its ID provided."
+msgstr ""
+"La API de LimeSurvey no permite crear grupos de encuestas y, para ellode "
+"operar correctamente, un grupo debe crearse primero a mano y debe indicarse "
+"el ID."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "The block appears only for students enrolled in a WorkPlace Intership."
+msgstr "El bloque sólo aparecerá por los estudiantes matriculados en FCT."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "The block appears only for students enrolled in this course (0 = all)."
+msgstr ""
+"El bloque sólo aparecerá por los alumnos matriculados en este curso (0 = "
+"todos)."
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid ""
 "The current assistance templates will be updated to match the new schedules."
 msgstr ""
 "Las plantillas de assistencia actuales serán actualitzadas para coincidir "
 "con los nuevos horarios."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "The current schedules will be replaced by the new ones."
-msgstr "Los horarios actuales serán reemplazados por los nuevos."
 
 #. module: ems
 #. odoo-python
@@ -2768,8 +3948,17 @@ msgstr ""
 msgid ""
 "The current subject assignations will be updated to match the new schedules."
 msgstr ""
-"La asignación de materias actual se actualizará para coincidir con los "
-"nuevos horarios."
+"La assignación de materias del profesorado se actualitzará para conincidir "
+"con los nuevos horarios aportados."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid ""
+"The current working schedules will be updated according to the provided ones"
+" (none will be removed)."
+msgstr ""
+"Los horarios del profesorado actuales serán actualizados en función de los "
+"aportados (ninguno será eliminado)."
 
 #. module: ems
 #. odoo-python
@@ -2778,6 +3967,8 @@ msgid ""
 "The tutor role cannot be assigned manually, it will be set automatically if "
 "any group is added to the 'tutorship' field."
 msgstr ""
+"El rol de tutor no se puede asignar manualmente, se establecerá "
+"automáticamente si cualquier grupo es añadido al campo 'tutoría'."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -2800,6 +3991,33 @@ msgstr ""
 "Es necesario archivarla primero."
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid ""
+"This action will clean and recreate the recipients, removing all custom "
+"changes and saving the data immediately. It cannot be undone. Do you wish to"
+" continue?"
+msgstr ""
+"Esta acción vaciará y recreará los destinatarios, borrando cualquier cambio "
+"manualy guardando los datos al momento. Esta acción no se puede deshacer. "
+"Todavía quieres continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+msgid ""
+"This action will restore the 'main data' and the 'enrollments', saving the "
+"changes immediately. It cannot be undone. Do you wish to continue?"
+msgstr ""
+"Esta acción restaurará los 'datos principales' y las 'matriculaciones', "
+"guardando los cambios en el momento. Esta acción no se puede deshacer. "
+"¿Todavía quieres continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "This block will be generated once per enrollred subject."
+msgstr ""
+"Este blog se repetirá por cada asignatura matriculada por el estudiante."
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_schedule.py:0
 msgid ""
@@ -2807,9 +4025,9 @@ msgid ""
 "cannot be deleted. Please, update its data instead or archive the entire "
 "template and create a new one with the correct data."
 msgstr ""
-"Este marco horario ha sido usado para comprobar la asistencia de algún estudiante "
-"y no se puede eliminar. Por favor, actualice los datos o archive la plantilla y "
-"proceda a crear una nueva con los datos correctos."
+"Este marco horario ha sido usado para comprobar la asistencia de algún "
+"estudiante y no se puede eliminar. Por favor, actualice los datos o archive "
+"la plantilla y proceda a crear una nueva con los datos correctos."
 
 #. module: ems
 #. odoo-python
@@ -2818,8 +4036,9 @@ msgid ""
 "This template have been already used to check the student's attendances and "
 "cannot be deleted. Please, archive it instead."
 msgstr ""
-"Esta plantilla ha sido usada para comprobar la asistencia de algún estudiante "
-"y no se puede eliminar. Por favor, archive la plantilla y proceda a crear una nueva."
+"Esta plantilla ha sido usada para comprobar la asistencia de algún "
+"estudiante y no se puede eliminar. Por favor, archive la plantilla y proceda"
+" a crear una nueva."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3
@@ -2837,6 +4056,11 @@ msgstr "Franja Horària"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__time_range
 msgid "Time range"
 msgstr "Franja horària"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__title
+msgid "Title"
+msgstr "Título"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__to_date
@@ -2879,6 +4103,7 @@ msgid "Tuesday"
 msgstr "Martes"
 
 #. module: ems
+#: model:ems.role,name:ems.role_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__tutor_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__tutor_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__tutor_id
@@ -2944,7 +4169,20 @@ msgid "Type"
 msgstr "Tipo"
 
 #. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_student__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_attendance_schedule__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_base__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_enrollment__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_block__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_header__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_teaching__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_hr_employee__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "Tipo de actividad de excepción en el registro."
@@ -2953,6 +4191,36 @@ msgstr "Tipo de actividad de excepción en el registro."
 #: model:ir.ui.menu,name:ems.menu_space_type
 msgid "Types"
 msgstr "Tipos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Unable to activate the survey"
+msgstr "No ha sido posible activar la encuesta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Unable to delete some participants"
+msgstr "No ha sido posible borrar a algunos participantes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Unable to delete the survey"
+msgstr "No ha sido posible borrar la encuesta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Unable to get the LimeSurvey's session key."
+msgstr "No ha sido posible obtener una clave de sesión de LimeSurvey"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Unable to invite some participants"
+msgstr "No ha sido posible invitar a algunos participantes"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
@@ -2966,9 +4234,46 @@ msgstr ""
 " una manualmente o active el \"modo guardia\" si fuera necesario."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Unable to update some participants"
+msgstr "No ha sido posible actualizar los datos de algunos participantes"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__unipersonal
 msgid "Unipersonal"
 msgstr ""
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Upload"
+msgstr "Cargar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+msgid "Upload changes"
+msgstr "Cargar cambios"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Upload surveys"
+msgstr "Cargar encuestas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__uploaded
+msgid "Uploaded"
+msgstr "Cargado"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__uploading
+msgid "Uploading"
+msgstr "Cargando"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__uploading
+msgid "Uploading surveys"
+msgstr "Cargando encuestas"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -2991,6 +4296,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_base__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__user_is_admin
 msgid "User Is Admin"
 msgstr "El usuario es administrador"
@@ -3005,17 +4314,94 @@ msgstr "El usuario es administrador"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_base__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__user_is_tutor
 msgid "User Is Tutor"
 msgstr "El usuario es tutor"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+msgid "User's ID (LS)"
+msgstr "ID del usuario (LS)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__tid
+msgid "User's ID (LimeSurvey)"
+msgstr "ID del usuario (LimeSurvey)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "User's name to log in the LimeSurvey server."
+msgstr "Nombre del usuario para conectarse al servidor de LimeSurvey"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "User's password to log in the LimeSurvey server."
+msgstr "Contraseña del usuario para conectarse al servidor de LimeSurvey"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+msgid "User's token (LS)"
+msgstr "Token del usuario (LS)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__token
+msgid "User's token (LimeSurvey)"
+msgstr "Token del usuario (LimeSurvey)"
+
+#. module: ems
+#: model:ems.role,name:ems.role_erasmus
+msgid "VET coordinator"
+msgstr "Coordinador/a de FP"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__wpi_enrolled
+#: model:ir.model.fields,field_description:ems.field_res_partner__wpi_enrolled
+#: model:ir.model.fields,field_description:ems.field_res_users__wpi_enrolled
+msgid "WPI enrolled"
+msgstr "Matriculado en FCT"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "WPI enrollment"
+msgstr "Matriculado en FCT"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_base__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_teaching__website_message_ids
 msgid "Website Messages"
 msgstr "Mensajes del sitio web"
 
 #. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_student__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_attendance_schedule__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_attendance_session_header__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_base__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_enrollment__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_block__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_header__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_teaching__website_message_ids
 msgid "Website communication history"
 msgstr "Historial de comunicaciones del sistio web"
 
@@ -3046,6 +4432,11 @@ msgstr "Lugares de trabajo"
 #: model_terms:ir.ui.view,arch_db:ems.view_space_search
 msgid "Work location"
 msgstr "lugar de trabajo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_wpi_enrolled
+msgid "WorkPlace Intership (if enrolled)"
+msgstr "Formació en Centros de Trabajo (si matriculado)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__workgroup_id
@@ -3096,6 +4487,9 @@ msgstr "Coordinación FCT"
 #: model_terms:ir.ui.view,arch_db:ems.view_criteria_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 #: model_terms:ir.ui.view,arch_db:ems.view_level_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 #: model_terms:ir.ui.view,arch_db:ems.view_outcome_form
 #: model_terms:ir.ui.view,arch_db:ems.view_role_form
 #: model_terms:ir.ui.view,arch_db:ems.view_study_form
@@ -3154,6 +4548,11 @@ msgid "file"
 msgstr "archivo"
 
 #. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_tutor
+msgid "is tutor of"
+msgstr "es tutor de"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 msgid "justification"
 msgstr "justificación"
@@ -3173,6 +4572,11 @@ msgstr "resultado"
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_form
 msgid "planning"
 msgstr "planificación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+msgid "recipient"
+msgstr "destinatario"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_role_form
@@ -3210,4 +4614,199 @@ msgstr "a"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
 msgid "workgroup"
-msgstr "grupo de trabajo"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_contact_relation_wizard
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Add contact"
+msgstr "Añadir contacto"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_contact_relation_wizard
+msgid "Add family contact"
+msgstr "Añadir contacto familiar"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_contact_relation_wizard
+msgid "Add family contact and relation"
+msgstr "Añadir contacto familiar y relación"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "New student contact"
+msgstr "Nuevo contacto de alumno"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "New contact"
+msgstr "Nuevo contacto"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Existing contact"
+msgstr "Contacto existente"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Choose relation"
+msgstr "Elige la relación"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Of the student"
+msgstr "Del alumno"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__document_id
+msgid "Document ID (DNI/NIE)"
+msgstr "Documento de identidad (DNI/NIE)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__passport_id
+msgid "Passport"
+msgstr "Pasaporte"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Relation"
+msgstr "Relación"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_relation_types
+msgid "Relation Types"
+msgstr "Tipos de relación"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_tutor
+msgid "Tutor"
+msgstr "Tutor/a"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_tutor
+msgid "Student"
+msgstr "Alumno/a"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_father
+msgid "Father"
+msgstr "Padre"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_father
+msgid "Son/Daughter"
+msgstr "Hijo/Hija"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_mother
+msgid "Mother"
+msgstr "Madre"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_mother
+msgid "Son/Daughter"
+msgstr "Hijo/Hija"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_grandfather
+msgid "Grandfather"
+msgstr "Abuelo"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_grandfather
+msgid "Grandson/Granddaughter"
+msgstr "Nieto/Nieta"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_grandmother
+msgid "Grandmother"
+msgstr "Abuela"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_grandmother
+msgid "Grandson/Granddaughter"
+msgstr "Nieto/Nieta"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_uncle_aunt
+msgid "Uncle/Aunt"
+msgstr "Tío/Tía"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_uncle_aunt
+msgid "Nephew/Niece"
+msgstr "Sobrino/Sobrina"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_cousin
+msgid "Cousin"
+msgstr "Primo/Prima"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_cousin
+msgid "Cousin"
+msgstr "Primo/Prima"
+
+#. module: ems
+#: model:res.partner.relation.type,name:ems.relation_type_sibling
+msgid "Brother/Sister"
+msgstr "Hermano/Hermana"
+
+#. module: ems
+#: model:res.partner.relation.type,name_inverse:ems.relation_type_sibling
+msgid "Brother/Sister"
+msgstr "Hermano/Hermana"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Address"
+msgstr "Dirección"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "City"
+msgstr "Ciudad"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Country"
+msgstr "País"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "First name"
+msgstr "Nombre"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Last name"
+msgstr "Apellidos"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Mobile"
+msgstr "Móvil"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Phone"
+msgstr "Teléfono"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Save"
+msgstr "Guardar"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Street"
+msgstr "Calle"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "Street 2"
+msgstr "Dirección 2"
+
+#. module: ems
+#: model:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+msgid "ZIP"
+msgstr "Código postal"

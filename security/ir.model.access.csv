@@ -203,3 +203,10 @@ access_ems_course_portal,ems.course.portal,model_ems_course,base.group_portal,1,
 access_ems_level_portal,ems.level.portal,model_ems_level,base.group_portal,1,0,0,0
 access_ems_study_portal,ems.study.portal,model_ems_study,base.group_portal,1,0,0,0
 access_mail_message_portal,mail.message.portal,mail.model_mail_message,base.group_portal,1,0,0,0
+
+ems.access_ems_limesurvey_block_admin,ems.access_ems_limesurvey_block_admin,ems.model_ems_limesurvey_block,ems.group_admin,1,1,1,1
+ems.access_ems_limesurvey_header_admin,ems.access_ems_limesurvey_header_admin,ems.model_ems_limesurvey_header,ems.group_admin,1,1,1,1
+ems.access_ems_limesurvey_enrollment_admin,ems.access_ems_limesurvey_enrollment_admin,ems.model_ems_limesurvey_enrollment,ems.group_admin,1,1,1,1
+ems.access_ems_limesurvey_recipient_admin,ems.access_ems_limesurvey_recipient_admin,ems.model_ems_limesurvey_recipient,ems.group_admin,1,1,1,1
+ems.access_ems_contact_relation_wizard_admin,ems.access_ems_contact_relation_wizard_admin,ems.model_ems_contact_relation_wizard,ems.group_admin,1,1,1,1
+ems.access_ems_contact_relation_wizard_teacher,ems.access_ems_contact_relation_wizard_teacher,ems.model_ems_contact_relation_wizard,ems.group_teacher,1,1,1,1

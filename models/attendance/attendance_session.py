@@ -4,7 +4,7 @@ from odoo import models, fields, api, _
 from .attendance_schedule import ems_attendance_schedule
 from .attendance_justification import ems_attendance_justification
 from datetime import datetime, timedelta
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 from psycopg2 import IntegrityError
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
@@ -388,6 +388,9 @@ class ems_attendance_session_header(models.Model):
 			record.create_notification_entries(issue_status_by_tutor, notification_tutor_eta, notification_status_eta)
 		return records
 	
+	def copy(self, default=None):
+		raise UserError(_("Attendance sessions cannot be duplicated."))
+
 	def unlink(self):
 		# NOTE: removing the session removes also the statuses and the related notification entries
 		# TODO: should be blocked if the notifications have been sent? I guess so, but the admins should be ablte to delete those

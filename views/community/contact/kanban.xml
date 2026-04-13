@@ -37,5 +37,18 @@
                 </xpath>
             </field>
         </record>
+        <record id="res_partner_kanban_view_ems_cleanup" model="ir.ui.view">
+            <field name="name">res.partner.kanban.ems.cleanup</field>
+            <field name="model">res.partner</field>
+            
+            <field name="inherit_id" ref="base.res_partner_kanban_view"/>
+            
+            <field name="priority">100</field> 
+            
+            <field name="arch" type="xml">
+                <xpath expr="//*[@name='action_view_sale_order']" position="replace">
+                    </xpath>
+            </field>
+        </record>
     </data>
 </odoo>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_ems_authorization_template_search" model="ir.ui.view">
+            <field name="name">ems.authorization.template.search</field>
+            <field name="model">ems.authorization.template</field>
+            <field name="arch" type="xml">
+                <search string="Search Authorization Templates">
+                   
+                    <field name="name" string="Name"/>
+
+                    <group expand="0" string="Group By">
+                        <filter string="Level" name="groupby_ems_level" context="{'group_by': 'ems_level_ids'}"/>
+                        <filter string="Study" name="groupby_ems_study" context="{'group_by': 'ems_study_ids'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

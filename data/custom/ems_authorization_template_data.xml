@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <record id="auth_template_image_and_sound" model="ems.authorization.template">
+            <field name="name">AUTORITZACIÓ D'ÚS D'IMATGE i SO</field>
+            <field name="is_required" eval="True"/>
+            
+            <field name="legal_text"><![CDATA[
+                <p>L’Institut Puig Castellar disposa a internet de l'espai web <a href="http://elpuig.xeill.net" target="_blank">http://elpuig.xeill.net</a> i d’una revista on informa i fa difusió de les seves activitats escolars lectives, complementàries i extraescolars.</p>
+                
+                <p>En aquesta pàgina web i en la revista s’hi poden publicar imatges en els quals apareguin, individualment o en grup, alumnes realitzant les esmentades activitats, així com reproduccions que podrien escoltar-se la veu de l'alumnat.</p>
+                
+                <p>Donat que el dret a la pròpia imatge està reconegut a l’article 18.1 de la Constitució i regulat per la Llei 5/1982, de 5 de maig, sobre el dret a l’honor, a la intimitat personal i familiar i a la pròpia imatge, la direcció d’aquest centre demana el consentiment als pares o tutors legals per poder publicar fotografies on apareguin els seus fills i filles on aquesta o aquestes siguin clarament identificables, així com reproduccions on es pot veure la seva imatge i escoltar-se la seva veu.</p>
+            ]]></field>
+            
+            <field name="ems_level_ids" eval="[(6, 0, [
+                ref('ems.level_eso'), 
+                ref('ems.level_btx'), 
+                ref('ems.level_cfgm'), 
+                ref('ems.level_cfgs'),
+                ref('ems.level_efps'),
+                ref('ems.level_cfgb'),
+                ref('ems.level_pfi')
+            ])]"/>
+        </record>
+
+        <record id="auth_template_carta_compromis" model="ems.authorization.template">
+            <field name="name">CARTA DE COMPROMÍS EDUCATIU</field>
+            <field name="is_required" eval="True"/>
+            
+            <field name="legal_text"><![CDATA[
+                <h3>COMPROMISOS</h3>
+                
+                <h4>Per part del centre</h4>
+                <ol>
+                    <li>Facilitar una formació que contribueixi al desenvolupament i la maduresa de l’alumne o alumna.</li>
+                    <li>Vetllar per fer efectius els drets de l’alumne o alumna en l’àmbit escolar.</li>
+                    <li>Respectar el dret a la intimitat, a la llibertat de consciència i d’expressió de l’alumnat, dintre del marc legislatiu vigent.</li>
+                    <li>Informar la família de les normes d’organització i funcionament del centre i posar a la seva disposició el projecte educatiu i els documents normatius d’ús intern.</li>
+                    <li>Explicar a l’alumnat els criteris que s’aplicaran per avaluar el seu rendiment acadèmic, fer-ne una valoració objectiva i informar la família dels resultats de les avaluacions.</li>
+                    <li>Adoptar les mesures educatives alternatives o complementàries adients per atendre les necessitats específiques de l’alumnat i mantenir-ne informada la família.</li>
+                    <li>Mantenir comunicació regular amb la família des dels primers dies de classe per informar-la de l’evolució acadèmica i personal de l’alumne o l’alumna.</li>
+                    <li>Comunicar a la família les faltes d’assistència no justificades i les faltes contràries a la normativa.</li>
+                    <li>Atendre en un termini raonable les peticions d’entrevista o de comunicació que formuli la família amb el tutor o qualsevol membre de l'equip docent i de l'equip directiu.</li>
+                    <li>Mantenir en bon estat d’ús les instal·lacions de l’institut.</li>
+                    <li>Afavorir la resolució de conflictes mitjançant la mediació.</li>
+                    <li>Revisar periòdicament el compliment d’aquests compromisos i atendre raonablement els suggeriments que ens facin arribar les famílies i l’alumnat.</li>
+                </ol>
+                
+                <br/>
+                
+                <h4>Per part de la família</h4>
+                <ol>
+                    <li>Reconèixer l’autoritat del professorat, del director i de l’equip directiu.</li>
+                    <li>Responsabilitzar-se de l’educació del fill o filla i col·laborar amb el centre per aconseguir el millor comportament humà i la millor actitud envers l’estudi.</li>
+                    <li>Conèixer la normativa del centre i instar el fill o filla a respectar les normes de funcionament, en particular les que afecten la convivència escolar i el desenvolupament normal de les classes.</li>
+                    <li>Vetllar perquè el fill o filla compleixi el deure bàsic de l’estudi i de l’assistència regular i puntual a les activitats acadèmiques, i també perquè faci les tasques encomanades a casa pel professorat.</li>
+                    <li>Ajudar el fill o filla a organitzar el temps d’estudi a casa i a preparar el material per a l’activitat escolar.</li>
+                    <li>Adreçar-se directament al centre per contrastar les discrepàncies, coincidències o suggeriments en relació amb l’aplicació del projecte educatiu en la formació del fill o filla.</li>
+                    <li>Facilitar al centre les informacions del fill o filla que siguin rellevants per al procés d’aprenentatge.</li>
+                    <li>Atendre en un termini raonable les peticions d’entrevista o de comunicació que formuli el centre.</li>
+                    <li>Col·laborar amb el centre en les tasques i activitats que contribueixin a millorar la convivència escolar.</li>
+                    <li>Fer arribar els suggeriments que es considerin necessaris perquè es compleixin aquests compromisos.</li>
+                </ol>
+                
+                <br/>
+                
+                <p>I, perquè així consti, signem aquesta carta de compromís educatiu.</p>
+            ]]></field>
+            
+            <field name="ems_level_ids" eval="[(6, 0, [
+                ref('ems.level_eso'), 
+                ref('ems.level_btx'), 
+                ref('ems.level_cfgm'), 
+                ref('ems.level_cfgs'),
+                ref('ems.level_efps'),
+                ref('ems.level_cfgb'),
+                ref('ems.level_pfi')
+            ])]"/>
+        </record>
+        <record id="auth_template_data_protection" model="ems.authorization.template">
+            <field name="name">Protecció de dades personals</field>
+            <field name="is_required" eval="True"/>
+            
+            <field name="legal_text"><![CDATA[
+                <p>L'Institut Puig Castellar, atenent a la llei orgànica 3/2018 de protecció de dades personals i de garantia dels drets digitals es compromet a no difondre les dades de l'alumnat i els seus tutors legals que s'especifiquen en el full de matrícula i en aquest formulari.</p>
+                
+                <p><a href="https://www.boe.es/boe/dias/2018/12/06/pdfs/BOE-A-2018-16673.pdf" target="_blank" title="Veure BOE">Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales</a></p>
+            ]]></field>
+            
+            <field name="ems_level_ids" eval="[(6, 0, [
+                ref('ems.level_eso'), 
+                ref('ems.level_btx'), 
+                ref('ems.level_cfgm'), 
+                ref('ems.level_cfgs'),
+                ref('ems.level_efps'),
+                ref('ems.level_cfgb'),
+                ref('ems.level_pfi')
+            ])]"/>
+        </record>
+        <record id="auth_template_excursions" model="ems.authorization.template">
+            <field name="name">Excursions i sortides acadèmiques</field>
+            <field name="is_required" eval="True"/>
+            
+            <field name="legal_text"><![CDATA[
+                <p>Vull participar en les excursions i sortides acadèmiques o extraescolars que es duguin a terme durant el present curs escolar.</p>
+            ]]></field>
+            
+            <field name="ems_level_ids" eval="[(6, 0, [
+                ref('ems.level_eso'), 
+                ref('ems.level_btx'), 
+                ref('ems.level_cfgm'), 
+                ref('ems.level_cfgs'),
+                ref('ems.level_efps'),
+                ref('ems.level_cfgb'),
+                ref('ems.level_pfi')
+            ])]"/>
+        </record>
+        <record id="auth_template_comunicacio_families" model="ems.authorization.template">
+            <field name="name">AUTORITZACIÓ COMUNICACIÓ FAMÍLIES (MAJORS 18 ANYS)</field>
+            <field name="is_required" eval="True"/>
+            <field name="legal_text"><![CDATA[
+                <p>Autoritzo l'Institut Puig Castellar a comunicar-se amb les persones que tinc registrades com a contactes familiars a la base de dades del centre, per tal de rebre informació acadèmica rellevant sobre la meva evolució lectiva, qualificacions, comunicacions generals i altres assumptes relacionats amb la meva vida acadèmica. Aquesta autorització inclou la informació acadèmica i butlletins de notes.</p>
+                <p>En confirmar aquesta autorització mitjançant el portal, confirmo que les persones registrades com a contactes familiars a la base de dades del centre són les autoritzades per rebre aquesta informació.</p>
+            ]]></field>
+            <field name="ems_level_ids" eval="[(6, 0, [
+                ref('ems.level_btx'), 
+                ref('ems.level_cfgm'), 
+                ref('ems.level_cfgs'),
+                ref('ems.level_efps'),
+                ref('ems.level_cfgb')
+            ])]"/>
+        </record>
+    </data>
+</odoo>

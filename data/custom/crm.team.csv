@@ -1,0 +1,4 @@
+id,name,sequence,company_id:id
+team_administration,Administration,10,base.main_company
+team_shop,Shop,20,base.main_company
+team_after_school,After-school,30,base.main_company

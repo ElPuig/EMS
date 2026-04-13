@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="ems_category_academic" model="product.category">
+            <field name="name">Academic Services</field>
+            <field name="parent_id" ref="product.product_category_all"/>
+        </record>
+
+        <record id="ems_category_campus" model="product.category">
+            <field name="name">Campus Services</field>
+            <field name="parent_id" ref="product.product_category_all"/>
+        </record>
+
+        <record id="ems_category_shop" model="product.category">
+            <field name="name">Shop Products</field>
+            <field name="parent_id" ref="product.product_category_all"/>
+        </record>
+
+    </data>
+</odoo>

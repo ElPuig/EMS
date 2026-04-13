@@ -35,6 +35,9 @@
                             <group>
                                 <field name="space_id" />
                             </group>
+                            <group>
+                                <field name="ems_shift" />
+                            </group>
                         </group>                       
                         
                         <notebook> 

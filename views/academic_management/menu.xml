@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Root menu items only -->
+        <menuitem name="Academic management" sequence="10" id="menu_ems_academic_management" />
+    </data>
+</odoo>

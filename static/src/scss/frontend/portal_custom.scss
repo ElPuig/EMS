@@ -1,0 +1,163 @@
+/* static/src/scss/portal_custom.scss */
+
+/* 1. BARRA SUPERIOR (Menú principal y logo) - Color Burdeos */
+header nav.navbar {
+    background-color: #9e1c34 !important;
+}
+
+/* Cambiamos el color del texto y el nombre del usuario a blanco para que se lea bien */
+header nav.navbar .nav-link, 
+header nav.navbar .navbar-brand,
+header nav.navbar span {
+    color: #ffffff !important;
+}
+
+/* 2. BARRA INFERIOR (Submenú / Migas de pan) - Color Naranja */
+.o_portal_submenu {
+    background-color: #e88a1a !important;
+}
+
+/* Textos y enlaces de las migas de pan en blanco */
+.o_portal_submenu .breadcrumb-item,
+.o_portal_submenu .breadcrumb-item a {
+    color: #ffffff !important;
+}
+
+/* Color ligeramente diferente para el elemento activo de la ruta para que destaque */
+.o_portal_submenu .breadcrumb-item.active {
+    color: #fce5cd !important; 
+}
+
+/* 3. PIE DE PÁGINA (Footer) - Color Naranja */
+footer, .o_footer_copyright {
+    background-color: #e88a1a !important;
+    border-top: none !important;
+}
+
+/* Cambiamos los textos y enlaces del footer a blanco para que contrasten */
+footer a, 
+footer span, 
+.o_footer_copyright a, 
+.o_footer_copyright span {
+    color: #ffffff !important;
+}
+
+/* Opcional: Si los botones de idioma tienen un color gris de fondo, los hacemos transparentes */
+footer .btn-link, .o_footer_copyright .btn-link {
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+/* 4. EXCEPCIÓN: Texto oscuro para los elementos del menú desplegable de idiomas */
+footer .dropdown-menu a, 
+footer .dropdown-menu span, 
+.o_footer_copyright .dropdown-menu a, 
+.o_footer_copyright .dropdown-menu span {
+    color: #333333 !important; /* Color gris oscuro/negro para que se lea sobre fondo blanco */
+}
+
+/* 5. MENÚS DESPLEGABLES - Color de selección y hover en naranja claro */
+.dropdown-menu .dropdown-item.active,
+.dropdown-menu .dropdown-item:active,
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus,
+.dropdown-menu > a:hover,
+.dropdown-menu > a:focus {
+    background-color: #ffca92 !important; /* Fondo naranja muy claro */
+    color: #333333 !important; /* Texto oscuro para asegurar la legibilidad */
+}
+
+/* 6. MENÚ SUPERIOR ESTILO "PUIG CASTELLAR" */
+header nav.navbar .ems-custom-navbar {
+    gap: 20px; /* Separación entre los elementos del menú */
+}
+
+/* Estado por defecto de los enlaces */
+header nav.navbar .ems-custom-navbar .nav-link {
+    color: #ffffff !important;
+    font-weight: 500;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-bottom: 4px solid transparent !important; /* Franja transparente por defecto para que no "salte" el texto al aparecer */
+    transition: all 0.3s ease-in-out; /* Animación suave */
+}
+
+/* Efecto al pasar el ratón (hover) y estado activo (página actual) */
+header nav.navbar .ems-custom-navbar .nav-link:hover,
+header nav.navbar .ems-custom-navbar .nav-link.active {
+    color: #e88a1a !important; /* Texto en naranja corporativo */
+    border-bottom: 4px solid #e88a1a !important; /* Franja inferior naranja gruesa */
+}
+
+/* 7. BURBUJAS DE COMUNICACIONES - Colores corporativos */
+
+/* Mensajes del alumno/familia - Burdeos */
+.ems-bubble-student {
+    background-color: #db697e !important;
+    color: #ffffff !important;
+}
+
+.ems-bubble-student small {
+    color: #fce5cd !important;
+}
+
+/* Mensajes del centro - Naranja corporativo suave */
+.ems-bubble-center {
+    background-color: #fce5cd !important;
+    color: #333333 !important;
+}
+
+.ems-bubble-center small {
+    color: #9e1c34 !important;
+}
+
+/* 8. BOTONES CORPORATIVOS PORTAL */
+
+/* Botón outline (Answer, Close) */
+.btn-outline-ems {
+    color: #9e1c34 !important;
+    border-color: #9e1c34 !important;
+    background-color: transparent !important;
+}
+
+.btn-outline-ems:hover,
+.btn-outline-ems:focus {
+    background-color: #9e1c34 !important;
+    color: #ffffff !important;
+}
+
+/* Botón primario (Confirm Enrollment) */
+.btn-ems {
+    background-color: #9e1c34 !important;
+    border-color: #9e1c34 !important;
+    color: #ffffff !important;
+}
+
+.btn-ems:hover,
+.btn-ems:focus {
+    background-color: #7a1528 !important;
+    border-color: #7a1528 !important;
+    color: #ffffff !important;
+}
+
+.btn-ems.disabled,
+.btn-ems:disabled {
+    background-color: #c88a96 !important;
+    border-color: #c88a96 !important;
+    color: #ffffff !important;
+}
+
+/* 9. Colores corporativos para usar en diferentes elementos del portal */
+
+.bg-ems-primary {
+    background-color: #9e1c34 !important;
+    color: #ffffff !important;
+}
+.bg-ems-secondary {
+    background-color: #e88a1a !important;
+    color: #ffffff !important;
+}
+
+.text-ems-primary {
+    color: #9e1c34 !important;
+}

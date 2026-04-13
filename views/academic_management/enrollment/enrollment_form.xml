@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_order_form_inherit_ems_enrollment" model="ir.ui.view">
+        <field name="name">sale.order.form.ems.enrollment</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/field[@name='state']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>        
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="string">Student</attribute>
+                <attribute name="context">{'res_partner_search_mode': 'customer'}</attribute>
+                <attribute name="options">{'always_reload': True}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='validity_date']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='sale_order_template_id']" position="before">
+                 <field name="ems_study_id" required="1" options="{'no_create': True}"/>
+            </xpath>
+            <xpath expr="//field[@name='sale_order_template_id']" position="attributes">
+                <attribute name="string">Enrollment Template</attribute>
+                <attribute name="groups"></attribute>
+            </xpath>            
+            <xpath expr="(//label[@for='date_order'])[1]" position="attributes">
+                <attribute name="string">Pre-Enrollment Date</attribute>
+            </xpath>
+            <xpath expr="(//label[@for='date_order'])[2]" position="attributes">
+                <attribute name="string">Enrollment Date</attribute>
+            </xpath>
+            <xpath expr="//field[@name='payment_term_id']" position="before">
+                <field name="ems_shift" required="1" options="{'no_create': True}"/>
+            </xpath>
+            <xpath expr="//group[@name='order_details']" position="inside">
+                <field name="ems_course_id" required="1" options="{'no_create': True, 'no_open': True}"/>
+            </xpath>
+            <xpath expr="//group[@name='order_details']" position="after">
+                <field name="ems_existing_product_ids" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list" position="attributes">
+                <attribute name="default_order">product_id asc</attribute>
+            </xpath>                        
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
+                <attribute name="domain">
+                    [
+                        '&amp;',
+                            '|',
+                                ('ems_study_ids', '=', parent.ems_study_id),
+                                '&amp;',
+                                    ('is_generic', '=', True),
+                                    '|',
+                                        ('ems_level_ids', 'in', parent.ems_level_id),
+                                        ('ems_study_ids', '=', parent.ems_study_id),
+                            ('id', 'not in', parent.ems_existing_product_ids)
+                    ]
+                </attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
+                <attribute name="string">Enrollment Item</attribute>
+                <attribute name="help">Select the subject or fee. Only items allowed for the selected Academic Study or generic fees will be displayed.</attribute>
+                <attribute name="column_invisible">0</attribute>
+                <attribute name="optional"></attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_id']" position="attributes">
+                <attribute name="string">Enrollment Item</attribute>
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_qty']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_total']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='discount']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>            
+            <xpath expr="//field[@name='order_line']/list//field[@name='tax_id']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='customer_lead']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='qty_delivered']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='qty_invoiced']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+
+            <!-- Campo invisible para usar en la condición del botón eliminar -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='qty_invoiced']" position="after">
+                <field name="ems_is_tutoria" column_invisible="1"/>
+            </xpath>
+
+            <!-- Ocultar el botón de eliminar en líneas de tutoría -->
+            <xpath expr="//field[@name='order_line']/list" position="attributes">
+                <attribute name="delete">0</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/list//field[@name='qty_invoiced']" position="after">
+                <button name="unlink" string="" icon="fa-trash" type="object"
+                        invisible="ems_is_tutoria == True"
+                        confirm="Are you sure you want to remove this item?"/>
+            </xpath>
+
+            <xpath expr="//page[@name='order_lines']" position="attributes">
+                <attribute name="string">Enrollment Items</attribute>
+            </xpath>            
+            <xpath expr="//page[@name='optional_products']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='customer_signature']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='other_information']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Authorizations" name="ems_authorizations">
+                    <field name="ems_authorization_ids">
+                        <list editable="bottom" create="0" delete="0">
+                            <field name="template_id" options="{'no_open': True, 'no_create': True}" readonly="1" force_save="1"/>
+
+                            <field name="acceptance_only" string="Accept only" widget="boolean" readonly="1"/>
+                            
+                            <field name="status" 
+                                   decoration-danger="status == 'no'" 
+                                   decoration-success="status == 'yes'" 
+                                   decoration-warning="status == 'pending'"/>
+                                   
+                            <field name="signed_document" filename="signed_document_name" widget="binary"/>
+                            <field name="signed_document_name" column_invisible="True"/>
+                            <field name="response_date" readonly="1" force_save="1"/>
+                            <field name="template_download_url" widget="url" text="Link" string="Plantilla" readonly="1"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+
+            <!-- Ocultar botones de cambio de estado para tutores (solo visibles para admins y secretaría) -->
+            <xpath expr="//header/button[@id='send_by_email_primary']" position="attributes">
+                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='send_by_email']" position="attributes">
+                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='action_confirm']" position="attributes">
+                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_confirm' and not(@id)]" position="attributes">
+                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_cancel']" position="attributes">
+                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

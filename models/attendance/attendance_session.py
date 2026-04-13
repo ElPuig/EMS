@@ -32,6 +32,14 @@ class ems_attendance_session_header(models.Model):
 	start_date = fields.Datetime(compute="_compute_start_date", store=True)	
 	end_date = fields.Datetime(compute="_compute_end_date", store=True)
 
+	# TODO: 
+	# 		1. Remove unnecessary data. 
+	# 		2. Related data should not be never removed, but archived. 
+	# 		For example:	
+	# 			1. New course, so new templates.
+	#			2. Removing templates, removes also the schedules.
+	#			3. Sessions are linked to schedules, so cannot be removed because never should be removed by cascade (only manually).
+	# 			4. The same if a student's group is removed, it should really be archived.   
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", compute="_compute_level_id", store=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", compute="_compute_study_id", store=True)
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_group_id", store=True)

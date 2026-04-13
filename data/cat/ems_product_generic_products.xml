@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="fee_cfgs" model="product.template">
+            <field name="name">Tasa CFGS</field>
+            <field name="default_code">tasa_cfgs</field>
+            <field name="categ_id" ref="ems_category_academic"/>
+            <field name="type">service</field>
+            <field name="list_price">360.0</field>
+            <field name="ems_subject_unit_cost">65.0</field>
+            <field name="is_generic" eval="True"/>
+            <field name="ems_is_enrollment_fee" eval="True"/>
+            <field name="ems_level_ids" eval="[(4, ref('ems.level_cfgs'))]"/> 
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="taxes_id" eval="[(5, 0, 0)]"/>
+            <field name="supplier_taxes_id" eval="[(5, 0, 0)]"/>            
+        </record>
+        <record id="product_generic_enrollment" model="product.template">
+            <field name="name">Matrícula El Puig Castellar</field>
+            <field name="default_code">matricula</field>
+            <field name="list_price">75.0</field>
+            <field name="type">service</field>
+            <field name="is_generic">True</field>
+            <field name="categ_id" ref="ems_category_academic"/>
+            <field name="ems_level_ids" eval="[(6, 0, [
+                ref('ems.level_eso'), 
+                ref('ems.level_btx'), 
+                ref('ems.level_cfgm'), 
+                ref('ems.level_cfgs'), 
+                ref('ems.level_efps'), 
+                ref('ems.level_cfgb'),
+                ref('ems.level_pfi')
+            ])]"/>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="taxes_id" eval="[(5, 0, 0)]"/>
+            <field name="supplier_taxes_id" eval="[(5, 0, 0)]"/>
+        </record>
+
+        <record id="product_generic_ampa" model="product.template">
+            <field name="name">Quota AMPA </field>
+            <field name="default_code">ampa-quota</field>
+            <field name="list_price">15.0</field>
+            <field name="type">service</field>
+            <field name="is_generic">True</field>
+            <field name="categ_id" ref="ems_category_academic"/>
+            <field name="ems_level_ids" eval="[(6, 0, [
+                ref('ems.level_eso'),
+                ref('ems.level_btx'),
+                ref('ems.level_cfgm'),
+                ref('ems.level_cfgs'),
+                ref('ems.level_efps'),
+                ref('ems.level_cfgb'),
+                ref('ems.level_pfi')
+            ])]"/>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="taxes_id" eval="[(5, 0, 0)]"/>
+            <field name="supplier_taxes_id" eval="[(5, 0, 0)]"/>
+        </record>
+    </data>
+</odoo>

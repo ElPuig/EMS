@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
+        <record id="ems_course_25_26" model="ems.course">
+            <field name="start">2025</field>
+            <field name="end">2026</field>
+            <field name="is_current" eval="False"/>
+            <field name="is_enrollment_default" eval="True"/>
+        </record>
 
         <record id="ems_course_26_27" model="ems.course">
             <field name="start">2026</field>
@@ -22,6 +28,5 @@
             <field name="is_current" eval="False"/>
             <field name="is_enrollment_default" eval="False"/>
         </record>
-
     </data>
 </odoo>

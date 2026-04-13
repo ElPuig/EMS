@@ -1,6 +1,0 @@
-id,start,end,is_current,is_enrollment_default
-ems_course_24_25,2024,2025,False,False
-ems_course_25_26,2025,2026,True,False
-ems_course_26_27,2026,2027,False,True
-ems_course_27_28,2027,2028,False,False
-ems_course_28_29,2028,2029,False,False

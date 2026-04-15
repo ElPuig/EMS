@@ -16,7 +16,7 @@ class ems_company(models.Model):
         selection=[
             ('disabled', 'Disabled'),
             ('first',    'First (first scheduled working hour)'),
-            ('start',    'Start (start of the attendance schedule)'),
+            ('start',    'Start (start of the current attendance scheduled session)'),
             ('current',  'Current (current time)'),
         ],
         default='disabled',

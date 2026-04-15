@@ -12,7 +12,15 @@ class ems_company(models.Model):
     #       Also, string and help values are only defined within the settings form. 
     attendance_issue_status_delay = fields.Integer(default=15)
     attendance_issue_tutor_default = fields.Float(default=21.0)
-    auto_checkin = fields.Boolean(default=False)
+    auto_checkin_mode = fields.Selection(
+        selection=[
+            ('disabled', 'Disabled'),
+            ('first',    'First (first scheduled working hour)'),
+            ('start',    'Start (start of the attendance schedule)'),
+            ('current',  'Current (current time)'),
+        ],
+        default='disabled',
+    )
     auto_checkout_mode = fields.Selection(
         selection=[('native', 'Native (after maximum hours)'), ('ems', 'EMS (at last scheduled hour)')],
         default='native',

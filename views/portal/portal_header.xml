@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ems_portal_custom_header_menu" inherit_id="portal.frontend_layout">
+        <xpath expr="//t[@t-cache='res_company']" position="attributes">
+            <attribute name="t-cache">res_company, request.session.get('ems_student_id'), request.httprequest.path, request.httprequest.args.get('student_id')</attribute>
+        </xpath>
+        <xpath expr="//a[hasclass('navbar-brand')]" position="after">
+            
+            <t t-if="not request.env.user._is_public()">
+                <ul class="nav navbar-nav me-auto ms-4 d-none d-md-flex flex-row ems-custom-navbar">
+                    
+                    <t t-set="_sid_raw" t-value="request.httprequest.args.get('student_id') or request.session.get('ems_student_id')"/>
+                    <t t-set="_sid" t-value="str(_sid_raw) if _sid_raw else ''"/>
+                    <t t-set="_sq" t-value="'?student_id=' + _sid if _sid else ''"/>
+                    <li class="nav-item">
+                        <a t-attf-href="/my/home#{_sq}" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a t-attf-href="/my/asistencia#{_sq}" class="nav-link">Attendance</a>
+                    </li>
+                    <li class="nav-item">
+                        <a t-attf-href="/my/calificaciones#{_sq}" class="nav-link">Grades</a>
+                    </li>
+                    <li class="nav-item">
+                        <a t-attf-href="/my/gestion-matriculas#{_sq}" class="nav-link">Enrollment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a t-attf-href="/my/comunicaciones#{_sq}" class="nav-link">Communications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a t-attf-href="/my/documentacion#{_sq}" class="nav-link">Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a t-attf-href="/my/account#{_sq}" class="nav-link">Profile</a>
+                    </li>
+
+                    <t t-set="_portal_students" t-value="request.env.user.partner_id.get_portal_students()"/>
+                    <t t-if="len(_portal_students) > 1">
+                        <t t-set="_current_student_id" t-value="int(_sid) if _sid else _portal_students[0].id"/>
+                        <t t-set="_current_student" t-value="_portal_students.filtered(lambda s: s.id == _current_student_id)[:1] or _portal_students[:1]"/>
+                        <li class="nav-item dropdown ms-3 d-flex align-items-center">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <t t-esc="_current_student.name"/>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <t t-foreach="_portal_students" t-as="_s">
+                                    <li>
+                                        <t t-set="_path" t-value="request.httprequest.path"/>
+                                        <a class="dropdown-item" t-attf-href="#{_path}?student_id=#{_s.id}">
+                                            <t t-esc="_s.name"/>
+                                        </a>
+                                    </li>
+                                </t>
+                            </ul>
+                        </li>
+                    </t>
+
+                </ul>
+
+                <script type="text/javascript">
+                    //<![CDATA[
+                    document.addEventListener("DOMContentLoaded", function() {
+                        var path = window.location.pathname;
+                        var links = document.querySelectorAll('.ems-custom-navbar .nav-link');
+                        
+                        links.forEach(function(link) {
+                            // Use only the pathname (strip query string) for comparison
+                            var href = link.getAttribute('href').split('?')[0];
+
+                            // 1. Lógica exclusiva para Home
+                            if (href === '/my/home' && (path === '/my' || path === '/my/' || path === '/my/home')) {
+                                link.classList.add('active');
+                            }
+                            // 2. Lógica para Enrollment (incluyendo presupuestos y pedidos)
+                            else if (href === '/my/gestion-matriculas' && (path.includes('gestion-matriculas') || path.includes('quotes') || path.includes('orders'))) {
+                                link.classList.add('active');
+                            }
+                            // 3. Lógica para el resto de apartados
+                            else if (href !== '/my/home' && href !== '/my/gestion-matriculas' && path.includes(href)) {
+                                link.classList.add('active');
+                            }
+                        });
+                    });
+                    //]]>
+                </script>
+            </t>
+        </xpath>
+    </template>
+</odoo>

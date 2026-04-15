@@ -1,0 +1,4 @@
+id,name,parent_id/id
+ems_category_academic,Academic Services,product.product_category_all
+ems_category_campus,Campus Services,product.product_category_all
+ems_category_shop,Shop Products,product.product_category_all

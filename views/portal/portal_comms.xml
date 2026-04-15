@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_communications" name="Communications">
+        <t t-call="portal.portal_layout">
+            <div id="communications_content" class="container mt-4">
+                <div class="row">
+                    <div class="col-12">
+
+                        <div class="mb-4 d-flex align-items-center justify-content-between">
+                            <h3 class="mb-0">Communications</h3>
+                            <span class="text-muted small">
+                                <t t-esc="total_communications"/> messages
+                            </span>
+                        </div>
+
+                        <t t-if="not communications">
+                            <div class="alert alert-info">No communications found.</div>
+                        </t>
+
+                        <t t-if="communications">
+                            <div class="d-flex flex-column gap-3">
+                                <t t-foreach="communications" t-as="msg">
+                                    <div t-attf-class="d-flex mb-3 #{'justify-content-end' if msg.author_id.id in inner_circle_ids else ''}">
+                                        <div t-attf-class="card border-0 shadow-sm px-3 py-2 #{'ems-bubble-student' if msg.author_id.id in inner_circle_ids else 'ems-bubble-center'}"
+                                            style="max-width: 75%;">
+                                            <div class="d-flex justify-content-between gap-3 mb-1">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i t-attf-class="fa #{'fa-envelope' if msg.message_type == 'email' else 'fa-comment' if msg.message_type == 'comment' else 'fa-bell'} small"/>
+                                                    <small class="fw-bold"><t t-esc="msg.author_id.name or 'System'"/></small>
+                                                    <t t-if="msg.record_name">
+                                                        <span class="badge rounded-pill bg-ems-secondary text-white" style="font-size: 0.7em;">
+                                                            <t t-esc="msg.record_name"/>
+                                                        </span>
+                                                    </t>
+                                                </div>
+                                                <small class="opacity-75 text-nowrap">
+                                                    <t t-esc="msg.date" t-options='{"widget": "datetime"}'/>
+                                                </small>
+                                            </div>
+                                            <t t-if="msg.subject">
+                                                <p class="fw-bold mb-1 small"><t t-esc="msg.subject"/></p>
+                                            </t>
+                                            <div t-out="msg.body"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- Paginación -->
+                            <div class="mt-4 d-flex justify-content-center">
+                                <t t-call="portal.pager">
+                                    <t t-set="pager" t-value="pager"/>
+                                </t>
+                            </div>
+                        </t>
+
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

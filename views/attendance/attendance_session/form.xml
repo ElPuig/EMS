@@ -4,7 +4,7 @@
             <field name="name">ems.attendance_session_header.form</field>
             <field name="model">ems.attendance_session_header</field>
             <field name="arch" type="xml">
-                <form string="Session">
+                <form string="Session" duplicate="0">
                     <field name="is_duped" invisible="1"/> 
                     <field name="is_next" invisible="1"/> 
                     <field name="display_warning" invisible="1"/> 

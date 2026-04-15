@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="action_report_authorization_certificate" model="ir.actions.report">
+            <field name="name">Authorization Certificate</field>
+            <field name="model">ems.authorization</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_authorization_certificate</field>
+            <field name="report_file">ems.report_authorization_certificate</field>
+            <field name="binding_model_id" ref="model_ems_authorization"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_authorization_certificate">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="auth">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <style>
+                                .cert-title { font-size: 22px; margin-bottom: 6px; }
+                                .cert-section { font-size: 13px; margin-top: 10px; margin-bottom: 4px; }
+                                .cert-table { font-size: 10px; }
+                                .cert-table th, .cert-table td { padding: 3px 6px !important; line-height: 1.3; }
+                                .cert-text { margin-top: 6px; margin-bottom: 40px; }
+                            </style>
+
+                            <h1 class="cert-title">Authorization Certificate</h1>
+
+                            <!-- Cabecera: datos del alumno y matrícula -->
+                            <h3 class="cert-section">Student data</h3>
+                            <table class="table cert-table">
+                                <thead>
+                                    <tr>
+                                        <th>Field</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Student</td>
+                                        <td><span t-field="auth.enrollment_id.partner_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Enrollment code</td>
+                                        <td><span t-field="auth.enrollment_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Academic year</td>
+                                        <td><span t-field="auth.enrollment_id.ems_course_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Study</td>
+                                        <td><span t-field="auth.enrollment_id.ems_study_id.name"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Cuerpo: texto legal con variables sustituidas -->
+                            <h3 class="cert-section">Authorization text</h3>
+                            <div class="cert-text" t-field="auth.legal_text_rendered"/>
+
+                            <!-- Datos aportados por el firmante -->
+                            <t t-if="auth.response_field_ids">
+                                <h3 class="cert-section">Provided data</h3>
+                                <table class="table cert-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Field</th>
+                                            <th>Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="auth.response_field_ids" t-as="resp">
+                                            <tr>
+                                                <td><span t-esc="resp.label"/></td>
+                                                <td><span t-esc="resp.value"/></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <!-- Marca de tiempo -->
+                            <h3 class="cert-section">Response details</h3>
+                            <table class="table cert-table">
+                                <thead>
+                                    <tr>
+                                        <th>Field</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Response</td>
+                                        <td>
+                                            <t t-if="auth.status == 'yes'">
+                                                <i class="fa fa-check-circle" style="color: #28a745; font-size: 1.4em; margin-right: 6px;"/>
+                                                <strong style="color: #28a745;">Accepted</strong>
+                                            </t>
+                                            <t t-elif="auth.status == 'no'">
+                                                <i class="fa fa-times-circle" style="color: #dc3545; font-size: 1.4em; margin-right: 6px;"/>
+                                                <strong style="color: #dc3545;">Rejected</strong>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date and time</td>
+                                        <td><span t-field="auth.response_date"
+                                                  t-options='{"widget": "datetime", "format": "dd/MM/yyyy HH:mm:ss"}'/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Responded by</td>
+                                        <td><span t-field="auth.response_uid.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Responded from</td>
+                                        <td>Student Portal</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

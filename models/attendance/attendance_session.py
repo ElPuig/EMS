@@ -4,7 +4,7 @@ from odoo import models, fields, api, _
 from .attendance_schedule import ems_attendance_schedule
 from .attendance_justification import ems_attendance_justification
 from datetime import datetime, timedelta
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 from psycopg2 import IntegrityError
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
@@ -32,6 +32,14 @@ class ems_attendance_session_header(models.Model):
 	start_date = fields.Datetime(compute="_compute_start_date", store=True)	
 	end_date = fields.Datetime(compute="_compute_end_date", store=True)
 
+	# TODO: 
+	# 		1. Remove unnecessary data. 
+	# 		2. Related data should not be never removed, but archived. 
+	# 		For example:	
+	# 			1. New course, so new templates.
+	#			2. Removing templates, removes also the schedules.
+	#			3. Sessions are linked to schedules, so cannot be removed because never should be removed by cascade (only manually).
+	# 			4. The same if a student's group is removed, it should really be archived.   
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", compute="_compute_level_id", store=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", compute="_compute_study_id", store=True)
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_group_id", store=True)
@@ -388,6 +396,9 @@ class ems_attendance_session_header(models.Model):
 			record.create_notification_entries(issue_status_by_tutor, notification_tutor_eta, notification_status_eta)
 		return records
 	
+	def copy(self, default=None):
+		raise UserError(_("Attendance sessions cannot be duplicated."))
+
 	def unlink(self):
 		# NOTE: removing the session removes also the statuses and the related notification entries
 		# TODO: should be blocked if the notifications have been sent? I guess so, but the admins should be ablte to delete those

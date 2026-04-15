@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_enrollment_process" name="Enrollment Process">
+        <t t-call="portal.portal_layout">
+            <div id="enrollment_content" class="container mt-4">
+                <div class="row">
+                    <div class="col-12">
+
+                        <t t-if="viewing_as_family">
+                            <div class="alert alert-info mb-3">
+                                <i class="fa fa-user me-1"/> Viewing enrollment data for: <strong t-esc="student.name"/>
+                            </div>
+                        </t>
+
+                        <t t-if="not enrollment">
+                            <div class="alert alert-info">No active enrollment process found.</div>
+                        </t>
+
+                        <t t-if="enrollment">
+                            <t t-if="message_sent">
+                                <div class="modal fade" id="ems-message-sent-modal" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content border-0 shadow-lg">
+                                            <div class="modal-header bg-success text-white">
+                                                <h5 class="modal-title">
+                                                    <i class="fa fa-check-circle me-2"/>Message sent
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"/>
+                                            </div>
+                                            <div class="modal-body p-4">
+                                                <p class="mb-1"><b>Your message has been sent to the secretary's office:</b></p>
+                                                <p class="text-muted"><t t-esc="message_sent"/></p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+
+                            <div class="mb-4">
+                                <h3 class="mb-1">
+                                    Enrollment <strong><span t-field="enrollment.name"/></strong>
+                                </h3>
+                                <div class="d-flex flex-wrap gap-2 mt-2">
+                                    <span class="badge rounded-pill bg-ems-primary fs-6">
+                                        <i class="fa fa-graduation-cap me-1"/>
+                                        <span t-field="enrollment.ems_level_id.name"/>
+                                    </span>
+                                    <span class="badge rounded-pill bg-secondary fs-6">
+                                        <i class="fa fa-book me-1"/>
+                                        <span t-field="enrollment.ems_study_id.name"/>
+                                    </span>
+                                    <span class="badge rounded-pill bg-info text-dark fs-6">
+                                        <i class="fa fa-clock-o me-1"/>
+                                        <span t-field="enrollment.ems_shift"/>
+                                    </span>
+                                    <span class="badge rounded-pill bg-light text-dark border fs-6">
+                                        <i class="fa fa-calendar me-1"/>
+                                        <span t-field="enrollment.ems_course_id.name"/>
+                                    </span>
+                                </div>
+                            </div>                        
+                            <div class="card shadow-sm mb-5">
+
+                                <div class="card-header bg-light">
+                                    <h4 class="mb-0 d-flex align-items-center gap-2">
+                                        1. Authorizations
+                                        <button type="button" class="btn btn-link p-0 border-0" 
+                                                data-bs-toggle="modal" data-bs-target="#modal_help_authorizations">
+                                            <i class="fa fa-question-circle fa-2x text-ems-primary"/>
+                                        </button>
+                                    </h4>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>Status</th>
+                                                <th>Document</th>
+                                                <th>Response Date</th>
+                                                <th class="text-end">Answer</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="enrollment.ems_authorization_ids" t-as="auth">
+                                                <td><span t-field="auth.template_id.name"/></td>
+                                                <td>
+                                                    <span t-attf-class="badge rounded-pill #{'bg-warning' if auth.status == 'pending' else 'bg-success' if auth.status == 'yes' else 'bg-danger'}">
+                                                        <t t-if="auth.status == 'pending'">Pending</t>
+                                                        <t t-if="auth.status == 'yes'">Accepted</t>
+                                                        <t t-if="auth.status == 'no'">Rejected</t>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <t t-if="auth.signed_document">
+                                                        <a t-attf-href="/my/gestion-matriculas/authorization/#{auth.id}/document" 
+                                                        target="_blank" class="text-danger text-decoration-none">
+                                                            <i class="fa fa-file-pdf-o me-1"/>
+                                                            <span t-field="auth.signed_document_name"/>
+                                                        </a>
+                                                    </t>
+                                                    <t t-else="">-</t>
+                                                </td>
+                                                <td>
+                                                    <span t-field="auth.response_date" t-options='{"widget": "datetime", "format": "dd/MM/yyyy HH:mm"}'/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <button type="button" class="btn btn-sm btn-outline-ems" data-bs-toggle="modal" t-attf-data-bs-target="#modal_auth_#{auth.id}">
+                                                        Answer
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="modal_help_authorizations" tabindex="-1" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content border-0 shadow-lg">
+                                        <div class="modal-header bg-light">
+                                            <h5 class="modal-title">
+                                                <i class="fa fa-question-circle me-2 text-ems-primary"/>
+                                                Authorizations - Help
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"/>
+                                        </div>
+                                        <div class="modal-body p-4">
+                                            <p>You must respond to the authorizations before continuing with the enrollment process.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-ems" data-bs-dismiss="modal">OK</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="modal_help_enrollment" tabindex="-1" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content border-0 shadow-lg">
+                                        <div class="modal-header bg-light">
+                                            <h5 class="modal-title">
+                                                <i class="fa fa-question-circle me-2 text-ems-primary"/>
+                                                Enrollment details - Help
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"/>
+                                        </div>
+                                        <div class="modal-body p-4">
+                                            <p>If you agree with the enrollment, confirm it by clicking on the <strong>"Confirm Enrollment"</strong> button.</p>
+                                            <p>If, on the other hand, you have any questions about any part of the enrollment, check the box to the right of the line you wish to consult, write your question or comment in the text box below, and click on the button <strong>"Coments for the secretary's office"</strong>. The secretary's office will review your query as soon as possible.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-ems" data-bs-dismiss="modal">OK</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>  
+                            <div class="modal fade" id="modal_help_communications" tabindex="-1" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content border-0 shadow-lg">
+                                        <div class="modal-header bg-light">
+                                            <h5 class="modal-title">
+                                                <i class="fa fa-question-circle me-2 text-ems-primary"/>
+                                                Communications - Help
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"/>
+                                        </div>
+                                        <div class="modal-body p-4">
+                                            <p>In this section, you will always see the history of messages exchanged with the center's secretary regarding your enrollment.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-ems" data-bs-dismiss="modal">OK</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <t t-foreach="enrollment.ems_authorization_ids" t-as="auth">
+                                <div class="modal fade" t-attf-id="modal_auth_#{auth.id}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+                                        <div class="modal-content border-0 shadow-lg">
+                                            <form t-attf-action="/my/gestion-matriculas/authorize/#{auth.id}" method="post" data-auth-form="1">
+                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                <input type="hidden" name="student_id" t-att-value="student.id"/>
+                                                
+                                                <div class="modal-header bg-light">
+                                                    <h5 class="modal-title font-weight-bold" t-field="auth.template_id.name"/>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                
+                                                <div class="modal-body text-start p-4" style="min-height: 300px;">
+                                                    <div class="article-content" t-field="auth.legal_text_rendered"/>
+                                                    <t t-if="auth.template_id.field_ids">
+                                                        <hr class="my-3"/>
+                                                        <p class="fw-bold small text-muted mb-2">Please fill in the following data:</p>
+                                                        <t t-foreach="auth.template_id.field_ids" t-as="field">
+                                                            <div class="mb-3">
+                                                                <label t-attf-for="field_response_#{field.id}" class="form-label">
+                                                                    <t t-esc="field.label"/>
+                                                                    <t t-if="field.is_required"><span class="text-danger"> *</span></t>
+                                                                </label>
+                                                                <input t-if="field.field_type == 'char'"
+                                                                       type="text"
+                                                                       t-attf-name="field_response_#{field.id}"
+                                                                       t-attf-id="field_response_#{field.id}"
+                                                                       t-attf-placeholder="#{field.placeholder or ''}"
+                                                                       class="form-control"
+                                                                       t-att-data-auth-required="'true' if field.is_required else None"/>
+                                                                <textarea t-if="field.field_type == 'text'"
+                                                                       t-attf-name="field_response_#{field.id}"
+                                                                       t-attf-id="field_response_#{field.id}"
+                                                                       t-attf-placeholder="#{field.placeholder or ''}"
+                                                                       rows="3"
+                                                                       class="form-control"
+                                                                       t-att-data-auth-required="'true' if field.is_required else None"></textarea>
+                                                                <input t-if="field.field_type == 'date'"
+                                                                       type="date"
+                                                                       t-attf-name="field_response_#{field.id}"
+                                                                       t-attf-id="field_response_#{field.id}"
+                                                                       class="form-control"
+                                                                       t-att-data-auth-required="'true' if field.is_required else None"/>
+                                                                <div class="invalid-feedback">This field is required to accept the authorization.</div>
+                                                            </div>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                                
+                                                <div class="modal-footer bg-light">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button t-if="not auth.template_id.acceptance_only"
+                                                        type="submit" name="decision" value="no" class="btn btn-danger">Reject</button>
+                                                    <button type="submit" name="decision" value="yes" class="btn btn-success ms-2">Accept Authorization</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>  
+                            </t>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    document.querySelectorAll('form[data-auth-form]').forEach(function(form) {
+                                        form.addEventListener('submit', function(e) {
+                                            var submitter = e.submitter;
+                                            if (submitter &amp;&amp; submitter.value === 'yes') {
+                                                var fields = form.querySelectorAll('[data-auth-required="true"]');
+                                                var valid = true;
+                                                fields.forEach(function(f) {
+                                                    if (!f.value.trim()) {
+                                                        f.classList.add('is-invalid');
+                                                        valid = false;
+                                                    } else {
+                                                        f.classList.remove('is-invalid');
+                                                    }
+                                                });
+                                                if (!valid) { e.preventDefault(); }
+                                            }
+                                        });
+                                    });
+                                });
+                            </script>
+
+                            <form action="/my/gestion-matriculas/confirm" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="student_id" t-att-value="student.id"/>
+                                <div class="card shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h4 class="mb-0 d-flex align-items-center gap-2">
+                                            2. Enrollment details
+                                            <button type="button" class="btn btn-link p-0 border-0"
+                                                    data-bs-toggle="modal" data-bs-target="#modal_help_enrollment">
+                                                <i class="fa fa-question-circle fa-2x text-ems-primary"/>
+                                            </button>
+                                        </h4>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <table class="table table-sm table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th class="text-end">Price</th>
+                                                    <th class="text-center" style="width: 80px;">Comment</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="enrollment.order_line" t-as="line">
+                                                    <td><span t-field="line.name"/></td>
+                                                    <td class="text-end">
+                                                        <t t-if="line.price_unit > 0">
+                                                            <t t-if="line.discount > 0">
+                                                                <span class="text-decoration-line-through text-muted me-1">
+                                                                    <t t-esc="'%.2f €' % line.price_unit"/>
+                                                                </span>
+                                                                <span class="badge bg-success me-1">
+                                                                    <t t-esc="'-%d' % line.discount + '%'"/>
+                                                                </span>
+                                                            </t>
+                                                            <span><t t-esc="'%.2f €' % line.price_subtotal"/></span>
+                                                        </t>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input type="checkbox" class="form-check-input ems-comment-check"
+                                                            name="commented_lines" t-att-value="line.id"/>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        <!-- Total -->
+                                        <div class="row justify-content-end mt-2">
+                                            <div class="col-12 col-md-4">
+                                                <table class="table table-sm mb-0">
+                                                    <tr class="fw-bold">
+                                                        <td>Total</td>
+                                                        <td class="text-end">
+                                                            <t t-esc="'%.2f €' % enrollment.amount_total"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <!-- Caja de comentarios, oculta hasta que se marca algún check -->
+                                        <div id="ems-comments-block" class="mt-4" style="display:none;">
+                                            <label class="form-label fw-bold">Comments</label>
+                                            <textarea id="ems-comments" name="comments" class="form-control" rows="4" 
+                                                placeholder="Please describe your comments about the marked items..."/>
+                                        </div>
+
+                                        <!-- Selector de forma de pago -->
+                                        <div class="mt-4 pt-3 border-top">
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-credit-card me-2 text-ems-primary"/>
+                                                Payment plan
+                                            </label>
+                                            <div class="d-flex flex-column gap-2 mt-2">
+                                                <t t-foreach="payment_terms" t-as="term">
+                                                    <div class="form-check">
+                                                        <input type="radio" 
+                                                               class="form-check-input" 
+                                                               name="payment_term_id" 
+                                                               t-att-id="'term_' + str(term.id)"
+                                                               t-att-value="term.id"
+                                                               t-att-checked="'checked' if enrollment.payment_term_id == term else None"
+                                                               required="required"/>
+                                                        <label class="form-check-label" t-att-for="'term_' + str(term.id)">
+                                                            <t t-esc="term.name"/>
+                                                        </label>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-center">
+                                    <t t-set="pending_required" t-value="enrollment.ems_authorization_ids.filtered(lambda a: a.template_id.is_required and a.status == 'pending')"/>
+                                    <t t-set="missing_payment_term" t-value="not enrollment.payment_term_id"/>
+                                    <t t-set="blocked" t-value="pending_required or missing_payment_term"/>
+
+                                    <!-- Botón confirmar: visible por defecto, deshabilitado si faltan condiciones -->
+                                    <button type="submit" name="action" value="confirm" id="ems-confirm-btn"
+                                            t-attf-class="btn btn-ems btn-lg px-5 #{'disabled' if blocked else ''}"
+                                            t-att-disabled="'disabled' if blocked else None"
+                                            t-att-title="'Please complete all required authorizations first' if pending_required else 'Please select a payment plan' if missing_payment_term else 'Confirm your enrollment'">
+                                        Confirm Enrollment
+                                    </button>
+
+                                    <!-- Botón comentarios: oculto por defecto, siempre activo cuando se muestra -->
+                                    <button type="submit" name="action" value="comment" id="ems-comment-btn"
+                                            class="btn btn-outline-secondary btn-lg px-5"
+                                            style="display:none;"
+                                            title="Send your comments to the secretary's office">
+                                        <i class="fa fa-comment me-2"/>Comments for the secretary's office
+                                    </button>
+                                </div>
+                            </form>    
+
+                            <t t-if="enrollment_messages">
+                                <div class="card shadow-sm mt-4">
+                                    <div class="card-header bg-light">
+                                        <h4 class="mb-0 d-flex align-items-center gap-2">
+                                            3. Enrollment Communications
+                                            <button type="button" class="btn btn-link p-0 border-0"
+                                                    data-bs-toggle="modal" data-bs-target="#modal_help_communications">
+                                                <i class="fa fa-question-circle fa-2x text-ems-primary"/>
+                                            </button>
+                                        </h4>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <t t-foreach="enrollment_messages" t-as="msg">
+                                            <div t-attf-class="d-flex mb-3 #{'justify-content-end' if msg.author_id.id in inner_circle_ids else ''}">
+                                                <div t-attf-class="card border-0 shadow-sm px-3 py-2 #{'ems-bubble-student' if msg.author_id.id in inner_circle_ids else 'ems-bubble-center'}"
+                                                    style="max-width: 75%;">
+                                                    <div class="d-flex justify-content-between gap-3 mb-1">
+                                                        <small class="fw-bold"><t t-esc="msg.author_id.name"/></small>
+                                                        <small class="opacity-75">
+                                                            <t t-esc="msg.date" t-options='{"widget": "datetime"}'/>
+                                                        </small>
+                                                    </div>
+                                                    <div t-out="msg.body"/>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>                            
+
+                            <script>
+                                var confirmBtn = document.getElementById('ems-confirm-btn');
+                                var commentBtn = document.getElementById('ems-comment-btn');
+                                var hasPaymentTerm = <t t-if="enrollment.payment_term_id">true</t><t t-else="">false</t>;
+                                var hasPendingRequiredAuths = <t t-if="pending_required">true</t><t t-else="">false</t>;
+
+                                function updateButtons() {
+                                    var anyChecked = document.querySelectorAll('.ems-comment-check:checked').length > 0;
+                                    var paymentSelected = hasPaymentTerm || document.querySelector('input[name="payment_term_id"]:checked');
+
+                                    // Mostrar solo uno de los dos botones
+                                    confirmBtn.style.display = anyChecked ? 'none' : '';
+                                    commentBtn.style.display = anyChecked ? '' : 'none';
+
+                                    // Habilitar/deshabilitar el botón de confirmar según condiciones
+                                    var canConfirm = paymentSelected &amp;&amp; !hasPendingRequiredAuths;
+                                    confirmBtn.disabled = !canConfirm;
+                                    confirmBtn.classList.toggle('disabled', !canConfirm);
+
+                                    // Bloque de comentarios
+                                    document.getElementById('ems-comments-block').style.display = anyChecked ? 'block' : 'none';
+
+                                    // required en pago solo aplica cuando se va a confirmar (no comentar)
+                                    document.querySelectorAll('input[name="payment_term_id"]').forEach(function(r) {
+                                        r.required = !anyChecked;
+                                    });
+                                }
+
+                                document.querySelectorAll('input[name="payment_term_id"]').forEach(function(radio) {
+                                    radio.addEventListener('change', updateButtons);
+                                });
+                                document.querySelectorAll('.ems-comment-check').forEach(function(checkbox) {
+                                    checkbox.addEventListener('change', updateButtons);
+                                });
+
+                                // Abrir modal de confirmación si hay mensaje enviado
+                                var sentModal = document.getElementById('ems-message-sent-modal');
+                                if (sentModal) {
+                                    var modal = new bootstrap.Modal(sentModal);
+                                    modal.show();
+                                }
+                            </script>                                                       
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

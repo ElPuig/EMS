@@ -1,3 +1,60 @@
 .o_hr_attendance_install_btn{
     display: none !important;
 }
+
+/* Cambiamos el color de los botones principales (Save, Edit, Confirm...) */
+.btn-primary {
+    background-color: #8A1B31 !important;
+    border-color: #8A1B31 !important;
+    border-radius: 8px !important;
+    color: #ffffff !important;
+}
+
+/* Efecto al pasar el ratón por encima (un burdeos un poco más oscuro) */
+.btn-primary:hover, 
+.btn-primary:focus, 
+.btn-primary:active {
+    background-color: #6b1526 !important; 
+    border-color: #6b1526 !important;
+    color: #e88a1a !important;
+}
+
+/* Estilo para botones secundarios (Discard, Cancel...)*/
+.btn-secondary, 
+.btn-light {
+    background-color: #f8f9fa !important; 
+    border-color: #cccccc !important;     
+    border-radius: 8px !important;        
+    color: #495057 !important;           
+}
+
+/* Efecto al pasar el ratón por el botón secundario */
+.btn-secondary:hover, .btn-secondary:focus, .btn-secondary:active,
+.btn-light:hover, .btn-light:focus, .btn-light:active {
+    background-color: #e2e6ea !important; 
+    border-color: #b3b3b3 !important;
+    color: #8A1B31 !important;
+}
+
+/* Forzamos que el contenido sea opaco y el scroll visible */
+.modal-content {
+    background: #ffffff !important;
+    opacity: 1 !important;
+}
+
+/* Aseguramos que el cuerpo tenga scroll si el texto es largo */
+.modal-dialog-scrollable .modal-body {
+    overflow-y: auto !important;
+    max-height: 70vh !important; /* Evita que crezca más que la pantalla */
+}
+
+/* Estilo de la barra de scroll para que NO sea invisible */
+.modal-body::-webkit-scrollbar {
+    width: 12px;
+    display: block !important;
+}
+.modal-body::-webkit-scrollbar-thumb {
+    background-color: #8A1B31 !important; /* Tu color burdeos */
+    border-radius: 10px;
+    border: 3px solid #ffffff;
+}

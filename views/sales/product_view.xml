@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="product_template_form_view_inherit_ems" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.ems</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        
+        <field name="arch" type="xml">
+            <div name="options" position="inside">
+                <div>
+                    <field name="is_generic"/>
+                    <label for="is_generic"/>
+                </div>
+            </div>
+            <field name="categ_id" position="after">
+                <field name="ems_study_ids" 
+                       widget="many2many_tags" 
+                       readonly="1" 
+                       string="Associated Studies"
+                       invisible="not ems_study_ids"/> 
+            </field>
+        </field>
+
+    </record>
+
+</odoo>

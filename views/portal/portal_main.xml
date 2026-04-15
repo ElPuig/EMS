@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="portal_my_home_ems_custom_landing" name="EMS Custom Portal Landing" inherit_id="portal.portal_my_home" priority="99">
+            
+            <xpath expr="//div[hasclass('o_portal_docs')]" position="replace">
+                
+                <div class="row g-4 mt-2">
+                    
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="icon" t-value="'/ems/static/src/img/asistencia.svg'"/>
+                        <t t-set="title">Attendance</t>
+                        <t t-set="url" t-value="'/my/asistencia'"/>
+                        <t t-set="text">Check attendance records and schedules</t>
+                        <t t-set="config_card" t-value="True"/> 
+                    </t>
+
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="icon" t-value="'/ems/static/src/img/calificaciones.svg'"/>
+                        <t t-set="title">Grades</t>
+                        <t t-set="url" t-value="'/my/calificaciones'"/>
+                        <t t-set="text">Review grades and academic records</t>
+                        <t t-set="config_card" t-value="True"/> 
+                    </t>
+
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="icon" t-value="'/ems/static/src/img/matriculas.svg'"/>
+                        <t t-set="title">Enrollment</t>
+                        <t t-set="url" t-value="'/my/gestion-matriculas'"/>
+                        <t t-set="text">Manage enrollment and payments</t>
+                        <t t-set="config_card" t-value="True"/> 
+                    </t>
+
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="icon" t-value="'/ems/static/src/img/comunicaciones.svg'"/>
+                        <t t-set="title">Communications</t>
+                        <t t-set="url" t-value="'/my/comunicaciones'"/>
+                        <t t-set="text">Messages, circulars, and notices from the center</t>
+                        <t t-set="config_card" t-value="True"/> 
+                    </t>
+
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="icon" t-value="'/ems/static/src/img/documentacion.svg'"/>
+                        <t t-set="title">Documentation</t>
+                        <t t-set="url" t-value="'/my/documentacion'"/>
+                        <t t-set="text">Manage your official documents</t>
+                        <t t-set="config_card" t-value="True"/> 
+                    </t>
+
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="icon" t-value="'/ems/static/src/img/perfil.svg'"/>
+                        <t t-set="title">Profile</t>
+                        <t t-set="url" t-value="'/my/account'"/>
+                        <t t-set="text">Manage your personal and security data</t>
+                        <t t-set="config_card" t-value="True"/> 
+                    </t>
+
+                </div>
+
+            </xpath>
+        </template>
+
+    </data>
+</odoo>

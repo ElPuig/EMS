@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem id="menu_ems_configuration"
+                  name="Configuration"
+                  parent="menu_ems_academic_management"
+                  sequence="100"/>
+
+        <menuitem id="menu_ems_enrollment_items"
+                  name="Enrollment Items"
+                  parent="menu_ems_configuration"
+                  action="action_ems_enrollment_items"
+                  sequence="10"/>
+        
+        <menuitem id="menu_ems_authorization_forms"
+                  name="Authorization Forms"
+                  parent="menu_ems_configuration"
+                  action="action_ems_authorization_template"
+                  sequence="20"/>
+
+        <menuitem id="menu_ems_enrollment_templates"
+                  name="Enrollment Templates"
+                  parent="menu_ems_configuration"
+                  action="action_ems_enrollment_template"
+                  sequence="30"/>
+
+    </data>
+</odoo>

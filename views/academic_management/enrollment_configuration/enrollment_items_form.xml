@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_ems_enrollment_items_form" model="ir.ui.view">
+            <field name="name">product.template.form.ems.items</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="mode">primary</field> 
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="attributes">
+                    <attribute name="edit">0</attribute>
+                    <attribute name="create">0</attribute>
+                </xpath>
+                <xpath expr="//form" position="attributes" groups="ems.group_admin,ems.group_secretary">
+                    <attribute name="edit">1</attribute>
+                    <attribute name="create">1</attribute>
+                </xpath>
+                
+                <xpath expr="//label[@for='name']" position="attributes">
+                    <attribute name="string">Enrollment Item</attribute>
+                </xpath>
+
+                <header position="replace">
+                    <header>
+                    </header>
+                </header>
+
+                <div name="options" position="replace">
+                    <span class="d-inline-block">
+                        <field name="is_generic" widget="boolean_toggle" readonly="1"/> 
+                        <label for="is_generic"/>
+                    </span>
+                </div>
+
+                <notebook position="replace">
+                    <notebook>
+                        <page string="General Information" name="general_info">
+                            <group>
+                                <group string="Academic Data">
+                                    <field name="ems_study_ids" widget="many2many_tags"/>
+                                    <field name="ems_level_ids" widget="many2many_tags" 
+                                        invisible="is_generic == False"/>
+                                    <field name="ems_is_tutoria" widget="boolean_toggle"
+                                        invisible="is_generic == True"/>
+                                    <field name="ems_is_enrollment_fee" widget="boolean_toggle"
+                                        invisible="is_generic == False"
+                                        required="is_generic == True"/>
+                                    <field name="ems_subject_unit_cost" 
+                                        invisible="ems_is_enrollment_fee == False"
+                                        required="ems_is_enrollment_fee == True"/>
+                                    <field name="default_code" required="1"
+                                            invisible="is_generic == False"/>
+                                </group>
+                                <group string="Financial">
+                                    <field name="list_price" string="Enrollment Fee"/>
+                                    <field name="taxes_id" widget="many2many_tags" options="{'no_create': True}" force_save="1" />
+                                    <field name="categ_id" string="Category"/>
+                                    <field name="uom_id" groups="uom.group_uom" invisible="1"/>
+                                    <field name="uom_po_id" groups="uom.group_uom" invisible="1"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Description &amp; Notes">
+                                    <field name="description" placeholder="Internal notes..."/>
+                                    <field name="description_sale" placeholder="Text to appear on the enrollment receipt/invoice..."/>
+                                </group>
+                                <group string="System">
+                                    <field name="barcode"/>
+                                    <field name="active" widget="boolean_toggle"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </notebook>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

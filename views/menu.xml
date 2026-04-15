@@ -22,5 +22,21 @@
             <field name="active">false</field>
         </record> 
 
+        <record model="ir.ui.menu" id="queue_job.menu_queue_job_root">
+            <field name="active">false</field>
+        </record>
+
+        <record model="ir.ui.menu" id="sale.sale_menu_root">
+            <field name="active">false</field>
+        </record>
+
+        <record model="ir.ui.menu" id="account.menu_finance">
+            <field name="active">false</field>
+        </record>
+
+        <record model="ir.ui.menu" id="spreadsheet_dashboard.spreadsheet_dashboard_menu_root">
+            <field name="active">false</field>
+        </record>
+
     </data>
 </odoo>

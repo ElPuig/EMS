@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.7.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
+    'version': '18.0.0.8.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -33,6 +33,9 @@
         'survey', 
         'hr_attendance',
         'queue_job',
+        'sale_management',
+        'account',
+        'spreadsheet_dashboard',
         'partner_firstname',
         'partner_multi_relation'
     ],
@@ -51,7 +54,9 @@
         'security/groups.xml',
         'security/rules/attendance.xml',
         'security/rules/contacts.xml',
+        'security/rules/portal.xml',
         'security/ir.model.access.csv',
+
 
         'views/menu.xml',
 
@@ -73,6 +78,7 @@
             'views/community/workgroup/menu.xml',  
             
             'views/community/contact/list.xml',
+            'views/community/contact/list_tutor.xml',
             'views/community/contact/form.xml',
             'views/community/contact/relation_wizard.xml',
             'views/community/contact/kanban.xml',
@@ -187,13 +193,39 @@
             'views/attendance/attendance_reports/student_wizard.xml', 
             'views/attendance/attendance_reports/subject_wizard.xml', 
             'views/attendance/attendance_reports/group_wizard.xml', 
-            
+
+        'views/academic_management/menu.xml',
+            'views/academic_management/enrollment/menu.xml',
+            'views/academic_management/enrollment/enrollment_form.xml',
+            'views/academic_management/enrollment/enrollment_list.xml',
+            'views/academic_management/enrollment/enrollment_search.xml',
+            'views/academic_management/enrollment_configuration/enrollment_items_form.xml',
+            'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
+            'views/academic_management/enrollment_configuration/enrollment_authorization_search.xml',
+            'views/academic_management/enrollment_configuration/enrollment_authorization_view.xml',
+            'views/academic_management/enrollment_configuration/enrollment_authorization_form.xml',
+            'reports/authorizations/report_authorization_certificate.xml',
+            'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
+            'views/academic_management/enrollment_configuration/enrollment_template_view.xml',
+            'views/academic_management/enrollment_configuration/menu.xml',
+      
+        'views/sales/product_view.xml',
+        'views/accounting/payment_term_views.xml',
+
+        'views/portal/portal_main.xml',
+            'views/portal/portal_header.xml',
+            'views/portal/portal_enrollment_draft.xml',
+            'views/portal/portal_enrollment_confirmed.xml',
+            'views/portal/portal_comms.xml',
+            'views/portal/portal_under_construction.xml',
+
         'views/documentation/menu.xml',       
             'views/documentation/minutes/menu.xml',       
             'views/documentation/minutes/list.xml',       
             'views/documentation/minutes/form.xml',   
 
         'views/shared/attachment/form.xml',  
+
 
         ### Mailing templates ###
         'mails/attendance/attendance_issue_status.xml', 
@@ -245,6 +277,10 @@
         'data/cat/ems.role.csv',    
         'data/cat/ems.workgroup.csv',    
         'data/cat/hr.job.csv',
+        'data/cat/ems_product_category_data.xml',
+        'data/cat/ems_product_generic_products.xml',
+        'data/cat/ems_enrollment_template_data.xml',
+        
         
         # Custom data entries (adapt it to your needs, for example, ESO subjects can differ between centers)        
         'data/custom/eso/ems.subject.csv',
@@ -256,6 +292,11 @@
         'data/custom/hr.department.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',
+        'data/custom/ems.course.xml',
+        'data/custom/crm.team.csv',
+        'data/custom/product.category.csv',
+        'data/custom/ems_authorization_template_data.xml',
+        'data/custom/ems.sequence.enrollment.xml',
 
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        
@@ -314,6 +355,7 @@
         ],       
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',
+           'ems/static/src/scss/frontend/**/*',
         ],
         'web.assets_common': [
             #'ems/static/src/css/**/*',      

@@ -4,7 +4,8 @@ from odoo import models, fields, api
 
 class ems_group(models.Model):
 	_name = "ems.group"
-	_description = "Groups: Where the students are assigned to."	
+	_description = "Groups: Where the students are assigned to."
+	_order = "name"
 	
 	course = fields.Integer(string="Course", required=True)
 	acronym = fields.Char(string="Acronym", required=True)

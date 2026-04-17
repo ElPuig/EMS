@@ -58,10 +58,12 @@ class ems_group(models.Model):
 		new_tutor = self.tutor_id
 
 		if 'tutor_id' in vals:
-			# NOTE: tutor_id field changes when the tutor is assigned from the teacher form, but the old tutor's role 
+			# NOTE: tutor_id field changes when the tutor is assigned from the teacher form, but the old tutor's role
 			# should be updated and must be done from here once changed.
 			old_tutor.update_tutor_role()
 			new_tutor.update_tutor_role()
+			old_tutor._sync_security_groups()
+			new_tutor._sync_security_groups()
 		return res
 class ems_enrollment_view(models.TransientModel):
 	_name = "ems.enrollment_view"

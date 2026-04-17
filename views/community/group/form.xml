@@ -14,8 +14,11 @@
                 <form string="Group">
                     <sheet>                        
                         <group string="Main data" col="4">        
-                            <group colspan="4">
+                            <group colspan="3">
                                 <field name="level_id" />
+                            </group>
+                            <group>
+                                <field name="ems_shift" />
                             </group>                    
                             <group colspan="2">
                                 <field name="study_id" readonly="level_id == False" domain="[('level_id','=', level_id)]" />
@@ -34,10 +37,7 @@
                             </group>
                             <group>
                                 <field name="space_id" />
-                            </group>
-                            <group>
-                                <field name="ems_shift" />
-                            </group>
+                            </group>                           
                         </group>                       
                         
                         <notebook> 

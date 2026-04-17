@@ -33,7 +33,7 @@
                                     </span>
                                     <span class="badge rounded-pill bg-info text-dark fs-6">
                                         <i class="fa fa-clock-o me-1"/>
-                                        <span t-field="enrollment.ems_shift"/>
+                                        <span t-field="enrollment.shift"/>
                                     </span>
                                     <span class="badge rounded-pill bg-light text-dark border fs-6">
                                         <i class="fa fa-calendar me-1"/>

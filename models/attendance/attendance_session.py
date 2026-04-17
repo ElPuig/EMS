@@ -42,7 +42,7 @@ class ems_attendance_session_header(models.Model):
 	# 			4. The same if a student's group is removed, it should really be archived.   
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", compute="_compute_level_id", store=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", compute="_compute_study_id", store=True)
-	group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_group_id", store=True)
+	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", compute="_compute_group_ids", store=True)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", compute="_compute_subject_id", store=True)
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", compute="_compute_space_id", store=True)
 	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
@@ -104,9 +104,9 @@ class ems_attendance_session_header(models.Model):
 			rec.study_id = rec.attendance_schedule_id.attendance_template_id.sudo().study_id
 
 	@api.depends("attendance_schedule_id")
-	def _compute_group_id(self):
+	def _compute_group_ids(self):
 		for rec in self:
-			rec.group_id = rec.attendance_schedule_id.attendance_template_id.sudo().group_id
+			rec.group_ids = rec.attendance_schedule_id.attendance_template_id.sudo().group_ids
 
 	@api.depends("attendance_schedule_id")
 	def _compute_subject_id(self):
@@ -336,16 +336,17 @@ class ems_attendance_session_header(models.Model):
 			"is_auto_generated" : True 
 		}
 
-	def _auto_checkin_teacher(self, teacher, date):
+	def _auto_checkin_teacher(self, teacher, date, schedule=None):
 		"""Auto check-in the teacher if they haven't checked in yet today."""
-		if not self.env.company.auto_checkin:
+		mode = self.env.company.auto_checkin_mode
+		if not mode or mode == 'disabled':
 			return
 		today = datetime.today().date()
-		if not teacher or not teacher.resource_calendar_id or date != today:
+		if not teacher or date != today:
 			return
 
 		day_start = datetime(date.year, date.month, date.day, 0, 0, 0)
-		day_end = datetime(date.year, date.month, date.day, 23, 59, 59)
+		day_end   = datetime(date.year, date.month, date.day, 23, 59, 59)
 
 		existing = self.env['hr.attendance'].sudo().search([
 			('employee_id', '=', teacher.id),
@@ -356,22 +357,40 @@ class ems_attendance_session_header(models.Model):
 		if existing:
 			return
 
-		# Get the first working hour for today's weekday (0=Monday, 6=Sunday)
-		weekday = str(date.weekday())
-		calendar_attendances = teacher.resource_calendar_id.attendance_ids.filtered(
-			lambda a: a.dayofweek == weekday
-		).sorted(key=lambda a: a.hour_from)
+		if mode == 'first':
+			# First working hour from the teacher's resource calendar
+			if not teacher.resource_calendar_id:
+				return
+			weekday = str(date.weekday())
+			calendar_attendances = teacher.resource_calendar_id.attendance_ids.filtered(
+				lambda a: a.dayofweek == weekday
+			).sorted(key=lambda a: a.hour_from)
+			if not calendar_attendances:
+				return
+			first_hour = calendar_attendances[0].hour_from
+			check_in_utc = self.time_float_to_utc_datetime(date, first_hour)
+			check_in_naive = self.datetime_to_odoo(check_in_utc)
 
-		if not calendar_attendances:
+		elif mode == 'start':
+			# Start time of the attendance schedule used in the current session
+			if not schedule or not schedule.start_time:
+				return
+			check_in_utc = self.time_float_to_utc_datetime(date, schedule.start_time)
+			check_in_naive = self.datetime_to_odoo(check_in_utc)
+
+		elif mode == 'current':
+			# Current clock time
+			check_in_naive = self.datetime_to_odoo(
+				self.local_datetime_to_utc(self.get_local_datetime())
+			)
+
+		else:
 			return
-
-		first_hour = calendar_attendances[0].hour_from
-		check_in_utc = self.time_float_to_utc_datetime(date, first_hour)
-		check_in_naive = self.datetime_to_odoo(check_in_utc)
 
 		self.env['hr.attendance'].sudo().create({
 			'employee_id': teacher.id,
 			'check_in': check_in_naive,
+			'in_mode': 'auto_check_in',
 		})
 
 	@api.model_create_multi
@@ -386,7 +405,7 @@ class ems_attendance_session_header(models.Model):
 		notification_tutor_eta = self._get_notification_tutor_eta()
 
 		for record in records:
-			record._auto_checkin_teacher(record.session_teacher_id, record.date)
+			record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
 
 			# NOTE: Collecting all status data first allow some optimizations.
 			issue_status_by_tutor = dict()

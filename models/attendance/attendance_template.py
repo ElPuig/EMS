@@ -15,9 +15,9 @@ class ems_attendance_template(models.Model):
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True, ondelete='cascade')
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", required=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", domain="[('level_id', '=', level_id)]", required=True)
-	group_id = fields.Many2one(string="Group", comodel_name="ems.group", domain="[('study_id', '=', study_id)]", required=True)
+	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", domain="[('study_id', '=', study_id)]")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", domain="[('study_ids', 'in', study_id)]", required=True)
-	space_id = fields.Many2one(string="Space", comodel_name="ems.space", default="group_id.space_id", required=True)
+	space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
 	
 	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_schedule", inverse_name="attendance_template_id")			
 	student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")	
@@ -28,29 +28,38 @@ class ems_attendance_template(models.Model):
 	def _get_read_only_user(self):
 		return not (self.id == False or self.get_user_is_admin() or self.teacher_id.user_id.id == self.env.uid or self.create_uid == self.env.uid)
 
-	def _default_teacher_id(self):							
+	def _default_teacher_id(self):
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
 
-	@api.depends('subject_id', 'group_id')
-	def _compute_display_name(self):              
+	@api.constrains('group_ids')
+	def _check_group_ids(self):
 		for rec in self:
-			rec.display_name = "%s (%s)" % (rec.subject_id.display_name, rec.group_id.name)
+			if not rec.group_ids:
+				raise ValidationError(_("At least one group must be selected."))
 
-	@api.onchange("group_id")	
-	def _onchange_group_id(self):		
+	@api.depends('subject_id', 'group_ids')
+	def _compute_display_name(self):
 		for rec in self:
-			rec.space_id = rec.group_id.space_id
+			groups = ", ".join(rec.group_ids.mapped('name'))
+			rec.display_name = "%s (%s)" % (rec.subject_id.display_name, groups)
 
-	@api.onchange("subject_id", "group_id")	
-	def _fill_students(self):		
+	@api.onchange("group_ids")
+	def _onchange_group_ids(self):
 		for rec in self:
-			rec.fill_students()									
+			if rec.group_ids:
+				rec.space_id = rec.group_ids[0].space_id
 
-	def fill_students(self):				
-		students = []
-		for student in self.env['ems.enrollment'].search([('group_id', '=', self.group_id.id), ('subject_id', '=', self.subject_id.id)]).mapped('student_id'):
-			students.append(student.id)
-		self.student_ids = [(6, 0, students)]
+	@api.onchange("subject_id", "group_ids")
+	def _fill_students(self):
+		for rec in self:
+			rec.fill_students()
+
+	def fill_students(self):
+		students = self.env['ems.enrollment'].search([
+			('group_id', 'in', self.group_ids.ids),
+			('subject_id', '=', self.subject_id.id)
+		]).mapped('student_id')
+		self.student_ids = [(6, 0, students.ids)]
 
 	def reload_students(self):
 		self.student_ids = [(5)]

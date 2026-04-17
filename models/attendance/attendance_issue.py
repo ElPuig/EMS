@@ -65,7 +65,7 @@ class ems_attendance_issue_status(models.Model):
 	send_to = fields.Char(string="Send to", required=True)	
 	schedule_date = fields.Datetime(string="Scheduled on", related="notification_id.eta")
 	subject_id = fields.Many2one(string="Subject", related="attendance_session_id.subject_id")
-	group_id = fields.Many2one(string="Group", related="attendance_session_id.group_id")
+	group_ids = fields.Many2many(string="Groups", related="attendance_session_id.group_ids")
 	space_id = fields.Many2one(string="Space", related="attendance_session_id.space_id")
 	teacher_id = fields.Many2one(string="Teacher", related="attendance_session_id.session_teacher_id")
 	time_range = fields.Char(string="Time range", related="attendance_session_id.time_range")

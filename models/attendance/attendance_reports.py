@@ -57,21 +57,28 @@ class ems_attendance_report_group_wizard(models.TransientModel):
 	def _onchange_group_id(self):
 		for rec in self:
 			if rec.group_id.id != False:
-				sessions = self.env["ems.attendance_session_header"].search([("group_id", "=", rec.group_id.id)])
+				sessions = self.env["ems.attendance_session_header"].search([("group_ids", "in", [rec.group_id.id])])
 				first = sessions.search([], order="date asc", limit=1)
 				last = sessions.search([], order="date desc", limit=1)
 				rec.from_date = first.date
 				rec.to_date = last.date
 
-	def print(self):		
-		query = """SELECT status.id FROM ems_attendance_session_line AS status
-				LEFT JOIN ems_attendance_session_header AS session ON session.id = status.attendance_session_id
-				WHERE session.group_id=%d AND session.date >= '%s' AND session.date <= '%s'""" % (self.group_id, self.from_date, self.to_date)
-								
-		self.env.cr.execute(query)		
-		status_ids = self.env.cr.dictfetchall()
-		data = {'doc_ids': [self.read()[0]['id']],'status_ids': list(map(lambda x:x['id'], status_ids))}
+	def print(self):
+		session_ids = self.env["ems.attendance_session_header"].search([
+			("group_ids", "in", [self.group_id.id]),
+			("date", ">=", self.from_date),
+			("date", "<=", self.to_date),
+		]).ids
 
+		if not session_ids:
+			status_ids = []
+		else:
+			query = """SELECT status.id FROM ems_attendance_session_line AS status
+					WHERE status.attendance_session_id IN %s"""
+			self.env.cr.execute(query, (tuple(session_ids),))
+			status_ids = [r['id'] for r in self.env.cr.dictfetchall()]
+
+		data = {'doc_ids': [self.read()[0]['id']], 'status_ids': status_ids}
 		return self.env.ref('ems.action_attendance_report_group').with_context(landscape=True).report_action(None, data=data)
 
 class ems_attendance_report_student_wizard(models.TransientModel):
@@ -180,21 +187,29 @@ class ems_attendance_report_subject_wizard(models.TransientModel):
 	def _onchange_subject_id(self):
 		for rec in self:
 			if rec.subject_id.id != False:
-				sessions = self.env["ems.attendance_session_header"].search([("subject_id", "=", rec.subject_id.id), ("group_id", "=", rec.group_id.id)])
+				sessions = self.env["ems.attendance_session_header"].search([("subject_id", "=", rec.subject_id.id), ("group_ids", "in", [rec.group_id.id])])
 				first = sessions.search([], order="date asc", limit=1)
 				last = sessions.search([], order="date desc", limit=1)
 				rec.from_date = first.date
 				rec.to_date = last.date
 
 	def print(self):
-		query = """SELECT status.id FROM ems_attendance_session_line AS status
-				LEFT JOIN ems_attendance_session_header AS session on session.id = status.attendance_session_id
-				WHERE session.group_id=%d AND session.subject_id=%d AND session.date >= '%s' AND session.date <= '%s'""" % (self.group_id, self.subject_id, self.from_date, self.to_date)
-		
-		self.env.cr.execute(query)		
-		status_ids = self.env.cr.dictfetchall()
-		data = {'doc_ids': [self.read()[0]['id']],'status_ids': list(map(lambda x:x['id'], status_ids))}
+		session_ids = self.env["ems.attendance_session_header"].search([
+			("group_ids", "in", [self.group_id.id]),
+			("subject_id", "=", self.subject_id.id),
+			("date", ">=", self.from_date),
+			("date", "<=", self.to_date),
+		]).ids
 
+		if not session_ids:
+			status_ids = []
+		else:
+			query = """SELECT status.id FROM ems_attendance_session_line AS status
+					WHERE status.attendance_session_id IN %s"""
+			self.env.cr.execute(query, (tuple(session_ids),))
+			status_ids = [r['id'] for r in self.env.cr.dictfetchall()]
+
+		data = {'doc_ids': [self.read()[0]['id']], 'status_ids': status_ids}
 		return self.env.ref('ems.action_attendance_report_subject').with_context(landscape=True).report_action(None, data=data)
 
 class ems_attendance_report_student(models.AbstractModel):

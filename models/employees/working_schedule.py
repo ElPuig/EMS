@@ -31,7 +31,7 @@ class ems_working_schedule_assignation(models.Model):
 
 	non_teaching = fields.Selection(string="Non-teaching", selection=non_teaching_selection)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
-	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
+	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
 
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
@@ -104,7 +104,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'full_time_required_hours': 24
 			})
 		
-		entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.	Items will be removed if became orphan.				
+		entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.	Items will be removed if became orphan.
+		result_entries = []
 		for dayNode in xml_node:
 			# NOTE: 0: Monday; 1: Tuesday as today.weekday() does.
 			dayofweek = int(dayNode.attrib['name'].split(' ')[0]) - 1						
@@ -121,22 +122,26 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					}
 
 					if not non_teaching_id:
-						new_entry["name"] = "%s: %s (%s)" % (subject.acronym, subject.name, group.name)
+						new_entry["name"] = "%s: %s (%s)" % (subject.acronym, subject.name, ", ".join(g.name for g in groups))
 						new_entry["subject_id"] = subject.id
-						new_entry["group_id"] = group.id
-						new_entry["non_teaching"] = False										
+						new_entry["group_ids"] = [(6, 0, groups.ids)]
+						new_entry["non_teaching"] = False
 					else:
 						new_entry["name"] = "%s: %s" % (non_teaching_id, non_teaching_items[non_teaching_id])
 						new_entry["subject_id"] = False
-						new_entry["group_id"] = False
+						new_entry["group_ids"] = [(6, 0, [])]
 						new_entry["non_teaching"] = non_teaching_id
-					
+
+					meta = dict(new_entry)
+					meta["group_ids"] = list(groups.ids)
 					entries.append([0, 0, new_entry])
+					result_entries.append(meta)
 					start = None
 
 				# NOTE: Ignore empty hours (lack of activities)
 				id = None
 				non_teaching = False
+				groupAcros = []
 				for content in hourNode:
 					if content.tag == 'Activity':
 						id = content.attrib['id'].split(' ')[0]
@@ -146,25 +151,27 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					elif content.tag == 'Subject':
 						subjectCode = content.attrib['name'].split(' ')[0]
 					elif content.tag == 'Students':
-						groupAcro = content.attrib['name'].split(' ')[0]														
-				
+						groupAcros.append(content.attrib['name'].split(' ')[0])
+
 				if id is not None:
 					start = hourNode.attrib['name'].split(' ')[1]
 					if non_teaching:
 						if not id in non_teaching_items: raise ValidationError("Non-Teaching with code '%s' not found." % id)
 						non_teaching_id = id
 						subject = False
-						group = False
+						groups = self.env['ems.group']
 					else:
 						subject = self.env["ems.subject"].search([("code", "=", subjectCode)])
-						group = self.env["ems.group"].search([("name", "=", groupAcro)])	
-						non_teaching_id = False					
+						groups = self.env["ems.group"].search([("name", "in", groupAcros)])
+						non_teaching_id = False
 						if not subject.id: raise ValidationError("Subject with code '%s' not found." % subjectCode)
-						if not group.id: raise ValidationError("Group with acronym '%s' not found." % groupAcro)
+						for acro in groupAcros:
+							if acro not in groups.mapped('name'):
+								raise ValidationError("Group with acronym '%s' not found." % acro)
 												
-		schedule.write({ 'attendance_ids': entries })  		
+		schedule.write({ 'attendance_ids': entries })
 		teacher.write({ "resource_calendar_id": schedule })
-		return [x[2] for x in entries[1:]] #skipping the first (unlink all) and getting only entities.	
+		return result_entries
 
 	def _create_teaching(self, entries, teacher, course_id):
 		old_items = dict()
@@ -174,21 +181,22 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		teaching = []
 		new_items = dict()
 		for e in entries:
-			key = "%s.%s" % (e["subject_id"], e["group_id"])
-			value = {
-				'group_id': e["group_id"],
-				'subject_id': e["subject_id"],
-				# TODO: add the course (the course should be able to be selected from the form, in order to prepare future courses)
-			}
+			for gid in e["group_ids"]:
+				key = "%s.%s" % (e["subject_id"], gid)
+				value = {
+					'group_id': gid,
+					'subject_id': e["subject_id"],
+					# TODO: add the course (the course should be able to be selected from the form, in order to prepare future courses)
+				}
 
-			if not key in new_items:
-				new_items[key] = value
+				if not key in new_items:
+					new_items[key] = value
 
-			if key not in old_items:
-				# Create only if new
-				item = [0, 0, new_items[key]]
-				if item not in teaching:
-					teaching.append(item)
+				if key not in old_items:
+					# Create only if new
+					item = [0, 0, value]
+					if item not in teaching:
+						teaching.append(item)
 
 		for old in old_items:
 			if old not in new_items:
@@ -211,12 +219,12 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		old_items = dict()
 		for t in teacher.attendance_template_ids.filtered('active'):
 			# TODO: what happens with the space, if two templates for the same subject and group exists but for diferent space?
-			old_items["%s.%s" % (t.subject_id.id, t.group_id.id)] = t
+			old_items["%s.%s" % (t.subject_id.id, ",".join(str(g) for g in sorted(t.group_ids.ids)))] = t
 
 		templates = dict()
 		new_items = dict()
 		for e in entries:
-			key = "%s.%s" % (e["subject_id"], e["group_id"])
+			key = "%s.%s" % (e["subject_id"], ",".join(str(g) for g in sorted(e["group_ids"])))
 
 			if not key in new_items:
 				new_items[key] = e
@@ -226,18 +234,18 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				if key in templates:
 					t = templates[key]
 				else:
-					# TODO: define default start and end date for subjects within settings.							
-					group_id = self.env['ems.group'].search([('id', '=', e["group_id"])]) or False
+					# TODO: define default start and end date for subjects within settings.
+					first_group = self.env['ems.group'].browse(e["group_ids"][0])
 					t = {
 						'start_date': datetime(now.year, 9, 1),
 						'end_date': datetime(now.year+1, 7, 1),
 						'color': color,
 						'teacher_id': teacher.id,
 						'subject_id': e["subject_id"],
-						'group_id': e["group_id"],
-						'level_id': group_id.level_id.id,
-						'study_id': group_id.study_id.id,
-						'space_id': group_id.space_id.id,
+						'group_ids': [(6, 0, e["group_ids"])],
+						'level_id': first_group.level_id.id,
+						'study_id': first_group.study_id.id,
+						'space_id': first_group.space_id.id,
 						'attendance_schedule_ids': [],
 						# TODO: add also the current course
 					}

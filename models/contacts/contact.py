@@ -195,7 +195,7 @@ class ems_contact(models.Model):
             'context': {
                 'default_partner_id': self.id,
                 'default_ems_study_id': self.study_id.id if self.study_id else False,
-                'default_ems_shift': self.main_group_id.ems_shift if self.main_group_id else False,
+                'default_shift': self.main_group_id.shift if self.main_group_id else False,
             }
         }
     
@@ -232,7 +232,7 @@ class ems_contact(models.Model):
                 'partner_id': student.id,
                 'ems_study_id': student.study_id.id if student.study_id else False,
                 'ems_course_id': current_course.id if current_course else False,
-                'ems_shift': student.main_group_id.ems_shift if student.main_group_id else False,
+                'shift': student.main_group_id.shift if student.main_group_id else False,
                 'sale_order_template_id': template.id if template else False,
             })
             if template:

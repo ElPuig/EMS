@@ -3,14 +3,16 @@
 import logging
 from datetime import datetime, timezone
 
-from odoo import models, _
+from odoo import models, fields, _
 
 _logger = logging.getLogger(__name__)
 
 
 class ems_attendance(models.Model):
     _inherit = 'hr.attendance'
-    _description = 'HR Attendance: auto check-out extension.'
+    _description = 'HR Attendance: auto check-in/check-out extension.'
+
+    in_mode = fields.Selection(selection_add=[('auto_check_in', 'Automatic Check-In')])
 
     def _get_last_working_hour(self, employee, work_date):
         """Return the last hour_to (as naive UTC datetime) for the employee on work_date.

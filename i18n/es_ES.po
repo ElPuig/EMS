@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0-20260409\n"
+"Project-Id-Version: Odoo Server 18.0-20260415\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-15 18:05+0000\n"
-"PO-Revision-Date: 2026-04-15 18:05+0000\n"
+"POT-Creation-Date: 2026-04-17 07:14+0000\n"
+"PO-Revision-Date: 2026-04-17 07:14+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "#{field.placeholder or ''}"
-msgstr "#{field.placeholder or ''}"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
@@ -82,22 +82,22 @@ msgstr "4a evaluación"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<b>Your message has been sent to the secretary's office:</b>"
-msgstr "<b>Su mensaje ha sido enviado a secretaría:</b>"
+msgstr "<b>Tu mensaje ha sido enviado a secretaría:</b>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "<code>{{academic_year}}</code> — Academic year (e.g. 2025-2026)"
-msgstr "<code>{{academic_year}}</code> — Año académico (p. ej. 2025-2026)"
+msgstr "<code>{{academic_year}}</code> — Año académico (p.ej. 2025-2026)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "<code>{{student_name}}</code> — Full name of the student"
-msgstr "<code>{{student_name}}</code> — Nombre completo del estudiante"
+msgstr "<code>{{student_name}}</code> — Nombre completo del alumno/a"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "<code>{{study_name}}</code> — Study name (e.g. DAM)"
-msgstr "<code>{{study_name}}</code> — Nombre del estudio (p. ej. DAM)"
+msgstr "<code>{{study_name}}</code> — Nombre de los estudios (p.ej. DAM)"
 
 #. module: ems
 #: model:mail.template,body_html:ems.mail_attendance_issue_status
@@ -314,16 +314,14 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<i class=\"fa fa-comment me-2\"/>Comments for the secretary's office"
-msgstr "<i class=\"fa fa-comment me-2\"/>Comentarios para la secretaría"
+msgstr "<i class=\"fa fa-comment me-2\"/>Comentarios para secretaría"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid ""
 "<i class=\"fa fa-credit-card me-2 text-ems-primary\"/>\n"
 "                                                Payment plan"
-msgstr ""
-"<i class=\"fa fa-credit-card me-2 text-ems-primary\"/>\n"
-"                                                Plan de pago"
+msgstr "<i class=\"fa fa-credit-card me-2 text-ems-primary\"/>\n                                                Plan de pago"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_under_construction_page
@@ -335,42 +333,34 @@ msgstr "<i class=\"fa fa-home me-2\"/> Volver al inicio"
 msgid ""
 "<i class=\"fa fa-question-circle me-2 text-ems-primary\"/>\n"
 "                                                Authorizations - Help"
-msgstr ""
-"<i class=\"fa fa-question-circle me-2 text-ems-primary\"/>\n"
-"                                                Autorizaciones - Ayuda"
+msgstr "<i class=\"fa fa-question-circle me-2 text-ems-primary\"/>\n                                                Autorizaciones - Ayuda"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid ""
 "<i class=\"fa fa-question-circle me-2 text-ems-primary\"/>\n"
 "                                                Communications - Help"
-msgstr ""
-"<i class=\"fa fa-question-circle me-2 text-ems-primary\"/>\n"
-"                                                Comunicaciones - Ayuda"
+msgstr "<i class=\"fa fa-question-circle me-2 text-ems-primary\"/>\n                                                Comunicaciones - Ayuda"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid ""
 "<i class=\"fa fa-question-circle me-2 text-ems-primary\"/>\n"
 "                                                Enrollment details - Help"
-msgstr ""
-"<i class=\"fa fa-question-circle me-2 text-ems-primary\"/>\n"
-"                                                Detalles de matrícula - Ayuda"
+msgstr "<i class=\"fa fa-question-circle me-2 text-ems-primary\"/>\n                                                Detalles de matrícula - Ayuda"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 msgid ""
 "<i class=\"fa fa-times-circle\" style=\"color: #dc3545; font-size: 1.4em; margin-right: 6px;\"/>\n"
 "                                                <strong style=\"color: #dc3545;\">Rejected</strong>"
-msgstr ""
-"<i class=\"fa fa-times-circle\" style=\"color: #dc3545; font-size: 1.4em; margin-right: 6px;\"/>\n"
-"                                                <strong style=\"color: #dc3545;\">Rechazado</strong>"
+msgstr " <i class=\"fa fa-times-circle\" style=\"color: #dc3545; font-size: 1.4em; margin-right: 6px;\"/>\n                                                 <strong style=\"color: #dc3545;\">Rechazado</strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<i class=\"fa fa-user me-1\"/> Viewing enrollment data for:"
-msgstr "<i class=\"fa fa-user me-1\"/> Viendo datos de matrícula para:"
+msgstr "<i class=\"fa fa-user me-1\"/> Viendo los datos de matrícula de:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
@@ -389,47 +379,35 @@ msgid ""
 "                                        <i class=\"fa fa-check-circle me-1\"/>\n"
 "                                        Enrollment confirmed\n"
 "                                    </span>"
-msgstr ""
-"<span class=\"badge rounded-pill fs-6\" style=\"background-color: #8fbc8f; color: #2d5a2d;\">\n"
-"                                        <i class=\"fa fa-check-circle me-1\"/>\n"
-"                                        Matrícula confirmada\n"
-"                                    </span>"
+msgstr " <span class=\"badge rounded-pill fs-6\" style=\"background-color: #8fbc8f; color: #2d5a2d;\">\n                                         <i class=\"fa fa-check-circle me-1\"/>\n                                         Matrícula confirmada\n                                     </span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_healt == False\">Yes</span>\n"
 "                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_healt == True\">No</span>"
-msgstr ""
-"<span class=\"badge text-bg-success\" invisible=\"auth_healt == False\">Sí</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_healt == True\">No</span>"
+msgstr " <span class=\"badge text-bg-success\" invisible=\"auth_healt == False\">Sí</span>\n                                     <span class=\"badge text-bg-secondary\" invisible=\"auth_healt == True\">No</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_image == False\">Yes</span>\n"
 "                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_image == True\">No</span>"
-msgstr ""
-"<span class=\"badge text-bg-success\" invisible=\"auth_image == False\">Sí</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_image == True\">No</span>"
+msgstr " <span class=\"badge text-bg-success\" invisible=\"auth_image == False\">Sí</span>\n                                     <span class=\"badge text-bg-secondary\" invisible=\"auth_image == True\">No</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_share == False\">Yes</span>\n"
 "                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_share == True\">No</span>"
-msgstr ""
-"<span class=\"badge text-bg-success\" invisible=\"auth_share == False\">Sí</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_share == True\">No</span>"
+msgstr " <span class=\"badge text-bg-success\" invisible=\"auth_share == False\">Sí</span>\n                                     <span class=\"badge text-bg-secondary\" invisible=\"auth_share == True\">No</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_trip == False\">Yes</span>\n"
 "                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_trip == True\">No</span>"
-msgstr ""
-"<span class=\"badge text-bg-success\" invisible=\"auth_trip == False\">Sí</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_trip == True\">No</span>"
+msgstr " <span class=\"badge text-bg-success\" invisible=\"auth_trip == False\">Sí</span>\n                                     <span class=\"badge text-bg-secondary\" invisible=\"auth_trip == True\">No</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -437,10 +415,7 @@ msgid ""
 "<span class=\"badge text-bg-success\" invisible=\"benefit_status != 'exemption'\">Exemption</span>\n"
 "                                    <span class=\"badge text-bg-info\" invisible=\"benefit_status != 'bonification'\">Bonification</span>\n"
 "                                    <span class=\"badge text-bg-secondary\" invisible=\"benefit_status != 'none'\">None</span>"
-msgstr ""
-"<span class=\"badge text-bg-success\" invisible=\"benefit_status != 'exemption'\">Exención</span>\n"
-"                                    <span class=\"badge text-bg-info\" invisible=\"benefit_status != 'bonification'\">Bonificación</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"benefit_status != 'none'\">Ninguno</span>"
+msgstr " <span class=\"badge text-bg-success\" invisible=\"benefit_status != 'exemption'\">Exención</span>\n                                     <span class=\"badge text-bg-info\" invisible=\"benefit_status != 'bonification'\">Bonificación</span>\n                                     <span class=\"badge text-bg-secondary\" invisible=\"benefit_status != 'none'\">Ninguno</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
@@ -463,10 +438,7 @@ msgid ""
 "<span class=\"o_form_label\" title=\"If marked, the student (even if adult) "
 "allows to share its educational information with its family.\">Share with "
 "family</span>"
-msgstr ""
-"<span class=\"o_form_label\" title=\"Si está marcado, el estudiante (aunque "
-"sea adulto) permite compartir su información educativa con su "
-"familia.\">Compartir con la familia</span>"
+msgstr "<span class=\"o_form_label\" title=\"Si está marcado, el alumno/a (aunque sea mayor de edad) permite compartir su información educativa con su familia.\">Compartir con la familia</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -574,7 +546,7 @@ msgstr "Información académica"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_sale_order_template__ems_study_id
 msgid "Academic Study"
-msgstr "Estudio académico"
+msgstr "Estudios académicos"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__course_id
@@ -888,6 +860,12 @@ msgid "Allowed Subject"
 msgstr "Tema permitido"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/base.py:0
+msgid "An error occurred during the process"
+msgstr "Se ha producido un error durante el proceso"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ac
 msgid "Another Coordinations"
 msgstr "Otras Coordinaciones"
@@ -900,12 +878,12 @@ msgstr "Respuesta"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_template__ems_level_ids
 msgid "Applies to Levels"
-msgstr "Aplica a niveles"
+msgstr "Aplica a los niveles"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_template__ems_study_ids
 msgid "Applies to Studies"
-msgstr "Aplica a estudios"
+msgstr "Aplica a los estudios"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
@@ -922,31 +900,25 @@ msgstr "Archivado"
 msgid ""
 "Are you sure you want to add this authorization to all Pre-enrollments "
 "matching the criteria?"
-msgstr ""
-"¿Está seguro de que desea añadir esta autorización a todas las prematrículas"
-" que coincidan con los criterios?"
+msgstr "¿Estás seguro de que quieres añadir esta autorización a todas las prematrículas que cumplen los criterios?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
 "Are you sure you want to delete this relation? This action cannot be undone."
-msgstr ""
-"¿Está seguro de que desea eliminar esta relación? Esta acción no se puede "
-"deshacer."
+msgstr "¿Estás seguro de que quieres eliminar esta relación? Esta acción no se puede deshacer."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid ""
 "Are you sure you want to remove this authorization from all Pre-enrollments?"
 " (It is recommended to only remove unsigned ones)."
-msgstr ""
-"¿Está seguro de que desea eliminar esta autorización de todas las "
-"prematrículas? (Se recomienda eliminar solo las no firmadas)."
+msgstr "¿Estás seguro de que quieres quitar esta autorización de todas las prematrículas? (Se recomienda quitar solo las que no están firmadas)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Are you sure you want to remove this item?"
-msgstr "¿Está seguro de que desea eliminar este elemento?"
+msgstr "¿Estás seguro de que quieres eliminar este elemento?"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__employee_ids
@@ -1190,7 +1162,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_session.py:0
 msgid "Attendance sessions cannot be duplicated."
-msgstr "Las sesiones de asistencia no se pueden duplicar."
+msgstr "Las sesiones de asistencia no pueden duplicarse."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_status
@@ -1296,14 +1268,14 @@ msgstr "Autorizaciones"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
-msgid "Auto Check-In Mode for Teachers (EMS)"
-msgstr "Modo de fichaje automático para profesores (EMS)"
+msgid "Auto Check-In for Teachers (EMS)"
+msgstr "Fichaje automático para profesores (EMS)"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__auto_checkin_mode
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__auto_checkin_mode
-msgid "Auto Checkin Mode"
-msgstr "Modo de entrada automática"
+#: model:ir.model.fields,field_description:ems.field_res_company__auto_checkin
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__auto_checkin
+msgid "Auto Checkin"
+msgstr "Fichaje automático"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__auto_checkout_mode
@@ -1316,11 +1288,6 @@ msgstr "Modo de salida automática"
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__auto_checkout_time
 msgid "Auto Checkout Time"
 msgstr "Hora de salida automática"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_attendance__in_mode__auto_check_in
-msgid "Automatic Check-In"
-msgstr "Fichaje automático"
 
 #. module: ems
 #: model:ir.model,name:ems.model_hr_employee_base
@@ -1376,7 +1343,7 @@ msgstr "Bonificación"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_benefit__category__bonification
 msgid "Bonification (Partial)"
-msgstr "Bonificación (parcial)"
+msgstr "Bonificación (Parcial)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -1443,18 +1410,14 @@ msgstr "Consultar registros de asistencia y horarios"
 msgid ""
 "Check this box if this course is currently active for daily academic "
 "management."
-msgstr ""
-"Marque esta casilla si este curso está activo para la gestión académica "
-"diaria."
+msgstr "Marca esta casilla si este curso está activo para la gestión académica diaria."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_course__is_enrollment_default
 msgid ""
 "Check this box if this is the default course for new enrollments (usually "
 "the upcoming academic year)."
-msgstr ""
-"Marque esta casilla si este es el curso predeterminado para nuevas "
-"matrículas (normalmente el próximo año académico)."
+msgstr "Marca esta casilla si este es el curso por defecto para las nuevas matrículas (normalmente el próximo año académico)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_is_enrollment_fee
@@ -1462,9 +1425,7 @@ msgstr ""
 msgid ""
 "Check this if this product represents a calculated fee (e.g. Matricula). It "
 "triggers automatic price calculation logic."
-msgstr ""
-"Marque esto si este producto representa una tasa calculada (p. ej. "
-"Matrícula). Activa la lógica de cálculo automático de precio."
+msgstr "Marca esto si este producto representa una tarifa calculada (p.ej. Matrícula). Activa la lógica de cálculo automático de precios."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
@@ -1596,9 +1557,7 @@ msgstr "Configuración"
 msgid ""
 "Configuration Error! There can be only one Course marked as 'Current "
 "(Operational)' at a time."
-msgstr ""
-"¡Error de configuración! Solo puede haber un curso marcado como 'Actual "
-"(Operativo)' al mismo tiempo."
+msgstr "¡Error de configuración! Solo puede haber un curso marcado como 'Actual (Operativo)' a la vez."
 
 #. module: ems
 #. odoo-python
@@ -1606,9 +1565,7 @@ msgstr ""
 msgid ""
 "Configuration Error! There can be only one Course marked as 'Enrollment "
 "Default' at a time."
-msgstr ""
-"¡Error de configuración! Solo puede haber un curso marcado como 'Matrícula "
-"predeterminada' al mismo tiempo."
+msgstr "¡Error de configuración! Solo puede haber un curso marcado como 'Matrícula por defecto' a la vez."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -1644,21 +1601,6 @@ msgstr "Contenido: aquello en lo que el estudiante debe trabajar."
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__contract_type_id
 msgid "Contract Type"
 msgstr "Tipo de contrato"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
-msgid ""
-"Controls how the check-in time is determined when a teacher creates a "
-"passing list and they haven't checked in yet today. Disabled: feature off. "
-"First: teacher's first scheduled working hour (resource calendar). Start: "
-"start time of the attendance schedule used in the session. Current: current "
-"clock time."
-msgstr ""
-"Controla cómo se determina la hora de entrada cuando un profesor crea una "
-"lista de clase y aún no ha fichado hoy. Desactivado: función desactivada. "
-"Primero: primera hora de trabajo programada del profesor (calendario de "
-"recursos). Inicio: hora de inicio del horario de asistencia de la sesión. "
-"Actual: hora del reloj actual."
 
 #. module: ems
 #: model:hr.job,name:ems.job_conversation
@@ -1829,11 +1771,6 @@ msgid "Current (Operational)"
 msgstr "Actual (Operativo)"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkin_mode__current
-msgid "Current (current time)"
-msgstr "Actual (hora actual)"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__current_course_id
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__current_course_id
 msgid "Current Course"
@@ -1894,16 +1831,12 @@ msgstr "Fecha y hora"
 #: model_terms:ir.actions.act_window,help:ems.action_ems_enrollment_items
 msgid ""
 "Define subjects, fees, insurance, or materials available for enrollment."
-msgstr ""
-"Define las asignaturas, tasas, seguros o materiales disponibles para la "
-"matrícula."
+msgstr "Define las asignaturas, tasas, seguros o materiales disponibles para la matrícula."
 
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_ems_authorization_template
 msgid "Define the legal texts, consents, and rules required for enrollments."
-msgstr ""
-"Define los textos legales, consentimientos y normas requeridos para las "
-"matrículas."
+msgstr "Define los textos legales, consentimientos y normas necesarios para las matrículas."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_sale_order_template__ems_study_id
@@ -2003,11 +1936,6 @@ msgid "Disability (>33%)"
 msgstr "Discapacidad (>33%)"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkin_mode__disabled
-msgid "Disabled"
-msgstr "Desactivado"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__display_name
@@ -2075,7 +2003,7 @@ msgstr "Documento de identidad (DNI/NIE)"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__document_id
 msgid "Document ID (DNI/NIE)"
-msgstr "Documento de identidad (DNI/NIE)"
+msgstr "DNI/NIE"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__signed_document_name
@@ -2120,7 +2048,7 @@ msgstr "Duplicar elemento"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__name
 msgid "E.g., Image and Sound Use Authorization"
-msgstr "P. ej., Autorización de uso de imagen y sonido"
+msgstr "P.ej., Autorización de uso de imagen y sonido"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__ects
@@ -2283,7 +2211,7 @@ msgstr "Inscrito"
 #: model:ir.model.fields,field_description:ems.field_sale_order__ems_existing_product_ids
 #: model:ir.model.fields,field_description:ems.field_sale_order_template__ems_existing_product_ids
 msgid "Enrolled Products (Technical)"
-msgstr "Productos matriculados (técnico)"
+msgstr "Productos matriculados (Técnico)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__enrollment_id
@@ -2296,7 +2224,7 @@ msgstr "Productos matriculados (técnico)"
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Enrollment"
-msgstr "Inscripción"
+msgstr "Matrícula"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -2316,7 +2244,7 @@ msgstr "Autorizaciones de matrícula"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Enrollment Data"
-msgstr "Datos de inscripción"
+msgstr "Datos de Matrícula"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
@@ -2327,7 +2255,7 @@ msgstr "Fecha de matrícula"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course__is_enrollment_default
 msgid "Enrollment Default"
-msgstr "Matrícula predeterminada"
+msgstr "Matrícula por defecto"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_form
@@ -2363,7 +2291,7 @@ msgstr "Número de matrícula"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_sale_order__ems_enrollment_status_label
 msgid "Enrollment Status"
-msgstr "Estado de la matrícula"
+msgstr "Estado de matrícula"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
@@ -2395,7 +2323,7 @@ msgstr "Matrícula: relación ternaria entre estudiante-grupo-uf."
 #: model:ir.ui.menu,name:ems.menu_enrollments
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "Enrollments"
-msgstr "Inscripciones"
+msgstr "Matrículas"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_enrollment_tree
@@ -2447,7 +2375,7 @@ msgstr "Exención"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_benefit__category__exemption
 msgid "Exemption (Total)"
-msgstr "Exención (total)"
+msgstr "Exención (Total)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__partner_id
@@ -2516,9 +2444,7 @@ msgstr "Respuestas de campo"
 msgid ""
 "Field to link the subject with the technical product used in enrolments "
 "(Sale Orders)"
-msgstr ""
-"Campo para vincular la asignatura con el producto técnico utilizado en las "
-"matrículas (pedidos de venta)"
+msgstr "Campo para vincular la asignatura con el producto técnico usado en las matrículas (pedidos de venta)"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_attendance_template__color
@@ -2529,17 +2455,12 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__document_name
 msgid "File Name"
-msgstr "Nombre del archivo"
+msgstr "Nombre de archivo"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_form
 msgid "Financial"
 msgstr "Financiero"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkin_mode__first
-msgid "First (first scheduled working hour)"
-msgstr "Primero (primera hora de trabajo programada)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__firstname
@@ -2609,7 +2530,7 @@ msgstr "Icono de Font Awesome p. ej. fa-tasks"
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_students_tutor
 msgid "For Tutors"
-msgstr "Para tutores/as"
+msgstr "Para tutores"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4
@@ -2729,7 +2650,7 @@ msgstr "Guardia"
 
 #. module: ems
 #: model:ir.model,name:ems.model_hr_attendance
-msgid "HR Attendance: auto check-in/check-out extension."
+msgid "HR Attendance: auto check-out extension."
 msgstr "Asistencia"
 
 #. module: ems
@@ -2949,9 +2870,7 @@ msgstr ""
 msgid ""
 "If checked, this product will appear in enrollments for ALL studies (e.g. "
 "Fees, Insurance)."
-msgstr ""
-"Si está marcado, este producto aparecerá en las matrículas de TODOS los "
-"estudios (p. ej. Tasas, Seguro)."
+msgstr "Si está marcado, este producto aparecerá en las matrículas de TODOS los estudios (p.ej. Tasas, Seguro)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization__acceptance_only
@@ -2964,9 +2883,7 @@ msgstr "Si está activado, esta autorización solo puede ser aceptada."
 msgid ""
 "If enabled, this payment plan will be shown to students in the enrollment "
 "portal."
-msgstr ""
-"Si está activado, este plan de pago se mostrará a los estudiantes en el "
-"portal de matrícula."
+msgstr "Si está activado, este plan de pago se mostrará a los alumnos en el portal de matrícula."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_is_tutoria
@@ -2974,9 +2891,7 @@ msgstr ""
 #: model:ir.model.fields,help:ems.field_sale_order_line__ems_is_tutoria
 msgid ""
 "If enabled, this subject cannot be removed from an enrollment individually."
-msgstr ""
-"Si está activado, esta asignatura no puede eliminarse individualmente de una"
-" matrícula."
+msgstr "Si está activado, esta asignatura no puede eliminarse de una matrícula individualmente."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_res_partner__auth_share
@@ -2993,9 +2908,7 @@ msgstr ""
 msgid ""
 "If you agree with the enrollment, confirm it by clicking on the "
 "<strong>\"Confirm Enrollment\"</strong> button."
-msgstr ""
-"Si está de acuerdo con la matrícula, confírmela haciendo clic en el botón "
-"<strong>\"Confirmar matrícula\"</strong>."
+msgstr "Si estás de acuerdo con la matrícula, confírmala haciendo clic en el botón <strong>\"Confirmar matrícula\"</strong>."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -3005,12 +2918,7 @@ msgid ""
 "write your question or comment in the text box below, and click on the "
 "button <strong>\"Coments for the secretary's office\"</strong>. The "
 "secretary's office will review your query as soon as possible."
-msgstr ""
-"Si, por el contrario, tiene alguna pregunta sobre alguna parte de la "
-"matrícula, marque la casilla a la derecha de la línea que desea consultar, "
-"escriba su pregunta o comentario en el cuadro de texto de abajo y haga clic "
-"en el botón <strong>\"Comentarios para la secretaría\"</strong>. La "
-"secretaría revisará su consulta lo antes posible."
+msgstr "Si, en cambio, tienes alguna consulta, marca la casilla a la derecha de la línea, escribe tu pregunta en el cuadro de texto y haz clic en el botón <strong>\"Comentarios para secretaría\"</strong>. Secretaría revisará tu consulta lo antes posible."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__image_1920
@@ -3041,9 +2949,7 @@ msgstr "Importar datos del planificador (XML)"
 msgid ""
 "In this section, you will always see the history of messages exchanged with "
 "the center's secretary regarding your enrollment."
-msgstr ""
-"En esta sección, siempre podrá ver el historial de mensajes intercambiados "
-"con la secretaría del centro sobre su matrícula."
+msgstr "En esta sección verás siempre el historial de mensajes intercambiados con la secretaría del centro sobre tu matrícula."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__modality__in-person
@@ -3220,12 +3126,12 @@ msgstr "Etiqueta"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_benefit__benefit_type__large_family_gen
 msgid "Large Family (General)"
-msgstr "Familia numerosa (general)"
+msgstr "Familia numerosa (General)"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_benefit__benefit_type__large_family_spec
 msgid "Large Family (Special)"
-msgstr "Familia numerosa (especial)"
+msgstr "Familia numerosa (Especial)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__write_uid
@@ -3393,9 +3299,7 @@ msgstr "Niveles"
 #: model:ir.model.fields,help:ems.field_product_product__ems_level_ids
 #: model:ir.model.fields,help:ems.field_product_template__ems_level_ids
 msgid "Levels where this generic product is available (e.g. VET, Bachelor)."
-msgstr ""
-"Niveles donde este producto genérico está disponible (p. ej. FP, "
-"Bachillerato)."
+msgstr "Niveles en los que este producto genérico está disponible (p.ej. FP, Bachillerato)."
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_limesurvey
@@ -3639,12 +3543,12 @@ msgstr "Gestionar matrícula y pagos"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Manage your official documents"
-msgstr "Gestionar sus documentos oficiales"
+msgstr "Gestiona tus documentos oficiales"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Manage your personal and security data"
-msgstr "Gestionar sus datos personales y de seguridad"
+msgstr "Gestiona tus datos personales y de seguridad"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__mt
@@ -3732,7 +3636,7 @@ msgstr "Mensajes, circulares y avisos del centro"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_benefit__benefit_type__scholarship
 msgid "Ministry Scholarship"
-msgstr "Beca del Ministerio"
+msgstr "Beca ministerio"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
@@ -3772,7 +3676,6 @@ msgstr "Modalidad"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__mode
-#: model:ir.model.fields,field_description:ems.field_hr_attendance__in_mode
 msgid "Mode"
 msgstr "Modo"
 
@@ -3848,7 +3751,7 @@ msgstr "Nombre"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkout_mode__native
 msgid "Native (after maximum hours)"
-msgstr "Nativo (después de las horas máximas)"
+msgstr "Nativo (tras las horas máximas)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__nature
@@ -3874,7 +3777,7 @@ msgstr "Nuevo contacto"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
 msgid "New student contact"
-msgstr "Nuevo contacto de estudiante"
+msgstr "Nuevo contacto de alumno/a"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_date_deadline
@@ -4106,7 +4009,7 @@ msgstr "Cantidad de mensajes con error de entrega"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "OK"
-msgstr "Aceptar"
+msgstr "OK"
 
 #. module: ems
 #: model:ems.role,name:ems.role_orc
@@ -4116,7 +4019,7 @@ msgstr "Coordinador/a de riesgos laborales"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
 msgid "Of the student"
-msgstr "Del estudiante"
+msgstr "Del alumno/a"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__modality__online
@@ -4126,7 +4029,7 @@ msgstr "En línea"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 msgid "Online payment will be available here soon."
-msgstr "El pago en línea estará disponible aquí próximamente."
+msgstr "El pago online estará disponible aquí próximamente."
 
 #. module: ems
 #. odoo-python
@@ -4185,7 +4088,7 @@ msgstr "Abrir"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 msgid "Open Enrollment"
-msgstr "Abrir matrícula"
+msgstr "Matrícula abierta"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
@@ -4351,12 +4254,12 @@ msgstr "Plantilla"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Please describe your comments about the marked items..."
-msgstr "Por favor, describa sus comentarios sobre los elementos marcados..."
+msgstr "Por favor, describe tus comentarios sobre los elementos marcados..."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Please fill in the following data:"
-msgstr "Por favor, rellene los siguientes datos:"
+msgstr "Por favor, rellena los siguientes datos:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__ponderation
@@ -4437,7 +4340,7 @@ msgstr "Coordinador/a de calidad"
 #. module: ems
 #: model:product.template,name:ems.product_generic_ampa
 msgid "Quota AMPA "
-msgstr "Quota AMPA"
+msgstr "Cuota AMPA"
 
 #. module: ems
 #: model:ir.model,name:ems.model_sale_order_template
@@ -4504,6 +4407,12 @@ msgstr "Destinatarios calculados"
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Recipients reload failed. "
 msgstr "La recarga de destinatarios ha fallado. "
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Recipients remove failed. "
+msgstr "Error al eliminar destinatarios."
 
 #. module: ems
 #. odoo-python
@@ -4602,7 +4511,7 @@ msgstr "Borrar"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "Remove from Pre-Enrollments"
-msgstr "Eliminar de prematrículas"
+msgstr "Quitar de prematrículas"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
@@ -4855,9 +4764,7 @@ msgstr "Buscar prematrículas que tengan esta autorización y eliminarla."
 msgid ""
 "Search for pre-enrollments that match the levels and studies, and add this "
 "authorization if they don't have it yet."
-msgstr ""
-"Buscar prematrículas que coincidan con los niveles y estudios, y añadir esta"
-" autorización si aún no la tienen."
+msgstr "Buscar prematrículas que coincidan con los niveles y estudios, y añadir esta autorización si aún no la tienen."
 
 #. module: ems
 #: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary
@@ -4877,25 +4784,27 @@ msgid "Secretary's access rights."
 msgstr "Derechos de acceso del secretario."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/base.py:0
+msgid "See technical details (Exception)"
+msgstr "Ver detalles técnicos (Excepción)"
+
+#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__ems_level_ids
 msgid "Select the levels this applies to."
-msgstr "Seleccione los niveles a los que aplica."
+msgstr "Selecciona los niveles a los que aplica."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__ems_study_ids
 msgid ""
 "Select the specific studies this applies to. If both Levels and Studies are "
 "empty, it applies to all enrollments."
-msgstr ""
-"Seleccione los estudios específicos a los que aplica. Si tanto Niveles como "
-"Estudios están vacíos, aplica a todas las matrículas."
+msgstr "Selecciona los estudios específicos a los que aplica. Si Niveles y Estudios están vacíos, aplica a todas las matrículas."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__auth_type
 msgid "Select the specific type to automatically update the student's file."
-msgstr ""
-"Seleccione el tipo específico para actualizar automáticamente el expediente "
-"del estudiante."
+msgstr "Selecciona el tipo específico para actualizar automáticamente el expediente del alumno/a."
 
 #. module: ems
 #. odoo-python
@@ -4909,9 +4818,7 @@ msgstr "Seleccione el alumno a añadir"
 msgid ""
 "Select the subject or fee. Only items allowed for the selected Academic "
 "Study or generic fees will be displayed."
-msgstr ""
-"Seleccione la asignatura o tasa. Solo se mostrarán los elementos permitidos "
-"para el Estudio Académico seleccionado o las tasas genéricas."
+msgstr "Selecciona la asignatura o tasa. Solo se mostrarán los elementos permitidos para el estudio seleccionado o las tasas genéricas."
 
 #. module: ems
 #: model:ems.role,name:ems.role_seminar
@@ -4936,7 +4843,7 @@ msgstr "Enviar a"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Send your comments to the secretary's office"
-msgstr "Enviar comentarios a secretaría"
+msgstr "Envía tus comentarios a secretaría"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__reminding
@@ -5026,12 +4933,12 @@ msgstr "Mostrar solamente los míos"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_benefit__benefit_type__single_parent_gen
 msgid "Single Parent (General)"
-msgstr "Familia monoparental (general)"
+msgstr "Familia monoparental (General)"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_benefit__benefit_type__single_parent_spec
 msgid "Single Parent (Special)"
-msgstr "Familia monoparental (especial)"
+msgstr "Familia monoparental (Especial)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -5173,11 +5080,6 @@ msgid "Start"
 msgstr "Comenzar"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkin_mode__start
-msgid "Start (start of the current attendance scheduled session)"
-msgstr "Inicio (inicio de la sesión de asistencia programada actual)"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__start_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__start_date
 msgid "Start Date"
@@ -5309,7 +5211,7 @@ msgstr "Alumno"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_benefit
 msgid "Student Benefits and Exemptions"
-msgstr "Beneficios y exenciones del estudiante"
+msgstr "Beneficios y exenciones del alumno/a"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__student_id
@@ -5320,7 +5222,7 @@ msgstr "ID de estudiante"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 msgid "Student Portal"
-msgstr "Portal del estudiante"
+msgstr "Portal del alumno/a"
 
 #. module: ems
 #: model:mail.template,subject:ems.mail_attendance_issue_rectification
@@ -5370,7 +5272,7 @@ msgstr "Información sobre el informe de un alumno"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Student's Attendance Settings"
-msgstr "Configuración de asistencia del estudiante"
+msgstr "Configuración de asistencia del alumno/a"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance
@@ -5398,7 +5300,7 @@ msgstr "Estudiantes"
 #: model:ir.actions.act_window,name:ems.action_student_tutor_view
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 msgid "Students - Tutor View"
-msgstr "Estudiantes - Vista del tutor/a"
+msgstr "Alumnos/as - Vista tutor/a"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_study_tree
@@ -5422,7 +5324,7 @@ msgstr "Estudios"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_sale_order__ems_study_id
 msgid "Studies for enrollment"
-msgstr "Estudios para la matrícula"
+msgstr "Estudios para matriculación"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__study_id
@@ -5661,12 +5563,12 @@ msgstr "Plantilla"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_template__template_download_url
 msgid "Template Download URL"
-msgstr "URL de descarga de la plantilla"
+msgstr "URL de descarga de plantilla"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__template_download_url
 msgid "Template URL"
-msgstr "URL de la plantilla"
+msgstr "URL de plantilla"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__template_teacher_id
@@ -5746,14 +5648,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
 msgid "The item '%s' is already in the list. Please select a different one."
-msgstr ""
-"El elemento '%s' ya está en la lista. Por favor, seleccione uno diferente."
+msgstr "El elemento '%s' ya está en la lista. Por favor, selecciona uno diferente."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
 msgid "The quantity for an enrollment item must always be 1."
-msgstr "La cantidad de un elemento de matrícula siempre debe ser 1."
+msgstr "La cantidad de un elemento de matrícula debe ser siempre 1."
 
 #. module: ems
 #. odoo-python
@@ -5812,9 +5713,7 @@ msgstr ""
 msgid ""
 "This attendance was automatically checked out at the end of the scheduled "
 "working hours."
-msgstr ""
-"Esta asistencia fue registrada automáticamente como salida al final de las "
-"horas de trabajo programadas."
+msgstr "Esta asistencia fue registrada automáticamente al finalizar las horas de trabajo programadas."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_authorization_unique_enrollment_template
@@ -5914,7 +5813,7 @@ msgid ""
 "enrolled_student_ids but filtered for the current group because it cannot be"
 " filtered on view...)."
 msgstr ""
-"Modelo transitorio para mostrar datos de inscripción dentro de grupos pero "
+"Modelo transitorio para mostrar datos de matrícula dentro de grupos pero "
 "filtrados (permite que funcione ems.group.enrollment_view_ids: contiene los "
 "mismos datos que enrolled_student_ids pero filtrados para el grupo actual "
 "porque no se puede filtrar en la vista...)."
@@ -6034,6 +5933,12 @@ msgstr "No ha sido posible activar la encuesta"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Unable to create the survey."
+msgstr "No se ha podido crear la encuesta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to delete some participants"
 msgstr "No ha sido posible borrar a algunos participantes"
 
@@ -6091,9 +5996,7 @@ msgstr "Unipersonal"
 #: model:ir.model.fields,help:ems.field_product_product__ems_subject_unit_cost
 #: model:ir.model.fields,help:ems.field_product_template__ems_subject_unit_cost
 msgid "Unit cost per subject (e.g. 65.00) used for fee calculation."
-msgstr ""
-"Coste unitario por asignatura (p. ej. 65.00) utilizado para el cálculo de "
-"tasas."
+msgstr "Coste unitario por asignatura (p.ej. 65,00) usado para el cálculo de tasas."
 
 #. module: ems
 #. odoo-python
@@ -6134,7 +6037,7 @@ msgid ""
 "schedules)."
 msgstr ""
 "Utilice este campo para seleccionar el curso actual, que se utilizará para "
-"la asignación de datos variables (como las inscripciones de los estudiantes "
+"la asignación de datos variables (como las matrículas de los estudiantes "
 "o los horarios de los profesores)."
 
 #. module: ems
@@ -6178,9 +6081,7 @@ msgstr "El usuario es tutor"
 msgid ""
 "User who responded to this authorization (portal student/family or internal "
 "staff)."
-msgstr ""
-"Usuario que respondió a esta autorización (estudiante/familia del portal o "
-"personal interno)."
+msgstr "Usuario que respondió esta autorización (alumno/a o familia del portal, o personal del centro)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
@@ -6245,9 +6146,7 @@ msgstr "Matriculado en FCT"
 msgid ""
 "We are currently working on this section to bring you the best experience. "
 "It will be available very soon!"
-msgstr ""
-"Estamos trabajando en esta sección para ofrecerle la mejor experiencia. "
-"¡Estará disponible muy pronto!"
+msgstr "Estamos trabajando en esta sección para ofrecerte la mejor experiencia. ¡Estará disponible muy pronto!"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__website_message_ids
@@ -6296,6 +6195,13 @@ msgstr "Miércoles"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__weekday
 msgid "Weekday"
 msgstr "Día laborable"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
+msgid ""
+"When a teacher creates a passing list, automatically check them in at their "
+"first scheduled working hour if they haven't checked in yet."
+msgstr "Cuando un profesor crea una lista de asistencia, registra automáticamente su entrada a la primera hora programada si aún no lo ha hecho."
 
 #. module: ems
 #: model:ir.model,name:ems.model_resource_calendar_attendance
@@ -6383,9 +6289,7 @@ msgstr "Anota aquí tus notas..."
 msgid ""
 "You must respond to the authorizations before continuing with the enrollment"
 " process."
-msgstr ""
-"Debe responder a las autorizaciones antes de continuar con el proceso de "
-"matrícula."
+msgstr "Debes responder a las autorizaciones antes de continuar con el proceso de matrícula."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__zip
@@ -6429,7 +6333,7 @@ msgstr "¡Tema duplicado!"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "e.g. Image and Sound Use Authorization"
-msgstr "P. ej., Autorización de uso de imagen y sonido"
+msgstr "P.ej., Autorización de uso de imagen y sonido"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -6439,7 +6343,7 @@ msgstr "ej: Padre"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_form
 msgid "enrollment"
-msgstr "inscripción"
+msgstr "matrícula"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attachment_form
@@ -6476,6 +6380,18 @@ msgstr "resultado"
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_form
 msgid "planning"
 msgstr "planificación"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "process failed."
+msgstr "proceso fallido."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "process successfully completed!"
+msgstr "¡proceso completado con éxito!"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form

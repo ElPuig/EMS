@@ -37,8 +37,9 @@ class ems_employee_base(models.AbstractModel):
         return employee_types
     
     @api.onchange('tutorship_ids')
-    def _onchange_tutorship_ids(self):	
+    def _onchange_tutorship_ids(self):
         self.update_tutor_role()
+        self._sync_security_groups()
 
     @api.depends("tutorship_ids")
     def _compute_tutorships_str(self):			
@@ -73,18 +74,41 @@ class ems_employee_base(models.AbstractModel):
                         'type': 'notification',
                     }
                 }
+        self._sync_security_groups()
 
     def update_tutor_role(self):
         role_tutor = self.env.ref('ems.role_tutor').ids[0]
-        for rec in self:            
+        for rec in self:
             rec.role_ids = [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)] # link if tutor, otherwise unlink
+
+    def _sync_security_groups(self):
+        """Sync res.users.groups_id based on role_ids that have a linked security group."""
+        managed_groups = self.env['ems.role'].sudo().search([('group_id', '!=', False)]).mapped('group_id')
+        if not managed_groups:
+            return
+        for rec in self:
+            employee = self.env['hr.employee'].sudo().search([('id', '=', rec.id)], limit=1)
+            if not employee or not employee.user_id:
+                continue
+            should_have = rec.role_ids.mapped('group_id')
+            commands = []
+            for g in managed_groups:
+                if g in should_have and g not in employee.user_id.groups_id:
+                    commands.append((4, g.id))
+                elif g not in should_have and g in employee.user_id.groups_id:
+                    commands.append((3, g.id))
+            if commands:
+                employee.user_id.sudo().write({'groups_id': commands})
 
     def write(self, vals):
         if "tutorship_ids" in vals:
             # NOTE: I don't know why, but unlink (3, ID) does not arrive when unlinked from '_onchange_role_ids' (I tried everything!!!), but a remove... (2, ID)
             for command in vals["tutorship_ids"]:
                 if command[0] == 2: command[0] = 3
-        return super(ems_employee_base, self).write(vals) 
+        res = super(ems_employee_base, self).write(vals)
+        if 'role_ids' in vals or 'tutorship_ids' in vals:
+            self._sync_security_groups()
+        return res
                         
     @api.constrains("role_ids")
     def check_limit(self):

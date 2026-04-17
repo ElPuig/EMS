@@ -18,7 +18,7 @@
                                 <field name="level_id" />
                             </group>
                             <group>
-                                <field name="ems_shift" />
+                                <field name="shift" />
                             </group>                    
                             <group colspan="2">
                                 <field name="study_id" readonly="level_id == False" domain="[('level_id','=', level_id)]" />

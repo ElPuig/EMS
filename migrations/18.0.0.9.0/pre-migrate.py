@@ -26,6 +26,46 @@ def migrate(cr, _version):
     if cr.rowcount:
         _logger.info("Migration: removed %d peppol ir_model_data record(s).", cr.rowcount)
 
+    peppol_model_names = (
+        'peppol.registration',
+        'account_peppol.service',
+        'account_peppol.service.wizard',
+        'account.peppol.clarification',
+        'account.peppol.response',
+        'account.peppol.rejection.wizard',
+    )
+    cr.execute(
+        "DELETE FROM ir_model WHERE model IN %s",
+        (peppol_model_names,)
+    )
+    if cr.rowcount:
+        _logger.info("Migration: removed %d orphaned PEPPOL ir_model record(s).", cr.rowcount)
+
+    # Migrate res_company.auto_checkin (Boolean) → auto_checkin_mode (Selection)
+    # Must run in pre-migrate: Odoo fills the default 'disabled' for all rows between
+    # pre and post, so the UPDATE would never apply if done in post-migrate.
+    cr.execute("""
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'res_company' AND column_name = 'auto_checkin'
+    """)
+    if cr.fetchone():
+        cr.execute("""
+            ALTER TABLE res_company
+            ADD COLUMN IF NOT EXISTS auto_checkin_mode VARCHAR
+        """)
+        cr.execute("""
+            UPDATE res_company
+            SET auto_checkin_mode = CASE
+                WHEN auto_checkin = TRUE THEN 'first'
+                ELSE                          'disabled'
+            END
+        """)
+        _logger.info("Migration: populated auto_checkin_mode from auto_checkin (%d rows).", cr.rowcount)
+        cr.execute("ALTER TABLE res_company DROP COLUMN auto_checkin")
+        _logger.info("Migration: dropped column res_company.auto_checkin.")
+    else:
+        _logger.info("Migration: column 'auto_checkin' not found in res_company, skipped.")
+
     # Migrate attendance_template.group_id → group_ids (Many2many)
     cr.execute("""
         SELECT 1 FROM information_schema.columns
@@ -75,6 +115,31 @@ def migrate(cr, _version):
         _logger.info("Migration: migrated %d attendance_session_header group_id → group_ids.", cr.rowcount)
     else:
         _logger.info("Migration: ems_attendance_session_header.group_id not found, skipped.")
+
+    # Migrate resource_calendar_attendance.group_id → group_ids (Many2many)
+    cr.execute("""
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'resource_calendar_attendance' AND column_name = 'group_id'
+    """)
+    if cr.fetchone():
+        cr.execute("""
+            CREATE TABLE IF NOT EXISTS resource_calendar_attendance_ems_group_rel (
+                attendance_id INTEGER NOT NULL
+                    REFERENCES resource_calendar_attendance(id) ON DELETE CASCADE,
+                group_id INTEGER NOT NULL
+                    REFERENCES ems_group(id) ON DELETE CASCADE,
+                PRIMARY KEY (attendance_id, group_id)
+            )
+        """)
+        cr.execute("""
+            INSERT INTO resource_calendar_attendance_ems_group_rel (attendance_id, group_id)
+            SELECT id, group_id FROM resource_calendar_attendance
+            WHERE group_id IS NOT NULL
+            ON CONFLICT DO NOTHING
+        """)
+        _logger.info("Migration: migrated %d resource_calendar_attendance group_id → group_ids.", cr.rowcount)
+    else:
+        _logger.info("Migration: resource_calendar_attendance.group_id not found, skipped.")
 
     column_rename = [
         ('ems_group', 'ems_shift', 'shift'),

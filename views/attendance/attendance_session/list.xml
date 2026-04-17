@@ -8,7 +8,7 @@
                     <field name="date" width="125px"/>                    
                     <field name="session_teacher_id" string="Teacher" widget="many2one_avatar_employee" width="250px" />
                     <field name="template_teacher_id" string="Holder" widget="many2one_avatar_employee" width="250px" />
-                    <field name="group_id" width="125px"/>
+                    <field name="group_ids" widget="many2many_tags" width="125px"/>
                     <field name="subject_id"/>
                     <field name="weekday" width="125px"/>
                     <field name="start_time" widget="float_time" width="125px"/>

@@ -4,6 +4,11 @@ import logging
 _logger = logging.getLogger(__name__)
 
 def migrate(cr, _version):
+    # Clear arch_fs on account_peppol_response views so Odoo does not warn about missing source files
+    cr.execute("UPDATE ir_ui_view SET arch_fs = NULL WHERE arch_fs LIKE 'account_peppol_response/%'")
+    if cr.rowcount:
+        _logger.info("Migration: cleared arch_fs on %d account_peppol_response view(s).", cr.rowcount)
+
     column_rename = [
         ('ems_group', 'ems_shift', 'shift'),
     ]

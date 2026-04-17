@@ -11,7 +11,7 @@
             
             <field name="level_id" ref="level_2"/>
             <field name="study_id" ref="study_41"/>
-            <field name="group_id" ref="group_1"/>
+            <field name="group_ids" eval="[(6, 0, [ref('ems.group_1')])]"/>
             <field name="subject_id" ref="subject_1"/>
             <field name="space_id" ref="space_5"/>   
 

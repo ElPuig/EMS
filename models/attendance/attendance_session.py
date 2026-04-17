@@ -42,7 +42,7 @@ class ems_attendance_session_header(models.Model):
 	# 			4. The same if a student's group is removed, it should really be archived.   
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", compute="_compute_level_id", store=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", compute="_compute_study_id", store=True)
-	group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_group_id", store=True)
+	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", compute="_compute_group_ids", store=True)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", compute="_compute_subject_id", store=True)
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", compute="_compute_space_id", store=True)
 	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
@@ -104,9 +104,9 @@ class ems_attendance_session_header(models.Model):
 			rec.study_id = rec.attendance_schedule_id.attendance_template_id.sudo().study_id
 
 	@api.depends("attendance_schedule_id")
-	def _compute_group_id(self):
+	def _compute_group_ids(self):
 		for rec in self:
-			rec.group_id = rec.attendance_schedule_id.attendance_template_id.sudo().group_id
+			rec.group_ids = rec.attendance_schedule_id.attendance_template_id.sudo().group_ids
 
 	@api.depends("attendance_schedule_id")
 	def _compute_subject_id(self):

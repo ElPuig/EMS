@@ -32,7 +32,7 @@
                                 <field name="study_id" readonly="read_only_user"/>                               
                             </group>
                             <group colspan="1">
-                                <field name="group_id" readonly="read_only_user"/>
+                                <field name="group_ids" widget="many2many_tags" readonly="read_only_user" domain="[('study_id', '=', study_id)]"/>
                             </group>
                             <group colspan="1">
                                 <field name="space_id" readonly="read_only_user"/>

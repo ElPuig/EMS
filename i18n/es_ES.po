@@ -824,8 +824,8 @@ msgid "After-school"
 msgstr "Extraescolar"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_group__ems_shift__afternoon
-#: model:ir.model.fields.selection,name:ems.selection__sale_order__ems_shift__afternoon
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__shift__afternoon
+#: model:ir.model.fields.selection,name:ems.selection__sale_order__shift__afternoon
 msgid "Afternoon"
 msgstr "Tarde"
 
@@ -3783,18 +3783,18 @@ msgid "Monday"
 msgstr "Lunes"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_group__ems_shift__morning
-#: model:ir.model.fields.selection,name:ems.selection__sale_order__ems_shift__morning
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__shift__morning
+#: model:ir.model.fields.selection,name:ems.selection__sale_order__shift__morning
 msgid "Morning"
 msgstr "Mañana"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_sale_order__ems_shift
+#: model:ir.model.fields,help:ems.field_sale_order__shift
 msgid "Morning or afternoon shift for this enrollment."
 msgstr "Turno de mañana o tarde para esta matrícula."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_group__ems_shift
+#: model:ir.model.fields,help:ems.field_ems_group__shift
 msgid "Morning or afternoon shift for this group."
 msgstr "Turno de mañana o tarde para este grupo."
 
@@ -5000,8 +5000,8 @@ msgid "Share with family"
 msgstr "Compartir con la familia"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_group__ems_shift
-#: model:ir.model.fields,field_description:ems.field_sale_order__ems_shift
+#: model:ir.model.fields,field_description:ems.field_ems_group__shift
+#: model:ir.model.fields,field_description:ems.field_sale_order__shift
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
 msgid "Shift"
 msgstr "Turno"

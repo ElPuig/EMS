@@ -49,7 +49,7 @@ class ems_SaleOrder(models.Model):
     )
 
     # Shift (Turno) ---
-    ems_shift = fields.Selection(
+    shift = fields.Selection(
         selection=[
             ('morning', 'Morning'),
             ('afternoon', 'Afternoon'),

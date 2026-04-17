@@ -26,6 +26,56 @@ def migrate(cr, _version):
     if cr.rowcount:
         _logger.info("Migration: removed %d peppol ir_model_data record(s).", cr.rowcount)
 
+    # Migrate attendance_template.group_id → group_ids (Many2many)
+    cr.execute("""
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'ems_attendance_template' AND column_name = 'group_id'
+    """)
+    if cr.fetchone():
+        cr.execute("""
+            CREATE TABLE IF NOT EXISTS ems_attendance_template_ems_group_rel (
+                ems_attendance_template_id INTEGER NOT NULL
+                    REFERENCES ems_attendance_template(id) ON DELETE CASCADE,
+                ems_group_id INTEGER NOT NULL
+                    REFERENCES ems_group(id) ON DELETE CASCADE,
+                PRIMARY KEY (ems_attendance_template_id, ems_group_id)
+            )
+        """)
+        cr.execute("""
+            INSERT INTO ems_attendance_template_ems_group_rel (ems_attendance_template_id, ems_group_id)
+            SELECT id, group_id FROM ems_attendance_template
+            WHERE group_id IS NOT NULL
+            ON CONFLICT DO NOTHING
+        """)
+        _logger.info("Migration: migrated %d attendance_template group_id → group_ids.", cr.rowcount)
+    else:
+        _logger.info("Migration: ems_attendance_template.group_id not found, skipped.")
+
+    # Migrate attendance_session_header.group_id → group_ids (Many2many)
+    cr.execute("""
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'ems_attendance_session_header' AND column_name = 'group_id'
+    """)
+    if cr.fetchone():
+        cr.execute("""
+            CREATE TABLE IF NOT EXISTS ems_attendance_session_header_ems_group_rel (
+                ems_attendance_session_header_id INTEGER NOT NULL
+                    REFERENCES ems_attendance_session_header(id) ON DELETE CASCADE,
+                ems_group_id INTEGER NOT NULL
+                    REFERENCES ems_group(id) ON DELETE CASCADE,
+                PRIMARY KEY (ems_attendance_session_header_id, ems_group_id)
+            )
+        """)
+        cr.execute("""
+            INSERT INTO ems_attendance_session_header_ems_group_rel (ems_attendance_session_header_id, ems_group_id)
+            SELECT id, group_id FROM ems_attendance_session_header
+            WHERE group_id IS NOT NULL
+            ON CONFLICT DO NOTHING
+        """)
+        _logger.info("Migration: migrated %d attendance_session_header group_id → group_ids.", cr.rowcount)
+    else:
+        _logger.info("Migration: ems_attendance_session_header.group_id not found, skipped.")
+
     column_rename = [
         ('ems_group', 'ems_shift', 'shift'),
     ]

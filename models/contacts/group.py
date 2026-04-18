@@ -9,6 +9,7 @@ class ems_group(models.Model):
 	
 	course = fields.Integer(string="Course", required=True)
 	acronym = fields.Char(string="Acronym", required=True)
+	external_id = fields.Char(string="External ID", help="Esfera (SAGA) group code, e.g. 'ESO LOEM101'.")
 	name = fields.Char(string="Name", compute="_compute_name", store=True) #should not be edited manually
 	notes = fields.Text(string="Notes")
 

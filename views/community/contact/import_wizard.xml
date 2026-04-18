@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_student_import_wizard_form">
+            <field name="name">ems.student.import.wizard.form</field>
+            <field name="model">ems.student_import_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Import students from Esfera (SAGA)">
+                    <sheet>
+                        <group invisible="result_html">
+                            <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+                                <strong>Import Process:</strong><br/>
+                                This wizard will import student data from an Excel file exported from Esfera (SAGA system).
+                                The import will:<br/>
+                                • Create new student records for students not yet in the system (identified by RALC)<br/>
+                                • Update existing student records if found by RALC identifier<br/>
+                                • Create family contacts for tutors/guardians<br/>
+                                • Link family members to students using relationship types<br/>
+                                • Deduce family relationships from comments (mother, father, guardian, etc.)<br/>
+                                <br/>
+                                Select an Excel file below and click "Import students" to proceed.
+                            </p>
+                            <field name="file" widget="binary" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                        </group>
+                        <group invisible="not result_html">
+                            <field name="result_html" nolabel="1"/>
+                            <field name="log_file" widget="auto_download_binary" filename="log_file_name" string="Download import log (CSV)"/>
+                            <field name="log_file_name" invisible="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_import" type="object" string="Import students" class="btn-primary" invisible="result_html"/>
+                        <button special="cancel" string="Close"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_student_import_wizard">
+            <field name="name">Import from Esfera</field>
+            <field name="res_model">ems.student_import_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_admin')), (4, ref('ems.group_secretary'))]"/>
+        </record>
+    </data>
+</odoo>

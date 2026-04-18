@@ -83,6 +83,7 @@
             'views/community/contact/relation_wizard.xml',
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
+            'views/community/contact/import_wizard.xml',
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',  
@@ -348,11 +349,11 @@
         # 'demo/attendance/attendance_session_header.xml',
         # 'demo/attendance/attendance_session_line.xml',
     ],   
-    'assets': {       
+    'assets': {
         'web.assets_backend': [
             'ems/static/src/xml/backend/**/*',
             'ems/static/src/css/backend/**/*',
-            'ems/static/src/js/backend/**/*', 
+            'ems/static/src/js/backend/**/*',
         ],       
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',

@@ -1,40 +1,66 @@
-id,course,acronym,level_id/id,study_id/id,space_id/id
-__import__.group_dam1a,1,"A","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","__import__.space_018"
-__import__.group_dam2a,2,"A","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","__import__.space_013"
-__import__.group_dam2b,2,"B","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","__import__.space_207"
+id,course,acronym,level_id/id,study_id/id,space_id/id,external_id
+__import__.group_dam1a,1,"A","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","__import__.space_018","CFPS ICB0101"
+__import__.group_dam2a,2,"A","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","__import__.space_013","CFPS ICB0201"
+__import__.group_dam2b,2,"B","ems.level_cfgs","ems.study_cfgs_icb0_dam_2024","__import__.space_207","CFPS ICB0202"
 
-__import__.group_daw1a,1,"A","ems.level_cfgs","ems.study_cfgs_icc0_daw_2024","__import__.space_204"
-__import__.group_daw2a,2,"A","ems.level_cfgs","ems.study_cfgs_icc0_daw_2024","__import__.space_301"
-__import__.group_daw2b,2,"B","ems.level_cfgs","ems.study_cfgs_icc0_daw_2024","__import__.space_303"
+__import__.group_daw1a,1,"A","ems.level_cfgs","ems.study_cfgs_icc0_daw_2024","__import__.space_204","CFPS ICC0101"
+__import__.group_daw2a,2,"A","ems.level_cfgs","ems.study_cfgs_icc0_daw_2024","__import__.space_301","CFPS ICC0201"
+__import__.group_daw2b,2,"B","ems.level_cfgs","ems.study_cfgs_icc0_daw_2024","__import__.space_303","CFPS ICC0202"
 
-__import__.group_smx1a,1,"A","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_018"
-__import__.group_smx1b,1,"B","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_001"
-__import__.group_smx1c,1,"C","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_210"
-__import__.group_smx1d,1,"D","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_109"
+__import__.group_smx1a,1,"A","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_018","CFPM IC10101"
+__import__.group_smx1b,1,"B","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_001","CFPM IC10102"
+__import__.group_smx1c,1,"C","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_210","CFPM IC10103"
+__import__.group_smx1d,1,"D","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_109","CFPM IC10104"
 
-__import__.group_smx2a,2,"A","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_210"
-__import__.group_smx2b,2,"B","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_209"
-__import__.group_smx2c,2,"C","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_107"
-__import__.group_smx2d,2,"D","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_208"
+__import__.group_smx2a,2,"A","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_210","CFPM IC10201"
+__import__.group_smx2b,2,"B","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_209","CFPM IC10202"
+__import__.group_smx2c,2,"C","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_107","CFPM IC10203"
+__import__.group_smx2d,2,"D","ems.level_cfgm","ems.study_cfgm_ic10_smx_2024","__import__.space_208","CFPM IC10204"
 
-__import__.group_asix1a,1,"A","ems.level_cfgs","ems.study_cfgs_ica0_asix_2024","__import__.space_001"
-__import__.group_asix2a,2,"A","ems.level_cfgs","ems.study_cfgs_ica0_asix_2024","__import__.space_019"
-__import__.group_asix2b,2,"B","ems.level_cfgs","ems.study_cfgs_ica0_asix_2024","__import__.space_209"
+__import__.group_asix1a,1,"A","ems.level_cfgs","ems.study_cfgs_ica0_asix_2024","__import__.space_001","CFPS ICA0101"
+__import__.group_asix2a,2,"A","ems.level_cfgs","ems.study_cfgs_ica0_asix_2024","__import__.space_019","CFPS ICA0201"
+__import__.group_asix2b,2,"B","ems.level_cfgs","ems.study_cfgs_ica0_asix_2024","__import__.space_209","CFPS ICA0202"
 
-__import__.group_dev1a,1,"A","ems.level_efps","ems.study_efps_ic02_dev_2024","__import__.space_101"
+__import__.group_dev1a,1,"A","ems.level_efps","ems.study_efps_ic02_dev_2024","__import__.space_101",
 
-__import__.group_ad1a,1,"A","ems.level_cfgs","ems.study_cfgs_aga0_ad_2024","__import__.space_121"
+__import__.group_ad1a,1,"A","ems.level_cfgs","ems.study_cfgs_aga0_ad_2024","__import__.space_121","CFPS AGA0101"
 
-__import__.group_aif1a,1,"A","ems.level_cfgs","ems.study_cfgs_agb0_aif_2024","__import__.space_119"
-__import__.group_aif1b,1,"B","ems.level_cfgs","ems.study_cfgs_agb0_aif_2024","__import__.space_119"
-__import__.group_aif2a,2,"A","ems.level_cfgs","ems.study_cfgs_agb0_aif_2024","__import__.space_304"
-__import__.group_aif2b,2,"B","ems.level_cfgs","ems.study_cfgs_agb0_aif_2024","__import__.space_304"
+__import__.group_aif1a,1,"A","ems.level_cfgs","ems.study_cfgs_agb0_aif_2024","__import__.space_119","CFPS AGB0101"
+__import__.group_aif1b,1,"B","ems.level_cfgs","ems.study_cfgs_agb0_aif_2024","__import__.space_119",
+__import__.group_aif2a,2,"A","ems.level_cfgs","ems.study_cfgs_agb0_aif_2024","__import__.space_304","CFPS AGB0201"
+__import__.group_aif2b,2,"B","ems.level_cfgs","ems.study_cfgs_agb0_aif_2024","__import__.space_304",
 
-__import__.group_ga1a,1,"A","ems.level_cfgm","ems.study_cfgm_ag10_ga_2024","__import__.space_217"
-__import__.group_ga1b,1,"B","ems.level_cfgm","ems.study_cfgm_ag10_ga_2024","__import__.space_217"
-__import__.group_ga1c,1,"C","ems.level_cfgm","ems.study_cfgm_ag10_ga_2024","__import__.space_217"
-__import__.group_ga2a,2,"A","ems.level_cfgm","ems.study_cfgm_ag10_ga_2024","__import__.space_214"
+__import__.group_ga1a,1,"A","ems.level_cfgm","ems.study_cfgm_ag10_ga_2024","__import__.space_217","CFPM AG10101"
+__import__.group_ga1b,1,"B","ems.level_cfgm","ems.study_cfgm_ag10_ga_2024","__import__.space_217","CFPM AG10102"
+__import__.group_ga1c,1,"C","ems.level_cfgm","ems.study_cfgm_ag10_ga_2024","__import__.space_217",
+__import__.group_ga2a,2,"A","ems.level_cfgm","ems.study_cfgm_ag10_ga_2024","__import__.space_214","CFPM AG10201"
 
-__import__.group_sa1a,1,"A","ems.level_cfgb","ems.study_cfpb_ag10_sa_2024","__import__.space_304"
+__import__.group_sa1a,1,"A","ems.level_cfgb","ems.study_cfpb_ag10_sa_2024","__import__.space_304",
 
-__import__.group_ao1a,1,"A","ems.level_pfi","ems.study_pfi_ag10_ao_2024","__import__.space_101"
+__import__.group_ao1a,1,"A","ems.level_pfi","ems.study_pfi_ag10_ao_2024","__import__.space_101",
+
+ems.group_eso1a,1,"A","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM101
+ems.group_eso1b,1,"B","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM102
+ems.group_eso1c,1,"C","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM103
+ems.group_eso1d,1,"D","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM104
+ems.group_eso1e,1,"E","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM105
+ems.group_eso2a,2,"A","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM201
+ems.group_eso2b,2,"B","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM202
+ems.group_eso2c,2,"C","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM203
+ems.group_eso2d,2,"D","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM204
+ems.group_eso3a,3,"A","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM301
+ems.group_eso3b,3,"B","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM302
+ems.group_eso3c,3,"C","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM303
+ems.group_eso3d,3,"D","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM304
+ems.group_eso4a,4,"A","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM401
+ems.group_eso4b,4,"B","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM402
+ems.group_eso4c,4,"C","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM403
+ems.group_eso4d,4,"D","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM404
+ems.group_eso4e,4,"E","ems.level_eso","__import__.study_eso_175_2022",,ESO LOEM405
+
+ems.group_btx1_101ct,1,"01CT","ems.level_btx","__import__.study_btx_171_2022",,BATXLOEM2000101
+ems.group_btx1_102ci,1,"02CI","ems.level_btx","__import__.study_btx_171_2022",,BATXLOEM2000102
+ems.group_btx2_201,2,"01","ems.level_btx","__import__.study_btx_171_2022",,BATXLOEM2000201
+ems.group_btx1_102so,1,"02SO","ems.level_btx","__import__.study_btx_171_2022",,BATXLOEM3000101
+ems.group_btx1_101hu,1,"01HU","ems.level_btx","__import__.study_btx_171_2022",,BATXLOEM3000102
+ems.group_btx2_202,2,"02","ems.level_btx","__import__.study_btx_171_2022",,BATXLOEM3000201

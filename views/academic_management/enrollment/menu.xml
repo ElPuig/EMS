@@ -43,7 +43,7 @@
             <menuitem id="menu_students_tutor"
                       name="Group enrollment proposal"
                       parent="menu_ems_enrollment"
-                      action="action_student_tutor_view"
+                      action="ems.action_student_group_enrollment"
                       groups="ems.group_admin,ems.group_secretary,ems.group_tutor"
                       sequence="30"/>
     </data>

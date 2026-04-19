@@ -5517,7 +5517,6 @@ msgid "Students"
 msgstr "Estudiantes"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_student_tutor_view
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 msgid "Students - Tutor View"
 msgstr "Alumnos/as - Vista tutor/a"

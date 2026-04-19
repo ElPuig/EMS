@@ -84,6 +84,7 @@
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
             'views/community/contact/import_wizard.xml',
+            'views/community/contact/enrollment_proposal_wizard.xml',
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',  

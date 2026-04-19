@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0-20260131\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-18 01:24+0000\n"
-"PO-Revision-Date: 2026-04-18 01:24+0000\n"
+"POT-Creation-Date: 2026-04-19 20:58+0000\n"
+"PO-Revision-Date: 2026-04-19 20:58+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -19,6 +19,12 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "#{field.placeholder or ''}"
 msgstr ""
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
+msgid "%d created, %d skipped (already had enrollment)."
+msgstr "%d creats, %d omesos (ja tenien matrícula)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
@@ -1353,6 +1359,11 @@ msgid "Automatic Check-In"
 msgstr ""
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__available_template_ids
+msgid "Available templates"
+msgstr "Plantilles disponibles"
+
+#. module: ems
 #: model:ir.model,name:ems.model_hr_employee_base
 msgid "Basic Employee"
 msgstr "Empleat bàsic"
@@ -1431,6 +1442,7 @@ msgstr "Germà/Germana"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "Cancel"
@@ -1752,6 +1764,11 @@ msgid "Create a new Enrollment Item"
 msgstr "Crear un nou element de matrícula"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
+msgid "Create enrollments"
+msgstr "Crear matrícules"
+
+#. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_ems_authorization_template
 msgid "Create your first Authorization Template!"
 msgstr "Crea la teva primera plantilla d'autorització!"
@@ -1777,6 +1794,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_course__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_group__create_uid
@@ -1824,6 +1842,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_course__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_group__create_date
@@ -2064,6 +2083,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_course__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_group__display_name
@@ -2425,6 +2445,25 @@ msgid "Enrollment code"
 msgstr "Codi de matrícula"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#: model:ir.ui.menu,name:ems.menu_students_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
+msgid "Enrollment proposal"
+msgstr "Propostes de matrícula"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_enrollment_proposal_wizard
+msgid "Enrollment proposal wizard"
+msgstr "Assistent de proposta de matrícula"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__template_id
+msgid "Enrollment template"
+msgstr "Plantilla de matrícula"
+
+#. module: ems
 #: model:ir.model,name:ems.model_ems_enrollment
 msgid "Enrollment: ternary relation between student-group-uf."
 msgstr "Matrícula: relació ternària entre estudiant-grup-uf."
@@ -2442,6 +2481,12 @@ msgstr "Matrícules"
 #: model:ir.actions.act_window,name:ems.action_enrollment_tree
 msgid "Enrollments (student x group x subject)"
 msgstr "Matrícules (estudiant x grup x assignatura)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
+msgid "Enrollments created"
+msgstr "Matrícules creades"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
@@ -2749,9 +2794,9 @@ msgid "Group Data"
 msgstr "Dades de grup"
 
 #. module: ems
-#: model:ir.ui.menu,name:ems.menu_students_tutor
+#: model:ir.actions.server,name:ems.action_student_group_enrollment
 msgid "Group enrollment proposal"
-msgstr "Per a tutors"
+msgstr "Proposta de matrícula de grup"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_kanban
@@ -2886,6 +2931,7 @@ msgstr "Híbrid"
 #: model:ir.model.fields,field_description:ems.field_ems_course__id
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__id
 #: model:ir.model.fields,field_description:ems.field_ems_group__id
@@ -3338,6 +3384,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_course__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_group__write_uid
@@ -3385,6 +3432,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_course__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_group__write_date
@@ -3761,11 +3809,6 @@ msgid "Manual"
 msgstr ""
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
-msgid "Matricular de tot 2n"
-msgstr ""
-
-#. module: ems
 #: model:product.template,name:ems.product_generic_enrollment
 msgid "Matrícula El Puig Castellar"
 msgstr ""
@@ -4049,6 +4092,12 @@ msgstr "No s'han trobat comunicacions."
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 msgid "No enrollment found."
 msgstr "No s'ha trobat cap matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
+msgid "No enrollment templates available for the selected students' study."
+msgstr "No hi ha plantilles de matrícula disponibles per als estudis dels alumnes seleccionats."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__non_teaching
@@ -5028,6 +5077,14 @@ msgstr ""
 "per a l'estudi seleccionat o les taxes genèriques."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
+msgid ""
+"Selected students belong to different studies. Please select students from "
+"the same group."
+msgstr "Els alumnes seleccionats pertanyen a estudis diferents. Selecciona alumnes del mateix grup."
+
+#. module: ems
 #: model:ems.role,name:ems.role_seminar
 msgid "Seminar leader"
 msgstr "Cap de seminari"
@@ -5500,6 +5557,7 @@ msgstr "Assistència dels estudiants"
 #: model:ir.actions.act_window,name:ems.action_student_kanban
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__attendance_issue_student_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__student_ids
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__student_ids
 #: model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__students
 #: model:ir.ui.menu,name:ems.menu_community_config_students
@@ -5507,6 +5565,7 @@ msgstr "Assistència dels estudiants"
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 msgid "Students"
 msgstr "Estudiants"

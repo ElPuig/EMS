@@ -25,9 +25,9 @@
                       default_order="main_group_id asc, name asc"
                       decoration-muted="not active">
                     <header>
-                        <button name="action_create_second_year_enrollments"
+                        <button name="action_enrollment_proposal"
                                 type="object"
-                                string="Matricular de tot 2n"/>
+                                string="Enrollment proposal"/>
                     </header>
                     <field name="name" string="Student"/>
                     <field name="main_group_id" optional="show"/>

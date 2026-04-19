@@ -41,7 +41,7 @@
                       sequence="20"/>
 
             <menuitem id="menu_students_tutor"
-                      name="Group enrollment proposal"
+                      name="Enrollment proposal"
                       parent="menu_ems_enrollment"
                       action="ems.action_student_group_enrollment"
                       groups="ems.group_admin,ems.group_secretary,ems.group_tutor"

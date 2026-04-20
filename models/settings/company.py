@@ -33,6 +33,9 @@ class ems_company(models.Model):
     limesurvey_pwd_encrypted = fields.Char(copy=False)
     limesurvey_gid = fields.Integer(default=1)
 
+    schedule_import_first_entry_time = fields.Float(default=8.0)
+    schedule_import_last_entry_time  = fields.Float(default=21.0)
+
     current_course_id = fields.Many2one(comodel_name="ems.course")
 
     @api.model

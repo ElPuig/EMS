@@ -153,7 +153,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			dwe = sorted(dwe, key=lambda e: e["hour_from"])
 			for i in range(len(dwe)-1):
 				dwe[i]["hour_to"] = dwe[i+1]["hour_from"]
-			dwe[len(dwe)-1]["hour_to"] =  self.time_string_to_float("21:00") # TODO: load from settings
+			dwe[len(dwe)-1]["hour_to"] = self.env.company.schedule_import_last_entry_time
 
 			for e in (x for x in dwe if x.get("name", False)):
 				meta = dict(e)

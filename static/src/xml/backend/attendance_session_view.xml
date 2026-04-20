@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.AttendanceSessionView">
+        <div class="ems-av-root">
+
+            <!-- ── Header ──────────────────────────────────────────── -->
+            <div class="ems-av-header">
+
+                <!-- Date navigation -->
+                <div class="ems-av-date-nav">
+                    <button class="ems-av-nav-btn" t-on-click="prevDay">&#8249;</button>
+                    <input class="ems-av-date-input"
+                           type="date"
+                           t-att-value="state.date"
+                           t-on-change="onDateInput"/>
+                    <button class="ems-av-nav-btn" t-on-click="nextDay">&#8250;</button>
+                </div>
+
+                <!-- Session / schedule selector -->
+                <div class="ems-av-session-wrap"
+                     t-if="state.sessions.length or state.planned.length">
+                    <select class="ems-av-session-select" t-on-change="onSelectorChange">
+                        <optgroup t-if="state.sessions.length" label="Sessions">
+                            <t t-foreach="state.sessions" t-as="s" t-key="'session_' + s.id">
+                                <option t-att-value="'session_' + s.id"
+                                        t-att-selected="state.selected === 'session_' + s.id">
+                                    <t t-esc="sessionLabel(s)"/>
+                                </option>
+                            </t>
+                        </optgroup>
+                        <optgroup t-if="state.planned.length" label="Planificades (sense sessió)">
+                            <t t-foreach="state.planned" t-as="s" t-key="'schedule_' + s.id">
+                                <option t-att-value="'schedule_' + s.id"
+                                        t-att-selected="state.selected === 'schedule_' + s.id">
+                                    ○  <t t-esc="scheduleLabel(s)"/>
+                                </option>
+                            </t>
+                        </optgroup>
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- ── Body ────────────────────────────────────────────── -->
+            <div class="ems-av-body" t-if="!state.loading">
+
+                <!-- No items at all -->
+                <t t-if="!state.sessions.length and !state.planned.length">
+                    <div class="ems-av-empty">No hi ha sessions ni horaris planificats per a aquest dia.</div>
+                </t>
+
+                <!-- Planned schedule selected → show start button -->
+                <t t-elif="selectedSchedule">
+                    <div class="ems-av-planned-card">
+                        <div class="ems-av-planned-icon">📋</div>
+                        <div class="ems-av-planned-title">
+                            <t t-esc="scheduleLabel(selectedSchedule)"/>
+                        </div>
+                        <p class="ems-av-planned-hint">
+                            Aquesta sessió encara no s'ha iniciat per al dia seleccionat.
+                        </p>
+                        <button class="ems-av-start-btn"
+                                t-on-click="() => this.onStartSession(selectedSchedule.id)">
+                            ▶  Iniciar sessió
+                        </button>
+                    </div>
+                </t>
+
+                <!-- Existing session selected → show student lines -->
+                <t t-else="">
+                    <t t-if="!state.lines.length">
+                        <div class="ems-av-empty">Aquesta sessió no té alumnes.</div>
+                    </t>
+                    <t t-foreach="state.lines" t-as="line" t-key="line.id">
+                        <div class="ems-av-line" t-att-class="'ems-av-line--' + line.status">
+                            <img class="ems-av-avatar" t-att-src="avatarUrl(line)" alt=""/>
+                            <span class="ems-av-name"
+                                  t-att-title="line.student_id ? line.student_id[1] : ''"
+                                  t-esc="line.student_id ? line.student_id[1] : '—'"/>
+                            <div class="ems-av-btns">
+                                <t t-foreach="statuses" t-as="s" t-key="s.key">
+                                    <button class="ems-av-status-btn"
+                                            t-att-class="line.status === s.key ? 'ems-av-status-btn--active' : ''"
+                                            t-att-style="'--btn-color:' + s.color"
+                                            t-att-title="s.title"
+                                            t-att-disabled="state.saving[line.id]"
+                                            t-on-click="() => this.onStatusClick(line.id, s.key)">
+                                        <t t-esc="s.label"/>
+                                    </button>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+
+            </div>
+
+            <!-- ── Loading spinner ──────────────────────────────────── -->
+            <div class="ems-av-loading" t-if="state.loading">
+                <i class="fa fa-spinner fa-spin fa-2x"/>
+            </div>
+
+        </div>
+    </t>
+</templates>

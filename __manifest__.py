@@ -62,6 +62,7 @@
 
         'views/settings/form.xml',
         'views/settings/hr_attendance_form.xml',
+        'views/settings/hr_employees_form.xml',
         'views/settings/menu.xml',                                    
         
         'views/community/contact/search.xml', # Should be loaded prior to menu

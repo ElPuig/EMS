@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from ..shared import base
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -199,56 +199,17 @@ class ems_contact(models.Model):
             }
         }
     
-    def action_create_second_year_enrollments(self):
+    def action_enrollment_proposal(self):
         students = self.filtered(lambda p: p.contact_type == 'student')
-        current_course = self.env['ems.course'].search([
-            ('is_enrollment_default', '=', True)
-        ], limit=1)
-        if not current_course:
-            current_course = self.env['ems.course'].search([
-                ('is_current', '=', True)
-            ], limit=1)
-
-        created = 0
-        skipped = 0
-        for student in students:
-            # Evitar duplicados
-            existing = self.env['sale.order'].search([
-                ('partner_id', '=', student.id),
-                ('ems_course_id', '=', current_course.id if current_course else False),
-                ('state', 'not in', ['cancel']),
-            ], limit=1)
-            if existing:
-                skipped += 1
-                continue
-
-            # Buscar plantilla de 2º para el estudio del alumno
-            template = self.env['sale.order.template'].search([
-                ('ems_study_id', '=', student.study_id.id),
-                ('study_year', '=', 2),
-            ], limit=1)
-
-            order = self.env['sale.order'].create({
-                'partner_id': student.id,
-                'ems_study_id': student.study_id.id if student.study_id else False,
-                'ems_course_id': current_course.id if current_course else False,
-                'shift': student.main_group_id.shift if student.main_group_id else False,
-                'sale_order_template_id': template.id if template else False,
-            })
-            if template:
-                order._onchange_sale_order_template_id()
-            order.apply_authorizations()
-            created += 1   
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Enrollments created',
-                'message': '%d created, %d skipped (already had enrollment).' % (created, skipped),
-                'type': 'success',
-                'sticky': False,
-                'next': {'type': 'ir.actions.act_window_close'},
-            }
+            'type': 'ir.actions.act_window',
+            'name': _('Enrollment proposal'),
+            'res_model': 'ems.enrollment_proposal_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'active_ids': students.ids,
+            },
         }
     
     @api.depends('benefit_ids', 'benefit_ids.category')

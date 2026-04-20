@@ -16,6 +16,7 @@
                             </group>
                             <group>
                                 <field name="unipersonal" />
+                                <field name="group_id"/>
                             </group>
                         </group>  
 

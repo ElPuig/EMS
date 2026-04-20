@@ -25,9 +25,9 @@
                       default_order="main_group_id asc, name asc"
                       decoration-muted="not active">
                     <header>
-                        <button name="action_create_second_year_enrollments"
+                        <button name="action_enrollment_proposal"
                                 type="object"
-                                string="Matricular de tot 2n"/>
+                                string="Enrollment proposal"/>
                     </header>
                     <field name="name" string="Student"/>
                     <field name="main_group_id" optional="show"/>
@@ -62,23 +62,27 @@
                                 </field>
         </record>
 
-        <!-- Acción para la vista de tutores -->
-        <record model="ir.actions.act_window" id="action_student_tutor_view">
-            <field name="name">Students - Tutor View</field>
-            <field name="res_model">res.partner</field>
-            <field name="view_mode">list,form</field>
-            <field name="domain">[('contact_type', '=', 'student'), ('tutor_id.user_id', '=', uid)]</field>
-            <field name="context">{'default_contact_type': 'student', 'no_breadcrumbs': False}</field>
-            <!--<field name="search_view_id" ref="view_student_search_tutor"/>-->
-            <field name="search_view_id" ref="ems.view_student_search"/>
-        </record>        
-
-        <!-- Enlace acción → vista lista tutor -->
-        <record id="action_student_tutor_view_list_link" model="ir.actions.act_window.view">
-            <field name="sequence" eval="1"/>
-            <field name="view_mode">list</field>
-            <field name="view_id" ref="view_contact_list_tutor"/>
-            <field name="act_window_id" ref="action_student_tutor_view"/>
+        <!-- Acción servidor: admin/secretary ven todos; tutores solo ven los suyos -->
+        <record id="action_student_group_enrollment" model="ir.actions.server">
+            <field name="name">Group enrollment proposal</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="state">code</field>
+            <field name="code">
+if env.user.has_group('ems.group_admin') or env.user.has_group('ems.group_secretary'):
+    domain = [('contact_type', '=', 'student')]
+else:
+    domain = [('contact_type', '=', 'student'), ('tutor_id.user_id', '=', env.uid)]
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Group enrollment proposal',
+    'res_model': 'res.partner',
+    'view_mode': 'list,form',
+    'domain': domain,
+    'context': {'default_contact_type': 'student', 'no_breadcrumbs': False},
+    'search_view_id': [env.ref('ems.view_student_search').id, 'search'],
+    'views': [(env.ref('ems.view_contact_list_tutor').id, 'list'), (False, 'form')],
+}
+            </field>
         </record>
 
     </data>

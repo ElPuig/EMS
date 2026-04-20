@@ -16,7 +16,8 @@ class ems_role(models.Model):
 	#The employee_ids field was a Many2one relation, but kanban view does not work within the form. It will be validated on the fly in order to limit to 1 assignation.
 	#Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
 	employee_type = fields.Selection(string="Employee Type", selection=employee.employee_types)
-	employee_ids = fields.Many2many(string="Assigned to", comodel_name="hr.employee.public", relation="hr_employee_public_ems_role_rel", column1="ems_role_id", column2="hr_employee_public_id", domain="[('employee_type', '=', employee_type)]") 
+	employee_ids = fields.Many2many(string="Assigned to", comodel_name="hr.employee.public", relation="hr_employee_public_ems_role_rel", column1="ems_role_id", column2="hr_employee_public_id", domain="[('employee_type', '=', employee_type)]")
+	group_id = fields.Many2one(string="Security Group", comodel_name="res.groups", help="If set, employees with this role will be automatically added to this security group.")
 
 	@api.constrains("employee_ids")
 	def check_limit(self):

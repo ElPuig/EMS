@@ -11,6 +11,9 @@ class ems_settings(models.TransientModel):
    auto_checkin_mode = fields.Selection(related="company_id.auto_checkin_mode", readonly=False)
    auto_checkout_mode = fields.Selection(related="company_id.auto_checkout_mode", readonly=False)
    auto_checkout_time = fields.Float(related="company_id.auto_checkout_time", readonly=False)
+   schedule_import_first_entry_time = fields.Float(related="company_id.schedule_import_first_entry_time", readonly=False)
+   schedule_import_last_entry_time  = fields.Float(related="company_id.schedule_import_last_entry_time",  readonly=False)
+
    current_course_id = fields.Many2one(comodel_name="ems.course", related="company_id.current_course_id", readonly=False)
 
    limesurvey_api = fields.Char(related="company_id.limesurvey_api", readonly=False)

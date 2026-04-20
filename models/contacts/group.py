@@ -9,6 +9,7 @@ class ems_group(models.Model):
 	
 	course = fields.Integer(string="Course", required=True)
 	acronym = fields.Char(string="Acronym", required=True)
+	external_id = fields.Char(string="External ID", help="Esfera (SAGA) group code, e.g. 'ESO LOEM101'.")
 	name = fields.Char(string="Name", compute="_compute_name", store=True) #should not be edited manually
 	notes = fields.Text(string="Notes")
 
@@ -58,10 +59,12 @@ class ems_group(models.Model):
 		new_tutor = self.tutor_id
 
 		if 'tutor_id' in vals:
-			# NOTE: tutor_id field changes when the tutor is assigned from the teacher form, but the old tutor's role 
+			# NOTE: tutor_id field changes when the tutor is assigned from the teacher form, but the old tutor's role
 			# should be updated and must be done from here once changed.
 			old_tutor.update_tutor_role()
 			new_tutor.update_tutor_role()
+			old_tutor._sync_security_groups()
+			new_tutor._sync_security_groups()
 		return res
 class ems_enrollment_view(models.TransientModel):
 	_name = "ems.enrollment_view"

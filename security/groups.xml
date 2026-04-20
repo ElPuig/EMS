@@ -23,6 +23,13 @@
             <field name="category_id" ref="ems.category_main"/>
         </record>
 
+        <record model="res.groups" id="group_tutor">
+            <field name="name">Tutor</field>
+            <field name="comment">Access rights for tutors (teachers in charge of a group).</field>
+            <field name="category_id" ref="ems.category_main"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_teacher'))]"/>
+        </record>
+
         <!-- TODO: this group has not been yet setup in ir.modal.access.  -->
         <record model="res.groups" id="group_secretary">
             <field name="name">Secretary</field>
@@ -35,7 +42,7 @@
             <field name="name">Administrator</field>
             <field name="comment">All access rights.</field>
             <field name="category_id" ref="ems.category_main"/>
-            <field name="implied_ids" eval="[(4, ref('ems.group_teacher')), (4, ref('ems.group_secretary'))]"/>    
+            <field name="implied_ids" eval="[(4, ref('ems.group_teacher')), (4, ref('ems.group_secretary')), (4, ref('ems.group_tutor'))]"/>
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>  
 

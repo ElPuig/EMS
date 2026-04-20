@@ -15,7 +15,8 @@ class ems_subject(models.Model):
     acronym = fields.Char(string="Acronym", required=True)
     name = fields.Char(string="Name", required=True)
     ects = fields.Integer(string="ECTS Credits") 
-    
+    is_tutorship = fields.Boolean(string="Tutorship", default=False)
+
     internal_hours = fields.Integer(string="Internal hours") 
     external_hours = fields.Integer(string="External hours")       
     total_hours = fields.Integer(string="Total hours", compute='_compute_total_hours')

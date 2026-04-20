@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.9.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release. 
+    'version': '18.0.0.10.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -62,6 +62,7 @@
 
         'views/settings/form.xml',
         'views/settings/hr_attendance_form.xml',
+        'views/settings/hr_employees_form.xml',
         'views/settings/menu.xml',                                    
         
         'views/community/contact/search.xml', # Should be loaded prior to menu
@@ -83,6 +84,8 @@
             'views/community/contact/relation_wizard.xml',
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
+            'views/community/contact/import_wizard.xml',
+            'views/community/contact/enrollment_proposal_wizard.xml',
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',  
@@ -274,8 +277,9 @@
         'data/cat/ems.study.csv',
         'data/cat/ems.content.csv',
         'data/cat/ems.outcome.csv',    
-        'data/cat/ems.role.csv',    
-        'data/cat/ems.workgroup.csv',    
+        'data/cat/ems.role.csv',
+        'data/main/ems.role_group_relationship.xml',
+        'data/cat/ems.workgroup.csv',
         'data/cat/hr.job.csv',
         'data/cat/ems_product_category_data.xml',
         'data/cat/ems_product_generic_products.xml',
@@ -347,11 +351,11 @@
         # 'demo/attendance/attendance_session_header.xml',
         # 'demo/attendance/attendance_session_line.xml',
     ],   
-    'assets': {       
+    'assets': {
         'web.assets_backend': [
             'ems/static/src/xml/backend/**/*',
             'ems/static/src/css/backend/**/*',
-            'ems/static/src/js/backend/**/*', 
+            'ems/static/src/js/backend/**/*',
         ],       
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',

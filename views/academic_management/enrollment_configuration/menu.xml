@@ -4,6 +4,7 @@
         <menuitem id="menu_ems_configuration"
                   name="Configuration"
                   parent="menu_ems_academic_management"
+                  groups="ems.group_admin,ems.group_secretary"
                   sequence="100"/>
 
         <menuitem id="menu_ems_enrollment_items"

@@ -30,8 +30,9 @@
                         </block>
 
                          <block title="Student's Attendance Settings" name="ems_attendance_settings">
-                            <setting string="Issue notification delay (in minutes)" help="Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification." id="attendance_issue_status_delay">
-                                <field name="attendance_issue_status_delay" />
+                            <setting string="Issue notification delay" help="Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification." id="attendance_issue_status_delay">
+                                <field name="attendance_issue_status_delay" class="text-center" style="width: 5ch;"/>
+                                <span class="ms-2">minutes</span>
                             </setting>
 
                             <setting string="Tutor's attendance report default send time" help="The tutors will receive a daily attendance report at the end of their work tourn but, it its not defined, this time will be used to send the report." id="attendance_issue_tutor_default">

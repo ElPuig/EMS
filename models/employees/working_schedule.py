@@ -103,7 +103,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	#		The last entry, will set the hour_to using the EMS new setting (maybe add two settings, 'start time' and 'end time').
 	#		Store in the BBDD
 
-	def _create_schedule(self, xml_node, teacher, course_id):									
+	def _create_schedule(self, xml_node, teacher, course_id):			
 		name = "%s (%s)" % (teacher.name, course_id.name)
 		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
 		non_teaching_items = dict(ems_working_schedule_assignation.non_teaching_selection)
@@ -115,6 +115,51 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'full_time_required_hours': 24
 			})
 		
+		dayweeks = {}
+		for dayNode in xml_node:
+			# NOTE: 0: Monday; 1: Tuesday as today.weekday() does.
+			entries = []
+			dayofweek = int(dayNode.attrib['name'].split(' ')[0]) - 1			
+
+			for hourNode in dayNode:							
+				start = hourNode.attrib['name'].split(' ')[1]				
+				new_entry = {						
+					"dayofweek": str(dayofweek),
+					"day_period": 'morning' if int(start[:2]) < 15 else 'afternoon',
+					"hour_from": self.time_string_to_float(start),
+					"hour_to": None,
+				}
+
+				for content in hourNode:
+					if content.tag == 'NonTeaching':
+						id = content.attrib['name'].split(' ')[0]						
+						new_entry["name"] = "%s: %s" % (id, non_teaching_items[id])
+						new_entry["subject_id"] = False
+						new_entry["group_ids"] = [(6, 0, [])]
+						new_entry["non_teaching"] = id	
+						
+					elif content.tag == 'Subject':
+						code = content.attrib['name'].split(' ')[0]
+						subject = self.env["ems.subject"].search([("code", "=", code)])
+						if not subject.id: raise ValidationError("Subject with code '%s' not found." % code)
+
+						new_entry["name"] = "%s: %s (%s)" % (subject.acronym, subject.name, ", ".join(g.name for g in groups))
+						new_entry["subject_id"] = subject.id
+						new_entry["non_teaching"] = False
+						
+					elif content.tag == 'Students':
+						acronyms.append(content.attrib['name'].split(' ')[0])
+						groups = self.env["ems.group"].search([("name", "in", acronyms)])
+						for acro in acronyms:
+							if acro not in groups.mapped('name'):
+								raise ValidationError("Group with acronym '%s' not found." % acro)
+						new_entry["group_ids"] = [(6, 0, groups.ids)]
+				entries.append(new_entry)					
+			dayweeks[dayofweek] = entries #.sort() --> TODO: sort by hour
+		
+		# All the entries are stored within their day
+		
+
 		entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.	Items will be removed if became orphan.
 		result_entries = []
 		for dayNode in xml_node:
@@ -122,40 +167,37 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			dayofweek = int(dayNode.attrib['name'].split(' ')[0]) - 1						
 			start = None
 			
-			def append_timerange_node(start, close):
-				new_entry = {						
-					"dayofweek": str(dayofweek),
-					"day_period": 'morning' if int(start[:2]) < 15 else 'afternoon',
-					"hour_from": self.time_string_to_float(start),
-					"hour_to": self.time_string_to_float(close),						
-				}
-
-				if not non_teaching_id:
-					new_entry["name"] = "%s: %s (%s)" % (subject.acronym, subject.name, ", ".join(g.name for g in groups))
-					new_entry["subject_id"] = subject.id
-					new_entry["group_ids"] = [(6, 0, groups.ids)]
-					new_entry["non_teaching"] = False
-				else:
-					new_entry["name"] = "%s: %s" % (non_teaching_id, non_teaching_items[non_teaching_id])
-					new_entry["subject_id"] = False
-					new_entry["group_ids"] = [(6, 0, [])]
-					new_entry["non_teaching"] = non_teaching_id
-
-				meta = dict(new_entry)
-				meta["group_ids"] = list(groups.ids)
-				entries.append([0, 0, new_entry])
-				result_entries.append(meta)
-				start = None
-
 			for hourNode in dayNode:
 				if start is not None:
 					close = hourNode.attrib['name'].split(' ')[1]
-					append_timerange_node(start, close)
+					new_entry = {						
+						"dayofweek": str(dayofweek),
+						"day_period": 'morning' if int(start[:2]) < 15 else 'afternoon',
+						"hour_from": self.time_string_to_float(start),
+						"hour_to": self.time_string_to_float(close),						
+					}
+
+					if not non_teaching_id:
+						new_entry["name"] = "%s: %s (%s)" % (subject.acronym, subject.name, ", ".join(g.name for g in groups))
+						new_entry["subject_id"] = subject.id
+						new_entry["group_ids"] = [(6, 0, groups.ids)]
+						new_entry["non_teaching"] = False
+					else:
+						new_entry["name"] = "%s: %s" % (non_teaching_id, non_teaching_items[non_teaching_id])
+						new_entry["subject_id"] = False
+						new_entry["group_ids"] = [(6, 0, [])]
+						new_entry["non_teaching"] = non_teaching_id
+
+					meta = dict(new_entry)
+					meta["group_ids"] = list(groups.ids)
+					entries.append([0, 0, new_entry])
+					result_entries.append(meta)
+					start = None
 
 				# NOTE: Ignore empty hours (lack of activities)
 				id = None
 				non_teaching = False
-				groupAcros = []
+				acronyms = []
 				for content in hourNode:
 					if content.tag == 'Activity':
 						id = content.attrib['id'].split(' ')[0]
@@ -163,9 +205,9 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						non_teaching = True
 						id = content.attrib['name'].split(' ')[0]
 					elif content.tag == 'Subject':
-						subjectCode = content.attrib['name'].split(' ')[0]
+						code = content.attrib['name'].split(' ')[0]
 					elif content.tag == 'Students':
-						groupAcros.append(content.attrib['name'].split(' ')[0])
+						acronyms.append(content.attrib['name'].split(' ')[0])
 
 				start = hourNode.attrib['name'].split(' ')[1]
 				if id is not None:					
@@ -175,21 +217,107 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						subject = False
 						groups = self.env['ems.group']
 					else:
-						subject = self.env["ems.subject"].search([("code", "=", subjectCode)])
-						groups = self.env["ems.group"].search([("name", "in", groupAcros)])
+						subject = self.env["ems.subject"].search([("code", "=", code)])
+						groups = self.env["ems.group"].search([("name", "in", acronyms)])
 						non_teaching_id = False
-						if not subject.id: raise ValidationError("Subject with code '%s' not found." % subjectCode)
-						for acro in groupAcros:
+						if not subject.id: raise ValidationError("Subject with code '%s' not found." % code)
+						for acro in acronyms:
 							if acro not in groups.mapped('name'):
 								raise ValidationError("Group with acronym '%s' not found." % acro)
 
-			# NOTE: the last hour block has not been stored. 
-			# TODO: load this end-time from the EMS settings
-			append_timerange_node(start, "21:00")
+			
 
 		schedule.write({ 'attendance_ids': entries })
 		teacher.write({ "resource_calendar_id": schedule })
 		return result_entries
+	
+	# def _create_schedule(self, xml_node, teacher, course_id):									
+	# 	name = "%s (%s)" % (teacher.name, course_id.name)
+	# 	schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
+	# 	non_teaching_items = dict(ems_working_schedule_assignation.non_teaching_selection)
+
+	# 	if not schedule:
+	# 		# TODO: add a relation to current_course
+	# 		schedule = self.env['resource.calendar'].create({
+	# 			'name': "%s (%s)" % (teacher.name, course_id.name),
+	# 			'full_time_required_hours': 24
+	# 		})
+		
+	# 	entries = [[5]]	#5 means unlink all previus, because the created schedule has default entries attached.	Items will be removed if became orphan.
+	# 	result_entries = []
+	# 	for dayNode in xml_node:
+	# 		# NOTE: 0: Monday; 1: Tuesday as today.weekday() does.
+	# 		dayofweek = int(dayNode.attrib['name'].split(' ')[0]) - 1						
+	# 		start = None
+			
+	# 		def append_timerange_node(start, close):
+	# 			new_entry = {						
+	# 				"dayofweek": str(dayofweek),
+	# 				"day_period": 'morning' if int(start[:2]) < 15 else 'afternoon',
+	# 				"hour_from": self.time_string_to_float(start),
+	# 				"hour_to": self.time_string_to_float(close),						
+	# 			}
+
+	# 			if not non_teaching_id:
+	# 				new_entry["name"] = "%s: %s (%s)" % (subject.acronym, subject.name, ", ".join(g.name for g in groups))
+	# 				new_entry["subject_id"] = subject.id
+	# 				new_entry["group_ids"] = [(6, 0, groups.ids)]
+	# 				new_entry["non_teaching"] = False
+	# 			else:
+	# 				new_entry["name"] = "%s: %s" % (non_teaching_id, non_teaching_items[non_teaching_id])
+	# 				new_entry["subject_id"] = False
+	# 				new_entry["group_ids"] = [(6, 0, [])]
+	# 				new_entry["non_teaching"] = non_teaching_id
+
+	# 			meta = dict(new_entry)
+	# 			meta["group_ids"] = list(groups.ids)
+	# 			entries.append([0, 0, new_entry])
+	# 			result_entries.append(meta)
+	# 			start = None
+
+	# 		for hourNode in dayNode:
+	# 			if start is not None:
+	# 				close = hourNode.attrib['name'].split(' ')[1]
+	# 				append_timerange_node(start, close)
+
+	# 			# NOTE: Ignore empty hours (lack of activities)
+	# 			id = None
+	# 			non_teaching = False
+	# 			groupAcros = []
+	# 			for content in hourNode:
+	# 				if content.tag == 'Activity':
+	# 					id = content.attrib['id'].split(' ')[0]
+	# 				elif content.tag == 'NonTeaching':
+	# 					non_teaching = True
+	# 					id = content.attrib['name'].split(' ')[0]
+	# 				elif content.tag == 'Subject':
+	# 					subjectCode = content.attrib['name'].split(' ')[0]
+	# 				elif content.tag == 'Students':
+	# 					groupAcros.append(content.attrib['name'].split(' ')[0])
+
+	# 			start = hourNode.attrib['name'].split(' ')[1]
+	# 			if id is not None:					
+	# 				if non_teaching:
+	# 					if not id in non_teaching_items: raise ValidationError("Non-Teaching with code '%s' not found." % id)
+	# 					non_teaching_id = id
+	# 					subject = False
+	# 					groups = self.env['ems.group']
+	# 				else:
+	# 					subject = self.env["ems.subject"].search([("code", "=", subjectCode)])
+	# 					groups = self.env["ems.group"].search([("name", "in", groupAcros)])
+	# 					non_teaching_id = False
+	# 					if not subject.id: raise ValidationError("Subject with code '%s' not found." % subjectCode)
+	# 					for acro in groupAcros:
+	# 						if acro not in groups.mapped('name'):
+	# 							raise ValidationError("Group with acronym '%s' not found." % acro)
+
+	# 		# NOTE: the last hour block has not been stored. 
+	# 		# TODO: load this end-time from the EMS settings
+	# 		append_timerange_node(start, "21:00")
+
+	# 	schedule.write({ 'attendance_ids': entries })
+	# 	teacher.write({ "resource_calendar_id": schedule })
+	# 	return result_entries
 
 	def _create_teaching(self, entries, teacher, course_id):
 		old_items = dict()

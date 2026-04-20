@@ -133,7 +133,8 @@ class ems_student_import_wizard(models.TransientModel):
             return str(val).strip() if val is not None else None
 
         # Group — search by external_id (Esfera code)
-        esfera_code = get('Grup Classe')
+        # Normalize whitespace: Esfera sometimes uses multiple spaces (e.g. "CFPM    IC10201")
+        esfera_code = ' '.join((get('Grup Classe') or '').split()) or None
         if not esfera_code:
             return
         group = self.env['ems.group'].search([('external_id', '=', esfera_code)], limit=1)

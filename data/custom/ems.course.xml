@@ -5,7 +5,7 @@
             <field name="start">2025</field>
             <field name="end">2026</field>
             <field name="is_current" eval="False"/>
-            <field name="is_enrollment_default" eval="True"/>
+            <field name="is_enrollment_default" eval="False"/>
         </record>
 
         <record id="ems_course_26_27" model="ems.course">

@@ -92,6 +92,17 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 		return super(models.Model, self).create(values)			
 
+	# TODO: rebuild as follows:
+	#	Parse and store temp as follows:
+	# 	DICTIONARY -> <dayofweek, entries>
+	#		entries = LIST of DICT <day_period, hour_from, hour_to, name, subject_id, group_ids, non_teaching>
+	#	
+	#	Loop for every dayofweek:
+	#		Sort entries by hour_from. 
+	#		Set every entry the hour_to as the next entry's hour_from. 
+	#		The last entry, will set the hour_to using the EMS new setting (maybe add two settings, 'start time' and 'end time').
+	#		Store in the BBDD
+
 	def _create_schedule(self, xml_node, teacher, course_id):									
 		name = "%s (%s)" % (teacher.name, course_id.name)
 		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
@@ -111,32 +122,35 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			dayofweek = int(dayNode.attrib['name'].split(' ')[0]) - 1						
 			start = None
 			
+			def append_timerange_node(start, close):
+				new_entry = {						
+					"dayofweek": str(dayofweek),
+					"day_period": 'morning' if int(start[:2]) < 15 else 'afternoon',
+					"hour_from": self.time_string_to_float(start),
+					"hour_to": self.time_string_to_float(close),						
+				}
+
+				if not non_teaching_id:
+					new_entry["name"] = "%s: %s (%s)" % (subject.acronym, subject.name, ", ".join(g.name for g in groups))
+					new_entry["subject_id"] = subject.id
+					new_entry["group_ids"] = [(6, 0, groups.ids)]
+					new_entry["non_teaching"] = False
+				else:
+					new_entry["name"] = "%s: %s" % (non_teaching_id, non_teaching_items[non_teaching_id])
+					new_entry["subject_id"] = False
+					new_entry["group_ids"] = [(6, 0, [])]
+					new_entry["non_teaching"] = non_teaching_id
+
+				meta = dict(new_entry)
+				meta["group_ids"] = list(groups.ids)
+				entries.append([0, 0, new_entry])
+				result_entries.append(meta)
+				start = None
+
 			for hourNode in dayNode:
 				if start is not None:
 					close = hourNode.attrib['name'].split(' ')[1]
-					new_entry = {						
-						"dayofweek": str(dayofweek),
-						"day_period": 'morning' if int(start[:2]) < 15 else 'afternoon',
-						"hour_from": self.time_string_to_float(start),
-						"hour_to": self.time_string_to_float(close),						
-					}
-
-					if not non_teaching_id:
-						new_entry["name"] = "%s: %s (%s)" % (subject.acronym, subject.name, ", ".join(g.name for g in groups))
-						new_entry["subject_id"] = subject.id
-						new_entry["group_ids"] = [(6, 0, groups.ids)]
-						new_entry["non_teaching"] = False
-					else:
-						new_entry["name"] = "%s: %s" % (non_teaching_id, non_teaching_items[non_teaching_id])
-						new_entry["subject_id"] = False
-						new_entry["group_ids"] = [(6, 0, [])]
-						new_entry["non_teaching"] = non_teaching_id
-
-					meta = dict(new_entry)
-					meta["group_ids"] = list(groups.ids)
-					entries.append([0, 0, new_entry])
-					result_entries.append(meta)
-					start = None
+					append_timerange_node(start, close)
 
 				# NOTE: Ignore empty hours (lack of activities)
 				id = None
@@ -153,8 +167,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					elif content.tag == 'Students':
 						groupAcros.append(content.attrib['name'].split(' ')[0])
 
-				if id is not None:
-					start = hourNode.attrib['name'].split(' ')[1]
+				start = hourNode.attrib['name'].split(' ')[1]
+				if id is not None:					
 					if non_teaching:
 						if not id in non_teaching_items: raise ValidationError("Non-Teaching with code '%s' not found." % id)
 						non_teaching_id = id
@@ -168,7 +182,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						for acro in groupAcros:
 							if acro not in groups.mapped('name'):
 								raise ValidationError("Group with acronym '%s' not found." % acro)
-												
+
+			# NOTE: the last hour block has not been stored. 
+			# TODO: load this end-time from the EMS settings
+			append_timerange_node(start, "21:00")
+
 		schedule.write({ 'attendance_ids': entries })
 		teacher.write({ "resource_calendar_id": schedule })
 		return result_entries

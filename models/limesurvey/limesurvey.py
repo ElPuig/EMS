@@ -148,7 +148,7 @@ def do_remove_survey_if_empty(ls_api, survey):
 		data = {}
 		success = True
 		for rec in survey["recipients"]:
-			if rec["external_id"] is not None:
+			if rec["external_id"]:
 				if rec["external_id"] not in data:
 					data[rec["external_id"]] = [rec]
 				else:
@@ -257,7 +257,7 @@ def run_action(self, title, action, status_w, status_ok, status_ko, compute, per
 			self.is_running = False
 			self.state = status_ok if success else status_ko
 			
-			if self._name == 'ems.limesurvey_recipient': self.error = error
+			if self._name == 'ems.limesurvey_recipient' and error and not self.error: self.error = error
 			self.reload_request()
 			
 		try:

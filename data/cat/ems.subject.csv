@@ -14,7 +14,6 @@ id,code,acronym,name,internal_hours,external_hours,ects,is_tutorship
 "ems.subject_1709","1709","MP 1709","Itinerari personal per a l'ocupabilitat I",99,0,5,false
 "ems.subject_1710","1710","MP 1710","Itinerari personal per a l'ocupabilitat II",66,0,5,false
 "ems.subject_0616","0616","MP 0616","Projecte intermodular de desenvolupament d'aplicacions web",198,0,5,false
-"ems.subject_OPT3","OPT3","MP OPT3","Programació FullStack",99,0,5,false
 "ems.subject_0486","0486","MP 0486","Accés a dades",66,66,10,false
 "ems.subject_0488","0488","MP 0488","Desenvolupament d’interfícies",66,53,10,false
 "ems.subject_0489","0489","MP 0489","Programació multimèdia i dispositius mòbils",66,66,7,false
@@ -32,7 +31,6 @@ id,code,acronym,name,internal_hours,external_hours,ects,is_tutorship
 "ems.subject_0156","0156","MP 0156","Anglès professional",66,0,0,false
 "ems.subject_1664","1664","MP 1664","Digitalització aplicada als sectors productius",33,0,0,false
 "ems.subject_1713","1713","MP 1713","Projecte intermodular",198,0,0,false
-"ems.subject_OPT1","OPT1","MP OPT1","Pensament Computacional",99,0,0,false
 "ems.subject_0369","0369","MP 0369","Implantació de sistemes operatius",132,99,16,false
 "ems.subject_0370","0370","MP 0370","Planificació i administració de xarxes",132,53,12,false
 "ems.subject_0371","0371","MP 0371","Fonaments de maquinari",66,33,7,false
@@ -43,7 +41,6 @@ id,code,acronym,name,internal_hours,external_hours,ects,is_tutorship
 "ems.subject_0377","0377","MP 0377","Administració de sistemes gestors de bases de dades",33,33,5,false
 "ems.subject_0378","0378","MP 0378","Seguretat i alta disponibilitat",66,33,7,false
 "ems.subject_0379","0379","MP 0379","Projecte intermodular d'administració de sistemes informàtics en xarxa",198,0,5,false
-"ems.subject_OPT2","OPT2","MP OPT2","Introducció a la programació",99,0,5,false
 "ems.subject_5048","5048","MP 5048","Programació i Motors de Videojocs",132,0,9,false
 "ems.subject_5049","5049","MP 5049","Disseny Gràfic 2D i 3D",132,0,9,false
 "ems.subject_5050","5050","MP 5050","Programació en Xarxa i Intel·ligència Artificial",66,0,5,false
@@ -60,7 +57,6 @@ id,code,acronym,name,internal_hours,external_hours,ects,is_tutorship
 "ems.subject_0446","0446","MP 0446","Empresa a l’aula",99,0,0,false
 "ems.subject_0448","0448","MP 0448","Operacions auxiliars de gestió de tresoreria",99,66,0,false
 "ems.subject_C056","C056","MP C056","Català / Aranès professional",66,0,0,false
-"ems.subject_OPT4","OPT4","MP OPT4","Mòdul professional optatiu",66,0,0,false
 "ems.subject_0647","0647","MP 0647","Gestió de la documentació jurídica i empresarial",66,33,7,false
 "ems.subject_0648","0648","MP 0648","Recursos humans i responsabilitat social corporativa",33,33,7,false
 "ems.subject_0649","0649","MP 0649","Ofimàtica i procés de la informació",132,99,13,false
@@ -73,13 +69,11 @@ id,code,acronym,name,internal_hours,external_hours,ects,is_tutorship
 "ems.subject_0656","0656","MP 0656","Simulació empresarial",99,0,9,false
 "ems.subject_C076","C076","MP C076","Català / Aranès professional",66,0,0,false
 "ems.subject_0657","0657","MP 0657","Projecte intermodular",99,0,5,false
-"ems.subject_OPT5","OPT5","MP OPT5","Mòdul professional optatiu",66,0,5,false
 "ems.subject_0661","0661","MP 0661","Protocol empresarial",132,66,9,false
 "ems.subject_0662","0662","MP 0662","Organització d’esdeveniments empresarials",165,99,12,false
 "ems.subject_0663","0663","MP 0663","Gestió avançada de la informació",165,99,8,false
 "ems.subject_0180","0180","MP 0180","Segona llegua estrangera",119,99,8,false
 "ems.subject_0664","0664","MP 0664","Projecte intermodular",198,198,5,false
-"ems.subject_OPT6","OPT6","MP OPT6","Mòdul professional optatiu",66,0,5,false
 "ems.subject_3163","3163","MP 3163","Ciències aplicades I",132,132,0,false
 "ems.subject_3164","3164","MP 3164","Ciències aplicades II",132,132,0,false
 "ems.subject_3161","3161","MP 3161","Comunicació i ciències socials I",165,165,0,false

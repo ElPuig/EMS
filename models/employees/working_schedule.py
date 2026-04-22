@@ -21,6 +21,7 @@ class ems_working_schedule_assignation(models.Model):
 		("CM", "Coordination Meeting"),
 		("CT", "Coordination Time"),
         ("G", "Guard"),
+		("MM", "Management Meeting"),
         ("MT", "Management Time"),
         ("R", "Reduction"),
 		("S", "Staying at the center"),
@@ -147,7 +148,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						if acro not in groups.mapped('name'):
 							raise ValidationError("Group with acronym '%s' not found." % acro)
 					new_entry["group_ids"] = [(6, 0, groups.ids)]
-					new_entry["name"] += "(%s)" % (", ".join(g.name for g in groups))
+					new_entry["name"] += " (%s)" % (", ".join(g.name for g in groups))
 				dwe.append(new_entry)
 				
 			dwe = sorted(dwe, key=lambda e: e["hour_from"])

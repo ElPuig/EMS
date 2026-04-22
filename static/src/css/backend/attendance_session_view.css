@@ -62,13 +62,13 @@
 }
 
 .ems-av-session-wrap {
-    flex: 1;
+    flex: 0 1 auto;
     min-width: 180px;
-    max-width: 420px;
 }
 
 .ems-av-session-select {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
     padding: 6px 10px;
     border: 1px solid #ced4da;
     border-radius: 6px;
@@ -233,7 +233,7 @@
         gap: 10px;
     }
     .ems-av-session-wrap {
-        max-width: none;
+        flex: 1 1 auto;
     }
     .ems-av-line {
         padding: 8px 12px;

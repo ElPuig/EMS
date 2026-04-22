@@ -16,20 +16,33 @@
                     <button class="ems-av-nav-btn" t-on-click="nextDay">&#8250;</button>
                 </div>
 
+                <!-- Group filter (only shown when >1 group present) -->
+                <div class="ems-av-group-wrap" t-if="state.groups.length > 1">
+                    <select class="ems-av-session-select" t-on-change="onGroupChange">
+                        <option value="">Tots els grups</option>
+                        <t t-foreach="state.groups" t-as="g" t-key="g">
+                            <option t-att-value="g"
+                                    t-att-selected="state.selectedGroup === g">
+                                <t t-esc="g"/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+
                 <!-- Session / schedule selector -->
                 <div class="ems-av-session-wrap"
-                     t-if="state.sessions.length or state.planned.length">
+                     t-if="filteredSessions.length or filteredPlanned.length">
                     <select class="ems-av-session-select" t-on-change="onSelectorChange">
-                        <optgroup t-if="state.sessions.length" label="Sessions">
-                            <t t-foreach="state.sessions" t-as="s" t-key="'session_' + s.id">
+                        <optgroup t-if="filteredSessions.length" label="Sessions">
+                            <t t-foreach="filteredSessions" t-as="s" t-key="'session_' + s.id">
                                 <option t-att-value="'session_' + s.id"
                                         t-att-selected="state.selected === 'session_' + s.id">
                                     <t t-esc="sessionLabel(s)"/>
                                 </option>
                             </t>
                         </optgroup>
-                        <optgroup t-if="state.planned.length" label="Planificades (sense sessió)">
-                            <t t-foreach="state.planned" t-as="s" t-key="'schedule_' + s.id">
+                        <optgroup t-if="filteredPlanned.length" label="Planificades (sense sessió)">
+                            <t t-foreach="filteredPlanned" t-as="s" t-key="'schedule_' + s.id">
                                 <option t-att-value="'schedule_' + s.id"
                                         t-att-selected="state.selected === 'schedule_' + s.id">
                                     ○  <t t-esc="scheduleLabel(s)"/>
@@ -45,7 +58,7 @@
             <div class="ems-av-body" t-if="!state.loading">
 
                 <!-- No items at all -->
-                <t t-if="!state.sessions.length and !state.planned.length">
+                <t t-if="!filteredSessions.length and !filteredPlanned.length">
                     <div class="ems-av-empty">No hi ha sessions ni horaris planificats per a aquest dia.</div>
                 </t>
 
@@ -57,11 +70,11 @@
                             <t t-esc="scheduleLabel(selectedSchedule)"/>
                         </div>
                         <p class="ems-av-planned-hint">
-                            Aquesta sessió encara no s'ha iniciat per al dia seleccionat.
+                            This session has not been started for the selected day.
                         </p>
                         <button class="ems-av-start-btn"
                                 t-on-click="() => this.onStartSession(selectedSchedule.id)">
-                            ▶  Iniciar sessió
+                            ▶  Start session
                         </button>
                     </div>
                 </t>

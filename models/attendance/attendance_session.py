@@ -393,6 +393,40 @@ class ems_attendance_session_header(models.Model):
 			'in_mode': 'auto_check_in',
 		})
 
+	def _auto_populate_lines(self):
+		"""Populate session lines when created via ORM (onchange doesn't fire outside form view)."""
+		template = self.attendance_schedule_id.attendance_template_id.sudo()
+		lines = []
+
+		previous = self.env["ems.attendance_session_header"].search([
+			("date", "=", self.date),
+			("attendance_schedule_id.attendance_template_id", "=", template.id),
+			("attendance_schedule_id.weekday", "=", self.attendance_schedule_id.weekday),
+			("id", "!=", self.id),
+		], order="end_time DESC", limit=1)
+
+		if previous and previous.end_time <= self.start_time:
+			for prev in previous.attendance_session_line_ids:
+				lines.append(self._setup_next_session_line_data(prev))
+		else:
+			previssions = ems_attendance_justification.get_current_justifications(self)
+			for student in template.student_ids:
+				line = None
+				for p in previssions:
+					if p.student_id == student:
+						line = p.perform_justification(self._setup_new_line_data(student), True)
+				if line is None:
+					line = self._setup_new_line_data(student, "a_attended")
+				lines.append(line)
+
+		if lines:
+			def _to_id(v):
+				return v.id if hasattr(v, '_name') else v
+			self.env['ems.attendance_session_line'].create([
+				{k: _to_id(v) for k, v in line.items()} | {'attendance_session_id': self.id}
+				for line in lines
+			])
+
 	@api.model_create_multi
 	def create(self, vals_list):
 		try:
@@ -405,6 +439,9 @@ class ems_attendance_session_header(models.Model):
 		notification_tutor_eta = self._get_notification_tutor_eta()
 
 		for record in records:
+			if not record.attendance_session_line_ids:
+				record._auto_populate_lines()
+
 			record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
 
 			# NOTE: Collecting all status data first allow some optimizations.

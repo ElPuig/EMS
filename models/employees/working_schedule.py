@@ -21,6 +21,7 @@ class ems_working_schedule_assignation(models.Model):
 		("CM", "Coordination Meeting"),
 		("CT", "Coordination Time"),
         ("G", "Guard"),
+		("MM", "Management Meeting"),
         ("MT", "Management Time"),
         ("R", "Reduction"),
 		("S", "Staying at the center"),

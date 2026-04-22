@@ -148,7 +148,7 @@ def do_remove_survey_if_empty(ls_api, survey):
 		data = {}
 		success = True
 		for rec in survey["recipients"]:
-			if rec["external_id"] is not None:
+			if rec["external_id"]:
 				if rec["external_id"] not in data:
 					data[rec["external_id"]] = [rec]
 				else:
@@ -257,7 +257,7 @@ def run_action(self, title, action, status_w, status_ok, status_ko, compute, per
 			self.is_running = False
 			self.state = status_ok if success else status_ko
 			
-			if self._name == 'ems.limesurvey_recipient': self.error = error
+			if self._name == 'ems.limesurvey_recipient' and error and not self.error: self.error = error
 			self.reload_request()
 			
 		try:
@@ -686,8 +686,10 @@ class ems_limesurvey_header(models.Model):
 					elif block.special_wpi_enrolled and recipient.student_id and recipient.wpi_enrolled: append = True
 					elif block.special_subject_enrolled and recipient.student_id:
 						# NOTE: Repeat the block for every enrolled subject. Each question must have a unique numerical id, for subject it should star with 4 (400, 4001, 4002...)
+						#		Warning: tutorship is a subject too and the student will be enrolled, but tutorship blocks works different, so tutorship-subjects will be ignored,
+						#		just regular subject will be taken in count. 
 						qID = 4
-						for enroll in recipient.limesurvey_enrollment_ids:
+						for enroll in recipient.limesurvey_enrollment_ids.filtered(lambda e: not e.subject_id.is_tutorship):
 							survey_name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.display_name}"
 							if not only_key:
 								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False

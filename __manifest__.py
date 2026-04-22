@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.10.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.10.2',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -62,6 +62,7 @@
 
         'views/settings/form.xml',
         'views/settings/hr_attendance_form.xml',
+        'views/settings/hr_employees_form.xml',
         'views/settings/menu.xml',                                    
         
         'views/community/contact/search.xml', # Should be loaded prior to menu
@@ -113,6 +114,7 @@
             'views/community/work_location/menu.xml',
             'views/community/employmenttypes/menu.xml',        
             
+            'views/community/working_schedules/list.xml',
             'views/community/working_schedules/import_wizard.xml',
             'views/community/working_schedules/menu.xml',
 
@@ -290,6 +292,8 @@
         'data/custom/eso/ems.study.csv',
         'data/custom/btx/ems.subject.csv',
         'data/custom/btx/ems.study.csv',
+        'data/custom/ccff/ems.study.csv',
+        'data/custom/ccff/ems.subject.csv',
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',
         'data/custom/hr.department.csv',

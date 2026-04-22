@@ -42,14 +42,14 @@ class ems_base(models.AbstractModel):
     # To send a notification (won't be sent till a BBDD commit)
     def notify(self, title, message, type, sticky=False):
         # types: success; warning; danger; info
-        self.env["bus.bus"]._sendone(
-            self.env.user.partner_id, "simple_notification", {
-                "title": title, 
-                "message": message, 
-                "type": type,
-                "sticky": sticky
-            }
-        )
+        # NOTE: uses _bus_send (user channel) instead of bus.bus._sendone (partner channel) — the partner
+        # channel is not reliably subscribed in Odoo v18 multi-worker production environments.
+        self.env.user._bus_send("simple_notification", {
+            "title": title,
+            "message": message,
+            "type": type,
+            "sticky": sticky
+        })
 
     # Writes a regular log message in the chatter. 
     def chatter(self, message):

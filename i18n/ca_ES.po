@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0-20260131\n"
+"Project-Id-Version: Odoo Server 18.0-20260310\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-19 20:58+0000\n"
-"PO-Revision-Date: 2026-04-19 20:58+0000\n"
+"POT-Creation-Date: 2026-04-20 19:01+0000\n"
+"PO-Revision-Date: 2026-04-20 19:01+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -463,6 +463,11 @@ msgid "<span class=\"ms-2\">Hours</span>"
 msgstr "<span class=\"ms-2\">Hores</span>"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "<span class=\"ms-2\">minutes</span>"
+msgstr "<span class=\"ms-2\">minuts</span>"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
 "<span class=\"o_form_label\" title=\"If marked, the student (even if adult) "
@@ -517,6 +522,16 @@ msgid ""
 "                                <br/>\n"
 "                                Select an Excel file below and click \"Import students\" to proceed."
 msgstr ""
+"<strong>Procés d'importació:</strong><br/>\n"
+"                                Aquest assistent importarà dades d'alumnes des d'un arxiu Excel exportat des d'Esfera (sistema SAGA).\n"
+"                                La importació:<br/>\n"
+"                                • Crearà nous registres d'alumnes per als que encara no estan al sistema (identificats per RALC)<br/>\n"
+"                                • Actualitzarà els registres existents si es troben per l'identificador RALC<br/>\n"
+"                                • Crearà contactes familiars per als tutors/responsables<br/>\n"
+"                                • Vincularà els membres de la família amb els alumnes mitjançant tipus de relació<br/>\n"
+"                                • Deduïrà les relacions familiars a partir dels comentaris (mare, pare, tutor, etc.)<br/>\n"
+"                                <br/>\n"
+"                                Seleccioneu un arxiu Excel a continuació i feu clic a \"Importar alumnes\" per continuar."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
@@ -642,7 +657,7 @@ msgstr "Acceptat"
 #. module: ems
 #: model:res.groups,comment:ems.group_tutor
 msgid "Access rights for tutors (teachers in charge of a group)."
-msgstr ""
+msgstr "Drets d'accés per als tutors (professors responsables d'un grup)."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_content__acronym
@@ -912,12 +927,6 @@ msgid "Allowed Subject"
 msgstr "Assumpte permès"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/shared/base.py:0
-msgid "An error occurred during the process"
-msgstr "S'ha produït un error durant el procés"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ac
 msgid "Another Coordinations"
 msgstr "Altres Coordinacions"
@@ -1001,7 +1010,7 @@ msgstr "Estudis associats"
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_template.py:0
 msgid "At least one group must be selected."
-msgstr ""
+msgstr "Cal seleccionar almenys un grup."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids
@@ -1333,13 +1342,13 @@ msgstr "Autoritzacions"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
 msgid "Auto Check-In Mode for Teachers (EMS)"
-msgstr ""
+msgstr "Mode de fitxatge automàtic per a professors (EMS)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__auto_checkin_mode
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__auto_checkin_mode
 msgid "Auto Checkin Mode"
-msgstr ""
+msgstr "Mode d'entrada automàtica"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__auto_checkout_mode
@@ -1356,7 +1365,7 @@ msgstr "Hora de sortida automàtica"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__hr_attendance__in_mode__auto_check_in
 msgid "Automatic Check-In"
-msgstr ""
+msgstr "Fitxatge automàtic"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__available_template_ids
@@ -1566,7 +1575,7 @@ msgstr "Coordinador/a de convivència"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
 #: model:ir.model.fields,field_description:ems.field_ems_role__color
 msgid "Color"
-msgstr ""
+msgstr "Color"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -1697,6 +1706,11 @@ msgid ""
 "start time of the attendance schedule used in the session. Current: current "
 "clock time."
 msgstr ""
+"Controla com es determina l'hora d'entrada quan un professor crea una llista"
+" de classe i encara no ha fitxat avui. Desactivat: funció desactivada. "
+"Primer: primera hora de treball programada del professor (calendari de "
+"recursos). Inici: hora d'inici de l'horari d'assistència de la sessió. "
+"Actual: hora del rellotge actual."
 
 #. module: ems
 #: model:hr.job,name:ems.job_conversation
@@ -1720,6 +1734,8 @@ msgid ""
 "Could not find the header row. Make sure the xlsx file contains a column "
 "'Grup Classe'."
 msgstr ""
+"No s'ha pogut trobar la fila de capçalera. Assegureu-vos que el fitxer xlsx "
+"conté la columna 'Grup Classe'."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__country_id
@@ -1886,7 +1902,7 @@ msgstr "Actual (Operatiu)"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkin_mode__current
 msgid "Current (current time)"
-msgstr ""
+msgstr "Actual (hora actual)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__current_course_id
@@ -1944,6 +1960,25 @@ msgstr "Data"
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 msgid "Date and time"
 msgstr "Data i hora"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_employees_ems
+msgid "Default first entry time"
+msgstr "Hora de primera entrada predeterminada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_employees_ems
+msgid "Default last entry time"
+msgstr "Hora d'última entrada predeterminada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_employees_ems
+msgid ""
+"Default start time used when no first entry is defined for a teacher's "
+"schedule import."
+msgstr ""
+"Hora d'inici predeterminada quan no es defineix una primera entrada per a la"
+" importació de l'horari del professor."
 
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_ems_enrollment_items
@@ -2060,7 +2095,7 @@ msgstr "Discapacitat (>33%)"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkin_mode__disabled
 msgid "Disabled"
-msgstr ""
+msgstr "Desactivat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__display_name
@@ -2120,7 +2155,7 @@ msgstr "Mostrar alerta"
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__document
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Document"
-msgstr ""
+msgstr "Document"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__document_id
@@ -2193,7 +2228,7 @@ msgstr "Crèdits ECTS"
 #: model:ir.module.category,name:ems.category_main
 #: model:ir.module.category,name:ems.ems_category_main
 msgid "EMS"
-msgstr ""
+msgstr "EMS"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkout_mode__ems
@@ -2333,6 +2368,15 @@ msgstr "Hora de finalització"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__end_date
 msgid "End date"
 msgstr "Data de finalització"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_employees_ems
+msgid ""
+"End time assigned to the last block of the day when importing a teacher's "
+"working schedule."
+msgstr ""
+"Hora de fi assignada a l'últim bloc del dia en importar l'horari laboral del"
+" professor."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__enrolled_student_ids
@@ -2641,7 +2685,7 @@ msgstr "Financer"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkin_mode__first
 msgid "First (first scheduled working hour)"
-msgstr ""
+msgstr "Primer (primera hora de treball programada)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__firstname
@@ -2956,7 +3000,7 @@ msgstr "Híbrid"
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_exception_icon
@@ -3097,6 +3141,8 @@ msgid ""
 "If set, employees with this role will be automatically added to this "
 "security group."
 msgstr ""
+"Si s'estableix, els empleats amb aquest rol s'afegiran automàticament a "
+"aquest grup de seguretat."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -3290,9 +3336,8 @@ msgstr "Incident"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "Issue notification delay (in minutes)"
-msgstr ""
-"Temps d'espera (en minuts) per notificar una incidència en assistència"
+msgid "Issue notification delay"
+msgstr "Retard de notificació d'incidència"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
@@ -3542,7 +3587,7 @@ msgstr ""
 #: model:ir.ui.menu,name:ems.menu_limesurvey
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "LimeSurvey"
-msgstr ""
+msgstr "LimeSurvey"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -3806,12 +3851,12 @@ msgstr "Obligatori respondre"
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__manual
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__manual
 msgid "Manual"
-msgstr ""
+msgstr "Manual"
 
 #. module: ems
 #: model:product.template,name:ems.product_generic_enrollment
 msgid "Matrícula El Puig Castellar"
-msgstr ""
+msgstr "Matrícula El Puig Castellar"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__medical_id
@@ -4097,7 +4142,9 @@ msgstr "No s'ha trobat cap matrícula."
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
 msgid "No enrollment templates available for the selected students' study."
-msgstr "No hi ha plantilles de matrícula disponibles per als estudis dels alumnes seleccionats."
+msgstr ""
+"No hi ha plantilles de matrícula disponibles per als estudis dels alumnes "
+"seleccionats."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__non_teaching
@@ -4253,7 +4300,7 @@ msgstr "Quantitat de missatges amb error de lliurament"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "OK"
-msgstr ""
+msgstr "D'acord"
 
 #. module: ems
 #: model:ems.role,name:ems.role_orc
@@ -4493,7 +4540,7 @@ msgstr "Programacions docents"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Plantilla"
-msgstr ""
+msgstr "Plantilla"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -4651,12 +4698,6 @@ msgstr "Destinataris calculats"
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Recipients reload failed. "
 msgstr "La recàrrega de destinataris ha fallat. "
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/limesurvey/limesurvey.py:0
-msgid "Recipients remove failed. "
-msgstr "Error en eliminar destinataris."
 
 #. module: ems
 #. odoo-python
@@ -4955,6 +4996,18 @@ msgid "Schedule"
 msgstr "Horari"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__schedule_import_first_entry_time
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__schedule_import_first_entry_time
+msgid "Schedule Import First Entry Time"
+msgstr "Hora de primera entrada d'importació d'horari"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__schedule_import_last_entry_time
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__schedule_import_last_entry_time
+msgid "Schedule Import Last Entry Time"
+msgstr "Hora d'última entrada d'importació d'horari"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__scheduled
 msgid "Scheduled"
 msgstr "Programat"
@@ -5031,13 +5084,7 @@ msgstr "Drets d'accés del secretari."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__group_id
 msgid "Security Group"
-msgstr ""
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/shared/base.py:0
-msgid "See technical details (Exception)"
-msgstr "Veure detalls tècnics (Excepció)"
+msgstr "Grup de seguretat"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__ems_level_ids
@@ -5082,7 +5129,9 @@ msgstr ""
 msgid ""
 "Selected students belong to different studies. Please select students from "
 "the same group."
-msgstr "Els alumnes seleccionats pertanyen a estudis diferents. Selecciona alumnes del mateix grup."
+msgstr ""
+"Els alumnes seleccionats pertanyen a estudis diferents. Selecciona alumnes "
+"del mateix grup."
 
 #. module: ems
 #: model:ems.role,name:ems.role_seminar
@@ -5345,7 +5394,7 @@ msgstr "Inici"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkin_mode__start
 msgid "Start (start of the current attendance scheduled session)"
-msgstr ""
+msgstr "Inici (inici de la sessió d'assistència programada actual)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__start_date
@@ -5922,6 +5971,8 @@ msgid ""
 "The file is missing required columns:\n"
 "• %s"
 msgstr ""
+"Al fitxer li falten les columnes obligatòries:\n"
+"• %s"
 
 #. module: ems
 #. odoo-python
@@ -6071,7 +6122,7 @@ msgstr "A"
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__total_hours
@@ -6141,6 +6192,11 @@ msgstr "Hora d'enviament predeterminada per al report d'assistència del tutor"
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_kanban
 msgid "Tutor:"
 msgstr "Tutor/a:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_subject__is_tutorship
+msgid "Tutorship"
+msgstr "Tutoria"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__tt
@@ -6215,12 +6271,6 @@ msgstr "No ha estat possible activar l'enquesta"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
-msgid "Unable to create the survey."
-msgstr "No s'ha pogut crear l'enquesta."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to delete some participants"
 msgstr "No ha estat possible esborrar alguns participants"
 
@@ -6272,7 +6322,7 @@ msgstr "En desenvolupament"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__unipersonal
 msgid "Unipersonal"
-msgstr ""
+msgstr "Unipersonal"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_subject_unit_cost
@@ -6635,7 +6685,7 @@ msgstr "fitxer"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "https://ejemplo.com/plantilla.pdf"
-msgstr ""
+msgstr "https://exemple.com/plantilla.pdf"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
@@ -6662,18 +6712,6 @@ msgstr "resultat"
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_form
 msgid "planning"
 msgstr "planificació"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/limesurvey/limesurvey.py:0
-msgid "process failed."
-msgstr "procés fallat."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/limesurvey/limesurvey.py:0
-msgid "process successfully completed!"
-msgstr "procés completat amb èxit!"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form

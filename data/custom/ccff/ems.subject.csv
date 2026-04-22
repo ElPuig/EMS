@@ -1,0 +1,7 @@
+id,code,acronym,name,internal_hours,external_hours,ects,is_tutorship
+"__import__.subject_OPT4","OPT4","MP OPT4","Mòdul professional optatiu",66,0,0,false
+"__import__.subject_OPT5","OPT5","MP OPT5","Mòdul professional optatiu",66,0,5,false
+"__import__.subject_OPT6","OPT6","MP OPT6","Mòdul professional optatiu",66,0,5,false
+"__import__.subject_OPT3","OPT3","MP OPT3","Programació FullStack",99,0,5,false
+"__import__.subject_OPT1","OPT1","MP OPT1","Pensament Computacional",99,0,0,false
+"__import__.subject_OPT2","OPT2","MP OPT2","Introducció a la programació",99,0,5,false

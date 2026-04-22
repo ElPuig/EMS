@@ -1,10 +1,13 @@
 #!/bin/bash
-echo "Updating the EMS..."
-sudo service odoo stop
+echo "Updating all modules..."
 
-# Job queue must be cleaned
-# source: https://github.com/OCA/queue/tree/18.0/queue_job#known-issues-roadmap
-sudo -u odoo bash -c "psql -d ems -c \"UPDATE queue_job SET state='pending' WHERE state IN ('started', 'enqueued');\""
+MODULES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-sudo -u odoo bash -c 'odoo -d ems -u ems --i18n-overwrite --stop-after-init -c /etc/odoo/odoo.conf --dev=all'
-sudo service odoo start
+for dir in "$MODULES_DIR"/*/; do
+    if [ -d "$dir/.git" ]; then
+        echo "# $(basename "$dir"):"
+        git -C "$dir" pull
+    fi
+done
+
+echo "Done!"

@@ -114,6 +114,7 @@
             'views/community/work_location/menu.xml',
             'views/community/employmenttypes/menu.xml',        
             
+            'views/community/working_schedules/list.xml',
             'views/community/working_schedules/import_wizard.xml',
             'views/community/working_schedules/menu.xml',
 
@@ -291,6 +292,8 @@
         'data/custom/eso/ems.study.csv',
         'data/custom/btx/ems.subject.csv',
         'data/custom/btx/ems.study.csv',
+        'data/custom/ccff/ems.study.csv',
+        'data/custom/ccff/ems.subject.csv',
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',
         'data/custom/hr.department.csv',

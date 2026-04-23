@@ -74,7 +74,7 @@ class AttendanceSessionView extends Component {
             "ems.attendance_session_header",
             [["date", "=", this.state.date]],
             ["id", "time_range", "subject_id", "study_id", "attendance_schedule_id",
-             "attendance_session_line_ids"],
+             "attendance_session_line_ids", "start_time", "end_time"],
             { order: "start_time asc" }
         );
 
@@ -93,7 +93,7 @@ class AttendanceSessionView extends Component {
         const schedules = await this.orm.searchRead(
             "ems.attendance_schedule",
             scheduleDomain,
-            ["id", "name", "time_range", "attendance_template_id", "start_time"],
+            ["id", "name", "time_range", "attendance_template_id", "start_time", "end_time"],
             { order: "start_time asc" }
         );
 
@@ -154,6 +154,11 @@ class AttendanceSessionView extends Component {
         this.state.saving = {};
     }
 
+    _nowAsFloat() {
+        const now = new Date();
+        return now.getHours() + now.getMinutes() / 60;
+    }
+
     _autoSelect() {
         const sessions = this.filteredSessions;
         const planned = this.filteredPlanned;
@@ -165,11 +170,25 @@ class AttendanceSessionView extends Component {
         );
         if (currentValid) return;
 
-        if (sessions.length) {
-            this.state.selected = `session_${sessions[0].id}`;
-            this._loadLines(sessions[0].id);
-        } else if (planned.length) {
-            this.state.selected = `schedule_${planned[0].id}`;
+        // When viewing today, prefer the session/schedule currently running
+        let bestSession = null;
+        let bestSchedule = null;
+        if (this.state.date === this._todayStr()) {
+            const now = this._nowAsFloat();
+            bestSession = sessions.find(s => s.start_time <= now && now < s.end_time) || null;
+            if (!bestSession) {
+                bestSchedule = planned.find(s => s.start_time <= now && now < s.end_time) || null;
+            }
+        }
+
+        const targetSession = bestSession || (sessions.length ? sessions[0] : null);
+        const targetSchedule = !targetSession && (bestSchedule || (planned.length ? planned[0] : null));
+
+        if (targetSession) {
+            this.state.selected = `session_${targetSession.id}`;
+            this._loadLines(targetSession.id);
+        } else if (targetSchedule) {
+            this.state.selected = `schedule_${targetSchedule.id}`;
             this.state.lines = [];
         } else {
             this.state.selected = null;

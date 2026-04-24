@@ -257,7 +257,9 @@ def run_action(self, title, action, status_w, status_ok, status_ko, compute, per
 			self.is_running = False
 			self.state = status_ok if success else status_ko
 			
-			if self._name == 'ems.limesurvey_recipient' and error and not self.error: self.error = error
+			if self._name == 'ems.limesurvey_recipient':
+				if error and not self.error: self.error = error
+				elif not error: self.error = False
 			self.reload_request()
 			
 		try:

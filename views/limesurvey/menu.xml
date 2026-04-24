@@ -2,6 +2,6 @@
 <odoo>
     <data>   
         <!-- Root menu items only -->
-        <menuitem name="LimeSurvey" id="menu_limesurvey" />
+        <menuitem name="LimeSurvey" sequence="6" id="menu_limesurvey" />
     </data>
 </odoo>

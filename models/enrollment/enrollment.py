@@ -239,9 +239,16 @@ class ems_SaleOrder(models.Model):
                     f"active enrolment for the academic year {order.ems_course_id.display_name}."
                 )
 
+    def _is_blocked_tutor(self):
+        return (
+            self.env.user.has_group('ems.group_teacher') and
+            not self.env.user.has_group('ems.group_tutor') and
+            not self.env.user.has_group('ems.group_admin') and
+            not self.env.user.has_group('ems.group_secretary')
+        )
+
     def action_cancel(self):
-        if self.env.user.has_group('ems.group_teacher') and \
-           not self.env.user.has_group('ems.group_admin'):
+        if self._is_blocked_tutor():
             raise ValidationError(
                 "Tutors cannot cancel enrollments. "
                 "Please contact the secretary or admin."
@@ -249,8 +256,7 @@ class ems_SaleOrder(models.Model):
         return super().action_cancel()
 
     def action_quotation_sent(self):
-        if self.env.user.has_group('ems.group_teacher') and \
-           not self.env.user.has_group('ems.group_admin'):
+        if self._is_blocked_tutor():
             raise ValidationError(
                 "Tutors cannot change the enrollment status. "
                 "Please contact the secretary or admin."
@@ -258,8 +264,7 @@ class ems_SaleOrder(models.Model):
         return super().action_quotation_sent()
 
     def action_quotation_send(self):
-        if self.env.user.has_group('ems.group_teacher') and \
-           not self.env.user.has_group('ems.group_admin'):
+        if self._is_blocked_tutor():
             raise ValidationError(
                 "Tutors cannot send enrollments to students. "
                 "Please contact the secretary or admin."
@@ -267,8 +272,7 @@ class ems_SaleOrder(models.Model):
         return super().action_quotation_send()
 
     def action_confirm(self):
-        if self.env.user.has_group('ems.group_teacher') and \
-           not self.env.user.has_group('ems.group_admin'):
+        if self._is_blocked_tutor():
             raise ValidationError(
                 "Tutors cannot confirm enrollments. "
                 "Please contact the secretary or admin."

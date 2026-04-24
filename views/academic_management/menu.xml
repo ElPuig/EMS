@@ -2,7 +2,7 @@
 <odoo>
     <data>
         <!-- Root menu items only -->
-        <menuitem name="Academic management" sequence="10" id="menu_ems_academic_management"
+        <menuitem name="Academic management" sequence="2" id="menu_ems_academic_management"
                   groups="ems.group_admin,ems.group_secretary,ems.group_tutor"/>
     </data>
 </odoo>

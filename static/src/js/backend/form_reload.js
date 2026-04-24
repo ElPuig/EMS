@@ -32,20 +32,17 @@ patch(FormController.prototype, {
                 // One2many or Many2many child
                 if (Array.isArray(fieldData.records)) {
                     const childRecord = fieldData.records.find(r => r.resId == record_id);
-                    // if (childRecord && typeof childRecord.load === "function") {
-                    //     childRecord.load();
-                    //     return;
-                    // }
                     if (childRecord) {
-                        // Always reload the full parent, this prevents errors when removing children. 
+                        if (typeof childRecord.load === "function") {
+                            childRecord.load().catch(() => {}); // also update any open modal; ignore errors if record was deleted
+                        }
                         this.model.root.load();
                         return;
                     }
-                } 
+                }
                 // Many2one child
                 else if (typeof fieldData.load === "function" && fieldData.resId == record_id) {
-                    //fieldData.load();
-                    // Always reload the full parent, this prevents errors when removing children. 
+                    fieldData.load().catch(() => {}); // also update any open modal; ignore errors if record was deleted
                     this.model.root.load();
                     return;
                 }

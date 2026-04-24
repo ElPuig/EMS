@@ -77,6 +77,17 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
+    <record id="rule_sale_order_secretary" model="ir.rule">
+        <field name="name">Enrollment (sale.order): secretary</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <record id="rule_sale_order_teacher" model="ir.rule">
         <field name="name">Enrollment (sale.order): teacher (read only)</field>
         <field name="model_id" ref="sale.model_sale_order"/>
@@ -108,6 +119,17 @@
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
         <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_sale_order_line_secretary" model="ir.rule">
+        <field name="name">Enrollment line: secretary</field>
+        <field name="model_id" ref="sale.model_sale_order_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
     </record>
 
     <record id="rule_sale_order_line_teacher" model="ir.rule">

@@ -25,6 +25,9 @@
                             <group>
                                 <field string="WPI enrollment" help="The block appears only for students enrolled in a WorkPlace Intership." name="special_wpi_enrolled"/>
                             </group>
+                            <group>
+                                <field string="Tutorship" help="The block will use the group's tutor data." name="special_tutorship"/>
+                            </group>
                         </group>
 
                         <group string="Block's content (tab separated)">

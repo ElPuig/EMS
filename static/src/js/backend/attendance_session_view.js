@@ -69,10 +69,28 @@ class AttendanceSessionView extends Component {
     async _loadAll() {
         this.state.loading = true;
 
+        // Admins bypass security rules, so we need an explicit teacher filter for both
+        // sessions and schedules. Non-admin teachers rely on record rules.
+        let teacherIds = [];
+        if (session.is_admin || session.is_system) {
+            const employees = await this.orm.searchRead(
+                "hr.employee", [["user_id", "=", session.uid]], ["id"]
+            );
+            teacherIds = employees.map(e => e.id);
+        }
+
         // 1. Existing session headers for this date
+        const sessionDomain = [["date", "=", this.state.date]];
+        if (teacherIds.length) {
+            sessionDomain.push(
+                "|",
+                ["template_teacher_id", "in", teacherIds],
+                ["session_teacher_id", "in", teacherIds],
+            );
+        }
         const sessions = await this.orm.searchRead(
             "ems.attendance_session_header",
-            [["date", "=", this.state.date]],
+            sessionDomain,
             ["id", "time_range", "subject_id", "study_id", "attendance_schedule_id",
              "attendance_session_line_ids", "start_time", "end_time"],
             { order: "start_time asc" }
@@ -81,14 +99,8 @@ class AttendanceSessionView extends Component {
         // 2. Schedules for this weekday (admin needs explicit filter; teachers use security rules)
         const weekday = this._weekdayStr(this.state.date);
         const scheduleDomain = [["weekday", "=", weekday]];
-        if (session.is_admin || session.is_system) {
-            const employees = await this.orm.searchRead(
-                "hr.employee", [["user_id", "=", session.uid]], ["id"]
-            );
-            const teacherIds = employees.map(e => e.id);
-            if (teacherIds.length) {
-                scheduleDomain.push(["attendance_template_id.teacher_id", "in", teacherIds]);
-            }
+        if (teacherIds.length) {
+            scheduleDomain.push(["attendance_template_id.teacher_id", "in", teacherIds]);
         }
         const schedules = await this.orm.searchRead(
             "ems.attendance_schedule",

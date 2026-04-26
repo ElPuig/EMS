@@ -257,7 +257,9 @@ def run_action(self, title, action, status_w, status_ok, status_ko, compute, per
 			self.is_running = False
 			self.state = status_ok if success else status_ko
 			
-			if self._name == 'ems.limesurvey_recipient' and error and not self.error: self.error = error
+			if self._name == 'ems.limesurvey_recipient':
+				if error and not self.error: self.error = error
+				elif not error: self.error = False
 			self.reload_request()
 			
 		try:
@@ -695,16 +697,22 @@ class ems_limesurvey_header(models.Model):
 								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
 								teachers_names = "UNKNOWN" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
 								title = f"{enroll.subject_id.acronym}: {enroll.subject_id.name} | {enroll.group_id.display_name} | {teachers_names}"
-								tmp = replace_block_content(block.tsv_raw_text, title, recipient.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, recipient.student_id.study_id.acronym, enroll.student_id.main_group_id.acronym, teachers_names)
+								tmp = replace_block_content(block.tsv_raw_text, title, recipient.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, recipient.student_id.study_id.acronym, enroll.student_id.main_group_id.display_name, teachers_names)
 								tmp = tmp.replace("{'X'}", str(qID))
 								content += tmp
 								qID += 1
-			if append:
+			if append:				
 				survey_name += f" | {block.name}"	
 				if not only_key:
-					study = "NONE" if not recipient.student_id else recipient.student_id.study_id.acronym
-					group = "NONE" if not recipient.student_id else recipient.student_id.main_group_id.acronym
-					content += replace_block_content(block.tsv_raw_text, block.name, recipient.level_id.acronym, block.name, block.name, study, group)					
+					std_id = recipient.student_id
+					
+					teacher_name = ""
+					if block.special_tutorship:						
+						teacher_name = "UNKNOWN" if not std_id or not std_id.main_group_id or not std_id.main_group_id.tutor_id else std_id.main_group_id.tutor_id.display_name
+
+					study = "NONE" if not std_id or not std_id.study_id else std_id.study_id.acronym
+					group = "NONE" if not std_id or not std_id.main_group_id else std_id.main_group_id.display_name
+					content += replace_block_content(block.tsv_raw_text, block.name, recipient.level_id.acronym, block.name, block.name, study, group, teacher_name)
 
 		return {
 			"internal_id": self.persistent_hash(survey_name), 
@@ -809,6 +817,7 @@ class ems_limesurvey_block(models.Model):
 	special_course_filter = fields.Integer(string="Course", default=0)
 	special_wpi_enrolled = fields.Boolean(string="WorkPlace Intership (if enrolled)", default=False)
 	special_subject_enrolled = fields.Boolean(string="Subject (all enrolled)", default=False)
+	special_tutorship = fields.Boolean(string="Tutorship", default=False)
 	notes = fields.Text(string="Notes")	
 
 	@api.onchange("special_wpi_enrolled", "special_subject_enrolled")

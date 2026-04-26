@@ -149,11 +149,10 @@ Otherwise, if you don't want any demo data, run:
 ./install.sh
 ```
 
-### Update
-If the EMS is already installed and you want to update it to the last version, just run:
+### Upgrade
+If the EMS is already installed and you want to upgrade it to the last version, just run:
 ```
-git pull
-./update.sh
+./update.sh && ./upgrade.sh
 ```
 
 ### Development only

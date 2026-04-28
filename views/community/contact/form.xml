@@ -17,17 +17,15 @@
                     <attribute name="readonly">read_only_user</attribute>
                 </xpath>   
 
-                <field name="vat" position="after">     
+                <xpath expr="//label[@for='vat']" position="replace"/>
+                <xpath expr="//field[@name='vat']" position="replace"/>
+
+                <field name="type" position="before">
                     <field name="contact_type" invisible="True" />
-                    <field name="read_only_user" invisible="True" />     
-                    <field name="tz" invisible="contact_type not in ['student', 'provider']" />
+                    <field name="read_only_user" invisible="True" />
                 </field>
 
-                <field name="vat" position="attributes">                    
-                    <attribute name="invisible">True</attribute>            
-                </field>   
-
-                <field name="type" position="attributes">                    
+                <field name="type" position="attributes">
                     <attribute name="readonly">contact_type == 'student'</attribute>
                 </field>   
 
@@ -109,7 +107,6 @@
                         <group cols="2">
                             <separator name="data" string="Main Data"/>
                             <group>
-                                <field name="vat" invisible="read_only_user" />
                                 <field name="document_id" invisible="read_only_user" />
                                 <field name="passport_id" invisible="read_only_user" />
                                 <field name="student_id" readonly="read_only_user" />

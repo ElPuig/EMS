@@ -60,9 +60,9 @@ def do_remove_survey(ls_api, survey):
 			rec["external_id"] = None
 			rec["internal_id"] = None
 			rec["tid"] = None
-			rec["token"] = None
-			rec["error"] = None
+			rec["token"] = None			
 			rec["state"] = "pending"	
+			rec["error"] = None
 	return _do(survey, code)	
 
 def do_upload_recipients(ls_api, survey):
@@ -72,27 +72,30 @@ def do_upload_recipients(ls_api, survey):
 		for r in survey["recipients"]:
 			parts.append({
 				"firstname": r["name"],
-				"email": r["email"],
+				"email": "" if not r["email"] else r["email"],
 				"lastname": ""
 			})
 		
-		result = ls_api.add_participants(survey["external_id"], parts)
-
-		# New data will come in the same order as sent
-		success = True
-		for index, row in enumerate(result):
-			rec = survey["recipients"][index]
-			if "error" in row:
-				success = False
-				rec["error"] = row["error"]		
-			else:
+		try:
+			success = True
+			result = ls_api.add_participants(survey["external_id"], parts)
+			# New data will come in the same order as sent
+			for index, row in enumerate(result):
+				rec = survey["recipients"][index]
 				rec["tid"] = row["tid"]
 				rec["token"] = row["token"]				
 				rec["internal_id"] = survey["internal_id"]
 				rec["external_id"] = survey["external_id"]
-				rec["state"] = "uploaded"
-				rec["error"] = None	
-		return success
+				rec["state"] = "uploaded"				
+				
+				if "error" in row:
+					rec["error"] = row["error"]		
+				else:
+					rec["error"] = _email_not_empty(row["email"])				
+		except Exception:
+			survey["error"] = traceback.format_exc()
+			success = False		
+		return success		
 	return _do(survey, code)	
 
 def do_open_survey(ls_api, survey):	
@@ -181,10 +184,16 @@ def do_upload_recipient_changes(ls_api, survey):
 		existing = survey["external_id"] is not None
 		if existing and survey["internal_id"] == rec["internal_id"]:
 			# The recipient is in the correct survey, updating participant data.				
-			ls_api.update_participant_data(rec["external_id"], rec["tid"], {
-				"firstname": rec["name"],
-				"email": rec["email"]
-			})
+			
+			empty = _email_not_empty(rec["email"])
+			if empty is None:
+				ls_api.update_participant_data(rec["external_id"], rec["tid"], {
+					"firstname": rec["name"],
+					"email": rec["email"]
+				})
+			else:
+				rec["error"] = empty
+				success = False
 		else:	
 			# The recipient is NOT in the correct survey
 			# Removing from the old one (the method does not remove if the recipient is not uploaded)			
@@ -317,6 +326,12 @@ def _do(survey, code, *args, **kwargs):
 		for rec in survey["recipients"]:
 			rec["error"] = traceback.format_exc()
 	return True if success is None else success
+
+def _email_not_empty(email):
+	if not email or len(email) == 0:
+		return "Empty email address!"
+	else:
+		return None
 # endregion
 class limesurvey_api():
 	def __init__(self, env):
@@ -425,49 +440,58 @@ class limesurvey_api():
 		except Exception as e:
 			raise Exception(f"{error}: {e}")
 
+	def _parse_api_response(self, response, context="LimeSurvey API"):
+		if response.status_code != 200:
+			raise UserError(f"{context} error: {response.reason}\n\n{self._extract_limesurvey_html_error(response.text)}")
+
+		try:
+			data = response.json()
+		except Exception:
+			raise UserError(f"{context} error: the response is not valid JSON.\n\n{response.text[:500]}")
+
+		if data.get('error'):
+			raise UserError(f"{context} error: {data.get('error')}")
+
+		return data
+
 	def _run_api_request(self, method, params=[]):
 		headers = {'content-type': 'application/json'}
 		session_key = self._get_session_key(headers)
 
 		if not session_key:
 			raise UserError(_("Unable to get the LimeSurvey's session key."))
-		
+
 		try:
-			session = [session_key]
 			payload = {
                 "method": method,
-                "params": [*session, *params], 
+                "params": [session_key, *params],
                 "id": 1
             }
-			
+
 			response = requests.post(self.limesurvey_api, data=json.dumps(payload), headers=headers)
-			if response.status_code != 200:
-				raise UserError(f"LimeSurvey API call error: {response.reason} \n\n {self._extract_limesurvey_html_error(response.text)}")
-			elif response.json().get('error'):
-				raise UserError(f"LimeSurvey API call error:  {response.json().get('error')}")
-			
-			result = response.json().get('result')
+			result = self._parse_api_response(response, "LimeSurvey API call").get('result')
+
 			if result is None:
-				raise UserError(f"LimeSurvey API call error: unkown (maybe permissions?)")
-			return result			
+				raise UserError(f"LimeSurvey API call error: unknown (maybe permissions?)")
+			return result
 
 		except UserError as ue:
 			raise ue
 		except Exception as e:
 			raise UserError(f"Unexpected error: {str(e)}")
-			
+
 		finally:
 			self._release_session_key(session_key, headers)
 
-	def _extract_limesurvey_html_error(self, html_content):		
+	def _extract_limesurvey_html_error(self, html_content):
 		match = re.search(r'<h2[^>]*class="error-title"[^>]*>(.*?)</h2>', html_content, re.IGNORECASE | re.DOTALL)
-		
+
 		if match:
-			raw_text = match.group(1)			
-			clean_text = " ".join(raw_text.split())			
-			final_text = html.unescape(clean_text)			
+			raw_text = match.group(1)
+			clean_text = " ".join(raw_text.split())
+			final_text = html.unescape(clean_text)
 			return final_text
-			
+
 		return html_content
 
 	def _get_session_key(self, headers):
@@ -477,7 +501,7 @@ class limesurvey_api():
 			"id": 1
 		}
 		response = requests.post(self.limesurvey_api, data=json.dumps(payload), headers=headers)
-		return response.json().get('result')
+		return self._parse_api_response(response, "LimeSurvey session key").get('result')
 	
 	def _release_session_key(self, session_key, headers):		
 		payload = {
@@ -766,14 +790,10 @@ class ems_limesurvey_header(models.Model):
 			email = False 
 			if student.student_email: email = student.student_email
 			if not email: email = student.email
-
-			error = None
-			if not email: error = "Empty email address!"
-
+			
 			rec_ids.append([0,0, {
 				"name": student.name,
 				"email": email,
-				"error": error,
 				"level_id": student.level_id.id,
 				"student_id": student.id,
 				"wpi_enrolled": student.wpi_enrolled,
@@ -986,7 +1006,7 @@ class ems_limesurvey_recipient(models.Model):
 					self.env.cr.commit() 
 					r.action_upload()							
 		return recips
-		
+
 	def copy_data(self):
 		data = self.read()[0]
 		data["original"] = self

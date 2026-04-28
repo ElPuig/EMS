@@ -693,10 +693,13 @@ class ems_limesurvey_header(models.Model):
 						qID = 4
 						for enroll in recipient.limesurvey_enrollment_ids.filtered(lambda e: not e.subject_id.is_tutorship):
 							survey_name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.display_name}"
-							if not only_key:
+							if not only_key:								
+								title = f"{enroll.subject_id.acronym}: {enroll.subject_id.name} | {enroll.group_id.display_name}"
+								
 								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
-								teachers_names = "UNKNOWN" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
-								title = f"{enroll.subject_id.acronym}: {enroll.subject_id.name} | {enroll.group_id.display_name} | {teachers_names}"
+								teachers_names = "" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
+								if len(teacher_name) > 0: title += f" | {teachers_names}"
+								
 								tmp = replace_block_content(block.tsv_raw_text, title, recipient.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, recipient.student_id.study_id.acronym, enroll.student_id.main_group_id.display_name, teachers_names)
 								tmp = tmp.replace("{'X'}", str(qID))
 								content += tmp
@@ -708,7 +711,7 @@ class ems_limesurvey_header(models.Model):
 					
 					teacher_name = ""
 					if block.special_tutorship:						
-						teacher_name = "UNKNOWN" if not std_id or not std_id.main_group_id or not std_id.main_group_id.tutor_id else std_id.main_group_id.tutor_id.display_name
+						teacher_name = "" if not std_id or not std_id.main_group_id or not std_id.main_group_id.tutor_id else std_id.main_group_id.tutor_id.display_name
 
 					study = "NONE" if not std_id or not std_id.study_id else std_id.study_id.acronym
 					group = "NONE" if not std_id or not std_id.main_group_id else std_id.main_group_id.display_name
@@ -760,17 +763,21 @@ class ems_limesurvey_header(models.Model):
 					"subject_id": enroll.subject_id.id,
 				}])
 			
-			email = "" 
+			email = False 
 			if student.student_email: email = student.student_email
 			if not email: email = student.email
-			
+
+			error = None
+			if not email: error = "Empty email address!"
+
 			rec_ids.append([0,0, {
 				"name": student.name,
 				"email": email,
+				"error": error,
 				"level_id": student.level_id.id,
 				"student_id": student.id,
 				"wpi_enrolled": student.wpi_enrolled,
-				"limesurvey_enrollment_ids": enrollments					
+				"limesurvey_enrollment_ids": enrollments				
 			}])
 		
 		# NOTE: I don't know why [[5]] fails...
@@ -848,7 +855,7 @@ class ems_limesurvey_recipient(models.Model):
 	header_state = fields.Selection(string="Header's sate", related="limesurvey_header_id.state", store=False)
 	level_id = fields.Many2one(string='Level', comodel_name='ems.level')  
 	name = fields.Char(string="Name", required=True)
-	email = fields.Char(string="Email", required=True)
+	email = fields.Char(string="Email")
 	external_id = fields.Char(string="Survey's ID (LimeSurvey)")
 	internal_id = fields.Char(string="Survey's ID (EMS)")
 	token = fields.Char(string="User's token (LimeSurvey)")

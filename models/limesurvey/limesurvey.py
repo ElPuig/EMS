@@ -736,6 +736,7 @@ class ems_limesurvey_header(models.Model):
 					teacher_name = ""
 					if block.special_tutorship:						
 						teacher_name = "" if not std_id or not std_id.main_group_id or not std_id.main_group_id.tutor_id else std_id.main_group_id.tutor_id.display_name
+						survey_name += f" {std_id.main_group_id.display_name}"
 
 					study = "NONE" if not std_id or not std_id.study_id else std_id.study_id.acronym
 					group = "NONE" if not std_id or not std_id.main_group_id else std_id.main_group_id.display_name

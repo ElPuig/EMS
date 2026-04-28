@@ -759,15 +759,19 @@ class ems_limesurvey_header(models.Model):
 					"group_id": enroll.group_id.id,
 					"subject_id": enroll.subject_id.id,
 				}])
-				
+			
+			email = "" 
+			if student.student_email: email = student.student_email
+			if not email: email = student.email
+			
 			rec_ids.append([0,0, {
 				"name": student.name,
-				"email": student.student_email,
+				"email": email,
 				"level_id": student.level_id.id,
 				"student_id": student.id,
 				"wpi_enrolled": student.wpi_enrolled,
 				"limesurvey_enrollment_ids": enrollments					
-			}])				
+			}])
 		
 		# NOTE: I don't know why [[5]] fails...
 		for rec in self.limesurvey_recipient_ids:

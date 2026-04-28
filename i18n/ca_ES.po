@@ -5092,7 +5092,7 @@ msgstr ""
 #: model:res.groups,name:ems.group_secretary
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Secretary"
-msgstr "Secretari/ària"
+msgstr "Secretaria"
 
 #. module: ems
 #: model:ems.role,name:ems.role_schieff

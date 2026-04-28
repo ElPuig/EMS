@@ -113,7 +113,8 @@
                                 <field name="document_id" invisible="read_only_user" />
                                 <field name="passport_id" invisible="read_only_user" />
                                 <field name="student_id" readonly="read_only_user" />
-                                <field name="medical_id" invisible="read_only_user"  />                                                            
+                                <field name="medical_id" invisible="read_only_user"  />
+                                <field name="nuss" invisible="read_only_user"  />                                                            
                                 <field name="student_email" readonly="read_only_user" widget="email" />                               
                                 <field name="car_plate" invisible="read_only_user"  />
                             </group>

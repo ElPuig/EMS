@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0-20260310\n"
+"Project-Id-Version: Odoo Server 18.0-20260131\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-20 19:01+0000\n"
-"PO-Revision-Date: 2026-04-20 19:01+0000\n"
+"POT-Creation-Date: 2026-04-28 13:48+0000\n"
+"PO-Revision-Date: 2026-04-28 13:48+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -930,6 +930,12 @@ msgid "Allowed Subject"
 msgstr "Tema permitido"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/base.py:0
+msgid "An error occurred during the process"
+msgstr ""
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ac
 msgid "Another Coordinations"
 msgstr "Otras Coordinaciones"
@@ -1578,7 +1584,7 @@ msgstr "Coordinador/a de convivencia"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
 #: model:ir.model.fields,field_description:ems.field_ems_role__color
 msgid "Color"
-msgstr "Color"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -2231,7 +2237,7 @@ msgstr "Créditos ECTS"
 #: model:ir.module.category,name:ems.category_main
 #: model:ir.module.category,name:ems.ems_category_main
 msgid "EMS"
-msgstr "EMS"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkout_mode__ems
@@ -3004,7 +3010,7 @@ msgstr "Híbrido"
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_exception_icon
@@ -3591,7 +3597,7 @@ msgstr ""
 #: model:ir.ui.menu,name:ems.menu_limesurvey
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "LimeSurvey"
-msgstr "LimeSurvey"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -3842,6 +3848,11 @@ msgid "Manage your personal and security data"
 msgstr "Gestiona tus datos personales y de seguridad"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__mm
+msgid "Management Meeting"
+msgstr ""
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__mt
 msgid "Management Time"
 msgstr "Cargo de Dirección"
@@ -3855,12 +3866,12 @@ msgstr "Obligatorio responder"
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__manual
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__manual
 msgid "Manual"
-msgstr "Manual"
+msgstr ""
 
 #. module: ems
 #: model:product.template,name:ems.product_generic_enrollment
 msgid "Matrícula El Puig Castellar"
-msgstr "Matrícula El Puig Castellar"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__medical_id
@@ -4012,6 +4023,12 @@ msgid "My Activity Deadline"
 msgstr "Fecha límite de mi actividad"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__nuss
+#: model:ir.model.fields,field_description:ems.field_res_users__nuss
+msgid "NUSS"
+msgstr "NUSS"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__name
 #: model:ir.model.fields,field_description:ems.field_ems_content__name
 #: model:ir.model.fields,field_description:ems.field_ems_course__name
@@ -4125,7 +4142,7 @@ msgstr "Tipo de la siguiente actividad"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_sale_order_template__ems_level_id
 msgid "Nivel"
-msgstr "Nivel"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -4544,7 +4561,7 @@ msgstr "Programaciones docentes"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Plantilla"
-msgstr "Plantilla"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -4702,6 +4719,12 @@ msgstr "Destinatarios calculados"
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Recipients reload failed. "
 msgstr "La recarga de destinatarios ha fallado. "
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Recipients remove failed. "
+msgstr ""
 
 #. module: ems
 #. odoo-python
@@ -4927,7 +4950,7 @@ msgstr "Nombres de los roles"
 #: model:ir.ui.menu,name:ems.menu_teachers_roles
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Roles"
-msgstr "Roles"
+msgstr ""
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_asp_role_tree
@@ -5090,6 +5113,12 @@ msgstr "Derechos de acceso del secretario."
 #: model:ir.model.fields,field_description:ems.field_ems_role__group_id
 msgid "Security Group"
 msgstr "Grupo de seguridad"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/base.py:0
+msgid "See technical details (Exception)"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__ems_level_ids
@@ -5819,7 +5848,7 @@ msgstr "Destinatarios"
 #. module: ems
 #: model:product.template,name:ems.fee_cfgs
 msgid "Tasa CFGS"
-msgstr "Tasa CFGS"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__teacher_id
@@ -5925,6 +5954,12 @@ msgstr ""
 "el ID."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "The NUSS must be exactly 12 numeric digits."
+msgstr "El NUSS debe tener exactamente 12 dígitos numéricos."
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "The block appears only for students enrolled in a WorkPlace Intership."
 msgstr "El bloque sólo aparecerá por los estudiantes matriculados en FCT."
@@ -5935,6 +5970,11 @@ msgid "The block appears only for students enrolled in this course (0 = all)."
 msgstr ""
 "El bloque sólo aparecerá por los alumnos matriculados en este curso (0 = "
 "todos)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "The block will use the group's tutor data."
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
@@ -6130,7 +6170,7 @@ msgstr "A"
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Total"
-msgstr "Total"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__total_hours
@@ -6203,7 +6243,9 @@ msgid "Tutor:"
 msgstr "Tutor/a"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_tutorship
 #: model:ir.model.fields,field_description:ems.field_ems_subject__is_tutorship
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "Tutorship"
 msgstr "Tutoría"
 
@@ -6280,6 +6322,12 @@ msgstr "No ha sido posible activar la encuesta"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Unable to create the survey."
+msgstr ""
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to delete some participants"
 msgstr "No ha sido posible borrar a algunos participantes"
 
@@ -6331,7 +6379,7 @@ msgstr "En desarrollo"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__unipersonal
 msgid "Unipersonal"
-msgstr "Unipersonal"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_subject_unit_cost
@@ -6694,7 +6742,7 @@ msgstr "archivo"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "https://ejemplo.com/plantilla.pdf"
-msgstr "https://ejemplo.com/plantilla.pdf"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
@@ -6721,6 +6769,18 @@ msgstr "resultado"
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_form
 msgid "planning"
 msgstr "planificación"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "process failed."
+msgstr ""
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "process successfully completed!"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form

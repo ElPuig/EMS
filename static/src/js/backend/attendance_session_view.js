@@ -5,13 +5,14 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { session } from "@web/session";
 
-const STATUS_CONFIG = [
-    { key: "a_attended",  label: "A", color: "#00b269", title: "Attended"  },
-    { key: "a_delayed",   label: "R", color: "#f07800", title: "Delayed"   },
-    { key: "m_miss",      label: "F", color: "#e74c3c", title: "Miss"      },
-    { key: "m_justified", label: "J", color: "#4a90d9", title: "Justified" },
-    { key: "a_issue",     label: "I", color: "#9b59b6", title: "Issue"     },
-];
+// Colors keyed by status value — the only thing that can't come from the model.
+const STATUS_COLORS = {
+    a_attended:  "#00b269",
+    a_delayed:   "#f07800",
+    m_miss:      "#e74c3c",
+    m_justified: "#4a90d9",
+    a_issue:     "#9b59b6",
+};
 
 class AttendanceSessionView extends Component {
     static template = "ems.AttendanceSessionView";
@@ -20,7 +21,7 @@ class AttendanceSessionView extends Component {
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
-        this.statuses = STATUS_CONFIG;
+        this.statuses = [];   // populated in onWillStart from model fields_get
 
         this.state = useState({
             date: this._todayStr(),
@@ -35,6 +36,7 @@ class AttendanceSessionView extends Component {
         });
 
         onWillStart(async () => {
+            await this._loadStatuses();
             await this._loadAll();
         });
     }
@@ -65,6 +67,22 @@ class AttendanceSessionView extends Component {
     }
 
     // ── Data loading ──────────────────────────────────────────────────────────
+
+    async _loadStatuses() {
+        const info = await this.orm.call(
+            "ems.attendance_session_line", "fields_get", [["status"]], { attributes: ["selection"] }
+        );
+        this.statuses = info.status.selection.map(([key, title]) => ({
+            key,
+            title,
+            label: title.split(/\s+/).pop()[0].toUpperCase(),
+            color: STATUS_COLORS[key] || "#6c757d",
+        }));
+    }
+
+    get statusColorMap() {
+        return Object.fromEntries(this.statuses.map(s => [s.key, s.color]));
+    }
 
     async _loadAll() {
         this.state.loading = true;

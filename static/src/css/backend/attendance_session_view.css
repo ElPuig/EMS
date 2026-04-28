@@ -97,12 +97,7 @@
     background: #f8f9fa;
 }
 
-/* Subtle left border shows current status at a glance */
-.ems-av-line--a_attended  { border-left: 4px solid #00b269; }
-.ems-av-line--a_delayed   { border-left: 4px solid #fbc404; }
-.ems-av-line--m_miss      { border-left: 4px solid #e74c3c; }
-.ems-av-line--m_justified { border-left: 4px solid #4a90d9; }
-.ems-av-line--a_issue     { border-left: 4px solid #9b59b6; }
+/* Left border color set via inline style from statusColorMap (dynamic) */
 
 .ems-av-avatar {
     width: 44px;
@@ -126,6 +121,48 @@
 
 @media (max-width: 600px) {
     .ems-av-name {
+        flex: 0 0 120px;
+    }
+}
+
+/* --- Column headers --------------------------------------- */
+.ems-av-col-headers {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    padding: 6px 20px 4px 24px; /* 24px = 20px padding + 4px to align with bordered rows */
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    position: sticky;
+    top: 57px; /* below the main header */
+    z-index: 9;
+}
+
+.ems-av-col-header-avatar {
+    width: 44px;
+    flex-shrink: 0;
+}
+
+.ems-av-col-header-name {
+    flex: 0 0 220px;
+}
+
+.ems-av-col-header-label {
+    width: 44px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.25;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+@media (max-width: 600px) {
+    .ems-av-col-headers {
+        gap: 10px;
+        padding-left: 16px; /* 12px + 4px */
+    }
+    .ems-av-col-header-name {
         flex: 0 0 120px;
     }
 }

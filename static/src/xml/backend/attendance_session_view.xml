@@ -84,25 +84,42 @@
                     <t t-if="!state.lines.length">
                         <div class="ems-av-empty">Aquesta sessió no té alumnes.</div>
                     </t>
-                    <t t-foreach="state.lines" t-as="line" t-key="line.id">
-                        <div class="ems-av-line" t-att-class="'ems-av-line--' + line.status">
-                            <img class="ems-av-avatar" t-att-src="avatarUrl(line)" alt=""/>
-                            <span class="ems-av-name"
-                                  t-att-title="line.student_id ? line.student_id[1] : ''"
-                                  t-esc="line.student_id ? line.student_id[1] : '—'"/>
+                    <t t-else="">
+                        <!-- Column headers aligned with student rows -->
+                        <div class="ems-av-col-headers">
+                            <div class="ems-av-col-header-avatar"/>
+                            <div class="ems-av-col-header-name"/>
                             <div class="ems-av-btns">
                                 <t t-foreach="statuses" t-as="s" t-key="s.key">
-                                    <button class="ems-av-status-btn"
-                                            t-att-class="line.status === s.key ? 'ems-av-status-btn--active' : ''"
-                                            t-att-style="'--btn-color:' + s.color"
-                                            t-att-title="s.title"
-                                            t-att-disabled="state.saving[line.id]"
-                                            t-on-click="() => this.onStatusClick(line.id, s.key)">
-                                        <t t-esc="s.label"/>
-                                    </button>
+                                    <div class="ems-av-col-header-label"
+                                         t-att-style="'color:' + s.color"
+                                         t-att-title="s.title">
+                                        <t t-esc="s.title"/>
+                                    </div>
                                 </t>
                             </div>
                         </div>
+                        <t t-foreach="state.lines" t-as="line" t-key="line.id">
+                            <div class="ems-av-line"
+                                 t-att-style="'border-left: 4px solid ' + (statusColorMap[line.status] || 'transparent')">
+                                <img class="ems-av-avatar" t-att-src="avatarUrl(line)" alt=""/>
+                                <span class="ems-av-name"
+                                      t-att-title="line.student_id ? line.student_id[1] : ''"
+                                      t-esc="line.student_id ? line.student_id[1] : '—'"/>
+                                <div class="ems-av-btns">
+                                    <t t-foreach="statuses" t-as="s" t-key="s.key">
+                                        <button class="ems-av-status-btn"
+                                                t-att-class="line.status === s.key ? 'ems-av-status-btn--active' : ''"
+                                                t-att-style="'--btn-color:' + s.color"
+                                                t-att-title="s.title"
+                                                t-att-disabled="state.saving[line.id]"
+                                                t-on-click="() => this.onStatusClick(line.id, s.key)">
+                                            <t t-esc="s.label"/>
+                                        </button>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
                     </t>
                 </t>
 

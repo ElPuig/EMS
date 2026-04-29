@@ -5,7 +5,9 @@
             <field name="model">ems.limesurvey_header</field>
             <field name="arch" type="xml">
                 <list  default_order="name asc" expand="True" >
-                    <field name="name"/>                    
+                    <field name="name"/>
+                    <field name="target"/>
+                    <field name="state"/>                    
                 </list>
             </field>
         </record>   

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="report_enrollment">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+
+                            <!-- Alumno + cabecera matrícula -->
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <div t-field="doc.partner_id"
+                                         t-options='{"widget": "contact", "fields": ["name", "address"]}'/>
+                                </div>
+                                <div class="col-6">
+                                    <h2 class="mb-1">Matrícula:<br/><span t-field="doc.name"/></h2>
+                                    <div><strong>Curs:</strong> <span t-field="doc.ems_course_id"/></div>
+                                    <div><strong>Estudis:</strong> <span t-field="doc.ems_study_id"/></div>
+                                    <t t-if="doc.ems_level_id">
+                                        <div><strong>Nivell:</strong> <span t-field="doc.ems_level_id"/></div>
+                                    </t>
+                                    <t t-if="doc.shift">
+                                        <div><strong>Torn:</strong> <span t-field="doc.shift"/></div>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <!-- Taula de línies de matrícula -->
+                            <table class="table table-sm mt-3">
+                                <thead>
+                                    <tr>
+                                        <th>Descripció</th>
+                                        <th class="text-end">Import</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.order_line" t-as="line">
+                                        <td><span t-field="line.name"/></td>
+                                        <td class="text-end">
+                                            <t t-if="line.price_unit > 0">
+                                                <t t-if="line.discount > 0">
+                                                    <span class="text-muted text-decoration-line-through me-1">
+                                                        <t t-esc="'%.2f €' % line.price_unit"/>
+                                                    </span>
+                                                    (<t t-esc="'-%d%%' % line.discount"/>)
+                                                    <span class="ms-1">
+                                                        <t t-esc="'%.2f €' % line.price_subtotal"/>
+                                                    </span>
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-esc="'%.2f €' % line.price_subtotal"/>
+                                                </t>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="border-top fw-bold">
+                                        <td class="text-end">Total</td>
+                                        <td class="text-end">
+                                            <span t-field="doc.amount_total"/>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <!-- Forma de pagament -->
+                            <t t-if="doc.payment_term_id">
+                                <div class="mt-3">
+                                    <strong>Forma de pagament:</strong>
+                                    <span t-field="doc.payment_term_id"/>
+                                </div>
+                            </t>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

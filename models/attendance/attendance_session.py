@@ -239,8 +239,16 @@ class ems_attendance_session_header(models.Model):
 					current.append(r)		
 			return current			
 	
-	def _get_notification_tutor_eta(self):
-		# TODO: tutor's working schedule end-time should be loaded firts, and use the default only if not defined. 
+	def _get_notification_tutor_eta(self, tutor=None):
+		if tutor and tutor.resource_calendar_id and tutor.resource_calendar_id.id != 1:
+			today = fields.Datetime.now()
+			weekday = str(today.weekday())
+			slots = tutor.resource_calendar_id.attendance_ids.filtered(
+				lambda a: a.dayofweek == weekday
+			).sorted(key=lambda a: a.hour_to, reverse=True)
+			if slots:
+				return self.datetime_to_odoo(self.time_float_to_utc_datetime(today, slots[0].hour_to))
+
 		notification_tutor_eta = self.time_float_to_utc_datetime(fields.Datetime.now(), self.env.company.attendance_issue_tutor_default)
 		return self.datetime_to_odoo(notification_tutor_eta)
 	
@@ -402,7 +410,6 @@ class ems_attendance_session_header(models.Model):
 
 		# NOTE: Optional, but computed here for optimization
 		notification_status_eta = self._get_notification_status_eta()
-		notification_tutor_eta = self._get_notification_tutor_eta()
 
 		for record in records:
 			record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
@@ -412,7 +419,7 @@ class ems_attendance_session_header(models.Model):
 			for attendance_session_line in record.attendance_session_line_ids:
 				record.collect_issue_status_data(attendance_session_line, issue_status_by_tutor)
 
-			record.create_notification_entries(issue_status_by_tutor, notification_tutor_eta, notification_status_eta)
+			record.create_notification_entries(issue_status_by_tutor, notification_status_eta=notification_status_eta)
 		return records
 	
 	def copy(self, default=None):
@@ -430,27 +437,26 @@ class ems_attendance_session_header(models.Model):
 
 		return res
 	
-	def create_notification_entries(self, issue_status_by_tutor, notification_tutor_eta=None, notification_status_eta=None, rectification=False):				
-		if notification_tutor_eta is None: notification_tutor_eta = self._get_notification_tutor_eta()
+	def create_notification_entries(self, issue_status_by_tutor, notification_status_eta=None, rectification=False):
 		if notification_status_eta is None: notification_status_eta = self._get_notification_status_eta()
 
-		# NOTE: Status data is grouped by tutor and only got the ones which should be notified. 
+		# NOTE: Status data is grouped by tutor and only got the ones which should be notified.
 		notis = []
 		for tutor_id in issue_status_by_tutor:
 			for issue_status_data in issue_status_by_tutor[tutor_id]:
 				issue_tutor = self._get_or_create_issue_tutor(tutor_id, self.date)
 				issue_student = self._get_or_create_issue_student(issue_tutor, issue_status_data["student_id"])
 				self._get_or_create_issue_status(issue_student, issue_status_data["attendance_session_line_id"], issue_status_data["send_to"], rectification)
-				
+
 				if not issue_tutor in notis: notis.append(issue_tutor)
-		
+
 		for notification_tutor in notis:
 			# noti internal structure: attendance_issue_tutor (1) --> (N) attendance_issue_student (1) --> (N) attendance_issue_status
-			# notifications for the tutors: daily (at the end if its tourn); notifications for the family (status): after a timeout (default 15 minutes). 
+			# notifications for the tutors: daily (at the end if its tourn); notifications for the family (status): after a timeout (default 15 minutes).
 
-			self._schedule_daily_assistance_notification(notification_tutor, notification_tutor_eta)
+			self._schedule_daily_assistance_notification(notification_tutor, self._get_notification_tutor_eta(notification_tutor.tutor_id))
 			for issue_student in notification_tutor.attendance_issue_student_ids:
-				for issue_status in issue_student.attendance_issue_status_ids:					
+				for issue_status in issue_student.attendance_issue_status_ids:
 					self._schedule_family_assistance_notification(issue_status, notification_status_eta, rectification)
 
 	def collect_issue_status_data(self, attendance_session_line_id, status_by_tutor, rectification=False):

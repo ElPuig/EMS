@@ -11,6 +11,17 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
+    <record id="rule_contact_secretary" model="ir.rule">
+        <field name="name">Contact: secretary (full access)</field>
+        <field name="model_id" ref="ems.model_res_partner"/>
+        <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
     <record id="rule_contact_teacher" model="ir.rule">
         <field name="name">Contact: teacher (read only)</field>
         <field name="model_id" ref="ems.model_res_partner"/>
@@ -37,6 +48,17 @@
         <field name="name">Enrollment: admin</field>
         <field name="model_id" ref="ems.model_ems_enrollment"/>
         <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_enrollment_secretary" model="ir.rule">
+        <field name="name">Enrollment: secretary (full access)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment"/>
+        <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -158,6 +180,17 @@
         <field name="name">Authorization: admin</field>
         <field name="model_id" ref="ems.model_ems_authorization"/>
         <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_ems_authorization_secretary" model="ir.rule">
+        <field name="name">Authorization: secretary (full access)</field>
+        <field name="model_id" ref="ems.model_ems_authorization"/>
+        <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>

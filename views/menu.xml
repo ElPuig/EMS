@@ -27,11 +27,11 @@
         </record>
 
         <record model="ir.ui.menu" id="sale.sale_menu_root">
-            <field name="active">false</field>
+            <field name="active">true</field>
         </record>
 
         <record model="ir.ui.menu" id="account.menu_finance">
-            <field name="active">false</field>
+            <field name="active">true</field>
         </record>
 
         <record model="ir.ui.menu" id="spreadsheet_dashboard.spreadsheet_dashboard_menu_root">

@@ -117,6 +117,7 @@ class ems_contact(models.Model):
         store=False,
         search='_search_current_enrollment',
     )
+    ems_enrollment_state = fields.Selection(related='ems_current_enrollment_id.state', store=False, string='Enrollment State')
 
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)

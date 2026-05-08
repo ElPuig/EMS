@@ -77,6 +77,7 @@
                                                decoration-danger="display_status == 'failed'"/>
                                         <button name="open_exception_popup" type="object" icon="fa-info-circle" title="Error details" invisible="not exception"/>
                                         <field name="exception" column_invisible="True"/>
+                                        <field name="source_group_id" column_invisible="True"/>
                                     </list>
                                 </field>
                             </group>

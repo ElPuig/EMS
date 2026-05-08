@@ -59,62 +59,55 @@ class ems_communication(models.Model):
         for rec in self:
             rec.display_name = rec.subject or _("(New communication)")
 
-    def _collect_recipients(self):
-        seen_emails = set()
-        vals_list = []
-
-        for group in self.group_ids:
+    def _build_auto_lines(self, groups, recipient_type, seen_emails):
+        """Return a list of ems.communication.line virtual records for the given groups."""
+        new_lines = self.env['ems.communication.line']
+        for group in groups:
             for student in group.main_student_ids.filtered(lambda s: s.contact_type == 'student'):
-                if self.recipient_type in ('students', 'both'):
+                if recipient_type in ('students', 'both'):
                     email = student.student_email or student.email
                     if email and email not in seen_emails:
                         seen_emails.add(email)
-                        vals_list.append({
-                            'communication_id': self.id,
+                        new_lines |= self.env['ems.communication.line'].new({
                             'partner_id': student.id,
                             'email': email,
                             'student_id': student.id,
                             'recipient_type': 'student',
+                            'source_group_id': group.id,
                         })
 
-                if self.recipient_type in ('families', 'both'):
-                    # Mirror the consent logic from attendance_session.py
+                if recipient_type in ('families', 'both'):
                     if not student.is_adult or student.auth_share:
                         for relation in student.relation_all_ids:
                             family = relation.other_partner_id
                             if family.contact_type == 'family' and family.email:
                                 if family.email not in seen_emails:
                                     seen_emails.add(family.email)
-                                    vals_list.append({
-                                        'communication_id': self.id,
+                                    new_lines |= self.env['ems.communication.line'].new({
                                         'partner_id': family.id,
                                         'email': family.email,
                                         'student_id': student.id,
                                         'recipient_type': 'family',
+                                        'source_group_id': group.id,
                                     })
+        return new_lines
 
-        return vals_list
+    @api.onchange('group_ids', 'recipient_type')
+    def _onchange_groups(self):
+        # Manual lines: those not linked to any auto-populated group
+        manual_lines = self.communication_line_ids.filtered(lambda l: not l.source_group_id)
+        seen_emails = set(manual_lines.mapped('email'))
+        new_auto_lines = self._build_auto_lines(self.group_ids, self.recipient_type, seen_emails)
+        self.communication_line_ids = manual_lines | new_auto_lines
 
     def action_send(self):
         self.ensure_one()
         if self.state not in ('draft',):
             raise UserError(_("Only draft communications can be sent."))
 
-        # Use existing lines (manually edited) if present; otherwise auto-populate from groups.
         lines_to_send = self.communication_line_ids.filtered(lambda l: not l.notification_id)
-        if not lines_to_send and not self.communication_line_ids:
-            if not self.group_ids:
-                raise UserError(_("Please add recipients or select at least one group before sending."))
-            vals_list = self._collect_recipients()
-            if not vals_list:
-                raise UserError(_(
-                    "No recipients found. Check that the selected groups have students "
-                    "with email addresses."
-                ))
-            lines_to_send = self.env['ems.communication.line'].create(vals_list)
-
         if not lines_to_send:
-            raise UserError(_("All recipients already have a notification queued."))
+            raise UserError(_("No recipients to send to. Add recipients in the 'Sending status' section."))
 
         eta = self.scheduled_date if self.use_schedule else False
         for line in lines_to_send:
@@ -167,6 +160,11 @@ class ems_communication_line(models.Model):
         string="Type",
         selection=[('student', 'Student'), ('family', 'Family')],
     )
+    source_group_id = fields.Many2one(
+        string="Source group",
+        comodel_name="ems.group",
+        ondelete='set null',
+    )
     notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
     schedule_date = fields.Datetime(string="Scheduled on", related="notification_id.eta")
     exception = fields.Text(string="Exception", related="notification_id.exc_info")
@@ -188,10 +186,7 @@ class ems_communication_line(models.Model):
     @api.depends('notification_id', 'notification_id.state')
     def _compute_display_status(self):
         for rec in self:
-            if not rec.notification_id:
-                rec.display_status = 'draft'
-            else:
-                rec.display_status = rec.notification_id.state
+            rec.display_status = rec.notification_id.state if rec.notification_id else 'draft'
 
     def send_notification(self):
         self.ensure_one()

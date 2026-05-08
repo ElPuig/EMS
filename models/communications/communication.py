@@ -196,6 +196,17 @@ class ems_communication_line(models.Model):
         tmpl.send_mail(self.id, force_send=True, email_values={'email_to': self.email})
         return True
 
+    def open_notification_form(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'queue.job',
+            'res_id': self.notification_id.id,
+            'view_id': self.env.ref('queue_job.view_queue_job_form').id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
+
     def open_exception_popup(self):
         self.ensure_one()
         return {

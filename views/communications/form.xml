@@ -63,10 +63,9 @@
                         <group string="Sending status" col="4">
                             <group colspan="4">
                                 <field name="communication_line_ids" readonly="state != 'draft'">
-                                    <list editable="bottom" default_order="recipient_type asc, student_id asc">
-                                        <field name="partner_id" widget="many2one_avatar" domain="[('contact_type', 'in', ['student', 'family'])]"/>
+                                    <list editable="bottom" create="False" default_order="recipient_type asc, student_id asc">
+                                        <field name="partner_id" widget="many2one_avatar"/>
                                         <field name="email"/>
-                                        <field name="student_id" widget="many2one_avatar" domain="[('contact_type', '=', 'student')]"/>
                                         <field name="recipient_type"/>
                                         <field name="schedule_date" readonly="True"/>
                                         <field name="display_status"
@@ -75,9 +74,12 @@
                                                decoration-warning="display_status in ('pending', 'enqueued', 'started')"
                                                decoration-success="display_status == 'done'"
                                                decoration-danger="display_status == 'failed'"/>
-                                        <button name="open_exception_popup" type="object" icon="fa-info-circle" title="Error details" invisible="not exception"/>
+                                        <button name="open_exception_popup" type="object" icon="fa-info-circle" title="Open error details" invisible="not exception" width="30px"/>
+                                        <button name="open_notification_form" type="object" icon="fa-envelope-o" title="Open notification details" invisible="not user_is_admin or not notification_id" width="30px"/>
                                         <field name="exception" column_invisible="True"/>
                                         <field name="source_group_id" column_invisible="True"/>
+                                        <field name="user_is_admin" column_invisible="True"/>
+                                        <field name="notification_id" column_invisible="True"/>
                                     </list>
                                 </field>
                             </group>

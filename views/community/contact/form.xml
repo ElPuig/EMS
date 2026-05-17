@@ -328,6 +328,59 @@
 
             </field>
         </record>
+        <!-- Billing tab: hide unused groups, full-width bank accounts, secretary access -->
+        <record model="ir.ui.view" id="view_partner_billing_tab_cleanup">
+            <field name="name">ems.res.partner.property.form.billing_cleanup</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="account.view_partner_property_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='accounting']" position="attributes">
+                    <attribute name="groups">account.group_account_invoice,account.group_account_readonly,ems.group_admin,ems.group_secretary</attribute>
+                </xpath>
+                <xpath expr="//group[@name='banks']" position="attributes">
+                    <attribute name="colspan">2</attribute>
+                    <attribute name="groups">account.group_account_invoice,account.group_account_readonly,ems.group_admin,ems.group_secretary</attribute>
+                </xpath>
+                <xpath expr="//group[@id='invoice_send_settings']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//group[@name='accounting_automation']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Show acc_holder_name, hide bank_id and allow_out_payment in billing tab -->
+        <record model="ir.ui.view" id="view_partner_bank_acc_holder_visible">
+            <field name="name">ems.res.partner.property.form.bank_acc_holder</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="account.view_partner_property_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='bank_ids']//field[@name='acc_holder_name']" position="attributes">
+                    <attribute name="column_invisible">False</attribute>
+                </xpath>
+                <xpath expr="//field[@name='bank_ids']//field[@name='bank_id']" position="attributes">
+                    <attribute name="column_invisible">True</attribute>
+                </xpath>
+                <xpath expr="//field[@name='bank_ids']//field[@name='allow_out_payment']" position="attributes">
+                    <attribute name="column_invisible">True</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- In the bank account form: show acc_holder_name instead of partner_id as main titular -->
+        <record model="ir.ui.view" id="view_partner_bank_form_acc_holder">
+            <field name="name">ems.res.partner.bank.form.acc_holder</field>
+            <field name="model">res.partner.bank</field>
+            <field name="inherit_id" ref="base.view_partner_bank_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="replace">
+                    <field name="acc_holder_name"/>
+                    <field name="partner_id" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="view_contact_form_firstname">
             <field name="name">ems.contact.form.firstname</field>
             <field name="model">res.partner</field>

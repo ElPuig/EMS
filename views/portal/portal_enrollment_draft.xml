@@ -183,8 +183,7 @@
                                         <div class="modal-content border-0 shadow-lg">
                                             <form t-attf-action="/my/gestion-matriculas/authorize/#{auth.id}" method="post" data-auth-form="1">
                                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                                <input type="hidden" name="student_id" t-att-value="student.id"/>
-                                                
+                                                                
                                                 <div class="modal-header bg-light">
                                                     <h5 class="modal-title font-weight-bold" t-field="auth.template_id.name"/>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -263,7 +262,6 @@
 
                             <form action="/my/gestion-matriculas/confirm" method="post">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <input type="hidden" name="student_id" t-att-value="student.id"/>
                                 <div class="card shadow-sm">
                                     <div class="card-header bg-light">
                                         <h4 class="mb-0 d-flex align-items-center gap-2">

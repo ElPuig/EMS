@@ -32,6 +32,7 @@
             </xpath>
             <xpath expr="//field[@name='payment_term_id']" position="before">
                 <field name="shift" required="1" options="{'no_create': True}"/>
+                <field name="ems_payment_method"/>
             </xpath>
             <xpath expr="//group[@name='order_details']" position="inside">
                 <field name="ems_course_id" required="1" options="{'no_create': True, 'no_open': True}"/>

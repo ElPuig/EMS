@@ -33,7 +33,7 @@ class EmsStudentDocument(models.Model):
     # File data — for physical document scans
     doc_file      = fields.Binary(string='File', attachment=True)
     doc_file_name = fields.Char()
-    doc_file_link = fields.Html(string='File', compute='_compute_doc_file_link', sanitize=False)
+    doc_file_link = fields.Html(string='File link', compute='_compute_doc_file_link', sanitize=False)
 
     status = fields.Selection([
         ('pending',   'Pending review'),

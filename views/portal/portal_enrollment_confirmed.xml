@@ -108,10 +108,33 @@
                                             </span>
                                         </div>
                                     </t>
-                                    <div class="text-center py-4">
-                                        <i class="fa fa-credit-card fa-3x text-muted mb-3"/>
-                                        <p class="text-muted">Online payment will be available here soon.</p>
-                                    </div>
+                                    <t t-if="enrollment.ems_payment_method == 'transfer'">
+                                        <div class="p-3 bg-light rounded">
+                                            <p class="mb-1 fw-bold"><i class="fa fa-exchange me-1 text-ems-primary"/>Payment by bank transfer</p>
+                                            <p class="mb-1"><strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000</p>
+                                            <p class="mb-1"><strong>Account holder: </strong>Institut Puig Castellar</p>
+                                            <p class="mb-0"><strong>Reference: </strong>
+                                                <t t-esc="enrollment.name"/> – <t t-esc="student.name"/>
+                                            </p>
+                                        </div>
+                                    </t>
+                                    <t t-elif="enrollment.ems_payment_method == 'direct_debit'">
+                                        <div class="p-3 bg-light rounded">
+                                            <p class="mb-1 fw-bold"><i class="fa fa-university me-1 text-ems-primary"/>Payment by direct debit</p>
+                                            <t t-if="iban_doc">
+                                                <p class="mb-1"><strong>IBAN: </strong><t t-esc="iban_doc.doc_value"/></p>
+                                                <t t-if="iban_doc.doc_value2">
+                                                    <p class="mb-0"><strong>Account holder: </strong><t t-esc="iban_doc.doc_value2"/></p>
+                                                </t>
+                                            </t>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="text-center py-4">
+                                            <i class="fa fa-credit-card fa-3x text-muted mb-3"/>
+                                            <p class="text-muted">Payment information not yet specified.</p>
+                                        </div>
+                                    </t>
                                 </div>
                             </div>
 

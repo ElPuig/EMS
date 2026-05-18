@@ -3,7 +3,8 @@ import base64
 from odoo import http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
-from datetime import datetime
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 from markupsafe import Markup, escape
 import logging
 _logger = logging.getLogger(__name__)
@@ -62,6 +63,19 @@ class EMSPortalController(CustomerPortal):
         payment_terms = request.env['account.payment.term'].sudo().search([
             ('ems_portal_visible', '=', True)
         ])
+
+        # IBAN del alumno: buscamos el documento aprobado más reciente
+        # Umbral de validez: 30/09 del año de inicio del curso (última fecha de cobro)
+        course_year = current_course.start if current_course else date.today().year
+        iban_threshold = date(course_year, 9, 30)
+        iban_doc = request.env['ems.student.document'].sudo().search([
+            ('partner_id', '=', student.id),
+            ('doc_type', '=', 'iban'),
+            ('status', '=', 'approved'),
+        ], order='upload_date desc', limit=1)
+        iban_valid = bool(iban_doc) and (not iban_doc.expiry_date or iban_doc.expiry_date >= iban_threshold)
+        iban_expired = bool(iban_doc) and bool(iban_doc.expiry_date) and iban_doc.expiry_date < iban_threshold
+
         values.update({
             'enrollment': enrollment,
             'page_name': 'gestion-matriculas',
@@ -72,6 +86,9 @@ class EMSPortalController(CustomerPortal):
             'student': student,
             'students': students,
             'inner_circle_ids': student.get_portal_inner_circle_ids() if student else [],
+            'iban_doc': iban_doc,
+            'iban_valid': iban_valid,
+            'iban_expired': iban_expired,
         })
         
         # 4. Renderizamos la plantilla en funcion del estado de la matricula
@@ -202,7 +219,7 @@ class EMSPortalController(CustomerPortal):
             )
             request.session['ems_message_sent'] = comments
         else:
-            # 3b. Confirmar matrícula: validar auths + pago
+            # 3b. Confirmar matrícula: validar auths + plan de pago + método de pago
             pending_required = enrollment.ems_authorization_ids.filtered(
                 lambda a: a.template_id.is_required and a.status == 'pending'
             )
@@ -231,11 +248,45 @@ class EMSPortalController(CustomerPortal):
                         "Enrollment confirm: invalid payment_term_id '%s' from user %s",
                         payment_term_id, request.env.user.id
                     )
-                    return request.redirect(redirect_base + ('&' if student_id else '?') + 'error=invalid_payment_term')
+                    return request.redirect(redirect_base + '?error=invalid_payment_term')
 
+            # Validar método de pago
+            payment_method = post.get('payment_method', '').strip()
+            if payment_method not in ('transfer', 'direct_debit'):
+                _logger.warning("Enrollment confirm: user %s has not selected a payment method", request.env.user.id)
+                return request.redirect(redirect_base + '?error=missing_payment_method')
+
+            if payment_method == 'direct_debit':
+                course_year = current_course.start if current_course else date.today().year
+                iban_threshold = date(course_year, 9, 30)
+                iban_doc = request.env['ems.student.document'].sudo().search([
+                    ('partner_id', '=', student.id),
+                    ('doc_type', '=', 'iban'),
+                    ('status', '=', 'approved'),
+                ], order='upload_date desc', limit=1)
+                iban_valid = bool(iban_doc) and (not iban_doc.expiry_date or iban_doc.expiry_date >= iban_threshold)
+                iban_expired = bool(iban_doc) and bool(iban_doc.expiry_date) and iban_doc.expiry_date < iban_threshold
+
+                if iban_expired and post.get('confirm_expired_iban'):
+                    new_expiry = today.replace(year=today.year + 1, month=5, day=31)
+                    iban_doc.sudo().write({'expiry_date': new_expiry})
+                    author_name = escape(request.env.user.partner_id.name)
+                    iban_doc.sudo().message_post(
+                        body=Markup('<b>IBAN renewed by %s via portal.</b> New expiry: %s') % (
+                            author_name, new_expiry.strftime('%d/%m/%Y')
+                        ),
+                        message_type='comment',
+                        subtype_xmlid='mail.mt_comment',
+                    )
+                    _logger.info("Enrollment confirm: IBAN doc %s renewed to %s by user %s", iban_doc.id, new_expiry, request.env.user.id)
+                elif not iban_valid:
+                    _logger.warning("Enrollment confirm: user %s has no valid IBAN for direct debit", request.env.user.id)
+                    return request.redirect(redirect_base + '?error=missing_valid_iban')
+
+            enrollment.sudo().write({'ems_payment_method': payment_method})
             enrollment.sudo().action_confirm()
             enrollment.sudo().message_post(
-                body=Markup('<b>Enrollment confirmed by student/family via portal.</b>'),
+                body=Markup('<b>Enrollment confirmed by %s via portal.</b>') % escape(request.env.user.partner_id.name),
                 message_type='comment',
                 subtype_xmlid='mail.mt_comment',
             )

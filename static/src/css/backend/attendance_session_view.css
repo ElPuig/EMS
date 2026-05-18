@@ -97,8 +97,6 @@
     background: #f8f9fa;
 }
 
-/* Left border color set via inline style from statusColorMap (dynamic) */
-
 .ems-av-avatar {
     width: 44px;
     height: 44px;
@@ -134,7 +132,7 @@
     background: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
     position: sticky;
-    top: 57px; /* below the main header */
+    top: 0;
     z-index: 9;
 }
 
@@ -155,6 +153,7 @@
     line-height: 1.25;
     word-break: break-word;
     hyphens: auto;
+    color: #6c757d;
 }
 
 @media (max-width: 600px) {
@@ -178,30 +177,132 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 3px solid transparent;
-    background-color: var(--btn-color);
-    color: #fff;
+    border: 2px solid #dee2e6;
+    background-color: #f1f3f5;
+    color: #adb5bd;
     font-weight: 700;
     font-size: 0.82rem;
     cursor: pointer;
-    opacity: 0.35;
-    transition: opacity 0.15s, transform 0.1s, border-color 0.15s, box-shadow 0.15s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s;
     padding: 0;
     line-height: 1;
 }
 .ems-av-status-btn:hover {
-    opacity: 0.75;
-    transform: scale(1.1);
+    background-color: #e2e6ea;
+    color: #495057;
+    border-color: #adb5bd;
+    transform: scale(1.08);
 }
 .ems-av-status-btn--active {
-    opacity: 1;
-    border-color: rgba(0, 0, 0, 0.25);
+    background-color: #343a40;
+    color: #fff;
+    border-color: #212529;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     transform: scale(1.05);
+}
+.ems-av-status-btn--active:hover {
+    background-color: #495057;
+    color: #fff;
+    border-color: #343a40;
 }
 .ems-av-status-btn:disabled {
     cursor: wait;
 }
+
+/* --- Notes button ----------------------------------------- */
+.ems-av-notes-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #adb5bd;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.ems-av-notes-btn:hover {
+    background: #f0f0f0;
+    border-color: #adb5bd;
+    color: #495057;
+}
+.ems-av-notes-btn--has-notes {
+    color: #f07800;
+    border-color: #f07800;
+}
+.ems-av-notes-btn--has-notes:hover {
+    background: #fff3e0;
+}
+
+.ems-av-col-header-notes {
+    width: 36px;
+    flex-shrink: 0;
+}
+
+/* --- Notes dialog ----------------------------------------- */
+.ems-av-notes-dialog {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    width: 420px;
+    max-width: 95vw;
+}
+.ems-av-notes-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+}
+.ems-av-notes-dialog-header {
+    padding: 16px 20px 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #212529;
+    border-bottom: 1px solid #e9ecef;
+}
+.ems-av-notes-textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 20px;
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.92rem;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    color: #212529;
+    min-height: 120px;
+}
+.ems-av-notes-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 20px;
+}
+.ems-av-notes-cancel-btn {
+    padding: 7px 18px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background: #fff;
+    color: #495057;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.ems-av-notes-cancel-btn:hover { background: #f8f9fa; }
+.ems-av-notes-save-btn {
+    padding: 7px 18px;
+    border-radius: 6px;
+    border: none;
+    background: #00b269;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.ems-av-notes-save-btn:hover { background: #009558; }
 
 /* --- Planned session card ---------------------------------- */
 .ems-av-planned-card {

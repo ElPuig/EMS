@@ -92,16 +92,15 @@
                             <div class="ems-av-btns">
                                 <t t-foreach="statuses" t-as="s" t-key="s.key">
                                     <div class="ems-av-col-header-label"
-                                         t-att-style="'color:' + s.color"
                                          t-att-title="s.title">
                                         <t t-esc="s.title"/>
                                     </div>
                                 </t>
                             </div>
+                            <div class="ems-av-col-header-notes"/>
                         </div>
                         <t t-foreach="state.lines" t-as="line" t-key="line.id">
-                            <div class="ems-av-line"
-                                 t-att-style="'border-left: 4px solid ' + (statusColorMap[line.status] || 'transparent')">
+                            <div class="ems-av-line">
                                 <img class="ems-av-avatar" t-att-src="avatarUrl(line)" alt=""/>
                                 <span class="ems-av-name"
                                       t-att-title="line.student_id ? line.student_id[1] : ''"
@@ -110,7 +109,6 @@
                                     <t t-foreach="statuses" t-as="s" t-key="s.key">
                                         <button class="ems-av-status-btn"
                                                 t-att-class="line.status === s.key ? 'ems-av-status-btn--active' : ''"
-                                                t-att-style="'--btn-color:' + s.color"
                                                 t-att-title="s.title"
                                                 t-att-disabled="state.saving[line.id]"
                                                 t-on-click="() => this.onStatusClick(line.id, s.key)">
@@ -118,6 +116,12 @@
                                         </button>
                                     </t>
                                 </div>
+                                <button class="ems-av-notes-btn"
+                                        t-att-class="line.notes ? 'ems-av-notes-btn--has-notes' : ''"
+                                        t-att-title="line.notes || 'Add notes'"
+                                        t-on-click="() => this.onNotesClick(line.id, line.student_id ? line.student_id[1] : '', line.notes)">
+                                    <i class="fa fa-pencil"/>
+                                </button>
                             </div>
                         </t>
                     </t>
@@ -129,6 +133,22 @@
             <div class="ems-av-loading" t-if="state.loading">
                 <i class="fa fa-spinner fa-spin fa-2x"/>
             </div>
+
+            <!-- ── Notes dialog ─────────────────────────────────────── -->
+            <dialog t-ref="notesDialog" class="ems-av-notes-dialog">
+                <div class="ems-av-notes-dialog-header">
+                    <i class="fa fa-pencil me-2"/>
+                    <span t-esc="state.editingStudentName"/>
+                </div>
+                <textarea t-ref="notesTextarea"
+                          class="ems-av-notes-textarea"
+                          rows="5"
+                          placeholder="Notes for this student..."/>
+                <div class="ems-av-notes-dialog-footer">
+                    <button class="ems-av-notes-cancel-btn" t-on-click="onNotesCancel">Cancel</button>
+                    <button class="ems-av-notes-save-btn" t-on-click="onNotesSave">Save</button>
+                </div>
+            </dialog>
 
         </div>
     </t>

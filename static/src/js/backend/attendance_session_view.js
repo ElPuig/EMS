@@ -1,18 +1,10 @@
 /** @odoo-module **/
 
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, useState, onWillStart, useRef } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { session } from "@web/session";
 
-// Colors keyed by status value — the only thing that can't come from the model.
-const STATUS_COLORS = {
-    a_attended:  "#00b269",
-    a_delayed:   "#f07800",
-    m_miss:      "#e74c3c",
-    m_justified: "#4a90d9",
-    a_issue:     "#9b59b6",
-};
 
 class AttendanceSessionView extends Component {
     static template = "ems.AttendanceSessionView";
@@ -22,6 +14,9 @@ class AttendanceSessionView extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.statuses = [];   // populated in onWillStart from model fields_get
+
+        this.notesDialog   = useRef("notesDialog");
+        this.notesTextarea = useRef("notesTextarea");
 
         this.state = useState({
             date: this._todayStr(),
@@ -33,6 +28,8 @@ class AttendanceSessionView extends Component {
             lines: [],
             loading: true,
             saving: {},
+            editingLineId: null,
+            editingStudentName: "",
         });
 
         onWillStart(async () => {
@@ -76,12 +73,7 @@ class AttendanceSessionView extends Component {
             key,
             title,
             label: title.split(/\s+/).pop()[0].toUpperCase(),
-            color: STATUS_COLORS[key] || "#6c757d",
         }));
-    }
-
-    get statusColorMap() {
-        return Object.fromEntries(this.statuses.map(s => [s.key, s.color]));
     }
 
     async _loadAll() {
@@ -168,7 +160,7 @@ class AttendanceSessionView extends Component {
         // Reset group filter when changing day (new day may have different groups)
         this.state.selectedGroup = null;
 
-        this._autoSelect();
+        await this._autoSelect();
         this.state.loading = false;
     }
 
@@ -177,7 +169,7 @@ class AttendanceSessionView extends Component {
         const lines = await this.orm.searchRead(
             "ems.attendance_session_line",
             [["attendance_session_id", "=", sessionId]],
-            ["id", "student_id", "status"],
+            ["id", "student_id", "status", "notes"],
             { order: "student_id asc" }
         );
         this.state.lines = lines;
@@ -189,7 +181,7 @@ class AttendanceSessionView extends Component {
         return now.getHours() + now.getMinutes() / 60;
     }
 
-    _autoSelect() {
+    async _autoSelect() {
         const sessions = this.filteredSessions;
         const planned = this.filteredPlanned;
 
@@ -216,7 +208,7 @@ class AttendanceSessionView extends Component {
 
         if (targetSession) {
             this.state.selected = `session_${targetSession.id}`;
-            this._loadLines(targetSession.id);
+            await this._loadLines(targetSession.id);
         } else if (targetSchedule) {
             this.state.selected = `schedule_${targetSchedule.id}`;
             this.state.lines = [];
@@ -320,6 +312,29 @@ class AttendanceSessionView extends Component {
         }
     }
 
+    onNotesClick(lineId, studentName, notes) {
+        this.state.editingLineId = lineId;
+        this.state.editingStudentName = studentName;
+        this.notesTextarea.el.value = notes || "";
+        this.notesDialog.el.showModal();
+        this.notesTextarea.el.focus();
+    }
+
+    onNotesCancel() {
+        this.notesDialog.el.close();
+        this.state.editingLineId = null;
+    }
+
+    async onNotesSave() {
+        const lineId = this.state.editingLineId;
+        const notes = this.notesTextarea.el.value.trim();
+        await this.orm.write("ems.attendance_session_line", [lineId], { notes: notes || false });
+        const line = this.state.lines.find(l => l.id === lineId);
+        if (line) line.notes = notes || false;
+        this.notesDialog.el.close();
+        this.state.editingLineId = null;
+    }
+
     async onStartSession(scheduleId) {
         this.state.loading = true;
         try {
@@ -330,6 +345,7 @@ class AttendanceSessionView extends Component {
             }]);
             await this._loadAll();
             this.state.selected = "session_" + newId;
+            await this._loadLines(newId);
         } finally {
             this.state.loading = false;
         }

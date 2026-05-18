@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 from ..shared import base
 import datetime
+import re
 from dateutil.relativedelta import relativedelta
 
 class ems_student_benefit(models.Model):
@@ -75,6 +77,13 @@ class ems_contact(models.Model):
     student_email = fields.Char(string="Student email")	
     student_id = fields.Char(string="Student ID")
     medical_id = fields.Char(string="Medical ID")
+    nuss = fields.Char(string="NUSS")
+
+    @api.constrains('nuss')
+    def _check_nuss(self):
+        for rec in self:
+            if rec.nuss and not re.fullmatch(r'\d{12}', rec.nuss):
+                raise ValidationError(_("The NUSS must be exactly 12 numeric digits."))
     birth_date = fields.Date(string="Birth Date")
     birth_country_id = fields.Many2one(string="Birth Country", comodel_name='res.country')
     citizenship_id =  fields.Many2one(string="Citizenship", comodel_name='res.country')
@@ -108,6 +117,7 @@ class ems_contact(models.Model):
         store=False,
         search='_search_current_enrollment',
     )
+    ems_enrollment_state = fields.Selection(related='ems_current_enrollment_id.state', store=False, string='Enrollment State')
 
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)

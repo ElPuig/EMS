@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="email_template_enrollment_send" model="mail.template">
+            <field name="name">EMS: Send Enrollment Proposal</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">Enrollment process {{ object.name }} academic year {{ object.ems_course_id.name }} - {{ object.company_id.name }}</field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="email_from">{{ object.company_id.name }} &lt;{{ object.company_id.email }}&gt;</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_layout_xmlid">mail.mail_notification_light</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="font-family: Arial, sans-serif; font-size: 14px;">
+                        <p>Dear <strong t-out="object.partner_id.name"/>,</p>
+                        <p>
+                            We are writing to inform you that the enrollment proposal for the upcoming academic year
+                            <strong t-out="object.ems_course_id.name"/> is now available.
+                        </p>
+                        <p>To complete the enrollment, please follow these steps:</p>
+                        <ol>
+                            <li>Access the school portal: <a t-attf-href="{{ object.get_base_url() }}/ca/my/gestion-matriculas">my enrollment</a></li>
+                            <li>Respond to the required authorizations.</li>
+                            <li>Review the enrollment fees.</li>
+                            <li>Select the payment method.</li>
+                            <li>Click the <strong>Final Confirmation</strong> button.</li>
+                        </ol>
+                        <p><em>Note: If you notice any issue or have any questions about the fees, you can send a comment to the Secretariat directly from the portal before confirming.</em></p>
+                        <p>
+                            Kind regards,<br/>
+                            <t t-out="object.company_id.name"/>
+                            <t t-if="object.company_id.phone"><br/>📞 <t t-out="object.company_id.phone"/></t>
+                            <t t-if="object.company_id.email"><br/>✉️ <t t-out="object.company_id.email"/></t>
+                        </p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+        <record id="email_template_enrollment_send" model="mail.template" context="{'lang': 'ca_ES'}">
+            <field name="subject">Tràmit de matrícula {{ object.name }} curs {{ object.ems_course_id.name }} - {{ object.company_id.name }}</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="font-family: Arial, sans-serif; font-size: 14px;">
+                        <p>Benvolgut/da <strong t-out="object.partner_id.name"/>,</p>
+                        <p>
+                            Ens posem en contacte amb vostè per informar que la proposta de matrícula per al curs vinent
+                            <strong t-out="object.ems_course_id.name"/> ja està disponible.
+                        </p>
+                        <p>Per completar la matrícula, si us plau, segueixi els passos següents:</p>
+                        <ol>
+                            <li>Accedeixi al portal del centre: <a t-attf-href="{{ object.get_base_url() }}/ca/my/gestion-matriculas">la meva matrícula</a></li>
+                            <li>Respongui les autoritzacions requerides.</li>
+                            <li>Revisi els conceptes econòmics de la matrícula.</li>
+                            <li>Seleccioni la forma de pagament.</li>
+                            <li>Premi el botó de <strong>Confirmació final</strong>.</li>
+                        </ol>
+                        <p><em>Nota: Si detecta alguna incidència o té algun dubte amb els conceptes, pot enviar un comentari a Secretaria des del mateix portal, abans de confirmar el tràmit.</em></p>
+                        <p>
+                            Atentament,<br/>
+                            <t t-out="object.company_id.name"/>
+                            <t t-if="object.company_id.phone"><br/>📞 <t t-out="object.company_id.phone"/></t>
+                            <t t-if="object.company_id.email"><br/>✉️ <t t-out="object.company_id.email"/></t>
+                        </p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+        <record id="email_template_enrollment_send" model="mail.template" context="{'lang': 'es_ES'}">
+            <field name="subject">Trámite de matrícula {{ object.name }} curso {{ object.ems_course_id.name }} - {{ object.company_id.name }}</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="font-family: Arial, sans-serif; font-size: 14px;">
+                        <p>Estimado/a <strong t-out="object.partner_id.name"/>,</p>
+                        <p>
+                            Nos ponemos en contacto con usted para informar que la propuesta de matrícula para el próximo curso
+                            <strong t-out="object.ems_course_id.name"/> ya está disponible.
+                        </p>
+                        <p>Para completar la matrícula, siga los siguientes pasos:</p>
+                        <ol>
+                            <li>Acceda al portal del centro: <a t-attf-href="{{ object.get_base_url() }}/ca/my/gestion-matriculas">mi matrícula</a></li>
+                            <li>Responda las autorizaciones requeridas.</li>
+                            <li>Revise los conceptos económicos de la matrícula.</li>
+                            <li>Seleccione la forma de pago.</li>
+                            <li>Pulse el botón de <strong>Confirmación final</strong>.</li>
+                        </ol>
+                        <p><em>Nota: Si detecta alguna incidencia o tiene alguna duda con los conceptes, puede enviar un comentario a Secretaría desde el mismo portal, antes de confirmar el trámite.</em></p>
+                        <p>
+                            Atentamente,<br/>
+                            <t t-out="object.company_id.name"/>
+                            <t t-if="object.company_id.phone"><br/>📞 <t t-out="object.company_id.phone"/></t>
+                            <t t-if="object.company_id.email"><br/>✉️ <t t-out="object.company_id.email"/></t>
+                        </p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+    </data>
+</odoo>

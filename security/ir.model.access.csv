@@ -191,6 +191,10 @@ ems.access_product_template_admin,ems.access_product_template_admin,product.mode
 ems.access_product_template_teacher,ems.access_product_template_teacher,product.model_product_template,ems.group_teacher,1,0,0,0
 ems.access_product_template_secretary,ems.access_product_template_secretary,product.model_product_template,ems.group_secretary,1,1,1,1
 
+ems.access_product_product_admin,ems.access_product_product_admin,product.model_product_product,ems.group_admin,1,1,1,1
+ems.access_product_product_teacher,ems.access_product_product_teacher,product.model_product_product,ems.group_teacher,1,0,0,0
+ems.access_product_product_secretary,ems.access_product_product_secretary,product.model_product_product,ems.group_secretary,1,1,1,0
+
 ems.access_sale_order_option_admin,ems.access_sale_order_option_admin,sale_management.model_sale_order_option,ems.group_admin,1,1,1,1
 ems.access_sale_order_option_teacher,ems.access_sale_order_option_teacher,sale_management.model_sale_order_option,ems.group_teacher,1,0,0,0
 ems.access_sale_order_option_secretary,ems.access_sale_order_option_secretary,sale_management.model_sale_order_option,ems.group_secretary,1,1,1,1
@@ -217,3 +221,7 @@ ems.access_ems_student_import_wizard_secretary,ems.access_ems_student_import_wiz
 ems.access_ems_enrollment_proposal_wizard_admin,ems.access_ems_enrollment_proposal_wizard_admin,ems.model_ems_enrollment_proposal_wizard,ems.group_admin,1,1,1,1
 ems.access_ems_enrollment_proposal_wizard_secretary,ems.access_ems_enrollment_proposal_wizard_secretary,ems.model_ems_enrollment_proposal_wizard,ems.group_secretary,1,1,1,1
 ems.access_ems_enrollment_proposal_wizard_tutor,ems.access_ems_enrollment_proposal_wizard_tutor,ems.model_ems_enrollment_proposal_wizard,ems.group_tutor,1,1,1,1
+ems.access_account_move_secretary,ems.access_account_move_secretary,account.model_account_move,ems.group_secretary,1,0,0,0
+ems.access_account_move_line_secretary,ems.access_account_move_line_secretary,account.model_account_move_line,ems.group_secretary,1,0,0,0
+ems.access_account_move_teacher,ems.access_account_move_teacher,account.model_account_move,ems.group_teacher,1,0,0,0
+ems.access_account_move_line_teacher,ems.access_account_move_line_teacher,account.model_account_move_line,ems.group_teacher,1,0,0,0

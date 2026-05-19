@@ -4,6 +4,7 @@ import { Component, useState, onWillStart, useRef } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { session } from "@web/session";
+import { _t } from "@web/core/l10n/translation";
 
 
 class AttendanceSessionView extends Component {
@@ -17,6 +18,7 @@ class AttendanceSessionView extends Component {
 
         this.notesDialog   = useRef("notesDialog");
         this.notesTextarea = useRef("notesTextarea");
+        this._lastnameMap  = {};
 
         this.state = useState({
             date: this._todayStr(),
@@ -30,6 +32,8 @@ class AttendanceSessionView extends Component {
             saving: {},
             editingLineId: null,
             editingStudentName: "",
+            sortField: 'lastname',  // 'lastname' | 'name'
+            sortDir:   'asc',       // 'asc' | 'desc'
         });
 
         onWillStart(async () => {
@@ -170,10 +174,43 @@ class AttendanceSessionView extends Component {
             "ems.attendance_session_line",
             [["attendance_session_id", "=", sessionId]],
             ["id", "student_id", "status", "notes"],
-            { order: "student_id asc" }
         );
-        this.state.lines = lines;
+
+        // Fetch lastnames to allow client-side sorting
+        const partnerIds = lines.filter(l => l.student_id).map(l => l.student_id[0]);
+        if (partnerIds.length) {
+            const partners = await this.orm.searchRead(
+                "res.partner", [["id", "in", partnerIds]], ["id", "lastname"]
+            );
+            this._lastnameMap = Object.fromEntries(partners.map(p => [p.id, p.lastname || ""]));
+        } else {
+            this._lastnameMap = {};
+        }
+
+        this.state.lines = this._sortedLines(lines);
         this.state.saving = {};
+    }
+
+    _sortedLines(lines) {
+        const { sortField, sortDir } = this.state;
+        const dir = sortDir === "asc" ? 1 : -1;
+        const locale = { sensitivity: "base" };
+        return [...lines].sort((a, b) => {
+            const va = sortField === "lastname"
+                ? (a.student_id ? (this._lastnameMap[a.student_id[0]] || "") : "")
+                : (a.student_id ? a.student_id[1] : "");
+            const vb = sortField === "lastname"
+                ? (b.student_id ? (this._lastnameMap[b.student_id[0]] || "") : "")
+                : (b.student_id ? b.student_id[1] : "");
+            return dir * va.localeCompare(vb, undefined, locale);
+        });
+    }
+
+    onSortChange(ev) {
+        const [field, dir] = ev.target.value.split(":");
+        this.state.sortField = field;
+        this.state.sortDir   = dir;
+        this.state.lines     = this._sortedLines(this.state.lines);
     }
 
     _nowAsFloat() {
@@ -216,6 +253,28 @@ class AttendanceSessionView extends Component {
             this.state.selected = null;
             this.state.lines = [];
         }
+    }
+
+    // ── Translatable strings ──────────────────────────────────────────────────
+
+    get strings() {
+        return {
+            allGroups:         _t("All groups"),
+            sessions:          _t("Sessions"),
+            planned:           _t("Planned (no session)"),
+            noSessionsDay:     _t("No sessions or scheduled timetables for this day."),
+            sessionNotStarted: _t("This session has not been started for the selected day."),
+            startSession:      _t("Start session"),
+            noStudents:        _t("This session has no students."),
+            notesPlaceholder:  _t("Notes for this student..."),
+            addNotes:          _t("Add notes"),
+            cancel:            _t("Cancel"),
+            save:              _t("Save"),
+            lastnameAZ:        _t("Lastname A→Z"),
+            lastnameZA:        _t("Lastname Z→A"),
+            nameAZ:            _t("Name A→Z"),
+            nameZA:            _t("Name Z→A"),
+        };
     }
 
     // ── Filtered getters (reactive — depend on state.selectedGroup) ──────────

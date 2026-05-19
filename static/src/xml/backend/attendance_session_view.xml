@@ -19,7 +19,7 @@
                 <!-- Group filter (only shown when >1 group present) -->
                 <div class="ems-av-group-wrap" t-if="state.groups.length > 1">
                     <select class="ems-av-session-select" t-on-change="onGroupChange">
-                        <option value="">Tots els grups</option>
+                        <option value=""><t t-esc="strings.allGroups"/></option>
                         <t t-foreach="state.groups" t-as="g" t-key="g">
                             <option t-att-value="g"
                                     t-att-selected="state.selectedGroup === g">
@@ -29,11 +29,21 @@
                     </select>
                 </div>
 
+                <!-- Sort selector -->
+                <div class="ems-av-sort-wrap">
+                    <select class="ems-av-session-select" t-on-change="onSortChange">
+                        <option value="lastname:asc"  t-att-selected="state.sortField === 'lastname' and state.sortDir === 'asc'"><t t-esc="strings.lastnameAZ"/></option>
+                        <option value="lastname:desc" t-att-selected="state.sortField === 'lastname' and state.sortDir === 'desc'"><t t-esc="strings.lastnameZA"/></option>
+                        <option value="name:asc"      t-att-selected="state.sortField === 'name' and state.sortDir === 'asc'"><t t-esc="strings.nameAZ"/></option>
+                        <option value="name:desc"     t-att-selected="state.sortField === 'name' and state.sortDir === 'desc'"><t t-esc="strings.nameZA"/></option>
+                    </select>
+                </div>
+
                 <!-- Session / schedule selector -->
                 <div class="ems-av-session-wrap"
                      t-if="filteredSessions.length or filteredPlanned.length">
                     <select class="ems-av-session-select" t-on-change="onSelectorChange">
-                        <optgroup t-if="filteredSessions.length" label="Sessions">
+                        <optgroup t-if="filteredSessions.length" t-att-label="strings.sessions">
                             <t t-foreach="filteredSessions" t-as="s" t-key="'session_' + s.id">
                                 <option t-att-value="'session_' + s.id"
                                         t-att-selected="state.selected === 'session_' + s.id">
@@ -41,7 +51,7 @@
                                 </option>
                             </t>
                         </optgroup>
-                        <optgroup t-if="filteredPlanned.length" label="Planificades (sense sessió)">
+                        <optgroup t-if="filteredPlanned.length" t-att-label="strings.planned">
                             <t t-foreach="filteredPlanned" t-as="s" t-key="'schedule_' + s.id">
                                 <option t-att-value="'schedule_' + s.id"
                                         t-att-selected="state.selected === 'schedule_' + s.id">
@@ -59,7 +69,7 @@
 
                 <!-- No items at all -->
                 <t t-if="!filteredSessions.length and !filteredPlanned.length">
-                    <div class="ems-av-empty">No hi ha sessions ni horaris planificats per a aquest dia.</div>
+                    <div class="ems-av-empty"><t t-esc="strings.noSessionsDay"/></div>
                 </t>
 
                 <!-- Planned schedule selected → show start button -->
@@ -70,11 +80,11 @@
                             <t t-esc="scheduleLabel(selectedSchedule)"/>
                         </div>
                         <p class="ems-av-planned-hint">
-                            This session has not been started for the selected day.
+                            <t t-esc="strings.sessionNotStarted"/>
                         </p>
                         <button class="ems-av-start-btn"
                                 t-on-click="() => this.onStartSession(selectedSchedule.id)">
-                            ▶  Start session
+                            ▶  <t t-esc="strings.startSession"/>
                         </button>
                     </div>
                 </t>
@@ -82,7 +92,7 @@
                 <!-- Existing session selected → show student lines -->
                 <t t-else="">
                     <t t-if="!state.lines.length">
-                        <div class="ems-av-empty">Aquesta sessió no té alumnes.</div>
+                        <div class="ems-av-empty"><t t-esc="strings.noStudents"/></div>
                     </t>
                     <t t-else="">
                         <!-- Column headers aligned with student rows -->
@@ -118,7 +128,7 @@
                                 </div>
                                 <button class="ems-av-notes-btn"
                                         t-att-class="line.notes ? 'ems-av-notes-btn--has-notes' : ''"
-                                        t-att-title="line.notes || 'Add notes'"
+                                        t-att-title="line.notes || strings.addNotes"
                                         t-on-click="() => this.onNotesClick(line.id, line.student_id ? line.student_id[1] : '', line.notes)">
                                     <i class="fa fa-pencil"/>
                                 </button>
@@ -143,10 +153,14 @@
                 <textarea t-ref="notesTextarea"
                           class="ems-av-notes-textarea"
                           rows="5"
-                          placeholder="Notes for this student..."/>
+                          t-att-placeholder="strings.notesPlaceholder"/>
                 <div class="ems-av-notes-dialog-footer">
-                    <button class="ems-av-notes-cancel-btn" t-on-click="onNotesCancel">Cancel</button>
-                    <button class="ems-av-notes-save-btn" t-on-click="onNotesSave">Save</button>
+                    <button class="ems-av-notes-cancel-btn" t-on-click="onNotesCancel">
+                        <t t-esc="strings.cancel"/>
+                    </button>
+                    <button class="ems-av-notes-save-btn" t-on-click="onNotesSave">
+                        <t t-esc="strings.save"/>
+                    </button>
                 </div>
             </dialog>
 

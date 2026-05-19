@@ -28,6 +28,10 @@
     align-items: center;
     gap: 10px;
 }
+.ems-av-date-nav--disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
 
 .ems-av-nav-btn {
     width: 36px;
@@ -362,6 +366,52 @@
     color: #6c757d;
     font-size: 1.5rem;
     padding: 60px;
+}
+
+/* --- Guard mode ------------------------------------------- */
+.ems-av-header--guard {
+    border-bottom-color: #fd7e14;
+    border-bottom-width: 2px;
+}
+
+.ems-av-guard-wrap {
+    flex-shrink: 0;
+}
+
+.ems-av-guard-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background: #fff;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    user-select: none;
+}
+.ems-av-guard-label:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+}
+.ems-av-guard-label--active {
+    background: #fff3e0;
+    border-color: #fd7e14;
+    color: #e36800;
+    font-weight: 600;
+}
+.ems-av-guard-label--active:hover {
+    background: #ffe5c2;
+}
+
+.ems-av-guard-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #fd7e14;
 }
 
 /* --- Mobile ≤ 600px --------------------------------------- */

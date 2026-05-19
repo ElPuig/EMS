@@ -7034,3 +7034,9 @@ msgstr "Nom A→Z"
 msgid "Name Z→A"
 msgstr "Nom Z→A"
 
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Guard mode"
+msgstr "Mode guàrdia"
+

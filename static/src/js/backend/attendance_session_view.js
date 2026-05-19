@@ -34,6 +34,7 @@ class AttendanceSessionView extends Component {
             editingStudentName: "",
             sortField: 'lastname',  // 'lastname' | 'name'
             sortDir:   'asc',       // 'asc' | 'desc'
+            guardMode: false,
         });
 
         onWillStart(async () => {
@@ -83,6 +84,17 @@ class AttendanceSessionView extends Component {
     async _loadAll() {
         this.state.loading = true;
 
+        if (this.state.guardMode) {
+            await this._loadAllGuard();
+        } else {
+            await this._loadAllNormal();
+        }
+
+        await this._autoSelect();
+        this.state.loading = false;
+    }
+
+    async _loadAllNormal() {
         // Admins bypass security rules, so we need an explicit teacher filter for both
         // sessions and schedules. Non-admin teachers rely on record rules.
         let teacherIds = [];
@@ -163,9 +175,23 @@ class AttendanceSessionView extends Component {
 
         // Reset group filter when changing day (new day may have different groups)
         this.state.selectedGroup = null;
+    }
 
-        await this._autoSelect();
-        this.state.loading = false;
+    async _loadAllGuard() {
+        // Guard mode: fetch all sessions and planned schedules for today via sudo() on the server.
+        this.state.date = this._todayStr();
+        const now = this._nowAsFloat();
+        const [allSessions, allPlanned] = await Promise.all([
+            this.orm.call("ems.attendance_session_header", "get_guard_sessions", [this.state.date]),
+            this.orm.call("ems.attendance_session_header", "get_guard_planned",  [this.state.date]),
+        ]);
+        // Guard mode: only show sessions and planned schedules for the current time slot.
+        const sessions = allSessions.filter(s => s.start_time <= now && now < s.end_time);
+        const planned  = allPlanned.filter(s => s.start_time <= now && now < s.end_time);
+        this.state.sessions = sessions;
+        this.state.planned  = planned;
+        this.state.groups   = [];
+        this.state.selectedGroup = null;
     }
 
     async _loadLines(sessionId) {
@@ -274,6 +300,7 @@ class AttendanceSessionView extends Component {
             lastnameZA:        _t("Lastname Z→A"),
             nameAZ:            _t("Name A→Z"),
             nameZA:            _t("Name Z→A"),
+            guardMode:         _t("Guard mode"),
         };
     }
 
@@ -359,11 +386,23 @@ class AttendanceSessionView extends Component {
         }
     }
 
+    async onGuardModeChange(ev) {
+        this.state.guardMode = ev.target.checked;
+        await this._loadAll();
+    }
+
     async onStatusClick(lineId, status) {
         if (this.state.saving[lineId]) return;
         this.state.saving[lineId] = true;
         try {
-            await this.orm.write("ems.attendance_session_line", [lineId], { status });
+            if (this.state.guardMode) {
+                await this.orm.call(
+                    "ems.attendance_session_header", "write_guard_session_line",
+                    [lineId, { status }]
+                );
+            } else {
+                await this.orm.write("ems.attendance_session_line", [lineId], { status });
+            }
             const line = this.state.lines.find(l => l.id === lineId);
             if (line) line.status = status;
         } finally {
@@ -387,7 +426,14 @@ class AttendanceSessionView extends Component {
     async onNotesSave() {
         const lineId = this.state.editingLineId;
         const notes = this.notesTextarea.el.value.trim();
-        await this.orm.write("ems.attendance_session_line", [lineId], { notes: notes || false });
+        if (this.state.guardMode) {
+            await this.orm.call(
+                "ems.attendance_session_header", "write_guard_session_line",
+                [lineId, { notes: notes || false }]
+            );
+        } else {
+            await this.orm.write("ems.attendance_session_line", [lineId], { notes: notes || false });
+        }
         const line = this.state.lines.find(l => l.id === lineId);
         if (line) line.notes = notes || false;
         this.notesDialog.el.close();

@@ -4,20 +4,37 @@
         <div class="ems-av-root">
 
             <!-- ── Header ──────────────────────────────────────────── -->
-            <div class="ems-av-header">
+            <div class="ems-av-header"
+                 t-att-class="state.guardMode ? 'ems-av-header ems-av-header--guard' : 'ems-av-header'">
 
                 <!-- Date navigation -->
-                <div class="ems-av-date-nav">
-                    <button class="ems-av-nav-btn" t-on-click="prevDay">&#8249;</button>
+                <div t-att-class="state.guardMode ? 'ems-av-date-nav ems-av-date-nav--disabled' : 'ems-av-date-nav'">
+                    <button class="ems-av-nav-btn"
+                            t-att-disabled="state.guardMode"
+                            t-on-click="prevDay">&#8249;</button>
                     <input class="ems-av-date-input"
                            type="date"
                            t-att-value="state.date"
+                           t-att-disabled="state.guardMode"
                            t-on-change="onDateInput"/>
-                    <button class="ems-av-nav-btn" t-on-click="nextDay">&#8250;</button>
+                    <button class="ems-av-nav-btn"
+                            t-att-disabled="state.guardMode"
+                            t-on-click="nextDay">&#8250;</button>
                 </div>
 
-                <!-- Group filter (only shown when >1 group present) -->
-                <div class="ems-av-group-wrap" t-if="state.groups.length > 1">
+                <!-- Guard mode toggle -->
+                <div class="ems-av-guard-wrap">
+                    <label t-att-class="state.guardMode ? 'ems-av-guard-label ems-av-guard-label--active' : 'ems-av-guard-label'">
+                        <input type="checkbox"
+                               class="ems-av-guard-checkbox"
+                               t-att-checked="state.guardMode"
+                               t-on-change="onGuardModeChange"/>
+                        <t t-esc="strings.guardMode"/>
+                    </label>
+                </div>
+
+                <!-- Group filter (only shown when >1 group present and not in guard mode) -->
+                <div class="ems-av-group-wrap" t-if="!state.guardMode and state.groups.length > 1">
                     <select class="ems-av-session-select" t-on-change="onGroupChange">
                         <option value=""><t t-esc="strings.allGroups"/></option>
                         <t t-foreach="state.groups" t-as="g" t-key="g">

@@ -72,7 +72,7 @@ class AttendanceSessionView extends Component {
         this.statuses = info.status.selection.map(([key, title]) => ({
             key,
             title,
-            label: title.split(/\s+/).pop()[0].toUpperCase(),
+            label: title.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase(),
         }));
     }
 

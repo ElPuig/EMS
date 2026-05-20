@@ -54,6 +54,8 @@ class EmsStudentUpdateWizard(models.TransientModel):
     col_acc_holder    = fields.Many2one('ems.csv_column', string='Account holder name', domain="[('wizard_id', '=', id)]", ondelete='set null')
 
     result_html = fields.Html(readonly=True)
+    result_csv  = fields.Binary(readonly=True)
+    result_csv_filename = fields.Char(readonly=True)
 
     # col_* field → (model, field_name) whose already-translated label we reuse
     _COL_LABEL_SOURCE = {
@@ -168,8 +170,12 @@ class EmsStudentUpdateWizard(models.TransientModel):
         updated = 0
         not_found = 0
         errors = []
+        result_rows = []   # original row + ems_import_status column
+        fieldnames = None
 
         for row in reader:
+            if fieldnames is None:
+                fieldnames = list(row.keys())
             idalu = row.get(idalu_col, '').strip()
             if not idalu:
                 continue
@@ -181,6 +187,7 @@ class EmsStudentUpdateWizard(models.TransientModel):
 
             if not student:
                 not_found += 1
+                result_rows.append({**row, 'ems_import_status': 'IDALU not found'})
                 continue
 
             vals = {}
@@ -196,10 +203,13 @@ class EmsStudentUpdateWizard(models.TransientModel):
                 else:
                     vals[field] = raw or False
 
+            row_error = None
             try:
                 student.write(vals)
             except Exception as e:
-                errors.append(_("Row %s: %s") % (idalu, str(e)))
+                row_error = str(e)
+                errors.append(_("Row %s: %s") % (idalu, row_error))
+                result_rows.append({**row, 'ems_import_status': 'error: %s' % row_error})
                 continue
 
             updated += 1
@@ -231,6 +241,18 @@ class EmsStudentUpdateWizard(models.TransientModel):
                             })
                     except Exception as e:
                         errors.append(_("Row %s (bank): %s") % (idalu, str(e)))
+
+            result_rows.append({**row, 'ems_import_status': 'imported'})
+
+        # Build result CSV (original columns + ems_import_status)
+        if result_rows:
+            out = io.StringIO()
+            all_fieldnames = (fieldnames or []) + ['ems_import_status']
+            writer = csv.DictWriter(out, fieldnames=all_fieldnames, extrasaction='ignore', lineterminator='\n')
+            writer.writeheader()
+            writer.writerows(result_rows)
+            self.result_csv = base64.b64encode(out.getvalue().encode('utf-8'))
+            self.result_csv_filename = 'import_result.csv'
 
         lines = [
             '<p><b>%s</b> students updated, <b>%s</b> IDALU not found.</p>' % (updated, not_found),

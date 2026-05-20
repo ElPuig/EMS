@@ -50,6 +50,11 @@
                         <!-- Step 3: results -->
                         <group invisible="not result_html">
                             <field name="result_html" nolabel="1"/>
+                            <field name="result_csv_filename" invisible="1"/>
+                            <field name="result_csv" widget="binary"
+                                   filename="result_csv_filename"
+                                   string="Download result CSV"
+                                   invisible="not result_csv"/>
                         </group>
 
                     </sheet>

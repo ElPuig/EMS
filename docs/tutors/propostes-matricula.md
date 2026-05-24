@@ -1,6 +1,6 @@
 # Com generar propostes de matrícula per als alumnes
 
-Aquesta guia explica com, després de la junta de la 3a avaluació, el tutor pot generar les propostes de matrícula del curs següent per als alumnes que han superat el curs.
+Aquesta guia explica com, després de la junta de la 3a avaluació, el tutor pot generar les propostes de matrícula del curs següent per als alumnes.
 
 ---
 
@@ -10,7 +10,8 @@ Aquesta guia explica com, després de la junta de la 3a avaluació, el tutor pot
 2. [Pas 1 — Seleccionar els alumnes aprovats](#pas-1--seleccionar-els-alumnes-aprovats)
 3. [Pas 2 — Seleccionar plantilla de matrícula](#pas-2--seleccionar-plantilla-de-matrícula)
 4. [Consultar les pre-matrícules creades](#consultar-les-pre-matrícules-creades)
-5. [Procés de matriculació](#procés-de-matriculació)
+5. [Proposar matrícules especials](#proposar-matrícules-especials)
+6. [Procés de matriculació](#procés-de-matriculació)
 
 ---
 
@@ -54,6 +55,20 @@ Un cop generades, pots veure el llistat de pre-matrícules des de la mateixa vis
 
 ---
 
+## Proposar matrícules especials
+
+Aquesta opció és **pels alumnes que no es matriculen d'un curs complet** sinó d'assignatures soltes.
+
+El procediment és el següent:
+
+1. **Assignar la plantilla més similar a la situació de l'alumne**, seguint el mateix procediment del [Pas 2](#pas-2--seleccionar-plantilla-de-matrícula). Selecciona la plantilla que més s'assembli al que l'alumne haurà de cursar.
+2. **Obrir la pre-matrícula de l'alumne**, tal com s'explica a l'apartat [Consultar les pre-matrícules creades](#consultar-les-pre-matrícules-creades).
+3. **Ajustar les assignatures**: elimina les que l'alumne no ha de cursar **(1)** i afegeix les que li falten **(2)** fins que la pre-matrícula reflecteixi exactament les assignatures que ha de fer.
+
+![Edició de la pre-matrícula: eliminar (1) i afegir (2) assignatures](assets/propostes-04-edicio_matricula.png)
+
+---
+
 ## Procés de matriculació
 
-Les matrícules es crearan en estat **esborrany** i passaran a secretaria. Serà secretaria qui les revisarà i les enviarà a les famílies perquè les confirmin a través del portal.
+Les matrícules es crearan en estat **esborrany** i passaran a secretaria. Serà secretaria qui les revisarà i les enviarà a les famílies perquè les confirmin a través del portal de l'alumnat.

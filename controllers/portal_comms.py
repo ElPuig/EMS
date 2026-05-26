@@ -9,30 +9,30 @@ class EMSPortalCommsController(CustomerPortal):
 
     @http.route(['/my/comunicaciones', '/my/comunicaciones/page/<int:page>'],
                 type='http', auth='user', website=True)
-    def portal_communications(self, page=1, student_id=None, **kw):
+    def portal_communications(self, page=1, **kw):
         """ Historial de comunicaciones del alumno """
         partner = request.env.user.partner_id
         students = partner.get_portal_students()
-        effective_id = int(student_id) if student_id else request.session.get('ems_student_id')
-        partner = partner.get_portal_student(student_id=effective_id)
-        student_id = partner.id if len(students) > 1 else None
-        if len(students) > 1:
-            request.session['ems_student_id'] = partner.id
+        partner = partner.get_portal_student()
 
         MESSAGES_PER_PAGE = 10
 
         # Buscamos los IDs de las matrículas/pedidos del alumno
         sale_order_ids = partner.get_portal_enrollment_ids()
 
-        # Dominio combinado: mensajes dirigidos al partner O mensajes del chatter de sus documentos
+        # IDs de los documentos del alumno
+        document_ids = request.env['ems.student.document'].sudo().search([
+            ('partner_id', '=', partner.id)
+        ]).ids
+
+        # Dominio combinado: mensajes dirigidos al partner, del chatter de matrícula o de documentos
         # Excluimos notas internas (mail.mt_note) para que no sean visibles en el portal
         note_subtype = request.env.ref('mail.mt_note')
         domain = [
-            '|',
-                ('partner_ids', 'in', partner.id),
-                '&',
-                    ('model', '=', 'sale.order'),
-                    ('res_id', 'in', sale_order_ids),
+            '|', '|',
+                ('partner_ids', 'in', [partner.id]),
+                '&', ('model', '=', 'sale.order'), ('res_id', 'in', sale_order_ids),
+                '&', ('model', '=', 'ems.student.document'), ('res_id', 'in', document_ids),
             ('message_type', 'in', ['email', 'comment', 'notification']),
             ('subtype_id', '!=', note_subtype.id),
         ]
@@ -43,7 +43,6 @@ class EMSPortalCommsController(CustomerPortal):
         # Paginador estándar de Odoo
         pager = portal_pager(
             url='/my/comunicaciones',
-            url_args={'student_id': student_id} if student_id else {},
             total=total,
             page=page,
             step=MESSAGES_PER_PAGE,

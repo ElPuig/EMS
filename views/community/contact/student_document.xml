@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="view_student_document_list">
+            <field name="name">ems.student.document.list</field>
+            <field name="model">ems.student.document</field>
+            <field name="arch" type="xml">
+                <list string="Student documents"
+                      decoration-warning="status == 'pending'"
+                      decoration-success="status == 'approved'"
+                      decoration-danger="status == 'rejected'"
+                      decoration-muted="status == 'cancelled'">
+                    <field name="partner_id" string="Student"/>
+                    <field name="doc_type"/>
+                    <field name="doc_value" string="IBAN" optional="show"/>
+                    <field name="expiry_date" widget="remaining_days" optional="show"/>
+                    <field name="upload_date"/>
+                    <field name="status"/>
+                    <field name="review_uid" optional="hide"/>
+                    <field name="rejection_reason" optional="hide"/>
+                    <button name="action_approve" type="object" string="Approve"
+                            icon="fa-check" class="text-success"
+                            invisible="status != 'pending'"/>
+                    <button name="action_reject" type="object" string="Reject"
+                            icon="fa-times" class="text-danger"
+                            invisible="status != 'pending'"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_student_document_form">
+            <field name="name">ems.student.document.form</field>
+            <field name="model">ems.student.document</field>
+            <field name="arch" type="xml">
+                <form string="Student document">
+                    <header>
+                        <button name="action_approve" type="object" string="Approve"
+                                class="btn-success" invisible="status != 'pending'"/>
+                        <button name="action_reject" type="object" string="Reject"
+                                class="btn-danger" invisible="status != 'pending'"/>
+                        <field name="status" widget="statusbar"
+                               statusbar_visible="pending,approved,rejected,cancelled"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="partner_id" readonly="1"/>
+                                <field name="doc_type" readonly="1"/>
+                                <field name="upload_date" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="review_uid" readonly="1"/>
+                                <field name="review_date" readonly="1"/>
+                                <field name="rejection_reason"
+                                       invisible="status not in ('pending', 'rejected')"
+                                       placeholder="Reason for rejection (required before rejecting)"/>
+                            </group>
+                        </group>
+                        <group string="IBAN data" invisible="doc_type != 'iban'">
+                            <field name="doc_value" string="IBAN" readonly="1"/>
+                            <field name="doc_value2" string="Account holder" readonly="1"/>
+                            <field name="expiry_date"/>
+                        </group>
+                        <group string="Document file" invisible="doc_type == 'iban'">
+                            <field name="doc_file" widget="binary"
+                                   filename="doc_file_name" readonly="1"/>
+                            <field name="doc_file_name" readonly="1"/>
+                            <field name="expiry_date"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_student_document_search">
+            <field name="name">ems.student.document.search</field>
+            <field name="model">ems.student.document</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="partner_id"/>
+                    <filter name="pending" string="Pending" domain="[('status','=','pending')]"/>
+                    <filter name="approved" string="Approved" domain="[('status','=','approved')]"/>
+                    <filter name="rejected" string="Rejected" domain="[('status','=','rejected')]"/>
+                    <filter name="cancelled" string="Cancelled" domain="[('status','=','cancelled')]"/>
+                    <separator/>
+                    <filter name="iban" string="IBAN" domain="[('doc_type','=','iban')]"/>
+                    <group expand="0" string="Group by">
+                        <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+                        <filter name="group_type" string="Type" context="{'group_by': 'doc_type'}"/>
+                        <filter name="group_student" string="Student" context="{'group_by': 'partner_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_student_document">
+            <field name="name">Student documents</field>
+            <field name="res_model">ems.student.document</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_pending': 1}</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_admin')), (4, ref('ems.group_secretary'))]"/>
+        </record>
+
+    </data>
+</odoo>

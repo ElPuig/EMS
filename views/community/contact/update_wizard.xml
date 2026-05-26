@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="view_student_update_wizard_form">
+            <field name="name">ems.student_update_wizard.form</field>
+            <field name="model">ems.student_update_wizard</field>
+            <field name="arch" type="xml">
+                <form string="EMS: Update students from CSV">
+                    <sheet>
+                        <field name="csv_columns_json" invisible="1"/>
+                        <field name="file_name" invisible="1"/>
+
+                        <!-- Step 1: upload -->
+                        <group invisible="csv_columns_json">
+                            <p>Upload a CSV file and click <b>Load columns</b> to map its columns to student fields.</p>
+                            <field name="file" widget="binary" filename="file_name" string="CSV file"/>
+                        </group>
+
+                        <!-- Step 2a: Match key — full width -->
+                        <group string="Match key" invisible="not csv_columns_json or result_html">
+                            <field name="col_student_id" required="csv_columns_json and not result_html"/>
+                        </group>
+
+                        <!-- Step 2b: Student fields (left) + Bank account (right) -->
+                        <group invisible="not csv_columns_json or result_html">
+                            <group string="Student fields">
+                                <field name="col_name"/>
+                                <field name="col_phone"/>
+                                <field name="col_mobile"/>
+                                <field name="col_email"/>
+                                <field name="col_student_email"/>
+                                <field name="col_birth_date"/>
+                                <field name="col_document_id"/>
+                                <field name="col_passport_id"/>
+                                <field name="col_medical_id"/>
+                                <field name="col_nuss"/>
+                                <field name="col_car_plate"/>
+                                <field name="col_street"/>
+                                <field name="col_city"/>
+                                <field name="col_zip"/>
+                            </group>
+                            <group string="Bank account"
+                                   help="If IBAN is mapped and a row has a value, all existing bank accounts for that student will be replaced with the new one.">
+                                <field name="col_iban"/>
+                                <field name="col_acc_holder"/>
+                            </group>
+                        </group>
+
+                        <!-- Step 3: results -->
+                        <group invisible="not result_html">
+                            <field name="result_html" nolabel="1"/>
+                            <field name="result_csv_filename" invisible="1"/>
+                            <field name="result_csv" widget="binary"
+                                   filename="result_csv_filename"
+                                   string="Download result CSV"
+                                   invisible="not result_csv"/>
+                        </group>
+
+                    </sheet>
+                    <footer>
+                        <button name="action_load_columns"
+                                type="object"
+                                string="Load columns"
+                                class="btn-primary"
+                                invisible="csv_columns_json"/>
+                        <button name="action_update"
+                                type="object"
+                                string="Update students"
+                                class="btn-primary"
+                                invisible="not csv_columns_json or result_html"/>
+                        <button special="cancel" string="Close"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_student_update_wizard">
+            <field name="name">EMS: Update students from CSV</field>
+            <field name="res_model">ems.student_update_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_admin')), (4, ref('ems.group_secretary'))]"/>
+        </record>
+
+    </data>
+</odoo>

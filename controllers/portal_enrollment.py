@@ -3,7 +3,8 @@ import base64
 from odoo import http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
-from datetime import datetime
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 from markupsafe import Markup, escape
 import logging
 _logger = logging.getLogger(__name__)
@@ -11,10 +12,25 @@ _logger = logging.getLogger(__name__)
 class EMSPortalController(CustomerPortal):
 
     # -------------------------------------------------------------
+    # Selección de alumno activo (tutores con varios hijos)
+    # -------------------------------------------------------------
+    @http.route('/my/select-student/<int:student_id>', type='http', auth='user', methods=['POST'], website=True)
+    def select_student(self, student_id, **post):
+        partner = request.env.user.partner_id
+        students = partner.get_portal_students()
+        match = students.filtered(lambda s: s.id == student_id)
+        if match:
+            partner.sudo().write({'selected_student_id': match[0].id})
+        next_url = post.get('next', '/my/home')
+        if not next_url.startswith('/my/'):
+            next_url = '/my/home'
+        return request.redirect(next_url)
+
+    # -------------------------------------------------------------
     # (Gestión de Matrículas - ÚNICA FUNCIÓN PARA ESTA RUTA)
     # -------------------------------------------------------------
     @http.route(['/my/gestion-matriculas'], type='http', auth="user", website=True)
-    def portal_my_enrollment(self, student_id=None, **kw):
+    def portal_my_enrollment(self, **kw):
         """
         Muestra el proceso de matrícula (Autorizaciones + Items)
         al entrar en /my/gestion-matriculas
@@ -30,10 +46,7 @@ class EMSPortalController(CustomerPortal):
             current_course = request.env['ems.course'].search([('is_current', '=', True)], limit=1)
         partner = request.env.user.partner_id
         students = partner.get_portal_students()
-        effective_id = int(student_id) if student_id else request.session.get('ems_student_id')
-        student = partner.get_portal_student(student_id=effective_id)
-        if len(students) > 1:
-            request.session['ems_student_id'] = student.id
+        student = partner.get_portal_student()
         enrollment = student.get_portal_enrollment(current_course)
 
         # Mensajes relevantes para el portal
@@ -50,6 +63,19 @@ class EMSPortalController(CustomerPortal):
         payment_terms = request.env['account.payment.term'].sudo().search([
             ('ems_portal_visible', '=', True)
         ])
+
+        # IBAN del alumno: buscamos el documento aprobado más reciente
+        # Umbral de validez: 30/09 del año de inicio del curso (última fecha de cobro)
+        course_year = current_course.start if current_course else date.today().year
+        iban_threshold = date(course_year, 9, 30)
+        iban_doc = request.env['ems.student.document'].sudo().search([
+            ('partner_id', '=', student.id),
+            ('doc_type', '=', 'iban'),
+            ('status', '=', 'approved'),
+        ], order='upload_date desc', limit=1)
+        iban_valid = bool(iban_doc) and (not iban_doc.expiry_date or iban_doc.expiry_date >= iban_threshold)
+        iban_expired = bool(iban_doc) and bool(iban_doc.expiry_date) and iban_doc.expiry_date < iban_threshold
+
         values.update({
             'enrollment': enrollment,
             'page_name': 'gestion-matriculas',
@@ -59,7 +85,10 @@ class EMSPortalController(CustomerPortal):
             'viewing_as_family': student != partner,
             'student': student,
             'students': students,
-            'inner_circle_ids': student.get_portal_inner_circle_ids(),
+            'inner_circle_ids': student.get_portal_inner_circle_ids() if student else [],
+            'iban_doc': iban_doc,
+            'iban_valid': iban_valid,
+            'iban_expired': iban_expired,
         })
         
         # 4. Renderizamos la plantilla en funcion del estado de la matricula
@@ -71,13 +100,9 @@ class EMSPortalController(CustomerPortal):
     @http.route(['/my/gestion-matriculas/authorize/<int:auth_id>'], type='http', auth="user", methods=['POST'], website=True)
     def portal_enrollment_authorize(self, auth_id, **post):
         """ Procesa la aceptación o rechazo de una autorización """
-        student_id = int(post.get('student_id', 0)) or None
         redirect_base = '/my/gestion-matriculas'
-        if student_id:
-            redirect_base += '?student_id=%d' % student_id
-
         auth = request.env['ems.authorization'].sudo().browse(auth_id)
-        student = request.env.user.partner_id.get_portal_student(student_id=student_id)
+        student = request.env.user.partner_id.get_portal_student()
         if not auth.exists() or auth.enrollment_id.partner_id != student:
             _logger.warning(
                 "Unauthorized authorization attempt: user %s tried to respond to auth_id %s",
@@ -150,13 +175,8 @@ class EMSPortalController(CustomerPortal):
     @http.route(['/my/gestion-matriculas/confirm'], type='http', auth="user", methods=['POST'], website=True)
     def portal_enrollment_confirm(self, **post):
         """ Procesa la confirmación de la matrícula """
-
-        student_id = int(post.get('student_id', 0)) or None
         redirect_base = '/my/gestion-matriculas'
-        if student_id:
-            redirect_base += '?student_id=%d' % student_id
-
-        student = request.env.user.partner_id.get_portal_student(student_id=student_id)
+        student = request.env.user.partner_id.get_portal_student()
 
         # 1. Recuperamos la matrícula activa
         current_course = request.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
@@ -199,17 +219,17 @@ class EMSPortalController(CustomerPortal):
             )
             request.session['ems_message_sent'] = comments
         else:
-            # 3b. Confirmar matrícula: validar auths + pago
+            # 3b. Confirmar matrícula: validar auths + plan de pago + método de pago
             pending_required = enrollment.ems_authorization_ids.filtered(
                 lambda a: a.template_id.is_required and a.status == 'pending'
             )
             if pending_required:
                 _logger.warning("Enrollment confirm: user %s has pending required authorizations", request.env.user.id)
-                return request.redirect(redirect_base + ('&' if student_id else '?') + 'error=pending_authorizations')
+                return request.redirect(redirect_base + '?error=pending_authorizations')
 
             if not enrollment.payment_term_id and not post.get('payment_term_id'):
                 _logger.warning("Enrollment confirm: user %s has not selected a payment term", request.env.user.id)
-                return request.redirect(redirect_base + ('&' if student_id else '?') + 'error=missing_payment_term')
+                return request.redirect(redirect_base + '?error=missing_payment_term')
 
             payment_term_id = post.get('payment_term_id')
             if payment_term_id:
@@ -222,17 +242,51 @@ class EMSPortalController(CustomerPortal):
                             "Enrollment confirm: payment_term_id %s not found or not portal-visible, user %s",
                             payment_term_id, request.env.user.id
                         )
-                        return request.redirect(redirect_base + ('&' if student_id else '?') + 'error=invalid_payment_term')
+                        return request.redirect(redirect_base + '?error=invalid_payment_term')
                 except (ValueError, TypeError):
                     _logger.warning(
                         "Enrollment confirm: invalid payment_term_id '%s' from user %s",
                         payment_term_id, request.env.user.id
                     )
-                    return request.redirect(redirect_base + ('&' if student_id else '?') + 'error=invalid_payment_term')
+                    return request.redirect(redirect_base + '?error=invalid_payment_term')
 
+            # Validar método de pago
+            payment_method = post.get('payment_method', '').strip()
+            if payment_method not in ('transfer', 'direct_debit'):
+                _logger.warning("Enrollment confirm: user %s has not selected a payment method", request.env.user.id)
+                return request.redirect(redirect_base + '?error=missing_payment_method')
+
+            if payment_method == 'direct_debit':
+                course_year = current_course.start if current_course else date.today().year
+                iban_threshold = date(course_year, 9, 30)
+                iban_doc = request.env['ems.student.document'].sudo().search([
+                    ('partner_id', '=', student.id),
+                    ('doc_type', '=', 'iban'),
+                    ('status', '=', 'approved'),
+                ], order='upload_date desc', limit=1)
+                iban_valid = bool(iban_doc) and (not iban_doc.expiry_date or iban_doc.expiry_date >= iban_threshold)
+                iban_expired = bool(iban_doc) and bool(iban_doc.expiry_date) and iban_doc.expiry_date < iban_threshold
+
+                if iban_expired and post.get('confirm_expired_iban'):
+                    new_expiry = today.replace(year=today.year + 1, month=5, day=31)
+                    iban_doc.sudo().write({'expiry_date': new_expiry})
+                    author_name = escape(request.env.user.partner_id.name)
+                    iban_doc.sudo().message_post(
+                        body=Markup('<b>IBAN renewed by %s via portal.</b> New expiry: %s') % (
+                            author_name, new_expiry.strftime('%d/%m/%Y')
+                        ),
+                        message_type='comment',
+                        subtype_xmlid='mail.mt_comment',
+                    )
+                    _logger.info("Enrollment confirm: IBAN doc %s renewed to %s by user %s", iban_doc.id, new_expiry, request.env.user.id)
+                elif not iban_valid:
+                    _logger.warning("Enrollment confirm: user %s has no valid IBAN for direct debit", request.env.user.id)
+                    return request.redirect(redirect_base + '?error=missing_valid_iban')
+
+            enrollment.sudo().write({'ems_payment_method': payment_method})
             enrollment.sudo().action_confirm()
             enrollment.sudo().message_post(
-                body=Markup('<b>Enrollment confirmed by student/family via portal.</b>'),
+                body=Markup('<b>Enrollment confirmed by %s via portal.</b>') % escape(request.env.user.partner_id.name),
                 message_type='comment',
                 subtype_xmlid='mail.mt_comment',
             )
@@ -243,16 +297,12 @@ class EMSPortalController(CustomerPortal):
 
     @http.route(['/my/gestion-matriculas/authorization/<int:auth_id>/document'],
                 type='http', auth="user", website=True)
-    def portal_authorization_document(self, auth_id, student_id=None, **kw):
+    def portal_authorization_document(self, auth_id, **kw):
         """ Sirve el documento firmado de una autorización """
-        student_id = int(student_id) if student_id else None
         auth = request.env['ems.authorization'].sudo().browse(auth_id)
-        student = request.env.user.partner_id.get_portal_student(student_id=student_id)
-        redirect_base = '/my/gestion-matriculas'
-        if student_id:
-            redirect_base += '?student_id=%d' % student_id
+        student = request.env.user.partner_id.get_portal_student()
         if not auth.exists() or auth.enrollment_id.partner_id != student:
-            return request.redirect(redirect_base)
+            return request.redirect('/my/gestion-matriculas')
         if not auth.signed_document:
             return request.redirect('/my/gestion-matriculas')
 
@@ -269,15 +319,84 @@ class EMSPortalController(CustomerPortal):
     # -------------------------------------------------------------
     # (Páginas en Construcción)
     # -------------------------------------------------------------
-    @http.route([
-        '/my/asistencia', 
-        '/my/calificaciones', 
-        '/my/documentacion'
-    ], type='http', auth='user', website=True)
+    @http.route(['/my/asistencia', '/my/calificaciones'], type='http', auth='user', website=True)
     def under_construction(self, **kwargs):
-        # Le pasamos el nombre de la página para que la franja naranja del menú 
-        # siga marcando el botón correcto aunque estemos en esta vista genérica
         values = self._prepare_portal_layout_values()
-        
-        # Renderizamos nuestra nueva vista de "En desarrollo"
         return request.render('ems.portal_under_construction_page', values)
+
+    # -------------------------------------------------------------
+    # Documentació de l'alumne
+    # -------------------------------------------------------------
+    @http.route('/my/documentacion', type='http', auth='user', website=True)
+    def portal_documentation(self, **kwargs):
+        partner = request.env.user.partner_id
+        students = partner.get_portal_students()
+        student = partner.get_portal_student()
+
+        submissions = request.env['ems.student.document'].sudo().search([
+            ('partner_id', '=', student.id)
+        ])
+        bank = student.bank_ids.filtered(lambda b: b.active)[:1]
+
+        values = self._prepare_portal_layout_values()
+        values.update({
+            'student': student,
+            'students': students,
+            'viewing_as_family': student != partner,
+            'submissions': submissions,
+            'current_bank': bank,
+            'page_name': 'documentation',
+            'error': kwargs.get('error'),
+        })
+        return request.render('ems.portal_documentation', values)
+
+    @http.route('/my/documentacion/submit', type='http', auth='user', methods=['POST'], website=True)
+    def portal_documentation_submit(self, **post):
+        partner = request.env.user.partner_id
+        student = partner.get_portal_student()
+        redirect_base = '/my/documentacion'
+
+        doc_type = post.get('doc_type', '').strip()
+        valid_types = {'dni', 'passport', 'medical', 'iban', 'other'}
+        if doc_type not in valid_types:
+            return request.redirect(redirect_base + '?error=invalid_type')
+
+        vals = {'partner_id': student.id, 'doc_type': doc_type}
+
+        if doc_type == 'iban':
+            iban = post.get('doc_value', '').strip().upper()
+            if not iban:
+                return request.redirect(redirect_base + '?error=missing_iban')
+            vals['doc_value']  = iban
+            vals['doc_value2'] = post.get('doc_value2', '').strip()
+            expiry = post.get('expiry_date', '').strip()
+            if expiry:
+                vals['expiry_date'] = expiry
+        else:
+            uploaded = request.httprequest.files.get('doc_file')
+            if not uploaded or not uploaded.filename:
+                return request.redirect(redirect_base + '?error=missing_file')
+            vals['doc_file']      = base64.b64encode(uploaded.read())
+            vals['doc_file_name'] = uploaded.filename
+            expiry = post.get('expiry_date', '').strip()
+            if expiry:
+                vals['expiry_date'] = expiry
+
+        try:
+            request.env['ems.student.document'].sudo().create(vals)
+        except Exception:
+            return request.redirect(redirect_base + '?error=duplicate_pending')
+
+        return request.redirect(redirect_base)
+
+    @http.route('/my/documentacion/cancel/<int:doc_id>', type='http', auth='user', methods=['POST'], website=True)
+    def portal_documentation_cancel(self, doc_id, **post):
+        partner = request.env.user.partner_id
+        student = partner.get_portal_student()
+
+        doc = request.env['ems.student.document'].sudo().browse(doc_id)
+        if not doc.exists() or doc.partner_id != student or doc.status != 'pending':
+            return request.redirect('/my/documentacion')
+
+        doc.action_cancel()
+        return request.redirect('/my/documentacion')

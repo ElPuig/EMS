@@ -96,6 +96,15 @@ class ems_contact(models.Model):
     is_adult = fields.Boolean(string="Adult", compute="_compute_is_adult", store=False)
     wpi_enrolled = fields.Boolean(string="WPI enrolled")
 
+    document_ids = fields.One2many('ems.student.document', 'partner_id', string='Documents')
+
+    selected_student_id = fields.Many2one(
+        'res.partner',
+        string='Selected student (portal)',
+        domain=[('contact_type', '=', 'student')],
+        ondelete='set null',
+    )
+
     # Fields to store student Benefits:
     benefit_ids = fields.One2many(string='Benefits & Exemptions', comodel_name='ems.student.benefit', inverse_name='student_id')
     benefit_status = fields.Selection([

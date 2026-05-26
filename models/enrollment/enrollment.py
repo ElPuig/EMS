@@ -73,6 +73,11 @@ class ems_SaleOrder(models.Model):
         string="Authorizations"
     )
 
+    ems_payment_method = fields.Selection([
+        ('transfer',     'Bank Transfer'),
+        ('direct_debit', 'Direct Debit'),
+    ], string='Payment Method')
+
     ems_enrollment_status_label = fields.Char(
         string='Enrollment Status',
         compute='_compute_enrollment_status_label',

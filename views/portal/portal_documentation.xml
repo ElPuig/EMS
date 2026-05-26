@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_documentation" name="Student Documentation">
+        <t t-call="portal.portal_layout">
+            <div id="documentation_content" class="container mt-4">
+                <div class="row">
+                    <div class="col-12">
+
+                        <t t-if="viewing_as_family">
+                            <div class="alert alert-info mb-3">
+                                <i class="fa fa-user me-1"/> Viewing documentation for: <strong t-esc="student.name"/>
+                            </div>
+                        </t>
+
+                        <t t-if="error == 'missing_iban'">
+                            <div class="alert alert-danger mb-3"><i class="fa fa-exclamation-triangle me-1"/> Please enter an IBAN before submitting.</div>
+                        </t>
+                        <t t-if="error == 'missing_file'">
+                            <div class="alert alert-danger mb-3"><i class="fa fa-exclamation-triangle me-1"/> Please select a file before submitting.</div>
+                        </t>
+                        <t t-if="error == 'duplicate_pending'">
+                            <div class="alert alert-warning mb-3"><i class="fa fa-clock-o me-1"/> You already have a pending IBAN submission under review.</div>
+                        </t>
+
+                        <!-- Bank account -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-ems-primary text-white">
+                                <i class="fa fa-university me-2"/>Bank account (IBAN)
+                            </div>
+                            <div class="card-body">
+                                <t t-set="approved_iban" t-value="submissions.filtered(lambda s: s.doc_type == 'iban' and s.status == 'approved')[:1]"/>
+                                <t t-if="current_bank">
+                                    <p class="mb-1"><strong>IBAN: </strong><t t-esc="current_bank.acc_number"/></p>
+                                    <p class="mb-1"><strong>Account holder: </strong><t t-esc="current_bank.acc_holder_name or student.name"/></p>
+                                    <p class="mb-3"><strong>Expiry date: </strong>
+                                        <t t-if="approved_iban and approved_iban.expiry_date">
+                                            <t t-esc="approved_iban.expiry_date" t-options='{"widget": "date"}'/>
+                                        </t>
+                                        <t t-else="">—</t>
+                                    </p>
+                                </t>
+                                <t t-if="not current_bank">
+                                    <p class="text-muted mb-3">No bank account registered.</p>
+                                </t>
+
+                                <!-- Show pending IBAN submission if any -->
+                                <t t-set="pending_iban" t-value="submissions.filtered(lambda s: s.doc_type == 'iban' and s.status == 'pending')[:1]"/>
+                                <t t-if="pending_iban">
+                                    <div class="alert alert-warning py-2 d-flex align-items-center justify-content-between">
+                                        <span><i class="fa fa-clock-o me-1"/>IBAN update pending review: <strong t-esc="pending_iban.doc_value"/></span>
+                                        <form t-attf-action="/my/documentacion/cancel/#{pending_iban.id}" method="post" class="ms-3 mb-0">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fa fa-times me-1"/>Cancel submission
+                                            </button>
+                                        </form>
+                                    </div>
+                                </t>
+                                <t t-if="not pending_iban">
+                                    <form action="/my/documentacion/submit" method="post" enctype="multipart/form-data">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <input type="hidden" name="doc_type" value="iban"/>
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-md-4">
+                                                <label class="form-label small fw-bold">New IBAN</label>
+                                                <input type="text" name="doc_value" class="form-control form-control-sm"
+                                                       placeholder="ES00 0000 0000 0000 0000 0000"/>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label small fw-bold">Account holder</label>
+                                                <input type="text" name="doc_value2" class="form-control form-control-sm"
+                                                       placeholder="Full name"/>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label small fw-bold">Expiry date</label>
+                                                <input type="date" name="expiry_date" class="form-control form-control-sm"/>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="submit" class="btn btn-primary btn-sm w-100">Submit</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Official documents -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-ems-primary text-white">
+                                <i class="fa fa-id-card me-2"/>Official documents
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-3">Document</th>
+                                            <th>Number</th>
+                                            <th>Expiry date</th>
+                                            <th class="pe-3"/>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- DNI/NIE -->
+                                        <tr>
+                                            <td class="ps-3 align-middle fw-bold">DNI / NIE</td>
+                                            <td class="align-middle text-muted"><t t-esc="student.document_id or '—'"/></td>
+                                            <td class="align-middle">
+                                                <t t-set="approved_dni" t-value="submissions.filtered(lambda s: s.doc_type == 'dni' and s.status == 'approved')[:1]"/>
+                                                <t t-if="approved_dni and approved_dni.expiry_date">
+                                                    <t t-esc="approved_dni.expiry_date" t-options='{"widget": "date"}'/>
+                                                </t>
+                                                <t t-else="">—</t>
+                                            </td>
+                                            <td class="pe-3 align-middle text-end">
+                                                <t t-set="pending_dni" t-value="submissions.filtered(lambda s: s.doc_type == 'dni' and s.status == 'pending')[:1]"/>
+                                                <t t-if="pending_dni">
+                                                    <span class="badge bg-warning text-dark me-2"><i class="fa fa-clock-o me-1"/>Pending review</span>
+                                                    <form t-attf-action="/my/documentacion/cancel/#{pending_dni.id}" method="post" class="d-inline">
+                                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fa fa-times"/></button>
+                                                    </form>
+                                                </t>
+                                                <t t-if="not pending_dni">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                            data-bs-toggle="modal" data-bs-target="#modal-upload-dni">
+                                                        <i class="fa fa-upload me-1"/>Upload scan
+                                                    </button>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <!-- Passport -->
+                                        <tr>
+                                            <td class="ps-3 align-middle fw-bold">Passport</td>
+                                            <td class="align-middle text-muted"><t t-esc="student.passport_id or '—'"/></td>
+                                            <td class="align-middle">
+                                                <t t-set="approved_passport" t-value="submissions.filtered(lambda s: s.doc_type == 'passport' and s.status == 'approved')[:1]"/>
+                                                <t t-if="approved_passport and approved_passport.expiry_date">
+                                                    <t t-esc="approved_passport.expiry_date" t-options='{"widget": "date"}'/>
+                                                </t>
+                                                <t t-else="">—</t>
+                                            </td>
+                                            <td class="pe-3 align-middle text-end">
+                                                <t t-set="pending_passport" t-value="submissions.filtered(lambda s: s.doc_type == 'passport' and s.status == 'pending')[:1]"/>
+                                                <t t-if="pending_passport">
+                                                    <span class="badge bg-warning text-dark me-2"><i class="fa fa-clock-o me-1"/>Pending review</span>
+                                                    <form t-attf-action="/my/documentacion/cancel/#{pending_passport.id}" method="post" class="d-inline">
+                                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fa fa-times"/></button>
+                                                    </form>
+                                                </t>
+                                                <t t-if="not pending_passport">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                            data-bs-toggle="modal" data-bs-target="#modal-upload-passport">
+                                                        <i class="fa fa-upload me-1"/>Upload scan
+                                                    </button>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <!-- Medical card -->
+                                        <tr>
+                                            <td class="ps-3 align-middle fw-bold">Medical card (TIS)</td>
+                                            <td class="align-middle text-muted"><t t-esc="student.medical_id or '—'"/></td>
+                                            <td class="align-middle">
+                                                <t t-set="approved_medical" t-value="submissions.filtered(lambda s: s.doc_type == 'medical' and s.status == 'approved')[:1]"/>
+                                                <t t-if="approved_medical and approved_medical.expiry_date">
+                                                    <t t-esc="approved_medical.expiry_date" t-options='{"widget": "date"}'/>
+                                                </t>
+                                                <t t-else="">—</t>
+                                            </td>
+                                            <td class="pe-3 align-middle text-end">
+                                                <t t-set="pending_medical" t-value="submissions.filtered(lambda s: s.doc_type == 'medical' and s.status == 'pending')[:1]"/>
+                                                <t t-if="pending_medical">
+                                                    <span class="badge bg-warning text-dark me-2"><i class="fa fa-clock-o me-1"/>Pending review</span>
+                                                    <form t-attf-action="/my/documentacion/cancel/#{pending_medical.id}" method="post" class="d-inline">
+                                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                                    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fa fa-times"/></button>
+                                                    </form>
+                                                </t>
+                                                <t t-if="not pending_medical">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                            data-bs-toggle="modal" data-bs-target="#modal-upload-medical">
+                                                        <i class="fa fa-upload me-1"/>Upload scan
+                                                    </button>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Upload modals -->
+                        <t t-foreach="[('dni','DNI / NIE'), ('passport','Passport'), ('medical','Medical card (TIS)')]" t-as="doc">
+                            <div t-attf-id="modal-upload-#{doc[0]}" class="modal fade" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"><i class="fa fa-upload me-2"/>Upload: <t t-esc="doc[1]"/></h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"/>
+                                        </div>
+                                        <form action="/my/documentacion/submit" method="post" enctype="multipart/form-data">
+                                            <div class="modal-body">
+                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                <input type="hidden" name="doc_type" t-att-value="doc[0]"/>
+                                                    <p class="text-muted small">Upload a scan or photo (PDF, JPG, PNG).</p>
+                                                <input type="file" name="doc_file" class="form-control mb-3"
+                                                       accept=".pdf,.jpg,.jpeg,.png" required="required"/>
+                                                <label class="form-label small fw-bold">Expiry date (if applicable)</label>
+                                                <input type="date" name="expiry_date" class="form-control"/>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary"><i class="fa fa-upload me-1"/>Submit</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Submission history -->
+                        <t t-if="submissions">
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header">
+                                    <i class="fa fa-history me-2"/>Submission history
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table table-sm mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="ps-3">Type</th>
+                                                <th>Submitted</th>
+                                                <th>Expiry</th>
+                                                <th>Status</th>
+                                                <th class="pe-3">Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="submissions" t-as="sub">
+                                                <tr>
+                                                    <td class="ps-3 align-middle"><t t-esc="dict(sub._fields['doc_type'].selection).get(sub.doc_type, sub.doc_type)"/></td>
+                                                    <td class="align-middle">
+                                                        <t t-esc="sub.upload_date" t-options='{"widget": "datetime"}'/>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <t t-if="sub.expiry_date">
+                                                            <t t-esc="sub.expiry_date" t-options='{"widget": "date"}'/>
+                                                        </t>
+                                                        <t t-else="">—</t>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <span t-attf-class="badge #{
+                                                            'bg-warning text-dark' if sub.status == 'pending' else
+                                                            'bg-success' if sub.status == 'approved' else
+                                                            'bg-secondary' if sub.status == 'cancelled' else 'bg-danger'
+                                                        }">
+                                                            <t t-esc="dict(sub._fields['status'].selection).get(sub.status, sub.status)"/>
+                                                        </span>
+                                                    </td>
+                                                    <td class="pe-3 align-middle text-muted small">
+                                                        <t t-if="sub.doc_type == 'iban'"><t t-esc="sub.doc_value"/></t>
+                                                        <t t-if="sub.rejection_reason"><t t-esc="sub.rejection_reason"/></t>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </t>
+
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

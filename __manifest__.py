@@ -87,6 +87,7 @@
             'views/community/contact/import_wizard.xml',
             'views/community/contact/update_wizard.xml',
             'views/community/contact/enrollment_proposal_wizard.xml',
+            'views/community/contact/student_document.xml',
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',  
@@ -222,6 +223,7 @@
             'views/portal/portal_enrollment_draft.xml',
             'views/portal/portal_enrollment_confirmed.xml',
             'views/portal/portal_comms.xml',
+            'views/portal/portal_documentation.xml',
             'views/portal/portal_under_construction.xml',
 
         'views/documentation/menu.xml',       

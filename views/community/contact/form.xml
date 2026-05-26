@@ -220,7 +220,26 @@
                             </field>
                         </group>
                     </page>
-                </xpath> 
+                    <page name="documentation" string="Documentation" invisible="contact_type != 'student'"
+                          groups="ems.group_admin,ems.group_secretary">
+                        <field name="document_ids" nolabel="1"
+                               context="{'default_partner_id': id}">
+                            <list create="0" delete="0"
+                                  decoration-warning="status == 'pending'"
+                                  decoration-success="status == 'approved'"
+                                  decoration-danger="status == 'rejected'"
+                                  decoration-muted="status == 'cancelled'">
+                                <field name="doc_type"/>
+                                <field name="doc_file_link" string="File"/>
+                                <field name="expiry_date" widget="remaining_days"/>
+                                <field name="upload_date"/>
+                                <field name="status"/>
+                                <field name="review_uid" optional="hide"/>
+                                <field name="rejection_reason" optional="hide"/>
+                            </list>
+                        </field>
+                    </page>
+                </xpath>
 
                 <!-- Hiding or setting up fields when the "add contact" button is used (same form). -->
                 <xpath expr="//field[@name='child_ids']" position="attributes">

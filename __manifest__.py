@@ -211,6 +211,8 @@
             'views/academic_management/enrollment_configuration/enrollment_authorization_view.xml',
             'views/academic_management/enrollment_configuration/enrollment_authorization_form.xml',
             'reports/authorizations/report_authorization_certificate.xml',
+        'reports/enrollment/templates/report_enrollment_template.xml',
+        'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_view.xml',
             'views/academic_management/enrollment_configuration/menu.xml',
@@ -235,9 +237,10 @@
 
 
         ### Mailing templates ###
-        'mails/attendance/attendance_issue_status.xml', 
-        'mails/attendance/attendance_issue_rectification.xml', 
-        'mails/attendance/attendance_issue_tutor.xml', 
+        'mails/attendance/attendance_issue_status.xml',
+        'mails/attendance/attendance_issue_rectification.xml',
+        'mails/attendance/attendance_issue_tutor.xml',
+        'mails/enrollment/enrollment_send.xml',
 
         ### Reports templates ###
         'reports/attendance/templates/sumary_table.xml', 

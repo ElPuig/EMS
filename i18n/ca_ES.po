@@ -27,6 +27,11 @@ msgid "%d created, %d skipped (already had enrollment)."
 msgstr "%d creats, %d omesos (ja tenien matrícula)."
 
 #. module: ems
+#: model:ir.actions.report,print_report_name:ems.action_report_enrollment
+msgid "'Matricula - %s' % object.name"
+msgstr ""
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid ""
 ") already have a schedule defined for the current course. If you continue "
@@ -103,6 +108,59 @@ msgstr "<code>{{student_name}}</code> — Nom complet de l'alumne/a"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "<code>{{study_name}}</code> — Study name (e.g. DAM)"
 msgstr "<code>{{study_name}}</code> — Nom dels estudis (p.ex. DAM)"
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_enrollment_send
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Dear <strong t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            We are writing to inform you that the enrollment proposal for the upcoming academic year\n"
+"                            <strong t-out=\"object.ems_course_id.name\"/> is now available.\n"
+"                        </p>\n"
+"                        <p>To complete the enrollment, please follow these steps:</p>\n"
+"                        <ol>\n"
+"                            <li>Access the school portal: <a t-attf-href=\"{{ object.get_base_url() }}/ca/my/gestion-matriculas\">my enrollment</a></li>\n"
+"                            <li>Respond to the required authorizations.</li>\n"
+"                            <li>Review the enrollment fees.</li>\n"
+"                            <li>Select the payment method.</li>\n"
+"                            <li>Click the <strong>Final Confirmation</strong> button.</li>\n"
+"                        </ol>\n"
+"                        <p><em>Note: If you notice any issue or have any questions about the fees, you can send a comment to the Secretariat directly from the portal before confirming.</em></p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.company_id.name\"/>\n"
+"                            <t t-if=\"object.company_id.phone\"><br/>📞 <t t-out=\"object.company_id.phone\"/></t>\n"
+"                            <t t-if=\"object.company_id.email\"><br/>✉️ <t t-out=\"object.company_id.email\"/></t>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Benvolgut/da <strong t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            Ens posem en contacte amb vostè per informar que la proposta de matrícula per al curs vinent\n"
+"                            <strong t-out=\"object.ems_course_id.name\"/> ja està disponible.\n"
+"                        </p>\n"
+"                        <p>Per completar la matrícula, si us plau, segueixi els passos següents:</p>\n"
+"                        <ol>\n"
+"                            <li>Accedeixi al portal del centre: <a t-attf-href=\"{{ object.get_base_url() }}/ca/my/gestion-matriculas\">la meva matrícula</a></li>\n"
+"                            <li>Respongui les autoritzacions requerides.</li>\n"
+"                            <li>Revisi els conceptes econòmics de la matrícula.</li>\n"
+"                            <li>Seleccioni la forma de pagament.</li>\n"
+"                            <li>Premi el botó de <strong>Confirmació final</strong>.</li>\n"
+"                        </ol>\n"
+"                        <p><em>Nota: Si detecta alguna incidència o té algun dubte amb els conceptes, pot enviar un comentari a Secretaria des del mateix portal, abans de confirmar el tràmit.</em></p>\n"
+"                        <p>\n"
+"                            Atentament,<br/>\n"
+"                            <t t-out=\"object.company_id.name\"/>\n"
+"                            <t t-if=\"object.company_id.phone\"><br/>📞 <t t-out=\"object.company_id.phone\"/></t>\n"
+"                            <t t-if=\"object.company_id.email\"><br/>✉️ <t t-out=\"object.company_id.email\"/></t>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
 
 #. module: ems
 #: model:mail.template,body_html:ems.mail_attendance_issue_status
@@ -674,6 +732,21 @@ msgid "<strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000"
 msgstr "<strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_enrollment
+msgid "<strong>Curs:</strong>"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_enrollment
+msgid "<strong>Estudis:</strong>"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_enrollment
+msgid "<strong>Forma de pagament:</strong>"
+msgstr ""
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form
 msgid ""
 "<strong>Import Process:</strong><br/>\n"
@@ -699,6 +772,11 @@ msgstr ""
 "                                Seleccioneu un arxiu Excel a continuació i feu clic a \"Importar alumnes\" per continuar."
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_enrollment
+msgid "<strong>Nivell:</strong>"
+msgstr ""
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "<strong>Not implemented!</strong> Coming soon..."
 msgstr "<strong>Sense implementar!</strong> Arribarà en breu..."
@@ -713,6 +791,11 @@ msgstr "<strong>Referència: </strong>"
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<strong>Valid until: </strong>"
 msgstr "<strong>Vàlid fins: </strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_enrollment
+msgid "<strong>Torn:</strong>"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
@@ -1835,6 +1918,13 @@ msgid "Color"
 msgstr "Color"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+msgid ""
+"Color coding: Orange = draft enrollment (not yet sent) · Blue = sent to "
+"family (awaiting confirmation) · Green = confirmed enrollment"
+msgstr "Codificació de colors: Taronja = matrícula esborrany (encara no enviada) · Blau = enviada a la família (pendent de confirmació) · Verd = matrícula confirmada"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Comment"
 msgstr "Comentari"
@@ -2353,6 +2443,11 @@ msgid "Deputy head of studies"
 msgstr "Cap d'estudis adjunt/a"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_enrollment
+msgid "Descripció"
+msgstr ""
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__description
 msgid "Description"
 msgstr "Descripció"
@@ -2590,6 +2685,11 @@ msgid "ES00 0000 0000 0000 0000 0000"
 msgstr "ES00 0000 0000 0000 0000 0000"
 
 #. module: ems
+#: model:mail.template,name:ems.email_template_enrollment_send
+msgid "EMS: Send Enrollment Proposal"
+msgstr ""
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_content_form
 #: model_terms:ir.ui.view,arch_db:ems.view_subject_form
 msgid "Edit Content"
@@ -2730,6 +2830,7 @@ msgstr "Productes matriculats (Tècnic)"
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 msgid "Enrollment"
 msgstr "Matrícula"
 
@@ -2796,6 +2897,12 @@ msgid "Enrollment Number"
 msgstr "Número de matrícula"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__ems_enrollment_state
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_enrollment_state
+msgid "Enrollment State"
+msgstr "Estat de matrícula"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_sale_order__ems_enrollment_status_label
 msgid "Enrollment Status"
 msgstr "Estat de matrícula"
@@ -2817,6 +2924,15 @@ msgstr "Plantilles de matrícula"
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 msgid "Enrollment code"
 msgstr "Codi de matrícula"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_enrollment_send
+msgid ""
+"Enrollment process {{ object.name }} academic year {{ "
+"object.ems_course_id.name }} - {{ object.company_id.name }}"
+msgstr ""
+"Tràmit de matrícula {{ object.name }} curs {{ object.ems_course_id.name }} -"
+" {{ object.company_id.name }}"
 
 #. module: ems
 #. odoo-python
@@ -3590,6 +3706,7 @@ msgid "Image Rights"
 msgstr "Drets d'imatge"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "Import"
 msgstr "Importa"
@@ -4290,6 +4407,11 @@ msgid "Matrícula El Puig Castellar"
 msgstr "Matrícula El Puig Castellar"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_enrollment
+msgid "Matrícula:<br/>"
+msgstr ""
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__medical_id
 #: model:ir.model.fields,field_description:ems.field_res_users__medical_id
 msgid "Medical ID"
@@ -4458,7 +4580,7 @@ msgstr "Data límit de la meva activitat"
 #: model:ir.model.fields,field_description:ems.field_res_partner__nuss
 #: model:ir.model.fields,field_description:ems.field_res_users__nuss
 msgid "NUSS"
-msgstr "NUSS"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__name
@@ -4852,7 +4974,7 @@ msgstr "Obrir"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 msgid "Open Enrollment"
-msgstr "Matrícula oberta"
+msgstr "Obrir la matrícula"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
@@ -5106,6 +5228,11 @@ msgstr "Preu"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard
 msgid "Print"
 msgstr "Imprimeix"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_enrollment
+msgid "Print enrollment"
+msgstr "Imprimeix la matrícula"
 
 #. module: ems
 #. odoo-python
@@ -6793,6 +6920,7 @@ msgstr "A"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+#: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "Total"
 msgstr "Total"
 

@@ -85,7 +85,9 @@
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
             'views/community/contact/import_wizard.xml',
+            'views/community/contact/update_wizard.xml',
             'views/community/contact/enrollment_proposal_wizard.xml',
+            'views/community/contact/student_document.xml',
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',  
@@ -213,6 +215,8 @@
             'views/academic_management/enrollment_configuration/enrollment_authorization_view.xml',
             'views/academic_management/enrollment_configuration/enrollment_authorization_form.xml',
             'reports/authorizations/report_authorization_certificate.xml',
+        'reports/enrollment/templates/report_enrollment_template.xml',
+        'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_view.xml',
             'views/academic_management/enrollment_configuration/menu.xml',
@@ -225,6 +229,7 @@
             'views/portal/portal_enrollment_draft.xml',
             'views/portal/portal_enrollment_confirmed.xml',
             'views/portal/portal_comms.xml',
+            'views/portal/portal_documentation.xml',
             'views/portal/portal_under_construction.xml',
 
         'views/documentation/menu.xml',       
@@ -236,10 +241,11 @@
 
 
         ### Mailing templates ###
-        'mails/communications/communication.xml',
+        'mails/communications/communication.xml',        
         'mails/attendance/attendance_issue_status.xml',
-        'mails/attendance/attendance_issue_rectification.xml', 
-        'mails/attendance/attendance_issue_tutor.xml', 
+        'mails/attendance/attendance_issue_rectification.xml',
+        'mails/attendance/attendance_issue_tutor.xml',
+        'mails/enrollment/enrollment_send.xml',
 
         ### Reports templates ###
         'reports/attendance/templates/sumary_table.xml', 

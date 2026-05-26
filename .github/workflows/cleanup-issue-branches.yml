@@ -1,0 +1,58 @@
+name: Cleanup issue branches on PR merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  cleanup:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Delete branches linked to merged PR issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          REPO="${{ github.repository }}"
+
+          echo "Looking for issues linked to PR #$PR_NUMBER..."
+
+          ISSUES=$(gh api graphql -f query='
+            query($owner: String!, $repo: String!, $pr: Int!) {
+              repository(owner: $owner, name: $repo) {
+                pullRequest(number: $pr) {
+                  closingIssuesReferences(first: 20) {
+                    nodes { number }
+                  }
+                }
+              }
+            }' \
+            -f owner="${REPO%/*}" \
+            -f repo="${REPO#*/}" \
+            -F pr=$PR_NUMBER \
+            --jq '.data.repository.pullRequest.closingIssuesReferences.nodes[].number')
+
+          if [ -z "$ISSUES" ]; then
+            echo "No linked issues found. Nothing to delete."
+            exit 0
+          fi
+
+          for ISSUE_NUM in $ISSUES; do
+            echo "Looking for branch for issue #$ISSUE_NUM..."
+
+            BRANCH=$(gh api repos/$REPO/git/refs/heads \
+              | jq -r '.[].ref' \
+              | sed 's|refs/heads/||' \
+              | grep "^${ISSUE_NUM}-" \
+              | head -1)
+
+            if [ -n "$BRANCH" ]; then
+              echo "✓ Deleting branch: $BRANCH"
+              gh api repos/$REPO/git/refs/heads/$BRANCH -X DELETE
+            else
+              echo "- No branch with format ${ISSUE_NUM}-* found for issue #$ISSUE_NUM"
+            fi
+          done

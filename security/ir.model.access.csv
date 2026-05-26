@@ -17,7 +17,7 @@ ems.access_hr_contract_type_secretary,ems.access_hr_contract_type_secretary,hr.m
 
 ems.access_res_partner_admin,ems.access_res_partner_admin,ems.model_res_partner,ems.group_admin,1,1,1,1
 ems.access_res_partner_teacher,ems.access_res_partner_teacher,ems.model_res_partner,ems.group_teacher,1,1,0,0
-ems.access_res_partner_secretary,ems.access_res_partner_secretary,ems.model_res_partner,ems.group_secretary,1,1,0,0
+ems.access_res_partner_secretary,ems.access_res_partner_secretary,ems.model_res_partner,ems.group_secretary,1,1,1,1
 
 ems.access_ems_space_admin,ems.access_ems_space_admin,ems.model_ems_space,ems.group_admin,1,1,1,1
 ems.access_ems_space_teacher,ems.access_ems_space_teacher,ems.model_ems_space,ems.group_teacher,1,0,0,0
@@ -218,9 +218,22 @@ ems.access_ems_contact_relation_wizard_admin,ems.access_ems_contact_relation_wiz
 ems.access_ems_contact_relation_wizard_teacher,ems.access_ems_contact_relation_wizard_teacher,ems.model_ems_contact_relation_wizard,ems.group_teacher,1,1,1,1
 ems.access_ems_student_import_wizard_admin,ems.access_ems_student_import_wizard_admin,ems.model_ems_student_import_wizard,ems.group_admin,1,1,1,1
 ems.access_ems_student_import_wizard_secretary,ems.access_ems_student_import_wizard_secretary,ems.model_ems_student_import_wizard,ems.group_secretary,1,1,1,1
+ems.access_ems_student_update_wizard_admin,ems.access_ems_student_update_wizard_admin,ems.model_ems_student_update_wizard,ems.group_admin,1,1,1,1
+ems.access_ems_student_update_wizard_secretary,ems.access_ems_student_update_wizard_secretary,ems.model_ems_student_update_wizard,ems.group_secretary,1,1,1,1
+ems.access_ems_csv_column_admin,ems.access_ems_csv_column_admin,ems.model_ems_csv_column,ems.group_admin,1,1,1,1
+ems.access_ems_csv_column_secretary,ems.access_ems_csv_column_secretary,ems.model_ems_csv_column,ems.group_secretary,1,1,1,1
+ems.access_res_partner_bank_admin,ems.access_res_partner_bank_admin,base.model_res_partner_bank,ems.group_admin,1,1,1,1
+ems.access_res_partner_bank_secretary,ems.access_res_partner_bank_secretary,base.model_res_partner_bank,ems.group_secretary,1,1,1,1
 ems.access_ems_enrollment_proposal_wizard_admin,ems.access_ems_enrollment_proposal_wizard_admin,ems.model_ems_enrollment_proposal_wizard,ems.group_admin,1,1,1,1
 ems.access_ems_enrollment_proposal_wizard_secretary,ems.access_ems_enrollment_proposal_wizard_secretary,ems.model_ems_enrollment_proposal_wizard,ems.group_secretary,1,1,1,1
 ems.access_ems_enrollment_proposal_wizard_tutor,ems.access_ems_enrollment_proposal_wizard_tutor,ems.model_ems_enrollment_proposal_wizard,ems.group_tutor,1,1,1,1
 
 ems.access_ems_communication_admin,ems.access_ems_communication_admin,ems.model_ems_communication,ems.group_admin,1,1,1,1
 ems.access_ems_communication_line_admin,ems.access_ems_communication_line_admin,ems.model_ems_communication_line,ems.group_admin,1,1,1,1
+ems.access_ems_student_document_admin,ems.access_ems_student_document_admin,ems.model_ems_student_document,ems.group_admin,1,1,1,1
+ems.access_ems_student_document_secretary,ems.access_ems_student_document_secretary,ems.model_ems_student_document,ems.group_secretary,1,1,1,1
+ems.access_ems_student_document_portal,ems.access_ems_student_document_portal,ems.model_ems_student_document,base.group_portal,1,1,0,0
+ems.access_account_move_secretary,ems.access_account_move_secretary,account.model_account_move,ems.group_secretary,1,0,0,0
+ems.access_account_move_line_secretary,ems.access_account_move_line_secretary,account.model_account_move_line,ems.group_secretary,1,0,0,0
+ems.access_account_move_teacher,ems.access_account_move_teacher,account.model_account_move,ems.group_teacher,1,0,0,0
+ems.access_account_move_line_teacher,ems.access_account_move_line_teacher,account.model_account_move_line,ems.group_teacher,1,0,0,0

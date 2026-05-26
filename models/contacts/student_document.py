@@ -1,0 +1,205 @@
+# -*- coding: utf-8 -*-
+from markupsafe import Markup, escape
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
+
+
+class EmsStudentDocument(models.Model):
+    _name = 'ems.student.document'
+    _description = 'Student document submission'
+    _order = 'upload_date desc'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    name = fields.Char(
+        string='Name',
+        compute='_compute_name',
+        store=True,
+    )
+    partner_id = fields.Many2one('res.partner', required=True, ondelete='cascade', index=True)
+    doc_type = fields.Selection([
+        ('dni',      'DNI / NIE'),
+        ('passport', 'Passport'),
+        ('medical',  'Medical card (TIS)'),
+        ('iban',     'Bank account (IBAN)'),
+        ('other',    'Other'),
+    ], required=True, string='Document type')
+
+    # Text data — only meaningful for doc_type == 'iban'
+    doc_value  = fields.Char(string='IBAN')
+    doc_value2 = fields.Char(string='Account holder')
+
+    expiry_date = fields.Date(string='Expiry date')
+
+    # File data — for physical document scans
+    doc_file      = fields.Binary(string='File', attachment=True)
+    doc_file_name = fields.Char()
+    doc_file_link = fields.Html(string='File link', compute='_compute_doc_file_link', sanitize=False)
+
+    status = fields.Selection([
+        ('pending',   'Pending review'),
+        ('approved',  'Approved'),
+        ('rejected',  'Rejected'),
+        ('cancelled', 'Cancelled'),
+    ], default='pending', required=True, index=True, string='Status', tracking=True)
+
+    upload_date      = fields.Datetime(default=fields.Datetime.now, readonly=True)
+    review_date      = fields.Datetime(readonly=True)
+    review_uid       = fields.Many2one('res.users', string='Reviewed by', readonly=True)
+    rejection_reason = fields.Char(string='Rejection reason')
+
+    @api.depends('doc_type', 'partner_id')
+    def _compute_name(self):
+        for rec in self:
+            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, '') if rec.doc_type else ''
+            student = rec.partner_id.name or ''
+            rec.name = 'Document Submission: %s – %s' % (doc_label, student)
+
+    def _compute_doc_file_link(self):
+        Attachment = self.env['ir.attachment'].sudo()
+        for rec in self:
+            if not rec.doc_file or not rec.doc_file_name:
+                rec.doc_file_link = ''
+                continue
+            att = Attachment.search([
+                ('res_model', '=', self._name),
+                ('res_field', '=', 'doc_file'),
+                ('res_id', '=', rec.id),
+            ], limit=1)
+            if att:
+                url = '/web/content/%d?download=false' % att.id
+                rec.doc_file_link = Markup('<a href="%s" target="_blank">%s</a>') % (
+                    url, escape(rec.doc_file_name)
+                )
+            else:
+                rec.doc_file_link = escape(rec.doc_file_name)
+
+    @api.constrains('partner_id', 'doc_type', 'status')
+    def _check_single_pending_iban(self):
+        for rec in self:
+            if rec.doc_type == 'iban' and rec.status == 'pending':
+                duplicates = self.search([
+                    ('partner_id', '=', rec.partner_id.id),
+                    ('doc_type', '=', 'iban'),
+                    ('status', '=', 'pending'),
+                    ('id', '!=', rec.id),
+                ])
+                if duplicates:
+                    raise ValidationError(_("There is already a pending IBAN submission for this student."))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        users = (
+            self.env.ref('ems.group_secretary').users
+            | self.env.ref('ems.group_admin').users
+        )
+        secretary_partner_ids = users.mapped('partner_id').ids
+        for rec in records:
+            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
+
+            # Subscribe student + secretary/admin so all receive email on status changes
+            rec.message_subscribe(partner_ids=[rec.partner_id.id] + secretary_partner_ids)
+
+            # Public comment on the document — visible in portal communications
+            rec.message_post(
+                body=Markup('<b>Document submitted for review:</b> %s<br/>Student: %s') % (
+                    escape(doc_label), escape(rec.partner_id.name)
+                ),
+                message_type='comment',
+                subtype_xmlid='mail.mt_comment',
+            )
+
+            # Activity for each secretary/admin user
+            for user in users:
+                rec.activity_schedule(
+                    act_type_xmlid='mail.mail_activity_data_todo',
+                    summary=_('Review document: %s') % doc_label,
+                    user_id=user.id,
+                )
+        return records
+
+    def action_approve(self):
+        for rec in self:
+            # Remove previously approved document of the same type for this student
+            self.search([
+                ('partner_id', '=', rec.partner_id.id),
+                ('doc_type', '=', rec.doc_type),
+                ('status', '=', 'approved'),
+                ('id', '!=', rec.id),
+            ]).unlink()
+            rec.write({
+                'status': 'approved',
+                'review_date': fields.Datetime.now(),
+                'review_uid': self.env.user.id,
+            })
+            if rec.doc_type == 'iban' and rec.doc_value:
+                rec._apply_bank_account()
+
+            rec.activity_ids.unlink()
+
+            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
+            rec.message_post(
+                body=Markup('<b>Document approved:</b> %s<br/>Student: %s') % (
+                    escape(doc_label), escape(rec.partner_id.name)
+                ),
+                message_type='comment',
+                subtype_xmlid='mail.mt_comment',
+            )
+
+    def action_reject(self):
+        for rec in self:
+            rec.write({
+                'status': 'rejected',
+                'review_date': fields.Datetime.now(),
+                'review_uid': self.env.user.id,
+            })
+            rec.activity_ids.unlink()
+
+            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
+            body = Markup('<b>Document rejected:</b> %s<br/>Student: %s') % (
+                escape(doc_label), escape(rec.partner_id.name)
+            )
+            if rec.rejection_reason:
+                body += Markup('<br/>Reason: %s') % escape(rec.rejection_reason)
+            rec.message_post(
+                body=body,
+                message_type='comment',
+                subtype_xmlid='mail.mt_comment',
+            )
+
+    def action_cancel(self):
+        for rec in self:
+            rec.write({'status': 'cancelled'})
+            rec.activity_ids.unlink()
+
+            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
+            rec.message_post(
+                body=Markup('<b>Document submission cancelled:</b> %s<br/>Student: %s') % (
+                    escape(doc_label), escape(rec.partner_id.name)
+                ),
+                message_type='comment',
+                subtype_xmlid='mail.mt_comment',
+            )
+
+    def _apply_bank_account(self):
+        student = self.partner_id
+        iban = self.doc_value.strip().upper()
+        holder = self.doc_value2 or False
+        BankAccount = self.env['res.partner.bank'].with_context(active_test=False)
+        existing = BankAccount.search([
+            ('partner_id', '=', student.id),
+            ('acc_number', '=', iban),
+        ], limit=1)
+        if existing:
+            existing.write({'active': True, 'acc_holder_name': holder})
+            BankAccount.search([
+                ('partner_id', '=', student.id),
+                ('id', '!=', existing.id),
+            ]).write({'active': False})
+        else:
+            BankAccount.search([('partner_id', '=', student.id)]).write({'active': False})
+            self.env['res.partner.bank'].create({
+                'acc_number': iban,
+                'partner_id': student.id,
+                'acc_holder_name': holder,
+            })

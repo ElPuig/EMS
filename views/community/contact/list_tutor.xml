@@ -39,22 +39,27 @@
                     <field name="mobile" optional="show"/>
                     <field name="birth_date" optional="hide"/>
                     <field name="is_adult" optional="show"/>
-                    <field name="auth_image" optional="show" widget="boolean_toggle" readonly="1"/>
-                    <field name="auth_trip" optional="show" widget="boolean_toggle" readonly="1"/>
-                    <field name="auth_healt" optional="show" widget="boolean_toggle" readonly="1"/>
-                    <field name="auth_share" optional="show" widget="boolean_toggle" readonly="1"/>
+                    <field name="auth_image" optional="hide" widget="boolean_toggle" readonly="1"/>
+                    <field name="auth_trip" optional="hide" widget="boolean_toggle" readonly="1"/>
+                    <field name="auth_healt" optional="hide" widget="boolean_toggle" readonly="1"/>
+                    <field name="auth_share" optional="hide" widget="boolean_toggle" readonly="1"/>
                     <field name="benefit_status" optional="hide"/>
 
-                    <field name="ems_current_enrollment_id" optional="show"/>
+                    <field name="ems_enrollment_state" column_invisible="1"/>
+                    <field name="ems_current_enrollment_id" optional="show" string="Enrollment"
+                           help="Color coding: Orange = draft enrollment (not yet sent) · Blue = sent to family (awaiting confirmation) · Green = confirmed enrollment"
+                           decoration-warning="ems_enrollment_state == 'draft'"
+                           decoration-info="ems_enrollment_state == 'sent'"
+                           decoration-success="ems_enrollment_state == 'sale'"/>
                     <button name="action_open_current_enrollment"
                             type="object"
-                            string="Open Enrollment"
                             icon="fa-external-link"
+                            title="Open Enrollment"
                             invisible="ems_current_enrollment_id == False"/>
                     <button name="action_new_enrollment"
                             type="object"
-                            string="New Enrollment"
                             icon="fa-plus"
+                            title="New Enrollment"
                             invisible="ems_current_enrollment_id != False"/>
 
 

@@ -73,6 +73,11 @@ class ems_SaleOrder(models.Model):
         string="Authorizations"
     )
 
+    ems_payment_method = fields.Selection([
+        ('transfer',     'Bank Transfer'),
+        ('direct_debit', 'Direct Debit'),
+    ], string='Payment Method')
+
     ems_enrollment_status_label = fields.Char(
         string='Enrollment Status',
         compute='_compute_enrollment_status_label',
@@ -127,6 +132,8 @@ class ems_SaleOrder(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            # Clear the salesperson so the company appears as fallback in communications.
+            vals['user_id'] = False
             # Comprobamos si es una matrícula (es decir, si el usuario ha seleccionado un estudio)
             if vals.get('ems_study_id'):                
                 # 1. Le pedimos a nuestra secuencia el número correlativo (ej. 0004)
@@ -269,7 +276,20 @@ class ems_SaleOrder(models.Model):
                 "Tutors cannot send enrollments to students. "
                 "Please contact the secretary or admin."
             )
+        if self.ems_study_id:
+            template = self.env.ref('ems.email_template_enrollment_send', raise_if_not_found=False)
+            if template:
+                action = super().action_quotation_send()
+                action['context']['default_template_id'] = template.id
+                return action
         return super().action_quotation_send()
+
+    def _notify_get_recipients_groups(self, message, model_description, msg_vals=None):
+        groups = super()._notify_get_recipients_groups(message, model_description, msg_vals=msg_vals)
+        if self.ems_study_id:
+            for group in groups:
+                group[2]['has_button_access'] = False
+        return groups
 
     def action_confirm(self):
         if self._is_blocked_tutor():

@@ -46,9 +46,17 @@ class ems_contact_portal(models.Model):
             if not students:
                 return self
             if student_id:
-                match = students.filtered(lambda s: s.id == student_id)
-                if match:
-                    return match[0]
+                try:
+                    sid = int(student_id)
+                except (TypeError, ValueError):
+                    sid = None
+                if sid:
+                    match = students.filtered(lambda s: s.id == sid)
+                    if match:
+                        return match[0]
+            # Fall back to the persisted selection, then first student
+            if self.selected_student_id and self.selected_student_id in students:
+                return self.selected_student_id
             return students[0]
         return self
 

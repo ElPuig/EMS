@@ -8,8 +8,8 @@ const cogMenuRegistry = registry.category("cogMenu");
 
 let _studentActionId = null;
 
-export class ImportStudentCogMenu extends Component {
-    static template = "cog_menu.ImportStudentCogMenu";
+export class UpdateStudentCogMenu extends Component {
+    static template = "cog_menu.UpdateStudentCogMenu";
     static components = { DropdownItem };
     static props = {};
 
@@ -19,9 +19,9 @@ export class ImportStudentCogMenu extends Component {
 
     async onClickCogMenu() {
         this.action.doAction({
-            name: "Import from Esfera",
+            name: "Update students from CSV",
             type: "ir.actions.act_window",
-            res_model: "ems.student_import_wizard",
+            res_model: "ems.student_update_wizard",
             res_id: false,
             views: [[false, "form"]],
             view_mode: "form",
@@ -30,8 +30,8 @@ export class ImportStudentCogMenu extends Component {
     }
 }
 
-export const ImportStudentCogMenuItem = {
-    Component: ImportStudentCogMenu,
+export const UpdateStudentCogMenuItem = {
+    Component: UpdateStudentCogMenu,
     groupNumber: 20,
     isDisplayed: (env) => {
         const { actionType, actionId, viewType } = env.config;
@@ -50,4 +50,4 @@ export const ImportStudentCogMenuItem = {
     },
 };
 
-cogMenuRegistry.add("import-student-cog-menu", ImportStudentCogMenuItem, { sequence: 10 });
+cogMenuRegistry.add("update-student-cog-menu", UpdateStudentCogMenuItem, { sequence: 11 });

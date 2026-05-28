@@ -10,6 +10,7 @@
                 <separator string="EMS Portal"/>
                 <group>
                     <field name="ems_portal_visible" widget="boolean_toggle"/>
+                    <field name="ems_requires_fees" widget="boolean_toggle"/>
                 </group>
             </xpath>            
         </field>

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0-20260131\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-18 15:13+0000\n"
-"PO-Revision-Date: 2026-05-18 15:13+0000\n"
+"POT-Creation-Date: 2026-05-28 21:16+0000\n"
+"PO-Revision-Date: 2026-05-28 21:16+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "#{field.placeholder or ''}"
-msgstr "#{field.placeholder or ''}"
+msgstr ""
 
 #. module: ems
 #. odoo-python
@@ -358,6 +358,17 @@ msgid ""
 "<i class=\"fa fa-bank me-2 text-ems-primary\"/>\n"
 "                                                Payment method"
 msgstr ""
+"<i class=\"fa fa-bank me-2 text-ems-primary\"/>\n"
+"                                                Método de pago"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid ""
+"<i class=\"fa fa-check-circle me-1\"/> Your bank account has been renewed "
+"for one more year."
+msgstr ""
+"<i class=\"fa fa-check-circle me-1\"/> Su cuenta bancaria ha sido renovada "
+"por un año más."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -379,6 +390,8 @@ msgid ""
 "<i class=\"fa fa-check-circle text-success me-1\"/>Your bank account on "
 "file:"
 msgstr ""
+"<i class=\"fa fa-check-circle text-success me-1\"/>Su cuenta bancaria "
+"registrada:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
@@ -399,7 +412,9 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "<i class=\"fa fa-clock-o me-1\"/>IBAN update pending review:"
-msgstr "<i class=\"fa fa-clock-o me-1\"/>Actualización de IBAN pendiente de revisión:"
+msgstr ""
+"<i class=\"fa fa-clock-o me-1\"/>Actualización de IBAN pendiente de "
+"revisión:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -471,9 +486,23 @@ msgid "<i class=\"fa fa-id-card me-2\"/>Official documents"
 msgstr "<i class=\"fa fa-id-card me-2\"/>Documentos oficiales"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "<i class=\"fa fa-info-circle me-1 text-ems-primary\"/>Payment schedule:"
+msgstr ""
+"<i class=\"fa fa-info-circle me-1 text-ems-primary\"/>Calendario de pagos:"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<i class=\"fa fa-info-circle me-1 text-ems-primary\"/>Transfer details:"
-msgstr "<i class=\"fa fa-info-circle me-1 text-ems-primary\"/>Datos de transferencia:"
+msgstr ""
+"<i class=\"fa fa-info-circle me-1 text-ems-primary\"/>Datos de "
+"transferencia:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-pencil me-1\"/>Update billing account"
+msgstr "<i class=\"fa fa-pencil me-1\"/>Actualizar cuenta bancaria"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -504,6 +533,11 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-refresh me-1\"/>Renew current account"
+msgstr "<i class=\"fa fa-refresh me-1\"/>Renovar cuenta actual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "<i class=\"fa fa-times me-1\"/>Cancel submission"
 msgstr "<i class=\"fa fa-times me-1\"/>Cancelar envío"
 
@@ -521,6 +555,11 @@ msgstr ""
 msgid ""
 "<i class=\"fa fa-university me-1 text-ems-primary\"/>Payment by direct debit"
 msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-university me-1\"/>Current billing account"
+msgstr "<i class=\"fa fa-university me-1\"/>Cuenta bancaria actual"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -636,6 +675,48 @@ msgstr ""
 "                                     <span class=\"badge text-bg-secondary\" invisible=\"benefit_status != 'none'\">Ninguno</span>"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid ""
+"<span class=\"form-label small\">Account holder <span class=\"text-"
+"danger\">*</span></span>"
+msgstr ""
+"<span class=\"form-label small\">Titular de la cuenta <span class=\"text-"
+"danger\">*</span></span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<span class=\"form-label small\">Account holder</span>"
+msgstr "<span class=\"form-label small\">Titular de la cuenta</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid ""
+"<span class=\"form-label small\">Expiry date <span class=\"text-"
+"muted\">(optional)</span></span>"
+msgstr ""
+"<span class=\"form-label small\">Fecha de caducidad <span class=\"text-"
+"muted\">(opcional)</span></span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<span class=\"form-label small\">Expiry date</span>"
+msgstr "<span class=\"form-label small\">Fecha de caducidad</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid ""
+"<span class=\"form-label small\">IBAN <span class=\"text-"
+"danger\">*</span></span>"
+msgstr ""
+"<span class=\"form-label small\">IBAN <span class=\"text-"
+"danger\">*</span></span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<span class=\"form-label small\">IBAN</span>"
+msgstr "<span class=\"form-label small\">IBAN</span>"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
 msgid "<span class=\"me-2\">Check-out at</span>"
 msgstr "<span class=\"me-2\">Salida a las</span>"
@@ -692,7 +773,6 @@ msgid "<span class=\"text-danger\"> *</span>"
 msgstr ""
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<strong>Account holder: </strong>"
@@ -710,29 +790,6 @@ msgid "<strong>Available variables for the legal text:</strong>"
 msgstr "<strong>Variables disponibles para el texto legal:</strong>"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<strong>Expired: </strong>"
-msgstr "<strong>Caducado: </strong>"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
-msgid "<strong>Expiry date: </strong>"
-msgstr "<strong>Fecha de caducidad: </strong>"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<strong>IBAN: </strong>"
-msgstr "<strong>IBAN: </strong>"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000"
-msgstr "<strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "<strong>Curs:</strong>"
 msgstr ""
@@ -743,8 +800,25 @@ msgid "<strong>Estudis:</strong>"
 msgstr ""
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "<strong>Expired: </strong>"
+msgstr "<strong>Caducado: </strong>"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "<strong>Forma de pagament:</strong>"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "<strong>IBAN: </strong>"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "<strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000"
 msgstr ""
 
 #. module: ems
@@ -789,14 +863,14 @@ msgid "<strong>Reference: </strong>"
 msgstr "<strong>Referencia: </strong>"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<strong>Valid until: </strong>"
-msgstr "<strong>Válido hasta: </strong>"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "<strong>Torn:</strong>"
 msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "<strong>Valid until: </strong>"
+msgstr "<strong>Válido hasta: </strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
@@ -812,9 +886,9 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "API endpoint (host address) where the LimeSurvey server is listening."
-msgstr "Dirección del servidor LimeSurvey (host)."
-"API endpoint (drección del host) donde el servicio de LimeSurvey está "
-"escuchando."
+msgstr ""
+"Dirección del servidor LimeSurvey (host).API endpoint (drección del host) "
+"donde el servicio de LimeSurvey está escuchando."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__asp_id
@@ -918,12 +992,13 @@ msgstr "Aceptado"
 #. module: ems
 #: model:res.groups,comment:ems.group_tutor
 msgid "Access rights for tutors (teachers in charge of a group)."
-msgstr "Derechos de acceso para tutores (profesores responsables de un grupo)."
-"Derechos de acceso para tutores (profesores responsables de un grupo)."
+msgstr ""
+"Derechos de acceso para tutores (profesores responsables de un "
+"grupo).Derechos de acceso para tutores (profesores responsables de un "
+"grupo)."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_value2
-#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 msgid "Account holder"
 msgstr "Titular de la cuenta"
@@ -1361,9 +1436,9 @@ msgstr "Retraso en el estado de una incidencia en asistencia"
 #: model:ir.model.fields,field_description:ems.field_res_company__attendance_issue_tutor_default
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__attendance_issue_tutor_default
 msgid "Attendance Issue Tutor Default"
-msgstr "Tutor por defecto de incidencias de asistencia"
-"Valor predeterminado en el estado de una incidencia en asistencia de cara al"
-" tutor"
+msgstr ""
+"Tutor por defecto de incidencias de asistenciaValor predeterminado en el "
+"estado de una incidencia en asistencia de cara al tutor"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_reports_group
@@ -1396,9 +1471,10 @@ msgstr ""
 #. module: ems
 #: model:ir.model,name:ems.model_ems_attendance_issue_student
 msgid "Attendance issue (student): groups the attendance's issues by student."
-msgstr "Incidencia de asistencia (alumno): agrupa las incidencias por alumno."
-"Incidencia en asistencia (estudiante): agrupa las incidencias en asistencia "
-"por estudiante."
+msgstr ""
+"Incidencia de asistencia (alumno): agrupa las incidencias por "
+"alumno.Incidencia en asistencia (estudiante): agrupa las incidencias en "
+"asistencia por estudiante."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_attendance_issue_tutor
@@ -1918,14 +1994,17 @@ msgstr "Coordinador/a de convivencia"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
 #: model:ir.model.fields,field_description:ems.field_ems_role__color
 msgid "Color"
-msgstr "Color"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 msgid ""
 "Color coding: Orange = draft enrollment (not yet sent) · Blue = sent to "
 "family (awaiting confirmation) · Green = confirmed enrollment"
-msgstr "Código de color: Naranja = matrícula borrador (aún no enviada) · Azul = enviada a la familia (pendiente de confirmación) · Verde = matrícula confirmada"
+msgstr ""
+"Código de color: Naranja = matrícula borrador (aún no enviada) · Azul = "
+"enviada a la familia (pendiente de confirmación) · Verde = matrícula "
+"confirmada"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -2304,7 +2383,7 @@ msgstr "Plan de estudios"
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__dni
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "DNI / NIE"
-msgstr "DNI / NIE"
+msgstr ""
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_issues
@@ -2371,9 +2450,10 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_ems_authorization_template
 msgid "Define the legal texts, consents, and rules required for enrollments."
-msgstr "Define los textos legales, consentimientos y normativas necesarias para las matrículas."
-"Define los textos legales, consentimientos y normas necesarios para las "
-"matrículas."
+msgstr ""
+"Define los textos legales, consentimientos y normativas necesarias para las "
+"matrículas.Define los textos legales, consentimientos y normas necesarios "
+"para las matrículas."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_sale_order_template__ems_study_id
@@ -2608,6 +2688,11 @@ msgid "Download import log (CSV)"
 msgstr "Descargar log de importación (CSV)"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
+msgid "Download result CSV"
+msgstr ""
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__downloading
 msgid "Downloading surveys"
 msgstr "Descargando encuestas"
@@ -2620,9 +2705,10 @@ msgstr "Borrador"
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_attendance_session_header_attendance_session_is_duped
 msgid "Duped session (same schedule and date)."
-msgstr "Sesión duplicada (mismo horario y fecha)."
-"La sesión actual ya existe. Por favor, edita la existente (quizás la haya "
-"creado otro profesor) o elige otra sesión disponible."
+msgstr ""
+"Sesión duplicada (mismo horario y fecha).La sesión actual ya existe. Por "
+"favor, edita la existente (quizás la haya creado otro profesor) o elige otra"
+" sesión disponible."
 
 #. module: ems
 #. odoo-python
@@ -2644,7 +2730,7 @@ msgstr "Créditos ECTS"
 #: model:ir.module.category,name:ems.category_main
 #: model:ir.module.category,name:ems.ems_category_main
 msgid "EMS"
-msgstr "EMS"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkout_mode__ems
@@ -2677,6 +2763,11 @@ msgid "EMS multithreading model's code)"
 msgstr "Código multihilo para los modelos del EMS"
 
 #. module: ems
+#: model:mail.template,name:ems.email_template_enrollment_send
+msgid "EMS: Send Enrollment Proposal"
+msgstr ""
+
+#. module: ems
 #: model:ir.actions.act_window,name:ems.action_student_update_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
 msgid "EMS: Update students from CSV"
@@ -2685,11 +2776,6 @@ msgstr "EMS: Actualizar alumnos desde CSV"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "ES00 0000 0000 0000 0000 0000"
-msgstr "ES00 0000 0000 0000 0000 0000"
-
-#. module: ems
-#: model:mail.template,name:ems.email_template_enrollment_send
-msgid "EMS: Send Enrollment Proposal"
 msgstr ""
 
 #. module: ems
@@ -2743,8 +2829,9 @@ msgstr ""
 #. module: ems
 #: model:mail.template,name:ems.mail_attendance_issue_tutor
 msgid "Email notification for tutors: student attendances"
-msgstr "Notificación por email para tutores: asistencias de alumnos"
-"Email de notificación para tutores/as: asistencia de los/las estudiantes"
+msgstr ""
+"Notificación por email para tutores: asistencias de alumnosEmail de "
+"notificación para tutores/as: asistencia de los/las estudiantes"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
@@ -3112,6 +3199,11 @@ msgid "Father"
 msgstr "Padre"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_fee_amount
+msgid "Fee Amount"
+msgstr "Importe de tasas"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_response__field_id
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 msgid "Field"
@@ -3134,8 +3226,9 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_attendance_template__color
 msgid "Field to store the color that will be used for calendar view"
-msgstr "Campo para almacenar el color del calendario"
-"Campo para almacenar el color que se utilizará para la vista de calendario."
+msgstr ""
+"Campo para almacenar el color del calendarioCampo para almacenar el color "
+"que se utilizará para la vista de calendario."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_file
@@ -3164,6 +3257,16 @@ msgstr "Financiero"
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkin_mode__first
 msgid "First (first scheduled working hour)"
 msgstr "Primero (primera hora de trabajo programada)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_first_installment
+msgid "First Installment"
+msgstr "Primer pago"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "First Payment"
+msgstr "Primer pago"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__firstname
@@ -3268,9 +3371,10 @@ msgstr "Elementos genéricos"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_outcome
 msgid "Grade (outcome): ternary relation between student-teacher-outcome."
-msgstr "Calificación (resultado): relación ternaria alumno-profesor-resultado."
-"Calificación (resultado de aprendizaje): relación ternaria entre estudiante-"
-"profesor-resultado."
+msgstr ""
+"Calificación (resultado): relación ternaria alumno-profesor-"
+"resultado.Calificación (resultado de aprendizaje): relación ternaria entre "
+"estudiante-profesor-resultado."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu
@@ -3371,6 +3475,11 @@ msgid "HR Attendance: auto check-in/check-out extension."
 msgstr "Asistencia"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_has_fees
+msgid "Has Fee Products"
+msgstr "Tiene tasas"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__has_message
@@ -3461,7 +3570,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 msgid "IBAN"
-msgstr "IBAN"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
@@ -3517,7 +3626,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_exception_icon
@@ -3617,8 +3726,9 @@ msgstr "Si está marcado, nuevos mensajes requieren de su atención. "
 #: model:ir.model.fields,help:ems.field_ems_teaching__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_teaching__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
-msgstr "Si está marcado, algunos mensajes tienen un error de entrega."
-"Si está marcado, algunos mensajes fallaron al intentar ser entregados."
+msgstr ""
+"Si está marcado, algunos mensajes tienen un error de entrega.Si está "
+"marcado, algunos mensajes fallaron al intentar ser entregados."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__is_generic
@@ -3644,6 +3754,13 @@ msgid ""
 msgstr ""
 "Si está activado, este plan de pago se mostrará a los alumnos en el portal "
 "de matrícula."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_account_payment_term__ems_requires_fees
+msgid ""
+"If enabled, this payment plan will only be shown when the enrollment "
+"contains fee products (ems_is_enrollment_fee)."
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_is_tutoria
@@ -4116,15 +4233,16 @@ msgstr "Niveles"
 #: model:ir.model.fields,help:ems.field_product_product__ems_level_ids
 #: model:ir.model.fields,help:ems.field_product_template__ems_level_ids
 msgid "Levels where this generic product is available (e.g. VET, Bachelor)."
-msgstr "Niveles donde este producto genérico está disponible (p. ej. CFGS, Bachillerato)."
-"Niveles en los que este producto genérico está disponible (p.ej. FP, "
-"Bachillerato)."
+msgstr ""
+"Niveles donde este producto genérico está disponible (p. ej. CFGS, "
+"Bachillerato).Niveles en los que este producto genérico está disponible "
+"(p.ej. FP, Bachillerato)."
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_limesurvey
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "LimeSurvey"
-msgstr "LimeSurvey"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -4155,9 +4273,10 @@ msgstr ""
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_header
 msgid "LimeSurvey header: contains the survey's header and its content."
-msgstr "Cabecera LimeSurvey: contiene la cabecera y el contenido de la encuesta."
-"LimeSurvey header: contiene el contenido de una encuesta y sus principales "
-"datos."
+msgstr ""
+"Cabecera LimeSurvey: contiene la cabecera y el contenido de la "
+"encuesta.LimeSurvey header: contiene el contenido de una encuesta y sus "
+"principales datos."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_recipient
@@ -4398,7 +4517,7 @@ msgstr "Obligatorio responder"
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__manual
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__manual
 msgid "Manual"
-msgstr "Manual"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
@@ -4408,7 +4527,7 @@ msgstr "Clave de coincidencia"
 #. module: ems
 #: model:product.template,name:ems.product_generic_enrollment
 msgid "Matrícula El Puig Castellar"
-msgstr "Matrícula El Puig Castellar"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
@@ -4633,11 +4752,6 @@ msgid "New Enrollment"
 msgstr "Nueva matrícula"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
-msgid "New IBAN"
-msgstr "Nuevo IBAN"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__is_new_contact
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
 msgid "New contact"
@@ -4710,17 +4824,12 @@ msgstr "Tipo de la siguiente actividad"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_sale_order_template__ems_level_id
 msgid "Nivel"
-msgstr "Nivel"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "No active enrollment process found."
 msgstr "No se ha encontrado ningún proceso de matrícula activo."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
-msgid "No bank account registered."
-msgstr "No hay ninguna cuenta bancaria registrada."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_communications
@@ -4736,9 +4845,15 @@ msgstr "No se ha encontrado ninguna matrícula."
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
 msgid "No enrollment templates available for the selected students' study."
-msgstr "No hay plantillas de matrícula disponibles para el estudio de los alumnos seleccionados."
-"No hay plantillas de matrícula disponibles para los estudios de los alumnos "
-"seleccionados."
+msgstr ""
+"No hay plantillas de matrícula disponibles para el estudio de los alumnos "
+"seleccionados.No hay plantillas de matrícula disponibles para los estudios "
+"de los alumnos seleccionados."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_non_fee_amount
+msgid "Non-fee Amount"
+msgstr "Importe de otros conceptos"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__non_teaching
@@ -4933,6 +5048,11 @@ msgstr ""
 "formulario de los estudiantes."
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_account_payment_term__ems_requires_fees
+msgid "Only for fee-based enrollments"
+msgstr "Solo para matrículas con tasas"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search
@@ -4943,25 +5063,27 @@ msgstr "Solamente los míos"
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can justify its attendances."
-msgstr "Solo el tutor del alumno puede justificar sus asistencias."
-"Solamente el/la tutor/a del alumno/a puede justificar sus faltas de "
-"asistencia."
+msgstr ""
+"Solo el tutor del alumno puede justificar sus asistencias.Solamente el/la "
+"tutor/a del alumno/a puede justificar sus faltas de asistencia."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can remove its attendance justifications."
-msgstr "Solo el tutor del alumno puede eliminar sus justificaciones de asistencia."
-"Solamente el/la tutor/a del alumno/a puede eliminar sus justificaciones de "
-"asistencia."
+msgstr ""
+"Solo el tutor del alumno puede eliminar sus justificaciones de "
+"asistencia.Solamente el/la tutor/a del alumno/a puede eliminar sus "
+"justificaciones de asistencia."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can update its attendance justifications."
-msgstr "Solo el tutor del alumno puede actualizar sus justificaciones de asistencia."
-"Solamente el/la tutor/a del alumno/a puede actualizar sus justificaciones de"
-" asistencia."
+msgstr ""
+"Solo el tutor del alumno puede actualizar sus justificaciones de "
+"asistencia.Solamente el/la tutor/a del alumno/a puede actualizar sus "
+"justificaciones de asistencia."
 
 #. module: ems
 #. odoo-python
@@ -5079,6 +5201,23 @@ msgid "Passport"
 msgstr "Pasaporte"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Payment"
+msgstr "Pago"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "Payment 1 — 100% enrollment items + 50% fees"
+msgstr "Pago 1 — 100% conceptos de matrícula + 50% tasas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "Payment 2 — 50% fees"
+msgstr "Pago 2 — 50% tasas"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_sale_order__ems_payment_method
 msgid "Payment Method"
 msgstr "Método de pago"
@@ -5089,9 +5228,19 @@ msgid "Payment Terms"
 msgstr "Condiciones de pago"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Payment breakdown"
+msgstr "Detalle del pago"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 msgid "Payment information not yet specified."
 msgstr "Información de pago no especificada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Payment plan"
+msgstr "Plan de pago"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__pending
@@ -5147,9 +5296,9 @@ msgstr "Planificación y calificación"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_planning_outcome
 msgid "Planning's outcome ponderation: self explanatory."
-msgstr "Ponderación de resultados de la planificación."
-"Ponderación de los resultados de aprendizaje dentro de la programación "
-"docente: se explica por sí misma."
+msgstr ""
+"Ponderación de resultados de la planificación.Ponderación de los resultados "
+"de aprendizaje dentro de la programación docente: se explica por sí misma."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_planning
@@ -5169,7 +5318,7 @@ msgstr "Programaciones docentes"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Plantilla"
-msgstr "Plantilla"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -5567,6 +5716,16 @@ msgid "Restore data"
 msgstr "Restaurar datos"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__result_csv
+msgid "Result Csv"
+msgstr ""
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__result_csv_filename
+msgid "Result Csv Filename"
+msgstr ""
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__result_html
 msgid "Result Html"
 msgstr "Resultado HTML"
@@ -5617,7 +5776,7 @@ msgstr "Nombres de los roles"
 #: model:ir.ui.menu,name:ems.menu_teachers_roles
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Roles"
-msgstr "Roles"
+msgstr ""
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_asp_role_tree
@@ -5779,6 +5938,16 @@ msgstr ""
 " autorización si aún no la tienen."
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_second_installment
+msgid "Second Installment"
+msgstr "Segundo pago"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Second Payment"
+msgstr "Segundo pago"
+
+#. module: ems
 #: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary
 #: model:res.groups,name:ems.group_secretary
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -5823,9 +5992,10 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__auth_type
 msgid "Select the specific type to automatically update the student's file."
-msgstr "Selecciona el tipo específico para actualizar automáticamente el expediente del alumno."
+msgstr ""
 "Selecciona el tipo específico para actualizar automáticamente el expediente "
-"del alumno/a."
+"del alumno.Selecciona el tipo específico para actualizar automáticamente el "
+"expediente del alumno/a."
 
 #. module: ems
 #. odoo-python
@@ -6595,7 +6765,7 @@ msgstr "Destinatarios"
 #. module: ems
 #: model:product.template,name:ems.fee_cfgs
 msgid "Tasa CFGS"
-msgstr "Tasa CFGS"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__teacher_id
@@ -6720,9 +6890,10 @@ msgstr "El bloque sólo aparecerá por los estudiantes matriculados en FCT."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "The block appears only for students enrolled in this course (0 = all)."
-msgstr "El bloque aparece solo para los alumnos matriculados en este curso (0 = todos)."
-"El bloque sólo aparecerá por los alumnos matriculados en este curso (0 = "
-"todos)."
+msgstr ""
+"El bloque aparece solo para los alumnos matriculados en este curso (0 = "
+"todos).El bloque sólo aparecerá por los alumnos matriculados en este curso "
+"(0 = todos)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
@@ -6779,8 +6950,9 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
 msgid "The item '%s' is already in the list. Please select a different one."
-msgstr "El elemento '%s' ya está en la lista. Selecciona uno diferente."
-"El elemento '%s' ya está en la lista. Por favor, selecciona uno diferente."
+msgstr ""
+"El elemento '%s' ya está en la lista. Selecciona uno diferente.El elemento "
+"'%s' ya está en la lista. Por favor, selecciona uno diferente."
 
 #. module: ems
 #. odoo-python
@@ -6863,8 +7035,9 @@ msgstr "Esta autorización ya está solicitada en esta matrícula."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "This block will be generated once per enrollred subject."
-msgstr "Este bloque se generará una vez por cada materia matriculada."
-"Este blog se repetirá por cada asignatura matriculada por el estudiante."
+msgstr ""
+"Este bloque se generará una vez por cada materia matriculada.Este blog se "
+"repetirá por cada asignatura matriculada por el estudiante."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -6930,7 +7103,12 @@ msgstr "A"
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "Total"
-msgstr "Total"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Total Amount"
+msgstr "Importe total"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__total_hours
@@ -6994,8 +7172,9 @@ msgstr "Información de la notificación al/la tutor/a"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Tutor's attendance report default send time"
-msgstr "Hora de envío por defecto del informe de asistencia del tutor"
-"Hora de envío predeterminada para el reporte de asistencia del tutor/a"
+msgstr ""
+"Hora de envío por defecto del informe de asistencia del tutorHora de envío "
+"predeterminada para el reporte de asistencia del tutor/a"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_kanban
@@ -7142,14 +7321,15 @@ msgstr "En desarrollo"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__unipersonal
 msgid "Unipersonal"
-msgstr "Unipersonal"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_subject_unit_cost
 #: model:ir.model.fields,help:ems.field_product_template__ems_subject_unit_cost
 msgid "Unit cost per subject (e.g. 65.00) used for fee calculation."
-msgstr "Coste unitario por materia (p. ej. 65,00) para el cálculo de tasas."
-"Coste unitario por asignatura (p.ej. 65,00) usado para el cálculo de tasas."
+msgstr ""
+"Coste unitario por materia (p. ej. 65,00) para el cálculo de tasas.Coste "
+"unitario por asignatura (p.ej. 65,00) usado para el cálculo de tasas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
@@ -7545,7 +7725,7 @@ msgstr "archivo"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "https://ejemplo.com/plantilla.pdf"
-msgstr "https://ejemplo.com/plantilla.pdf"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
@@ -7632,3 +7812,13 @@ msgstr "a"
 #: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
 msgid "workgroup"
 msgstr "grupo de trabajo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "↳ Fee amount"
+msgstr "↳ Importe de tasas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "↳ Other enrollment concepts"
+msgstr "↳ Otros conceptos de matrícula"

@@ -9,3 +9,9 @@ class ems_PaymentTerm(models.Model):
         default=False,
         help="If enabled, this payment plan will be shown to students in the enrollment portal."
     )
+
+    ems_requires_fees = fields.Boolean(
+        string='Only for fee-based enrollments',
+        default=False,
+        help="If enabled, this payment plan will only be shown when the enrollment contains fee products (ems_is_enrollment_fee)."
+    )

@@ -78,6 +78,48 @@ class ems_SaleOrder(models.Model):
         ('direct_debit', 'Direct Debit'),
     ], string='Payment Method')
 
+    ems_has_fees = fields.Boolean(
+        compute='_compute_fee_amounts', store=True,
+        string='Has Fee Products',
+    )
+    ems_fee_amount = fields.Monetary(
+        compute='_compute_fee_amounts', store=True,
+        string='Fee Amount',
+    )
+    ems_non_fee_amount = fields.Monetary(
+        compute='_compute_fee_amounts', store=True,
+        string='Non-fee Amount',
+    )
+    ems_first_installment = fields.Monetary(
+        compute='_compute_installments',
+        string='First Installment',
+    )
+    ems_second_installment = fields.Monetary(
+        compute='_compute_installments',
+        string='Second Installment',
+    )
+
+    @api.depends('order_line.price_subtotal', 'order_line.product_template_id.ems_is_enrollment_fee')
+    def _compute_fee_amounts(self):
+        for order in self:
+            fee = sum(
+                l.price_subtotal for l in order.order_line
+                if l.product_template_id.ems_is_enrollment_fee
+            )
+            non_fee = sum(
+                l.price_subtotal for l in order.order_line
+                if not l.product_template_id.ems_is_enrollment_fee
+            )
+            order.ems_fee_amount = fee
+            order.ems_non_fee_amount = non_fee
+            order.ems_has_fees = fee > 0
+
+    @api.depends('ems_fee_amount', 'ems_non_fee_amount')
+    def _compute_installments(self):
+        for order in self:
+            order.ems_first_installment = order.ems_non_fee_amount + order.ems_fee_amount * 0.5
+            order.ems_second_installment = order.ems_fee_amount * 0.5
+
     ems_enrollment_status_label = fields.Char(
         string='Enrollment Status',
         compute='_compute_enrollment_status_label',

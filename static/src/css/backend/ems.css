@@ -35,3 +35,9 @@ th[data-name="deprecated"]{
     text-decoration: line-through !important;
     opacity: 0.75;
 }
+
+.o_form_view .o_form_label.fw-bold {
+    font-weight: 700 !important;
+    color: #343a40 !important;
+    opacity: 1 !important;
+}

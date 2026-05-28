@@ -341,12 +341,32 @@
                                                                t-att-id="'term_' + str(term.id)"
                                                                t-att-value="term.id"
                                                                t-att-checked="'checked' if enrollment.payment_term_id == term else None"
+                                                               t-att-data-requires-fees="'1' if term.ems_requires_fees else '0'"
                                                                required="required"/>
                                                         <label class="form-check-label" t-att-for="'term_' + str(term.id)">
                                                             <t t-esc="term.name"/>
                                                         </label>
                                                     </div>
                                                 </t>
+                                            </div>
+
+                                            <!-- Deferred payment breakdown (shown when a requires-fees term is selected) -->
+                                            <div id="ems-installment-breakdown" class="mt-3 p-3 bg-light rounded" style="display:none;">
+                                                <p class="mb-2 fw-bold"><i class="fa fa-info-circle me-1 text-ems-primary"/>Payment schedule:</p>
+                                                <table class="table table-sm mb-0">
+                                                    <tr>
+                                                        <td>Payment 1 — 100% enrollment items + 50% fees</td>
+                                                        <td class="text-end fw-bold">
+                                                            <t t-esc="'%.2f €' % enrollment.ems_first_installment"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Payment 2 — 50% fees</td>
+                                                        <td class="text-end fw-bold">
+                                                            <t t-esc="'%.2f €' % enrollment.ems_second_installment"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
                                             </div>
                                         </div>
 
@@ -538,9 +558,19 @@
                                     });
                                 }
 
+                                function updateInstallmentBreakdown() {
+                                    var selected = document.querySelector('input[name="payment_term_id"]:checked');
+                                    var breakdown = document.getElementById('ems-installment-breakdown');
+                                    if (breakdown) {
+                                        breakdown.style.display = (selected &amp;&amp; selected.getAttribute('data-requires-fees') === '1') ? '' : 'none';
+                                    }
+                                }
+
                                 document.querySelectorAll('input[name="payment_term_id"]').forEach(function(r) {
                                     r.addEventListener('change', updateButtons);
+                                    r.addEventListener('change', updateInstallmentBreakdown);
                                 });
+                                updateInstallmentBreakdown();
                                 document.querySelectorAll('input[name="payment_method"]').forEach(function(r) {
                                     r.addEventListener('change', updateButtons);
                                 });

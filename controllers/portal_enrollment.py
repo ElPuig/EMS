@@ -62,7 +62,9 @@ class EMSPortalController(CustomerPortal):
         message_sent = request.session.pop('ems_message_sent', None)
         payment_terms = request.env['account.payment.term'].sudo().search([
             ('ems_portal_visible', '=', True)
-        ])
+        ]).filtered(
+            lambda t: not t.ems_requires_fees or (enrollment and enrollment.ems_has_fees)
+        )
 
         # IBAN del alumno: buscamos el documento aprobado más reciente
         # Umbral de validez: 30/09 del año de inicio del curso (última fecha de cobro)
@@ -372,6 +374,8 @@ class EMSPortalController(CustomerPortal):
             expiry = post.get('expiry_date', '').strip()
             if expiry:
                 vals['expiry_date'] = expiry
+            else:
+                vals['expiry_date'] = (date.today() + relativedelta(years=1)).isoformat()
         else:
             uploaded = request.httprequest.files.get('doc_file')
             if not uploaded or not uploaded.filename:
@@ -388,6 +392,44 @@ class EMSPortalController(CustomerPortal):
             return request.redirect(redirect_base + '?error=duplicate_pending')
 
         return request.redirect(redirect_base)
+
+    @http.route('/my/documentacion/renew-iban', type='http', auth='user', methods=['POST'], website=True)
+    def portal_documentation_renew_iban(self, **post):
+        partner = request.env.user.partner_id
+        student = partner.get_portal_student()
+        new_expiry = date.today() + relativedelta(years=1)
+
+        iban_doc = request.env['ems.student.document'].sudo().search([
+            ('partner_id', '=', student.id),
+            ('doc_type', '=', 'iban'),
+            ('status', '=', 'approved'),
+        ], order='upload_date desc', limit=1)
+
+        if iban_doc:
+            iban_doc.sudo().write({'expiry_date': new_expiry})
+            iban_doc.sudo().message_post(
+                body=Markup('<b>IBAN renewed by %s via portal.</b> New expiry: %s') % (
+                    escape(request.env.user.partner_id.name),
+                    new_expiry.strftime('%d/%m/%Y')
+                ),
+                message_type='comment',
+                subtype_xmlid='mail.mt_comment',
+            )
+        else:
+            # No document exists yet — create one from billing bank data (imported via CSV)
+            bank = student.bank_ids.filtered(lambda b: b.active)[:1]
+            if not bank:
+                return request.redirect('/my/documentacion')
+            request.env['ems.student.document'].sudo().create({
+                'partner_id': student.id,
+                'doc_type': 'iban',
+                'doc_value': bank.acc_number,
+                'doc_value2': bank.acc_holder_name or student.name,
+                'expiry_date': new_expiry,
+                'status': 'approved',
+            })
+
+        return request.redirect('/my/documentacion?renewed=1')
 
     @http.route('/my/documentacion/cancel/<int:doc_id>', type='http', auth='user', methods=['POST'], website=True)
     def portal_documentation_cancel(self, doc_id, **post):

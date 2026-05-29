@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0-20260131\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-28 21:16+0000\n"
-"PO-Revision-Date: 2026-05-28 21:16+0000\n"
+"POT-Creation-Date: 2026-05-29 08:51+0000\n"
+"PO-Revision-Date: 2026-05-29 08:51+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -366,8 +366,8 @@ msgid ""
 "<i class=\"fa fa-check-circle me-1\"/> Your bank account has been renewed "
 "for one more year."
 msgstr ""
-"<i class=\"fa fa-check-circle me-1\"/> El vostre compte bancari s'ha "
-"renovat per un any més."
+"<i class=\"fa fa-check-circle me-1\"/> El vostre compte bancari s'ha renovat"
+" per un any més."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -400,6 +400,13 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-check-circle\" style=\"color: #28a745; font-size: 1.4em; margin-right: 6px;\"/>\n"
 "                                                <strong style=\"color: #28a745;\">Acceptat</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid ""
+"<i class=\"fa fa-clock-o me-1\"/>\n"
+"                                            Pending review:"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
@@ -503,6 +510,11 @@ msgid "<i class=\"fa fa-pencil me-1\"/>Update billing account"
 msgstr "<i class=\"fa fa-pencil me-1\"/>Actualitzar compte bancari"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-plus me-1\"/>Submit new benefit / exemption"
+msgstr "<i class=\"fa fa-plus me-1\"/>Nova sol·licitud de bonificació / exempció"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid ""
 "<i class=\"fa fa-question-circle me-2 text-ems-primary\"/>\n"
@@ -533,6 +545,21 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "<i class=\"fa fa-refresh me-1\"/>Renew current account"
 msgstr "<i class=\"fa fa-refresh me-1\"/>Renovar compte actual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-star me-2\"/>Bonifications &amp; Exemptions"
+msgstr "<i class=\"fa fa-star me-2\"/>Bonificacions i exempcions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-star me-2\"/>Submit bonification / exemption"
+msgstr "<i class=\"fa fa-star me-2\"/>Sol·licitar bonificació / exempció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-times me-1\"/>Cancel"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
@@ -604,6 +631,11 @@ msgid ""
 msgstr ""
 "<i title=\"sping\" class=\"fa fa-circle-o-notch fa-spin me-2\"/> \n"
 "                        <strong>Processing!</strong> Estem enviant els canvis a la API externa; això pot trigar uns quants minuts..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<option value=\"\">— Select a type —</option>"
+msgstr "<option value=\"\">— Selecciona un tipus —</option>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
@@ -706,13 +738,11 @@ msgid ""
 "<span class=\"form-label small\">IBAN <span class=\"text-"
 "danger\">*</span></span>"
 msgstr ""
-"<span class=\"form-label small\">IBAN <span class=\"text-"
-"danger\">*</span></span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "<span class=\"form-label small\">IBAN</span>"
-msgstr "<span class=\"form-label small\">IBAN</span>"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
@@ -1762,6 +1792,21 @@ msgid "Basic Employee"
 msgstr "Empleat bàsic"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
+msgid "Benefit data"
+msgstr ""
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_document__benefit_type
+msgid "Benefit type"
+msgstr "Tipus de bonificació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "Benefit type <span class=\"text-danger\">*</span>"
+msgstr "Tipus de bonificació <span class=\"text-danger\">*</span>"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__benefit_status
 #: model:ir.model.fields,field_description:ems.field_res_users__benefit_status
 msgid "Benefits"
@@ -1816,6 +1861,11 @@ msgstr "Bonificació"
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_benefit__category__bonification
 msgid "Bonification (Partial)"
 msgstr "Bonificació (Parcial)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__benefit
+msgid "Bonification / Exemption"
+msgstr "Bonificació / Exempció"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -1892,6 +1942,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__category
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_form
 msgid "Category"
 msgstr "Categoria"
@@ -4825,6 +4876,11 @@ msgid "No active enrollment process found."
 msgstr "No s'ha trobat cap procés de matrícula actiu."
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "No bonifications or exemptions registered."
+msgstr "No hi ha bonificacions ni exempcions registrades."
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_communications
 msgid "No communications found."
 msgstr "No s'han trobat comunicacions."
@@ -5630,6 +5686,11 @@ msgid ""
 msgstr ""
 "Esborrar els destinataris, els eliminarà també (si cal) de les enquestes en "
 "què es troben. Aquesta acció no es pot desfer, vol continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "Renewal date"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__renewal_date
@@ -6694,6 +6755,11 @@ msgstr "Resum"
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__6
 msgid "Sunday"
 msgstr "Diumenge"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "Supporting document <span class=\"text-danger\">*</span>"
+msgstr "Document justificatiu <span class=\"text-danger\">*</span>"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__limesurvey_header_id

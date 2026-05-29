@@ -338,6 +338,10 @@ class EMSPortalController(CustomerPortal):
         submissions = request.env['ems.student.document'].sudo().search([
             ('partner_id', '=', student.id)
         ])
+        benefit_type_selection = request.env['ems.student.benefit'].fields_get(['benefit_type'])['benefit_type']['selection']
+        student_benefits = request.env['ems.student.benefit'].sudo().search([
+            ('student_id', '=', student.id)
+        ])
         bank = student.bank_ids.filtered(lambda b: b.active)[:1]
 
         values = self._prepare_portal_layout_values()
@@ -347,6 +351,8 @@ class EMSPortalController(CustomerPortal):
             'viewing_as_family': student != partner,
             'submissions': submissions,
             'current_bank': bank,
+            'benefit_types': benefit_type_selection,
+            'student_benefits': student_benefits,
             'page_name': 'documentation',
             'error': kwargs.get('error'),
         })
@@ -359,7 +365,7 @@ class EMSPortalController(CustomerPortal):
         redirect_base = '/my/documentacion'
 
         doc_type = post.get('doc_type', '').strip()
-        valid_types = {'dni', 'passport', 'medical', 'iban', 'other'}
+        valid_types = {'dni', 'passport', 'medical', 'iban', 'benefit', 'other'}
         if doc_type not in valid_types:
             return request.redirect(redirect_base + '?error=invalid_type')
 
@@ -376,6 +382,19 @@ class EMSPortalController(CustomerPortal):
                 vals['expiry_date'] = expiry
             else:
                 vals['expiry_date'] = (date.today() + relativedelta(years=1)).isoformat()
+        elif doc_type == 'benefit':
+            benefit_type_val = post.get('benefit_type', '').strip()
+            BenefitModel = request.env['ems.student.benefit']
+            valid_benefit_types_selection = BenefitModel.fields_get(['benefit_type'])['benefit_type']['selection']
+            valid_benefit_types = [k for k, _ in valid_benefit_types_selection]
+            if benefit_type_val not in valid_benefit_types:
+                return request.redirect(redirect_base + '?error=invalid_benefit_type')
+            uploaded = request.httprequest.files.get('doc_file')
+            if not uploaded or not uploaded.filename:
+                return request.redirect(redirect_base + '?error=missing_file')
+            vals['benefit_type'] = benefit_type_val
+            vals['doc_file']     = base64.b64encode(uploaded.read())
+            vals['doc_file_name'] = uploaded.filename
         else:
             uploaded = request.httprequest.files.get('doc_file')
             if not uploaded or not uploaded.filename:

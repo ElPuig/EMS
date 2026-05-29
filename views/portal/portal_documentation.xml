@@ -260,6 +260,106 @@
                             </div>
                         </t>
 
+                        <!-- Bonifications & Exemptions -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-ems-primary text-white">
+                                <i class="fa fa-star me-2"/>Bonifications &amp; Exemptions
+                            </div>
+                            <div class="card-body">
+                                <t t-set="pending_benefits" t-value="submissions.filtered(lambda s: s.doc_type == 'benefit' and s.status == 'pending')"/>
+
+                                <!-- Approved benefits list -->
+                                <t t-if="student_benefits">
+                                    <table class="table table-sm mb-3">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>Category</th>
+                                                <th>Renewal date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="student_benefits" t-as="ben">
+                                                <tr t-attf-class="#{'table-info' if ben.category == 'bonification' else 'table-success'}">
+                                                    <td><t t-esc="dict(benefit_types).get(ben.benefit_type, ben.benefit_type)"/></td>
+                                                    <td><t t-esc="dict(ben._fields['category'].selection).get(ben.category, ben.category)"/></td>
+                                                    <td>
+                                                        <t t-if="ben.renewal_date">
+                                                            <t t-esc="ben.renewal_date" t-options='{"widget": "date"}'/>
+                                                        </t>
+                                                        <t t-else="">—</t>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </t>
+                                <t t-if="not student_benefits">
+                                    <p class="text-muted mb-3">No bonifications or exemptions registered.</p>
+                                </t>
+
+                                <!-- Pending benefit submissions -->
+                                <t t-foreach="pending_benefits" t-as="pb">
+                                    <div class="alert alert-warning py-2 d-flex align-items-center justify-content-between mb-2">
+                                        <span>
+                                            <i class="fa fa-clock-o me-1"/>
+                                            Pending review:
+                                            <strong><t t-esc="dict(benefit_types).get(pb.benefit_type, pb.benefit_type) if pb.benefit_type else pb.doc_type"/></strong>
+                                        </span>
+                                        <form t-attf-action="/my/documentacion/cancel/#{pb.id}" method="post" class="ms-3 mb-0">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fa fa-times me-1"/>Cancel
+                                            </button>
+                                        </form>
+                                    </div>
+                                </t>
+
+                                <!-- Submit button -->
+                                <button type="button" class="btn btn-outline-primary btn-sm"
+                                        data-bs-toggle="modal" data-bs-target="#modal-submit-benefit">
+                                    <i class="fa fa-plus me-1"/>Submit new benefit / exemption
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Modal: submit benefit -->
+                        <div id="modal-submit-benefit" class="modal fade" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="fa fa-star me-2"/>Submit bonification / exemption</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"/>
+                                    </div>
+                                    <form action="/my/documentacion/submit" method="post" enctype="multipart/form-data">
+                                        <div class="modal-body">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                            <input type="hidden" name="doc_type" value="benefit"/>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Benefit type <span class="text-danger">*</span></label>
+                                                <select name="benefit_type" class="form-select" required="required">
+                                                    <option value="">— Select a type —</option>
+                                                    <t t-foreach="benefit_types" t-as="bt">
+                                                        <option t-att-value="bt[0]"><t t-esc="bt[1]"/></option>
+                                                    </t>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Supporting document <span class="text-danger">*</span></label>
+                                                <p class="text-muted small">Upload a scan or photo (PDF, JPG, PNG).</p>
+                                                <input type="file" name="doc_file" class="form-control"
+                                                       accept=".pdf,.jpg,.jpeg,.png" required="required"/>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary"><i class="fa fa-upload me-1"/>Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Submission history -->
                         <t t-if="submissions">
                             <div class="card shadow-sm mb-4">

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0-20260131\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-29 08:51+0000\n"
-"PO-Revision-Date: 2026-05-29 08:51+0000\n"
+"POT-Creation-Date: 2026-05-29 16:45+0000\n"
+"PO-Revision-Date: 2026-05-29 16:45+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -442,11 +442,6 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<i class=\"fa fa-exchange me-1\"/>Bank transfer"
-msgstr "<i class=\"fa fa-exchange me-1\"/>Transferència bancària"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid ""
 "<i class=\"fa fa-exclamation-triangle me-1\"/>\n"
 "                                                        No bank account registered. Please"
@@ -499,10 +494,12 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<i class=\"fa fa-info-circle me-1 text-ems-primary\"/>Transfer details:"
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>\n"
+"                                                The payment method is direct debit. If you have difficulties providing a bank account for the payment of the enrollment, please contact the"
 msgstr ""
-"<i class=\"fa fa-info-circle me-1 text-ems-primary\"/>Dades de "
-"transferència:"
+"<i class=\"fa fa-info-circle me-1\"/>\n"
+"                                                El mètode de pagament és la domiciliació bancària. Si teniu dificultats per proporcionar un compte bancari per al pagament de la matrícula, poseu-vos en contacte amb"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
@@ -808,7 +805,6 @@ msgstr "<strong>Titular: </strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<strong>Account holder: </strong>Institut Puig Castellar"
 msgstr "<strong>Titular: </strong>Institut Puig Castellar"
 
@@ -845,7 +841,6 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000"
 msgstr ""
 
@@ -886,7 +881,6 @@ msgstr "<strong>Sense implementar!</strong> Arribarà en breu..."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<strong>Reference: </strong>"
 msgstr "<strong>Referència: </strong>"
 
@@ -5955,6 +5949,11 @@ msgstr "Viatges acadèmics"
 #: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__sc
 msgid "School Council"
 msgstr "Consell Escolar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "School Secretary"
+msgstr "la Secretaria del centre"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form

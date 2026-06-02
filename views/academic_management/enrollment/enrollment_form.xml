@@ -35,7 +35,9 @@
             </xpath>
             <xpath expr="//field[@name='payment_term_id']" position="before">
                 <field name="shift" required="1" options="{'no_create': True}"/>
-                <field name="ems_payment_method" groups="ems.group_secretary,ems.group_admin"/>
+            </xpath>
+            <xpath expr="//field[@name='payment_term_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//group[@name='order_details']" position="inside">
                 <field name="ems_course_id" required="1" options="{'no_create': True, 'no_open': True}"/>
@@ -142,6 +144,31 @@
                             <field name="template_download_url" widget="url" text="Link" string="Plantilla" readonly="1"/>
                         </list>
                     </field>
+                </page>
+            </xpath>
+
+            <xpath expr="//page[@name='ems_authorizations']" position="after">
+                <page string="Payment" name="ems_payment" groups="ems.group_secretary,ems.group_admin">
+                    <group>
+                        <group string="Payment plan">
+                            <field name="payment_term_id" options="{'no_create': True}"/>
+                            <field name="ems_payment_method"/>
+                        </group>
+                        <group string="Payment breakdown" invisible="not ems_has_fees">
+                            <field name="ems_has_fees" invisible="1"/>
+                            <label for="amount_total" string="Total Amount" class="o_form_label fw-bold"/>
+                            <field name="amount_total" readonly="1" nolabel="1"/>
+                            <label for="ems_fee_amount" string="↳ Fee amount" class="o_form_label"/>
+                            <field name="ems_fee_amount" readonly="1" nolabel="1"/>
+                            <label for="ems_non_fee_amount" string="↳ Other enrollment concepts" class="o_form_label"/>
+                            <field name="ems_non_fee_amount" readonly="1" nolabel="1"/>
+                            <separator/>
+                            <label for="ems_first_installment" string="First Payment" class="o_form_label fw-bold"/>
+                            <field name="ems_first_installment" readonly="1" nolabel="1"/>
+                            <label for="ems_second_installment" string="Second Payment" class="o_form_label fw-bold"/>
+                            <field name="ems_second_installment" readonly="1" nolabel="1"/>
+                        </group>
+                    </group>
                 </page>
             </xpath>
 

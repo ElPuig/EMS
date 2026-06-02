@@ -184,6 +184,14 @@
                             invisible="state != 'closed'"
                         />
 
+                        <button string="Get CSV"
+                            name="action_get_csv"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-file-text-o"
+                            invisible="state != 'closed' or not csv_data"
+                        />
+
                         <!-- REOPENING -->
                         <button string="Re-open surveys"
                             disabled="True"
@@ -203,24 +211,24 @@
                             invisible="state != 'reopening'"
                         />
 
-                        <!-- DOWNLOADING -->   
-                        <!-- <button string="Open surveys"  
+                        <!-- DOWNLOADING -->
+                        <button string="Re-open surveys"
                             disabled="True"
-                            name="action_none"                             
-                            type="object" 
-                            class="oe_highlight" 
-                            icon="fa-envelope "
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-play"
                             invisible="state != 'downloading'"
                         />
 
-                        <button string="Download data" 
+                        <button string="Download data"
                             disabled="True"
-                            name="action_none"                                 
-                            type="object" 
-                            class="oe_highlight" 
-                            icon="fa-cloud-download"
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-download"
                             invisible="state != 'downloading'"
-                        />      -->
+                        />
 
                         <!-- DOWNLOADED -->   
                         <!-- <button string="Return to draft"   
@@ -231,9 +239,10 @@
                             invisible="state != 'downloaded'"
                         />        -->
 
-                        <field name="state" widget="statusbar" statusbar_visible="draft,computed,uploaded,open,closed,downloaded"/>                       
+                        <field name="state" widget="statusbar" statusbar_visible="draft,computed,uploaded,open,closed"/>                       
                     </header>
                     <sheet>
+                        <field name="csv_data" invisible="True"/>
                         <group string="Main data" col="4">
                             <group>
                                 <field name="name"/>

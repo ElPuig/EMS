@@ -148,41 +148,60 @@
                             invisible="state != 'reminding'"
                         />
 
-                        <!-- CLOSING -->        
-                        <!-- <button string="Send reminders" 
+                        <!-- CLOSING -->
+                        <button string="Send reminders"
                             disabled="True"
-                            name="action_remind"                                 
-                            type="object" 
-                            class="oe_highlight" 
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
                             icon="fa-bell"
                             invisible="state != 'closing'"
                         />
 
-                        <button string="Close surveys"   
+                        <button string="Close surveys"
                             disabled="True"
-                            name="action_none"                               
-                            type="object" 
-                            class="oe_highlight" 
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
                             icon="fa-stop"
                             invisible="state != 'closing'"
-                        />   -->
+                        />
 
-                        <!-- CLOSED -->   
-                        <!-- <button string="Open surveys"  
-                            name="action_none"                             
-                            type="object" 
-                            class="oe_highlight" 
-                            icon="fa-envelope "
+                        <!-- CLOSED -->
+                        <button string="Re-open surveys"
+                            name="action_reopen"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-play"
                             invisible="state != 'closed'"
                         />
 
-                        <button string="Download data" 
-                            name="action_none"                                 
-                            type="object" 
-                            class="oe_highlight" 
-                            icon="fa-cloud-download"
+                        <button string="Download data"
+                            name="action_download"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-download"
                             invisible="state != 'closed'"
-                        />     -->
+                        />
+
+                        <!-- REOPENING -->
+                        <button string="Re-open surveys"
+                            disabled="True"
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-play"
+                            invisible="state != 'reopening'"
+                        />
+
+                        <button string="Download data"
+                            disabled="True"
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-download"
+                            invisible="state != 'reopening'"
+                        />
 
                         <!-- DOWNLOADING -->   
                         <!-- <button string="Open surveys"  

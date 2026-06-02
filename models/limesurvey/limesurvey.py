@@ -109,6 +109,16 @@ def do_close_survey(ls_api, survey):
 	def code():
 		sid = survey["external_id"]
 		ls_api.deactivate_survey(sid)
+		for rec in survey["recipients"]:
+			rec["error"] = None
+	return _do(survey, code)
+
+def do_reopen_survey(ls_api, survey):
+	def code():
+		sid = survey["external_id"]
+		ls_api.reactivate_survey(sid)
+		for rec in survey["recipients"]:
+			rec["error"] = None
 	return _do(survey, code)
 
 def do_send_invitations(ls_api, survey):
@@ -430,6 +440,15 @@ class limesurvey_api():
 		except Exception as e:
 			raise Exception(f"{error}: {e}")
 
+	def reactivate_survey(self, survey_id):
+		error = _("Unable to reactivate the survey")
+		try:
+			result = self._run_api_request("set_survey_properties", [survey_id, {"expires": None}])
+			if not isinstance(result, dict) or not result.get("expires"):
+				raise Exception(f"{error}: {result}")
+		except Exception as e:
+			raise Exception(f"{error}: {e}")
+
 	def invite_participants(self, survey_id):
 		error = _("Unable to invite some participants")		
 		try:
@@ -542,6 +561,7 @@ class ems_limesurvey_header(models.Model):
 		('reminding', 'Sending reminders'),
         ('closing', 'Closing surveys'),
 		('closed', 'Surveys closed'),
+		('reopening', 'Re-opening surveys'),
 		('downloading', 'Downloading surveys'),
 		('downloaded', 'Data downloaded')
     ], default='draft', tracking=True)
@@ -663,6 +683,23 @@ class ems_limesurvey_header(models.Model):
 					if not success: persistent_data["error"] = _("Something failed when trying to close a survey, please check the recipient entries for more details.")
 				persistent_data["success"] = success
 		return run_action(self, _("LimeSurvey: close surveys"), _("Close"), "closing", "closed", "open", compute, persistent_data)
+
+	def action_reopen(self):
+		persistent_data = {}
+		def compute():
+			success = persistent_data["success"]
+			if success:
+				for key in persistent_data["surveys"]:
+					ls_api = persistent_data["ls_api"]
+					survey = persistent_data["surveys"][key]
+					success = success and do_reopen_survey(ls_api, survey)
+					if not success: persistent_data["error"] = _("Something failed when trying to reopen a survey, please check the recipient entries for more details.")
+				persistent_data["success"] = success
+		return run_action(self, _("LimeSurvey: reopen surveys"), _("Reopen"), "reopening", "open", "closed", compute, persistent_data)
+
+	def action_download(self):
+		self.notify("Not implemented", "Coming soon...", "danger")
+		return False
 
 	def action_remind(self):
 		persistent_data = {}		

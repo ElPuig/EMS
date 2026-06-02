@@ -1200,7 +1200,7 @@ msgstr "Estudis permesos"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__allowed_subject_ids
 msgid "Allowed Subject"
-msgstr "Matèries permeses"
+msgstr "Assignatures permeses"
 
 #. module: ems
 #. odoo-python
@@ -3788,7 +3788,7 @@ msgstr "Estudiant en ús"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__inuse_subject_ids
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__inuse_subject_ids
 msgid "Inuse Subject"
-msgstr "Matèria en ús"
+msgstr "Assignatura en ús"
 
 #. module: ems
 #. odoo-python
@@ -6498,7 +6498,7 @@ msgstr "Assignatura: L'element principal de l'assignatura d'un estudiant."
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_study_form
 msgid "Subjects"
-msgstr "Matèrias"
+msgstr "Assignatures"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search
@@ -6745,7 +6745,7 @@ msgstr ""
 msgid ""
 "The current subject assignations will be updated to match the new schedules."
 msgstr ""
-"L'assignació de matèries del professorat s'actualitzarà per a conincidir amb"
+"L'assignació de assignatures del professorat s'actualitzarà per a conincidir amb"
 " els nous horaris aportats."
 
 #. module: ems
@@ -6855,7 +6855,7 @@ msgstr "Aquesta autorització ja està sol·licitada en aquesta matrícula."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "This block will be generated once per enrollred subject."
-msgstr "Aquest bloc es generarà una vegada per cada matèria matriculada."
+msgstr "Aquest bloc es generarà una vegada per cada assignatura matriculada."
 "Aquest bloc es repetirà per cada assignatura matriculada per l'estudiant."
 
 #. module: ems
@@ -7139,7 +7139,7 @@ msgstr "Unipersonal"
 #: model:ir.model.fields,help:ems.field_product_product__ems_subject_unit_cost
 #: model:ir.model.fields,help:ems.field_product_template__ems_subject_unit_cost
 msgid "Unit cost per subject (e.g. 65.00) used for fee calculation."
-msgstr "Cost unitari per matèria (p. ex. 65,00) per al càlcul de taxes."
+msgstr "Cost unitari per assignatura (p. ex. 65,00) per al càlcul de taxes."
 "Cost unitari per assignatura (p.ex. 65,00) usat per al càlcul de taxes."
 
 #. module: ems
@@ -7595,7 +7595,7 @@ msgstr "espai"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_subject_form
 msgid "subject"
-msgstr "matèria"
+msgstr "assignatura"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process

@@ -98,12 +98,18 @@ def do_upload_recipients(ls_api, survey):
 		return success		
 	return _do(survey, code)	
 
-def do_open_survey(ls_api, survey):	
+def do_open_survey(ls_api, survey):
 	def code():
-		sid = survey["external_id"]		
+		sid = survey["external_id"]
 		ls_api.activate_survey(sid)
 		ls_api.invite_participants(sid)
-	return _do(survey, code)		
+	return _do(survey, code)
+
+def do_close_survey(ls_api, survey):
+	def code():
+		sid = survey["external_id"]
+		ls_api.deactivate_survey(sid)
+	return _do(survey, code)
 
 def do_send_invitations(ls_api, survey):
 	def code():		
@@ -406,15 +412,24 @@ class limesurvey_api():
 	def activate_survey(self, survey_id):
 		error = _("Unable to activate the survey")
 		try:
-			self._run_api_request("set_survey_properties", [survey_id,  {"expires": None, "startdate": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])		
-			result  = self._run_api_request("activate_survey", [survey_id])	
+			self._run_api_request("set_survey_properties", [survey_id,  {"expires": None, "startdate": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])
+			result  = self._run_api_request("activate_survey", [survey_id])
 			if "status" not in result:
 				raise Exception(f"{error}: {result}")
 			if "status" in result and result["status"] not in ("OK", "Error: Survey already active"):
-				raise Exception(f"{error}: {result['status']}")			
-		except Exception as e: 			
+				raise Exception(f"{error}: {result['status']}")
+		except Exception as e:
 			raise Exception(f"{error}: {e}")
-		
+
+	def deactivate_survey(self, survey_id):
+		error = _("Unable to deactivate the survey")
+		try:
+			result = self._run_api_request("set_survey_properties", [survey_id, {"expires": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])
+			if not isinstance(result, dict) or not result.get("expires"):
+				raise Exception(f"{error}: {result}")
+		except Exception as e:
+			raise Exception(f"{error}: {e}")
+
 	def invite_participants(self, survey_id):
 		error = _("Unable to invite some participants")		
 		try:
@@ -636,9 +651,18 @@ class ems_limesurvey_header(models.Model):
 				persistent_data["success"] = success		
 		return run_action(self, _("LimeSurvey: open surveys"), _("Open"), "opening", "open", "uploaded", compute, persistent_data)				
 
-	def action_close(self):		
-		self.notify("Not implemented", "Comming soon...", "danger")
-		return False
+	def action_close(self):
+		persistent_data = {}
+		def compute():
+			success = persistent_data["success"]
+			if success:
+				for key in persistent_data["surveys"]:
+					ls_api = persistent_data["ls_api"]
+					survey = persistent_data["surveys"][key]
+					success = success and do_close_survey(ls_api, survey)
+					if not success: persistent_data["error"] = _("Something failed when trying to close a survey, please check the recipient entries for more details.")
+				persistent_data["success"] = success
+		return run_action(self, _("LimeSurvey: close surveys"), _("Close"), "closing", "closed", "open", compute, persistent_data)
 
 	def action_remind(self):
 		persistent_data = {}		

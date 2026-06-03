@@ -282,6 +282,12 @@ class ems_contact(models.Model):
         contact = super(ems_contact, self).create(values)
         contact._sync_category()
 
+        # Google Workspace: enqueue account creation for brand-new students without
+        # a corporate email yet (skips CSV imports of existing students that already have one).
+        # Google Workspace: enqueue account creation only when the student has all
+        # the required data (covers mass imports created with full data at once).
+        contact._gw_enqueue_if_ready()
+
         return contact
 
     def write(self, values):
@@ -291,6 +297,10 @@ class ems_contact(models.Model):
         contact = super(ems_contact, self).write(values)
         if 'contact_type' in values:
             self._sync_category()
+
+        # Google Workspace: with form autosave the student is created with partial
+        # data; enqueue once the required fields are completed (deduplicated).
+        self._gw_enqueue_if_ready()
 
         return contact
 

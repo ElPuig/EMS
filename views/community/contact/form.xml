@@ -5,9 +5,19 @@
             <field name="model">res.partner</field>            
             <field name="inherit_id" ref="base.view_partner_form"/> 
             <field name="arch" type="xml">  
-                <xpath expr="//form" position="attributes">                      
-                    <attribute name="js_class">studentpopup_expand_button</attribute>                    
-                </xpath>     
+                <xpath expr="//form" position="attributes">
+                    <attribute name="js_class">studentpopup_expand_button</attribute>
+                </xpath>
+
+                <xpath expr="//sheet" position="before">
+                    <header>
+                        <button name="action_create_google_account" type="object"
+                                string="Create Google account"
+                                class="btn-secondary"
+                                invisible="contact_type != 'student' or student_email"
+                                groups="ems.group_secretary,ems.group_admin"/>
+                    </header>
+                </xpath>
 
                 <xpath expr="//field[@name='name'][last()]" position="attributes">
                     <attribute name="readonly">read_only_user</attribute>

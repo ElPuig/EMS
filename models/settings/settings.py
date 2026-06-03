@@ -21,6 +21,13 @@ class ems_settings(models.TransientModel):
    limesurvey_pwd = fields.Char(related="company_id.limesurvey_pwd", readonly=False)
    limesurvey_gid = fields.Integer(related="company_id.limesurvey_gid", readonly=False)
 
+   google_ws_enabled  = fields.Boolean(related="company_id.google_ws_enabled", readonly=False)
+   google_ws_domain   = fields.Char(related="company_id.google_ws_domain", readonly=False)
+   google_ws_ou_minor = fields.Char(related="company_id.google_ws_ou_minor", readonly=False)
+   google_ws_ou_adult = fields.Char(related="company_id.google_ws_ou_adult", readonly=False)
+   google_ws_dry_run  = fields.Boolean(related="company_id.google_ws_dry_run", readonly=False)
+   google_ws_sa_json  = fields.Text(related="company_id.google_ws_sa_json", readonly=False)
+
    def set_values(self):
       super().set_values()
       if self.auto_checkout_mode != 'ems':

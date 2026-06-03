@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import base64
 from odoo import http
-from odoo.http import request
+from odoo.http import request, content_disposition
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
@@ -461,3 +461,21 @@ class EMSPortalController(CustomerPortal):
 
         doc.action_cancel()
         return request.redirect('/my/documentacion')
+
+    @http.route('/my/documentacion/download/<int:doc_id>', type='http', auth='user', website=True)
+    def portal_documentation_download(self, doc_id, **kw):
+        partner = request.env.user.partner_id
+        students = partner.get_portal_students()
+        doc = request.env['ems.student.document'].sudo().browse(doc_id)
+        # Only allow downloading documents that belong to one of the portal user's
+        # students and that actually have a file attached.
+        if not doc.exists() or doc.partner_id not in students or not doc.doc_file:
+            return request.redirect('/my/documentacion')
+        filename = doc.doc_file_name or ('document_%s.pdf' % doc.id)
+        return request.make_response(
+            base64.b64decode(doc.doc_file),
+            headers=[
+                ('Content-Type', 'application/octet-stream'),
+                ('Content-Disposition', content_disposition(filename)),
+            ],
+        )

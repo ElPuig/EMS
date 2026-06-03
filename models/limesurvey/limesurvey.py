@@ -368,14 +368,15 @@ def _build_csv(env, all_responses):
 	writer = csv.writer(output)
 	writer.writerow(["evaluation_id", "timestamp", "year", "level", "department", "degree", "group", "subject_code", "subject_name", "trainer", "topic", "question_sort", "question_type", "value"])
 
+	evaluation_id = 0
 	for response in all_responses:
-		evaluation_id = response.get("id", "")
 		timestamp = response.get("submitdate", "")
 
 		prefixes = [re.match(r'^([A-Z]+\d*)level$', k).group(1)
 					for k in response if re.match(r'^([A-Z]+\d*)level$', k)]
 
 		for prefix in prefixes:
+			evaluation_id += 1
 			level        = response.get(f"{prefix}level", "")
 			topic        = response.get(f"{prefix}topic", "")
 			subject_code = response.get(f"{prefix}subjectcode", "")

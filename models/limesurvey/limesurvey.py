@@ -3,7 +3,7 @@
 import requests, json, html, re, base64, time, traceback, io, csv
 from datetime import datetime
 from odoo import models, fields, api, Command, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, RedirectWarning
 
 # TO CLEAN THE BBDD DURING TESTING
 # delete from ems_limesurvey_recipient;
@@ -1002,6 +1002,49 @@ class ems_limesurvey_header(models.Model):
 					ids.append(grp.id)
 			rec.group_ids = [Command.set(ids)]
 	# endregion
+
+	# region DELETE
+	def unlink(self):
+		allowed = ('draft', 'computed', 'uploaded', 'closed')
+		blocked = self.filtered(lambda h: h.state not in allowed)
+		if blocked:
+			raise UserError(_(
+				"Cannot delete this survey in its current state. "
+				"Only surveys in 'Draft', 'Recipients computed', or 'Closed' state can be deleted. "
+				"If the survey is active or in progress, please close it first."
+			))
+
+		closed_no_flag = self.filtered(
+			lambda h: h.state == 'closed' and not self.env.context.get('force_delete_closed')
+		)
+		if closed_no_flag:
+			action = self.env.ref('ems.action_limesurvey_delete_closed_confirmed')
+			raise RedirectWarning(
+				_(
+					"This survey is CLOSED.\n\n"
+					"Deleting it will also permanently delete it from LimeSurvey. "
+					"If the response data has NOT been downloaded yet, "
+					"it will be lost FOREVER and cannot be recovered.\n\n"
+					"Are you sure you want to delete it?"
+				),
+				action.id,
+				_("Yes, delete permanently"),
+				{'active_ids': self.ids, 'active_model': 'ems.limesurvey_header'},
+			)
+
+		ls_api = None
+		for header in self:
+			ext_ids = {r.external_id for r in header.limesurvey_recipient_ids if r.external_id}
+			if ext_ids:
+				if ls_api is None:
+					ls_api = limesurvey_api(self.env)
+				for ext_id in ext_ids:
+					ls_api.delete_survey(ext_id)
+
+		self.mapped('limesurvey_recipient_ids').unlink()
+		return super().unlink()
+	# endregion
+
 class ems_limesurvey_block(models.Model):
 	_name = "ems.limesurvey_block"
 	_description = "LimeSurvey block: contains the main data about a LimeSurvey's session block."

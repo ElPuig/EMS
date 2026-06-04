@@ -23,7 +23,7 @@
                         />                      
 
                         <!-- COMPUTED -->
-                        <button string="Return to draft" 
+                        <button string="Return to draft"
                             name="action_draft"                                 
                             type="object" 
                             class="oe_highlight" 
@@ -40,10 +40,10 @@
                             invisible="state != 'computed'"
                         />
 
-                        <button string="Upload surveys" 
-                            name="action_upload"                                 
-                            type="object" 
-                            class="oe_highlight" 
+                        <button string="Upload surveys"
+                            name="action_upload"
+                            type="object"
+                            class="oe_highlight"
                             icon="fa-cloud-upload"
                             invisible="state != 'computed'"
                         />

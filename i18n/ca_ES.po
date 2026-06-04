@@ -7978,3 +7978,28 @@ msgstr "Contrasenya temporal"
 #: model:mail.template,subject:ems.mail_template_google_welcome
 msgid "Your corporate account @elpuig.xeill.net"
 msgstr "El teu compte corporatiu @elpuig.xeill.net"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for suspended students"
+msgstr "OU per a alumnes donats de baixa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Organizational Unit path where suspended (former) students are moved. Must be inside the students OU so the service account can manage it."
+msgstr "Ruta de la unitat organitzativa on es mouen els alumnes donats de baixa. Ha d'estar dins de la unitat dels alumnes perquè el compte de servei la pugui gestionar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Suspend Google account"
+msgstr "Suspendre compte de Google"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Reactivate Google account"
+msgstr "Reactivar compte de Google"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_suspended
+msgid "Google account suspended"
+msgstr "Compte de Google suspès"

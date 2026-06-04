@@ -82,6 +82,10 @@
                                 <field name="google_ws_ou_adult"/>
                             </setting>
 
+                            <setting string="OU for suspended students" help="Organizational Unit path where suspended (former) students are moved. Must be inside the students OU so the service account can manage it." id="google_ws_ou_suspended">
+                                <field name="google_ws_ou_suspended"/>
+                            </setting>
+
                             <setting string="Service Account JSON" help="Paste here the full JSON key of the Google Cloud service account. It is stored encrypted. The service account must have a custom admin role scoped to the students OU." id="google_ws_sa_json">
                                 <field name="google_ws_sa_json" widget="text" placeholder='{ "type": "service_account", ... }'/>
                             </setting>

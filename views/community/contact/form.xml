@@ -11,10 +11,21 @@
 
                 <xpath expr="//sheet" position="before">
                     <header>
+                        <field name="google_ws_suspended" invisible="1"/>
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
                                 class="btn-secondary"
                                 invisible="contact_type != 'student' or student_email"
+                                groups="ems.group_secretary,ems.group_admin"/>
+                        <button name="action_suspend_google_account" type="object"
+                                string="Suspend Google account"
+                                class="btn-secondary"
+                                invisible="contact_type != 'student' or not student_email or google_ws_suspended"
+                                groups="ems.group_secretary,ems.group_admin"/>
+                        <button name="action_reactivate_google_account" type="object"
+                                string="Reactivate Google account"
+                                class="btn-secondary"
+                                invisible="contact_type != 'student' or not student_email or not google_ws_suspended"
                                 groups="ems.group_secretary,ems.group_admin"/>
                     </header>
                 </xpath>

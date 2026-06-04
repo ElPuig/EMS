@@ -35,6 +35,10 @@ GW_SCOPES = ['https://www.googleapis.com/auth/admin.directory.user']
 class ResPartnerGoogleWorkspace(models.Model):
     _inherit = 'res.partner'
 
+    google_ws_suspended = fields.Boolean(
+        string="Google account suspended", default=False, copy=False,
+        help="True when the student's Google Workspace account is suspended (former student).")
+
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
@@ -192,6 +196,30 @@ class ResPartnerGoogleWorkspace(models.Model):
                     description="Create Google Workspace account: %s" % rec.name,
                 ).action_create_google_account()
 
+    def _gw_enqueue_suspend(self):
+        """Enqueue account suspension for students with a corporate email (deduplicated)."""
+        if not self.env.company.google_ws_enabled:
+            return
+        for rec in self.filtered(
+            lambda r: r.contact_type == 'student' and r.student_email and not r.google_ws_suspended
+        ):
+            rec.with_delay(
+                identity_key='gw_suspend_%s' % rec.id,
+                description="Suspend Google Workspace account: %s" % rec.name,
+            ).action_suspend_google_account()
+
+    def _gw_enqueue_reactivate(self):
+        """Enqueue account reactivation for students with a corporate email (deduplicated)."""
+        if not self.env.company.google_ws_enabled:
+            return
+        for rec in self.filtered(
+            lambda r: r.contact_type == 'student' and r.student_email
+        ):
+            rec.with_delay(
+                identity_key='gw_reactivate_%s' % rec.id,
+                description="Reactivate Google Workspace account: %s" % rec.name,
+            ).action_reactivate_google_account()
+
     # ------------------------------------------------------------------
     # Main action (queue_job target / manual button)
     # ------------------------------------------------------------------
@@ -324,3 +352,96 @@ class ResPartnerGoogleWorkspace(models.Model):
                 ).send_mail(self.id, force_send=True)
                 emailed = True
         return pdf_saved, emailed
+
+    # ------------------------------------------------------------------
+    # Deactivation / reactivation (former students)
+    # ------------------------------------------------------------------
+    def action_suspend_google_account(self):
+        """Suspend the student's Google account and move it to the suspended OU.
+
+        Triggered when a student is archived. Idempotent.
+        """
+        self.ensure_one()
+        company = self.env.company
+        if not company.google_ws_enabled:
+            return
+        if self.contact_type != 'student' or not self.student_email:
+            return
+        if self.google_ws_suspended:
+            return
+
+        ou = company.google_ws_ou_suspended or '/alumnos/bajas'
+        if company.google_ws_dry_run:
+            _logger.info("[GW dry-run] suspend %s -> suspended=True, OU=%s", self.student_email, ou)
+        else:
+            service = self._gw_get_service()
+            try:
+                service.users().patch(
+                    userKey=self.student_email,
+                    body={'suspended': True, 'orgUnitPath': ou},
+                ).execute()
+            except HttpError as e:
+                status = getattr(getattr(e, 'resp', None), 'status', None)
+                if status in (404, 403):
+                    # Account no longer exists in Google: nothing to suspend.
+                    self.sudo().google_ws_suspended = True
+                    self.message_post(body=_(
+                        "Google Workspace: account %s no longer exists; marked as suspended.")
+                        % self.student_email)
+                    return
+                _logger.exception("Could not suspend Google account for %s", self.name)
+                self.message_post(body=_(
+                    "Google Workspace: could not suspend %(email)s. Check that the OU "
+                    "%(ou)s exists in Admin. Error: %(err)s") % {
+                        'email': self.student_email, 'ou': ou, 'err': str(e)[:200]})
+                raise
+
+        self.sudo().google_ws_suspended = True
+        self.message_post(body=_(
+            "Google Workspace account suspended: %(email)s (moved to OU %(ou)s)%(dry)s.") % {
+                'email': self.student_email, 'ou': ou,
+                'dry': _(" [dry-run]") if company.google_ws_dry_run else ''})
+
+    def action_reactivate_google_account(self):
+        """Reactivate a suspended account; if it was deleted in Admin, recreate it.
+
+        Triggered when a former student is unarchived. Idempotent.
+        """
+        self.ensure_one()
+        company = self.env.company
+        if not company.google_ws_enabled:
+            return
+        if self.contact_type != 'student' or not self.student_email:
+            return
+
+        ou = company.google_ws_ou_adult if self.is_adult else company.google_ws_ou_minor
+        if company.google_ws_dry_run:
+            _logger.info("[GW dry-run] reactivate %s -> suspended=False, OU=%s", self.student_email, ou)
+            self.sudo().google_ws_suspended = False
+            self.message_post(body=_(
+                "Google Workspace account reactivated: %s [dry-run].") % self.student_email)
+            return
+
+        service = self._gw_get_service()
+        try:
+            service.users().patch(
+                userKey=self.student_email,
+                body={'suspended': False, 'orgUnitPath': ou},
+            ).execute()
+        except HttpError as e:
+            status = getattr(getattr(e, 'resp', None), 'status', None)
+            if status in (404, 403):
+                # The account was deleted in Admin: recreate it from scratch.
+                self.message_post(body=_(
+                    "Google Workspace: account %s no longer exists; recreating it.")
+                    % self.student_email)
+                self.sudo().write({'student_email': False, 'google_ws_suspended': False})
+                self.action_create_google_account()
+                return
+            _logger.exception("Could not reactivate Google account for %s", self.name)
+            raise
+
+        self.sudo().google_ws_suspended = False
+        self.message_post(body=_(
+            "Google Workspace account reactivated: %(email)s (moved to OU %(ou)s).") % {
+                'email': self.student_email, 'ou': ou})

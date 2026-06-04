@@ -302,6 +302,13 @@ class ems_contact(models.Model):
         # data; enqueue once the required fields are completed (deduplicated).
         self._gw_enqueue_if_ready()
 
+        # Google Workspace: archive -> suspend account; unarchive -> reactivate.
+        if 'active' in values:
+            if values['active']:
+                self._gw_enqueue_reactivate()
+            else:
+                self._gw_enqueue_suspend()
+
         return contact
 
     def _sync_category(self):

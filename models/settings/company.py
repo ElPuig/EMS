@@ -45,6 +45,8 @@ class ems_company(models.Model):
     google_ws_domain        = fields.Char(string="Google Workspace domain", default='elpuig.xeill.net')
     google_ws_ou_minor      = fields.Char(string="OU (minors)", default='/alumnos')
     google_ws_ou_adult      = fields.Char(string="OU (adults 18+)", default='/alumnos/+18')
+    google_ws_ou_suspended  = fields.Char(string="OU (suspended)", default='/alumnos/bajas',
+        help="OU where suspended (former) students are moved.")
     google_ws_dry_run       = fields.Boolean(
         string="Google Workspace dry-run", default=True,
         help="If enabled, the account creation is logged without calling the real Google API.")

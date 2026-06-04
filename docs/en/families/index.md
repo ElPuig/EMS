@@ -1,4 +1,4 @@
-[Català](../../ca/families/index.md) | [Español](../../es/families/index.md) | [English](index.md)
+[Català](../../ca/families/index.md) | [Castellano](../../es/families/index.md) | [English](index.md)
 
 ---
 

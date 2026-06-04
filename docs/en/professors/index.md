@@ -1,4 +1,4 @@
-[Català](../../ca/professors/index.md) | [Español](../../es/professors/index.md) | [English](index.md)
+[Català](../../ca/professors/index.md) | [Castellano](../../es/professors/index.md) | [English](index.md)
 
 ---
 

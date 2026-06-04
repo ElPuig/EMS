@@ -1,4 +1,4 @@
-[Català](../../ca/families/manual-portal-alumne.md) | [Español](manual-portal-alumne.md) | [English](../../en/families/manual-portal-alumne.md)
+[Català](../../ca/families/manual-portal-alumne.md) | [Castellano](manual-portal-alumne.md) | [English](../../en/families/manual-portal-alumne.md)
 
 ---
 

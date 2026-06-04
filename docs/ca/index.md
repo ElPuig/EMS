@@ -1,4 +1,4 @@
-[Català](index.md) | [Español](../es/index.md) | [English](../en/index.md)
+[Català](index.md) | [Castellano](../es/index.md) | [English](../en/index.md)
 
 ---
 

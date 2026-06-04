@@ -130,6 +130,7 @@ class ems_contact(models.Model):
 
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
+    is_tutor_readonly = fields.Boolean(default=lambda self:self._get_is_tutor_readonly(), store=False)
 
     @api.depends(
     'sale_order_ids.ems_authorization_ids.status',
@@ -330,7 +331,21 @@ class ems_contact(models.Model):
                     is_tutor = True
                     break
         return not (is_admin or is_secretary or is_tutor)
-    
+
+    def _get_is_tutor_readonly(self):
+        # True only when the user is a tutor of this student and NOT admin/secretary.
+        # Used to make non-contact fields read-only for tutors while admin/secretary
+        # keep full edit access.
+        is_admin = base.ems_base.get_user_is_admin(self)
+        is_secretary = self.env.user.has_group('ems.group_secretary')
+        if is_admin or is_secretary:
+            return False
+        for t in self.env.user.employee_ids:
+            if t.id != False and len(t.tutorship_ids) > 0:
+                if self.tutor_id == t:
+                    return True
+        return False
+
     def open_form(self):
         return {
             'type': 'ir.actions.act_window',

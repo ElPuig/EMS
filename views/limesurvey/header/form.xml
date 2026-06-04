@@ -23,7 +23,7 @@
                         />                      
 
                         <!-- COMPUTED -->
-                        <button string="Return to draft" 
+                        <button string="Return to draft"
                             name="action_draft"                                 
                             type="object" 
                             class="oe_highlight" 
@@ -40,10 +40,10 @@
                             invisible="state != 'computed'"
                         />
 
-                        <button string="Upload surveys" 
-                            name="action_upload"                                 
-                            type="object" 
-                            class="oe_highlight" 
+                        <button string="Upload surveys"
+                            name="action_upload"
+                            type="object"
+                            class="oe_highlight"
                             icon="fa-cloud-upload"
                             invisible="state != 'computed'"
                         />
@@ -148,60 +148,87 @@
                             invisible="state != 'reminding'"
                         />
 
-                        <!-- CLOSING -->        
-                        <!-- <button string="Send reminders" 
+                        <!-- CLOSING -->
+                        <button string="Send reminders"
                             disabled="True"
-                            name="action_remind"                                 
-                            type="object" 
-                            class="oe_highlight" 
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
                             icon="fa-bell"
                             invisible="state != 'closing'"
                         />
 
-                        <button string="Close surveys"   
+                        <button string="Close surveys"
                             disabled="True"
-                            name="action_none"                               
-                            type="object" 
-                            class="oe_highlight" 
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
                             icon="fa-stop"
                             invisible="state != 'closing'"
-                        />   -->
+                        />
 
-                        <!-- CLOSED -->   
-                        <!-- <button string="Open surveys"  
-                            name="action_none"                             
-                            type="object" 
-                            class="oe_highlight" 
-                            icon="fa-envelope "
+                        <!-- CLOSED -->
+                        <button string="Re-open surveys"
+                            name="action_reopen"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-play"
                             invisible="state != 'closed'"
                         />
 
-                        <button string="Download data" 
-                            name="action_none"                                 
-                            type="object" 
-                            class="oe_highlight" 
-                            icon="fa-cloud-download"
+                        <button string="Download data"
+                            name="action_download"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-download"
                             invisible="state != 'closed'"
-                        />     -->
+                        />
 
-                        <!-- DOWNLOADING -->   
-                        <!-- <button string="Open surveys"  
+                        <button string="Get CSV"
+                            name="action_get_csv"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-file-text-o"
+                            invisible="state != 'closed' or not csv_data"
+                        />
+
+                        <!-- REOPENING -->
+                        <button string="Re-open surveys"
                             disabled="True"
-                            name="action_none"                             
-                            type="object" 
-                            class="oe_highlight" 
-                            icon="fa-envelope "
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-play"
+                            invisible="state != 'reopening'"
+                        />
+
+                        <button string="Download data"
+                            disabled="True"
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-download"
+                            invisible="state != 'reopening'"
+                        />
+
+                        <!-- DOWNLOADING -->
+                        <button string="Re-open surveys"
+                            disabled="True"
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-play"
                             invisible="state != 'downloading'"
                         />
 
-                        <button string="Download data" 
+                        <button string="Download data"
                             disabled="True"
-                            name="action_none"                                 
-                            type="object" 
-                            class="oe_highlight" 
-                            icon="fa-cloud-download"
+                            name="action_none"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-download"
                             invisible="state != 'downloading'"
-                        />      -->
+                        />
 
                         <!-- DOWNLOADED -->   
                         <!-- <button string="Return to draft"   
@@ -212,9 +239,10 @@
                             invisible="state != 'downloaded'"
                         />        -->
 
-                        <field name="state" widget="statusbar" statusbar_visible="draft,computed,uploaded,open,closed,downloaded"/>                       
+                        <field name="state" widget="statusbar" statusbar_visible="draft,computed,uploaded,open,closed"/>                       
                     </header>
                     <sheet>
+                        <field name="csv_data" invisible="True"/>
                         <group string="Main data" col="4">
                             <group>
                                 <field name="name"/>

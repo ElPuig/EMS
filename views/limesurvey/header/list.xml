@@ -6,6 +6,7 @@
             <field name="arch" type="xml">
                 <list  default_order="name asc" expand="True" >
                     <field name="name"/>
+                    <field name="title"/>
                     <field name="target"/>
                     <field name="state"/>                    
                 </list>

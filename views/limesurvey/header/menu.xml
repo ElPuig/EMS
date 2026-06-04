@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>          
+        <record model="ir.actions.server" id="action_limesurvey_delete_closed_confirmed">
+            <field name="name">Delete closed survey (confirmed)</field>
+            <field name="model_id" ref="model_ems_limesurvey_header"/>
+            <field name="state">code</field>
+            <field name="code">
+records = env['ems.limesurvey_header'].browse(env.context.get('active_ids', []))
+records.with_context(force_delete_closed=True).unlink()
+action = {
+    'type': 'ir.actions.act_window',
+    'res_model': 'ems.limesurvey_header',
+    'view_mode': 'list,form',
+    'target': 'current',
+}
+            </field>
+        </record>
+
         <record model="ir.actions.act_window" id="action_limesurvey_header_tree">
             <field name="name">Surveys</field>
             <field name="res_model">ems.limesurvey_header</field>

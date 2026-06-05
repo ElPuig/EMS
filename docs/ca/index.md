@@ -12,10 +12,10 @@ Seleccioneu el vostre perfil per accedir als manuals corresponents:
 
 | Perfil | Descripció |
 |--------|------------|
+| [Famílies i alumnes](families/index.md) | Portal de matrícula, compte bancari, documents i bonificacions |
+| [Professors](professors/index.md) | Passar llista, qualificacions i planificació de sessions |
 | [Tutors](tutors/index.md) | Gestió de propostes de matrícula i seguiment dels alumnes del grup |
 | [Secretaria](secretaria/index.md) | Gestió de matrícules, documents, pagaments i bonificacions |
-| [Professors](professors/index.md) | Passar llista, qualificacions i planificació de sessions |
-| [Famílies i alumnes](families/index.md) | Portal de matrícula, compte bancari, documents i bonificacions |
 
 ---
 

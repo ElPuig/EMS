@@ -223,6 +223,7 @@
 
         'views/portal/portal_main.xml',
             'views/portal/frontend_branding.xml',
+            'views/portal/portal_loading_overlay.xml',
             'views/portal/portal_header.xml',
             'views/portal/portal_enrollment_draft.xml',
             'views/portal/portal_enrollment_confirmed.xml',

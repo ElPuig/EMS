@@ -6476,10 +6476,23 @@ msgstr "Carrer 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 msgid "Student"
 msgstr "Estudiant"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_enrollment_collections
+#: model:ir.ui.menu,name:ems.menu_enrollment_collections
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list
+msgid "Enrollment collections"
+msgstr "Cobraments de matrícula"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_search
+msgid "Due Date"
+msgstr "Data de venciment"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_benefit

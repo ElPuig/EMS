@@ -219,6 +219,7 @@
       
         'views/sales/product_view.xml',
         'views/accounting/payment_term_views.xml',
+        'views/accounting/enrollment_collections.xml',
 
         'views/portal/portal_main.xml',
             'views/portal/portal_header.xml',

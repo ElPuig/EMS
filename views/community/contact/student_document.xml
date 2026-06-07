@@ -40,7 +40,9 @@
                                 class="btn-success" invisible="status != 'pending'"/>
                         <button name="action_reject" type="object" string="Reject"
                                 class="btn-danger" invisible="status != 'pending'"/>
-                        <field name="status" widget="statusbar"
+                        <button name="action_reset_to_pending" type="object" string="Reset to pending"
+                                invisible="status == 'pending'"/>
+                        <field name="status" widget="statusbar" readonly="1"
                                statusbar_visible="pending,approved,rejected,cancelled"/>
                     </header>
                     <sheet>

@@ -39,6 +39,7 @@
                 (4, ref('sales_team.group_sale_salesman_all_leads')),
                 (4, ref('account.group_account_invoice')),
                 (4, ref('account.group_validate_bank_account')),
+                (4, ref('base.group_partner_manager')),
             ]"/>
         </record>
 

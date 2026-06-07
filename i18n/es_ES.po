@@ -4745,6 +4745,11 @@ msgid "My Activity Deadline"
 msgstr "Fecha límite de mi actividad"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:portal.portal_layout
+msgid "My account"
+msgstr "Mi cuenta"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_nuss
 #: model:ir.model.fields,field_description:ems.field_res_partner__nuss
 #: model:ir.model.fields,field_description:ems.field_res_users__nuss

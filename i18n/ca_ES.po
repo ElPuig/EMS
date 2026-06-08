@@ -1448,7 +1448,7 @@ msgstr "Quantitat d'adjunts"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Attendance"
-msgstr "Assistència"
+msgstr "Assistència del personal"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__attendance_issue_status_delay

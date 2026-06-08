@@ -1,4 +1,4 @@
-[Català](../../ca/families/index.md) | [Español](index.md) | [English](../../en/families/index.md)
+[Català](../../ca/families/index.md) | [Castellano](index.md) | [English](../../en/families/index.md)
 
 ---
 
@@ -10,7 +10,9 @@ Esta sección contiene los manuales para **familias y alumnos**.
 
 ## Manuales disponibles
 
-*Próximamente...*
+| Manual | Descripción |
+|--------|------------|
+| [Acceso y activación del portal del alumnado](manual-portal-alumne.md) | Cómo activar la cuenta y acceder por primera vez al portal |
 
 ## Temas previstos
 

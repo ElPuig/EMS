@@ -2855,6 +2855,7 @@ msgstr "Sistema de gestión educativa"
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__email
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_email
 #: model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_email
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Email"
 msgstr "Correo electrónico"
 
@@ -5529,6 +5530,7 @@ msgstr "Motivo de rechazo (obligatorio antes de rechazar)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__limesurvey_recipient_id
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Recipient"
 msgstr "Destinatario"
 
@@ -6487,6 +6489,7 @@ msgstr "Calle 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Student"
 msgstr "Alumno"
 
@@ -7887,3 +7890,58 @@ msgstr "↳ Importe de tasas"
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "↳ Other enrollment concepts"
 msgstr "↳ Otros conceptos de matrícula"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_portal_access_bulk
+msgid "Portal access (students/families)"
+msgstr "Acceso al portal (alumnos/familias)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Portal access"
+msgstr "Acceso al portal"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__grant
+msgid "Grant access"
+msgstr "Otorgar acceso"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__revoke
+msgid "Revoke access"
+msgstr "Revocar acceso"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Selected students"
+msgstr "Alumnos seleccionados"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Recipients (preview)"
+msgstr "Destinatarios (vista previa)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__has_portal
+msgid "Has portal access"
+msgstr "Tiene acceso al portal"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Apply"
+msgstr "Aplicar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Current access"
+msgstr "Acceso actual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Note"
+msgstr "Nota"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "The \"Current access\" column shows the current portal status (informational only). Press Apply to grant or revoke access according to the selected action."
+msgstr "La columna \"Acceso actual\" muestra el estado actual del portal (solo informativo). Pulsa Aplicar para otorgar o revocar el acceso según la acción seleccionada."

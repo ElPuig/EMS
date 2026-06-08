@@ -2850,6 +2850,7 @@ msgstr "Sistema de gestió educativa"
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__email
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_email
 #: model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_email
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Email"
 msgstr "Correu electrìnic"
 
@@ -5522,6 +5523,7 @@ msgstr "Motiu de rebuig (obligatori abans de rebutjar)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__limesurvey_recipient_id
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Recipient"
 msgstr "Destinatari"
 
@@ -6478,6 +6480,7 @@ msgstr "Carrer 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Student"
 msgstr "Estudiant"
 
@@ -7873,3 +7876,58 @@ msgstr "↳ Import de les taxes"
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "↳ Other enrollment concepts"
 msgstr "↳ Altres conceptes de matrícula"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_portal_access_bulk
+msgid "Portal access (students/families)"
+msgstr "Accés al portal (alumnes/famílies)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Portal access"
+msgstr "Accés al portal"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__grant
+msgid "Grant access"
+msgstr "Atorgar accés"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__revoke
+msgid "Revoke access"
+msgstr "Revocar accés"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Selected students"
+msgstr "Alumnes seleccionats"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Recipients (preview)"
+msgstr "Destinataris (previsualització)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__has_portal
+msgid "Has portal access"
+msgstr "Té accés al portal"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Apply"
+msgstr "Aplicar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Current access"
+msgstr "Accés actual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Note"
+msgstr "Nota"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "The \"Current access\" column shows the current portal status (informational only). Press Apply to grant or revoke access according to the selected action."
+msgstr "La columna \"Accés actual\" mostra l'estat actual del portal (només informatiu). Premeu Aplicar per atorgar o revocar l'accés segons l'acció seleccionada."

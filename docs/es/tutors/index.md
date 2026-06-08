@@ -1,4 +1,4 @@
-[Català](../../ca/tutors/index.md) | [Español](index.md) | [English](../../en/tutors/index.md)
+[Català](../../ca/tutors/index.md) | [Castellano](index.md) | [English](../../en/tutors/index.md)
 
 ---
 

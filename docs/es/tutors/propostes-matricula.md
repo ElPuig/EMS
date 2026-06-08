@@ -1,4 +1,4 @@
-[Català](../../ca/tutors/propostes-matricula.md) | [Español](propostes-matricula.md) | [English](../../en/tutors/propostes-matricula.md)
+[Català](../../ca/tutors/propostes-matricula.md) | [Castellano](propostes-matricula.md) | [English](../../en/tutors/propostes-matricula.md)
 
 ---
 

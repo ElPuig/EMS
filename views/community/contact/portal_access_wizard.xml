@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="view_portal_access_wizard_form">
+            <field name="name">ems.portal.access.wizard.form</field>
+            <field name="model">ems.portal.access.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Portal access">
+                    <group>
+                        <field name="mode" widget="radio"/>
+                    </group>
+                    <separator string="Selected students"/>
+                    <field name="student_ids" widget="many2many_tags" readonly="1"/>
+                    <separator string="Recipients (preview)"/>
+                    <field name="line_ids" readonly="1">
+                        <list create="false" delete="false" edit="false">
+                            <field name="student_id" string="Student"/>
+                            <field name="recipient_id" string="Recipient"/>
+                            <field name="recipient_email" string="Email"/>
+                            <field name="has_portal" string="Current access" widget="boolean" readonly="1"/>
+                            <field name="note" string="Note" decoration-warning="note != False"/>
+                        </list>
+                    </field>
+                    <footer>
+                        <button name="action_apply" type="object" string="Apply" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Cog-wheel / "Actions" entry on the students list -->
+        <record id="action_portal_access_bulk" model="ir.actions.server">
+            <field name="name">Portal access (students/families)</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="binding_model_id" ref="base.model_res_partner"/>
+            <field name="binding_view_types">list</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_teacher'))]"/>
+            <field name="state">code</field>
+            <field name="code">
+students = env['res.partner'].browse(env.context.get('active_ids', [])).filtered(lambda p: p.contact_type == 'student')
+if not students:
+    raise UserError(_("Please select at least one student."))
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Portal access',
+    'res_model': 'ems.portal.access.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': {'active_ids': students.ids},
+}
+            </field>
+        </record>
+
+    </data>
+</odoo>

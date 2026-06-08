@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import date
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
@@ -350,4 +351,87 @@ class ems_SaleOrder(models.Model):
                     "The following required authorizations are still pending:\n%s"
                     % (order.name, names)
                 )
-        return super().action_confirm()
+        res = super().action_confirm()
+        for order in self:
+            if order.ems_study_id:
+                order._ems_generate_enrollment_invoice()
+        return res
+
+    # ------------------------------------------------------------------
+    # Billing
+    # ------------------------------------------------------------------
+    def _ems_billing_due_dates(self):
+        """(first, second) default collection due dates for this enrollment.
+
+        Default to 15-Jul / 15-Sep of the course start year. They are only a
+        marker of the installment and the batch; the real SEPA collection date
+        is chosen later, when the bank file is generated.
+        """
+        self.ensure_one()
+        year = self.ems_course_id.start or fields.Date.context_today(self).year
+        return date(year, 7, 15), date(year, 9, 15)
+
+    def _ems_generate_enrollment_invoice(self):
+        """Create, date and post the enrollment invoice. Idempotent.
+
+        - Single-payment plan: one invoice due on the first date.
+        - Deferred plan (fees split): one invoice with two due dates
+          (first installment = non-fee items + 50% fees @ first date;
+          second installment = 50% fees @ second date). The split percentage
+          is computed PER enrollment from its own amounts.
+        - Direct debit: the confirmed student IBAN is stored on the invoice
+          (debtor account, ready for SEPA). Transfer: no student IBAN.
+        - The enrollment code is referenced via invoice_origin (native) + ref
+          + payment_reference, keeping the legal invoice numbering untouched.
+        """
+        self.ensure_one()
+        existing = self.invoice_ids.filtered(
+            lambda m: m.move_type == 'out_invoice' and m.state != 'cancel')
+        if existing:
+            return existing
+
+        order = self.sudo()
+        inv = order._create_invoices()[:1]
+        if not inv:
+            return inv
+
+        today = fields.Date.context_today(self)
+        due1, due2 = order._ems_billing_due_dates()
+        total = inv.amount_total
+        deferred = bool(
+            order.payment_term_id
+            and len(order.payment_term_id.line_ids) > 1
+            and order.ems_second_installment > 0
+            and total > 0
+        )
+
+        vals = {
+            'invoice_date': today,
+            'ref': order.name,
+            'payment_reference': order.name,
+        }
+        if deferred:
+            pct1 = round(order.ems_first_installment / total * 100.0, 6)
+            term = self.env['account.payment.term'].sudo().create({
+                'name': 'EMS %s' % order.name,
+                'company_id': inv.company_id.id,
+                'line_ids': [
+                    (0, 0, {'value': 'percent', 'value_amount': pct1,
+                            'delay_type': 'days_after', 'nb_days': (due1 - today).days}),
+                    (0, 0, {'value': 'percent', 'value_amount': round(100.0 - pct1, 6),
+                            'delay_type': 'days_after', 'nb_days': (due2 - today).days}),
+                ],
+            })
+            vals['invoice_payment_term_id'] = term.id
+        else:
+            vals['invoice_payment_term_id'] = False
+            vals['invoice_date_due'] = due1
+
+        if order.ems_payment_method == 'direct_debit':
+            bank = order.partner_id.bank_ids[:1]
+            if bank:
+                vals['partner_bank_id'] = bank.id
+
+        inv.write(vals)
+        inv.action_post()
+        return inv

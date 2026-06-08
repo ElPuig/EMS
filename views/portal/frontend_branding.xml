@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Replace the default browser tab title ("Odoo") and favicon on all
+        frontend/portal pages with the current company's name and favicon.
+        Only affects the frontend layout, not the backend web client.
+        Page-specific titles (passed via the render context) still take
+        precedence thanks to the `title or ...` / `x_icon or ...` fallbacks.
+    -->
+    <template id="frontend_layout_ems_branding" name="EMS Frontend Branding"
+              inherit_id="web.frontend_layout" priority="99">
+        <xpath expr="//head/title" position="before">
+            <t t-set="title" t-value="title or res_company.name"/>
+            <t t-set="x_icon" t-value="x_icon or '/ems/static/src/img/favicon.ico'"/>
+        </xpath>
+    </template>
+
+    <!--
+        The login page (web.login_layout) is rendered without `res_company` in
+        its context, so the override above does not reach it. Pass `title` and
+        `x_icon` as children of its `t-call="web.frontend_layout"` (same pattern
+        it uses for no_header/no_footer); `web.layout` then reads them via its
+        `title or ...` / `x_icon or ...` fallbacks. Use `request.env.company`,
+        which is always available.
+    -->
+    <template id="login_layout_ems_branding" name="EMS Login Branding"
+              inherit_id="web.login_layout" priority="99">
+        <xpath expr="//t[@t-set='no_footer']" position="after">
+            <t t-set="title" t-value="title or request.env.company.name"/>
+            <t t-set="x_icon" t-value="x_icon or '/ems/static/src/img/favicon.ico'"/>
+        </xpath>
+    </template>
+
+</odoo>

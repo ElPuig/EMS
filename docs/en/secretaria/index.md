@@ -1,4 +1,4 @@
-[Català](../../ca/secretaria/index.md) | [Español](../../es/secretaria/index.md) | [English](index.md)
+[Català](../../ca/secretaria/index.md) | [Castellano](../../es/secretaria/index.md) | [English](index.md)
 
 ---
 

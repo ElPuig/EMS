@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!--
+            Make the portal profile read-only for portal users (students/families).
+            The editable form is hidden and a read-only summary is shown instead,
+            together with a mailto: button to request data changes from the
+            secretariat. The actual write protection lives in the controller
+            (controllers/portal_account.py); this template is presentation only.
+        -->
+        <template id="portal_my_details_readonly" inherit_id="portal.portal_my_details" priority="99">
+
+            <!-- Hide the editable form for locked (portal) users -->
+            <xpath expr="//form[@action='/my/account']" position="attributes">
+                <attribute name="t-if">not ems_profile_readonly</attribute>
+            </xpath>
+
+            <!-- Read-only variant -->
+            <xpath expr="//form[@action='/my/account']" position="after">
+                <div t-if="ems_profile_readonly" class="o_portal_details">
+                    <div class="alert alert-info" role="alert">
+                        <i class="fa fa-lock me-1"/>
+                        <span t-if="ems_profile_change_mailto">Your personal data is read-only. To request a correction, please contact the secretariat using the button below.</span>
+                        <span t-else="">Your personal data is read-only. To request a correction, please contact the secretariat.</span>
+                    </div>
+                    <div class="row col-lg-8">
+                        <div class="mb-3 col-xl-6">
+                            <label class="col-form-label fw-bold">Name</label>
+                            <div t-esc="partner.name"/>
+                        </div>
+                        <div class="mb-3 col-xl-6">
+                            <label class="col-form-label fw-bold">Email</label>
+                            <div t-esc="partner.email"/>
+                        </div>
+                        <div class="clearfix"/>
+                        <div t-if="partner.vat" class="mb-3 col-xl-6">
+                            <label class="col-form-label fw-bold">VAT Number</label>
+                            <div t-esc="partner.vat"/>
+                        </div>
+                        <div class="mb-3 col-xl-6">
+                            <label class="col-form-label fw-bold">Phone</label>
+                            <div t-esc="partner.phone"/>
+                        </div>
+                        <div class="mb-3 col-xl-6">
+                            <label class="col-form-label fw-bold">Mobile</label>
+                            <div t-esc="partner.mobile"/>
+                        </div>
+                        <div class="clearfix"/>
+                        <div class="mb-3 col-xl-6">
+                            <label class="col-form-label fw-bold">Street</label>
+                            <div t-esc="partner.street"/>
+                        </div>
+                        <div t-if="partner.street2" class="mb-3 col-xl-6">
+                            <label class="col-form-label fw-bold">Street 2</label>
+                            <div t-esc="partner.street2"/>
+                        </div>
+                        <div class="mb-3 col-xl-6">
+                            <label class="col-form-label fw-bold">City</label>
+                            <div t-esc="partner.city"/>
+                        </div>
+                        <div class="mb-3 col-xl-6">
+                            <label class="col-form-label fw-bold">Zip / Postal Code</label>
+                            <div t-esc="partner.zip"/>
+                        </div>
+                        <div class="mb-3 col-xl-6">
+                            <label class="col-form-label fw-bold">State / Province</label>
+                            <div t-esc="partner.state_id.name"/>
+                        </div>
+                        <div class="mb-3 col-xl-6">
+                            <label class="col-form-label fw-bold">Country</label>
+                            <div t-esc="partner.country_id.name"/>
+                        </div>
+                    </div>
+                    <div class="clearfix col-lg-8 mb-5">
+                        <a t-if="ems_profile_change_mailto" t-att-href="ems_profile_change_mailto"
+                           class="btn btn-primary float-end">
+                            <i class="fa fa-envelope me-1"/>Request a data change
+                        </a>
+                    </div>
+                </div>
+            </xpath>
+
+        </template>
+
+    </data>
+</odoo>

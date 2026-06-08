@@ -94,6 +94,21 @@ class EmsStudentDocument(models.Model):
                 if duplicates:
                     raise ValidationError(_("There is already a pending IBAN submission for this student."))
 
+    def _schedule_review_activities(self):
+        """Schedule a 'to-do' review activity for each secretary/admin user."""
+        users = (
+            self.env.ref('ems.group_secretary').users
+            | self.env.ref('ems.group_admin').users
+        )
+        for rec in self:
+            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
+            for user in users:
+                rec.activity_schedule(
+                    act_type_xmlid='mail.mail_activity_data_todo',
+                    summary=_('Review document: %s') % doc_label,
+                    user_id=user.id,
+                )
+
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
@@ -117,13 +132,8 @@ class EmsStudentDocument(models.Model):
                 subtype_xmlid='mail.mt_comment',
             )
 
-            # Activity for each secretary/admin user
-            for user in users:
-                rec.activity_schedule(
-                    act_type_xmlid='mail.mail_activity_data_todo',
-                    summary=_('Review document: %s') % doc_label,
-                    user_id=user.id,
-                )
+        # Activity for each secretary/admin user
+        records._schedule_review_activities()
         return records
 
     def action_approve(self):
@@ -190,6 +200,27 @@ class EmsStudentDocument(models.Model):
             doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
             rec.message_post(
                 body=Markup('<b>Document submission cancelled:</b> %s<br/>Student: %s') % (
+                    escape(doc_label), escape(rec.partner_id.name)
+                ),
+                message_type='comment',
+                subtype_xmlid='mail.mt_comment',
+            )
+
+    def action_reset_to_pending(self):
+        for rec in self:
+            # Drop any leftover activities and reschedule a fresh review task
+            rec.activity_ids.unlink()
+            rec.write({
+                'status': 'pending',
+                'review_uid': False,
+                'review_date': False,
+                'rejection_reason': False,
+            })
+            rec._schedule_review_activities()
+
+            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
+            rec.message_post(
+                body=Markup('<b>Document reopened for review:</b> %s<br/>Student: %s') % (
                     escape(doc_label), escape(rec.partner_id.name)
                 ),
                 message_type='comment',

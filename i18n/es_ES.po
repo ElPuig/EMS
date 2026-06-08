@@ -1993,6 +1993,7 @@ msgstr "Ciudadanía"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__city
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_city
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "City"
 msgstr "Ciudad"
 
@@ -2225,6 +2226,7 @@ msgstr "No se pudieron leer las cabeceras del archivo CSV."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__country_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Country"
 msgstr "País"
 
@@ -2855,6 +2857,7 @@ msgstr "Sistema de gestión educativa"
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__email
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_email
 #: model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_email
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Email"
 msgstr "Correo electrónico"
 
@@ -4683,6 +4686,7 @@ msgstr "Falta"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__mobile
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_mobile
 #: model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_mobile
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Mobile"
 msgstr "Móvil"
 
@@ -4773,6 +4777,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Name"
 msgstr "Nombre"
 
@@ -5320,6 +5325,7 @@ msgstr "Correo electrónico personal"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__phone
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_phone
 #: model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_phone
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Phone"
 msgstr "Teléfono"
 
@@ -6448,11 +6454,13 @@ msgstr "Permanencia en el centro"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__street
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_street
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Street"
 msgstr "Calle"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__street2
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Street 2"
 msgstr "Calle 2"
 
@@ -7887,3 +7895,88 @@ msgstr "↳ Importe de tasas"
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "↳ Other enrollment concepts"
 msgstr "↳ Otros conceptos de matrícula"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "<i class=\"fa fa-envelope me-1\"/>Request a data change"
+msgstr "<i class=\"fa fa-envelope me-1\"/>Solicitar un cambio de datos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid ""
+"Your personal data is read-only. To request a correction, please contact the"
+" secretariat using the button below."
+msgstr ""
+"Tus datos personales son de solo lectura. Para solicitar una corrección, "
+"contacta con la secretaría mediante el botón de abajo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid ""
+"Your personal data is read-only. To request a correction, please contact the"
+" secretariat."
+msgstr ""
+"Tus datos personales son de solo lectura. Para solicitar una corrección, "
+"contacta con la secretaría."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Center Emails"
+msgstr "Correos del centro"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "VAT Number"
+msgstr "NIF"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "Zip / Postal Code"
+msgstr "Código postal"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "State / Province"
+msgstr "Estado / Provincia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Secretariat"
+msgstr "Secretaría"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__secretariat_email
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__secretariat_email
+msgid "Secretariat Email"
+msgstr "Correo de secretaría"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Email address used as the recipient for messages addressed to the center's "
+"secretariat (e.g. portal personal-data change requests)."
+msgstr ""
+"Dirección de correo utilizada como destinatario de los mensajes dirigidos a la "
+"secretaría del centro (p. ej. solicitudes de cambio de datos personales desde el portal)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_account.py:0
+msgid "Personal data modification for student %s"
+msgstr "Modificación de datos del alumno %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_account.py:0
+msgid ""
+"Good morning,\r\n"
+"I would like to make a change to my personal data:\r\n"
+"\r\n"
+"\r\n"
+"Best regards"
+msgstr ""
+"Buenos días,\r\n"
+"Me gustaría hacer un cambio en mis datos personales:\r\n"
+"\r\n"
+"\r\n"
+"Saludos"

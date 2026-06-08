@@ -7981,6 +7981,7 @@ msgstr "Nota"
 #: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "The \"Current access\" column shows the current portal status (informational only). Press Apply to grant or revoke access according to the selected action."
 msgstr "La columna \"Acceso actual\" muestra el estado actual del portal (solo informativo). Pulsa Aplicar para otorgar o revocar el acceso según la acción seleccionada."
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "<i class=\"fa fa-envelope me-1\"/>Request a data change"
 msgstr "<i class=\"fa fa-envelope me-1\"/>Solicitar un cambio de datos"

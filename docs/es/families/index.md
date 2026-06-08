@@ -14,6 +14,7 @@ Esta sección contiene los manuales para **familias y alumnos**.
 |--------|------------|
 | [Acceso y activación del portal del alumnado](manual-portal-alumne.md) | Cómo activar la cuenta y acceder por primera vez al portal |
 | [Confirmar la propuesta de matrícula](manual-confirmacio-matricula.md) | Cómo revisar y confirmar la propuesta de matrícula que llega por correo |
+| [Recuperar la contraseña del correo del instituto](manual-recuperacio-contrasenya-correu.md) | Cómo recuperar la contraseña de la cuenta de correo `@elpuig.xeill.net` |
 
 ## Temas previstos
 

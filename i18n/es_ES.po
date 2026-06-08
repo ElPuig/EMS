@@ -1342,6 +1342,11 @@ msgid "Approve"
 msgstr "Aprobar"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
+msgid "Reset to pending"
+msgstr "Volver a pendiente"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__approved
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 msgid "Approved"

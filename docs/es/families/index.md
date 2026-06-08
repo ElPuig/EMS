@@ -13,11 +13,10 @@ Esta sección contiene los manuales para **familias y alumnos**.
 | Manual | Descripción |
 |--------|------------|
 | [Acceso y activación del portal del alumnado](manual-portal-alumne.md) | Cómo activar la cuenta y acceder por primera vez al portal |
+| [Confirmar la propuesta de matrícula](manual-confirmacio-matricula.md) | Cómo revisar y confirmar la propuesta de matrícula que llega por correo |
 
 ## Temas previstos
 
-- Portal de matrícula: cómo revisar y confirmar la matrícula
-- Cuenta bancaria (IBAN): cómo dar de alta o renovar la cuenta para la domiciliación
 - Documentos oficiales: cómo subir el DNI/NIE, pasaporte o tarjeta sanitaria
 - Bonificaciones y exenciones: cómo solicitar una bonificación o exención de tasas
 

@@ -38,6 +38,8 @@ class ems_company(models.Model):
 
     current_course_id = fields.Many2one(comodel_name="ems.course")
 
+    secretariat_email = fields.Char()
+
     @api.model
     def _get_fernet_key(self):
         key = config.get('secret') 

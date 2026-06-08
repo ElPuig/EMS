@@ -29,6 +29,12 @@
                             </setting>
                         </block>
 
+                         <block title="Center Emails" name="ems_email_settings">
+                            <setting string="Secretariat" help="Email address used as the recipient for messages addressed to the center's secretariat (e.g. portal personal-data change requests)." id="secretariat_email">
+                                <field name="secretariat_email" widget="email" placeholder="secretaria@example.com"/>
+                            </setting>
+                        </block>
+
                          <block title="Student's Attendance Settings" name="ems_attendance_settings">
                             <setting string="Issue notification delay" help="Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification." id="attendance_issue_status_delay">
                                 <field name="attendance_issue_status_delay" class="text-center" style="width: 5ch;"/>

@@ -5301,6 +5301,11 @@ msgid "Pending"
 msgstr "Pendent"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_loading_overlay
+msgid "Processing your request…"
+msgstr "Processant la sol·licitud…"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__pending
 msgid "Pending review"
 msgstr "Pendent de revisió"

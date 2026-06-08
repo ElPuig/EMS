@@ -5308,6 +5308,11 @@ msgid "Pending"
 msgstr "Pendiente"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_loading_overlay
+msgid "Processing your request…"
+msgstr "Procesando la solicitud…"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__pending
 msgid "Pending review"
 msgstr "Pendiente de revisión"

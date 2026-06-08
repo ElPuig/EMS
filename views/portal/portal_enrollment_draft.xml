@@ -17,6 +17,7 @@
                         </t>
 
                         <t t-if="enrollment">
+                            <t t-call="ems.portal_loading_overlay"/>
                             <t t-if="message_sent">
                                 <div class="modal fade" id="ems-message-sent-modal" tabindex="-1" role="dialog">
                                     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -181,7 +182,7 @@
                                 <div class="modal fade" t-attf-id="modal_auth_#{auth.id}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
                                     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
                                         <div class="modal-content border-0 shadow-lg">
-                                            <form t-attf-action="/my/gestion-matriculas/authorize/#{auth.id}" method="post" data-auth-form="1">
+                                            <form t-attf-action="/my/gestion-matriculas/authorize/#{auth.id}" method="post" data-auth-form="1" class="ems-loading-form">
                                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                                                 
                                                 <div class="modal-header bg-light">
@@ -260,7 +261,7 @@
                                 });
                             </script>
 
-                            <form action="/my/gestion-matriculas/confirm" method="post">
+                            <form action="/my/gestion-matriculas/confirm" method="post" class="ems-loading-form">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                 <div class="card shadow-sm">
                                     <div class="card-header bg-light">

@@ -363,7 +363,7 @@ def _clean_trainer(value):
 	return value or ""
 
 def _build_csv(env, all_responses):
-	year = env.company.current_course_id.start if env.company.current_course_id else ""
+	year = env.company.current_course_id.end if env.company.current_course_id else ""
 	output = io.StringIO()
 	writer = csv.writer(output)
 	writer.writerow(["evaluation_id", "timestamp", "year", "level", "department", "degree", "group", "subject_code", "subject_name", "trainer", "topic", "question_sort", "question_type", "value"])

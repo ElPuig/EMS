@@ -1,3 +1,7 @@
+[Català](propostes-matricula.md) | [Castellano](../../es/tutors/propostes-matricula.md) | [English](../../en/tutors/propostes-matricula.md)
+
+---
+
 # Com generar propostes de matrícula per als alumnes
 
 Aquesta guia explica com, després de la junta de la 3a avaluació, el tutor pot generar les propostes de matrícula del curs següent per als alumnes.
@@ -72,3 +76,7 @@ El procediment és el següent:
 ## Procés de matriculació
 
 Les matrícules es crearan en estat **esborrany** i passaran a secretaria. Serà secretaria qui les revisarà i les enviarà a les famílies perquè les confirmin a través del portal de l'alumnat.
+
+---
+
+[← Tornar a l'índex de tutors](index.md)

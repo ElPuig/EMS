@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Reusable "processing…" overlay for portal forms that do a full-page
+        POST and take a few seconds on the server (e.g. authorization PDF
+        generation, enrollment confirmation, IBAN submission).
+
+        Usage: t-call this template once on a portal page, and add the
+        `ems-loading-form` class to any <form> that should show the overlay
+        when submitted. A delegated submit listener shows the overlay unless
+        the submit was cancelled (e.g. by client-side required-field
+        validation, which calls preventDefault). The overlay disappears on its
+        own when the page reloads after the redirect.
+    -->
+    <template id="portal_loading_overlay" name="EMS Portal Loading Overlay">
+        <div id="ems-loading-overlay" class="ems-loading-overlay d-none" role="alert" aria-live="assertive" aria-busy="true">
+            <div class="ems-loading-box">
+                <div class="spinner-border text-light" style="width: 3rem; height: 3rem;" role="status"/>
+                <div class="ems-loading-text mt-3">Processing your request…</div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('submit', function (e) {
+                var form = e.target;
+                if (!form || !form.classList || !form.classList.contains('ems-loading-form')) { return; }
+                // Respect client-side validation that cancelled the submit.
+                if (e.defaultPrevented) { return; }
+                var overlay = document.getElementById('ems-loading-overlay');
+                if (overlay) { overlay.classList.remove('d-none'); }
+            });
+        </script>
+    </template>
+
+</odoo>

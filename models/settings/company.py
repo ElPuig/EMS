@@ -38,6 +38,8 @@ class ems_company(models.Model):
 
     current_course_id = fields.Many2one(comodel_name="ems.course")
 
+    secretariat_email = fields.Char()
+
     # --- Google Workspace (creación automática de cuentas de alumno) ---
     # Enfoque: rol de administrador personalizado asignado a la cuenta de servicio,
     # restringido a la OU /alumnos (NO domain-wide delegation, sin suplantación).

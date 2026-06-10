@@ -1342,6 +1342,11 @@ msgid "Approve"
 msgstr "Aprobar"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
+msgid "Reset to pending"
+msgstr "Volver a pendiente"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__approved
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 msgid "Approved"
@@ -1448,7 +1453,7 @@ msgstr "Cantidad de adjuntos"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Attendance"
-msgstr "Asistencia"
+msgstr "Asistencia del personal"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__attendance_issue_status_delay
@@ -1993,6 +1998,7 @@ msgstr "Ciudadanía"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__city
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_city
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "City"
 msgstr "Ciudad"
 
@@ -2225,6 +2231,7 @@ msgstr "No se pudieron leer las cabeceras del archivo CSV."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__country_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Country"
 msgstr "País"
 
@@ -2855,6 +2862,8 @@ msgstr "Sistema de gestión educativa"
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__email
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_email
 #: model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_email
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Email"
 msgstr "Correo electrónico"
 
@@ -4683,6 +4692,7 @@ msgstr "Falta"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__mobile
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_mobile
 #: model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_mobile
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Mobile"
 msgstr "Móvil"
 
@@ -4744,6 +4754,11 @@ msgid "My Activity Deadline"
 msgstr "Fecha límite de mi actividad"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:portal.portal_layout
+msgid "My account"
+msgstr "Mi cuenta"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_nuss
 #: model:ir.model.fields,field_description:ems.field_res_partner__nuss
 #: model:ir.model.fields,field_description:ems.field_res_users__nuss
@@ -4773,6 +4788,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Name"
 msgstr "Nombre"
 
@@ -5302,6 +5318,11 @@ msgid "Pending"
 msgstr "Pendiente"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_loading_overlay
+msgid "Processing your request…"
+msgstr "Procesando la solicitud…"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__pending
 msgid "Pending review"
 msgstr "Pendiente de revisión"
@@ -5320,6 +5341,7 @@ msgstr "Correo electrónico personal"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__phone
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_phone
 #: model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_phone
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Phone"
 msgstr "Teléfono"
 
@@ -5529,6 +5551,7 @@ msgstr "Motivo de rechazo (obligatorio antes de rechazar)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__limesurvey_recipient_id
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Recipient"
 msgstr "Destinatario"
 
@@ -6448,11 +6471,13 @@ msgstr "Permanencia en el centro"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__street
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_street
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Street"
 msgstr "Calle"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__street2
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Street 2"
 msgstr "Calle 2"
 
@@ -6485,10 +6510,24 @@ msgstr "Calle 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Student"
 msgstr "Alumno"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_enrollment_collections
+#: model:ir.ui.menu,name:ems.menu_enrollment_collections
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list
+msgid "Enrollment collections"
+msgstr "Cobros de matrícula"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_search
+msgid "Due Date"
+msgstr "Fecha de vencimiento"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_benefit
@@ -8017,3 +8056,142 @@ msgstr "Reactivar cuenta de Google"
 #: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_suspended
 msgid "Google account suspended"
 msgstr "Cuenta de Google suspendida"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_portal_access_bulk
+msgid "Portal access (students/families)"
+msgstr "Acceso al portal (alumnos/familias)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Portal access"
+msgstr "Acceso al portal"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__grant
+msgid "Grant access"
+msgstr "Otorgar acceso"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__revoke
+msgid "Revoke access"
+msgstr "Revocar acceso"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Selected students"
+msgstr "Alumnos seleccionados"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Recipients (preview)"
+msgstr "Destinatarios (vista previa)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__has_portal
+msgid "Has portal access"
+msgstr "Tiene acceso al portal"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Apply"
+msgstr "Aplicar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Current access"
+msgstr "Acceso actual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Note"
+msgstr "Nota"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "The \"Current access\" column shows the current portal status (informational only). Press Apply to grant or revoke access according to the selected action."
+msgstr "La columna \"Acceso actual\" muestra el estado actual del portal (solo informativo). Pulsa Aplicar para otorgar o revocar el acceso según la acción seleccionada."
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "<i class=\"fa fa-envelope me-1\"/>Request a data change"
+msgstr "<i class=\"fa fa-envelope me-1\"/>Solicitar un cambio de datos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid ""
+"Your personal data is read-only. To request a correction, please contact the"
+" secretariat using the button below."
+msgstr ""
+"Tus datos personales son de solo lectura. Para solicitar una corrección, "
+"contacta con la secretaría mediante el botón de abajo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid ""
+"Your personal data is read-only. To request a correction, please contact the"
+" secretariat."
+msgstr ""
+"Tus datos personales son de solo lectura. Para solicitar una corrección, "
+"contacta con la secretaría."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Center Emails"
+msgstr "Correos del centro"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "VAT Number"
+msgstr "NIF"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "Zip / Postal Code"
+msgstr "Código postal"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "State / Province"
+msgstr "Estado / Provincia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Secretariat"
+msgstr "Secretaría"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__secretariat_email
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__secretariat_email
+msgid "Secretariat Email"
+msgstr "Correo de secretaría"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Email address used as the recipient for messages addressed to the center's "
+"secretariat (e.g. portal personal-data change requests)."
+msgstr ""
+"Dirección de correo utilizada como destinatario de los mensajes dirigidos a la "
+"secretaría del centro (p. ej. solicitudes de cambio de datos personales desde el portal)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_account.py:0
+msgid "Personal data modification for student %s"
+msgstr "Modificación de datos del alumno %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_account.py:0
+msgid ""
+"Good morning,\r\n"
+"I would like to make a change to my personal data:\r\n"
+"\r\n"
+"\r\n"
+"Best regards"
+msgstr ""
+"Buenos días,\r\n"
+"Me gustaría hacer un cambio en mis datos personales:\r\n"
+"\r\n"
+"\r\n"
+"Saludos"

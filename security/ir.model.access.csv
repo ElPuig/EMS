@@ -173,7 +173,6 @@ ems.access_sale_order_secretary,ems.access_sale_order_secretary,sale.model_sale_
 
 ems.access_sale_order_line_admin,ems.access_sale_order_line_admin,sale.model_sale_order_line,ems.group_admin,1,1,1,1
 ems.access_sale_order_line_teacher,ems.access_sale_order_line_teacher,sale.model_sale_order_line,ems.group_teacher,1,1,1,1
-ems.access_sale_order_line_secretary,ems.access_sale_order_line_secretary,sale.model_sale_order_line,ems.group_secretary,1,1,1,1
 
 ems.access_sale_order_template_admin,ems.access_sale_order_template_admin,sale_management.model_sale_order_template,ems.group_admin,1,1,1,1
 ems.access_sale_order_template_teacher,ems.access_sale_order_template_teacher,sale_management.model_sale_order_template,ems.group_teacher,1,0,0,0
@@ -197,7 +196,6 @@ ems.access_product_product_secretary,ems.access_product_product_secretary,produc
 
 ems.access_sale_order_option_admin,ems.access_sale_order_option_admin,sale_management.model_sale_order_option,ems.group_admin,1,1,1,1
 ems.access_sale_order_option_teacher,ems.access_sale_order_option_teacher,sale_management.model_sale_order_option,ems.group_teacher,1,0,0,0
-ems.access_sale_order_option_secretary,ems.access_sale_order_option_secretary,sale_management.model_sale_order_option,ems.group_secretary,1,1,1,1
 
 access_ems_auth_portal,ems.auth.portal,model_ems_authorization,base.group_portal,1,1,0,0
 access_ems_auth_template_portal,ems.auth.template.portal,model_ems_authorization_template,base.group_portal,1,0,0,0
@@ -227,10 +225,14 @@ ems.access_res_partner_bank_secretary,ems.access_res_partner_bank_secretary,base
 ems.access_ems_enrollment_proposal_wizard_admin,ems.access_ems_enrollment_proposal_wizard_admin,ems.model_ems_enrollment_proposal_wizard,ems.group_admin,1,1,1,1
 ems.access_ems_enrollment_proposal_wizard_secretary,ems.access_ems_enrollment_proposal_wizard_secretary,ems.model_ems_enrollment_proposal_wizard,ems.group_secretary,1,1,1,1
 ems.access_ems_enrollment_proposal_wizard_tutor,ems.access_ems_enrollment_proposal_wizard_tutor,ems.model_ems_enrollment_proposal_wizard,ems.group_tutor,1,1,1,1
+ems.access_ems_portal_access_wizard_admin,ems.access_ems_portal_access_wizard_admin,ems.model_ems_portal_access_wizard,ems.group_admin,1,1,1,1
+ems.access_ems_portal_access_wizard_secretary,ems.access_ems_portal_access_wizard_secretary,ems.model_ems_portal_access_wizard,ems.group_secretary,1,1,1,1
+ems.access_ems_portal_access_wizard_tutor,ems.access_ems_portal_access_wizard_tutor,ems.model_ems_portal_access_wizard,ems.group_tutor,1,1,1,1
+ems.access_ems_portal_access_wizard_line_admin,ems.access_ems_portal_access_wizard_line_admin,ems.model_ems_portal_access_wizard_line,ems.group_admin,1,1,1,1
+ems.access_ems_portal_access_wizard_line_secretary,ems.access_ems_portal_access_wizard_line_secretary,ems.model_ems_portal_access_wizard_line,ems.group_secretary,1,1,1,1
+ems.access_ems_portal_access_wizard_line_tutor,ems.access_ems_portal_access_wizard_line_tutor,ems.model_ems_portal_access_wizard_line,ems.group_tutor,1,1,1,1
 ems.access_ems_student_document_admin,ems.access_ems_student_document_admin,ems.model_ems_student_document,ems.group_admin,1,1,1,1
 ems.access_ems_student_document_secretary,ems.access_ems_student_document_secretary,ems.model_ems_student_document,ems.group_secretary,1,1,1,1
 ems.access_ems_student_document_portal,ems.access_ems_student_document_portal,ems.model_ems_student_document,base.group_portal,1,1,0,0
-ems.access_account_move_secretary,ems.access_account_move_secretary,account.model_account_move,ems.group_secretary,1,0,0,0
-ems.access_account_move_line_secretary,ems.access_account_move_line_secretary,account.model_account_move_line,ems.group_secretary,1,0,0,0
 ems.access_account_move_teacher,ems.access_account_move_teacher,account.model_account_move,ems.group_teacher,1,0,0,0
 ems.access_account_move_line_teacher,ems.access_account_move_line_teacher,account.model_account_move_line,ems.group_teacher,1,0,0,0

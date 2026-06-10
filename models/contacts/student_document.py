@@ -123,13 +123,14 @@ class EmsStudentDocument(models.Model):
             # Subscribe student + secretary/admin so all receive email on status changes
             rec.message_subscribe(partner_ids=[rec.partner_id.id] + secretary_partner_ids)
 
-            # Public comment on the document — visible in portal communications
+            # Internal log note — does NOT email followers (the secretary is
+            # notified via the review activity instead, avoiding a duplicate email)
             rec.message_post(
                 body=Markup('<b>Document submitted for review:</b> %s<br/>Student: %s') % (
                     escape(doc_label), escape(rec.partner_id.name)
                 ),
                 message_type='comment',
-                subtype_xmlid='mail.mt_comment',
+                subtype_xmlid='mail.mt_note',
             )
 
         # Activity for each secretary/admin user
@@ -219,12 +220,14 @@ class EmsStudentDocument(models.Model):
             rec._schedule_review_activities()
 
             doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
+            # Internal log note — does NOT email followers (the secretary is
+            # notified via the review activity instead, avoiding a duplicate email)
             rec.message_post(
                 body=Markup('<b>Document reopened for review:</b> %s<br/>Student: %s') % (
                     escape(doc_label), escape(rec.partner_id.name)
                 ),
                 message_type='comment',
-                subtype_xmlid='mail.mt_comment',
+                subtype_xmlid='mail.mt_note',
             )
 
     def _apply_benefit(self):

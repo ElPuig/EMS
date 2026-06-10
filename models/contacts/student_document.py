@@ -95,11 +95,8 @@ class EmsStudentDocument(models.Model):
                     raise ValidationError(_("There is already a pending IBAN submission for this student."))
 
     def _schedule_review_activities(self):
-        """Schedule a 'to-do' review activity for each secretary/admin user."""
-        users = (
-            self.env.ref('ems.group_secretary').users
-            | self.env.ref('ems.group_admin').users
-        )
+        """Schedule a 'to-do' review activity for each secretary user."""
+        users = self.env.ref('ems.group_secretary').users
         for rec in self:
             doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
             for user in users:
@@ -112,15 +109,12 @@ class EmsStudentDocument(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
-        users = (
-            self.env.ref('ems.group_secretary').users
-            | self.env.ref('ems.group_admin').users
-        )
+        users = self.env.ref('ems.group_secretary').users
         secretary_partner_ids = users.mapped('partner_id').ids
         for rec in records:
             doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
 
-            # Subscribe student + secretary/admin so all receive email on status changes
+            # Subscribe student + secretary so all receive email on status changes
             rec.message_subscribe(partner_ids=[rec.partner_id.id] + secretary_partner_ids)
 
             # Internal log note — does NOT email followers (the secretary is

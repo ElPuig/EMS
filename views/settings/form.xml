@@ -66,6 +66,36 @@
                                 <field name="limesurvey_gid" />
                             </setting>
                         </block>
+
+                        <block title="Google Workspace Settings" name="ems_google_ws_settings">
+                            <setting string="Enable Google Workspace" help="If enabled, a Google Workspace account will be created automatically for each new student." id="google_ws_enabled">
+                                <field name="google_ws_enabled"/>
+                            </setting>
+
+                            <setting string="Dry-run mode" help="If enabled, the account creation is only logged (no real call to the Google API). Useful for testing." id="google_ws_dry_run">
+                                <field name="google_ws_dry_run"/>
+                            </setting>
+
+                            <setting string="Workspace domain" help="Corporate domain for student accounts (e.g. elpuig.xeill.net)." id="google_ws_domain">
+                                <field name="google_ws_domain"/>
+                            </setting>
+
+                            <setting string="OU for minors" help="Organizational Unit path where under-18 students are created." id="google_ws_ou_minor">
+                                <field name="google_ws_ou_minor"/>
+                            </setting>
+
+                            <setting string="OU for adults (18+)" help="Organizational Unit path where students aged 18 or older are created." id="google_ws_ou_adult">
+                                <field name="google_ws_ou_adult"/>
+                            </setting>
+
+                            <setting string="OU for suspended students" help="Organizational Unit path where suspended (former) students are moved. Must be inside the students OU so the service account can manage it." id="google_ws_ou_suspended">
+                                <field name="google_ws_ou_suspended"/>
+                            </setting>
+
+                            <setting string="Service Account JSON" help="Paste here the full JSON key of the Google Cloud service account. It is stored encrypted. The service account must have a custom admin role scoped to the students OU." id="google_ws_sa_json">
+                                <field name="google_ws_sa_json" widget="text" placeholder='{ "type": "service_account", ... }'/>
+                            </setting>
+                        </block>
                     </app>
                 </xpath>
             </field>

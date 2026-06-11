@@ -376,6 +376,7 @@
                                                 <th>Submitted</th>
                                                 <th>Expiry</th>
                                                 <th>Status</th>
+                                                <th>Document</th>
                                                 <th class="pe-3">Notes</th>
                                             </tr>
                                         </thead>
@@ -400,6 +401,14 @@
                                                         }">
                                                             <t t-esc="dict(sub._fields['status'].selection).get(sub.status, sub.status)"/>
                                                         </span>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <t t-if="sub.doc_file_name">
+                                                            <a t-attf-href="/my/documentacion/download/#{sub.id}" class="text-decoration-none">
+                                                                <i class="fa fa-download me-1"/>Download
+                                                            </a>
+                                                        </t>
+                                                        <t t-else="">—</t>
                                                     </td>
                                                     <td class="pe-3 align-middle text-muted small">
                                                         <t t-if="sub.doc_type == 'iban'"><t t-esc="sub.doc_value"/></t>

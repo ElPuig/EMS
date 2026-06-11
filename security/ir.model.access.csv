@@ -168,7 +168,7 @@ ems.access_ems_authorization_response_teacher,ems.access_ems_authorization_respo
 ems.access_ems_authorization_response_secretary,ems.access_ems_authorization_response_secretary,ems.model_ems_authorization_response,ems.group_secretary,1,1,1,1
 
 ems.access_sale_order_admin,ems.access_sale_order_admin,sale.model_sale_order,ems.group_admin,1,1,1,1
-ems.access_sale_order_teacher,ems.access_sale_order_teacher,sale.model_sale_order,ems.group_teacher,1,1,1,0
+ems.access_sale_order_teacher,ems.access_sale_order_teacher,sale.model_sale_order,ems.group_teacher,1,1,1,1
 ems.access_sale_order_secretary,ems.access_sale_order_secretary,sale.model_sale_order,ems.group_secretary,1,1,1,1
 
 ems.access_sale_order_line_admin,ems.access_sale_order_line_admin,sale.model_sale_order_line,ems.group_admin,1,1,1,1

@@ -4,7 +4,6 @@
         <record model="ir.ui.menu" id="hr_attendance.menu_hr_attendance_root">
             <field name="name">Teacher's Attendances</field>
             <field name="sequence">4</field>
-
         </record>   
 
         <!-- Root menu items only -->

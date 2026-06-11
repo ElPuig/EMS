@@ -7914,6 +7914,136 @@ msgid "↳ Other enrollment concepts"
 msgstr "↳ Altres conceptes de matrícula"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Google Workspace Settings"
+msgstr "Configuració de Google Workspace"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Enable Google Workspace"
+msgstr "Activar Google Workspace"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "If enabled, a Google Workspace account will be created automatically for each new student."
+msgstr "Si s'activa, es crearà automàticament un compte de Google Workspace per a cada alumne nou."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Dry-run mode"
+msgstr "Mode de prova (dry-run)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "If enabled, the account creation is only logged (no real call to the Google API). Useful for testing."
+msgstr "Si s'activa, la creació del compte només es registra al log (sense crida real a l'API de Google). Útil per a proves."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Workspace domain"
+msgstr "Domini de Workspace"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Corporate domain for student accounts (e.g. elpuig.xeill.net)."
+msgstr "Domini corporatiu per als comptes d'alumnes (p. ex. elpuig.xeill.net)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for minors"
+msgstr "OU per a menors d'edat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Organizational Unit path where under-18 students are created."
+msgstr "Ruta de la unitat organitzativa on es creen els alumnes menors de 18 anys."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for adults (18+)"
+msgstr "OU per a majors d'edat (18+)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Organizational Unit path where students aged 18 or older are created."
+msgstr "Ruta de la unitat organitzativa on es creen els alumnes de 18 anys o més."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Service Account JSON"
+msgstr "JSON del compte de servei"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Paste here the full JSON key of the Google Cloud service account. It is stored encrypted. The service account must have a custom admin role scoped to the students OU."
+msgstr "Enganxa aquí la clau JSON completa del compte de servei de Google Cloud. Es desa xifrada. El compte de servei ha de tenir un rol d'administrador personalitzat limitat a la unitat organitzativa dels alumnes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Create Google account"
+msgstr "Crear compte de Google"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__google_credentials
+msgid "Google Workspace credentials"
+msgstr "Credencials de Google Workspace"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "Corporate account credentials"
+msgstr "Credencials del compte corporatiu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "Access details for the school's Google Workspace account."
+msgstr "Dades d'accés al compte de Google Workspace de l'institut."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "Credentials"
+msgstr "Credencials"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "Username (email)"
+msgstr "Usuari (correu)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "Temporary password"
+msgstr "Contrasenya temporal"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_template_google_welcome
+msgid "Your corporate account @elpuig.xeill.net"
+msgstr "El teu compte corporatiu @elpuig.xeill.net"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for suspended students"
+msgstr "OU per a alumnes donats de baixa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Organizational Unit path where suspended (former) students are moved. Must be inside the students OU so the service account can manage it."
+msgstr "Ruta de la unitat organitzativa on es mouen els alumnes donats de baixa. Ha d'estar dins de la unitat dels alumnes perquè el compte de servei la pugui gestionar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Suspend Google account"
+msgstr "Suspendre compte de Google"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Reactivate Google account"
+msgstr "Reactivar compte de Google"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_suspended
+msgid "Google account suspended"
+msgstr "Compte de Google suspès"
+
+#. module: ems
 #: model:ir.actions.server,name:ems.action_portal_access_bulk
 msgid "Portal access (students/families)"
 msgstr "Accés al portal (alumnes/famílies)"

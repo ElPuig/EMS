@@ -40,6 +40,23 @@ class ems_company(models.Model):
 
     secretariat_email = fields.Char()
 
+    # --- Google Workspace (creación automática de cuentas de alumno) ---
+    # Enfoque: rol de administrador personalizado asignado a la cuenta de servicio,
+    # restringido a la OU /alumnos (NO domain-wide delegation, sin suplantación).
+    google_ws_enabled       = fields.Boolean(string="Google Workspace enabled", default=False)
+    google_ws_domain        = fields.Char(string="Google Workspace domain", default='elpuig.xeill.net')
+    google_ws_ou_minor      = fields.Char(string="OU (minors)", default='/alumnos')
+    google_ws_ou_adult      = fields.Char(string="OU (adults 18+)", default='/alumnos/+18')
+    google_ws_ou_suspended  = fields.Char(string="OU (suspended)", default='/alumnos/bajas',
+        help="OU where suspended (former) students are moved.")
+    google_ws_dry_run       = fields.Boolean(
+        string="Google Workspace dry-run", default=True,
+        help="If enabled, the account creation is logged without calling the real Google API.")
+    # Service Account JSON, stored encrypted (same Fernet pattern as limesurvey_pwd)
+    google_ws_sa_json           = fields.Text(compute='_compute_google_ws_sa_json',
+                                              inverse='_inverse_google_ws_sa_json', store=False)
+    google_ws_sa_json_encrypted = fields.Char(copy=False)
+
     @api.model
     def _get_fernet_key(self):
         key = config.get('secret') 
@@ -64,9 +81,33 @@ class ems_company(models.Model):
     def _inverse_limesurvey_pwd(self):
         key = self._get_fernet_key()
         f = Fernet(key)
-        
+
         for record in self:
             if record.limesurvey_pwd:
                 record.limesurvey_pwd_encrypted = f.encrypt(record.limesurvey_pwd.encode()).decode()
             else:
                 record.limesurvey_pwd_encrypted = False
+
+    @api.depends('google_ws_sa_json_encrypted')
+    def _compute_google_ws_sa_json(self):
+        key = self._get_fernet_key()
+        f = Fernet(key)
+
+        for record in self:
+            if record.google_ws_sa_json_encrypted:
+                try:
+                    record.google_ws_sa_json = f.decrypt(record.google_ws_sa_json_encrypted.encode()).decode()
+                except Exception:
+                    record.google_ws_sa_json = False
+            else:
+                record.google_ws_sa_json = False
+
+    def _inverse_google_ws_sa_json(self):
+        key = self._get_fernet_key()
+        f = Fernet(key)
+
+        for record in self:
+            if record.google_ws_sa_json:
+                record.google_ws_sa_json_encrypted = f.encrypt(record.google_ws_sa_json.encode()).decode()
+            else:
+                record.google_ws_sa_json_encrypted = False

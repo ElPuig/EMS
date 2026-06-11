@@ -22,6 +22,7 @@ class EmsStudentDocument(models.Model):
         ('medical',  'Medical card (TIS)'),
         ('iban',     'Bank account (IBAN)'),
         ('benefit',  'Bonification / Exemption'),
+        ('google_credentials', 'Google Workspace credentials'),
         ('other',    'Other'),
     ], required=True, string='Document type')
 

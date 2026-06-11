@@ -212,6 +212,8 @@
             'views/academic_management/enrollment_configuration/enrollment_authorization_view.xml',
             'views/academic_management/enrollment_configuration/enrollment_authorization_form.xml',
             'reports/authorizations/report_authorization_certificate.xml',
+            'reports/contacts/report_google_credentials.xml',
+            'data/mail_template_google_welcome.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',

@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0-20260608\n"
+"Project-Id-Version: Odoo Server 18.0-20260310\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-11 15:39+0000\n"
-"PO-Revision-Date: 2026-06-11 15:39+0000\n"
+"POT-Creation-Date: 2026-06-11 19:42+0000\n"
+"PO-Revision-Date: 2026-06-11 19:42+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -19,12 +19,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
 msgid " [dry-run]"
-msgstr " [dry-run]"
+msgstr " [simulació]"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "#{field.placeholder or ''}"
-msgstr "#{field.placeholder or ''}"
+msgstr ""
 
 #. module: ems
 #. odoo-python
@@ -77,7 +77,7 @@ msgstr "%s: no és el teu alumne/a"
 #. module: ems
 #: model:ir.actions.report,print_report_name:ems.action_report_enrollment
 msgid "'Matricula - %s' % object.name"
-msgstr "'Matricula - %s' % object.name"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
@@ -866,13 +866,11 @@ msgid ""
 "<span class=\"form-label small\">IBAN <span class=\"text-"
 "danger\">*</span></span>"
 msgstr ""
-"<span class=\"form-label small\">IBAN <span class=\"text-"
-"danger\">*</span></span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "<span class=\"form-label small\">IBAN</span>"
-msgstr "<span class=\"form-label small\">IBAN</span>"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
@@ -928,7 +926,7 @@ msgstr "<span class=\"o_form_label\">Excursions escolars</span>"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<span class=\"text-danger\"> *</span>"
-msgstr "<span class=\"text-danger\"> *</span>"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
@@ -949,12 +947,12 @@ msgstr "<strong>Variables disponibles per al text legal:</strong>"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "<strong>Curs:</strong>"
-msgstr "<strong>Curs:</strong>"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "<strong>Estudis:</strong>"
-msgstr "<strong>Estudis:</strong>"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -964,23 +962,23 @@ msgstr "<strong>Caducat: </strong>"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "<strong>Forma de pagament:</strong>"
-msgstr "<strong>Forma de pagament:</strong>"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<strong>IBAN: </strong>"
-msgstr "<strong>IBAN: </strong>"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 msgid "<strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000"
-msgstr "<strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
 msgid "<strong>IDALU</strong>"
-msgstr "<strong>IDALU</strong>"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form
@@ -1024,7 +1022,7 @@ msgstr "<strong>Nom</strong>"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "<strong>Nivell:</strong>"
-msgstr "<strong>Nivell:</strong>"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
@@ -1044,7 +1042,7 @@ msgstr "<strong>Contrasenya temporal</strong>"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "<strong>Torn:</strong>"
-msgstr "<strong>Torn:</strong>"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
@@ -1070,7 +1068,7 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "API endpoint (host address) where the LimeSurvey server is listening."
-msgstr ""
+msgstr "Punt d'accés de l'API (adreça del servidor) on escolta el servidor LimeSurvey."
 "Adreça del servidor LimeSurvey (host).API endpoint (adreça del host) on el "
 "servei de LimeSurvey està escoltant."
 
@@ -1626,7 +1624,7 @@ msgstr "Retard a l'estat d'una incidència en assistència"
 #: model:ir.model.fields,field_description:ems.field_res_company__attendance_issue_tutor_default
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__attendance_issue_tutor_default
 msgid "Attendance Issue Tutor Default"
-msgstr ""
+msgstr "Incidència d'assistència per defecte del tutor"
 "Tutor per defecte d'incidències d'assistènciaValor predeterminat a l'estat "
 "d'una incidència en assistència de cara al/la tutor/a"
 
@@ -1661,7 +1659,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model,name:ems.model_ems_attendance_issue_student
 msgid "Attendance issue (student): groups the attendance's issues by student."
-msgstr ""
+msgstr "Incidència d'assistència (estudiant): agrupa les incidències d'assistència per estudiant."
 "Incidència d'assistència (alumne): agrupa les incidències per "
 "alumne.Incidència en assistència (estudiant): agrupa les incidències en "
 "assistència per estudiant."
@@ -2418,14 +2416,14 @@ msgstr "Credencials del compte corporatiu"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Corporate domain for student accounts (e.g. elpuig.xeill.net)."
-msgstr ""
+msgstr "Domini corporatiu per als comptes d'estudiants (p. ex. elpuig.xeill.net)."
 "Domini corporatiu per als comptes d'alumnes (p. ex. elpuig.xeill.net)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/student_update_wizard.py:0
 msgid "Could not decode the CSV file. Please save it as UTF-8."
-msgstr ""
+msgstr "No s'ha pogut descodificar el fitxer CSV. Deseu-lo en format UTF-8."
 "No s'ha pogut descodificar el fitxer CSV. Si us plau, desa'l en UTF-8."
 
 #. module: ems
@@ -2681,7 +2679,7 @@ msgstr "Currículum"
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__dni
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "DNI / NIE"
-msgstr "DNI / NIE"
+msgstr ""
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_issues
@@ -2748,7 +2746,7 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_ems_authorization_template
 msgid "Define the legal texts, consents, and rules required for enrollments."
-msgstr ""
+msgstr "Definiu els textos legals, consentiments i normes necessaris per a les matrícules."
 "Defineix els textos legals, consentiments i normatives necessàries per a les"
 " matrícules.Defineix els textos legals, consentiments i normes necessaris "
 "per a les matrícules."
@@ -2831,7 +2829,7 @@ msgstr "Cap d'estudis adjunt/a"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "Descripció"
-msgstr "Descripció"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__description
@@ -3031,7 +3029,7 @@ msgstr "Data de venciment"
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_attendance_session_header_attendance_session_is_duped
 msgid "Duped session (same schedule and date)."
-msgstr ""
+msgstr "Sessió duplicada (mateix horari i data)."
 "Sessió duplicada (mateix horari i data).La sessió actual ja existeix. Si us "
 "plau, editeu l'existent (potser l'ha creat un altre professor) o trieu una "
 "altra sessió disponible."
@@ -3056,7 +3054,7 @@ msgstr "Crèdits ECTS"
 #: model:ir.module.category,name:ems.category_main
 #: model:ir.module.category,name:ems.ems_category_main
 msgid "EMS"
-msgstr "EMS"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkout_mode__ems
@@ -3102,7 +3100,7 @@ msgstr "EMS: Actualitzar alumnes des de CSV"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "ES00 0000 0000 0000 0000 0000"
-msgstr "ES00 0000 0000 0000 0000 0000"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_content_form
@@ -3575,7 +3573,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_attendance_template__color
 msgid "Field to store the color that will be used for calendar view"
-msgstr ""
+msgstr "Camp per emmagatzemar el color que s'utilitzarà a la vista de calendari"
 "Camp per emmagatzemar el color del calendariCamp per emmagatzemar el color "
 "que s'utilitzarà per a la vista de calendari"
 
@@ -3806,7 +3804,7 @@ msgstr "Domini de Google Workspace"
 #: model:ir.model.fields,field_description:ems.field_res_company__google_ws_dry_run
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_dry_run
 msgid "Google Workspace dry-run"
-msgstr "Google Workspace dry-run"
+msgstr "Google Workspace en mode simulació"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__google_ws_enabled
@@ -3852,12 +3850,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_res_company__google_ws_sa_json
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_sa_json
 msgid "Google Ws Sa Json"
-msgstr "Google Ws Sa Json"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__google_ws_sa_json_encrypted
 msgid "Google Ws Sa Json Encrypted"
-msgstr "Google Ws Sa Json Encrypted"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_suspended
@@ -3868,7 +3866,7 @@ msgstr "Compte de Google suspès"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_outcome
 msgid "Grade (outcome): ternary relation between student-teacher-outcome."
-msgstr ""
+msgstr "Qualificació (resultat): relació ternaria entre estudiant-professor-resultat."
 "Qualificació (resultat): relació ternària alumne-professor-"
 "resultat.Qualificació (resultat d'aprenentatge): relació ternària entre "
 "estudiant-professor-resultat."
@@ -4079,7 +4077,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 msgid "IBAN"
-msgstr "IBAN"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
@@ -4137,13 +4135,13 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
 msgid "IDALU"
-msgstr "IDALU"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_exception_icon
@@ -4785,7 +4783,7 @@ msgstr "Nivell"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_level
 msgid "Level: Defines the studies level (University, VET, etc.)."
-msgstr ""
+msgstr "Nivell: Defineix el nivell d'estudis (Universitat, FP, etc.)."
 "Nivell: Defineix el nivell dels estudis (Universitari, CFGS, etc.).Nivell: "
 "Defineix el nivell d'estudis (Universitat, Formació Professional, etc.)."
 
@@ -4800,7 +4798,7 @@ msgstr "Nivells"
 #: model:ir.model.fields,help:ems.field_product_product__ems_level_ids
 #: model:ir.model.fields,help:ems.field_product_template__ems_level_ids
 msgid "Levels where this generic product is available (e.g. VET, Bachelor)."
-msgstr ""
+msgstr "Nivells on aquest producte genèric està disponible (p. ex. FP, Batxillerat)."
 "Nivells on aquest producte genèric és disponible (p. ex. CFGS, "
 "Batxillerat).Nivells on aquest producte genèric està disponible (p.ex. FP, "
 "Batxillerat)."
@@ -4809,7 +4807,7 @@ msgstr ""
 #: model:ir.ui.menu,name:ems.menu_limesurvey
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "LimeSurvey"
-msgstr "LimeSurvey"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -4840,7 +4838,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_header
 msgid "LimeSurvey header: contains the survey's header and its content."
-msgstr ""
+msgstr "Capçalera de LimeSurvey: conté la capçalera de l'enquesta i el seu contingut."
 "Capçalera LimeSurvey: conté la capçalera i el contingut de "
 "l'enquesta.LimeSurvey header: conté el contingut d'una enquesta i les seves "
 "dades principals."
@@ -5112,12 +5110,12 @@ msgstr "Clau de coincidència"
 #. module: ems
 #: model:product.template,name:ems.product_generic_enrollment
 msgid "Matrícula El Puig Castellar"
-msgstr "Matrícula El Puig Castellar"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "Matrícula:<br/>"
-msgstr "Matrícula:<br/>"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__medical_id
@@ -5289,7 +5287,7 @@ msgstr "Data límit de la meva activitat"
 #: model:ir.model.fields,field_description:ems.field_res_partner__nuss
 #: model:ir.model.fields,field_description:ems.field_res_users__nuss
 msgid "NUSS"
-msgstr "NUSS"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__name
@@ -5437,7 +5435,7 @@ msgstr "No s'ha trobat cap matrícula."
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
 msgid "No enrollment templates available for the selected students' study."
-msgstr ""
+msgstr "No hi ha plantilles de matrícula disponibles per als estudis dels estudiants seleccionats."
 "No hi ha plantilles de matrícula disponibles per als estudis dels alumnes "
 "seleccionats."
 
@@ -5634,7 +5632,7 @@ msgstr "D'acord"
 #: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_adult
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_adult
 msgid "OU (adults 18+)"
-msgstr "OU (adults 18+)"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_minor
@@ -5716,14 +5714,14 @@ msgstr "Només el tutor de l'alumne pot justificar les seves faltes."
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can remove its attendance justifications."
-msgstr ""
+msgstr "Només el tutor de l'estudiant pot eliminar les seves justificacions d'assistència."
 "Només el tutor de l'alumne pot eliminar les seves justificacions de faltes."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can update its attendance justifications."
-msgstr ""
+msgstr "Només el tutor de l'estudiant pot actualitzar les seves justificacions d'assistència."
 "Només el tutor de l'alumne pot actualitzar les seves justificacions de "
 "faltes."
 
@@ -5777,7 +5775,7 @@ msgstr "Ordinari"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Organizational Unit path where students aged 18 or older are created."
-msgstr ""
+msgstr "Ruta de la unitat organitzativa on es creen els estudiants de 18 anys o més."
 "Ruta de la unitat organitzativa on es creen els alumnes de 18 anys o més."
 
 #. module: ems
@@ -5793,7 +5791,7 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Organizational Unit path where under-18 students are created."
-msgstr ""
+msgstr "Ruta de la unitat organitzativa on es creen els estudiants menors de 18 anys."
 "Ruta de la unitat organitzativa on es creen els alumnes menors de 18 anys."
 
 #. module: ems
@@ -5984,7 +5982,7 @@ msgstr "Planificació i qualificació"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_planning_outcome
 msgid "Planning's outcome ponderation: self explanatory."
-msgstr ""
+msgstr "Ponderació del resultat de la planificació: autoexplicatiu."
 "Ponderació de resultats de la planificació.Ponderació dels resultats "
 "d'aprenentatge dins de la programació docent: s'explica per ella mateixa."
 
@@ -6006,7 +6004,7 @@ msgstr "Programacions docents"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Plantilla"
-msgstr "Plantilla"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -6755,7 +6753,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__auth_type
 msgid "Select the specific type to automatically update the student's file."
-msgstr ""
+msgstr "Seleccioneu el tipus específic per actualitzar automàticament l'expedient de l'estudiant."
 "Selecciona el tipus específic per actualitzar automàticament l'expedient de "
 "l'alumne.Selecciona el tipus específic per actualitzar automàticament "
 "l'expedient de l'alumne/a."
@@ -7728,7 +7726,7 @@ msgstr "El bloc només apareixerà pels estudiants matriculats a FCT."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "The block appears only for students enrolled in this course (0 = all)."
-msgstr ""
+msgstr "El bloc apareix només per als estudiants matriculats en aquest curs (0 = tots)."
 "El bloc apareix només per als alumnes matriculats en aquest curs (0 = "
 "tots).El bloc només apareixerà pels alumnes matriculats a aquest curs (0 = "
 "tots)."
@@ -7788,7 +7786,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
 msgid "The item '%s' is already in the list. Please select a different one."
-msgstr ""
+msgstr "L'element '%s' ja és a la llista. Seleccioneu-ne un de diferent."
 "L'element '%s' ja és a la llista. Si us plau, selecciona'n un de diferent."
 
 #. module: ems
@@ -7872,7 +7870,7 @@ msgstr "Aquesta autorització ja està sol·licitada en aquesta matrícula."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "This block will be generated once per enrollred subject."
-msgstr ""
+msgstr "Aquest bloc es generarà una vegada per assignatura matriculada."
 "Aquest bloc es generarà una vegada per cada assignatura matriculada.Aquest "
 "bloc es repetirà per cada assignatura matriculada per l'estudiant."
 
@@ -8199,7 +8197,7 @@ msgstr "Unipersonal"
 #: model:ir.model.fields,help:ems.field_product_product__ems_subject_unit_cost
 #: model:ir.model.fields,help:ems.field_product_template__ems_subject_unit_cost
 msgid "Unit cost per subject (e.g. 65.00) used for fee calculation."
-msgstr ""
+msgstr "Cost unitari per assignatura (p. ex. 65,00) utilitzat per al càlcul de taxes."
 "Cost unitari per matèria (p. ex. 65,00) per al càlcul de taxes.Cost unitari "
 "per assignatura (p.ex. 65,00) usat per al càlcul de taxes."
 
@@ -8685,7 +8683,7 @@ msgstr "rol"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "secretaria@example.com"
-msgstr "secretaria@example.com"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_space_form
@@ -8728,7 +8726,7 @@ msgstr "grup de treball"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "{ \"type\": \"service_account\", ... }"
-msgstr "{ \"type\": \"service_account\", ... }"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment

@@ -118,18 +118,20 @@ class EmsStudentDocument(models.Model):
             # Subscribe student + secretary so all receive email on status changes
             rec.message_subscribe(partner_ids=[rec.partner_id.id] + secretary_partner_ids)
 
-            # Internal log note — does NOT email followers (the secretary is
-            # notified via the review activity instead, avoiding a duplicate email)
-            rec.message_post(
-                body=Markup('<b>Document submitted for review:</b> %s<br/>Student: %s') % (
-                    escape(doc_label), escape(rec.partner_id.name)
-                ),
-                message_type='comment',
-                subtype_xmlid='mail.mt_note',
-            )
+            if rec.status == 'pending':
+                # Internal log note — does NOT email followers (the secretary is
+                # notified via the review activity instead, avoiding a duplicate email)
+                rec.message_post(
+                    body=Markup('<b>Document submitted for review:</b> %s<br/>Student: %s') % (
+                        escape(doc_label), escape(rec.partner_id.name)
+                    ),
+                    message_type='comment',
+                    subtype_xmlid='mail.mt_note',
+                )
 
-        # Activity for each secretary/admin user
-        records._schedule_review_activities()
+        # Only schedule review activities for documents that actually need review
+        pending_records = records.filtered(lambda r: r.status == 'pending')
+        pending_records._schedule_review_activities()
         return records
 
     def action_approve(self):

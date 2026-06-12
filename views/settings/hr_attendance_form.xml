@@ -24,6 +24,8 @@
                         <div invisible="auto_checkout_mode != 'ems'">
                             <span class="me-2">Check-out at</span>
                             <field name="auto_checkout_time" widget="float_time" class="text-center" style="width: 5ch;"/>
+                            <span class="ms-4 me-2">Retry until</span>
+                            <field name="auto_checkout_retry_until" widget="float_time" class="text-center" style="width: 5ch;"/>
                         </div>
                     </div>
                 </xpath>

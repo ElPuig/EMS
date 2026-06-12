@@ -26,6 +26,7 @@ class ems_company(models.Model):
         default='native',
     )
     auto_checkout_time = fields.Float(default=1.0)
+    auto_checkout_retry_until = fields.Float(default=6.0)
 
     limesurvey_api = fields.Char()
     limesurvey_usr = fields.Char()    

@@ -11,6 +11,7 @@ class ems_settings(models.TransientModel):
    auto_checkin_mode = fields.Selection(related="company_id.auto_checkin_mode", readonly=False)
    auto_checkout_mode = fields.Selection(related="company_id.auto_checkout_mode", readonly=False)
    auto_checkout_time = fields.Float(related="company_id.auto_checkout_time", readonly=False)
+   auto_checkout_retry_until = fields.Float(related="company_id.auto_checkout_retry_until", readonly=False)
    schedule_import_first_entry_time = fields.Float(related="company_id.schedule_import_first_entry_time", readonly=False)
    schedule_import_last_entry_time  = fields.Float(related="company_id.schedule_import_last_entry_time",  readonly=False)
 
@@ -39,4 +40,9 @@ class ems_settings(models.TransientModel):
       if not cron:
          return
       utils = self.env['ems.datetime_utils']
-      cron.sudo().write({'nextcall': utils.next_occurrence_utc(self.auto_checkout_time)})
+      cron.sudo().write({
+         'active': True,
+         'interval_number': 1,
+         'interval_type': 'hours',
+         'nextcall': utils.next_occurrence_utc(self.auto_checkout_time),
+      })

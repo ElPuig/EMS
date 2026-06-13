@@ -26,7 +26,7 @@
                             type="object" 
                             class="oe_highlight" 
                             icon="fa-cloud-upload"
-                            invisible="is_running or state not in ('uploaded')"
+                            invisible="is_running or state not in ('uploaded') or header_state in ('closed')"
                         />
 
                         <!-- UPLOADED -->

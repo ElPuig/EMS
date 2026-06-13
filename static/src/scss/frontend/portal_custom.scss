@@ -161,3 +161,26 @@ header nav.navbar .ems-custom-navbar .nav-link.active {
 .text-ems-primary {
     color: #9e1c34 !important;
 }
+
+/* 10. OVERLAY "PROCESSANT…" - feedback mientras el servidor procesa un envío */
+.ems-loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000; /* por encima del modal de Bootstrap (~1055) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+.ems-loading-box {
+    text-align: center;
+    color: #ffffff;
+}
+
+.ems-loading-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+}

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import requests, json, html, re, base64, time, traceback
+import requests, json, html, re, base64, time, traceback, io, csv
 from datetime import datetime
 from odoo import models, fields, api, Command, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, RedirectWarning
 
 # TO CLEAN THE BBDD DURING TESTING
 # delete from ems_limesurvey_recipient;
@@ -98,12 +98,36 @@ def do_upload_recipients(ls_api, survey):
 		return success		
 	return _do(survey, code)	
 
-def do_open_survey(ls_api, survey):	
+def do_open_survey(ls_api, survey):
 	def code():
-		sid = survey["external_id"]		
+		sid = survey["external_id"]
 		ls_api.activate_survey(sid)
 		ls_api.invite_participants(sid)
-	return _do(survey, code)		
+	return _do(survey, code)
+
+def do_close_survey(ls_api, survey):
+	def code():
+		sid = survey["external_id"]
+		ls_api.deactivate_survey(sid)
+		for rec in survey["recipients"]:
+			rec["error"] = None
+	return _do(survey, code)
+
+def do_reopen_survey(ls_api, survey):
+	def code():
+		sid = survey["external_id"]
+		ls_api.reactivate_survey(sid)
+		for rec in survey["recipients"]:
+			rec["error"] = None
+	return _do(survey, code)
+
+def do_download_survey(ls_api, survey):
+	def code():
+		sid = survey["external_id"]
+		survey["responses"] = ls_api.export_survey_responses(sid)
+		for rec in survey["recipients"]:
+			rec["error"] = None
+	return _do(survey, code)
 
 def do_send_invitations(ls_api, survey):
 	def code():		
@@ -332,6 +356,48 @@ def _email_not_empty(email):
 		return "Empty email address!"
 	else:
 		return None
+
+def _clean_trainer(value):
+	if value and value.strip().lower().startswith("trainer:"):
+		return value[len("trainer:"):].strip()
+	return value or ""
+
+def _build_csv(env, all_responses):
+	year = env.company.current_course_id.end if env.company.current_course_id else ""
+	output = io.StringIO()
+	writer = csv.writer(output)
+	writer.writerow(["evaluation_id", "timestamp", "year", "level", "department", "degree", "group", "subject_code", "subject_name", "trainer", "topic", "question_sort", "question_type", "value"])
+
+	evaluation_id = 0
+	for response in all_responses:
+		timestamp = response.get("submitdate", "")
+
+		prefixes = [re.match(r'^([A-Z]+\d*)level$', k).group(1)
+					for k in response if re.match(r'^([A-Z]+\d*)level$', k)]
+
+		for prefix in prefixes:
+			evaluation_id += 1
+			level        = response.get(f"{prefix}level", "")
+			topic        = response.get(f"{prefix}topic", "")
+			subject_code = response.get(f"{prefix}subjectcode", "")
+			subject_name = response.get(f"{prefix}subjectname", "")
+			degree       = response.get(f"{prefix}degree", "")
+			group        = response.get(f"{prefix}group", "")
+			trainer      = _clean_trainer(response.get(f"{prefix}trainer", ""))
+			department   = "DEPARTMENT"
+
+			numeric_keys = sorted(
+				[k for k in response if re.match(rf'^{re.escape(prefix)}questions\[{re.escape(prefix)}\d+\]$', k)],
+				key=lambda k: int(re.search(r'\d+', k.split('[')[1]).group())
+			)
+			for sort, key in enumerate(numeric_keys, start=1):
+				writer.writerow([evaluation_id, timestamp, year, level, department, degree, group, subject_code, subject_name, trainer, topic, sort, "Numeric", response.get(key, "")])
+
+			comment = response.get(f"{prefix}comments", "")
+			if comment:
+				writer.writerow([evaluation_id, timestamp, year, level, department, degree, group, subject_code, subject_name, trainer, topic, "", "Text", comment])
+
+	return output.getvalue()
 # endregion
 class limesurvey_api():
 	def __init__(self, env):
@@ -406,15 +472,51 @@ class limesurvey_api():
 	def activate_survey(self, survey_id):
 		error = _("Unable to activate the survey")
 		try:
-			self._run_api_request("set_survey_properties", [survey_id,  {"expires": None, "startdate": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])		
-			result  = self._run_api_request("activate_survey", [survey_id])	
+			self._run_api_request("set_survey_properties", [survey_id,  {"expires": None, "startdate": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])
+			result  = self._run_api_request("activate_survey", [survey_id])
 			if "status" not in result:
 				raise Exception(f"{error}: {result}")
 			if "status" in result and result["status"] not in ("OK", "Error: Survey already active"):
-				raise Exception(f"{error}: {result['status']}")			
-		except Exception as e: 			
+				raise Exception(f"{error}: {result['status']}")
+		except Exception as e:
 			raise Exception(f"{error}: {e}")
-		
+
+	def deactivate_survey(self, survey_id):
+		error = _("Unable to deactivate the survey")
+		try:
+			result = self._run_api_request("set_survey_properties", [survey_id, {"expires": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])
+			if not isinstance(result, dict) or not result.get("expires"):
+				raise Exception(f"{error}: {result}")
+		except Exception as e:
+			raise Exception(f"{error}: {e}")
+
+	def reactivate_survey(self, survey_id):
+		error = _("Unable to reactivate the survey")
+		try:
+			result = self._run_api_request("set_survey_properties", [survey_id, {"expires": None}])
+			if not isinstance(result, dict) or not result.get("expires"):
+				raise Exception(f"{error}: {result}")
+		except Exception as e:
+			raise Exception(f"{error}: {e}")
+
+	def export_survey_responses(self, survey_id):
+		error = _("Unable to export survey responses")
+		try:
+			result = self._run_api_request("export_responses", [int(survey_id), "json", None, "complete", "code", "long"])
+			if isinstance(result, dict):
+				status = result.get("status", "")
+				if "No Data" in status: return []
+				raise Exception(status or str(result))
+			decoded = base64.b64decode(result).decode("utf-8")
+			data = json.loads(decoded)
+			if isinstance(data, dict) and "responses" in data:
+				return data["responses"]
+			elif isinstance(data, list):
+				return data
+			raise Exception(f"Unexpected response format: {type(data)}")
+		except Exception as e:
+			raise Exception(f"{error}: {e}")
+
 	def invite_participants(self, survey_id):
 		error = _("Unable to invite some participants")		
 		try:
@@ -527,6 +629,7 @@ class ems_limesurvey_header(models.Model):
 		('reminding', 'Sending reminders'),
         ('closing', 'Closing surveys'),
 		('closed', 'Surveys closed'),
+		('reopening', 'Re-opening surveys'),
 		('downloading', 'Downloading surveys'),
 		('downloaded', 'Data downloaded')
     ], default='draft', tracking=True)
@@ -542,7 +645,9 @@ class ems_limesurvey_header(models.Model):
 	limesurvey_block_ids = fields.One2many(string="Blocks", comodel_name="ems.limesurvey_block", inverse_name="limesurvey_header_id", copy=True)
 	limesurvey_recipient_ids = fields.One2many(string="Recipients", comodel_name="ems.limesurvey_recipient", inverse_name="limesurvey_header_id")	
 	is_running = fields.Boolean(string="Running", default=False)
-	notes = fields.Text(string="Notes")		
+	notes = fields.Text(string="Notes")
+	csv_data = fields.Binary(string="Survey Results CSV", attachment=True)
+	csv_filename = fields.Char(string="CSV Filename")		
 	
 	# region MAIN ACTIONS (OVER A SET OF SURVEYS/RECIPIENTS)
 	def action_compute(self, title=None, message_ok=None, message_ko=None):
@@ -636,9 +741,71 @@ class ems_limesurvey_header(models.Model):
 				persistent_data["success"] = success		
 		return run_action(self, _("LimeSurvey: open surveys"), _("Open"), "opening", "open", "uploaded", compute, persistent_data)				
 
-	def action_close(self):		
-		self.notify("Not implemented", "Comming soon...", "danger")
-		return False
+	def action_close(self):
+		persistent_data = {}
+		def compute():
+			success = persistent_data["success"]
+			if success:
+				for key in persistent_data["surveys"]:
+					ls_api = persistent_data["ls_api"]
+					survey = persistent_data["surveys"][key]
+					success = success and do_close_survey(ls_api, survey)
+					if not success: persistent_data["error"] = _("Something failed when trying to close a survey, please check the recipient entries for more details.")
+				persistent_data["success"] = success
+		return run_action(self, _("LimeSurvey: close surveys"), _("Close"), "closing", "closed", "open", compute, persistent_data)
+
+	def action_reopen(self):
+		persistent_data = {}
+		def compute():
+			success = persistent_data["success"]
+			if success:
+				for key in persistent_data["surveys"]:
+					ls_api = persistent_data["ls_api"]
+					survey = persistent_data["surveys"][key]
+					success = success and do_reopen_survey(ls_api, survey)
+					if not success: persistent_data["error"] = _("Something failed when trying to reopen a survey, please check the recipient entries for more details.")
+				persistent_data["success"] = success
+		def post_store(self):
+			if persistent_data.get("success"):
+				self.csv_data = False
+				self.csv_filename = False
+		return run_action(self, _("LimeSurvey: reopen surveys"), _("Reopen"), "reopening", "open", "closed", compute, persistent_data, post_store=post_store)
+
+	def action_download(self):
+		persistent_data = {}
+
+		def compute():
+			success = persistent_data["success"]
+			if success:
+				all_responses = []
+				for key in persistent_data["surveys"]:
+					ls_api = persistent_data["ls_api"]
+					survey = persistent_data["surveys"][key]
+					if not survey.get("external_id"): continue
+					success = success and do_download_survey(ls_api, survey)
+					if success:
+						all_responses.extend(survey.get("responses", []))
+					else:
+						persistent_data["error"] = _("Something failed when trying to download survey responses, please check the recipient entries for more details.")
+						break
+				persistent_data["success"] = success
+				persistent_data["all_responses"] = all_responses
+
+		def post_store(self):
+			if persistent_data.get("success"):
+				csv_content = _build_csv(self.env, persistent_data.get("all_responses", []))
+				self.csv_data = base64.b64encode(csv_content.encode("utf-8")).decode("utf-8")
+				self.csv_filename = f"survey_results_{fields.Date.today()}.csv"
+
+		return run_action(self, _("LimeSurvey: download surveys"), _("Download"), "downloading", "closed", "closed", compute, persistent_data, post_store=post_store)
+
+	def action_get_csv(self):
+		self.ensure_one()
+		return {
+			'type': 'ir.actions.act_url',
+			'url': f'/web/content?model=ems.limesurvey_header&id={self.id}&field=csv_data&filename={self.csv_filename}&download=true',
+			'target': 'new',
+		}
 
 	def action_remind(self):
 		persistent_data = {}		
@@ -835,6 +1002,49 @@ class ems_limesurvey_header(models.Model):
 					ids.append(grp.id)
 			rec.group_ids = [Command.set(ids)]
 	# endregion
+
+	# region DELETE
+	def unlink(self):
+		allowed = ('draft', 'computed', 'uploaded', 'closed')
+		blocked = self.filtered(lambda h: h.state not in allowed)
+		if blocked:
+			raise UserError(_(
+				"Cannot delete this survey in its current state. "
+				"Only surveys in 'Draft', 'Recipients computed', or 'Closed' state can be deleted. "
+				"If the survey is active or in progress, please close it first."
+			))
+
+		closed_no_flag = self.filtered(
+			lambda h: h.state == 'closed' and not self.env.context.get('force_delete_closed')
+		)
+		if closed_no_flag:
+			action = self.env.ref('ems.action_limesurvey_delete_closed_confirmed')
+			raise RedirectWarning(
+				_(
+					"This survey is CLOSED.\n\n"
+					"Deleting it will also permanently delete it from LimeSurvey. "
+					"If the response data has NOT been downloaded yet, "
+					"it will be lost FOREVER and cannot be recovered.\n\n"
+					"Are you sure you want to delete it?"
+				),
+				action.id,
+				_("Yes, delete permanently"),
+				{'active_ids': self.ids, 'active_model': 'ems.limesurvey_header'},
+			)
+
+		ls_api = None
+		for header in self:
+			ext_ids = {r.external_id for r in header.limesurvey_recipient_ids if r.external_id}
+			if ext_ids:
+				if ls_api is None:
+					ls_api = limesurvey_api(self.env)
+				for ext_id in ext_ids:
+					ls_api.delete_survey(ext_id)
+
+		self.mapped('limesurvey_recipient_ids').unlink()
+		return super().unlink()
+	# endregion
+
 class ems_limesurvey_block(models.Model):
 	_name = "ems.limesurvey_block"
 	_description = "LimeSurvey block: contains the main data about a LimeSurvey's session block."

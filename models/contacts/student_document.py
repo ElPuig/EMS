@@ -21,12 +21,17 @@ class EmsStudentDocument(models.Model):
         ('passport', 'Passport'),
         ('medical',  'Medical card (TIS)'),
         ('iban',     'Bank account (IBAN)'),
+        ('benefit',  'Bonification / Exemption'),
+        ('google_credentials', 'Google Workspace credentials'),
         ('other',    'Other'),
     ], required=True, string='Document type')
 
     # Text data — only meaningful for doc_type == 'iban'
     doc_value  = fields.Char(string='IBAN')
     doc_value2 = fields.Char(string='Account holder')
+
+    # Benefit type — only meaningful for doc_type == 'benefit'
+    benefit_type = fields.Char(string='Benefit type')
 
     expiry_date = fields.Date(string='Expiry date')
 
@@ -47,10 +52,14 @@ class EmsStudentDocument(models.Model):
     review_uid       = fields.Many2one('res.users', string='Reviewed by', readonly=True)
     rejection_reason = fields.Char(string='Rejection reason')
 
-    @api.depends('doc_type', 'partner_id')
+    @api.depends('doc_type', 'partner_id', 'benefit_type')
     def _compute_name(self):
         for rec in self:
             doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, '') if rec.doc_type else ''
+            if rec.doc_type == 'benefit' and rec.benefit_type:
+                benefit_labels = dict(self.env['ems.student.benefit']._fields['benefit_type'].selection)
+                benefit_label = benefit_labels.get(rec.benefit_type, rec.benefit_type)
+                doc_label = '%s – %s' % (doc_label, benefit_label)
             student = rec.partner_id.name or ''
             rec.name = 'Document Submission: %s – %s' % (doc_label, student)
 
@@ -86,47 +95,59 @@ class EmsStudentDocument(models.Model):
                 if duplicates:
                     raise ValidationError(_("There is already a pending IBAN submission for this student."))
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        records = super().create(vals_list)
-        users = (
-            self.env.ref('ems.group_secretary').users
-            | self.env.ref('ems.group_admin').users
-        )
-        secretary_partner_ids = users.mapped('partner_id').ids
-        for rec in records:
+    def _schedule_review_activities(self):
+        """Schedule a 'to-do' review activity for each secretary user."""
+        users = self.env.ref('ems.group_secretary').users
+        for rec in self:
             doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
-
-            # Subscribe student + secretary/admin so all receive email on status changes
-            rec.message_subscribe(partner_ids=[rec.partner_id.id] + secretary_partner_ids)
-
-            # Public comment on the document — visible in portal communications
-            rec.message_post(
-                body=Markup('<b>Document submitted for review:</b> %s<br/>Student: %s') % (
-                    escape(doc_label), escape(rec.partner_id.name)
-                ),
-                message_type='comment',
-                subtype_xmlid='mail.mt_comment',
-            )
-
-            # Activity for each secretary/admin user
             for user in users:
                 rec.activity_schedule(
                     act_type_xmlid='mail.mail_activity_data_todo',
                     summary=_('Review document: %s') % doc_label,
                     user_id=user.id,
                 )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        users = self.env.ref('ems.group_secretary').users
+        secretary_partner_ids = users.mapped('partner_id').ids
+        for rec in records:
+            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
+
+            # Subscribe student + secretary so all receive email on status changes
+            rec.message_subscribe(partner_ids=[rec.partner_id.id] + secretary_partner_ids)
+
+            if rec.status == 'pending':
+                # Internal log note — does NOT email followers (the secretary is
+                # notified via the review activity instead, avoiding a duplicate email)
+                rec.message_post(
+                    body=Markup('<b>Document submitted for review:</b> %s<br/>Student: %s') % (
+                        escape(doc_label), escape(rec.partner_id.name)
+                    ),
+                    message_type='comment',
+                    subtype_xmlid='mail.mt_note',
+                )
+
+        # Only schedule review activities for documents that actually need review
+        pending_records = records.filtered(lambda r: r.status == 'pending')
+        pending_records._schedule_review_activities()
         return records
 
     def action_approve(self):
         for rec in self:
             # Remove previously approved document of the same type for this student
-            self.search([
+            # For benefit documents, also match benefit_type to avoid removing other benefit types
+            domain = [
                 ('partner_id', '=', rec.partner_id.id),
                 ('doc_type', '=', rec.doc_type),
                 ('status', '=', 'approved'),
                 ('id', '!=', rec.id),
-            ]).unlink()
+            ]
+            if rec.doc_type == 'benefit' and rec.benefit_type:
+                domain.append(('benefit_type', '=', rec.benefit_type))
+            self.search(domain).unlink()
+
             rec.write({
                 'status': 'approved',
                 'review_date': fields.Datetime.now(),
@@ -134,6 +155,8 @@ class EmsStudentDocument(models.Model):
             })
             if rec.doc_type == 'iban' and rec.doc_value:
                 rec._apply_bank_account()
+            elif rec.doc_type == 'benefit' and rec.benefit_type:
+                rec._apply_benefit()
 
             rec.activity_ids.unlink()
 
@@ -180,6 +203,48 @@ class EmsStudentDocument(models.Model):
                 message_type='comment',
                 subtype_xmlid='mail.mt_comment',
             )
+
+    def action_reset_to_pending(self):
+        for rec in self:
+            # Drop any leftover activities and reschedule a fresh review task
+            rec.activity_ids.unlink()
+            rec.write({
+                'status': 'pending',
+                'review_uid': False,
+                'review_date': False,
+                'rejection_reason': False,
+            })
+            rec._schedule_review_activities()
+
+            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
+            # Internal log note — does NOT email followers (the secretary is
+            # notified via the review activity instead, avoiding a duplicate email)
+            rec.message_post(
+                body=Markup('<b>Document reopened for review:</b> %s<br/>Student: %s') % (
+                    escape(doc_label), escape(rec.partner_id.name)
+                ),
+                message_type='comment',
+                subtype_xmlid='mail.mt_note',
+            )
+
+    def _apply_benefit(self):
+        self.ensure_one()
+        BenefitModel = self.env['ems.student.benefit']
+        # Remove existing approved benefit of the same type for this student
+        BenefitModel.search([
+            ('student_id', '=', self.partner_id.id),
+            ('benefit_type', '=', self.benefit_type),
+        ]).unlink()
+        # Compute renewal_date using the model's onchange logic
+        virtual = BenefitModel.new({'benefit_type': self.benefit_type})
+        virtual._onchange_benefit_type()
+        BenefitModel.create({
+            'student_id': self.partner_id.id,
+            'benefit_type': self.benefit_type,
+            'document': self.doc_file,
+            'document_name': self.doc_file_name,
+            'renewal_date': virtual.renewal_date,
+        })
 
     def _apply_bank_account(self):
         student = self.partner_id

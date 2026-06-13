@@ -65,6 +65,6 @@
 
 # Related with:
 <!-- MANDATORY! A GitHub action will check for the linked branches in order to remove them.  -->
-- Closes #107 
-- Closes #224 
-- Closes #225 
+- Closes #xxx 
+- Closes #yyy 
+- Closes #zzz 

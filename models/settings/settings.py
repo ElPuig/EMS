@@ -11,15 +11,26 @@ class ems_settings(models.TransientModel):
    auto_checkin_mode = fields.Selection(related="company_id.auto_checkin_mode", readonly=False)
    auto_checkout_mode = fields.Selection(related="company_id.auto_checkout_mode", readonly=False)
    auto_checkout_time = fields.Float(related="company_id.auto_checkout_time", readonly=False)
+   auto_checkout_retry_until = fields.Float(related="company_id.auto_checkout_retry_until", readonly=False)
    schedule_import_first_entry_time = fields.Float(related="company_id.schedule_import_first_entry_time", readonly=False)
    schedule_import_last_entry_time  = fields.Float(related="company_id.schedule_import_last_entry_time",  readonly=False)
 
    current_course_id = fields.Many2one(comodel_name="ems.course", related="company_id.current_course_id", readonly=False)
 
+   secretariat_email = fields.Char(related="company_id.secretariat_email", readonly=False)
+
    limesurvey_api = fields.Char(related="company_id.limesurvey_api", readonly=False)
    limesurvey_usr = fields.Char(related="company_id.limesurvey_usr", readonly=False)
    limesurvey_pwd = fields.Char(related="company_id.limesurvey_pwd", readonly=False)
    limesurvey_gid = fields.Integer(related="company_id.limesurvey_gid", readonly=False)
+
+   google_ws_enabled  = fields.Boolean(related="company_id.google_ws_enabled", readonly=False)
+   google_ws_domain   = fields.Char(related="company_id.google_ws_domain", readonly=False)
+   google_ws_ou_minor = fields.Char(related="company_id.google_ws_ou_minor", readonly=False)
+   google_ws_ou_adult = fields.Char(related="company_id.google_ws_ou_adult", readonly=False)
+   google_ws_ou_suspended = fields.Char(related="company_id.google_ws_ou_suspended", readonly=False)
+   google_ws_dry_run  = fields.Boolean(related="company_id.google_ws_dry_run", readonly=False)
+   google_ws_sa_json  = fields.Text(related="company_id.google_ws_sa_json", readonly=False)
 
    def set_values(self):
       super().set_values()
@@ -29,4 +40,9 @@ class ems_settings(models.TransientModel):
       if not cron:
          return
       utils = self.env['ems.datetime_utils']
-      cron.sudo().write({'nextcall': utils.next_occurrence_utc(self.auto_checkout_time)})
+      cron.sudo().write({
+         'active': True,
+         'interval_number': 1,
+         'interval_type': 'hours',
+         'nextcall': utils.next_occurrence_utc(self.auto_checkout_time),
+      })

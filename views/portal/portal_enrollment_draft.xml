@@ -17,6 +17,7 @@
                         </t>
 
                         <t t-if="enrollment">
+                            <t t-call="ems.portal_loading_overlay"/>
                             <t t-if="message_sent">
                                 <div class="modal fade" id="ems-message-sent-modal" tabindex="-1" role="dialog">
                                     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -181,7 +182,7 @@
                                 <div class="modal fade" t-attf-id="modal_auth_#{auth.id}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
                                     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
                                         <div class="modal-content border-0 shadow-lg">
-                                            <form t-attf-action="/my/gestion-matriculas/authorize/#{auth.id}" method="post" data-auth-form="1">
+                                            <form t-attf-action="/my/gestion-matriculas/authorize/#{auth.id}" method="post" data-auth-form="1" class="ems-loading-form">
                                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                                                 
                                                 <div class="modal-header bg-light">
@@ -260,7 +261,7 @@
                                 });
                             </script>
 
-                            <form action="/my/gestion-matriculas/confirm" method="post">
+                            <form action="/my/gestion-matriculas/confirm" method="post" class="ems-loading-form">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                 <div class="card shadow-sm">
                                     <div class="card-header bg-light">
@@ -341,6 +342,7 @@
                                                                t-att-id="'term_' + str(term.id)"
                                                                t-att-value="term.id"
                                                                t-att-checked="'checked' if enrollment.payment_term_id == term else None"
+                                                               t-att-data-requires-fees="'1' if term.ems_requires_fees else '0'"
                                                                required="required"/>
                                                         <label class="form-check-label" t-att-for="'term_' + str(term.id)">
                                                             <t t-esc="term.name"/>
@@ -348,9 +350,28 @@
                                                     </div>
                                                 </t>
                                             </div>
+
+                                            <!-- Deferred payment breakdown (shown when a requires-fees term is selected) -->
+                                            <div id="ems-installment-breakdown" class="mt-3 p-3 bg-light rounded" style="display:none;">
+                                                <p class="mb-2 fw-bold"><i class="fa fa-info-circle me-1 text-ems-primary"/>Payment schedule:</p>
+                                                <table class="table table-sm mb-0">
+                                                    <tr>
+                                                        <td>Payment 1 — 100% enrollment items + 50% fees</td>
+                                                        <td class="text-end fw-bold">
+                                                            <t t-esc="'%.2f €' % enrollment.ems_first_installment"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Payment 2 — 50% fees</td>
+                                                        <td class="text-end fw-bold">
+                                                            <t t-esc="'%.2f €' % enrollment.ems_second_installment"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
                                         </div>
 
-                                        <!-- Selector de método de pago -->
+                                        <!-- Mètode de pagament: únicament domiciliació -->
                                         <div class="mt-4 pt-3 border-top">
                                             <label class="form-label fw-bold">
                                                 <i class="fa fa-bank me-2 text-ems-primary"/>
@@ -359,34 +380,16 @@
                                             <div class="d-flex flex-column gap-2 mt-2">
                                                 <div class="form-check">
                                                     <input type="radio" class="form-check-input" name="payment_method"
-                                                           id="pm_transfer" value="transfer"
-                                                           t-att-checked="'checked' if enrollment.ems_payment_method == 'transfer' else None"/>
-                                                    <label class="form-check-label" for="pm_transfer">
-                                                        <i class="fa fa-exchange me-1"/>Bank transfer
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input type="radio" class="form-check-input" name="payment_method"
                                                            id="pm_direct_debit" value="direct_debit"
-                                                           t-att-checked="'checked' if enrollment.ems_payment_method == 'direct_debit' else None"/>
+                                                           checked="checked"/>
                                                     <label class="form-check-label" for="pm_direct_debit">
                                                         <i class="fa fa-university me-1"/>Direct debit (bank charge)
                                                     </label>
                                                 </div>
                                             </div>
 
-                                            <!-- Detalls transferència -->
-                                            <div id="pm-transfer-details" class="mt-3 p-3 bg-light rounded" style="display:none;">
-                                                <p class="mb-1 fw-bold"><i class="fa fa-info-circle me-1 text-ems-primary"/>Transfer details:</p>
-                                                <p class="mb-1"><strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000</p>
-                                                <p class="mb-1"><strong>Account holder: </strong>Institut Puig Castellar</p>
-                                                <p class="mb-0"><strong>Reference: </strong>
-                                                    <t t-esc="enrollment.name"/> – <t t-esc="student.name"/>
-                                                </p>
-                                            </div>
-
                                             <!-- Detalls domiciliació -->
-                                            <div id="pm-direct-debit-details" class="mt-3" style="display:none;">
+                                            <div id="pm-direct-debit-details" class="mt-3">
                                                 <!-- IBAN vàlid -->
                                                 <t t-if="iban_valid">
                                                     <div class="p-3 bg-light rounded">
@@ -429,6 +432,12 @@
                                                         <a href="/my/documentacion">submit your IBAN</a> before selecting this option.
                                                     </div>
                                                 </t>
+                                            </div>
+
+                                            <div class="alert alert-info mt-3 mb-0 small">
+                                                <i class="fa fa-info-circle me-1"/>
+                                                The payment method is direct debit. If you have difficulties providing a bank account for the payment of the enrollment, please contact the
+                                                <a href="https://elpuig.xeill.net/el-centre/secretaria" target="_blank">School Secretary</a>.
                                             </div>
                                         </div>
 
@@ -498,26 +507,15 @@
                                 function updateButtons() {
                                     var anyChecked = document.querySelectorAll('.ems-comment-check:checked').length > 0;
                                     var paymentTermSelected = hasPaymentTerm || document.querySelector('input[name="payment_term_id"]:checked');
-                                    var paymentMethodRadio = document.querySelector('input[name="payment_method"]:checked');
-                                    var paymentMethodSelected = !!paymentMethodRadio;
-
-                                    // Mostrar/ocultar detalles del método de pago
-                                    var transferDetails = document.getElementById('pm-transfer-details');
-                                    var directDebitDetails = document.getElementById('pm-direct-debit-details');
-                                    if (paymentMethodRadio) {
-                                        transferDetails.style.display = paymentMethodRadio.value === 'transfer' ? '' : 'none';
-                                        directDebitDetails.style.display = paymentMethodRadio.value === 'direct_debit' ? '' : 'none';
-                                    }
+                                    var paymentMethodSelected = true; // always direct debit
 
                                     // Para domiciliación: el IBAN caducado requiere el checkbox
                                     var directDebitOk = true;
-                                    if (paymentMethodRadio &amp;&amp; paymentMethodRadio.value === 'direct_debit') {
-                                        if (ibanExpired) {
-                                            var renewCheckbox = document.getElementById('confirm_expired_iban');
-                                            directDebitOk = renewCheckbox &amp;&amp; renewCheckbox.checked;
-                                        } else if (!ibanValid) {
-                                            directDebitOk = false;
-                                        }
+                                    if (ibanExpired) {
+                                        var renewCheckbox = document.getElementById('confirm_expired_iban');
+                                        directDebitOk = renewCheckbox &amp;&amp; renewCheckbox.checked;
+                                    } else if (!ibanValid) {
+                                        directDebitOk = false;
                                     }
 
                                     // Mostrar solo uno de los dos botones
@@ -538,12 +536,19 @@
                                     });
                                 }
 
+                                function updateInstallmentBreakdown() {
+                                    var selected = document.querySelector('input[name="payment_term_id"]:checked');
+                                    var breakdown = document.getElementById('ems-installment-breakdown');
+                                    if (breakdown) {
+                                        breakdown.style.display = (selected &amp;&amp; selected.getAttribute('data-requires-fees') === '1') ? '' : 'none';
+                                    }
+                                }
+
                                 document.querySelectorAll('input[name="payment_term_id"]').forEach(function(r) {
                                     r.addEventListener('change', updateButtons);
+                                    r.addEventListener('change', updateInstallmentBreakdown);
                                 });
-                                document.querySelectorAll('input[name="payment_method"]').forEach(function(r) {
-                                    r.addEventListener('change', updateButtons);
-                                });
+                                updateInstallmentBreakdown();
                                 document.querySelectorAll('.ems-comment-check').forEach(function(cb) {
                                     cb.addEventListener('change', updateButtons);
                                 });

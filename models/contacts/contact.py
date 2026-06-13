@@ -130,6 +130,7 @@ class ems_contact(models.Model):
 
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
+    is_tutor_readonly = fields.Boolean(default=lambda self:self._get_is_tutor_readonly(), store=False)
 
     @api.depends(
     'sale_order_ids.ems_authorization_ids.status',
@@ -282,6 +283,12 @@ class ems_contact(models.Model):
         contact = super(ems_contact, self).create(values)
         contact._sync_category()
 
+        # Google Workspace: enqueue account creation for brand-new students without
+        # a corporate email yet (skips CSV imports of existing students that already have one).
+        # Google Workspace: enqueue account creation only when the student has all
+        # the required data (covers mass imports created with full data at once).
+        contact._gw_enqueue_if_ready()
+
         return contact
 
     def write(self, values):
@@ -291,6 +298,17 @@ class ems_contact(models.Model):
         contact = super(ems_contact, self).write(values)
         if 'contact_type' in values:
             self._sync_category()
+
+        # Google Workspace: with form autosave the student is created with partial
+        # data; enqueue once the required fields are completed (deduplicated).
+        self._gw_enqueue_if_ready()
+
+        # Google Workspace: archive -> suspend account; unarchive -> reactivate.
+        if 'active' in values:
+            if values['active']:
+                self._gw_enqueue_reactivate()
+            else:
+                self._gw_enqueue_suspend()
 
         return contact
 
@@ -330,7 +348,21 @@ class ems_contact(models.Model):
                     is_tutor = True
                     break
         return not (is_admin or is_secretary or is_tutor)
-    
+
+    def _get_is_tutor_readonly(self):
+        # True only when the user is a tutor of this student and NOT admin/secretary.
+        # Used to make non-contact fields read-only for tutors while admin/secretary
+        # keep full edit access.
+        is_admin = base.ems_base.get_user_is_admin(self)
+        is_secretary = self.env.user.has_group('ems.group_secretary')
+        if is_admin or is_secretary:
+            return False
+        for t in self.env.user.employee_ids:
+            if t.id != False and len(t.tutorship_ids) > 0:
+                if self.tutor_id == t:
+                    return True
+        return False
+
     def open_form(self):
         return {
             'type': 'ir.actions.act_window',

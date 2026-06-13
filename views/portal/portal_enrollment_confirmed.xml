@@ -107,6 +107,25 @@
                                                 <t t-esc="enrollment.payment_term_id.name"/>
                                             </span>
                                         </div>
+                                        <t t-if="enrollment.payment_term_id.ems_requires_fees">
+                                            <div class="mb-3 p-3 bg-light rounded">
+                                                <p class="mb-2 fw-bold small"><i class="fa fa-info-circle me-1 text-ems-primary"/>Payment schedule:</p>
+                                                <table class="table table-sm mb-0">
+                                                    <tr>
+                                                        <td class="small">Payment 1 — 100% enrollment items + 50% fees</td>
+                                                        <td class="text-end fw-bold small">
+                                                            <t t-esc="'%.2f €' % enrollment.ems_first_installment"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="small">Payment 2 — 50% fees</td>
+                                                        <td class="text-end fw-bold small">
+                                                            <t t-esc="'%.2f €' % enrollment.ems_second_installment"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </t>
                                     </t>
                                     <t t-if="enrollment.ems_payment_method == 'transfer'">
                                         <div class="p-3 bg-light rounded">

@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0-20260131\n"
+"Project-Id-Version: Odoo Server 18.0-20260310\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-18 15:13+0000\n"
-"PO-Revision-Date: 2026-05-18 15:13+0000\n"
+"POT-Creation-Date: 2026-06-11 19:42+0000\n"
+"PO-Revision-Date: 2026-06-11 19:42+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,15 +16,63 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid " [dry-run]"
+msgstr " [simulació]"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "#{field.placeholder or ''}"
-msgstr "#{field.placeholder or ''}"
+msgstr ""
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "%(student)s: recipient %(name)s has no email"
+msgstr "%(student)s: el destinatari %(name)s no té correu electrònic"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
 msgid "%d created, %d skipped (already had enrollment)."
-msgstr "%d creats, %d omesos (ja tenien matrícula)."
+msgstr "%d creades, %d omeses (ja tenien matrícula)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "%s access(es) granted"
+msgstr "%s accés/accessos concedit(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "%s access(es) revoked"
+msgstr "%s accés/accessos revocat(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "%s skipped (already in the desired state)"
+msgstr "%s omès/omesos (ja en l'estat desitjat)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "%s: adult student without main email"
+msgstr "%s: alumne adult sense correu electrònic principal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "%s: no family contact to manage"
+msgstr "%s: sense contacte familiar per gestionar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "%s: not your student"
+msgstr "%s: no és el teu alumne/a"
 
 #. module: ems
 #: model:ir.actions.report,print_report_name:ems.action_report_enrollment
@@ -88,6 +136,18 @@ msgstr "3a avaluació"
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_outcome__round__4
 msgid "4th round"
 msgstr "4a avaluació"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "; no personal email on file"
+msgstr "; sense correu personal registrat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "; sent by email to %s"
+msgstr "; enviat per correu a %s"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -352,11 +412,67 @@ msgstr ""
 "            "
 
 #. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_welcome
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hello <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
+"                    <p>Your school corporate account has been created to access Google Workspace\n"
+"                       (email, Drive, Classroom...) and the services that use this account.</p>\n"
+"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Username (email)</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\"/></td>\n"
+"                        </tr>\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Temporary password</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\"/></td>\n"
+"                        </tr>\n"
+"                    </table>\n"
+"                    <p style=\"color:#b00;\"><strong>Important:</strong> for security reasons, you will be\n"
+"                       required to change the password on your first login.</p>\n"
+"                    <p>You can sign in at <a href=\"https://mail.google.com/a/elpuig.xeill.net/\">mail.google.com</a>.</p>\n"
+"                    <p>Best regards,<br/>School Secretariat</p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hola <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
+"                    <p>El teu compte corporatiu del centre ha estat creat per accedir a Google Workspace\n"
+"                       (correu electrònic, Drive, Classroom...) i els serveis que utilitzen aquest compte.</p>\n"
+"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Usuari (email)</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\"/></td>\n"
+"                        </tr>\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Contrasenya temporal</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\"/></td>\n"
+"                        </tr>\n"
+"                    </table>\n"
+"                    <p style=\"color:#b00;\"><strong>Important:</strong> per motius de seguretat, hauràs\n"
+"                       de canviar la contrasenya en el primer inici de sessió.</p>\n"
+"                    <p>Pots iniciar sessió a <a href=\"https://mail.google.com/a/elpuig.xeill.net/\">mail.google.com</a>.</p>\n"
+"                    <p>Salutacions,<br/>Secretaria del centre</p>\n"
+"                </div>\n"
+"            "
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid ""
 "<i class=\"fa fa-bank me-2 text-ems-primary\"/>\n"
 "                                                Payment method"
 msgstr ""
+"<i class=\"fa fa-bank me-2 text-ems-primary\"/>\n"
+"                                                Mètode de pagament"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid ""
+"<i class=\"fa fa-check-circle me-1\"/> Your bank account has been renewed "
+"for one more year."
+msgstr ""
+"<i class=\"fa fa-check-circle me-1\"/> El vostre compte bancari s'ha renovat"
+" per un any més."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -378,6 +494,8 @@ msgid ""
 "<i class=\"fa fa-check-circle text-success me-1\"/>Your bank account on "
 "file:"
 msgstr ""
+"<i class=\"fa fa-check-circle text-success me-1\"/>El vostre compte bancari "
+"registrat:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
@@ -391,9 +509,20 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid ""
+"<i class=\"fa fa-clock-o me-1\"/>\n"
+"                                            Pending review:"
+msgstr ""
+"<i class=\"fa fa-clock-o me-1\"/>\n"
+"                                            En revisió:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid ""
 "<i class=\"fa fa-clock-o me-1\"/> You already have a pending IBAN submission"
 " under review."
 msgstr ""
+"<i class=\"fa fa-clock-o me-1\"/> Ja tens una sol·licitud d'IBAN pendent de "
+"revisió."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
@@ -415,15 +544,22 @@ msgstr ""
 "                                                Pla de pagament"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-download me-1\"/>Download"
+msgstr "<i class=\"fa fa-download me-1\"/>Descarregar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "<i class=\"fa fa-envelope me-1\"/>Request a data change"
+msgstr "<i class=\"fa fa-envelope me-1\"/>Sol·licitar un canvi de dades"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 msgid ""
 "<i class=\"fa fa-exchange me-1 text-ems-primary\"/>Payment by bank transfer"
 msgstr ""
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<i class=\"fa fa-exchange me-1\"/>Bank transfer"
-msgstr "<i class=\"fa fa-exchange me-1\"/>Transferència bancària"
+"<i class=\"fa fa-exchange me-1 text-ems-primary\"/>Pagament per "
+"transferència bancària"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -440,6 +576,8 @@ msgid ""
 "<i class=\"fa fa-exclamation-triangle me-1\"/> Please enter an IBAN before "
 "submitting."
 msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Si us plau, introdueix un "
+"IBAN abans d'enviar."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
@@ -447,12 +585,16 @@ msgid ""
 "<i class=\"fa fa-exclamation-triangle me-1\"/> Please select a file before "
 "submitting."
 msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Si us plau, selecciona un "
+"fitxer abans d'enviar."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid ""
 "<i class=\"fa fa-exclamation-triangle me-1\"/>Your bank account has expired:"
 msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>El teu compte bancari ha "
+"caducat:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
@@ -470,9 +612,31 @@ msgid "<i class=\"fa fa-id-card me-2\"/>Official documents"
 msgstr "<i class=\"fa fa-id-card me-2\"/>Documents oficials"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<i class=\"fa fa-info-circle me-1 text-ems-primary\"/>Transfer details:"
-msgstr "<i class=\"fa fa-info-circle me-1 text-ems-primary\"/>Dades de transferència:"
+msgid "<i class=\"fa fa-info-circle me-1 text-ems-primary\"/>Payment schedule:"
+msgstr ""
+"<i class=\"fa fa-info-circle me-1 text-ems-primary\"/>Calendari de "
+"pagaments:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>\n"
+"                                                The payment method is direct debit. If you have difficulties providing a bank account for the payment of the enrollment, please contact the"
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>\n"
+"                                                El mètode de pagament és la domiciliació bancària. Si teniu dificultats per proporcionar un compte bancari per al pagament de la matrícula, poseu-vos en contacte amb"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-pencil me-1\"/>Update billing account"
+msgstr "<i class=\"fa fa-pencil me-1\"/>Actualitzar compte bancari"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-plus me-1\"/>Submit new benefit / exemption"
+msgstr "<i class=\"fa fa-plus me-1\"/>Nova sol·licitud de bonificació / exempció"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -503,6 +667,26 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-refresh me-1\"/>Renew current account"
+msgstr "<i class=\"fa fa-refresh me-1\"/>Renovar compte actual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-star me-2\"/>Bonifications &amp; Exemptions"
+msgstr "<i class=\"fa fa-star me-2\"/>Bonificacions i exempcions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-star me-2\"/>Submit bonification / exemption"
+msgstr "<i class=\"fa fa-star me-2\"/>Sol·licitar bonificació / exempció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-times me-1\"/>Cancel"
+msgstr "<i class=\"fa fa-times me-1\"/>Cancel·lar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "<i class=\"fa fa-times me-1\"/>Cancel submission"
 msgstr "<i class=\"fa fa-times me-1\"/>Cancel·lar enviament"
 
@@ -520,6 +704,13 @@ msgstr ""
 msgid ""
 "<i class=\"fa fa-university me-1 text-ems-primary\"/>Payment by direct debit"
 msgstr ""
+"<i class=\"fa fa-university me-1 text-ems-primary\"/>Pagament per "
+"domiciliació bancària"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<i class=\"fa fa-university me-1\"/>Current billing account"
+msgstr "<i class=\"fa fa-university me-1\"/>Compte bancari actual"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -569,10 +760,17 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<option value=\"\">— Select a type —</option>"
+msgstr "<option value=\"\">— Selecciona un tipus —</option>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid ""
 "<span class=\"badge bg-warning text-dark me-2\"><i class=\"fa fa-clock-o "
 "me-1\"/>Pending review</span>"
 msgstr ""
+"<span class=\"badge bg-warning text-dark me-2\"><i class=\"fa fa-clock-o "
+"me-1\"/>En revisió</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
@@ -635,6 +833,46 @@ msgstr ""
 "                                     <span class=\"badge text-bg-secondary\" invisible=\"benefit_status != 'none'\">Cap</span>"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid ""
+"<span class=\"form-label small\">Account holder <span class=\"text-"
+"danger\">*</span></span>"
+msgstr ""
+"<span class=\"form-label small\">Titular del compte <span class=\"text-"
+"danger\">*</span></span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<span class=\"form-label small\">Account holder</span>"
+msgstr "<span class=\"form-label small\">Titular del compte</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid ""
+"<span class=\"form-label small\">Expiry date <span class=\"text-"
+"muted\">(optional)</span></span>"
+msgstr ""
+"<span class=\"form-label small\">Data de caducitat <span class=\"text-"
+"muted\">(opcional)</span></span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<span class=\"form-label small\">Expiry date</span>"
+msgstr "<span class=\"form-label small\">Data de caducitat</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid ""
+"<span class=\"form-label small\">IBAN <span class=\"text-"
+"danger\">*</span></span>"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "<span class=\"form-label small\">IBAN</span>"
+msgstr ""
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
 msgid "<span class=\"me-2\">Check-out at</span>"
 msgstr "<span class=\"me-2\">Sortida a les</span>"
@@ -691,7 +929,6 @@ msgid "<span class=\"text-danger\"> *</span>"
 msgstr ""
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<strong>Account holder: </strong>"
@@ -699,7 +936,6 @@ msgstr "<strong>Titular: </strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<strong>Account holder: </strong>Institut Puig Castellar"
 msgstr "<strong>Titular: </strong>Institut Puig Castellar"
 
@@ -707,29 +943,6 @@ msgstr "<strong>Titular: </strong>Institut Puig Castellar"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "<strong>Available variables for the legal text:</strong>"
 msgstr "<strong>Variables disponibles per al text legal:</strong>"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<strong>Expired: </strong>"
-msgstr "<strong>Caducat: </strong>"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
-msgid "<strong>Expiry date: </strong>"
-msgstr "<strong>Data de caducitat: </strong>"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<strong>IBAN: </strong>"
-msgstr "<strong>IBAN: </strong>"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000"
-msgstr "<strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
@@ -742,8 +955,29 @@ msgid "<strong>Estudis:</strong>"
 msgstr ""
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "<strong>Expired: </strong>"
+msgstr "<strong>Caducat: </strong>"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "<strong>Forma de pagament:</strong>"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "<strong>IBAN: </strong>"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+msgid "<strong>IBAN: </strong>ES00 0000 0000 0000 0000 0000"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "<strong>IDALU</strong>"
 msgstr ""
 
 #. module: ems
@@ -772,6 +1006,20 @@ msgstr ""
 "                                Seleccioneu un arxiu Excel a continuació i feu clic a \"Importar alumnes\" per continuar."
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid ""
+"<strong>Important:</strong> for security reasons, you will be required to\n"
+"                                change the password on your first login. Keep these details in a safe place."
+msgstr ""
+"<strong>Important:</strong> per motius de seguretat, hauràs de canviar la contrasenya en el primer\n"
+"                                inici de sessió. Guarda aquestes dades en un lloc segur."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "<strong>Name</strong>"
+msgstr "<strong>Nom</strong>"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "<strong>Nivell:</strong>"
 msgstr ""
@@ -783,19 +1031,28 @@ msgstr "<strong>Sense implementar!</strong> Arribarà en breu..."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "<strong>Reference: </strong>"
 msgstr "<strong>Referència: </strong>"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
-msgid "<strong>Valid until: </strong>"
-msgstr "<strong>Vàlid fins: </strong>"
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "<strong>Temporary password</strong>"
+msgstr "<strong>Contrasenya temporal</strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 msgid "<strong>Torn:</strong>"
 msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "<strong>Username (email)</strong>"
+msgstr "<strong>Usuari (email)</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "<strong>Valid until: </strong>"
+msgstr "<strong>Vàlid fins: </strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
@@ -811,8 +1068,9 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "API endpoint (host address) where the LimeSurvey server is listening."
-msgstr "Adreça del servidor LimeSurvey (host)."
-"API endpoint (adreça del host) on el servei de LimeSurvey està escoltant."
+msgstr "Punt d'accés de l'API (adreça del servidor) on escolta el servidor LimeSurvey."
+"Adreça del servidor LimeSurvey (host).API endpoint (adreça del host) on el "
+"servei de LimeSurvey està escoltant."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__asp_id
@@ -831,13 +1089,13 @@ msgstr "Nom del PAS"
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Absence expected by: "
-msgstr "Abscència prevista per: "
+msgstr "Falta prevista per: "
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Absence justified by: "
-msgstr "Abscència justificada per: "
+msgstr "Falta justificada per: "
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__abstent_ids
@@ -914,13 +1172,17 @@ msgid "Accepted"
 msgstr "Acceptat"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "Access details for the school's Google Workspace account."
+msgstr "Dades d'accés al compte de Google Workspace de l'institut."
+
+#. module: ems
 #: model:res.groups,comment:ems.group_tutor
 msgid "Access rights for tutors (teachers in charge of a group)."
 msgstr "Drets d'accés per als tutors (professors responsables d'un grup)."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_value2
-#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 msgid "Account holder"
 msgstr "Titular del compte"
@@ -940,6 +1202,11 @@ msgstr "Nom del titular del compte"
 #: model:ir.model.fields,field_description:ems.field_ems_subject__acronym
 msgid "Acronym"
 msgstr "Acrònim"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__mode
+msgid "Action"
+msgstr "Acció"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__message_needaction
@@ -1200,13 +1467,7 @@ msgstr "Estudis permesos"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__allowed_subject_ids
 msgid "Allowed Subject"
-msgstr "Assumpte permès"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/shared/base.py:0
-msgid "An error occurred during the process"
-msgstr "S'ha produït un error durant el procés"
+msgstr "Assignatures permeses"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ac
@@ -1227,6 +1488,11 @@ msgstr "Aplica als nivells"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_template__ems_study_ids
 msgid "Applies to Studies"
 msgstr "Aplica als estudis"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Apply"
+msgstr "Aplicar"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
@@ -1358,9 +1624,9 @@ msgstr "Retard a l'estat d'una incidència en assistència"
 #: model:ir.model.fields,field_description:ems.field_res_company__attendance_issue_tutor_default
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__attendance_issue_tutor_default
 msgid "Attendance Issue Tutor Default"
-msgstr "Tutor per defecte d'incidències d'assistència"
-"Valor predeterminat a l'estat d'una incidència en assistència de cara al/la "
-"tutor/a"
+msgstr "Incidència d'assistència per defecte del tutor"
+"Tutor per defecte d'incidències d'assistènciaValor predeterminat a l'estat "
+"d'una incidència en assistència de cara al/la tutor/a"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_reports_group
@@ -1393,9 +1659,10 @@ msgstr ""
 #. module: ems
 #: model:ir.model,name:ems.model_ems_attendance_issue_student
 msgid "Attendance issue (student): groups the attendance's issues by student."
-msgstr "Incidència d'assistència (alumne): agrupa les incidències per alumne."
-"Incidència en assistència (estudiant): agrupa les incidències en assistència"
-" per estudiant."
+msgstr "Incidència d'assistència (estudiant): agrupa les incidències d'assistència per estudiant."
+"Incidència d'assistència (alumne): agrupa les incidències per "
+"alumne.Incidència en assistència (estudiant): agrupa les incidències en "
+"assistència per estudiant."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_attendance_issue_tutor
@@ -1688,6 +1955,21 @@ msgid "Basic Employee"
 msgstr "Empleat bàsic"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
+msgid "Benefit data"
+msgstr "Dades de benefici"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_document__benefit_type
+msgid "Benefit type"
+msgstr "Tipus de bonificació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "Benefit type <span class=\"text-danger\">*</span>"
+msgstr "Tipus de bonificació <span class=\"text-danger\">*</span>"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__benefit_status
 #: model:ir.model.fields,field_description:ems.field_res_users__benefit_status
 msgid "Benefits"
@@ -1712,6 +1994,8 @@ msgid "Birth Date"
 msgstr "Data de naixement"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_birth_date
 msgid "Birth date"
 msgstr "Data de naixement"
@@ -1744,6 +2028,11 @@ msgid "Bonification (Partial)"
 msgstr "Bonificació (Parcial)"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__benefit
+msgid "Bonification / Exemption"
+msgstr "Bonificació / Exempció"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Bonifications & Exemptions"
 msgstr "Bonificacions i exempcions"
@@ -1760,6 +2049,16 @@ msgstr "Desglossament"
 #: model:res.partner.relation.type,name_inverse:ems.relation_type_sibling
 msgid "Brother/Sister"
 msgstr "Germà/Germana"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_portal_access_wizard
+msgid "Bulk portal access for students and families"
+msgstr "Accés massiu al portal per a alumnes i famílies"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__csv_filename
+msgid "CSV Filename"
+msgstr "Nom de fitxer CSV"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_csv_column
@@ -1780,6 +2079,7 @@ msgstr "Fitxer CSV"
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "Cancel"
 msgstr "Cancel·la"
@@ -1789,6 +2089,28 @@ msgstr "Cancel·la"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 msgid "Cancelled"
 msgstr "Cancel·lat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"Cannot create the Google Workspace account for %(name)s.\n"
+"The following required data is missing: %(fields)s."
+msgstr ""
+"No es pot crear el compte de Google Workspace per a %(name)s.\n"
+"Falten les dades obligatòries següents: %(fields)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"Cannot delete this survey in its current state. Only surveys in 'Draft', "
+"'Recipients computed', or 'Closed' state can be deleted. If the survey is "
+"active or in progress, please close it first."
+msgstr ""
+"No es pot eliminar aquesta enquesta en el seu estat actual. Només es poden "
+"eliminar enquestes en estat 'Esborrany', 'Destinataris calculats' o "
+"'Tancada'. Si l'enquesta està activa o en curs, tanca-la primer."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__car_plate
@@ -1818,9 +2140,15 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__category
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_form
 msgid "Category"
 msgstr "Categoria"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Center Emails"
+msgstr "Correus del centre"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
@@ -1869,6 +2197,7 @@ msgstr "Ciutadania"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__city
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_city
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "City"
 msgstr "Ciutat"
 
@@ -1878,6 +2207,8 @@ msgid "Classroom"
 msgstr "Aula"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_status_exception_popup
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_error_popup
@@ -1922,7 +2253,10 @@ msgstr "Color"
 msgid ""
 "Color coding: Orange = draft enrollment (not yet sent) · Blue = sent to "
 "family (awaiting confirmation) · Green = confirmed enrollment"
-msgstr "Codificació de colors: Taronja = matrícula esborrany (encara no enviada) · Blau = enviada a la família (pendent de confirmació) · Verd = matrícula confirmada"
+msgstr ""
+"Codificació de colors: Taronja = matrícula esborrany (encara no enviada) · "
+"Blau = enviada a la família (pendent de confirmació) · Verd = matrícula "
+"confirmada"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -1996,8 +2330,8 @@ msgid ""
 "Configuration Error! There can be only one Course marked as 'Current "
 "(Operational)' at a time."
 msgstr ""
-"Error de configuració! Només pot haver-hi un curs marcat com a 'Actual "
-"(Operatiu)' a la vegada."
+"Error de configuració. Només pot haver-hi un Curs marcat com a 'Actual "
+"(Operatiu)' al mateix temps."
 
 #. module: ems
 #. odoo-python
@@ -2006,8 +2340,8 @@ msgid ""
 "Configuration Error! There can be only one Course marked as 'Enrollment "
 "Default' at a time."
 msgstr ""
-"Error de configuració! Només pot haver-hi un curs marcat com a 'Matrícula "
-"per defecte' a la vegada."
+"Error de configuració. Només pot haver-hi un Curs marcat com a "
+"'Predeterminat de matrícula' al mateix temps."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -2075,10 +2409,22 @@ msgid "Coordination Time"
 msgstr "Càrrec de Coordinació"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "Corporate account credentials"
+msgstr "Credencials del compte corporatiu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Corporate domain for student accounts (e.g. elpuig.xeill.net)."
+msgstr "Domini corporatiu per als comptes d'estudiants (p. ex. elpuig.xeill.net)."
+"Domini corporatiu per als comptes d'alumnes (p. ex. elpuig.xeill.net)."
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/student_update_wizard.py:0
 msgid "Could not decode the CSV file. Please save it as UTF-8."
-msgstr "No s'ha pogut llegir el fitxer CSV. Desa'l en format UTF-8."
+msgstr "No s'ha pogut descodificar el fitxer CSV. Deseu-lo en format UTF-8."
+"No s'ha pogut descodificar el fitxer CSV. Si us plau, desa'l en UTF-8."
 
 #. module: ems
 #. odoo-python
@@ -2087,17 +2433,18 @@ msgid ""
 "Could not find the header row. Make sure the xlsx file contains a column "
 "'Grup Classe'."
 msgstr ""
-"No s'ha pogut trobar la fila de capçalera. Assegureu-vos que el fitxer xlsx "
-"conté la columna 'Grup Classe'."
+"No s'ha trobat la fila de capçalera. Assegura't que el fitxer xlsx conté una"
+" columna 'Grup Classe'."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/student_update_wizard.py:0
 msgid "Could not read column headers from the CSV file."
-msgstr "No s'han pogut llegir les capçaleres del fitxer CSV."
+msgstr "No s'han pogut llegir les capçaleres de columnes del fitxer CSV."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__country_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Country"
 msgstr "País"
 
@@ -2132,6 +2479,11 @@ msgstr ""
 #: model:res.partner.relation.type,name_inverse:ems.relation_type_cousin
 msgid "Cousin"
 msgstr "Cosí/Cosina"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Create Google account"
+msgstr "Crear compte de Google"
 
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_ems_enrollment_items
@@ -2183,6 +2535,8 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_planning__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_role__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_space__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_space_type__create_uid
@@ -2234,6 +2588,8 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_planning__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_role__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_space__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_space_type__create_date
@@ -2249,6 +2605,23 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__create_date
 msgid "Created on"
 msgstr "Creat el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
+msgid "Credentials"
+msgstr "Credencials"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Credentials PDF could NOT be generated (see logs)"
+msgstr "El PDF de credencials NO s'ha pogut generar (consulta els registres)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Credentials PDF saved in the student documentation"
+msgstr "PDF de credencials desat a la documentació de l'alumne"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_criteria
@@ -2287,6 +2660,11 @@ msgid "Current Enrollment"
 msgstr "Matrícula actual"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Current access"
+msgstr "Accés actual"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Current course"
 msgstr "Curs actual"
@@ -2301,7 +2679,7 @@ msgstr "Currículum"
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__dni
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "DNI / NIE"
-msgstr "DNI / NIE"
+msgstr ""
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_issues
@@ -2368,9 +2746,10 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_ems_authorization_template
 msgid "Define the legal texts, consents, and rules required for enrollments."
-msgstr "Defineix els textos legals, consentiments i normatives necessàries per a les matrícules."
-"Defineix els textos legals, consentiments i normes necessaris per a les "
-"matrícules."
+msgstr "Definiu els textos legals, consentiments i normes necessaris per a les matrícules."
+"Defineix els textos legals, consentiments i normatives necessàries per a les"
+" matrícules.Defineix els textos legals, consentiments i normes necessaris "
+"per a les matrícules."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_sale_order_template__ems_study_id
@@ -2394,6 +2773,11 @@ msgstr "Delegat/da"
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_public_kanban
 msgid "Delete"
 msgstr "Suprimeix"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_limesurvey_delete_closed_confirmed
+msgid "Delete closed survey (confirmed)"
+msgstr "Eliminar enquesta tancada (confirmat)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
@@ -2519,6 +2903,8 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_planning__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_role__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_space__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_space_type__display_name
@@ -2594,15 +2980,31 @@ msgid "Documents"
 msgstr "Documents"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Download"
+msgstr "Descarregar"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_study_form
 msgid "Download File"
 msgstr "Descarrega el fitxer"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Download data"
+msgstr "Descarregar dades"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form
 msgid "Download import log (CSV)"
 msgstr "Descarregar log d'importació (CSV)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
+msgid "Download result CSV"
+msgstr "Descarregar CSV de resultats"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__downloading
@@ -2615,17 +3017,28 @@ msgid "Draft"
 msgstr "Esborrany"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Dry-run mode"
+msgstr "Mode de prova (dry-run)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_search
+msgid "Due Date"
+msgstr "Data de venciment"
+
+#. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_attendance_session_header_attendance_session_is_duped
 msgid "Duped session (same schedule and date)."
 msgstr "Sessió duplicada (mateix horari i data)."
-"La sessió actual ja existeix. Si us plau, editeu l'existent (potser l'ha "
-"creat un altre professor) o trieu una altra sessió disponible."
+"Sessió duplicada (mateix horari i data).La sessió actual ja existeix. Si us "
+"plau, editeu l'existent (potser l'ha creat un altre professor) o trieu una "
+"altra sessió disponible."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
 msgid "Duplicate Item"
-msgstr "Duplicar element"
+msgstr "Element duplicat"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__name
@@ -2641,7 +3054,7 @@ msgstr "Crèdits ECTS"
 #: model:ir.module.category,name:ems.category_main
 #: model:ir.module.category,name:ems.ems_category_main
 msgid "EMS"
-msgstr "EMS"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkout_mode__ems
@@ -2674,6 +3087,11 @@ msgid "EMS multithreading model's code)"
 msgstr "Codi multifil pels models de l'EMS"
 
 #. module: ems
+#: model:mail.template,name:ems.email_template_enrollment_send
+msgid "EMS: Send Enrollment Proposal"
+msgstr "EMS: Enviar proposta de matrícula"
+
+#. module: ems
 #: model:ir.actions.act_window,name:ems.action_student_update_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
 msgid "EMS: Update students from CSV"
@@ -2682,11 +3100,6 @@ msgstr "EMS: Actualitzar alumnes des de CSV"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "ES00 0000 0000 0000 0000 0000"
-msgstr "ES00 0000 0000 0000 0000 0000"
-
-#. module: ems
-#: model:mail.template,name:ems.email_template_enrollment_send
-msgid "EMS: Send Enrollment Proposal"
 msgstr ""
 
 #. module: ems
@@ -2719,10 +3132,23 @@ msgstr "Sistema de gestió educativa"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__email
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__email
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__recipient_email
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_email
 #: model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_email
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Email"
 msgstr "Correu electrìnic"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Email address used as the recipient for messages addressed to the center's "
+"secretariat (e.g. portal personal-data change requests)."
+msgstr ""
+"Adreça de correu utilitzada com a destinatari dels missatges adreçats a la "
+"secretaria del centre (p. ex. sol·licituds de canvi de dades personals des "
+"del portal)."
 
 #. module: ems
 #: model:mail.template,name:ems.mail_attendance_issue_status
@@ -2770,6 +3196,11 @@ msgstr "Tipus d'ocupació"
 #: model:ir.ui.menu,name:ems.menu_employmenttypes
 msgid "Employment types"
 msgstr "Tipus d'ocupació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Enable Google Workspace"
+msgstr "Activar Google Workspace"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
@@ -2924,6 +3355,13 @@ msgstr "Plantilles de matrícula"
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 msgid "Enrollment code"
 msgstr "Codi de matrícula"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_enrollment_collections
+#: model:ir.ui.menu,name:ems.menu_enrollment_collections
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list
+msgid "Enrollment collections"
+msgstr "Cobraments de matrícula"
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_enrollment_send
@@ -3108,6 +3546,11 @@ msgid "Father"
 msgstr "Pare"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_fee_amount
+msgid "Fee Amount"
+msgstr "Import de les taxes"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_response__field_id
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 msgid "Field"
@@ -3130,8 +3573,9 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_attendance_template__color
 msgid "Field to store the color that will be used for calendar view"
-msgstr "Camp per emmagatzemar el color del calendari"
-"Camp per emmagatzemar el color que s'utilitzarà per a la vista de calendari"
+msgstr "Camp per emmagatzemar el color que s'utilitzarà a la vista de calendari"
+"Camp per emmagatzemar el color del calendariCamp per emmagatzemar el color "
+"que s'utilitzarà per a la vista de calendari"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_file
@@ -3162,6 +3606,18 @@ msgid "First (first scheduled working hour)"
 msgstr "Primer (primera hora de treball programada)"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_first_installment
+msgid "First Installment"
+msgstr "Primer pagament"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "First Payment"
+msgstr "Primer pagament"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__firstname
 msgid "First name"
 msgstr "Nom"
@@ -3262,11 +3718,158 @@ msgid "Generic Items"
 msgstr "Elements genèrics"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Get CSV"
+msgstr "Obtenir CSV"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_account.py:0
+msgid ""
+"Good morning,\r\n"
+"I would like to make a change to my personal data:\r\n"
+"\r\n"
+"\r\n"
+"Best regards"
+msgstr ""
+"Bon dia,\r\n"
+"M'agradaria fer un canvi en les meves dades personals:\r\n"
+"\r\n"
+"\r\n"
+"Cordialment"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"Google API libraries are not installed on the server (google-api-python-"
+"client, google-auth)."
+msgstr ""
+"Les biblioteques de l'API de Google no estan instal·lades al servidor "
+"(google-api-python-client, google-auth)."
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_welcome
+msgid "Google Workspace - Welcome credentials"
+msgstr "Google Workspace - Credencials de benvinguda"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Google Workspace Settings"
+msgstr "Configuració de Google Workspace"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"Google Workspace account created: %(email)s (OU %(ou)s)%(dry)s. "
+"%(pdf)s%(mail)s."
+msgstr ""
+"Compte de Google Workspace creat: %(email)s (OU %(ou)s)%(dry)s. "
+"%(pdf)s%(mail)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace account reactivated: %(email)s (moved to OU %(ou)s)."
+msgstr "Compte de Google Workspace reactivat: %(email)s (mogut a OU %(ou)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace account reactivated: %s [dry-run]."
+msgstr "Compte de Google Workspace reactivat: %s [dry-run]."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"Google Workspace account suspended: %(email)s (moved to OU %(ou)s)%(dry)s."
+msgstr ""
+"Compte de Google Workspace suspès: %(email)s (mogut a OU %(ou)s)%(dry)s."
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_google_credentials
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__google_credentials
+msgid "Google Workspace credentials"
+msgstr "Credencials de Google Workspace"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_domain
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_domain
+msgid "Google Workspace domain"
+msgstr "Domini de Google Workspace"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_dry_run
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_dry_run
+msgid "Google Workspace dry-run"
+msgstr "Google Workspace en mode simulació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_enabled
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_enabled
+msgid "Google Workspace enabled"
+msgstr "Google Workspace activat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: account %s no longer exists; marked as suspended."
+msgstr "Google Workspace: el compte %s ja no existeix; marcat com a suspès."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: account %s no longer exists; recreating it."
+msgstr "Google Workspace: el compte %s ja no existeix; es tornarà a crear."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: all candidate emails already exist in Google."
+msgstr "Google Workspace: tots els correus candidats ja existeixen a Google."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: could not generate a free email address."
+msgstr "Google Workspace: no s'ha pogut generar una adreça de correu lliure."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: could not suspend %(email)s. Check that the OU %(ou)s "
+"exists in Admin. Error: %(err)s"
+msgstr ""
+"Google Workspace: no s'ha pogut suspendre %(email)s. Comprova que la OU "
+"%(ou)s existeix al panell d'administració. Error: %(err)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_sa_json
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_sa_json
+msgid "Google Ws Sa Json"
+msgstr ""
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_sa_json_encrypted
+msgid "Google Ws Sa Json Encrypted"
+msgstr ""
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_suspended
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_suspended
+msgid "Google account suspended"
+msgstr "Compte de Google suspès"
+
+#. module: ems
 #: model:ir.model,name:ems.model_ems_grade_outcome
 msgid "Grade (outcome): ternary relation between student-teacher-outcome."
-msgstr "Qualificació (resultat): relació ternària alumne-professor-resultat."
-"Qualificació (resultat d'aprenentatge): relació ternària entre estudiant-"
-"professor-resultat."
+msgstr "Qualificació (resultat): relació ternaria entre estudiant-professor-resultat."
+"Qualificació (resultat): relació ternària alumne-professor-"
+"resultat.Qualificació (resultat d'aprenentatge): relació ternària entre "
+"estudiant-professor-resultat."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu
@@ -3289,6 +3892,11 @@ msgstr "Àvia"
 #: model:res.partner.relation.type,name_inverse:ems.relation_type_grandmother
 msgid "Grandson/Granddaughter"
 msgstr "Nét/Néta"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__grant
+msgid "Grant access"
+msgstr "Atorgar accés"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__group_id
@@ -3367,6 +3975,11 @@ msgid "HR Attendance: auto check-in/check-out extension."
 msgstr "Assistència"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_has_fees
+msgid "Has Fee Products"
+msgstr "Té taxes"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__has_message
@@ -3384,6 +3997,11 @@ msgstr "Assistència"
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__has_message
 msgid "Has Message"
 msgstr "Té missatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__has_portal
+msgid "Has portal access"
+msgstr "Té accés al portal"
 
 #. module: ems
 #: model:ems.role,name:ems.role_hos
@@ -3449,6 +4067,8 @@ msgid ""
 "I confirm this bank account for the new enrollment and the entire upcoming "
 "academic year"
 msgstr ""
+"Confirmo aquest compte bancari per a la nova matrícula i tot el proper curs "
+"acadèmic"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_value
@@ -3457,7 +4077,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 msgid "IBAN"
-msgstr "IBAN"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
@@ -3499,6 +4119,8 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__id
 #: model:ir.model.fields,field_description:ems.field_ems_planning__id
 #: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__id
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_role__id
 #: model:ir.model.fields,field_description:ems.field_ems_space__id
 #: model:ir.model.fields,field_description:ems.field_ems_space_type__id
@@ -3513,7 +4135,13 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "IDALU"
+msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_exception_icon
@@ -3561,6 +4189,8 @@ msgid ""
 "If IBAN is mapped and a row has a value, all existing bank accounts for that"
 " student will be replaced with the new one."
 msgstr ""
+"Si l'IBAN està mapejat i una fila té valor, tots els comptes bancaris "
+"existents d'aquell alumne seran substituïts pel nou."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__message_needaction
@@ -3626,6 +4256,34 @@ msgstr ""
 "estudis (p.ex. Taxes, Assegurança)."
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"If enabled, a Google Workspace account will be created automatically for "
+"each new student."
+msgstr ""
+"Si s'activa, es crearà automàticament un compte de Google Workspace per a "
+"cada alumne nou."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__google_ws_dry_run
+#: model:ir.model.fields,help:ems.field_res_config_settings__google_ws_dry_run
+msgid ""
+"If enabled, the account creation is logged without calling the real Google "
+"API."
+msgstr ""
+"Si està activat, la creació del compte es registra sense cridar l'API real "
+"de Google."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"If enabled, the account creation is only logged (no real call to the Google "
+"API). Useful for testing."
+msgstr ""
+"Si s'activa, la creació del compte només es registra al log (sense crida "
+"real a l'API de Google). Útil per a proves."
+
+#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization__acceptance_only
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__acceptance_only
 msgid "If enabled, this authorization can only be accepted."
@@ -3639,6 +4297,15 @@ msgid ""
 msgstr ""
 "Si està activat, aquest pla de pagament es mostrarà als alumnes al portal de"
 " matrícula."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_account_payment_term__ems_requires_fees
+msgid ""
+"If enabled, this payment plan will only be shown when the enrollment "
+"contains fee products (ems_is_enrollment_fee)."
+msgstr ""
+"Si està activat, aquest pla de pagament només es mostrarà quan la matrícula "
+"contingui productes de taxes (ems_is_enrollment_fee)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_is_tutoria
@@ -3788,7 +4455,7 @@ msgstr "Estudiant en ús"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__inuse_subject_ids
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__inuse_subject_ids
 msgid "Inuse Subject"
-msgstr "Assumpte en ús"
+msgstr "Assignatura en ús"
 
 #. module: ems
 #. odoo-python
@@ -3849,6 +4516,12 @@ msgid "Is Overriding"
 msgstr "Està sobreescrivint"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__is_tutor_readonly
+#: model:ir.model.fields,field_description:ems.field_res_users__is_tutor_readonly
+msgid "Is Tutor Readonly"
+msgstr "Tutor només lectura"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_product_product__ems_is_tutoria
 #: model:ir.model.fields,field_description:ems.field_product_template__ems_is_tutoria
 #: model:ir.model.fields,field_description:ems.field_sale_order_line__ems_is_tutoria
@@ -3865,6 +4538,12 @@ msgstr "Incident"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Issue notification delay"
 msgstr "Retard de notificació d'incidència"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "Issues:"
+msgstr "Incidències:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
@@ -3970,6 +4649,8 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_planning__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_role__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_space__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_space_type__write_uid
@@ -4021,6 +4702,8 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_outcome__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_planning__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_role__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_space__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_space_type__write_date
@@ -4038,6 +4721,8 @@ msgid "Last Updated on"
 msgstr "Última actualització el"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__lastname
 msgid "Last name"
 msgstr "Cognom"
@@ -4098,9 +4783,9 @@ msgstr "Nivell"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_level
 msgid "Level: Defines the studies level (University, VET, etc.)."
-msgstr "Nivell: Defineix el nivell dels estudis (Universitari, CFGS, etc.)."
-"Nivell: Defineix el nivell d'estudis (Universitat, Formació Professional, "
-"etc.)."
+msgstr "Nivell: Defineix el nivell d'estudis (Universitat, FP, etc.)."
+"Nivell: Defineix el nivell dels estudis (Universitari, CFGS, etc.).Nivell: "
+"Defineix el nivell d'estudis (Universitat, Formació Professional, etc.)."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_level_tree
@@ -4113,14 +4798,16 @@ msgstr "Nivells"
 #: model:ir.model.fields,help:ems.field_product_product__ems_level_ids
 #: model:ir.model.fields,help:ems.field_product_template__ems_level_ids
 msgid "Levels where this generic product is available (e.g. VET, Bachelor)."
-msgstr "Nivells on aquest producte genèric és disponible (p. ex. CFGS, Batxillerat)."
-"Nivells on aquest producte genèric està disponible (p.ex. FP, Batxillerat)."
+msgstr "Nivells on aquest producte genèric està disponible (p. ex. FP, Batxillerat)."
+"Nivells on aquest producte genèric és disponible (p. ex. CFGS, "
+"Batxillerat).Nivells on aquest producte genèric està disponible (p.ex. FP, "
+"Batxillerat)."
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_limesurvey
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "LimeSurvey"
-msgstr "LimeSurvey"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -4151,9 +4838,10 @@ msgstr ""
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_header
 msgid "LimeSurvey header: contains the survey's header and its content."
-msgstr "Capçalera LimeSurvey: conté la capçalera i el contingut de l'enquesta."
-"LimeSurvey header: conté el contingut d'una enquesta i les seves dades "
-"principals."
+msgstr "Capçalera de LimeSurvey: conté la capçalera de l'enquesta i el seu contingut."
+"Capçalera LimeSurvey: conté la capçalera i el contingut de "
+"l'enquesta.LimeSurvey header: conté el contingut d'una enquesta i les seves "
+"dades principals."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_recipient
@@ -4177,10 +4865,10 @@ msgid ""
 " not allow to create survey groups. Please, provide a valid group ID; the "
 "EMS will use this group in order to generate all the surveys within it."
 msgstr ""
-"No s'ha trobat el ID del group d'enquestes de LimeSurvey. Ho sentim, però la"
-" API v6 de LimeSurvey no permet crear grups d'enquestes. Si us plau, indiqui"
-" un ID de grup correcte; l'EMS farà servir aquest grup per a generar les "
-"enquestes a dins d'aquest grup."
+"No s'ha trobat l'ID de grup de LimeSurvey. Ho sentim, però l'API v6 de "
+"LimeSurvey no permet crear grups d'enquestes. Si us plau, proporciona un ID "
+"de grup vàlid; l'EMS utilitzarà aquest grup per generar totes les enquestes "
+"dins seu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -4196,7 +4884,13 @@ msgstr "Usuari de LimeSurvey"
 #. odoo-python
 #: code:addons/ems/models/shared/multithreading.py:0
 msgid "LimeSurvey: already running"
-msgstr "LimeSurvey: ja està funcionant"
+msgstr "LimeSurvey: ja en execució"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: close surveys"
+msgstr "LimeSurvey: tancar enquestes"
 
 #. module: ems
 #. odoo-python
@@ -4208,7 +4902,13 @@ msgstr "LimeSurvey: calcular destinataris"
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "LimeSurvey: delete reminder"
-msgstr "LimeSurvey: esborrar recordatori"
+msgstr "LimeSurvey: eliminar recordatori"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: download surveys"
+msgstr "LimeSurvey: descarregar enquestes"
 
 #. module: ems
 #. odoo-python
@@ -4226,13 +4926,19 @@ msgstr "LimeSurvey: recarregar destinataris"
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "LimeSurvey: remove surveys"
-msgstr "LimeSurvey: esborrar enquestes"
+msgstr "LimeSurvey: eliminar enquestes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "LimeSurvey: reopen surveys"
+msgstr "LimeSurvey: reobrir enquestes"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "LimeSurvey: return to draft"
-msgstr "LimeSurvey: revertir a esborrany"
+msgstr "LimeSurvey: tornar a esborrany"
 
 #. module: ems
 #. odoo-python
@@ -4404,7 +5110,7 @@ msgstr "Clau de coincidència"
 #. module: ems
 #: model:product.template,name:ems.product_generic_enrollment
 msgid "Matrícula El Puig Castellar"
-msgstr "Matrícula El Puig Castellar"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
@@ -4515,6 +5221,7 @@ msgstr "Falta"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__mobile
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_mobile
 #: model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_mobile
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Mobile"
 msgstr "Mòbil"
 
@@ -4602,6 +5309,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_study__name
 #: model:ir.model.fields,field_description:ems.field_ems_subject__name
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__name
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
@@ -4627,11 +5335,6 @@ msgstr "Nebot/Neboda"
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 msgid "New Enrollment"
 msgstr "Nova matrícula"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
-msgid "New IBAN"
-msgstr "Nou IBAN"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__is_new_contact
@@ -4715,8 +5418,8 @@ msgstr "No s'ha trobat cap procés de matrícula actiu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
-msgid "No bank account registered."
-msgstr "No hi ha cap compte bancari registrat."
+msgid "No bonifications or exemptions registered."
+msgstr "No hi ha bonificacions ni exempcions registrades."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_communications
@@ -4732,9 +5435,20 @@ msgstr "No s'ha trobat cap matrícula."
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
 msgid "No enrollment templates available for the selected students' study."
-msgstr "No hi ha plantilles de matrícula disponibles per a l'estudi dels alumnes seleccionats."
+msgstr "No hi ha plantilles de matrícula disponibles per als estudis dels estudiants seleccionats."
 "No hi ha plantilles de matrícula disponibles per als estudis dels alumnes "
 "seleccionats."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "No family contact found"
+msgstr "No s'ha trobat contacte familiar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_non_fee_amount
+msgid "Non-fee Amount"
+msgstr "Import d'altres conceptes"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__non_teaching
@@ -4751,6 +5465,12 @@ msgstr "Cap"
 #: code:addons/ems/models/employees/employee.py:0
 msgid "Not allowed"
 msgstr "No permès"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__note
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Note"
+msgstr "Nota"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes
@@ -4793,6 +5513,12 @@ msgstr "No permès"
 #: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
 msgid "Notes"
 msgstr "Notas"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "Nothing to do"
+msgstr "Res a fer"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notification_id
@@ -4903,6 +5629,45 @@ msgid "OK"
 msgstr "D'acord"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_adult
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_adult
+msgid "OU (adults 18+)"
+msgstr ""
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_minor
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_minor
+msgid "OU (minors)"
+msgstr "OU (menors)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_suspended
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_suspended
+msgid "OU (suspended)"
+msgstr "OU (suspesos)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for adults (18+)"
+msgstr "OU per a majors d'edat (18+)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for minors"
+msgstr "OU per a menors d'edat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for suspended students"
+msgstr "OU per a alumnes donats de baixa"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__google_ws_ou_suspended
+#: model:ir.model.fields,help:ems.field_res_config_settings__google_ws_ou_suspended
+msgid "OU where suspended (former) students are moved."
+msgstr "OU on es mouen els alumnes suspesos (exalumnes)."
+
+#. module: ems
 #: model:ems.role,name:ems.role_orc
 msgid "Occupational risk coordinator"
 msgstr "Coordinador/a de riscos laborals"
@@ -4924,9 +5689,13 @@ msgid ""
 "Only admins can create manual enrollments. If you're a group's tutor, you "
 "can enroll students using the student's form."
 msgstr ""
-"Només els administradors poden crear matriculacions manuals. Si ets el tutor"
-" d'un grup, pots matricular els estudiants fent servir el formulari dels "
-"estudiants."
+"Només els administradors poden crear matrícules manuals. Si ets tutor d'un "
+"grup, pots matricular alumnes des del formulari de l'alumne."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_account_payment_term__ems_requires_fees
+msgid "Only for fee-based enrollments"
+msgstr "Només per a matrícules amb taxes"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
@@ -4939,31 +5708,28 @@ msgstr "Tansols els meus"
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can justify its attendances."
-msgstr "Només el tutor de l'alumne pot justificar les seves assistències."
-"Només el/la tutor/a de l'alumne/a pot justificar les seves faltes "
-"d'assistència."
+msgstr "Només el tutor de l'alumne pot justificar les seves faltes."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can remove its attendance justifications."
-msgstr "Només el tutor de l'alumne pot eliminar les seves justificacions d'assistència."
-"Només el/la tutor/a de l'alumne/a pot eliminar les seves justificacions "
-"d'assistència."
+msgstr "Només el tutor de l'estudiant pot eliminar les seves justificacions d'assistència."
+"Només el tutor de l'alumne pot eliminar les seves justificacions de faltes."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can update its attendance justifications."
-msgstr "Només el tutor de l'alumne pot actualitzar les seves justificacions d'assistència."
-"Només el/la tutor/a de l'alumne/a pot actualitzar les seves justificacions "
-"d'assistència."
+msgstr "Només el tutor de l'estudiant pot actualitzar les seves justificacions d'assistència."
+"Només el tutor de l'alumne pot actualitzar les seves justificacions de "
+"faltes."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only tutors can justify student's attendances."
-msgstr "Només els/les tutors/es poden justificar faltes d'assistència."
+msgstr "Només els tutors poden justificar les faltes dels alumnes."
 
 #. module: ems
 #. odoo-python
@@ -5005,6 +5771,28 @@ msgstr "Obrint enquestes"
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__nature__ordinary
 msgid "Ordinary"
 msgstr "Ordinari"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Organizational Unit path where students aged 18 or older are created."
+msgstr "Ruta de la unitat organitzativa on es creen els estudiants de 18 anys o més."
+"Ruta de la unitat organitzativa on es creen els alumnes de 18 anys o més."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Organizational Unit path where suspended (former) students are moved. Must "
+"be inside the students OU so the service account can manage it."
+msgstr ""
+"Ruta de la unitat organitzativa on es mouen els alumnes donats de baixa. Ha "
+"d'estar dins de la unitat dels alumnes perquè el compte de servei la pugui "
+"gestionar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Organizational Unit path where under-18 students are created."
+msgstr "Ruta de la unitat organitzativa on es creen els estudiants menors de 18 anys."
+"Ruta de la unitat organitzativa on es creen els alumnes menors de 18 anys."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__other
@@ -5075,6 +5863,34 @@ msgid "Passport"
 msgstr "Passaport"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Paste here the full JSON key of the Google Cloud service account. It is "
+"stored encrypted. The service account must have a custom admin role scoped "
+"to the students OU."
+msgstr ""
+"Enganxa aquí la clau JSON completa del compte de servei de Google Cloud. Es "
+"desa xifrada. El compte de servei ha de tenir un rol d'administrador "
+"personalitzat limitat a la unitat organitzativa dels alumnes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Payment"
+msgstr "Pagament"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "Payment 1 — 100% enrollment items + 50% fees"
+msgstr "Pagament 1 — 100% conceptes de matrícula + 50% taxes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "Payment 2 — 50% fees"
+msgstr "Pagament 2 — 50% taxes"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_sale_order__ems_payment_method
 msgid "Payment Method"
 msgstr "Mètode de pagament"
@@ -5085,9 +5901,19 @@ msgid "Payment Terms"
 msgstr "Terminis de pagament"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Payment breakdown"
+msgstr "Detall del pagament"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 msgid "Payment information not yet specified."
 msgstr "Informació de pagament no especificada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Payment plan"
+msgstr "Pla de pagament"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__pending
@@ -5114,9 +5940,22 @@ msgid "Personal Email"
 msgstr "Correu electrònic personal"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_account.py:0
+msgid "Personal data modification for student %s"
+msgstr "Modificació de dades personals de l'alumne %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Personal email"
+msgstr "Correu personal"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__phone
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_phone
 #: model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_phone
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Phone"
 msgstr "Telèfon"
 
@@ -5143,9 +5982,9 @@ msgstr "Planificació i qualificació"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_planning_outcome
 msgid "Planning's outcome ponderation: self explanatory."
-msgstr "Ponderació de resultats de la planificació."
-"Ponderació dels resultats d'aprenentatge dins de la programació docent: "
-"s'explica per ella mateixa."
+msgstr "Ponderació del resultat de la planificació: autoexplicatiu."
+"Ponderació de resultats de la planificació.Ponderació dels resultats "
+"d'aprenentatge dins de la programació docent: s'explica per ella mateixa."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_planning
@@ -5165,7 +6004,7 @@ msgstr "Programacions docents"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Plantilla"
-msgstr "Plantilla"
+msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -5193,6 +6032,23 @@ msgstr "Si us plau, puja primer un fitxer CSV."
 #: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__ponderation
 msgid "Ponderation (%)"
 msgstr "Ponderació (%)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Portal access"
+msgstr "Accés al portal"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_portal_access_bulk
+msgid "Portal access (students/families)"
+msgstr "Accés al portal (alumnes/famílies)"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_portal_access_wizard_line
+msgid "Portal access recipient (preview)"
+msgstr "Destinatari de l'accés al portal (previsualització)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_zip
@@ -5238,7 +6094,12 @@ msgstr "Imprimeix la matrícula"
 #. odoo-python
 #: code:addons/ems/models/shared/multithreading.py:0
 msgid "Process already running, maybe by another user?"
-msgstr "El procés ja està en marxa, potser l'ha iniciat un altre usuari?"
+msgstr "El procés ja està en execució, potser per un altre usuari?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_loading_overlay
+msgid "Processing your request…"
+msgstr "Processant la sol·licitud…"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
@@ -5306,6 +6167,21 @@ msgid "Ratings"
 msgstr "Qualificacions"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+msgid "Re-open surveys"
+msgstr "Reobrir enquestes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__reopening
+msgid "Re-opening surveys"
+msgstr "Reobrint enquestes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Reactivate Google account"
+msgstr "Reactivar compte de Google"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__read_only_user
 #: model:ir.model.fields,field_description:ems.field_res_partner__read_only_user
 #: model:ir.model.fields,field_description:ems.field_res_users__read_only_user
@@ -5326,20 +6202,34 @@ msgstr "Motiu de rebuig (obligatori abans de rebutjar)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__limesurvey_recipient_id
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__recipient_id
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Recipient"
 msgstr "Destinatari"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "Recipient without email"
+msgstr "Destinatari sense correu electrònic"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__limesurvey_recipient_ids
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__line_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Recipients"
 msgstr "Destinataris"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Recipients (preview)"
+msgstr "Destinataris (previsualització)"
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Recipients compute failed. "
-msgstr "El càlcul de destinataris ha fallat. "
+msgstr "Error en calcular els destinataris. "
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__computed
@@ -5350,31 +6240,25 @@ msgstr "Destinataris calculats"
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Recipients reload failed. "
-msgstr "La recàrrega de destinataris ha fallat. "
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/limesurvey/limesurvey.py:0
-msgid "Recipients remove failed. "
-msgstr "Error en eliminar els destinataris. "
+msgstr "Error en recarregar els destinataris. "
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Recipients successfully computed!"
-msgstr "Els destinataris s'han calculat correctament!"
+msgstr "Destinataris calculats correctament!"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Recipients successfully reloaded!"
-msgstr "Els destinataris s'han recalculat correctament!"
+msgstr "Destinataris recarregats correctament!"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Recipients successfully removed!"
-msgstr "Els destinataris s'han esborrat correctament!"
+msgstr "Destinataris eliminats correctament!"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__rectification
@@ -5448,7 +6332,7 @@ msgstr "Recargar destinatarios"
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Remind"
-msgstr "Recordatori"
+msgstr "Recordar"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__reminding
@@ -5459,7 +6343,7 @@ msgstr "Recordant"
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Remove"
-msgstr "Esborrar"
+msgstr "Eliminar"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
@@ -5486,9 +6370,20 @@ msgstr ""
 "què es troben. Aquesta acció no es pot desfer, vol continuar?"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "Renewal date"
+msgstr "Data de renovació"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__renewal_date
 msgid "Renewal/Review Date"
 msgstr "Data de renovació/revisió"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Reopen"
+msgstr "Reobrir"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
@@ -5504,6 +6399,11 @@ msgstr "Informes"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__is_required
 msgid "Required when accepting"
 msgstr "Obligatori en acceptar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
+msgid "Reset to pending"
+msgstr "Tornar a pendent"
 
 #. module: ems
 #: model:ir.model,name:ems.model_resource_calendar
@@ -5562,6 +6462,16 @@ msgid "Restore data"
 msgstr "Restaurar dades"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__result_csv
+msgid "Result Csv"
+msgstr "CSV de resultats"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__result_csv_filename
+msgid "Result Csv Filename"
+msgstr "Nom de fitxer CSV de resultats"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__result_html
 msgid "Result Html"
 msgstr "Resultat HTML"
@@ -5591,6 +6501,11 @@ msgstr "Consultar qualificacions i expedient acadèmic"
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__review_uid
 msgid "Reviewed by"
 msgstr "Revisat per"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__revoke
+msgid "Revoke access"
+msgstr "Revocar accés"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_role_list
@@ -5638,7 +6553,7 @@ msgstr "Ronda"
 #. odoo-python
 #: code:addons/ems/models/contacts/student_update_wizard.py:0
 msgid "Row %s (bank): %s"
-msgstr "Fila %s (compte bancari): %s"
+msgstr "Fila %s (banc): %s"
 
 #. module: ems
 #. odoo-python
@@ -5740,6 +6655,11 @@ msgid "School Council"
 msgstr "Consell Escolar"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "School Secretary"
+msgstr "la Secretaria del centre"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "Scope of Application"
 msgstr "Àmbit d'aplicació"
@@ -5774,6 +6694,27 @@ msgstr ""
 "aquesta autorització si encara no la tenen."
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_second_installment
+msgid "Second Installment"
+msgstr "Segon pagament"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Second Payment"
+msgstr "Segon pagament"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Secretariat"
+msgstr "Secretaria"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__secretariat_email
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__secretariat_email
+msgid "Secretariat Email"
+msgstr "Correu de secretaria"
+
+#. module: ems
 #: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary
 #: model:res.groups,name:ems.group_secretary
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -5796,12 +6737,6 @@ msgid "Security Group"
 msgstr "Grup de seguretat"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/shared/base.py:0
-msgid "See technical details (Exception)"
-msgstr "Veure detalls tècnics (Excepció)"
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__ems_level_ids
 msgid "Select the levels this applies to."
 msgstr "Selecciona els nivells als quals s'aplica."
@@ -5818,9 +6753,10 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__auth_type
 msgid "Select the specific type to automatically update the student's file."
-msgstr "Selecciona el tipus específic per actualitzar automàticament l'expedient de l'alumne."
+msgstr "Seleccioneu el tipus específic per actualitzar automàticament l'expedient de l'estudiant."
 "Selecciona el tipus específic per actualitzar automàticament l'expedient de "
-"l'alumne/a."
+"l'alumne.Selecciona el tipus específic per actualitzar automàticament "
+"l'expedient de l'alumne/a."
 
 #. module: ems
 #. odoo-python
@@ -5845,14 +6781,19 @@ msgid "Selected student (portal)"
 msgstr "Alumne seleccionat (portal)"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Selected students"
+msgstr "Alumnes seleccionats"
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
 msgid ""
 "Selected students belong to different studies. Please select students from "
 "the same group."
 msgstr ""
-"Els alumnes seleccionats pertanyen a estudis diferents. Selecciona alumnes "
-"del mateix grup."
+"Els alumnes seleccionats pertanyen a estudis diferents. Si us plau, "
+"selecciona alumnes del mateix grup."
 
 #. module: ems
 #: model:ems.role,name:ems.role_seminar
@@ -5889,6 +6830,11 @@ msgstr "Enviant recordatoris"
 #: model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence
 msgid "Sequence"
 msgstr "Seqüència"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Service Account JSON"
+msgstr "JSON del compte de servei"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__product_id
@@ -5991,11 +6937,31 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid ""
+"Something failed when trying to close a survey, please check the recipient "
+"entries for more details."
+msgstr ""
+"Quelcom ha fallat en intentar tancar una enquesta. Consulta les entrades de "
+"destinataris per a més detalls."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
 "Something failed when trying to delete a recipient, please check the "
 "recipient entries for more details."
 msgstr ""
-"Alguna cosa ha fallat intentant esborrar destinataris, si us plau, revisi "
-"els registres dels destinataris per a més detalls."
+"Quelcom ha fallat en intentar eliminar un destinatari. Consulta les entrades"
+" de destinataris per a més detalls."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"Something failed when trying to download survey responses, please check the "
+"recipient entries for more details."
+msgstr ""
+"Quelcom ha fallat en intentar descarregar les respostes de l'enquesta. "
+"Consulta les entrades de destinataris per a més detalls."
 
 #. module: ems
 #. odoo-python
@@ -6004,8 +6970,8 @@ msgid ""
 "Something failed when trying to open a survey or send the invitations, "
 "please check the recipient entries for more details."
 msgstr ""
-"Alguna cosa ha fallat intentant obrir una enquesta o enviar les invitacions,"
-" si us plau, revisi els registres dels destinataris per a més detalls."
+"Quelcom ha fallat en intentar obrir una enquesta o enviar les invitacions. "
+"Consulta les entrades de destinataris per a més detalls."
 
 #. module: ems
 #. odoo-python
@@ -6014,9 +6980,18 @@ msgid ""
 "Something failed when trying to remove a survey or its recipients, please "
 "check the recipient entries for more details."
 msgstr ""
-"Alguna cosa ha fallat intentant esborrar una enquesta o els seus "
-"destinataris, si us plau, revisi els registres dels destinataris per a més "
-"detalls."
+"Quelcom ha fallat en intentar eliminar una enquesta o els seus destinataris."
+" Consulta les entrades de destinataris per a més detalls."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"Something failed when trying to reopen a survey, please check the recipient "
+"entries for more details."
+msgstr ""
+"Quelcom ha fallat en intentar reobrir una enquesta. Consulta les entrades de"
+" destinataris per a més detalls."
 
 #. module: ems
 #. odoo-python
@@ -6025,8 +7000,8 @@ msgid ""
 "Something failed when trying to send a reminder to a recipient, please check"
 " the recipient entries for more details."
 msgstr ""
-"Alguna cosa ha fallat intentant enviar un recordatori a un destinatari, si "
-"us plau, revisi els registres dels destinataris per a més detalls."
+"Quelcom ha fallat en intentar enviar un recordatori a un destinatari. "
+"Consulta les entrades de destinataris per a més detalls."
 
 #. module: ems
 #. odoo-python
@@ -6035,8 +7010,8 @@ msgid ""
 "Something failed when trying to send reminders for a survey, please check "
 "the recipient entries for more details."
 msgstr ""
-"Alguna cosa ha fallat intentant enviar recordatoris per a una enquesta, si "
-"us plau, revisi els registres dels destinataris per a més detalls."
+"Quelcom ha fallat en intentar enviar recordatoris per a una enquesta. "
+"Consulta les entrades de destinataris per a més detalls."
 
 #. module: ems
 #. odoo-python
@@ -6045,9 +7020,8 @@ msgid ""
 "Something failed when trying to upload a survey or its recipients, please "
 "check the recipient entries for more details."
 msgstr ""
-"Alguna cosa ha fallat intentant pujar canvis a una enquesta o als seus "
-"destinataris, si us plau, revisi els registres dels destinataris per a més "
-"detalls."
+"Quelcom ha fallat en intentar pujar una enquesta o els seus destinataris. "
+"Consulta les entrades de destinataris per a més detalls."
 
 #. module: ems
 #. odoo-python
@@ -6056,8 +7030,8 @@ msgid ""
 "Something failed when trying to upload the changes for a recipient, please "
 "check the recipient entries for more details."
 msgstr ""
-"Alguna cosa ha fallat intentant pujar canvis per a un destinatari, si us "
-"plau, revisi els registres dels destinataris per a més detalls."
+"Quelcom ha fallat en intentar pujar els canvis d'un destinatari. Consulta "
+"les entrades de destinataris per a més detalls."
 
 #. module: ems
 #: model:res.partner.relation.type,name_inverse:ems.relation_type_father
@@ -6143,8 +7117,8 @@ msgid ""
 "Starting process in the background, you'll be notified on completion (it can"
 " take a while)."
 msgstr ""
-"Iniciant el procés en segon pla, serà notificat quan acabi (pot trigar una "
-"estona)."
+"Iniciant procés en segon pla; rebràs una notificació en finalitzar (pot "
+"trigar una estona)."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__state_id
@@ -6152,6 +7126,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__state
 msgid "State"
 msgstr "Estat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "State / Province"
+msgstr "Estat / Província"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__status
@@ -6212,11 +7191,13 @@ msgstr "Permanència al centre"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__street
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_street
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Street"
 msgstr "Carrer"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__street2
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Street 2"
 msgstr "Carrer 2"
 
@@ -6231,6 +7212,7 @@ msgstr "Carrer 2"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__student_id
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__student
@@ -6240,12 +7222,15 @@ msgstr "Carrer 2"
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_search
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
@@ -6363,6 +7348,12 @@ msgid "Student's Attendance Settings"
 msgstr "Configuració d'assistència de l'alumne/a"
 
 #. module: ems
+#: model:ir.actions.act_window,name:hr_attendance.hr_attendance_action
+#: model:ir.ui.menu,name:hr_attendance.menu_hr_attendance_root
+msgid "Employee Attendances"
+msgstr "Assistència del personal"
+
+#. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance
 msgid "Student's Attendances"
 msgstr "Assistència dels estudiants"
@@ -6374,6 +7365,7 @@ msgstr "Assistència dels estudiants"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__student_ids
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__student_ids
 #: model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__student_ids
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__students
 #: model:ir.ui.menu,name:ems.menu_community_config_students
 #: model:ir.ui.menu,name:ems.menu_students
@@ -6498,7 +7490,7 @@ msgstr "Assignatura: L'element principal de l'assignatura d'un estudiant."
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_study_form
 msgid "Subjects"
-msgstr "Assumptes"
+msgstr "Assignatures"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search
@@ -6529,11 +7521,21 @@ msgid "Sunday"
 msgstr "Diumenge"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+msgid "Supporting document <span class=\"text-danger\">*</span>"
+msgstr "Document justificatiu <span class=\"text-danger\">*</span>"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__limesurvey_header_id
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__limesurvey_header_id
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Survey"
 msgstr "Enquesta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__csv_data
+msgid "Survey Results CSV"
+msgstr "CSV de resultats d'enquesta"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__internal_id
@@ -6575,6 +7577,11 @@ msgstr "Enquestes obertes"
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__uploaded
 msgid "Surveys uploaded"
 msgstr "Enquestes pujades"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Suspend Google account"
+msgstr "Suspendre compte de Google"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_form
@@ -6691,6 +7698,18 @@ msgid "The CSV file appears to be empty."
 msgstr "El fitxer CSV sembla estar buit."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "The Google Workspace Service Account JSON is not configured."
+msgstr "El JSON del compte de servei de Google Workspace no està configurat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "The Google Workspace Service Account JSON is not valid."
+msgstr "El JSON del compte de servei de Google Workspace no és vàlid."
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid ""
 "The LimeSurvey API does not allow to create survey groups so, in order to "
@@ -6713,8 +7732,10 @@ msgstr "El bloc només apareixerà pels estudiants matriculats a FCT."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "The block appears only for students enrolled in this course (0 = all)."
-msgstr "El bloc apareix només per als alumnes matriculats en aquest curs (0 = tots)."
-"El bloc només apareixerà pels alumnes matriculats a aquest curs (0 = tots)."
+msgstr "El bloc apareix només per als estudiants matriculats en aquest curs (0 = tots)."
+"El bloc apareix només per als alumnes matriculats en aquest curs (0 = "
+"tots).El bloc només apareixerà pels alumnes matriculats a aquest curs (0 = "
+"tots)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
@@ -6745,8 +7766,8 @@ msgstr ""
 msgid ""
 "The current subject assignations will be updated to match the new schedules."
 msgstr ""
-"L'assignació de matèries del professorat s'actualitzarà per a conincidir amb"
-" els nous horaris aportats."
+"L'assignació de assignatures del professorat s'actualitzarà per a conincidir"
+" amb els nous horaris aportats."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
@@ -6764,14 +7785,14 @@ msgid ""
 "The file is missing required columns:\n"
 "• %s"
 msgstr ""
-"Al fitxer li falten les columnes obligatòries:\n"
+"Al fitxer li falten columnes obligatòries:\n"
 "• %s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
 msgid "The item '%s' is already in the list. Please select a different one."
-msgstr "L'element '%s' ja és a la llista. Selecciona'n un de diferent."
+msgstr "L'element '%s' ja és a la llista. Seleccioneu-ne un de diferent."
 "L'element '%s' ja és a la llista. Si us plau, selecciona'n un de diferent."
 
 #. module: ems
@@ -6787,8 +7808,8 @@ msgid ""
 "The tutor role cannot be assigned manually, it will be set automatically if "
 "any group is added to the 'tutorship' field."
 msgstr ""
-"El rol de tutor no es pot assignar manualment, s'establirà automàticament si"
-" qualsevol grup és afegit al camp 'tutoria'."
+"El rol de tutor no es pot assignar manualment; s'establirà automàticament si"
+" s'afegeix algun grup al camp 'tutoria'."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -6804,7 +7825,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/contacts/student_document.py:0
 msgid "There is already a pending IBAN submission for this student."
-msgstr "Ja hi ha un enviament d'IBAN pendent per a aquest alumne."
+msgstr "Ja existeix una sol·licitud d'IBAN pendent per a aquest alumne."
 
 #. module: ems
 #. odoo-python
@@ -6813,8 +7834,8 @@ msgid ""
 "There's another active entry for the same 'teacher / group / subject' "
 "ternary. Archive it first."
 msgstr ""
-"Existeix una altra entrada per la mateixa ternària 'docent / grup / "
-"assignatura'. Cal arxivar-la primer."
+"Ja existeix una altra entrada activa per a la mateixa terna 'professor / "
+"grup / assignatura'. Arxiva-la primer."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
@@ -6844,8 +7865,8 @@ msgid ""
 "This attendance was automatically checked out at the end of the scheduled "
 "working hours."
 msgstr ""
-"Aquesta assistència va ser registrada automàticament en finalitzar les hores"
-" de treball programades."
+"Aquesta assistència va ser registrada automàticament com a sortida al final "
+"de l'horari laboral programat."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_authorization_unique_enrollment_template
@@ -6855,8 +7876,9 @@ msgstr "Aquesta autorització ja està sol·licitada en aquesta matrícula."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "This block will be generated once per enrollred subject."
-msgstr "Aquest bloc es generarà una vegada per cada matèria matriculada."
-"Aquest bloc es repetirà per cada assignatura matriculada per l'estudiant."
+msgstr "Aquest bloc es generarà una vegada per assignatura matriculada."
+"Aquest bloc es generarà una vegada per cada assignatura matriculada.Aquest "
+"bloc es repetirà per cada assignatura matriculada per l'estudiant."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -6871,9 +7893,25 @@ msgid ""
 "cannot be deleted. Please, update its data instead or archive the entire "
 "template and create a new one with the correct data."
 msgstr ""
-"Aquest marc horari ha estat usat per a comprovar l'assistència d'algun "
-"estudiant i no es pot eliminar. Si us plau, actualitzi les dades o arxivi la"
-" plantilla i procedeixi a crear una nova amb les dades correctes."
+"Aquest horari ja ha estat utilitzat per registrar les assistències de "
+"l'alumne i no es pot eliminar. Si us plau, actualitza'n les dades o arxiva "
+"la plantilla sencera i crea'n una de nova amb les dades correctes."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid ""
+"This survey is CLOSED.\n"
+"\n"
+"Deleting it will also permanently delete it from LimeSurvey. If the response data has NOT been downloaded yet, it will be lost FOREVER and cannot be recovered.\n"
+"\n"
+"Are you sure you want to delete it?"
+msgstr ""
+"Aquesta enquesta està TANCADA.\n"
+"\n"
+"Eliminar-la també l'eliminarà permanentment de LimeSurvey. Si les dades de resposta NO s'han descarregat encara, es perdran PER SEMPRE i no es podran recuperar.\n"
+"\n"
+"Estàs segur que la vols eliminar?"
 
 #. module: ems
 #. odoo-python
@@ -6882,9 +7920,8 @@ msgid ""
 "This template have been already used to check the student's attendances and "
 "cannot be deleted. Please, archive it instead."
 msgstr ""
-"Aquesta plantilla s'ha fet servir per a comprovar l'assistència d'algun "
-"estudiant i no es pot eliminar. Si us plau, arxivi la plantilla i procedeixi"
-" a crear-ne una nova."
+"Aquesta plantilla ja ha estat utilitzada per registrar les assistències de "
+"l'alumne i no es pot eliminar. Si us plau, arxiva-la en el seu lloc."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3
@@ -6921,8 +7958,14 @@ msgstr "A"
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list
 msgid "Total"
 msgstr "Total"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Total Amount"
+msgstr "Import total"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__total_hours
@@ -6950,6 +7993,15 @@ msgstr ""
 "filtrades (permet que ems.group.enrollment_view_ids funcioni: conté les "
 "mateixes dades que enrolled_student_ids però filtrades per al grup actual "
 "perquè no es poden filtrar a la vista...)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_suspended
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_suspended
+msgid ""
+"True when the student's Google Workspace account is suspended (former "
+"student)."
+msgstr ""
+"Cert quan el compte de Google Workspace de l'alumne està suspès (exalumne)."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1
@@ -7071,37 +8123,43 @@ msgstr "URL per descarregar la plantilla del document físic."
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to activate the survey"
-msgstr "No ha estat possible activar l'enquesta"
+msgstr "No es pot activar l'enquesta"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
-msgid "Unable to create the survey."
-msgstr "No s'ha pogut crear l'enquesta."
+msgid "Unable to deactivate the survey"
+msgstr "No es pot desactivar l'enquesta"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to delete some participants"
-msgstr "No ha estat possible esborrar alguns participants"
+msgstr "No es poden eliminar alguns participants"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to delete the survey"
-msgstr "No ha estat possible esborrar l'enquesta"
+msgstr "No es pot eliminar l'enquesta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Unable to export survey responses"
+msgstr "No es poden exportar les respostes de l'enquesta"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to get the LimeSurvey's session key."
-msgstr "No ha estat possible obtenir una clau de sessió de LimeSurvey"
+msgstr "No es pot obtenir la clau de sessió de LimeSurvey."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to invite some participants"
-msgstr "No ha estat possible invitar a alguns participants"
+msgstr "No es poden convidar alguns participants"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
@@ -7117,8 +8175,14 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Unable to reactivate the survey"
+msgstr "No es pot reactivar l'enquesta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Unable to update some participants"
-msgstr "No ha estat possible actualitzar les dades d'alguns participants"
+msgstr "No es poden actualitzar alguns participants"
 
 #. module: ems
 #: model:res.partner.relation.type,name:ems.relation_type_uncle_aunt
@@ -7139,8 +8203,9 @@ msgstr "Unipersonal"
 #: model:ir.model.fields,help:ems.field_product_product__ems_subject_unit_cost
 #: model:ir.model.fields,help:ems.field_product_template__ems_subject_unit_cost
 msgid "Unit cost per subject (e.g. 65.00) used for fee calculation."
-msgstr "Cost unitari per matèria (p. ex. 65,00) per al càlcul de taxes."
-"Cost unitari per assignatura (p.ex. 65,00) usat per al càlcul de taxes."
+msgstr "Cost unitari per assignatura (p. ex. 65,00) utilitzat per al càlcul de taxes."
+"Cost unitari per matèria (p. ex. 65,00) per al càlcul de taxes.Cost unitari "
+"per assignatura (p.ex. 65,00) usat per al càlcul de taxes."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
@@ -7157,7 +8222,7 @@ msgstr "Actualitzar alumnes des de CSV"
 #. odoo-python
 #: code:addons/ems/models/limesurvey/limesurvey.py:0
 msgid "Upload"
-msgstr "Carregar"
+msgstr "Pujar"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__upload_date
@@ -7170,6 +8235,8 @@ msgid ""
 "Upload a CSV file and click <b>Load columns</b> to map its columns to "
 "student fields."
 msgstr ""
+"Puja un fitxer CSV i fes clic a <b>Carregar columnes</b> per mapar les seves"
+" columnes als camps de l'alumne."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
@@ -7288,6 +8355,11 @@ msgid "User's token (LimeSurvey)"
 msgstr "Token de l'usuari (LimeSurvey)"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "VAT Number"
+msgstr "NIF"
+
+#. module: ems
 #: model:ems.role,name:ems.role_vetcoord
 msgid "VET coordinator"
 msgstr "Coordinador/a de FP"
@@ -7376,6 +8448,7 @@ msgstr "Dia laborable"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_csv_column__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__wizard_id
 msgid "Wizard"
 msgstr "Assistent"
 
@@ -7445,6 +8518,11 @@ msgid "Workplace Intership Coordination"
 msgstr "Coordinació FCT"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Workspace domain"
+msgstr "Domini de Workspace"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_content_form
 #: model_terms:ir.ui.view,arch_db:ems.view_criteria_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
@@ -7461,6 +8539,12 @@ msgid "Write down here your notes..."
 msgstr "Escriu aquí les teves notes..."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/limesurvey/limesurvey.py:0
+msgid "Yes, delete permanently"
+msgstr "Sí, eliminar permanentment"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid ""
 "You must respond to the authorizations before continuing with the enrollment"
@@ -7470,8 +8554,36 @@ msgstr ""
 "matrícula."
 
 #. module: ems
+#: model:mail.template,subject:ems.mail_template_google_welcome
+msgid "Your corporate account @elpuig.xeill.net"
+msgstr "El teu compte corporatiu @elpuig.xeill.net"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid ""
+"Your personal data is read-only. To request a correction, please contact the"
+" secretariat using the button below."
+msgstr ""
+"Les teves dades personals són de només lectura. Per sol·licitar una "
+"correcció, contacta amb la secretaria mitjançant el botó de sota."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid ""
+"Your personal data is read-only. To request a correction, please contact the"
+" secretariat."
+msgstr ""
+"Les teves dades personals són de només lectura. Per sol·licitar una "
+"correcció, contacta amb la secretaria."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__zip
 msgid "ZIP"
+msgstr "Codi postal"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "Zip / Postal Code"
 msgstr "Codi postal"
 
 #. module: ems
@@ -7565,18 +8677,6 @@ msgid "planning"
 msgstr "planificació"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/limesurvey/limesurvey.py:0
-msgid "process failed."
-msgstr "el procés ha fallat."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/limesurvey/limesurvey.py:0
-msgid "process successfully completed!"
-msgstr "el procés s'ha completat correctament!"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
 msgid "recipient"
 msgstr "destinatari"
@@ -7587,6 +8687,11 @@ msgid "role"
 msgstr "rol"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "secretaria@example.com"
+msgstr ""
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_space_form
 #: model_terms:ir.ui.view,arch_db:ems.view_space_type_form
 msgid "space"
@@ -7595,7 +8700,7 @@ msgstr "espai"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_subject_form
 msgid "subject"
-msgstr "assumpte"
+msgstr "assignatura"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -7623,3 +8728,18 @@ msgstr "a"
 #: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
 msgid "workgroup"
 msgstr "grup de treball"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "{ \"type\": \"service_account\", ... }"
+msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "↳ Fee amount"
+msgstr "↳ Import de les taxes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "↳ Other enrollment concepts"
+msgstr "↳ Altres conceptes de matrícula"

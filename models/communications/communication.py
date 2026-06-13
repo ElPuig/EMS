@@ -193,8 +193,72 @@ class ems_communication_line(models.Model):
         template = self.env.ref('ems.mail_communication', raise_if_not_found=True)
         lang = self.partner_id.lang if self.partner_id else False
         tmpl = template.with_context(lang=lang).sudo() if lang else template.sudo()
-        tmpl.send_mail(self.id, force_send=True, email_values={'email_to': self.email})
+
+        rendered = tmpl._generate_template([self.id], ['body_html'])
+        body_html = rendered.get(self.id, {}).get('body_html', '')
+        body_html = self._prepare_body_for_email(body_html)
+
+        tmpl.send_mail(
+            self.id,
+            force_send=True,
+            email_values={'email_to': self.email, 'body_html': body_html},
+        )
         return True
+
+    def _prepare_body_for_email(self, body_html):
+        """Replace image URLs/data-URIs with publicly accessible access-token URLs."""
+        import re
+        from markupsafe import Markup
+        from lxml import html as lxml_html
+
+        if not body_html:
+            return body_html
+
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url', '').rstrip('/')
+
+        try:
+            doc = lxml_html.fromstring(f'<div>{body_html}</div>')
+        except Exception:
+            return body_html
+
+        for img in doc.iter('img'):
+            src = img.get('src') or ''
+
+            if src.startswith('data:image/'):
+                m = re.match(r'data:(image/[^;]+);base64,(.+)', src, re.DOTALL)
+                if not m:
+                    continue
+                mime_type, b64_data = m.group(1), m.group(2).strip()
+                ext = mime_type.split('/')[-1]
+                try:
+                    attachment = self.env['ir.attachment'].sudo().create({
+                        'name': f'image.{ext}',
+                        'datas': b64_data,
+                        'mimetype': mime_type,
+                        'res_model': self._name,
+                        'res_id': self.id,
+                    })
+                    attachment.generate_access_token()
+                    img.set('src', f'{base_url}/web/image/{attachment.id}?access_token={attachment.access_token}')
+                except Exception:
+                    pass
+
+            else:
+                m = re.search(r'/web/image/(\d+)', src)
+                if not m:
+                    continue
+                attachment_id = int(m.group(1))
+                attachment = self.env['ir.attachment'].sudo().browse(attachment_id)
+                if not attachment.exists():
+                    continue
+                if not attachment.access_token:
+                    attachment.generate_access_token()
+                img.set('src', f'{base_url}/web/image/{attachment_id}?access_token={attachment.access_token}')
+
+        result = lxml_html.tostring(doc, encoding='unicode', method='html')
+        if result.startswith('<div>') and result.endswith('</div>'):
+            result = result[5:-6]
+        return Markup(result)
 
     def open_notification_form(self):
         self.ensure_one()

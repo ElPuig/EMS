@@ -1,0 +1,111 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_communication_form">
+            <field name="name">ems.communication.form</field>
+            <field name="model">ems.communication</field>
+            <field name="arch" type="xml">
+                <form string="Communication">
+                    <div class="alert alert-warning w-100 text-center mb-2" role="alert" invisible="not has_families">
+                        <i title="Warning" class="fa fa-exclamation-triangle me-2"/>
+                        <strong>Notice:</strong> Families of adult students who have not given their consent to share educational information will <strong>not</strong> receive this communication.
+                    </div>
+
+                    <header>
+                        <button string="Send now"
+                            name="action_send"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-send"
+                            invisible="state != 'draft' or use_schedule"
+                        />
+                        <button string="Schedule"
+                            name="action_send"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-clock-o"
+                            invisible="state != 'draft' or not use_schedule"
+                        />
+                        <button string="Cancel"
+                            name="action_cancel"
+                            type="object"
+                            icon="fa-ban"
+                            invisible="not can_cancel"
+                        />
+                        <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,sent"/>
+                    </header>
+
+                    <sheet>
+                        <field name="has_families" invisible="True"/>
+                        <field name="can_cancel" invisible="True"/>
+
+                        <group string="Recipients" col="4">
+                            <group>
+                                <field name="group_ids" widget="many2many_tags" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            </group>
+                            <group>
+                                <field name="recipient_type" readonly="state != 'draft'"/>
+                            </group>
+                            <group>
+                                <field name="use_schedule" widget="boolean_toggle" readonly="state != 'draft'"/>
+                            </group>
+                            <group>
+                                <field name="scheduled_date" readonly="state != 'draft'" invisible="not use_schedule"/>
+                            </group>
+                        </group>
+
+                        <group string="Content" col="4">
+                            <group colspan="4">
+                                <field name="subject" readonly="state != 'draft'" placeholder="Subject…"/>
+                            </group>
+                            <group colspan="4">
+                                <field name="message" widget="html" readonly="state != 'draft'" style="min-height: 200px;"/>
+                            </group>
+                        </group>
+
+                        <group string="Sending status" col="4">
+                            <group colspan="4">
+                                <field name="communication_line_ids" readonly="state != 'draft'">
+                                    <list editable="bottom" create="False" default_order="recipient_type asc, student_id asc">
+                                        <field name="partner_id" widget="many2one_avatar"/>
+                                        <field name="email"/>
+                                        <field name="recipient_type"/>
+                                        <field name="schedule_date" readonly="True"/>
+                                        <field name="display_status"
+                                               readonly="True"
+                                               decoration-muted="display_status == 'draft'"
+                                               decoration-warning="display_status in ('pending', 'enqueued', 'started')"
+                                               decoration-success="display_status == 'done'"
+                                               decoration-danger="display_status == 'failed'"/>
+                                        <button name="open_exception_popup" type="object" icon="fa-info-circle" title="Open error details" invisible="not exception" width="30px"/>
+                                        <button name="open_notification_form" type="object" icon="fa-envelope-o" title="Open notification details" invisible="not user_is_admin or not notification_id" width="30px"/>
+                                        <field name="exception" column_invisible="True"/>
+                                        <field name="source_group_id" column_invisible="True"/>
+                                        <field name="user_is_admin" column_invisible="True"/>
+                                        <field name="notification_id" column_invisible="True"/>
+                                    </list>
+                                </field>
+                            </group>
+                        </group>
+                    </sheet>
+
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_communication_line_exception_popup">
+            <field name="name">ems.communication.line.exception.popup</field>
+            <field name="model">ems.communication.line</field>
+            <field name="arch" type="xml">
+                <form string="Error details">
+                    <sheet>
+                        <field name="exception" readonly="1" widget="text"/>
+                    </sheet>
+                    <footer>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

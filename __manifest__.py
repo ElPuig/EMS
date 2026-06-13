@@ -53,6 +53,7 @@
    'data': [
         'security/groups.xml',
         'security/rules/attendance.xml',
+        'security/rules/communications.xml',
         'security/rules/contacts.xml',
         'security/rules/portal.xml',
         'security/ir.model.access.csv',
@@ -201,6 +202,10 @@
             'views/attendance/attendance_reports/subject_wizard.xml', 
             'views/attendance/attendance_reports/group_wizard.xml', 
 
+        'views/communications/menu.xml',
+            'views/communications/list.xml',
+            'views/communications/form.xml',
+
         'views/academic_management/menu.xml',
             'views/academic_management/enrollment/menu.xml',
             'views/academic_management/enrollment/enrollment_form.xml',
@@ -244,6 +249,7 @@
 
 
         ### Mailing templates ###
+        'mails/communications/communication.xml',        
         'mails/attendance/attendance_issue_status.xml',
         'mails/attendance/attendance_issue_rectification.xml',
         'mails/attendance/attendance_issue_tutor.xml',

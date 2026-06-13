@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_communication_list">
+            <field name="name">ems.communication.list</field>
+            <field name="model">ems.communication</field>
+            <field name="arch" type="xml">
+                <list string="Communications" default_order="create_date desc">
+                    <field name="subject"/>
+                    <field name="group_ids" widget="many2many_tags"/>
+                    <field name="recipient_type"/>
+                    <field name="scheduled_date"/>
+                    <field name="state"
+                           decoration-info="state == 'draft'"
+                           decoration-warning="state == 'scheduled'"
+                           decoration-success="state == 'sent'"
+                           decoration-danger="state == 'failed'"/>
+                    <field name="sent_date"/>
+                    <field name="sent_by" widget="many2one_avatar"/>
+                    <field name="recipient_count" string="# Recipients" width="100px" />
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

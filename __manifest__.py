@@ -53,6 +53,7 @@
    'data': [
         'security/groups.xml',
         'security/rules/attendance.xml',
+        'security/rules/communications.xml',
         'security/rules/contacts.xml',
         'security/rules/portal.xml',
         'security/ir.model.access.csv',

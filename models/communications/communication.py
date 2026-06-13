@@ -3,9 +3,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
-# TODO: failed state (if any mail failed).
-#       cancel a scheduled one returns to draft state.
-#       copy one clone also all the recipients
 class ems_communication(models.Model):
     _name = "ems.communication"
     _description = "Communication: a bulk email sent to groups of students and/or their families."
@@ -25,16 +22,18 @@ class ems_communication(models.Model):
     message = fields.Html(string="Message", required=True, sanitize=True)
     state = fields.Selection(
         string="State",
-        selection=[('draft', 'Draft'), ('scheduled', 'Scheduled'), ('sent', 'Sent'), ('failed', 'Failed'), ('cancelled', 'Cancelled')],
+        selection=[('draft', 'Draft'), ('scheduled', 'Scheduled'), ('sent', 'Sent'), ('failed', 'Failed')],
         default='draft',
         readonly=True,
+        copy=False,
     )
-    sent_date = fields.Datetime(string="Sent on", readonly=True)
-    sent_by = fields.Many2one(string="Sent by", comodel_name="res.users", readonly=True)
+    sent_date = fields.Datetime(string="Sent on", readonly=True, copy=False)
+    sent_by = fields.Many2one(string="Sent by", comodel_name="res.users", readonly=True, copy=False)
     communication_line_ids = fields.One2many(
         string="Recipient list",
         comodel_name="ems.communication.line",
         inverse_name="communication_id",
+        copy=True
     )
     recipient_count = fields.Integer(
         string="# Recipients",
@@ -44,6 +43,11 @@ class ems_communication(models.Model):
     has_families = fields.Boolean(
         string="Includes families",
         compute="_compute_has_families",
+        store=False,
+    )
+    can_cancel = fields.Boolean(
+        string="Can cancel",
+        compute="_compute_can_cancel",
         store=False,
     )
 
@@ -56,6 +60,18 @@ class ems_communication(models.Model):
     def _compute_has_families(self):
         for rec in self:
             rec.has_families = rec.recipient_type in ('families', 'both')
+
+    @api.depends('state', 'use_schedule', 'communication_line_ids.notification_id.state')
+    def _compute_can_cancel(self):
+        RUNNING = {'started', 'done', 'failed'}
+        for rec in self:
+            if rec.state != 'scheduled' or not rec.use_schedule:
+                rec.can_cancel = False
+                continue
+            rec.can_cancel = not any(
+                line.notification_id and line.notification_id.state in RUNNING
+                for line in rec.communication_line_ids
+            )
 
     def _compute_display_name(self):
         for rec in self:
@@ -156,11 +172,14 @@ class ems_communication(models.Model):
 
     def action_cancel(self):
         self.ensure_one()
+        if not self.can_cancel:
+            raise UserError(_("This communication cannot be cancelled: it has already been sent or is being processed."))
         for line in self.communication_line_ids:
             if line.notification_id and line.notification_id.state in ('pending', 'enqueued'):
                 line.notification_id.button_cancelled()
-        self.write({'state': 'cancelled'})
-        self.chatter(_("Communication cancelled."))
+            line.write({'notification_id': False})
+        self.write({'state': 'draft'})
+        self.chatter(_("Communication cancelled and returned to draft."))
         return True
 
 
@@ -191,7 +210,7 @@ class ems_communication_line(models.Model):
         comodel_name="ems.group",
         ondelete='set null',
     )
-    notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
+    notification_id = fields.Many2one(string="Notification", comodel_name="queue.job", copy=False)
     schedule_date = fields.Datetime(string="Scheduled on", related="notification_id.eta")
     exception = fields.Text(string="Exception", related="notification_id.exc_info")
     display_status = fields.Selection(
@@ -203,7 +222,6 @@ class ems_communication_line(models.Model):
             ('started', 'In progress'),
             ('done', 'Sent'),
             ('failed', 'Failed'),
-            ('cancelled', 'Cancelled'),
         ],
         compute="_compute_display_status",
         store=False,
@@ -212,7 +230,8 @@ class ems_communication_line(models.Model):
     @api.depends('notification_id', 'notification_id.state')
     def _compute_display_status(self):
         for rec in self:
-            rec.display_status = rec.notification_id.state if rec.notification_id else 'draft'
+            job_state = rec.notification_id.state if rec.notification_id else 'draft'
+            rec.display_status = 'draft' if job_state == 'cancelled' else job_state
 
     def send_notification(self):
         self.ensure_one()

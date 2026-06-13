@@ -16,25 +16,27 @@
                             type="object"
                             class="oe_highlight"
                             icon="fa-send"
-                            invisible="state != 'draft' or (use_schedule and scheduled_date)"
+                            invisible="state != 'draft' or use_schedule"
                         />
                         <button string="Schedule"
                             name="action_send"
                             type="object"
                             class="oe_highlight"
                             icon="fa-clock-o"
-                            invisible="state != 'draft' or not use_schedule or not scheduled_date"
+                            invisible="state != 'draft' or not use_schedule"
                         />
                         <button string="Cancel"
                             name="action_cancel"
                             type="object"
-                            invisible="state not in ('draft', 'scheduled', 'failed')"
+                            icon="fa-ban"
+                            invisible="not can_cancel"
                         />
                         <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,sent"/>
                     </header>
 
                     <sheet>
                         <field name="has_families" invisible="True"/>
+                        <field name="can_cancel" invisible="True"/>
 
                         <group string="Recipients" col="4">
                             <group>

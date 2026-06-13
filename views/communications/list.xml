@@ -14,10 +14,10 @@
                            decoration-info="state == 'draft'"
                            decoration-warning="state == 'scheduled'"
                            decoration-success="state == 'sent'"
-                           decoration-danger="state in ('cancelled', 'failed')"/>
+                           decoration-danger="state == 'failed'"/>
                     <field name="sent_date"/>
                     <field name="sent_by" widget="many2one_avatar"/>
-                    <field name="recipient_count" string="# Recipients"/>
+                    <field name="recipient_count" string="# Recipients" width="100px" />
                 </list>
             </field>
         </record>

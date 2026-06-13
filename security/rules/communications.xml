@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Admins see all communications -->
+        <record model="ir.rule" id="rule_communication_admin">
+            <field name="name">Communication: admin sees all</field>
+            <field name="model_id" ref="ems.model_ems_communication"/>
+            <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Non-admins only see their own communications -->
+        <record model="ir.rule" id="rule_communication_own">
+            <field name="name">Communication: user sees own</field>
+            <field name="model_id" ref="ems.model_ems_communication"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

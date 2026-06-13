@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.15.4',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.16.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -53,6 +53,7 @@
    'data': [
         'security/groups.xml',
         'security/rules/attendance.xml',
+        'security/rules/communications.xml',
         'security/rules/contacts.xml',
         'security/rules/portal.xml',
         'security/ir.model.access.csv',
@@ -201,6 +202,10 @@
             'views/attendance/attendance_reports/subject_wizard.xml', 
             'views/attendance/attendance_reports/group_wizard.xml', 
 
+        'views/communications/menu.xml',
+            'views/communications/list.xml',
+            'views/communications/form.xml',
+
         'views/academic_management/menu.xml',
             'views/academic_management/enrollment/menu.xml',
             'views/academic_management/enrollment/enrollment_form.xml',
@@ -244,6 +249,7 @@
 
 
         ### Mailing templates ###
+        'mails/communications/communication.xml',        
         'mails/attendance/attendance_issue_status.xml',
         'mails/attendance/attendance_issue_rectification.xml',
         'mails/attendance/attendance_issue_tutor.xml',

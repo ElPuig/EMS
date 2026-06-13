@@ -28,9 +28,9 @@
                         <button string="Cancel"
                             name="action_cancel"
                             type="object"
-                            invisible="state not in ('draft', 'scheduled')"
+                            invisible="state not in ('draft', 'scheduled', 'failed')"
                         />
-                        <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,sent,cancelled"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,sent"/>
                     </header>
 
                     <sheet>

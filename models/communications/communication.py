@@ -3,7 +3,9 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
-
+# TODO: failed state (if any mail failed).
+#       cancel a scheduled one returns to draft state.
+#       copy one clone also all the recipients
 class ems_communication(models.Model):
     _name = "ems.communication"
     _description = "Communication: a bulk email sent to groups of students and/or their families."
@@ -23,7 +25,7 @@ class ems_communication(models.Model):
     message = fields.Html(string="Message", required=True, sanitize=True)
     state = fields.Selection(
         string="State",
-        selection=[('draft', 'Draft'), ('scheduled', 'Scheduled'), ('sent', 'Sent'), ('cancelled', 'Cancelled')],
+        selection=[('draft', 'Draft'), ('scheduled', 'Scheduled'), ('sent', 'Sent'), ('failed', 'Failed'), ('cancelled', 'Cancelled')],
         default='draft',
         readonly=True,
     )
@@ -119,14 +121,38 @@ class ems_communication(models.Model):
             if job:
                 line.sudo().write({'notification_id': job.id})
 
-        new_state = 'scheduled' if (self.use_schedule and self.scheduled_date) else 'sent'
-        self.write({
-            'state': new_state,
-            'sent_date': fields.Datetime.now(),
-            'sent_by': self.env.uid,
-        })
-        self.chatter(_("Communication %s. %d email(s) enqueued.") % (new_state, len(lines_to_send)))
+        self.write({'state': 'scheduled', 'sent_by': self.env.uid})
+        self.chatter(_("Communication scheduled. %d email(s) enqueued.") % len(lines_to_send))
         return True
+
+    def _check_and_finalize(self, just_succeeded_line=None):
+        """Update state once all jobs reach a terminal state.
+
+        Called after each successful send (just_succeeded_line = the line whose job
+        just finished but whose queue.job record is still 'started') and by the cron
+        to handle failed jobs.
+        """
+        PENDING = {'draft', 'pending', 'enqueued', 'started'}
+        for rec in self:
+            if rec.state != 'scheduled':
+                continue
+            has_pending = False
+            has_failed = False
+            for line in rec.communication_line_ids:
+                if just_succeeded_line and line.id == just_succeeded_line.id:
+                    continue  # treat as done — the job is about to transition
+                status = line.display_status
+                if status in PENDING:
+                    has_pending = True
+                elif status == 'failed':
+                    has_failed = True
+            if has_pending:
+                continue
+            if has_failed:
+                rec.write({'state': 'failed'})
+            else:
+                rec.write({'state': 'sent', 'sent_date': fields.Datetime.now()})
+
 
     def action_cancel(self):
         self.ensure_one()
@@ -190,6 +216,22 @@ class ems_communication_line(models.Model):
 
     def send_notification(self):
         self.ensure_one()
+
+        # Register a postrollback hook so that if this job fails (transaction
+        # rolls back), the communication state is still updated. Queue.job marks
+        # the job as 'failed' in a separate committed cursor BEFORE the rollback,
+        # so by the time this hook runs the job state is already 'failed' in the DB.
+        comm_id = self.communication_id.id
+        db_name = self.env.cr.dbname
+
+        def _on_failure():
+            import odoo
+            with odoo.registry(db_name).cursor() as cr:
+                odoo.api.Environment(cr, odoo.SUPERUSER_ID, {})['ems.communication']\
+                    .browse(comm_id)._check_and_finalize()
+
+        self.env.cr.postrollback.add(_on_failure)
+
         template = self.env.ref('ems.mail_communication', raise_if_not_found=True)
         lang = self.partner_id.lang if self.partner_id else False
         tmpl = template.with_context(lang=lang).sudo() if lang else template.sudo()
@@ -203,6 +245,7 @@ class ems_communication_line(models.Model):
             force_send=True,
             email_values={'email_to': self.email, 'body_html': body_html},
         )
+        self.communication_id.sudo()._check_and_finalize(just_succeeded_line=self)
         return True
 
     def _prepare_body_for_email(self, body_html):

@@ -19,7 +19,7 @@ class ems_communication(models.Model):
         default='both',
     )
     use_schedule = fields.Boolean(string="Schedule sending", default=False)
-    scheduled_date = fields.Datetime(string="Send on")
+    scheduled_date = fields.Datetime(string="Scheduled on")
     message = fields.Html(string="Message", required=True, sanitize=True)
     state = fields.Selection(
         string="State",

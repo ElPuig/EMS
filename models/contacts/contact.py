@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+from odoo.tools import email_normalize
 from ..shared import base
 import datetime
 import re
@@ -294,10 +295,23 @@ class ems_contact(models.Model):
     def write(self, values):
         # Fired when the model is updated (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
         # Note: values is a dict (method fired once per entry)
+        # Capture (before the write) the students/families whose main email is about
+        # to change while they hold active portal access: their access must be moved
+        # from the old email to the new one (see _apply_portal_email_change).
+        portal_email_changed = self.env['res.partner']
+        if 'email' in values:
+            new_email = email_normalize(values.get('email'))
+            portal_email_changed = self.filtered(
+                lambda p: p.contact_type in ('student', 'family')
+                and email_normalize(p.email) != new_email
+                and p._has_active_portal_user())
         self._compute_group_data(values)
         contact = super(ems_contact, self).write(values)
         if 'contact_type' in values:
             self._sync_category()
+
+        for partner in portal_email_changed:
+            partner._apply_portal_email_change()
 
         # Google Workspace: with form autosave the student is created with partial
         # data; enqueue once the required fields are completed (deduplicated).
@@ -311,6 +325,66 @@ class ems_contact(models.Model):
                 self._gw_enqueue_suspend()
 
         return contact
+
+    @api.onchange('email')
+    def _onchange_email_portal_warning(self):
+        """Inform the user, before saving, that changing the main email of a
+        contact with portal access will move that access to the new email."""
+        if self.contact_type in ('student', 'family') and self._has_active_portal_user():
+            return {
+                'warning': {
+                    'title': _("Portal access will be updated"),
+                    'message': _(
+                        "Changing the main email revokes the portal access linked to "
+                        "the old email and sends a new portal invitation to the new "
+                        "email. Discard the change if you don't want this."),
+                }
+            }
+
+    def _has_active_portal_user(self):
+        """True when the partner has a non-archived portal user (access enabled now)."""
+        self.ensure_one()
+        return any(u._is_portal() for u in self.user_ids)
+
+    def _apply_portal_email_change(self):
+        """Move portal access from the old email to the partner's current email.
+
+        Reuses the EMS portal access wizard so the (already tested) revoke + grant
+        path runs, including the login/email resync done in _sync_user_login. Runs
+        with sudo because tutors lack rights over res.users.
+        """
+        self.ensure_one()
+        wizard = self.env['ems.portal.access.wizard'].sudo().new({'mode': 'revoke'})
+        wizard._apply_one(self)
+        wizard.mode = 'grant'
+        wizard._apply_one(self)
+        self._post_portal_email_change_message()
+
+    def _post_portal_email_change_message(self):
+        """Log the email change as a portal-visible comment on the related student(s).
+
+        The portal "communications" page lists messages addressed to the student
+        (partner_ids) and excludes internal notes, so we post a comment targeting
+        each student. For a family contact, that means every related student.
+        """
+        self.ensure_one()
+        if self.contact_type == 'student':
+            students = self
+        else:
+            students = self.relation_all_ids.other_partner_id.filtered(
+                lambda p: p.contact_type == 'student')
+        body = _(
+            "The main email of %(name)s has changed to %(email)s. The portal access "
+            "has been updated accordingly: the previous access has been revoked and a "
+            "new invitation has been sent to the new email.") % {
+                'name': self.display_name, 'email': self.email}
+        for student in students:
+            student.sudo().message_post(
+                body=body,
+                message_type='comment',
+                subtype_xmlid='mail.mt_comment',
+                partner_ids=student.ids,
+            )
 
     def _sync_category(self):
         category_map = {
@@ -340,14 +414,19 @@ class ems_contact(models.Model):
     def _get_read_only_user(self):
         is_admin = base.ems_base.get_user_is_admin(self)
         is_secretary = self.env.user.has_group('ems.group_secretary')
-        is_tutor = False
-        # TODO: call self.get_user_is_tutor()
-        for t in self.env.user.employee_ids:
-            if t.id != False and len(t.tutorship_ids) > 0:
-                if self.tutor_id == t:
-                    is_tutor = True
-                    break
-        return not (is_admin or is_secretary or is_tutor)
+        return not (is_admin or is_secretary or self._user_is_tutor_of_record())
+
+    def _user_is_tutor_of_record(self):
+        # True when the current user is a tutor of this student, or a tutor of a
+        # student related to this family contact (so tutors can also edit the
+        # profiles of their students' parents/legal guardians).
+        tutors = self.env.user.employee_ids.filtered(lambda t: t.tutorship_ids)
+        if not tutors:
+            return False
+        if self.tutor_id in tutors:
+            return True
+        related_tutors = self.relation_all_ids.other_partner_id.tutor_id
+        return bool(related_tutors & tutors)
 
     def _get_is_tutor_readonly(self):
         # True only when the user is a tutor of this student and NOT admin/secretary.

@@ -2289,6 +2289,18 @@ msgid "Citizenship"
 msgstr "Ciudadanía"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"Changing the main email revokes the portal access linked to the old email "
+"and sends a new portal invitation to the new email. Discard the change if "
+"you don't want this."
+msgstr ""
+"Cambiar el correo electrónico principal revoca el acceso al portal vinculado "
+"al correo antiguo y envía una nueva invitación al portal al correo nuevo. "
+"Descarta el cambio si no deseas esto."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__city
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_city
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
@@ -6327,6 +6339,12 @@ msgid "Portal access recipient (preview)"
 msgstr "Destinatario del acceso al portal (vista previa)"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Portal access will be updated"
+msgstr "El acceso al portal se actualizará"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_zip
 msgid "Postal code"
 msgstr "Código postal"
@@ -8142,6 +8160,18 @@ msgid "The item '%s' is already in the list. Please select a different one."
 msgstr ""
 "El elemento '%s' ya está en la lista. Por favor, selecciona uno diferente.El"
 " elemento '%s' ya está en la lista. Por favor, selecciona uno diferente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"The main email of %(name)s has changed to %(email)s. The portal access has "
+"been updated accordingly: the previous access has been revoked and a new "
+"invitation has been sent to the new email."
+msgstr ""
+"El correo electrónico principal de %(name)s ha cambiado a %(email)s. El "
+"acceso al portal se ha actualizado en consecuencia: se ha revocado el acceso "
+"anterior y se ha enviado una nueva invitación al correo nuevo."
 
 #. module: ems
 #. odoo-python

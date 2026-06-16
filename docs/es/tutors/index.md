@@ -13,6 +13,7 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | Manual | Descripción |
 |--------|------------|
 | [Cómo generar propuestas de matrícula](propostes-matricula.md) | Proponer la matrícula del curso siguiente para los alumnos aprobados, incluyendo matrículas especiales |
+| [Cómo gestionar el acceso al portal](acces-portal.md) | Dar de alta, dar de baja o reenviar las invitaciones de acceso al portal para alumnos y familias |
 
 ---
 

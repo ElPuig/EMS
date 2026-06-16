@@ -59,6 +59,12 @@ msgstr "%s accés/accessos revocat(s)"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "%s invitation(s) resent"
+msgstr "%s invitació(ns) reenviada(es)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
 msgid "%s skipped (already in the desired state)"
 msgstr "%s omès/omesos (ja en l'estat desitjat)"
 
@@ -2783,6 +2789,12 @@ msgstr "Curs Actual"
 #: model:ir.model.fields,field_description:ems.field_res_users__ems_current_enrollment_id
 msgid "Current Enrollment"
 msgstr "Matrícula actual"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__connected
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+msgid "Connected"
+msgstr "Connectat"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
@@ -6765,6 +6777,11 @@ msgstr "Consultar qualificacions i expedient acadèmic"
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__review_uid
 msgid "Reviewed by"
 msgstr "Revisat per"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__resend
+msgid "Resend portal invitation (users who never logged in)"
+msgstr "Reenviar invitació d'accés al portal (usuaris que no han entrat mai)"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__revoke

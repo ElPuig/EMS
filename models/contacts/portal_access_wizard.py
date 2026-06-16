@@ -12,6 +12,7 @@ class EmsPortalAccessWizard(models.TransientModel):
     mode = fields.Selection([
         ('grant',  'Grant access'),
         ('revoke', 'Revoke access'),
+        ('resend', 'Resend portal invitation (users who never logged in)'),
     ], string='Action', default='grant', required=True)
     student_ids = fields.Many2many(
         'res.partner', string='Students',
@@ -28,9 +29,23 @@ class EmsPortalAccessWizard(models.TransientModel):
         active_ids = self.env.context.get('active_ids') or []
         students = self.env['res.partner'].browse(active_ids).filtered(
             lambda p: p.contact_type == 'student')
+        # A tutor only manages its own students; admin/secretary manage any.
+        students = students.filtered(self._user_can_manage)
         res['student_ids'] = [(6, 0, students.ids)]
         res['line_ids'] = self._build_lines(students)
         return res
+
+    @api.onchange('mode')
+    def _onchange_mode(self):
+        """Rebuild the preview. In 'resend' mode keep only recipients with portal
+        access that never logged in (the only ones that will actually be emailed)."""
+        # In an onchange the related records are virtual (NewId); use ._origin so the
+        # relation search against res.partner.relation.all hits the real DB records.
+        lines = self._build_lines(self.student_ids._origin)
+        if self.mode == 'resend':
+            lines = [cmd for cmd in lines
+                     if cmd[2].get('has_portal') and not cmd[2].get('connected')]
+        self.line_ids = [(5, 0, 0)] + lines
 
     # ------------------------------------------------------------------
     # Helpers
@@ -69,21 +84,24 @@ class EmsPortalAccessWizard(models.TransientModel):
             for r in recipients:
                 user = r.with_context(active_test=False).user_ids[:1]
                 has_portal = bool(user) and user._is_portal()
+                connected = has_portal and bool(user.login_date)
                 note = '' if r.email else _('Recipient without email')
                 lines.append((0, 0, {
                     'student_id': student.id,
                     'recipient_id': r.id,
                     'recipient_email': r.email,
                     'has_portal': has_portal,
+                    'connected': connected,
                     'note': note,
                 }))
         return lines
 
     def _apply_one(self, partner):
-        """Grant/revoke portal access for a single partner via the native portal wizard.
+        """Grant/revoke/resend portal access for a single partner via the native portal wizard.
 
         Runs with sudo so tutors (who lack user-creation rights) can still grant
-        access to their own students/families. Returns 'granted'/'revoked'/'skipped'.
+        access to their own students/families.
+        Returns 'granted'/'revoked'/'resent'/'skipped'.
         """
         wizard = self.env['portal.wizard'].with_context(active_ids=partner.ids).sudo().create({})
         wu = wizard.user_ids.filtered(lambda u: u.partner_id.id == partner.id)[:1]
@@ -94,6 +112,13 @@ class EmsPortalAccessWizard(models.TransientModel):
                 return 'skipped'
             wu.action_grant_access()
             return 'granted'
+        elif self.mode == 'resend':
+            # Only portal users that never logged in (expired invitation token).
+            user = wu.partner_id.with_context(active_test=False).user_ids[:1]
+            if not wu.is_portal or (user and user.login_date):
+                return 'skipped'
+            wu.action_invite_again()
+            return 'resent'
         else:
             if not wu.is_portal:
                 return 'skipped'
@@ -105,7 +130,7 @@ class EmsPortalAccessWizard(models.TransientModel):
     # ------------------------------------------------------------------
     def action_apply(self):
         self.ensure_one()
-        granted = revoked = skipped = 0
+        granted = revoked = resent = skipped = 0
         issues = []
         for student in self.student_ids:
             if not self._user_can_manage(student):
@@ -129,6 +154,8 @@ class EmsPortalAccessWizard(models.TransientModel):
                         granted += 1
                     elif result == 'revoked':
                         revoked += 1
+                    elif result == 'resent':
+                        resent += 1
                     else:
                         skipped += 1
                 except Exception as e:
@@ -141,6 +168,8 @@ class EmsPortalAccessWizard(models.TransientModel):
             parts.append(_("%s access(es) granted") % granted)
         if revoked:
             parts.append(_("%s access(es) revoked") % revoked)
+        if resent:
+            parts.append(_("%s invitation(s) resent") % resent)
         if skipped:
             parts.append(_("%s skipped (already in the desired state)") % skipped)
         summary = ", ".join(parts) or _("Nothing to do")
@@ -169,4 +198,5 @@ class EmsPortalAccessWizardLine(models.TransientModel):
     recipient_id = fields.Many2one('res.partner', string='Recipient')
     recipient_email = fields.Char(string='Email')
     has_portal = fields.Boolean(string='Has portal access')
+    connected = fields.Boolean(string='Connected')
     note = fields.Char(string='Note')

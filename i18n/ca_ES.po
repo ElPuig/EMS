@@ -2283,6 +2283,18 @@ msgid "Citizenship"
 msgstr "Ciutadania"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"Changing the main email revokes the portal access linked to the old email "
+"and sends a new portal invitation to the new email. Discard the change if "
+"you don't want this."
+msgstr ""
+"Canviar el correu electrònic principal revoca l'accés al portal vinculat al "
+"correu antic i envia una nova invitació al portal al correu nou. Descarta el "
+"canvi si no ho vols."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__city
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_city
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
@@ -6317,6 +6329,12 @@ msgid "Portal access recipient (preview)"
 msgstr "Destinatari de l'accés al portal (previsualització)"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Portal access will be updated"
+msgstr "L'accés al portal s'actualitzarà"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_zip
 msgid "Postal code"
 msgstr "Codi postal"
@@ -8128,6 +8146,18 @@ msgid "The item '%s' is already in the list. Please select a different one."
 msgstr ""
 "L'element '%s' ja és a la llista. Seleccioneu-ne un de diferent.L'element "
 "'%s' ja és a la llista. Si us plau, selecciona'n un de diferent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"The main email of %(name)s has changed to %(email)s. The portal access has "
+"been updated accordingly: the previous access has been revoked and a new "
+"invitation has been sent to the new email."
+msgstr ""
+"El correu electrònic principal de %(name)s ha canviat a %(email)s. L'accés al "
+"portal s'ha actualitzat en conseqüència: s'ha revocat l'accés anterior i s'ha "
+"enviat una nova invitació al correu nou."
 
 #. module: ems
 #. odoo-python

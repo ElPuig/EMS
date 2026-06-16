@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 from odoo import models, fields, api, _
+from odoo.tools import email_normalize
 
 _logger = logging.getLogger(__name__)
 
@@ -96,6 +97,24 @@ class EmsPortalAccessWizard(models.TransientModel):
                 }))
         return lines
 
+    def _sync_user_login(self, wu):
+        """Sync a (re)granted portal user's login/email with the partner's current email.
+
+        Revoking access archives the res.users instead of deleting it, keeping the old
+        login/email. When access is later granted again, Odoo reactivates that archived
+        user without refreshing its login, so a changed email never takes effect. We
+        realign it here, unless another user already owns that login (in which case the
+        native _assert_user_email_uniqueness raises a clean "already registered" error).
+        """
+        user = wu.user_id.sudo()
+        new_email = email_normalize(wu.partner_id.email)
+        if not user or not new_email or email_normalize(user.login) == new_email:
+            return
+        conflict = self.env['res.users'].with_context(active_test=False).sudo().search_count(
+            [('login', '=', new_email), ('id', '!=', user.id)])
+        if not conflict:
+            user.write({'login': new_email, 'email': new_email})
+
     def _apply_one(self, partner):
         """Grant/revoke/resend portal access for a single partner via the native portal wizard.
 
@@ -110,6 +129,7 @@ class EmsPortalAccessWizard(models.TransientModel):
         if self.mode == 'grant':
             if wu.is_portal or wu.is_internal:
                 return 'skipped'
+            self._sync_user_login(wu)
             wu.action_grant_access()
             return 'granted'
         elif self.mode == 'resend':

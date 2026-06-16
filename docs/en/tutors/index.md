@@ -13,6 +13,7 @@ This section contains the manuals for **group tutors**.
 | Manual | Description |
 |--------|------------|
 | [How to generate enrollment proposals](propostes-matricula.md) | Propose the enrollment for the next course for approved students, including special enrollments |
+| [How to manage portal access](acces-portal.md) | Grant, revoke or resend portal access invitations for students and families |
 
 ---
 

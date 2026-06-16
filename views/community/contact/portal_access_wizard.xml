@@ -19,6 +19,7 @@
                             <field name="recipient_id" string="Recipient"/>
                             <field name="recipient_email" string="Email"/>
                             <field name="has_portal" string="Current access" widget="boolean" readonly="1"/>
+                            <field name="connected" string="Connected" widget="boolean" readonly="1"/>
                             <field name="note" string="Note" decoration-warning="note != False"/>
                         </list>
                     </field>

@@ -2,6 +2,7 @@
 from datetime import date
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from odoo.addons.mail.tools.discuss import Store
 
 class ems_SaleOrder(models.Model):
     _inherit = "sale.order"
@@ -197,8 +198,19 @@ class ems_SaleOrder(models.Model):
 
     def write(self, vals):
         """Actualiza el código si el usuario cambia de idea después de haber guardado."""
+        # Detect the draft -> sent transition for enrollments: once the secretary
+        # sends the proposal to the students, the tutor's job is done.
+        handover_orders = self.env['sale.order']
+        if vals.get('state') == 'sent':
+            handover_orders = self.filtered(
+                lambda o: o.ems_study_id and o.state != 'sent'
+            )
+
         res = super(ems_SaleOrder, self).write(vals)
-        
+
+        if handover_orders:
+            handover_orders._ems_unfollow_teachers()
+
         # Si se ha modificado alguno de los campos que forman el código...
         if any(field in vals for field in ['ems_course_id', 'ems_level_id', 'ems_study_id']):
             for rec in self:
@@ -209,6 +221,75 @@ class ems_SaleOrder(models.Model):
                     if rec.name != new_name:
                         rec.name = new_name
         return res
+
+    # ------------------------------------------------------------------
+    # Secretary handover (issue #270)
+    # ------------------------------------------------------------------
+    def _ems_unfollow_teachers(self):
+        """Stop notifying teachers once the enrollment has been sent to students.
+
+        Their job is done; from now on the secretary follows up through review
+        activities (not as followers — see _ems_schedule_comment_review_activities)."""
+        teachers = (
+            self.env.ref('ems.group_teacher').users
+            - self.env.ref('ems.group_secretary').users
+            - self.env.ref('ems.group_admin').users
+        )
+        teacher_partner_ids = teachers.mapped('partner_id').ids
+        if teacher_partner_ids:
+            for order in self:
+                order.message_unsubscribe(partner_ids=teacher_partner_ids)
+
+    def _ems_schedule_comment_review_activities(self):
+        """Schedule a review to-do for each secretary when a student/family
+        comments from the portal. The activity shows up in their systray and in
+        "view all activities". Skips orders that already have a pending one so
+        repeated comments don't pile up tasks.
+
+        No email is sent to the secretaries: the systray task is their only
+        notice. We use ``mail_activity_quick_update`` to skip the assignment
+        email, and unsubscribe them afterwards because scheduling an activity
+        auto-subscribes the assignee (which would forward them the comments)."""
+        comment_type = self.env.ref('ems.mail_activity_enrollment_comment')
+        secretaries = self.env.ref('ems.group_secretary').users
+        secretary_partner_ids = secretaries.mapped('partner_id').ids
+        for order in self:
+            pending = order.activity_ids.filtered(
+                lambda a: a.activity_type_id == comment_type
+            )
+            if not pending:
+                for user in secretaries:
+                    order.with_context(mail_activity_quick_update=True).activity_schedule(
+                        act_type_xmlid='ems.mail_activity_enrollment_comment',
+                        summary='Review enrollment comment: %s' % order.name,
+                        user_id=user.id,
+                    )
+            # Always keep secretaries out of the followers (activity creation
+            # auto-subscribes the assignee), so the comment doesn't email them.
+            if secretary_partner_ids:
+                order.message_unsubscribe(partner_ids=secretary_partner_ids)
+
+    def _thread_to_store(self, store, /, *, fields=None, request_list=None):
+        """In the chatter, show each user only their OWN enrollment-comment
+        review activity. We create one per secretary (for the systray), but they
+        are duplicates of the same task; this only affects activities, messages
+        and everything else are served unchanged for everyone."""
+        if request_list and "activities" in request_list:
+            reduced = [r for r in request_list if r != "activities"]
+            super()._thread_to_store(store, fields=fields, request_list=reduced)
+            comment_type = self.env.ref(
+                'ems.mail_activity_enrollment_comment', raise_if_not_found=False
+            )
+            for thread in self:
+                acts = thread.with_context(active_test=True).activity_ids
+                if comment_type:
+                    acts = acts.filtered(
+                        lambda a: a.activity_type_id != comment_type
+                        or a.user_id == self.env.user
+                    )
+                store.add(thread, {"activities": Store.many(acts)}, as_thread=True)
+        else:
+            super()._thread_to_store(store, fields=fields, request_list=request_list)
 
     # Limpiamos la plantilla si el usuario cambia el estudio para evitar errores
     @api.onchange('ems_study_id')
@@ -352,9 +433,16 @@ class ems_SaleOrder(models.Model):
                     % (order.name, names)
                 )
         res = super().action_confirm()
+        comment_type = self.env.ref('ems.mail_activity_enrollment_comment', raise_if_not_found=False)
         for order in self:
             if order.ems_study_id:
                 order._ems_generate_enrollment_invoice()
+                # The enrollment is settled: drop any pending comment-review tasks.
+                if comment_type:
+                    stale = order.activity_ids.filtered(
+                        lambda a: a.activity_type_id == comment_type
+                    )
+                    stale.with_context(ems_activity_cascade=True).unlink()
         return res
 
     # ------------------------------------------------------------------

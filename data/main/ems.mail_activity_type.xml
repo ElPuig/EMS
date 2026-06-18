@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Dedicated activity type to identify (and sibling-close) the secretary
+             tasks generated when a student/family comments on their enrollment. -->
+        <record model="mail.activity.type" id="mail_activity_enrollment_comment">
+            <field name="name">Review enrollment comment</field>
+            <field name="category">default</field>
+            <field name="res_model">sale.order</field>
+            <field name="icon">fa-comments-o</field>
+        </record>
+
+        <!-- Dedicated activity type for student document review, so the systray
+             shows a meaningful type instead of the generic "To Do". -->
+        <record model="mail.activity.type" id="mail_activity_student_document_review">
+            <field name="name">Review student document</field>
+            <field name="category">default</field>
+            <field name="res_model">ems.student.document</field>
+            <field name="icon">fa-file-text-o</field>
+        </record>
+    </data>
+</odoo>

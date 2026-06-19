@@ -33,7 +33,7 @@ A la llista, marca amb la casella de verificació tots els alumnes que han super
 
 Un cop feta la selecció, fes clic al botó **Propostes de matrícula** a la barra superior **(2)**.
 
-![Llista d'alumnes amb selecció i botó Propostes de matrícula](assets/propostes-01-llista-alumnes.png)
+![Llista d'alumnes amb selecció i botó Propostes de matrícula](../../assets/tutors/propostes-01-llista-alumnes.png)
 
 > **Consell:** Pots filtrar per grup al panell esquerre per treballar grup a grup i no barrejar alumnes de grups diferents.
 
@@ -47,7 +47,7 @@ S'obrirà un diàleg amb els alumnes seleccionats.
 2. Revisa la llista d'estudiants inclosos. Si cal excloure algun alumne, fes clic a la ✕ de la seva fila.
 3. Fes clic a **Crear matrícules** **(2)** per generar les pre-matrícules.
 
-![Diàleg de proposta amb plantilla seleccionada i botó Crear matrícules](assets/propostes-02-dialeg-plantilla.png)
+![Diàleg de proposta amb plantilla seleccionada i botó Crear matrícules](../../assets/tutors/propostes-02-dialeg-plantilla.png)
 
 ---
 
@@ -55,7 +55,7 @@ S'obrirà un diàleg amb els alumnes seleccionats.
 
 Un cop generades, pots veure el llistat de pre-matrícules des de la mateixa vista **Gestió acadèmica → Matrícula → Propostes de matrícula**. Els alumnes que ja tenen una pre-matrícula creada mostraran el seu número a la columna **Matrícula** **(1)**. Fes clic a la fila per obrir el detall de cada pre-matrícula.
 
-![Llistat d'alumnes amb les pre-matrícules creades](assets/propostes-03-llista-alumnes-pre-matricules-creades.png)
+![Llistat d'alumnes amb les pre-matrícules creades](../../assets/tutors/propostes-03-llista-alumnes-pre-matricules-creades.png)
 
 ---
 
@@ -69,7 +69,7 @@ El procediment és el següent:
 2. **Obrir la pre-matrícula de l'alumne**, tal com s'explica a l'apartat [Consultar les pre-matrícules creades](#consultar-les-pre-matrícules-creades).
 3. **Ajustar les assignatures**: elimina les que l'alumne no ha de cursar **(1)** i afegeix les que li falten **(2)** fins que la pre-matrícula reflecteixi exactament les assignatures que ha de fer.
 
-![Edició de la pre-matrícula: eliminar (1) i afegir (2) assignatures](assets/propostes-04-edicio_matricula.png)
+![Edició de la pre-matrícula: eliminar (1) i afegir (2) assignatures](../../assets/tutors/propostes-04-edicio_matricula.png)
 
 ---
 

@@ -31,7 +31,7 @@ Abre el navegador y accede a [Gmail](https://mail.google.com) (o a cualquier ser
 1. Escribe la dirección de correo completa del instituto (`usuario@elpuig.xeill.net`).
 2. Haz clic en el botón **Siguiente (1)**.
 
-![Pantalla de inicio de sesión de Google con la dirección de correo del instituto](assets/gmail_password_recovery-01.png)
+![Pantalla de inicio de sesión de Google con la dirección de correo del instituto](../../assets/families/gmail_password_recovery-01.png)
 
 ---
 
@@ -41,7 +41,7 @@ En la pantalla donde te pide la contraseña, no hace falta que escribas nada. Pa
 
 1. Haz clic en el enlace **¿Has olvidado la contraseña? (1)**.
 
-![Pantalla de contraseña con el enlace «¿Has olvidado la contraseña?»](assets/gmail_password_recovery-02.png)
+![Pantalla de contraseña con el enlace «¿Has olvidado la contraseña?»](../../assets/families/gmail_password_recovery-02.png)
 
 ---
 
@@ -54,7 +54,7 @@ Google abrirá el asistente de **Recuperación de la cuenta**. Te pedirá la úl
 
 > En ambos casos, el objetivo es llegar a la verificación mediante el número de teléfono del paso siguiente.
 
-![Pantalla de recuperación de la cuenta pidiendo la última contraseña recordada](assets/gmail_password_recovery-03.png)
+![Pantalla de recuperación de la cuenta pidiendo la última contraseña recordada](../../assets/families/gmail_password_recovery-03.png)
 
 ---
 
@@ -68,7 +68,7 @@ Para asegurarse de que eres tú, Google te pedirá que confirmes el **número de
 
 > Si no tienes acceso a ese teléfono, no podrás continuar por tu cuenta: contacta con la **secretaría del instituto** para que te ayuden a restablecer el acceso.
 
-![Pantalla para confirmar el número de teléfono y obtener un código de verificación](assets/gmail_password_recovery-04.png)
+![Pantalla para confirmar el número de teléfono y obtener un código de verificación](../../assets/families/gmail_password_recovery-04.png)
 
 ---
 
@@ -81,7 +81,7 @@ Recibirás un mensaje de texto (SMS) con un **código de verificación de 6 díg
 
 > Si no recibes el mensaje en unos minutos, puedes hacer clic en **Volver a enviarlo** para solicitar un código nuevo.
 
-![Pantalla para introducir el código de verificación recibido por SMS](assets/gmail_password_recovery-05.png)
+![Pantalla para introducir el código de verificación recibido por SMS](../../assets/families/gmail_password_recovery-05.png)
 
 ---
 
@@ -91,7 +91,7 @@ Una vez verificada la identidad, Google te dará la bienvenida de nuevo y te ofr
 
 1. Haz clic en el enlace **Actualizar la contraseña (1)** para definir una nueva.
 
-![Pantalla de bienvenida con la opción de actualizar la contraseña](assets/gmail_password_recovery-06.png)
+![Pantalla de bienvenida con la opción de actualizar la contraseña](../../assets/families/gmail_password_recovery-06.png)
 
 ---
 
@@ -105,7 +105,7 @@ Finalmente, define la nueva contraseña de la cuenta:
 
 Una vez guardada, ya puedes acceder al correo del instituto con la nueva contraseña.
 
-![Pantalla para crear y confirmar la nueva contraseña segura](assets/gmail_password_recovery-07.png)
+![Pantalla para crear y confirmar la nueva contraseña segura](../../assets/families/gmail_password_recovery-07.png)
 
 ---
 

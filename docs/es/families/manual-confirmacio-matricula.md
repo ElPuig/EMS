@@ -35,13 +35,13 @@ Para iniciar el trámite, haced clic en el enlace **mi matrícula** del correo, 
 
 Una vez que habéis iniciado sesión, llegaréis a la página de inicio del portal (*Mi cuenta*). Desde el menú superior o desde las tarjetas centrales, haced clic en **Matrícula**.
 
-![Página de inicio del portal con el acceso al apartado Matrícula](assets/Matricula-confirmacio-00.png)
+![Página de inicio del portal con el acceso al apartado Matrícula](../../assets/families/Matricula-confirmacio-00.png)
 
 En el apartado **Matrícula** se os mostrará la propuesta que el centro os ha preparado, con todas las secciones para revisar y confirmar.
 
 > **Si no veis ninguna propuesta:** si al entrar en Matrícula aparece el mensaje *«No se ha encontrado ningún proceso de matrícula activo»*, significa que de momento no tenéis ninguna propuesta pendiente (porque todavía no se os ha enviado). En caso de duda, poneos en contacto con la Secretaría del centro.
 
-![Apartado Matrícula sin ningún proceso activo](assets/Matricula-confirmacio-01.png)
+![Apartado Matrícula sin ningún proceso activo](../../assets/families/Matricula-confirmacio-01.png)
 
 ---
 
@@ -51,7 +51,7 @@ La primera sección, **1. Autorizaciones**, contiene los documentos y consentimi
 
 Cada autorización aparece con el estado **Pendiente**. Para responderla, haced clic en el botón **Respuesta** de la fila correspondiente **(1)**.
 
-![Sección de autorizaciones con el botón Respuesta](assets/Matricula-confirmacio-02-autoritzacions.png)
+![Sección de autorizaciones con el botón Respuesta](../../assets/families/Matricula-confirmacio-02-autoritzacions.png)
 
 Se abrirá una ventana con el texto completo de la autorización. Leedlo con atención y, si procede, rellenad los campos que se os pidan (algunos son obligatorios y van marcados con un asterisco `*`). A continuación:
 
@@ -68,7 +68,7 @@ En la sección **2. Detalles de la matrícula** encontraréis el desglose de tod
 
 Revisad que toda la información sea correcta.
 
-![Detalle de los conceptos de la matrícula e importe total](assets/Matricula-confirmacio-03-itemsMatriculaOK.png)
+![Detalle de los conceptos de la matrícula e importe total](../../assets/families/Matricula-confirmacio-03-itemsMatriculaOK.png)
 
 * Si estáis **de acuerdo** con todo, podéis continuar con el pago (Paso 5).
 * Si tenéis **alguna duda o queréis comunicar una incidencia** sobre algún concepto, seguid el Paso 4.
@@ -82,11 +82,11 @@ Si queréis consultar o comentar alguno de los conceptos **antes de confirmar**,
 1. Marcad la casilla **(1)** de la columna *Comentario* a la derecha de la línea o líneas que queréis consultar.
 2. Al marcar una casilla, se abrirá el cuadro **Comentarios** **(2)**, donde debéis escribir vuestra duda u observación.
 
-![Línea marcada para comentar y cuadro de comentarios](assets/Matricula-confirmacio-04-itemsMatricula_Canvi.png)
+![Línea marcada para comentar y cuadro de comentarios](../../assets/families/Matricula-confirmacio-04-itemsMatricula_Canvi.png)
 
 3. Cuando hay alguna línea marcada, el botón de confirmar se sustituye por el botón **Comentarios para secretaría** **(3)**. Pulsadlo para enviar la consulta.
 
-![Botón Comentarios para secretaría](assets/Matricula-confirmacio-04-itemsMatricula_Canvi_2.png)
+![Botón Comentarios para secretaría](../../assets/families/Matricula-confirmacio-04-itemsMatricula_Canvi_2.png)
 
 > **Tened en cuenta que:**
 > * Enviar un comentario **no confirma** la matrícula: solo hace llegar vuestra consulta a Secretaría.
@@ -108,7 +108,7 @@ En la parte inferior de la sección de detalles debéis indicar cómo queréis p
 
 **Método de pago.** El centro utiliza la **domiciliación bancaria**. Para poder seleccionar esta opción hay que tener una **cuenta bancaria (IBAN) registrada**. Si todavía no habéis dado de alta ninguna, veréis un aviso como el de la imagen, que os invita a enviar vuestro IBAN antes de continuar (ved el Paso 6).
 
-![Selección del plan de pago y aviso de falta de IBAN](assets/Matricula-confirmacio-05-Pagament01.png)
+![Selección del plan de pago y aviso de falta de IBAN](../../assets/families/Matricula-confirmacio-05-Pagament01.png)
 
 > Si tenéis dificultades para facilitar una cuenta bancaria, poneos en contacto con la Secretaría del centro.
 
@@ -124,14 +124,14 @@ Para dar de alta la cuenta bancaria, id al apartado **Documentación** del menú
 
 A continuación, pulsad **Enviar**.
 
-![Apartado Documentación con el formulario de cuenta bancaria (IBAN)](assets/Matricula-confirmacio-06-Documentacio-00.png)
+![Apartado Documentación con el formulario de cuenta bancaria (IBAN)](../../assets/families/Matricula-confirmacio-06-Documentacio-00.png)
 
 Si ya teníais una cuenta registrada de otro curso, en esta misma sección podréis:
 
 1. **Renovar cuenta actual** **(1)** — si queréis mantener la misma cuenta y actualizar su validez.
 2. **Actualizar cuenta bancaria** **(2)** — si queréis introducir una cuenta nueva (rellenad los datos y pulsad *Enviar*).
 
-![Renovar o actualizar la cuenta bancaria existente](assets/Matricula-confirmacio-06-Documentacio-01-IBAN.png)
+![Renovar o actualizar la cuenta bancaria existente](../../assets/families/Matricula-confirmacio-06-Documentacio-01-IBAN.png)
 
 Una vez registrado el IBAN, volved al apartado **Matrícula** para finalizar el trámite.
 
@@ -144,7 +144,7 @@ De vuelta en **Matrícula**, comprobad que todo esté correcto:
 1. El **plan de pago** elegido **(1)**.
 2. La **cuenta bancaria registrada**, que ahora aparece confirmada con el IBAN, el titular y la validez **(2)**.
 
-![Sección de pago con la cuenta bancaria ya registrada](assets/Matricula-confirmacio-07-PagamentOK.png)
+![Sección de pago con la cuenta bancaria ya registrada](../../assets/families/Matricula-confirmacio-07-PagamentOK.png)
 
 El botón **Confirmar matrícula** **(3)** se mantiene desactivado (en color claro) hasta que se cumplen **todas** estas condiciones:
 
@@ -154,7 +154,7 @@ El botón **Confirmar matrícula** **(3)** se mantiene desactivado (en color cla
 
 Cuando se cumplen todas, el botón **Confirmar matrícula** se activa (color granate). Pulsadlo para finalizar el trámite.
 
-![Botón Confirmar matrícula activado](assets/Matricula-confirmacio-08-ConfirmacioOK.png)
+![Botón Confirmar matrícula activado](../../assets/families/Matricula-confirmacio-08-ConfirmacioOK.png)
 
 > Una vez confirmada, la matrícula queda registrada y la página pasa a modo de solo lectura, con la información de la matrícula. Si más adelante necesitáis hacer algún cambio, deberéis contactar con la [Secretaría del centro](https://elpuig.xeill.net/el-centre/secretaria).
 

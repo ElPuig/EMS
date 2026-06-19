@@ -379,13 +379,16 @@
             'ems/static/src/xml/backend/**/*',
             'ems/static/src/css/backend/**/*',
             'ems/static/src/js/backend/**/*',
-        ],       
+        ],
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',
            'ems/static/src/scss/frontend/**/*',
         ],
         'web.assets_common': [
-            #'ems/static/src/css/**/*',      
+            #'ems/static/src/css/**/*',
+        ],
+        'web.assets_tests': [
+            'ems/static/tests/tours/**/*',
         ],
     },
 }

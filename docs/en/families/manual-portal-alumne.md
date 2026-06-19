@@ -43,7 +43,7 @@ To start the activation process, follow these steps:
 2. Check that the username shown matches your correct email address.
 3. Click directly on the central **Activate account** button. This link will securely redirect you to the portal setup wizard.
 
-![Welcome email and invitation to activate the portal account](assets/manual-portal-alumne-email.png)
+![Welcome email and invitation to activate the portal account](../../assets/families/manual-portal-alumne-email.png)
 
 ---
 
@@ -59,7 +59,7 @@ In this form, complete the following actions following the numbered indicators i
 4. **Confirm password (4):** Re-enter exactly the same password to make sure there was no typing error.
 5. **Sign up (5):** Finally, click the maroon **Sign up** button to validate and save your access data.
 
-![Credentials setup form and password definition](assets/manual-portal-alumne-01.png)
+![Credentials setup form and password definition](../../assets/families/manual-portal-alumne-01.png)
 
 
 ---
@@ -81,7 +81,7 @@ The web interface is optimized and designed to provide clean and intuitive navig
 * **Centralized cards:** You have visual buttons to access each of the key services (**Attendance**, **Grades**, **Enrollment**, **Communications**, **Documentation** and **Profile**).
 * **User profile:** On the right side you will always see the basic information of the active student profile along with their ID photo from the record.
 
-![Main dashboard and service cards of the student portal](assets/manual-portal-alumne-02.png)
+![Main dashboard and service cards of the student portal](../../assets/families/manual-portal-alumne-02.png)
 
 ---
 

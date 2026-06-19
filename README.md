@@ -127,6 +127,18 @@ ExecStart=/usr/bin/python3 -m debugpy --listen 0.0.0.0:5678 /usr/bin/odoo --conf
 ```
 Save the changes and close the file (CTRL+O; CTRL+X).  
 
+Finally, in order to run the tests (front and back):
+```
+pip install websocket-client
+
+curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg 
+
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list 
+
+apt update 
+apt install -y google-chrome-stable
+```
+
 ## EMS (install and update)
 First of all, check the `data` folder and fit it to your needs. You'll find the following folders:
 - **cat**: contains the data about the Catalonian Educational System. If you're setting up the EMS in a Catalan school, this should feet your needs; otherwise, you can use it as a template (but please, share with us your setup).

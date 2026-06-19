@@ -43,7 +43,7 @@ Per començar el procés d'activació, heu de seguir aquests passos:
 2. Verifiqueu que el nom d'usuari indicat correspon amb la vostra adreça electrònica correcta.
 3. Feu clic directament sobre el botó central **Activar compte**. Aquest enllaç us redirigirà de forma segura a l'assistent de configuració del portal.
 
-![Email de benvinguda i invitació a activar el compte del portal](assets/manual-portal-alumne-email.png)
+![Email de benvinguda i invitació a activar el compte del portal](../../assets/families/manual-portal-alumne-email.png)
 
 ---
 
@@ -59,7 +59,7 @@ Dins d'aquest formulari, heu de completar les accions següents seguint els indi
 4. **Confirmeu contrasenya (4):** Torneu a introduir exactament la mateixa contrasenya per comprovar que no s'ha comès cap error de tecleig.
 5. **Registrar-se (5):** Finalment, feu clic sobre el botó de color granat **Registrar-se** per validar i desar les vostres dades d'accés.
 
-![Formulari de configuració de credencials i establiment de contrasenya](assets/manual-portal-alumne-01.png)
+![Formulari de configuració de credencials i establiment de contrasenya](../../assets/families/manual-portal-alumne-01.png)
 
 
 ---
@@ -81,7 +81,7 @@ La interfície web està optimitzada i dissenyada per facilitar una navegació n
 * **Targetes centralitzades:** Disposeu de botons visuals per accedir a cadascun dels serveis clau (**Assistència**, **Qualificacions**, **Matrícula**, **Comunicacions**, **Documentació** i **Perfil**).
 * **Perfil de l'usuari:** A la part dreta tindreu sempre visible la informació bàsica del perfil actiu de l'alumne juntament amb la seva fotografia identificativa de l'expedient.
 
-![Panell principal i targetes de serveis del portal de l'alumne](assets/manual-portal-alumne-02.png)
+![Panell principal i targetes de serveis del portal de l'alumne](../../assets/families/manual-portal-alumne-02.png)
 
 ---
 

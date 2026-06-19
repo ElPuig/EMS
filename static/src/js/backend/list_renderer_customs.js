@@ -25,23 +25,39 @@ patch(ListRenderer.prototype, {
         return view;
     },
        
-    onClickCapture(record, ev){         
-        switch(record.resModel){                
+    onClickCapture(record, ev){
+        switch(record.resModel){
             case "ems.enrollment_view":
                 ev.preventDefault();
-                ev.stopPropagation();            
-                            
+                ev.stopPropagation();
+
                 this.action.doAction({
                     name: "Open: Students",
                     type: "ir.actions.act_window",
                     res_model: "res.partner",
                     res_id: record.data.student_id[0],
-                    views: [[this.getViewData("view_contact_form").name, "form"]],   
+                    views: [[this.getViewData("view_contact_form").name, "form"]],
                     view_mode: "form",
                     target: "new",
-                });  
-            break;            
-        }            
+                });
+            break;
+
+            case "res.partner":
+                if (ev.target.closest('.ems-tutor-enrollment-list')) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    if (record.data.ems_current_enrollment_id) {
+                        this.action.doAction({
+                            type: "ir.actions.act_window",
+                            res_model: "sale.order",
+                            res_id: record.data.ems_current_enrollment_id[0],
+                            views: [[false, "form"]],
+                            target: "current",
+                        });
+                    }
+                }
+            break;
+        }
     },       
 
     async autofocusForRadioCells(){            

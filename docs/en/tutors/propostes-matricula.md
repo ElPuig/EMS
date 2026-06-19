@@ -53,7 +53,7 @@ A dialog will open with the selected students.
 
 ## View Generated Pre-enrollments
 
-Once generated, you can view the list of pre-enrollments from the same view **Academic Management → Enrollment → Enrollment Proposals**. Students who already have a pre-enrollment created will show their enrollment number in the **Current Enrollment** column **(1)**. Click the button on the right **(2)** to open the details of each pre-enrollment.
+Once generated, you can view the list of pre-enrollments from the same view **Academic Management → Enrollment → Enrollment Proposals**. Students who already have a pre-enrollment created will show their enrollment number in the **Enrollment** column **(1)**. Click on the row to open the details of each pre-enrollment.
 
 ![List of students with generated pre-enrollments](assets/propostes-03-llista-alumnes-pre-matricules-creades.png)
 

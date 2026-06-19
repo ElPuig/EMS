@@ -53,7 +53,7 @@ S'obrirà un diàleg amb els alumnes seleccionats.
 
 ## Consultar les pre-matrícules creades
 
-Un cop generades, pots veure el llistat de pre-matrícules des de la mateixa vista **Gestió acadèmica → Matrícula → Propostes de matrícula**. Els alumnes que ja tenen una pre-matrícula creada mostraran el seu número a la columna **Matrícula actual** **(1)**. Fes clic al botó de la dreta **(2)** per obrir el detall de cada pre-matrícula.
+Un cop generades, pots veure el llistat de pre-matrícules des de la mateixa vista **Gestió acadèmica → Matrícula → Propostes de matrícula**. Els alumnes que ja tenen una pre-matrícula creada mostraran el seu número a la columna **Matrícula** **(1)**. Fes clic a la fila per obrir el detall de cada pre-matrícula.
 
 ![Llistat d'alumnes amb les pre-matrícules creades](assets/propostes-03-llista-alumnes-pre-matricules-creades.png)
 

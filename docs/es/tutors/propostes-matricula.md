@@ -53,7 +53,7 @@ Se abrirá un diálogo con los alumnos seleccionados.
 
 ## Consultar las pre-matrículas creadas
 
-Una vez generadas, puedes ver el listado de pre-matrículas desde la misma vista **Gestión académica → Matrícula → Propuestas de matrícula**. Los alumnos que ya tienen una pre-matrícula creada mostrarán su número en la columna **Matrícula actual** **(1)**. Haz clic en el botón de la derecha **(2)** para abrir el detalle de cada pre-matrícula.
+Una vez generadas, puedes ver el listado de pre-matrículas desde la misma vista **Gestión académica → Matrícula → Propuestas de matrícula**. Los alumnos que ya tienen una pre-matrícula creada mostrarán su número en la columna **Matrícula** **(1)**. Haz clic en la fila para abrir el detalle de cada pre-matrícula.
 
 ![Listado de alumnos con las pre-matrículas creadas](assets/propostes-03-llista-alumnes-pre-matricules-creades.png)
 

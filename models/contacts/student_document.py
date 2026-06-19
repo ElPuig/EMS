@@ -102,7 +102,7 @@ class EmsStudentDocument(models.Model):
             doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
             for user in users:
                 rec.activity_schedule(
-                    act_type_xmlid='mail.mail_activity_data_todo',
+                    act_type_xmlid='ems.mail_activity_student_document_review',
                     summary=_('Review document: %s') % doc_label,
                     user_id=user.id,
                 )

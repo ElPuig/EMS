@@ -270,6 +270,7 @@
         'data/main/ems.space_type.csv',
         'data/main/hr.work.location.csv',
         'data/main/ems.contact.relation.type.xml',
+        'data/main/ems.mail_activity_type.xml',
 
         'data/cat/attachments/asix/ir.attachment.csv',
         'data/cat/attachments/dam/ir.attachment.csv',

@@ -3566,6 +3566,8 @@ msgid "Enrollment: ternary relation between student-group-uf."
 msgstr "Matrícula: relació ternària entre estudiant-grup-uf."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/mail_activity.py:0
 #: model:ir.actions.act_window,name:ems.action_ems_enrollments
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__limesurvey_enrollment_ids
 #: model:ir.ui.menu,name:ems.menu_ems_enrollments
@@ -6785,6 +6787,22 @@ msgstr "Data de revisió"
 #: code:addons/ems/models/contacts/student_document.py:0
 msgid "Review document: %s"
 msgstr "Revisar document: %s"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_enrollment_comment
+msgid "Review enrollment comment"
+msgstr "Revisar comentari de matrícula"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/mail_activity.py:0
+msgid "Your request has been reviewed by the secretary's office."
+msgstr "La teva sol·licitud ha estat revisada per secretaria."
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_student_document_review
+msgid "Review student document"
+msgstr "Revisar document d'alumne"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing

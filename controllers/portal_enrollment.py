@@ -212,6 +212,11 @@ class EMSPortalController(CustomerPortal):
                 items = Markup('').join(Markup('<li>%s</li>') % escape(name) for name in line_names)
                 lines_html = Markup('<br/><b>Marked items:</b><ul>%s</ul>') % items
 
+            # Schedule the secretary review tasks first: this unsubscribes the
+            # secretaries (an activity auto-subscribes its assignee) so the comment
+            # posted right after does NOT email them. Their only notice is the
+            # systray task.
+            enrollment.sudo()._ems_schedule_comment_review_activities()
             enrollment.sudo().message_post(
                 body=Markup('<b>Comments from student/family portal:</b><br/>%s%s') % (
                     escape(comments), lines_html

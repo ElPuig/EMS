@@ -98,6 +98,22 @@ docs/
 
 Image references in markdown use relative paths: `../../assets/<section>/filename.png`
 
+## Data folder conventions
+
+The `data/` directory has three subfolders with different ID ownership semantics:
+
+| Folder | ID prefix | Owned by | Survives EMS upgrade? |
+|--------|-----------|----------|-----------------------|
+| `data/main/` | `ems.` | EMS module | No — Odoo deletes on upgrade if removed from manifest |
+| `data/cat/` | `ems.` | EMS module | No |
+| `data/custom/` | `__import__.` | The centre (not EMS) | Yes — Odoo never deletes `__import__` records during module upgrades |
+
+**Rule:** every record `id` in `data/custom/` must use the `__import__.` prefix. Records in `data/main/` and `data/cat/` must use `ems.` (or no prefix, which Odoo expands to `ems.` automatically).
+
+**Why `__import__`?** When Odoo stores a record with a fully-qualified ID whose module part is `__import__`, it is not associated with any installable module. This means removing the corresponding line from the manifest — or upgrading EMS — will never cause Odoo to delete that record. This is the same behaviour as data imported via the Odoo UI CSV importer, which also assigns `__import__.*` IDs.
+
+**Load order:** within `data/custom/`, always list files so that referenced records are declared before the files that reference them (e.g. `ems.subject.csv` before `ems.study.csv`).
+
 ## DTON methodology
 
 A retroactive code quality process applied model by model:

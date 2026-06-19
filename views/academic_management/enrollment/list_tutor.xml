@@ -22,6 +22,7 @@
             <field name="model">res.partner</field>
             <field name="arch" type="xml">
                 <list string="Students - Tutor View"
+                      class="ems-tutor-enrollment-list"
                       default_order="main_group_id asc, name asc"
                       decoration-muted="not active">
                     <header>
@@ -51,18 +52,11 @@
                            decoration-warning="ems_enrollment_state == 'draft'"
                            decoration-info="ems_enrollment_state == 'sent'"
                            decoration-success="ems_enrollment_state == 'sale'"/>
-                    <button name="action_open_current_enrollment"
-                            type="object"
-                            icon="fa-external-link"
-                            title="Open Enrollment"
-                            invisible="ems_current_enrollment_id == False"/>
                     <button name="action_new_enrollment"
                             type="object"
                             icon="fa-plus"
                             title="New Enrollment"
                             invisible="ems_current_enrollment_id != False"/>
-
-
                                     </list>
                                 </field>
         </record>
@@ -89,6 +83,5 @@ action = {
 }
             </field>
         </record>
-
     </data>
 </odoo>

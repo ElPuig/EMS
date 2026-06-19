@@ -46,6 +46,11 @@ jobs:
             | sudo tee /etc/apt/sources.list.d/odoo.list
           sudo apt-get update -qq && sudo apt-get install -y odoo
 
+      - name: Stop and disable Odoo system service
+        run: |
+          sudo systemctl stop odoo || true
+          sudo systemctl disable odoo || true
+
       - name: Clone OCA dependencies (depth 1)
         run: |
           sudo mkdir -p /opt/modules

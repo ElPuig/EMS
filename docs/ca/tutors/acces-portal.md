@@ -35,7 +35,7 @@ A la llista, marca amb la casella de verificació **(2)** els alumnes als quals 
 
 Un cop feta la selecció, obre el menú **Accions** a la barra superior i fes clic a **Accés al portal (alumnes/famílies)** **(3)**.
 
-![Llista d'alumnes amb selecció i menú Accions](assets/tutor-accesalportal0.png)
+![Llista d'alumnes amb selecció i menú Accions](../../assets/tutors/tutor-accesalportal0.png)
 
 > **Nota:** com a tutor, només veuràs i podràs gestionar els teus alumnes. Encara que seleccionis alumnes d'altres grups, el quadre de diàleg només mostrarà els que et corresponen.
 
@@ -49,7 +49,7 @@ S'obrirà el quadre de diàleg **Accés al portal**.
 2. Revisa la llista de **Destinataris (previsualització)** per comprovar a qui afectarà l'acció.
 3. Fes clic a **Aplicar** **(2)** per executar l'acció.
 
-![Quadre de diàleg d'accés al portal](assets/tutor-accesalportal1.png)
+![Quadre de diàleg d'accés al portal](../../assets/tutors/tutor-accesalportal1.png)
 
 En acabar, es mostrarà un missatge resum amb el nombre d'accessos atorgats, revocats o invitacions reenviades, i els possibles avisos (per exemple, destinataris sense correu electrònic).
 

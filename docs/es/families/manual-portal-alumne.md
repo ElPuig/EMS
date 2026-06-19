@@ -43,7 +43,7 @@ Para empezar el proceso de activación, debéis seguir estos pasos:
 2. Verificad que el nombre de usuario indicado corresponde con vuestra dirección electrónica correcta.
 3. Haced clic directamente sobre el botón central **Activar cuenta**. Este enlace os redirigirá de forma segura al asistente de configuración del portal.
 
-![Email de bienvenida e invitación a activar la cuenta del portal](assets/manual-portal-alumne-email.png)
+![Email de bienvenida e invitación a activar la cuenta del portal](../../assets/families/manual-portal-alumne-email.png)
 
 ---
 
@@ -59,7 +59,7 @@ Dentro de este formulario, debéis completar las siguientes acciones siguiendo l
 4. **Confirmad contraseña (4):** Volved a introducir exactamente la misma contraseña para comprobar que no se ha cometido ningún error de tecleo.
 5. **Registrarse (5):** Finalmente, haced clic sobre el botón de color granate **Registrarse** para validar y guardar vuestros datos de acceso.
 
-![Formulario de configuración de credenciales y establecimiento de contraseña](assets/manual-portal-alumne-01.png)
+![Formulario de configuración de credenciales y establecimiento de contraseña](../../assets/families/manual-portal-alumne-01.png)
 
 
 ---
@@ -81,7 +81,7 @@ La interfaz web está optimizada y diseñada para facilitar una navegación limp
 * **Tarjetas centralizadas:** Disponéis de botones visuales para acceder a cada uno de los servicios clave (**Asistencia**, **Calificaciones**, **Matrícula**, **Comunicaciones**, **Documentación** y **Perfil**).
 * **Perfil del usuario:** En la parte derecha tendréis siempre visible la información básica del perfil activo del alumno junto con su fotografía identificativa del expediente.
 
-![Panel principal y tarjetas de servicios del portal del alumno](assets/manual-portal-alumne-02.png)
+![Panel principal y tarjetas de servicios del portal del alumno](../../assets/families/manual-portal-alumne-02.png)
 
 ---
 

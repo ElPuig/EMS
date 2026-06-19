@@ -388,7 +388,7 @@
             #'ems/static/src/css/**/*',
         ],
         'web.assets_tests': [
-            'ems/static/src/js/tours/**/*',
+            'ems/static/tests/tours/**/*',
         ],
     },
 }

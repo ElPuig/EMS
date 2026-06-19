@@ -35,7 +35,7 @@ In the list, tick the checkbox **(2)** for the students whose portal access you 
 
 Once selected, open the **Actions** menu in the top bar and click **Portal access (students/families)** **(3)**.
 
-![Student list with selection and Actions menu](assets/tutor-accesalportal0.png)
+![Student list with selection and Actions menu](../../assets/tutors/tutor-accesalportal0.png)
 
 > **Note:** as a tutor, you will only see and be able to manage your own students. Even if you select students from other groups, the dialog will only show those that belong to you.
 
@@ -49,7 +49,7 @@ The **Portal access** dialog will open.
 2. Review the **Recipients (preview)** list to check who the action will affect.
 3. Click **Apply** **(2)** to run the action.
 
-![Portal access dialog](assets/tutor-accesalportal1.png)
+![Portal access dialog](../../assets/tutors/tutor-accesalportal1.png)
 
 When finished, a summary message will show the number of accesses granted, revoked or invitations resent, along with any warnings (for example, recipients without an email address).
 

@@ -12,7 +12,7 @@ Los niveles representan las **etapas educativas** o **ciclos de estudio** de la 
 
 ## Acceso
 
-Navega a: **Comunitat Educativa → Configuració → Currículum → Nivells**
+Navega a: **Comunidad Educativa → Configuración → Currículum → Niveles**
 
 ---
 
@@ -31,7 +31,7 @@ Al abrir el menú se muestra una lista de todos los niveles ordenada alfabética
 3. Opcionalmente, añade notas libres en la pestaña **Notas**.
 4. Haz clic en **Guardar** (o usa las migas de pan para navegar — Odoo guarda automáticamente).
 
-> La pestaña **Estudios** muestra todos los estudios vinculados a este nivel. Los estudios se gestionan desde su propio menú (**Configuració → Currículum → Estudis**) y no se pueden añadir directamente desde el formulario del nivel.
+> La pestaña **Estudios** muestra todos los estudios vinculados a este nivel. Los estudios se gestionan desde su propio menú (**Configuración → Currículum → Estudios**) y no se pueden añadir directamente desde el formulario del nivel.
 
 ---
 

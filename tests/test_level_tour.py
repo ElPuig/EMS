@@ -5,4 +5,6 @@ from odoo.tests import tagged, HttpCase
 class TestLevelTour(HttpCase):
 
     def test_level_crud_tour(self):
+        # To observe this tour in a real browser during development:
+        #   self.start_tour("/odoo", "ems_level_crud", login="admin", watch=True)
         self.start_tour("/odoo", "ems_level_crud", login="admin")

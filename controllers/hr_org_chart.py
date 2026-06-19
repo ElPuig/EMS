@@ -81,12 +81,7 @@ class EmsOrgChartController(HrOrgChartController):
 
     @http.route('/hr/get_subordinates', type='json', auth='user')
     def get_subordinates(self, employee_id, subordinates_type=None, **kw):
-        """
-        Get employee subordinates.
-        Possible values for 'subordinates_type':
-            - 'indirect'
-            - 'direct'
-        """
+        """Returns direct or indirect subordinates of an employee (subordinates_type: 'direct'|'indirect')."""
         employee = self._check_employee(employee_id, **kw)
         if not employee:  # to check
             return {}

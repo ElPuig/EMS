@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_level_list">
+        <record id="level_view_list" model="ir.ui.view">
             <field name="name">ems.level.list</field>
             <field name="model">ems.level</field>
             <field name="arch" type="xml">

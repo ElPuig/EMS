@@ -35,13 +35,13 @@ To start the process, click the **my enrollment** link in the email, or access t
 
 Once you have logged in, you will land on the portal's home page (*My account*). From the top menu or the central cards, click **Enrollment**.
 
-![Portal home page with access to the Enrollment section](assets/Matricula-confirmacio-00.png)
+![Portal home page with access to the Enrollment section](../../assets/families/Matricula-confirmacio-00.png)
 
 In the **Enrollment** section you will see the proposal the school has prepared for you, with all the sections to review and confirm.
 
 > **If you do not see any proposal:** if, when you open Enrollment, the message *“No active enrollment process found”* appears, it means you currently have no pending proposal (because it has not been sent to you yet). If in doubt, contact the school's Secretary's office.
 
-![Enrollment section with no active process](assets/Matricula-confirmacio-01.png)
+![Enrollment section with no active process](../../assets/families/Matricula-confirmacio-01.png)
 
 ---
 
@@ -51,7 +51,7 @@ The first section, **1. Authorizations**, contains the documents and consents yo
 
 Each authorization appears with the **Pending** status. To respond to it, click the **Answer** button on the corresponding row **(1)**.
 
-![Authorizations section with the Answer button](assets/Matricula-confirmacio-02-autoritzacions.png)
+![Authorizations section with the Answer button](../../assets/families/Matricula-confirmacio-02-autoritzacions.png)
 
 A window will open with the full text of the authorization. Read it carefully and, if applicable, fill in the requested fields (some are mandatory and are marked with an asterisk `*`). Then:
 
@@ -68,7 +68,7 @@ In the **2. Enrollment details** section you will find the breakdown of all the 
 
 Check that all the information is correct.
 
-![Breakdown of the enrollment items and total amount](assets/Matricula-confirmacio-03-itemsMatriculaOK.png)
+![Breakdown of the enrollment items and total amount](../../assets/families/Matricula-confirmacio-03-itemsMatriculaOK.png)
 
 * If you **agree** with everything, you can continue with the payment (Step 5).
 * If you have **any questions or want to report an issue** about an item, follow Step 4.
@@ -82,11 +82,11 @@ If you want to ask about or comment on any of the items **before confirming**, y
 1. Tick the box **(1)** in the *Comment* column to the right of the line or lines you want to ask about.
 2. When you tick a box, the **Comments** box **(2)** will open, where you must write your question or remark.
 
-![Line ticked for commenting and comments box](assets/Matricula-confirmacio-04-itemsMatricula_Canvi.png)
+![Line ticked for commenting and comments box](../../assets/families/Matricula-confirmacio-04-itemsMatricula_Canvi.png)
 
 3. When any line is ticked, the confirm button is replaced by the **Comments for the secretary's office** button **(3)**. Click it to send your query.
 
-![Comments for the secretary's office button](assets/Matricula-confirmacio-04-itemsMatricula_Canvi_2.png)
+![Comments for the secretary's office button](../../assets/families/Matricula-confirmacio-04-itemsMatricula_Canvi_2.png)
 
 > **Please note that:**
 > * Sending a comment **does not confirm** the enrollment: it only sends your query to the Secretary's office.
@@ -108,7 +108,7 @@ At the bottom of the details section you must indicate how you want to pay the e
 
 **Payment method.** The school uses **direct debit**. To be able to select this option you need a **registered bank account (IBAN)**. If you have not registered one yet, you will see a warning like the one in the image, prompting you to submit your IBAN before continuing (see Step 6).
 
-![Payment plan selection and missing-IBAN warning](assets/Matricula-confirmacio-05-Pagament01.png)
+![Payment plan selection and missing-IBAN warning](../../assets/families/Matricula-confirmacio-05-Pagament01.png)
 
 > If you have difficulties providing a bank account, contact the school's Secretary's office.
 
@@ -124,14 +124,14 @@ To register the bank account, go to the **Documentation** section in the top men
 
 Then click **Submit**.
 
-![Documentation section with the bank account (IBAN) form](assets/Matricula-confirmacio-06-Documentacio-00.png)
+![Documentation section with the bank account (IBAN) form](../../assets/families/Matricula-confirmacio-06-Documentacio-00.png)
 
 If you already had an account registered from another year, in this same section you can:
 
 1. **Renew current account** **(1)** — if you want to keep the same account and update its validity.
 2. **Update bank account** **(2)** — if you want to enter a new account (fill in the details and click *Submit*).
 
-![Renew or update the existing bank account](assets/Matricula-confirmacio-06-Documentacio-01-IBAN.png)
+![Renew or update the existing bank account](../../assets/families/Matricula-confirmacio-06-Documentacio-01-IBAN.png)
 
 Once the IBAN is registered, go back to the **Enrollment** section to complete the process.
 
@@ -144,7 +144,7 @@ Back in **Enrollment**, check that everything is correct:
 1. The chosen **payment plan** **(1)**.
 2. The **registered bank account**, which now appears confirmed with the IBAN, the holder and the validity **(2)**.
 
-![Payment section with the bank account already registered](assets/Matricula-confirmacio-07-PagamentOK.png)
+![Payment section with the bank account already registered](../../assets/families/Matricula-confirmacio-07-PagamentOK.png)
 
 The **Confirm Enrollment** button **(3)** stays disabled (light colour) until **all** of these conditions are met:
 
@@ -154,7 +154,7 @@ The **Confirm Enrollment** button **(3)** stays disabled (light colour) until **
 
 When all of them are met, the **Confirm Enrollment** button becomes active (maroon colour). Click it to complete the process.
 
-![Confirm Enrollment button enabled](assets/Matricula-confirmacio-08-ConfirmacioOK.png)
+![Confirm Enrollment button enabled](../../assets/families/Matricula-confirmacio-08-ConfirmacioOK.png)
 
 > Once confirmed, the enrollment is registered and the page switches to read-only mode, showing the enrollment information. If you later need to make any change, you will have to contact the [school's Secretary's office](https://elpuig.xeill.net/el-centre/secretaria).
 

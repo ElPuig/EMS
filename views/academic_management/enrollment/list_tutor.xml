@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista de búsqueda sin panel lateral -->
+        <record model="ir.ui.view" id="view_student_search_tutor">
+            <field name="name">ems.student.search.tutor</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" string="Student"/>
+                    <field name="main_group_id" string="Group"/>
+                    <field name="tutor_id" string="Tutor"/>
+                    <field name="study_id" string="Study"/>
+                    <searchpanel>
+                        <field name="main_group_id" string="Student group" icon="fa-users" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+
+        <!-- Vista lista específica para tutores -->
+        <record model="ir.ui.view" id="view_contact_list_tutor">
+            <field name="name">ems.contact.list.tutor</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <list string="Students - Tutor View"
+                      class="ems-tutor-enrollment-list"
+                      default_order="main_group_id asc, name asc"
+                      decoration-muted="not active">
+                    <header>
+                        <button name="action_enrollment_proposal"
+                                type="object"
+                                string="Enrollment proposal"/>
+                    </header>
+                    <field name="name" string="Student"/>
+                    <field name="main_group_id" optional="show"/>
+                    <field name="tutor_id" optional="hide"/>
+                    <field name="study_id" optional="hide"/>
+                    <field name="level_id" optional="hide"/>
+                    <field name="student_email" optional="hide"/>
+                    <field name="phone" optional="show"/>
+                    <field name="mobile" optional="show"/>
+                    <field name="birth_date" optional="hide"/>
+                    <field name="is_adult" optional="show"/>
+                    <field name="auth_image" optional="hide" widget="boolean_toggle" readonly="1"/>
+                    <field name="auth_trip" optional="hide" widget="boolean_toggle" readonly="1"/>
+                    <field name="auth_healt" optional="hide" widget="boolean_toggle" readonly="1"/>
+                    <field name="auth_share" optional="hide" widget="boolean_toggle" readonly="1"/>
+                    <field name="benefit_status" optional="hide"/>
+
+                    <field name="ems_enrollment_state" column_invisible="1"/>
+                    <field name="ems_current_enrollment_id" optional="show" string="Enrollment"
+                           help="Color coding: Orange = draft enrollment (not yet sent) · Blue = sent to family (awaiting confirmation) · Green = confirmed enrollment"
+                           decoration-warning="ems_enrollment_state == 'draft'"
+                           decoration-info="ems_enrollment_state == 'sent'"
+                           decoration-success="ems_enrollment_state == 'sale'"/>
+                    <button name="action_new_enrollment"
+                            type="object"
+                            icon="fa-plus"
+                            title="New Enrollment"
+                            invisible="ems_current_enrollment_id != False"/>
+                                    </list>
+                                </field>
+        </record>
+
+        <!-- Base act_window con ID real: necesario para que la URL sea #action=<id> -->
+        <record id="act_window_student_group_enrollment" model="ir.actions.act_window">
+            <field name="name">Group enrollment proposal</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('contact_type', '=', 'student')]</field>
+            <field name="context">{'default_contact_type': 'student'}</field>
+            <field name="search_view_id" ref="view_student_search_tutor"/>
+            <field name="view_ids" eval="[(5,0,0),
+                (0,0,{'view_mode': 'list', 'view_id': ref('view_contact_list_tutor')}),
+            ]"/>
+        </record>
+
+        <!-- Acción servidor: admin/secretary ven todos; tutores solo ven los suyos -->
+        <record id="action_student_group_enrollment" model="ir.actions.server">
+            <field name="name">Group enrollment proposal</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="state">code</field>
+            <field name="code">
+action = env.ref('ems.act_window_student_group_enrollment').sudo().read()[0]
+if env.user.has_group('ems.group_admin') or env.user.has_group('ems.group_secretary'):
+    action['domain'] = [('contact_type', '=', 'student')]
+else:
+    action['domain'] = [('contact_type', '=', 'student'), ('tutor_id.user_id', '=', env.uid)]
+            </field>
+        </record>
+    </data>
+</odoo>

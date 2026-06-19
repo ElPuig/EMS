@@ -31,7 +31,7 @@ Obriu el navegador i accediu a [Gmail](https://mail.google.com) (o a qualsevol s
 1. Escriviu l'adreça de correu completa de l'institut (`usuari@elpuig.xeill.net`).
 2. Feu clic al botó **Següent (1)**.
 
-![Pantalla d'inici de sessió de Google amb l'adreça de correu de l'institut](assets/gmail_password_recovery-01.png)
+![Pantalla d'inici de sessió de Google amb l'adreça de correu de l'institut](../../assets/families/gmail_password_recovery-01.png)
 
 ---
 
@@ -41,7 +41,7 @@ A la pantalla on us demana la contrasenya, no cal que escriviu res. Per iniciar 
 
 1. Feu clic a l'enllaç **Has oblidat la contrasenya? (1)**.
 
-![Pantalla de contrasenya amb l'enllaç «Has oblidat la contrasenya?»](assets/gmail_password_recovery-02.png)
+![Pantalla de contrasenya amb l'enllaç «Has oblidat la contrasenya?»](../../assets/families/gmail_password_recovery-02.png)
 
 ---
 
@@ -54,7 +54,7 @@ Google obrirà l'assistent de **Recuperació del compte**. Us demanarà l'últim
 
 > En tots dos casos, l'objectiu és arribar a la verificació mitjançant el número de telèfon del pas següent.
 
-![Pantalla de recuperació del compte demanant l'última contrasenya recordada](assets/gmail_password_recovery-03.png)
+![Pantalla de recuperació del compte demanant l'última contrasenya recordada](../../assets/families/gmail_password_recovery-03.png)
 
 ---
 
@@ -68,7 +68,7 @@ Per assegurar-se que sou vosaltres, Google us demanarà que confirmeu el **núme
 
 > Si no teniu accés a aquest telèfon, no podreu continuar pel vostre compte: contacteu amb la **secretaria de l'institut** perquè us ajudin a restablir l'accés.
 
-![Pantalla per confirmar el número de telèfon i obtenir un codi de verificació](assets/gmail_password_recovery-04.png)
+![Pantalla per confirmar el número de telèfon i obtenir un codi de verificació](../../assets/families/gmail_password_recovery-04.png)
 
 ---
 
@@ -81,7 +81,7 @@ Rebreu un missatge de text (SMS) amb un **codi de verificació de 6 dígits** al
 
 > Si no rebeu el missatge en uns minuts, podeu fer clic a **Torna a enviar-lo** per sol·licitar un codi nou.
 
-![Pantalla per introduir el codi de verificació rebut per SMS](assets/gmail_password_recovery-05.png)
+![Pantalla per introduir el codi de verificació rebut per SMS](../../assets/families/gmail_password_recovery-05.png)
 
 ---
 
@@ -91,7 +91,7 @@ Un cop verificada la identitat, Google us donarà la benvinguda de nou i us ofer
 
 1. Feu clic a l'enllaç **Actualitza la contrasenya (1)** per definir-ne una de nova.
 
-![Pantalla de benvinguda amb l'opció d'actualitzar la contrasenya](assets/gmail_password_recovery-06.png)
+![Pantalla de benvinguda amb l'opció d'actualitzar la contrasenya](../../assets/families/gmail_password_recovery-06.png)
 
 ---
 
@@ -105,7 +105,7 @@ Finalment, definiu la nova contrasenya del compte:
 
 Un cop desada, ja podeu accedir al correu de l'institut amb la nova contrasenya.
 
-![Pantalla per crear i confirmar la nova contrasenya segura](assets/gmail_password_recovery-07.png)
+![Pantalla per crear i confirmar la nova contrasenya segura](../../assets/families/gmail_password_recovery-07.png)
 
 ---
 

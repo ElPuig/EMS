@@ -32,12 +32,7 @@ class ems_attendance(models.Model):
         return utils.datetime_to_odoo(utils.time_float_to_utc_datetime(work_date, slots[0].hour_to))
 
     def _cron_auto_check_out(self):
-        """Override of Odoo's native auto check-out cron.
-        Delegates to the native behaviour or to the EMS behaviour depending on the
-        company setting 'auto_checkout_mode':
-          - 'native': original Odoo logic (check-out after exceeding max scheduled hours).
-          - 'ems':    EMS logic (check-out at the employee's last scheduled working hour,
-                      with hourly retries between auto_checkout_time and auto_checkout_retry_until)."""
+        """Delegates to native Odoo or EMS checkout logic based on company's auto_checkout_mode."""
 
         if self.env.company.auto_checkout_mode != 'ems':
             return super()._cron_auto_check_out()

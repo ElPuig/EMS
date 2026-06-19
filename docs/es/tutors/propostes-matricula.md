@@ -33,7 +33,7 @@ En la lista, marca con la casilla de verificación todos los alumnos que han sup
 
 Una vez realizada la selección, haz clic en el botón **Propuestas de matrícula** en la barra superior **(2)**.
 
-![Lista de alumnos con selección y botón Propuestas de matrícula](assets/propostes-01-llista-alumnes.png)
+![Lista de alumnos con selección y botón Propuestas de matrícula](../../assets/tutors/propostes-01-llista-alumnes.png)
 
 > **Consejo:** Puedes filtrar por grupo en el panel izquierdo para trabajar grupo a grupo y no mezclar alumnos de grupos diferentes.
 
@@ -47,15 +47,15 @@ Se abrirá un diálogo con los alumnos seleccionados.
 2. Revisa la lista de estudiantes incluidos. Si necesitas excluir algún alumno, haz clic en la ✕ de su fila.
 3. Haz clic en **Crear matrículas** **(2)** para generar las pre-matrículas.
 
-![Diálogo de propuesta con plantilla seleccionada y botón Crear matrículas](assets/propostes-02-dialeg-plantilla.png)
+![Diálogo de propuesta con plantilla seleccionada y botón Crear matrículas](../../assets/tutors/propostes-02-dialeg-plantilla.png)
 
 ---
 
 ## Consultar las pre-matrículas creadas
 
-Una vez generadas, puedes ver el listado de pre-matrículas desde la misma vista **Gestión académica → Matrícula → Propuestas de matrícula**. Los alumnos que ya tienen una pre-matrícula creada mostrarán su número en la columna **Matrícula actual** **(1)**. Haz clic en el botón de la derecha **(2)** para abrir el detalle de cada pre-matrícula.
+Una vez generadas, puedes ver el listado de pre-matrículas desde la misma vista **Gestión académica → Matrícula → Propuestas de matrícula**. Los alumnos que ya tienen una pre-matrícula creada mostrarán su número en la columna **Matrícula** **(1)**. Haz clic en la fila para abrir el detalle de cada pre-matrícula.
 
-![Listado de alumnos con las pre-matrículas creadas](assets/propostes-03-llista-alumnes-pre-matricules-creades.png)
+![Listado de alumnos con las pre-matrículas creadas](../../assets/tutors/propostes-03-llista-alumnes-pre-matricules-creades.png)
 
 ---
 
@@ -69,7 +69,7 @@ El procedimiento es el siguiente:
 2. **Abrir la pre-matrícula del alumno**, tal como se explica en el apartado [Consultar las pre-matrículas creadas](#consultar-las-pre-matrículas-creadas).
 3. **Ajustar las asignaturas**: elimina las que el alumno no debe cursar **(1)** y añade las que le falten **(2)** hasta que la pre-matrícula refleje exactamente las asignaturas que debe hacer.
 
-![Edición de la pre-matrícula: eliminar (1) y añadir (2) asignaturas](assets/propostes-04-edicio_matricula.png)
+![Edición de la pre-matrícula: eliminar (1) y añadir (2) asignaturas](../../assets/tutors/propostes-04-edicio_matricula.png)
 
 ---
 

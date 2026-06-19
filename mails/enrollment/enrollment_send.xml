@@ -2,6 +2,13 @@
 <odoo>
     <data noupdate="0">
 
+        <record id="base.lang_ca_ES" model="res.lang">
+            <field name="active" eval="True"/>
+        </record>
+        <record id="base.lang_es" model="res.lang">
+            <field name="active" eval="True"/>
+        </record>
+
         <record id="email_template_enrollment_send" model="mail.template">
             <field name="name">EMS: Send Enrollment Proposal</field>
             <field name="model_id" ref="sale.model_sale_order"/>

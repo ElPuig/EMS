@@ -33,7 +33,7 @@ In the list, check the checkbox for all students who have passed the course and 
 
 Once you have made your selection, click the **Enrollment Proposals** button in the top bar **(2)**.
 
-![List of students with selection and Enrollment Proposals button](assets/propostes-01-llista-alumnes.png)
+![List of students with selection and Enrollment Proposals button](../../assets/tutors/propostes-01-llista-alumnes.png)
 
 > **Tip:** You can filter by group in the left panel to work group by group and avoid mixing students from different groups.
 
@@ -47,15 +47,15 @@ A dialog will open with the selected students.
 2. Review the list of included students. If you need to exclude any student, click the ✕ in their row.
 3. Click **Create Enrollments** **(2)** to generate the pre-enrollments.
 
-![Proposal dialog with selected template and Create Enrollments button](assets/propostes-02-dialeg-plantilla.png)
+![Proposal dialog with selected template and Create Enrollments button](../../assets/tutors/propostes-02-dialeg-plantilla.png)
 
 ---
 
 ## View Generated Pre-enrollments
 
-Once generated, you can view the list of pre-enrollments from the same view **Academic Management → Enrollment → Enrollment Proposals**. Students who already have a pre-enrollment created will show their enrollment number in the **Current Enrollment** column **(1)**. Click the button on the right **(2)** to open the details of each pre-enrollment.
+Once generated, you can view the list of pre-enrollments from the same view **Academic Management → Enrollment → Enrollment Proposals**. Students who already have a pre-enrollment created will show their enrollment number in the **Enrollment** column **(1)**. Click on the row to open the details of each pre-enrollment.
 
-![List of students with generated pre-enrollments](assets/propostes-03-llista-alumnes-pre-matricules-creades.png)
+![List of students with generated pre-enrollments](../../assets/tutors/propostes-03-llista-alumnes-pre-matricules-creades.png)
 
 ---
 
@@ -69,7 +69,7 @@ The procedure is as follows:
 2. **Open the student's pre-enrollment**, as explained in the [View generated pre-enrollments](#view-generated-pre-enrollments) section.
 3. **Adjust the subjects**: remove the ones the student should not take **(1)** and add the ones they are missing **(2)** until the pre-enrollment reflects exactly the subjects they need to complete.
 
-![Editing the pre-enrollment: remove (1) and add (2) subjects](assets/propostes-04-edicio_matricula.png)
+![Editing the pre-enrollment: remove (1) and add (2) subjects](../../assets/tutors/propostes-04-edicio_matricula.png)
 
 ---
 

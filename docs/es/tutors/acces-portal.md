@@ -35,7 +35,7 @@ En la lista, marca con la casilla de verificación **(2)** los alumnos a los que
 
 Una vez hecha la selección, abre el menú **Acciones** en la barra superior y haz clic en **Acceso al portal (alumnos/familias)** **(3)**.
 
-![Lista de alumnos con selección y menú Acciones](assets/tutor-accesalportal0.png)
+![Lista de alumnos con selección y menú Acciones](../../assets/tutors/tutor-accesalportal0.png)
 
 > **Nota:** como tutor, solo verás y podrás gestionar tus alumnos. Aunque selecciones alumnos de otros grupos, el cuadro de diálogo solo mostrará los que te corresponden.
 
@@ -49,7 +49,7 @@ Se abrirá el cuadro de diálogo **Acceso al portal**.
 2. Revisa la lista de **Destinatarios (previsualización)** para comprobar a quién afectará la acción.
 3. Haz clic en **Aplicar** **(2)** para ejecutar la acción.
 
-![Cuadro de diálogo de acceso al portal](assets/tutor-accesalportal1.png)
+![Cuadro de diálogo de acceso al portal](../../assets/tutors/tutor-accesalportal1.png)
 
 Al terminar, se mostrará un mensaje resumen con el número de accesos otorgados, revocados o invitaciones reenviadas, y los posibles avisos (por ejemplo, destinatarios sin correo electrónico).
 

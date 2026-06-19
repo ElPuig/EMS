@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>          
-        <record model="ir.actions.act_window" id="action_level_tree">
+        <record id="level_action" model="ir.actions.act_window">
             <field name="name">Levels</field>
             <field name="res_model">ems.level</field>
             <field name="view_mode">list,form</field>
         </record>
-                
-        <menuitem name="Levels" sequence="1" id="menu_levels" parent="menu_community_config_curriculum" action="action_level_tree"/>
+
+        <menuitem id="level_menu" name="Levels" sequence="1" parent="menu_community_config_curriculum" action="level_action"/>
     </data>
 </odoo>

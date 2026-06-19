@@ -1,0 +1,126 @@
+# EMS — Educational Management System
+
+An open-source Odoo v18 module for managing an educational centre. Developed by teachers at Institut Puig Castellar (Santa Coloma de Gramenet, Barcelona) as part of the Quality and Continuous Improvement Project (Q&CIP).
+
+## Tech stack
+
+- **Backend:** Odoo v18, Python 3
+- **Frontend:** OWL (Odoo Web Library), XML views, JavaScript
+- **Database:** PostgreSQL — database name is `ems`
+- **Official reference:** https://www.odoo.com/documentation/18.0/ (always consult before making technical decisions)
+
+## Module structure
+
+```
+models/
+├── attendance/       # Attendance tracking and sessions
+├── communications/   # Internal communications
+├── contacts/         # Students, groups, enrolments, portal access
+├── curriculum/       # Level → Study → Subject → Content hierarchy
+├── documentation/    # Minutes and records
+├── employees/        # Teachers, roles, working schedules
+├── enrollment/       # Enrolment process, templates, payments
+├── facilities/       # Spaces and space types
+├── grades/           # Grade outcomes
+├── limesurvey/       # LimeSurvey integration
+├── planning/         # Planning and outcomes
+├── settings/         # Company, course, and general settings
+└── shared/           # Base mixins and utilities
+
+views/                # XML views organised by model area
+static/
+├── src/              # Production assets (backend, frontend, scss)
+└── tests/            # Test-only assets
+    └── tours/        # Browser tour JS files (web.assets_tests)
+tests/                # Python test cases
+docs/                 # Trilingual user and developer documentation
+```
+
+## Development scripts
+
+Both scripts must be run from the project root (`/root/myModules/ems/`).
+
+```bash
+./upgrade.sh              # Apply module changes to the running instance
+./test.sh                 # Run all EMS tests
+./test.sh TestClassName   # Run a specific test class
+```
+
+`upgrade.sh` and `test.sh` both stop the Odoo service, run their operation as the `odoo` system user, and restart the service. Output is filtered to show only relevant lines (errors, warnings, test results).
+
+After any change, run `upgrade.sh` and check for WARNING / ERROR / CRITICAL output.
+
+## Testing conventions
+
+**Backend tests** — `tests/test_<model>.py`, using `odoo.tests.common.TransactionCase`:
+- Cover: valid create, required fields, display_name, admin CRUD, role access restrictions, relation integrity.
+- Use `assertRaises(Exception)` for DB-level violations (Odoo's `assertRaises` does not accept exception tuples).
+- Use unique codes/acronyms in test data that do not conflict with production data (ESO, BTX, CFGM, CFGS, EFPS, CFGB, PFI already exist).
+
+**Browser (tour) tests** — `static/tests/tours/<model>_tour.js` + `tests/test_<model>_tour.py`:
+- Tours use `registry.category("web_tour.tours").add(...)`.
+- Navigate to the target via `url: "/odoo/action-ems.<action_id>"` — do not chain menu-click steps.
+- Verify data in the list view after save, not via `input[value=...]` (OWL does not sync the HTML attribute).
+- Register in `__manifest__.py` under `web.assets_tests`.
+- Python side: `@tagged('post_install', '-at_install')`, `self.start_tour("/odoo", "tour_name", login="admin")`.
+- To watch a tour run in a real browser during development: add `watch=True` to `start_tour`.
+
+## Coding standards
+
+Follow the official Odoo v18 coding guidelines:
+https://www.odoo.com/documentation/18.0/contributing/development/coding_guidelines.html
+
+Key rules applied in this project:
+- Class names: PascalCase derived from `_name` (`ems.level` → `EmsLevel`).
+- `from odoo import api, fields, models` — alphabetical order.
+- Model attribute order: private attrs (`_name`, `_description`, `_order`, `_sql_constraints`) → fields → compute/inverse/search methods → constraints/onchange → CRUD overrides → action methods → business methods.
+- Loop variable named after the model, not `rec` (`for level in self:`).
+- XML `<record>`: `id` attribute before `model`.
+- f-strings instead of `%s` formatting.
+
+## Documentation structure
+
+Trilingual: English (`docs/en/`), Catalan (`docs/ca/`), Spanish (`docs/es/`).
+
+```
+docs/
+├── assets/           # Shared images (all languages reference this)
+│   ├── families/
+│   └── tutors/
+├── en/
+│   ├── admin/        # Admin user guides
+│   ├── developers/   # Technical docs with Mermaid diagrams
+│   ├── families/
+│   └── tutors/
+├── ca/  (same structure)
+└── es/  (same structure)
+```
+
+Image references in markdown use relative paths: `../../assets/<section>/filename.png`
+
+## Data folder conventions
+
+The `data/` directory has three subfolders with different ID ownership semantics:
+
+| Folder | ID prefix | Owned by | Survives EMS upgrade? |
+|--------|-----------|----------|-----------------------|
+| `data/main/` | `ems.` | EMS module | No — Odoo deletes on upgrade if removed from manifest |
+| `data/cat/` | `ems.` | EMS module | No |
+| `data/custom/` | `__import__.` | The centre (not EMS) | Yes — Odoo never deletes `__import__` records during module upgrades |
+
+**Rule:** every record `id` in `data/custom/` must use the `__import__.` prefix. Records in `data/main/` and `data/cat/` must use `ems.` (or no prefix, which Odoo expands to `ems.` automatically).
+
+**Why `__import__`?** When Odoo stores a record with a fully-qualified ID whose module part is `__import__`, it is not associated with any installable module. This means removing the corresponding line from the manifest — or upgrading EMS — will never cause Odoo to delete that record. This is the same behaviour as data imported via the Odoo UI CSV importer, which also assigns `__import__.*` IDs.
+
+**Load order:** within `data/custom/`, always list files so that referenced records are declared before the files that reference them (e.g. `ems.subject.csv` before `ems.study.csv`).
+
+## DTON methodology
+
+A retroactive code quality process applied model by model:
+
+1. **D — Diagrams:** Technical docs in English (`docs/en/developers/`) with Mermaid diagrams; user docs in all three languages (`docs/{en,ca,es}/admin/`).
+2. **T — Testing:** Backend `TransactionCase` tests + browser tour test.
+3. **O — Optimization:** `_order`, `_sql_constraints`, view fixes, computed field guards.
+4. **N — Normalization:** Apply Odoo v18 official coding guidelines.
+
+Run the full test suite after O and again after N to gate each phase.

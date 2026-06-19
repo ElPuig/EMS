@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.17.2',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.18.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -34,7 +34,9 @@
         'hr_attendance',
         'queue_job',
         'sale_management',
+        'sale_pdf_quote_builder',
         'account',
+        'base_vat',
         'spreadsheet_dashboard',
         'partner_firstname',
         'partner_multi_relation'
@@ -79,15 +81,13 @@
             'views/community/workgroup/form.xml',  
             'views/community/workgroup/menu.xml',  
             
-            'views/community/contact/list.xml',
-            'views/community/contact/list_tutor.xml',
+            'views/community/contact/list.xml',            
             'views/community/contact/form.xml',
             'views/community/contact/relation_wizard.xml',
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
             'views/community/contact/import_wizard.xml',
-            'views/community/contact/update_wizard.xml',
-            'views/community/contact/enrollment_proposal_wizard.xml',
+            'views/community/contact/update_wizard.xml',            
             'views/community/contact/portal_access_wizard.xml',
             'views/community/contact/student_document.xml',
 
@@ -207,10 +207,12 @@
             'views/communications/form.xml',
 
         'views/academic_management/menu.xml',
-            'views/academic_management/enrollment/menu.xml',
             'views/academic_management/enrollment/enrollment_form.xml',
             'views/academic_management/enrollment/enrollment_list.xml',
+            'views/academic_management/enrollment/list_tutor.xml',
+            'views/academic_management/enrollment/enrollment_proposal_wizard.xml',
             'views/academic_management/enrollment/enrollment_search.xml',
+            'views/academic_management/enrollment/menu.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_form.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
             'views/academic_management/enrollment_configuration/enrollment_authorization_search.xml',
@@ -312,8 +314,9 @@
         'data/custom/eso/ems.study.csv',
         'data/custom/btx/ems.subject.csv',
         'data/custom/btx/ems.study.csv',
-        'data/custom/ccff/ems.study.csv',
         'data/custom/ccff/ems.subject.csv',
+        'data/custom/ccff/ems.study.csv',
+        'data/custom/ccff/ems_enrollment_template_opt.xml',
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',
         'data/custom/hr.department.csv',
@@ -379,13 +382,16 @@
             'ems/static/src/xml/backend/**/*',
             'ems/static/src/css/backend/**/*',
             'ems/static/src/js/backend/**/*',
-        ],       
+        ],
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',
            'ems/static/src/scss/frontend/**/*',
         ],
         'web.assets_common': [
-            #'ems/static/src/css/**/*',      
+            #'ems/static/src/css/**/*',
+        ],
+        'web.assets_tests': [
+            'ems/static/tests/tours/**/*',
         ],
     },
 }

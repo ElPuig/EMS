@@ -31,7 +31,7 @@ Open your browser and go to [Gmail](https://mail.google.com) (or any Google serv
 1. Type the full school email address (`user@elpuig.xeill.net`).
 2. Click the **Next (1)** button.
 
-![Google sign-in screen with the school email address](assets/gmail_password_recovery-01.png)
+![Google sign-in screen with the school email address](../../assets/families/gmail_password_recovery-01.png)
 
 ---
 
@@ -41,7 +41,7 @@ On the screen that asks for your password, you do not need to type anything. To 
 
 1. Click the **Forgot password? (1)** link.
 
-![Password screen with the "Forgot password?" link](assets/gmail_password_recovery-02.png)
+![Password screen with the "Forgot password?" link](../../assets/families/gmail_password_recovery-02.png)
 
 ---
 
@@ -54,7 +54,7 @@ Google will open the **Account recovery** assistant. It will ask for the last pa
 
 > In both cases, the goal is to reach the phone-number verification described in the next step.
 
-![Account recovery screen asking for the last remembered password](assets/gmail_password_recovery-03.png)
+![Account recovery screen asking for the last remembered password](../../assets/families/gmail_password_recovery-03.png)
 
 ---
 
@@ -68,7 +68,7 @@ To make sure it is really you, Google will ask you to confirm the **phone number
 
 > If you do not have access to that phone, you will not be able to continue on your own: contact the **school office** so they can help you restore access.
 
-![Screen to confirm the phone number and get a verification code](assets/gmail_password_recovery-04.png)
+![Screen to confirm the phone number and get a verification code](../../assets/families/gmail_password_recovery-04.png)
 
 ---
 
@@ -81,7 +81,7 @@ You will receive a text message (SMS) with a **6-digit verification code** at th
 
 > If you do not receive the message within a few minutes, you can click **Resend it** to request a new code.
 
-![Screen to enter the verification code received by SMS](assets/gmail_password_recovery-05.png)
+![Screen to enter the verification code received by SMS](../../assets/families/gmail_password_recovery-05.png)
 
 ---
 
@@ -91,7 +91,7 @@ Once your identity is verified, Google will welcome you back and offer to update
 
 1. Click the **Update password (1)** link to set a new one.
 
-![Welcome-back screen with the option to update the password](assets/gmail_password_recovery-06.png)
+![Welcome-back screen with the option to update the password](../../assets/families/gmail_password_recovery-06.png)
 
 ---
 
@@ -105,7 +105,7 @@ Finally, set the new account password:
 
 Once saved, you can access the school email with the new password.
 
-![Screen to create and confirm the new secure password](assets/gmail_password_recovery-07.png)
+![Screen to create and confirm the new secure password](../../assets/families/gmail_password_recovery-07.png)
 
 ---
 

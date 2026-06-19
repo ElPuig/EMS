@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="line_smx1_opt1" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="ems.enrollment_template_smx_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('__import__.subject_OPT1'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_dam2_mpo_fullstack" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="ems.enrollment_template_dam_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('__import__.subject_OPT3'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_asix1_opt2" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="ems.enrollment_template_asix_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('__import__.subject_OPT2'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_daw2_opt3" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="ems.enrollment_template_daw_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('__import__.subject_OPT3'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ad2_opt6" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="ems.enrollment_template_ad_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('__import__.subject_OPT6'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_aif2_opt" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="ems.enrollment_template_aif_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('__import__.subject_OPT5'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ga2_opt4" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="ems.enrollment_template_ga_2"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('__import__.subject_OPT4'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+    </data>
+</odoo>

@@ -35,6 +35,7 @@
         'queue_job',
         'sale_management',
         'account',
+        'base_vat',
         'spreadsheet_dashboard',
         'partner_firstname',
         'partner_multi_relation'

@@ -12,6 +12,9 @@
                     <field name="main_group_id" string="Group"/>
                     <field name="tutor_id" string="Tutor"/>
                     <field name="study_id" string="Study"/>
+                    <searchpanel>
+                        <field name="main_group_id" string="Student group" icon="fa-users" enable_counters="1"/>
+                    </searchpanel>
                 </search>
             </field>
         </record>

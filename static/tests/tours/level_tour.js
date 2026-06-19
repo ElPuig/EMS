@@ -4,7 +4,7 @@ import { registry } from "@web/core/registry";
 
 registry.category("web_tour.tours").add("ems_level_crud", {
     test: true,
-    url: "/odoo/action-ems.action_level_tree",
+    url: "/odoo/action-ems.level_action",
     steps: () => [
         // List view is loaded
         {

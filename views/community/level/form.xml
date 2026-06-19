@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <record id="view_level_form" model="ir.ui.view">
+        <record id="level_view_form" model="ir.ui.view">
             <field name="name">ems.level.form</field>
             <field name="model">ems.level</field>
             <field name="arch" type="xml">

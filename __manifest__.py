@@ -34,6 +34,7 @@
         'hr_attendance',
         'queue_job',
         'sale_management',
+        'sale_pdf_quote_builder',
         'account',
         'base_vat',
         'spreadsheet_dashboard',

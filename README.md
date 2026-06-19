@@ -1,13 +1,13 @@
 # EMS
 **Currently under development, do not apply under production environments if you're not an Odoo developer.**
 ## What is it, and who we are
-The aim of the EMS (Educational Management System) is to provide an open-source, cost free and intuitive environment in order to management an educational center in the most comprehensive way as possible.
+The aim of the EMS (Educational Management System) is to provide an open-source, cost free and intuitive environment in order to manage an educational center in the most comprehensive way as possible.
 
-This implementation is performed over Odoo Community Edition (an open-source and cost free fully configurable ERP) and some of its OCA's (Odoo Community Association)modules, and its beeing directed and developed by a group of VET IT teachers from the Puig Castellar Institute (Santa Coloma de Gramenet, Barcelona, Spain).
+This implementation is performed over Odoo Community Edition (an open-source and cost free fully configurable ERP) and some of its OCA's (Odoo Community Association) modules, and it's being directed and developed by a group of VET IT teachers from the Puig Castellar Institute (Santa Coloma de Gramenet, Barcelona, Spain).
 
 You can check the *wiki* for more information: https://github.com/ElPuig/EMS/wiki
 
-# Instalation
+# Installation
 We have some scripts prepared but are just for development, so we still don't have anything ready to automatically install everything running a single file, but we will do in a near future.
 
 ## Environment
@@ -141,7 +141,7 @@ apt install -y google-chrome-stable
 
 ## EMS (install and update)
 First of all, check the `data` folder and fit it to your needs. You'll find the following folders:
-- **cat**: contains the data about the Catalonian Educational System. If you're setting up the EMS in a Catalan school, this should feet your needs; otherwise, you can use it as a template (but please, share with us your setup).
+- **cat**: contains the data about the Catalonian Educational System. If you're setting up the EMS in a Catalan school, this should fit your needs; otherwise, you can use it as a template (but please, share with us your setup).
 
 - **custom**: contains custom data for a concrete institution, so here you'll find our data. Feel free to change whatever in order to fit it to your needs.
 
@@ -168,7 +168,43 @@ If the EMS is already installed and you want to upgrade it to the last version, 
 ```
 
 ### Development only
-If you're an EMS developer, first of all: THANK YOU! Also, you can run the following script to fix the debugger after an Odoo update, and also perform additional opperations (like changing the customer's emails, disabling the pending tasks, etc.).
+If you're an EMS developer, first of all: THANK YOU! Also, you can run the following script to fix the debugger after an Odoo update, and also perform additional operations (like changing the customer's emails, disabling the pending tasks, etc.).
 ```
 ./devel.sh
 ```
+
+# DISCLAIMER: A note on AI-assisted development
+
+We want to be fully transparent: we are a group of VET IT teachers who built this project entirely in our spare time which means evenings, weekends, and whatever gaps we could find between classes. Our motivation is simple: public schools face a chronic shortage of good, affordable educational management tools, and we wanted to do something about it.
+
+Everything we use and produce is open-source. We believe in free software, and we want to give back to the community as much as we can.
+
+That said, we have to be honest: parts of this project were developed with the assistance of [Claude Code](https://claude.ai/code), an AI coding tool by Anthropic. We would have preferred to build everything without it (as it was since we started at year 2022) because we value human craftsmanship and wanted this to be fully ours. However, the reality is that without AI assistance, we simply could not have delivered a working system within the time constraints we faced to meet our school's needs.
+
+We are not proud of needing a shortcut, but we are proud of what we built and why we built it. We discussed, designed, analyzed and tested every line of code in this repository with all our love, and we assume every mistake as humans we are.
+
+Please don't hate us. 🙏
+
+# DISCLAIMER: No Warranty & Limitation of Liability
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. THE AUTHORS AND CONTRIBUTORS MAKE NO REPRESENTATIONS OR WARRANTIES OF ANY KIND CONCERNING THE SAFETY, SUITABILITY, LACK OF VIRUSES, INACCURACIES, TYPOGRAPHICAL ERRORS, OR OTHER HARMFUL COMPONENTS OF THIS SOFTWARE.
+
+**USE THIS SOFTWARE AT YOUR OWN RISK.**
+
+IN NO EVENT SHALL THE AUTHORS, CONTRIBUTORS, OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY — WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE — ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. THIS INCLUDES, WITHOUT LIMITATION:
+
+- Loss, corruption, or destruction of data.
+- System failures, service interruptions, or downtime.
+- Loss of business, revenue, profits, or goodwill.
+- Any indirect, incidental, special, exemplary, or consequential damages of any kind.
+
+**DATA RESPONSIBILITY & BACKUPS**
+
+You are solely and exclusively responsible for maintaining up-to-date backups of all your data before installing, upgrading, configuring, or using this software in any way. The authors provide no backup mechanism and assume no responsibility whatsoever for any data loss resulting from the use, misuse, inability to use, or failure of this software.
+
+Do not use this software in a production environment without a tested and verified backup and recovery strategy in place.
+
+**ACCEPTANCE OF TERMS**
+
+By downloading, installing, configuring, or using this software in any way, you acknowledge that you have read, understood, and agreed to the terms of this disclaimer. If you do not agree with these terms, do not use this software.
+

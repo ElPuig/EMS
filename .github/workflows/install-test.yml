@@ -49,18 +49,15 @@ jobs:
           sudo systemctl stop odoo || true
           sudo systemctl disable odoo || true
 
-      - name: Clone OCA dependencies (depth 1)
-        run: |
-          sudo mkdir -p /opt/modules
-          sudo git clone --depth 1 --branch 18.0 \
-            https://github.com/OCA/queue.git /opt/modules/queue
-          sudo git clone --depth 1 --branch 18.0 \
-            https://github.com/OCA/partner-contact.git /opt/modules/partner-contact
-
       - name: Copy EMS module and set permissions
         run: |
+          sudo mkdir -p /opt/modules
           sudo cp -r "$GITHUB_WORKSPACE" /opt/modules/ems
           sudo chown -R odoo:odoo /opt/modules
+
+      - name: Update external dependencies
+        run: |
+          sudo -u odoo /opt/modules/ems/update.sh
 
       - name: Configure Odoo
         run: |
@@ -74,55 +71,20 @@ jobs:
           server_wide_modules = web,queue_job
           EOF
 
-      - name: Install EMS module (core of install.sh)
+      - name: Install EMS module
         run: |
-          sudo -u odoo odoo -d ems --stop-after-init -i ems \
-            -c /etc/odoo/odoo.conf --without-demo=WITHOUT_DEMO \
-            2>&1 | tee /tmp/odoo-install.log
+          set -o pipefail
+          sudo /opt/modules/ems/install.sh 2>&1 | tee /tmp/odoo-install.log
 
-          echo "--- Scanning log for errors ---"
-          if grep -qE "[0-9]{4}-[0-9]{2}-[0-9]{2} .+(ERROR|CRITICAL)" /tmp/odoo-install.log; then
-            echo "INSTALL FAILED — errors found:"
-            grep -E "[0-9]{4}-[0-9]{2}-[0-9]{2} .+(ERROR|CRITICAL)" /tmp/odoo-install.log
-            exit 1
-          fi
-          echo "Install completed — no errors detected."
-
-      - name: Upgrade EMS module (core of upgrade.sh)
+      - name: Upgrade EMS module
         run: |
-          sudo -u odoo bash -c "PGPASSWORD=odoo psql -h localhost -U odoo -d ems \
-            -c \"UPDATE queue_job SET state='pending' WHERE state IN ('started', 'enqueued');\""
-
-          sudo -u odoo odoo -d ems -u ems --i18n-overwrite \
-            --stop-after-init -c /etc/odoo/odoo.conf --dev=all \
-            2>&1 | tee /tmp/odoo-upgrade.log
-
-          echo "--- Scanning log for errors ---"
-          if grep -qE "[0-9]{4}-[0-9]{2}-[0-9]{2} .+(ERROR|CRITICAL)" /tmp/odoo-upgrade.log; then
-            echo "UPGRADE FAILED — errors found:"
-            grep -E "[0-9]{4}-[0-9]{2}-[0-9]{2} .+(ERROR|CRITICAL)" /tmp/odoo-upgrade.log
-            exit 1
-          fi
-          echo "Upgrade completed — no errors detected."
+          set -o pipefail
+          sudo /opt/modules/ems/upgrade.sh 2>&1 | tee /tmp/odoo-upgrade.log
 
       - name: Run EMS tests
         run: |
-          sudo -u odoo odoo -d ems -u ems --test-enable --test-tags=/ems \
-            --stop-after-init -c /etc/odoo/odoo.conf \
-            2>&1 | tee /tmp/odoo-test.log
-          EXIT_CODE=${PIPESTATUS[0]}
-
-          echo "--- Scanning test log for errors ---"
-          if grep -qE "ERROR ems odoo\.(addons|modules|tests)" /tmp/odoo-test.log; then
-            echo "TESTS FAILED — errors found:"
-            grep -E "ERROR ems odoo\.(addons|modules|tests)" /tmp/odoo-test.log
-            exit 1
-          fi
-          if [ "$EXIT_CODE" -ne 0 ]; then
-            echo "TESTS FAILED — odoo exited with code $EXIT_CODE"
-            exit 1
-          fi
-          echo "All tests passed."
+          set -o pipefail
+          sudo /opt/modules/ems/test.sh 2>&1 | tee /tmp/odoo-test.log
 
       - name: Upload logs
         if: always()

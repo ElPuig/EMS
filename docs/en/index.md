@@ -17,6 +17,7 @@ Select your profile to access the corresponding manuals:
 | [Tutors](tutors/index.md) | Management of enrollment proposals and monitoring of students in the group |
 | [Secretariat](secretaria/index.md) | Management of enrollments, documents, payments and bonifications |
 | [Administrator](admin/curriculum-levels.md) | Curriculum configuration: levels, studies and related catalog data |
+| [Developers](developers/index.md) | Technical reference for developers |
 
 ---
 

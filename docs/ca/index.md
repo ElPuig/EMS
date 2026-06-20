@@ -17,6 +17,7 @@ Seleccioneu el vostre perfil per accedir als manuals corresponents:
 | [Tutors](tutors/index.md) | Gestió de propostes de matrícula i seguiment dels alumnes del grup |
 | [Secretaria](secretaria/index.md) | Gestió de matrícules, documents, pagaments i bonificacions |
 | [Administrador](admin/curriculum-levels.md) | Configuració curricular: nivells, estudis i dades de catàleg |
+| [Desenvolupadors](../en/developers/index.md) | Referència tècnica per a desenvolupadors |
 
 ---
 

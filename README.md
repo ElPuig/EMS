@@ -70,13 +70,13 @@ apt install python3-lxml python3-lxml-html-clean python3-phonenumbers -y
 
 cd myModules
 git clone https://github.com/ElPuig/EMS.git ems
-git clone -b 18.0 https://github.com/OCA/queue.git queue
-git clone -b 18.0 https://github.com/OCA/partner-contact.git partner-contact
 cd ems
 
 python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 
 ```
+
+> **Note:** the required OCA modules (`queue` and `partner-contact`) are cloned automatically by `install.sh` when you run it for the first time.
 
 Copy the generated secret key and use it to setup the odoo configuration file as follows:
 ```

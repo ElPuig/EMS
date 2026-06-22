@@ -55,7 +55,7 @@
 
                         <group string="Content" col="4">
                             <group colspan="4">
-                                <field name="subject" readonly="state != 'draft'" placeholder="Subject…"/>
+                                <field name="subject" string="Communication subject" readonly="state != 'draft'" placeholder="Subject…"/>
                             </group>
                             <group colspan="4">
                                 <field name="message" widget="html" readonly="state != 'draft'" style="min-height: 200px;"/>

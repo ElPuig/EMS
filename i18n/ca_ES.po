@@ -2385,7 +2385,7 @@ msgid "Communication cancelled and returned to draft."
 msgstr "Comunicació cancel·lada i tornada a esborrany."
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_communication_line
+#: model:ir.model,name:ems.model_ems_notice_line
 msgid "Communication line: one email recipient per row."
 msgstr "Línia de comunicació: un destinatari de correu per fila."
 
@@ -2396,21 +2396,25 @@ msgid "Communication scheduled. %d email(s) enqueued."
 msgstr "Comunicació programada. %d correu(s) a la cua."
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_communication
+#: model:ir.model,name:ems.model_ems_notice
 msgid ""
-"Communication: a bulk email sent to groups of students and/or their "
+"Notice: a bulk email sent to groups of students and/or their "
 "families."
 msgstr ""
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_communication_list
 #: model:ir.ui.menu,name:ems.menu_communications
 #: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu
 #: model_terms:ir.ui.view,arch_db:ems.portal_communications
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
-#: model_terms:ir.ui.view,arch_db:ems.view_communication_list
 msgid "Communications"
 msgstr "Comunicacions"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_communication_list
+#: model:ir.ui.menu,name:ems.menu_communications_list
+msgid "Notices"
+msgstr "Comunicats"
 
 #. module: ems
 #: model:ir.model,name:ems.model_res_company

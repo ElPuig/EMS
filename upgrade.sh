@@ -2,6 +2,9 @@
 echo "Upgrading the EMS..."
 sudo service odoo stop || true
 
+echo "Upgrading odoo package..."
+apt-get install --only-upgrade -y odoo
+
 # Build psql connection args from /etc/odoo/odoo.conf when a db_host is configured
 # (e.g. in CI where PostgreSQL is a remote service). Locally, db_host is absent
 # and psql falls back to the unix socket.
@@ -11,6 +14,11 @@ DB_HOST=$(get_conf db_host)
 DB_PORT=$(get_conf db_port)
 DB_USER=$(get_conf db_user)
 DB_PASS=$(get_conf db_password)
+
+# Odoo writes "False" for unset options; normalise to empty so guards work correctly
+[ "$DB_HOST" = "False" ] && DB_HOST=""
+[ "$DB_PORT" = "False" ] && DB_PORT=""
+[ "$DB_PASS" = "False" ] && DB_PASS=""
 
 PSQL_ARGS="-d ems"
 if [ -n "$DB_HOST" ]; then

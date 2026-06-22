@@ -1530,7 +1530,7 @@ msgstr "Estudios permitidos"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__allowed_subject_ids
 msgid "Allowed Subject"
-msgstr "Tema permitido"
+msgstr "Asignatura permitida"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ac
@@ -2407,6 +2407,11 @@ msgid ""
 "Communication: a bulk email sent to groups of students and/or their "
 "families."
 msgstr ""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_communication_form
+msgid "Communication subject"
+msgstr "Asunto"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_communication_list
@@ -4683,7 +4688,7 @@ msgstr "Estudiante en uso"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__inuse_subject_ids
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__inuse_subject_ids
 msgid "Inuse Subject"
-msgstr "Tema en uso"
+msgstr "Asignatura en uso"
 
 #. module: ems
 #. odoo-python
@@ -7843,7 +7848,7 @@ msgstr "Coste unitario de asignatura"
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_teaching
 msgid "Subject assignation"
-msgstr "Asignación de sujetos"
+msgstr "Asignación de asignaturas"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_teaching_tree
@@ -7853,7 +7858,7 @@ msgstr "Asignación de asignaturas (profesor x grupo x asignatura)"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_subject
 msgid "Subject: The main item for a student's subject."
-msgstr "Tema: El elemento principal de la asignatura de un estudiante."
+msgstr "Asignatura: El elemento principal de la asignatura de un estudiante."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_subject_tree
@@ -7864,7 +7869,7 @@ msgstr "Tema: El elemento principal de la asignatura de un estudiante."
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_study_form
 msgid "Subjects"
-msgstr "Temas"
+msgstr "Asignaturas"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search
@@ -8272,10 +8277,7 @@ msgstr "Esta autorización ya está solicitada en esta matrícula."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "This block will be generated once per enrollred subject."
-msgstr ""
-"Este bloque se generará una vez por asignatura matriculada.Este bloque se "
-"generará una vez por cada materia matriculada.Este blog se repetirá por cada"
-" asignatura matriculada por el estudiante."
+msgstr "Este bloque se generará una vez por cada asignatura matriculada."
 
 #. module: ems
 #. odoo-python
@@ -8615,11 +8617,7 @@ msgstr ""
 #: model:ir.model.fields,help:ems.field_product_product__ems_subject_unit_cost
 #: model:ir.model.fields,help:ems.field_product_template__ems_subject_unit_cost
 msgid "Unit cost per subject (e.g. 65.00) used for fee calculation."
-msgstr ""
-"Coste unitario por asignatura (p. ej. 65,00) utilizado para el cálculo de "
-"tasas.Coste unitario por materia (p. ej. 65,00) para el cálculo de "
-"tasas.Coste unitario por asignatura (p.ej. 65,00) usado para el cálculo de "
-"tasas."
+msgstr "Coste unitario por asignatura (p. ej. 65,00) utilizado para el cálculo de tasas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
@@ -9045,7 +9043,7 @@ msgstr "¡Curso duplicado!"
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_subject_id
 msgid "duplicated subject!"
-msgstr "¡Tema duplicado!"
+msgstr "¡Asignatura duplicada!"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
@@ -9122,7 +9120,7 @@ msgstr "espacio"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_subject_form
 msgid "subject"
-msgstr "asunto"
+msgstr "asignatura"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process

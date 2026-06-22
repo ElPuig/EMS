@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record model="mail.template" id="mail_communication">
-            <field name="name">Email communication to students/families</field>
-            <field name="model_id" ref="ems.model_ems_communication_line"/>
-            <field name="subject">{{object.communication_id.subject}}</field>
+        <record model="mail.template" id="mail_notice">
+            <field name="name">Email notice to students/families</field>
+            <field name="model_id" ref="ems.model_ems_notice_line"/>
+            <field name="subject">{{object.notice_id.subject}}</field>
             <field name="email_from">ems@elpuig.xeill.net</field>
             <field name="auto_delete" eval="True"/>
             <field name="body_html">
                 <![CDATA[
                     <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;">
-                        <t t-out="object.communication_id.message"/>
+                        <t t-out="object.notice_id.message"/>
                         <p>
                             Kind regards,<br/>
                             <t t-out="object.create_uid.company_id.name"/>

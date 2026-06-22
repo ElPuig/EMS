@@ -1,10 +1,10 @@
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_communication_form">
-            <field name="name">ems.communication.form</field>
-            <field name="model">ems.communication</field>
+        <record model="ir.ui.view" id="view_notice_form">
+            <field name="name">ems.notice.form</field>
+            <field name="model">ems.notice</field>
             <field name="arch" type="xml">
-                <form string="Communication">
+                <form string="Notice">
                     <div class="alert alert-warning w-100 text-center mb-2" role="alert" invisible="not has_families">
                         <i title="Warning" class="fa fa-exclamation-triangle me-2"/>
                         <strong>Notice:</strong> Families of adult students who have not given their consent to share educational information will <strong>not</strong> receive this communication.
@@ -64,7 +64,7 @@
 
                         <group string="Sending status" col="4">
                             <group colspan="4">
-                                <field name="communication_line_ids" readonly="state != 'draft'">
+                                <field name="notice_line_ids" readonly="state != 'draft'">
                                     <list editable="bottom" create="False" default_order="recipient_type asc, student_id asc">
                                         <field name="partner_id" widget="many2one_avatar"/>
                                         <field name="email"/>
@@ -93,9 +93,9 @@
             </field>
         </record>
 
-        <record model="ir.ui.view" id="view_communication_line_exception_popup">
-            <field name="name">ems.communication.line.exception.popup</field>
-            <field name="model">ems.communication.line</field>
+        <record model="ir.ui.view" id="view_notice_line_exception_popup">
+            <field name="name">ems.notice.line.exception.popup</field>
+            <field name="model">ems.notice.line</field>
             <field name="arch" type="xml">
                 <form string="Error details">
                     <sheet>

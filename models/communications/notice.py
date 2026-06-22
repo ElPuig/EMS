@@ -3,9 +3,9 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
-class ems_communication(models.Model):
-    _name = "ems.communication"
-    _description = "Communication: a bulk email sent to groups of students and/or their families."
+class EmsNotice(models.Model):
+    _name = "ems.notice"
+    _description = "Notice: a bulk email sent to groups of students and/or their families."
     _inherit = ['ems.base']
     _order = "create_date desc"
 
@@ -29,10 +29,10 @@ class ems_communication(models.Model):
     )
     sent_date = fields.Datetime(string="Sent on", readonly=True, copy=False)
     sent_by = fields.Many2one(string="Sent by", comodel_name="res.users", readonly=True, copy=False)
-    communication_line_ids = fields.One2many(
+    notice_line_ids = fields.One2many(
         string="Recipient list",
-        comodel_name="ems.communication.line",
-        inverse_name="communication_id",
+        comodel_name="ems.notice.line",
+        inverse_name="notice_id",
         copy=True
     )
     recipient_count = fields.Integer(
@@ -51,42 +51,42 @@ class ems_communication(models.Model):
         store=False,
     )
 
-    @api.depends('communication_line_ids')
+    @api.depends('notice_line_ids')
     def _compute_recipient_count(self):
-        for rec in self:
-            rec.recipient_count = len(rec.communication_line_ids)
+        for notice in self:
+            notice.recipient_count = len(notice.notice_line_ids)
 
     @api.depends('recipient_type')
     def _compute_has_families(self):
-        for rec in self:
-            rec.has_families = rec.recipient_type in ('families', 'both')
+        for notice in self:
+            notice.has_families = notice.recipient_type in ('families', 'both')
 
-    @api.depends('state', 'use_schedule', 'communication_line_ids.notification_id.state')
+    @api.depends('state', 'use_schedule', 'notice_line_ids.notification_id.state')
     def _compute_can_cancel(self):
         RUNNING = {'started', 'done', 'failed'}
-        for rec in self:
-            if rec.state != 'scheduled' or not rec.use_schedule:
-                rec.can_cancel = False
+        for notice in self:
+            if notice.state != 'scheduled' or not notice.use_schedule:
+                notice.can_cancel = False
                 continue
-            rec.can_cancel = not any(
+            notice.can_cancel = not any(
                 line.notification_id and line.notification_id.state in RUNNING
-                for line in rec.communication_line_ids
+                for line in notice.notice_line_ids
             )
 
     def _compute_display_name(self):
-        for rec in self:
-            rec.display_name = rec.subject or _("(New communication)")
+        for notice in self:
+            notice.display_name = notice.subject or _("(New notice)")
 
     def _build_auto_lines(self, groups, recipient_type, seen_emails):
-        """Return a list of ems.communication.line virtual records for the given groups."""
-        new_lines = self.env['ems.communication.line']
+        """Return a list of ems.notice.line virtual records for the given groups."""
+        new_lines = self.env['ems.notice.line']
         for group in groups:
             for student in group.main_student_ids.filtered(lambda s: s.contact_type == 'student'):
                 if recipient_type in ('students', 'both'):
                     email = student.student_email or student.email
                     if email and email not in seen_emails:
                         seen_emails.add(email)
-                        new_lines |= self.env['ems.communication.line'].new({
+                        new_lines |= self.env['ems.notice.line'].new({
                             'partner_id': student.id,
                             'email': email,
                             'student_id': student.id,
@@ -101,7 +101,7 @@ class ems_communication(models.Model):
                             if family.contact_type == 'family' and family.email:
                                 if family.email not in seen_emails:
                                     seen_emails.add(family.email)
-                                    new_lines |= self.env['ems.communication.line'].new({
+                                    new_lines |= self.env['ems.notice.line'].new({
                                         'partner_id': family.id,
                                         'email': family.email,
                                         'student_id': student.id,
@@ -113,17 +113,17 @@ class ems_communication(models.Model):
     @api.onchange('group_ids', 'recipient_type')
     def _onchange_groups(self):
         # Manual lines: those not linked to any auto-populated group
-        manual_lines = self.communication_line_ids.filtered(lambda l: not l.source_group_id)
+        manual_lines = self.notice_line_ids.filtered(lambda l: not l.source_group_id)
         seen_emails = set(manual_lines.mapped('email'))
         new_auto_lines = self._build_auto_lines(self.group_ids, self.recipient_type, seen_emails)
-        self.communication_line_ids = manual_lines | new_auto_lines
+        self.notice_line_ids = manual_lines | new_auto_lines
 
     def action_send(self):
         self.ensure_one()
         if self.state not in ('draft',):
-            raise UserError(_("Only draft communications can be sent."))
+            raise UserError(_("Only draft notices can be sent."))
 
-        lines_to_send = self.communication_line_ids.filtered(lambda l: not l.notification_id)
+        lines_to_send = self.notice_line_ids.filtered(lambda l: not l.notification_id)
         if not lines_to_send:
             raise UserError(_("No recipients to send to. Add recipients in the 'Sending status' section."))
 
@@ -131,14 +131,14 @@ class ems_communication(models.Model):
         for line in lines_to_send:
             job_rec = line.with_delay(
                 eta=eta,
-                description=f"Communication '{self.subject}': line ID={line.id}",
+                description=f"Notice '{self.subject}': line ID={line.id}",
             ).send_notification()
             job = self.sudo().env['queue.job'].search([('uuid', '=', job_rec.uuid)]) or False
             if job:
                 line.sudo().write({'notification_id': job.id})
 
         self.write({'state': 'scheduled', 'sent_by': self.env.uid})
-        self.chatter(_("Communication scheduled. %d email(s) enqueued.") % len(lines_to_send))
+        self.chatter(_("Notice scheduled. %d email(s) enqueued.") % len(lines_to_send))
         return True
 
     def _check_and_finalize(self, just_succeeded_line=None):
@@ -149,12 +149,12 @@ class ems_communication(models.Model):
         to handle failed jobs.
         """
         PENDING = {'draft', 'pending', 'enqueued', 'started'}
-        for rec in self:
-            if rec.state != 'scheduled':
+        for notice in self:
+            if notice.state != 'scheduled':
                 continue
             has_pending = False
             has_failed = False
-            for line in rec.communication_line_ids:
+            for line in notice.notice_line_ids:
                 if just_succeeded_line and line.id == just_succeeded_line.id:
                     continue  # treat as done — the job is about to transition
                 status = line.display_status
@@ -165,32 +165,31 @@ class ems_communication(models.Model):
             if has_pending:
                 continue
             if has_failed:
-                rec.write({'state': 'failed'})
+                notice.write({'state': 'failed'})
             else:
-                rec.write({'state': 'sent', 'sent_date': fields.Datetime.now()})
-
+                notice.write({'state': 'sent', 'sent_date': fields.Datetime.now()})
 
     def action_cancel(self):
         self.ensure_one()
         if not self.can_cancel:
-            raise UserError(_("This communication cannot be cancelled: it has already been sent or is being processed."))
-        for line in self.communication_line_ids:
+            raise UserError(_("This notice cannot be cancelled: it has already been sent or is being processed."))
+        for line in self.notice_line_ids:
             if line.notification_id and line.notification_id.state in ('pending', 'enqueued'):
                 line.notification_id.button_cancelled()
             line.write({'notification_id': False})
         self.write({'state': 'draft'})
-        self.chatter(_("Communication cancelled and returned to draft."))
+        self.chatter(_("Notice cancelled and returned to draft."))
         return True
 
 
-class ems_communication_line(models.Model):
-    _name = "ems.communication.line"
-    _description = "Communication line: one email recipient per row."
+class EmsNoticeLine(models.Model):
+    _name = "ems.notice.line"
+    _description = "Notice line: one email recipient per row."
     _inherit = ['ems.base']
 
-    communication_id = fields.Many2one(
-        string="Communication",
-        comodel_name="ems.communication",
+    notice_id = fields.Many2one(
+        string="Notice",
+        comodel_name="ems.notice",
         ondelete='cascade',
         required=True,
     )
@@ -229,29 +228,29 @@ class ems_communication_line(models.Model):
 
     @api.depends('notification_id', 'notification_id.state')
     def _compute_display_status(self):
-        for rec in self:
-            job_state = rec.notification_id.state if rec.notification_id else 'draft'
-            rec.display_status = 'draft' if job_state == 'cancelled' else job_state
+        for line in self:
+            job_state = line.notification_id.state if line.notification_id else 'draft'
+            line.display_status = 'draft' if job_state == 'cancelled' else job_state
 
     def send_notification(self):
         self.ensure_one()
 
         # Register a postrollback hook so that if this job fails (transaction
-        # rolls back), the communication state is still updated. Queue.job marks
+        # rolls back), the notice state is still updated. Queue.job marks
         # the job as 'failed' in a separate committed cursor BEFORE the rollback,
         # so by the time this hook runs the job state is already 'failed' in the DB.
-        comm_id = self.communication_id.id
+        notice_id = self.notice_id.id
         db_name = self.env.cr.dbname
 
         def _on_failure():
             import odoo
             with odoo.registry(db_name).cursor() as cr:
-                odoo.api.Environment(cr, odoo.SUPERUSER_ID, {})['ems.communication']\
-                    .browse(comm_id)._check_and_finalize()
+                odoo.api.Environment(cr, odoo.SUPERUSER_ID, {})['ems.notice']\
+                    .browse(notice_id)._check_and_finalize()
 
         self.env.cr.postrollback.add(_on_failure)
 
-        template = self.env.ref('ems.mail_communication', raise_if_not_found=True)
+        template = self.env.ref('ems.mail_notice', raise_if_not_found=True)
         lang = self.partner_id.lang if self.partner_id else False
         tmpl = template.with_context(lang=lang).sudo() if lang else template.sudo()
 
@@ -264,7 +263,7 @@ class ems_communication_line(models.Model):
             force_send=True,
             email_values={'email_to': self.email, 'body_html': body_html},
         )
-        self.communication_id.sudo()._check_and_finalize(just_succeeded_line=self)
+        self.notice_id.sudo()._check_and_finalize(just_succeeded_line=self)
         return True
 
     def _prepare_body_for_email(self, body_html):
@@ -341,7 +340,7 @@ class ems_communication_line(models.Model):
             'res_model': self._name,
             'res_id': self.id,
             'view_mode': 'form',
-            'view_id': self.env.ref('ems.view_communication_line_exception_popup').id,
+            'view_id': self.env.ref('ems.view_notice_line_exception_popup').id,
             'target': 'new',
             'flags': {'mode': 'readonly'},
         }

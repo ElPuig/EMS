@@ -155,12 +155,13 @@
             'views/planning_grading/planning/form.xml',
             'views/planning_grading/planning/menu.xml',
             
-            'views/limesurvey/menu.xml',
-            'views/limesurvey/header/list.xml',
-            'views/limesurvey/header/form.xml',
-            'views/limesurvey/header/menu.xml',
-            'views/limesurvey/block/form.xml',
-            'views/limesurvey/recipient/form.xml',
+            'views/communications/menu.xml',
+
+            'views/communications/surveys/header/list.xml',
+            'views/communications/surveys/header/form.xml',
+            'views/communications/surveys/header/menu.xml',
+            'views/communications/surveys/block/form.xml',
+            'views/communications/surveys/recipient/form.xml',
             
 
         # 'views/community/tracking/list.xml',
@@ -202,9 +203,8 @@
             'views/attendance/attendance_reports/subject_wizard.xml', 
             'views/attendance/attendance_reports/group_wizard.xml', 
 
-        'views/communications/menu.xml',
-            'views/communications/list.xml',
-            'views/communications/form.xml',
+            'views/communications/notice/list.xml',
+            'views/communications/notice/form.xml',
 
         'views/academic_management/menu.xml',
             'views/academic_management/enrollment/enrollment_form.xml',

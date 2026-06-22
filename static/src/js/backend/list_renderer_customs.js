@@ -44,6 +44,7 @@ patch(ListRenderer.prototype, {
 
             case "res.partner":
                 if (ev.target.closest('.ems-tutor-enrollment-list')) {
+                    if (ev.target.closest('.o_list_record_selector') || ev.target.closest('button')) break;
                     ev.preventDefault();
                     ev.stopPropagation();
                     if (record.data.ems_current_enrollment_id) {

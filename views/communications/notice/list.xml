@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_communication_list">
-            <field name="name">ems.communication.list</field>
-            <field name="model">ems.communication</field>
+        <record model="ir.ui.view" id="view_notice_list">
+            <field name="name">ems.notice.list</field>
+            <field name="model">ems.notice</field>
             <field name="arch" type="xml">
-                <list string="Communications" default_order="create_date desc">
+                <list string="Notices" default_order="create_date desc">
                     <field name="subject"/>
                     <field name="group_ids" widget="many2many_tags"/>
                     <field name="recipient_type"/>

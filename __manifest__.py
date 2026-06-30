@@ -317,6 +317,7 @@
         'data/custom/ccff/ems.subject.csv',
         'data/custom/ccff/ems.study.csv',
         'data/custom/ccff/ems_enrollment_template_opt.xml',
+        'data/custom/ccff/ems.planning.smx.xml',
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',
         'data/custom/hr.department.csv',

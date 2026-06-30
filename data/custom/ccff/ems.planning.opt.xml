@@ -21,5 +21,14 @@
             <field name="external_ponderation">0.0</field>
             <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('__import__.outcome_OPT1_01RA'), 'ponderation': 25.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT1_02RA'), 'ponderation': 5.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT1_03RA'), 'ponderation': 5.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT1_04RA'), 'ponderation': 25.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT1_05RA'), 'ponderation': 40.0})]"/>
         </record>
+        <!-- MP OPT3 (DAM/DAW) — Programació FullStack. 3 RAs, fórmula explícita
+             Qcentre = 0,33·RA1 + 0,33·RA2 + 0,34·RA3. QMP = Qcentre -> sense estada (100/0). -->
+        <record id="planning_opt3" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgs_icb0_dam_2024"/>
+            <field name="subject_id" ref="__import__.subject_OPT3"/>
+            <field name="internal_ponderation">100.0</field>
+            <field name="external_ponderation">0.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('__import__.outcome_OPT3_01RA'), 'ponderation': 33.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT3_02RA'), 'ponderation': 33.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT3_03RA'), 'ponderation': 34.0})]"/>
+        </record>
     </data>
 </odoo>

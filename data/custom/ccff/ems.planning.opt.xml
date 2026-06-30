@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- MP OPT2 (ASIX) — Introducció a la programació / Programació Bàsica.
+             5 RAs (adaptació del MP 0485). QMP = 0,8·mitjana(RA) + 0,2·Obs:
+             RAs amb igual pes, Obs (no-RA) ignorat -> uniforme 20% x5. Sense estada (100/0). -->
+        <record id="planning_opt2" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgs_ica0_asix_2024"/>
+            <field name="subject_id" ref="__import__.subject_OPT2"/>
+            <field name="internal_ponderation">100.0</field>
+            <field name="external_ponderation">0.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('__import__.outcome_OPT2_01RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT2_02RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT2_03RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT2_04RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT2_05RA'), 'ponderation': 20.0})]"/>
+        </record>
+        <!-- MP OPT1 (SMX) — Pensament Computacional. 5 RAs, fórmula explícita
+             Qcentre = 0,25·RA1 + 0,05·RA2 + 0,05·RA3 + 0,25·RA4 + 0,40·RA5.
+             QMP = 1·Qcentre + 0·Qempresa -> sense estada (100/0). -->
+        <record id="planning_opt1" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="__import__.subject_OPT1"/>
+            <field name="internal_ponderation">100.0</field>
+            <field name="external_ponderation">0.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('__import__.outcome_OPT1_01RA'), 'ponderation': 25.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT1_02RA'), 'ponderation': 5.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT1_03RA'), 'ponderation': 5.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT1_04RA'), 'ponderation': 25.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT1_05RA'), 'ponderation': 40.0})]"/>
+        </record>
+    </data>
+</odoo>

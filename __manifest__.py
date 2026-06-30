@@ -322,6 +322,7 @@
         'data/custom/ccff/ems.planning.asix.xml',
         'data/custom/ccff/ems.planning.dam.xml',
         'data/custom/ccff/ems.planning.daw.xml',
+        'data/custom/ccff/ems.planning.ga.xml',
         'data/custom/ccff/ems.planning.opt.xml',
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',

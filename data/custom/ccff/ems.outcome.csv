@@ -12,3 +12,7 @@
 "__import__.outcome_OPT3_01RA","OPT3_01RA","RA1","Desenvolupa serveis d'aplicacions del costat servidor, amb accés a dades i capacitat de desplegament, aplicant criteris de qualitat i seguretat.","__import__.subject_OPT3"
 "__import__.outcome_OPT3_02RA","OPT3_02RA","RA2","Desenvolupa interfícies web interactives que consumeixen serveis externs, aplicant criteris d'usabilitat i accessibilitat.","__import__.subject_OPT3"
 "__import__.outcome_OPT3_03RA","OPT3_03RA","RA3","Integra els components d'una aplicació fullstack, documentant-ne el desenvolupament i gestionant el projecte de manera col·laborativa.","__import__.subject_OPT3"
+"__import__.outcome_OPT4_01RA","OPT4_01RA","RA1","Comptabilitza, en suport manual i en suport informàtic, els fets comptables derivats de les operacions de transcendència econòmica i financera d'una empresa.","__import__.subject_OPT4"
+"__import__.outcome_OPT4_02RA","OPT4_02RA","RA2","Registra comptablement les operacions derivades del final de l'exercici econòmic a partir de la informació i documentació d'un cicle econòmic complet.","__import__.subject_OPT4"
+"__import__.outcome_OPT4_03RA","OPT4_03RA","RA3","Confecciona els comptes anuals PGC PIME identificant, classificant i registrant adequadament els diferents tipus d'actius financers seguint la normativa comptable vigent.","__import__.subject_OPT4"
+"__import__.outcome_OPT4_04RA","OPT4_04RA","RA4","Confecciona els comptes anuals PGC PIMES dels diferents tipus de passius financers, aplicant les normes comptables establertes.","__import__.subject_OPT4"

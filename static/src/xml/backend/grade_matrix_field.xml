@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.GradeMatrixField">
+        <div class="o_grade_matrix" t-ref="root" tabindex="0" t-on-keydown="onRootKeydown" t-on-paste="onPaste">
+            <table class="table table-sm table-bordered mb-0">
+                <colgroup>
+                    <col t-att-style="colStyle('first')"/>
+                    <col t-att-style="colStyle('last')"/>
+                    <t t-foreach="columns" t-as="col" t-key="col.id">
+                        <col t-att-style="colStyle('ra_' + col.id)"/>
+                    </t>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="o_grade_matrix_c_first o_grade_matrix_sort" t-on-click="() => this.onSort('firstname')">
+                            Nom<t t-esc="sortIndicator('firstname')"/>
+                            <span class="o_grade_matrix_resizer" t-on-mousedown="(ev) => this.onResizeStart('first', ev)" t-on-click="(ev) => ev.stopPropagation()"/>
+                        </th>
+                        <th class="o_grade_matrix_c_last o_grade_matrix_sort" t-on-click="() => this.onSort('lastname')">
+                            Cognoms<t t-esc="sortIndicator('lastname')"/>
+                            <span class="o_grade_matrix_resizer" t-on-mousedown="(ev) => this.onResizeStart('last', ev)" t-on-click="(ev) => ev.stopPropagation()"/>
+                        </th>
+                        <t t-foreach="columns" t-as="col" t-key="col.id">
+                            <th class="text-center o_grade_matrix_col">
+                                <t t-esc="col.label"/>-<t t-esc="formatPonderation(col.ponderation)"/>%
+                                <span class="o_grade_matrix_resizer" t-on-mousedown="(ev) => this.onResizeStart('ra_' + col.id, ev)"/>
+                            </th>
+                        </t>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="rows" t-as="row" t-key="row.id">
+                        <td class="o_grade_matrix_c_first">
+                            <img class="o_grade_matrix_avatar" t-att-src="avatarUrl(row.id)" alt=""/>
+                            <span t-att-title="row.firstname" t-esc="row.firstname"/>
+                        </td>
+                        <td class="o_grade_matrix_c_last">
+                            <span t-att-title="row.lastname" t-esc="row.lastname"/>
+                        </td>
+                        <t t-foreach="columns" t-as="col" t-key="col.id">
+                            <td class="text-center o_grade_matrix_cell" t-att-class="cellClass(row, col, row_index, col_index)"
+                                t-on-mousedown="(ev) => this.onCellMouseDown(row_index, col_index, ev)"
+                                t-on-mouseenter="() => this.onCellMouseEnter(row_index, col_index)"
+                                t-on-dblclick="() => this.onCellDblClick(row_index, col_index)">
+                                <input t-if="isEditingAt(row_index, col_index)"
+                                       type="number" min="0" max="10"
+                                       class="o_grade_matrix_input"
+                                       t-ref="editInput"
+                                       t-att-value="edit.value"
+                                       t-on-input="onEditInput"
+                                       t-on-keydown="onEditKeydown"
+                                       t-on-blur="commitEdit"/>
+                                <span t-else="" t-esc="cellValue(row, col)"/>
+                            </td>
+                        </t>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </t>
+</templates>

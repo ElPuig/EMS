@@ -1,0 +1,109 @@
+.o_grade_matrix {
+    overflow: auto;
+    max-height: 65vh;
+}
+
+.o_grade_matrix table {
+    table-layout: fixed;
+    width: max-content;
+    min-width: 100%;
+}
+
+/* Clip overflowing content (long surnames) instead of invading the next cell. */
+.o_grade_matrix th,
+.o_grade_matrix td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+}
+
+/* Keep the RA header row visible while scrolling vertically. */
+.o_grade_matrix thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: var(--o-view-background-color, #ffffff);
+}
+
+.o_grade_matrix_col {
+    font-size: 0.85em;
+}
+
+.o_grade_matrix_sort {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Column resize handle (spreadsheet-like). */
+.o_grade_matrix_resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    user-select: none;
+}
+
+.o_grade_matrix_avatar {
+    width: 29px;
+    height: 29px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.o_grade_matrix_input {
+    width: 3.5em;
+    text-align: center;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.o_grade_matrix_input:focus {
+    border-color: var(--o-brand-primary, #714b67);
+    outline: none;
+}
+
+/* Remove the number input spinner arrows for a clean cell. */
+.o_grade_matrix_input::-webkit-outer-spin-button,
+.o_grade_matrix_input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.o_grade_matrix_input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* Colour codes: empty = white; score < 5 = pale red; score >= 5 = very light green. */
+.o_grade_matrix td.o_grade_cell_fail {
+    background-color: #fdecea;
+}
+
+.o_grade_matrix td.o_grade_cell_pass {
+    background-color: #ecfaf0;
+}
+
+/* Spreadsheet-like selection. */
+.o_grade_matrix:focus {
+    outline: none;
+}
+
+.o_grade_matrix td.o_grade_matrix_cell {
+    cursor: cell;
+    user-select: none;
+}
+
+/* Translucent tint so the pass/fail colour still shows through the selection. */
+.o_grade_matrix td.o_grade_cell_selected {
+    box-shadow: inset 0 0 0 9999px rgba(113, 75, 103, 0.10);
+}
+
+.o_grade_matrix td.o_grade_cell_anchor {
+    outline: 2px solid var(--o-brand-primary, #714b67);
+    outline-offset: -2px;
+}

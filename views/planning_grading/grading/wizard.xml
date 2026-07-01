@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_grade_session_wizard_form">
+            <field name="name">ems.grade_session_wizard.form</field>
+            <field name="model">ems.grade_session_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Create grade sessions">
+                    <group>
+                        <field name="mode" widget="radio" options="{'horizontal': true}"/>
+                        <field name="level_ids" widget="many2many_tags" invisible="mode != 'level'" required="mode == 'level'"/>
+                        <field name="study_ids" widget="many2many_tags" invisible="mode != 'study'" required="mode == 'study'"/>
+                        <field name="round"/>
+                    </group>
+                    <footer>
+                        <button name="action_create_sessions" type="object" string="Create sessions" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_grade_session_wizard">
+            <field name="name">Create grade sessions</field>
+            <field name="res_model">ems.grade_session_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem name="Create grade sessions" sequence="2" id="menu_grade_session_wizard" parent="menu_grades" action="action_grade_session_wizard" groups="ems.group_admin"/>
+
+        <record model="ir.ui.view" id="view_grade_session_state_wizard_form">
+            <field name="name">ems.grade_session_state_wizard.form</field>
+            <field name="model">ems.grade_session_state_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Change evaluation state">
+                    <group>
+                        <field name="mode" widget="radio" options="{'horizontal': true}"/>
+                        <field name="level_ids" widget="many2many_tags" invisible="mode != 'level'" required="mode == 'level'"/>
+                        <field name="study_ids" widget="many2many_tags" invisible="mode != 'study'" required="mode == 'study'"/>
+                        <field name="round"/>
+                        <field name="target_state"/>
+                    </group>
+                    <footer>
+                        <button name="action_apply_state" type="object" string="Apply" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_grade_session_state_wizard">
+            <field name="name">Change evaluation state</field>
+            <field name="res_model">ems.grade_session_state_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem name="Change grade session state" sequence="3" id="menu_grade_session_state_wizard" parent="menu_grades" action="action_grade_session_state_wizard" groups="ems.group_admin"/>
+    </data>
+</odoo>

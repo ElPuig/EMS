@@ -1,0 +1,21 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_grade_session_search">
+            <field name="name">ems.grade_session.search</field>
+            <field name="model">ems.grade_session</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="group_id"/>
+                    <field name="subject_id"/>
+                    <field name="teacher_id"/>
+                    <filter name="state_open" string="Open" domain="[('state', '=', 'open')]"/>
+                    <filter name="state_board" string="Board" domain="[('state', '=', 'board')]"/>
+                    <filter name="state_final" string="Final" domain="[('state', '=', 'final')]"/>
+                    <filter name="group_by_group" string="Group" context="{'group_by': 'group_id'}"/>
+                    <filter name="group_by_subject" string="Subject" context="{'group_by': 'subject_id'}"/>
+                    <filter name="group_by_round" string="Round" context="{'group_by': 'round'}"/>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

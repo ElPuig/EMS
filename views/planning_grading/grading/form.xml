@@ -1,0 +1,74 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_grade_session_form">
+            <field name="name">ems.grade_session.form</field>
+            <field name="model">ems.grade_session</field>
+            <field name="arch" type="xml">
+                <form string="Grade session" duplicate="0" create="0">
+                    <field name="has_planning" invisible="1"/>
+                    <field name="allowed_subject_ids" invisible="1"/>
+                    <field name="can_edit" invisible="1"/>
+
+                    <div class="alert alert-warning" role="alert" name="alert-warning" invisible="has_planning or group_id == False or subject_id == False">
+                        <!-- TODO: this should be translated (localization) -->
+                        No planning found for this group's study and subject, so the subject grade cannot be computed from the ponderations. You can still inform the outcome scores and set the final grade manually.
+                    </div>
+
+                    <header>
+                        <field name="state" widget="statusbar" readonly="1"/>
+                    </header>
+
+                    <sheet>
+                        <group col="4">
+                            <group>
+                                <field name="group_id" readonly="id"/>
+                            </group>
+                            <group>
+                                <field name="subject_id" readonly="id or group_id == False" domain="[('id','in', allowed_subject_ids)]"/>
+                            </group>
+                            <group>
+                                <field name="round" readonly="id"/>
+                            </group>
+                            <group>
+                                <field name="teacher_id" readonly="id or not user_is_admin" widget="many2one_avatar_employee"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Grades per outcome">
+                                <field name="grade_outcome_line_ids" widget="grade_matrix" readonly="not can_edit">
+                                    <list limit="1000">
+                                        <field name="student_id"/>
+                                        <field name="student_firstname"/>
+                                        <field name="student_lastname"/>
+                                        <field name="outcome_id"/>
+                                        <field name="outcome_acronym"/>
+                                        <field name="ponderation"/>
+                                        <field name="score"/>
+                                        <field name="is_scored"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Subject grades">
+                                <field name="grade_subject_line_ids">
+                                    <list editable="bottom" default_order="student_id asc" decoration-warning="is_overridden">
+                                        <field name="image_1920" widget="image" readonly="True" force_save="True"/>
+                                        <field name="student_id" class="align-middle" readonly="True" force_save="True"/>
+                                        <field name="internal_score" readonly="True"/>
+                                        <field name="external_score" readonly="not parent.can_edit"/>
+                                        <field name="computed_score" readonly="True"/>
+                                        <field name="final_score" readonly="not parent.can_edit"/>
+                                        <field name="is_overridden" column_invisible="True"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Notes">
+                                <field name="notes"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

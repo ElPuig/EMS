@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- "Grades" groups the grade-session menus inside "Planning and Grading". -->
+        <menuitem name="Grades" sequence="1" id="menu_grades" parent="menu_planning"/>
+
+        <record model="ir.actions.act_window" id="action_grade_session_tree">
+            <field name="name">Grade sessions</field>
+            <field name="res_model">ems.grade_session</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Grade sessions" sequence="1" id="menu_grade_sessions" parent="menu_grades" action="action_grade_session_tree"/>
+    </data>
+</odoo>

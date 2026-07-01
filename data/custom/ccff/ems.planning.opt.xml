@@ -46,5 +46,13 @@
             <field name="external_ponderation">0.0</field>
             <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('__import__.outcome_OPT4_01RA'), 'ponderation': 45.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT4_02RA'), 'ponderation': 25.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT4_03RA'), 'ponderation': 15.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT4_04RA'), 'ponderation': 15.0})]"/>
         </record>
+        <!-- MP OPT5 (AIF) — Optatiu Comptabilitat. 4 RAs (iguals que OPT4). QMP = 0,55·RA1+0,30·RA2+0,15·(RA3+RA4). -->
+        <record id="planning_opt5" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgs_agb0_aif_2024"/>
+            <field name="subject_id" ref="__import__.subject_OPT5"/>
+            <field name="internal_ponderation">100.0</field>
+            <field name="external_ponderation">0.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('__import__.outcome_OPT5_01RA'), 'ponderation': 55.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT5_02RA'), 'ponderation': 30.0}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT5_03RA'), 'ponderation': 7.5}), (0, 0, {'outcome_id': ref('__import__.outcome_OPT5_04RA'), 'ponderation': 7.5})]"/>
+        </record>
     </data>
 </odoo>

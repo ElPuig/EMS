@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ems.grade_session -->
+    <record id="rule_grade_session_admin" model="ir.rule">
+        <field name="name">Grade session: all data</field>
+        <field name="model_id" ref="ems.model_ems_grade_session"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_grade_session_teacher_own" model="ir.rule">
+        <field name="name">Grade session: own data</field>
+        <field name="model_id" ref="ems.model_ems_grade_session"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">['|', ('create_uid', '=', user.id), ('teacher_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_grade_session_tutor" model="ir.rule">
+        <!-- A group's tutor can edit all the grade sessions of the tutored group, even for subjects they don't teach. -->
+        <field name="name">Grade session: tutored group</field>
+        <field name="model_id" ref="ems.model_ems_grade_session"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('group_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ems.grade_outcome_line -->
+    <record id="rule_grade_outcome_line_admin" model="ir.rule">
+        <field name="name">Grade outcome line: all data</field>
+        <field name="model_id" ref="ems.model_ems_grade_outcome_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_grade_outcome_line_teacher_own" model="ir.rule">
+        <field name="name">Grade outcome line: own data</field>
+        <field name="model_id" ref="ems.model_ems_grade_outcome_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">['|', ('create_uid', '=', user.id), ('teacher_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_grade_outcome_line_tutor" model="ir.rule">
+        <field name="name">Grade outcome line: tutored group</field>
+        <field name="model_id" ref="ems.model_ems_grade_outcome_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('grade_session_id.group_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ems.grade_subject_line -->
+    <record id="rule_grade_subject_line_admin" model="ir.rule">
+        <field name="name">Grade subject line: all data</field>
+        <field name="model_id" ref="ems.model_ems_grade_subject_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_grade_subject_line_teacher_own" model="ir.rule">
+        <field name="name">Grade subject line: own data</field>
+        <field name="model_id" ref="ems.model_ems_grade_subject_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">['|', ('create_uid', '=', user.id), ('teacher_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_grade_subject_line_tutor" model="ir.rule">
+        <field name="name">Grade subject line: tutored group</field>
+        <field name="model_id" ref="ems.model_ems_grade_subject_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('grade_session_id.group_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>

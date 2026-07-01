@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ems.planning -->
+    <record id="rule_planning_admin" model="ir.rule">
+        <field name="name">Planning: all data</field>
+        <field name="model_id" ref="ems.model_ems_planning"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_planning_teacher_own_subjects" model="ir.rule">
+        <!-- Teachers can only READ the plannings of the subjects they teach (via ems.teaching). -->
+        <field name="name">Planning: taught subjects (read only)</field>
+        <field name="model_id" ref="ems.model_ems_planning"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('subject_id', 'in', user.employee_ids.teaching_ids.subject_id.ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ems.planning_outcome -->
+    <record id="rule_planning_outcome_admin" model="ir.rule">
+        <field name="name">Planning outcome: all data</field>
+        <field name="model_id" ref="ems.model_ems_planning_outcome"/>
+        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_planning_outcome_teacher_own_subjects" model="ir.rule">
+        <field name="name">Planning outcome: taught subjects (read only)</field>
+        <field name="model_id" ref="ems.model_ems_planning_outcome"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('planning_id.subject_id', 'in', user.employee_ids.teaching_ids.subject_id.ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>

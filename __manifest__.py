@@ -324,6 +324,7 @@
         'data/custom/ccff/ems.planning.daw.xml',
         'data/custom/ccff/ems.planning.ga.xml',
         'data/custom/ccff/ems.planning.aif.xml',
+        'data/custom/ccff/ems.planning.ad.xml',
         'data/custom/ccff/ems.planning.opt.xml',
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',

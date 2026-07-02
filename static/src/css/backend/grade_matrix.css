@@ -1,6 +1,48 @@
+/* No nested scroll: let the whole form scroll so the RA header can stick to
+   the top of the content area and the rest of the sheet (fields, tabs) scrolls
+   out of view, maximising the working space. */
 .o_grade_matrix {
-    overflow: auto;
-    max-height: 65vh;
+    overflow: visible;
+}
+
+/* Toolbar (Apply changes) sticks to the top; the header row sticks just below it. */
+.o_grade_matrix_toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 2px 4px;
+    background-color: var(--o-view-background-color, #ffffff);
+}
+
+.o_grade_matrix_hint {
+    font-size: 0.85em;
+    color: #6c757d;
+}
+
+/* Processing veil shown while applying changes (write + save). */
+.o_grade_matrix_overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.o_grade_matrix_overlay_box {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    font-size: 1.1em;
+    color: var(--o-brand-primary, #714b67);
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
 .o_grade_matrix table {
@@ -16,12 +58,17 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     position: relative;
+    /* Tight rows: remove the wasted vertical space around the cell content. */
+    padding-top: 1px;
+    padding-bottom: 1px;
+    line-height: 1.1;
+    vertical-align: middle;
 }
 
-/* Keep the RA header row visible while scrolling vertically. */
+/* Keep the RA header row visible while scrolling vertically, just below the toolbar. */
 .o_grade_matrix thead th {
     position: sticky;
-    top: 0;
+    top: 36px;
     z-index: 2;
     background-color: var(--o-view-background-color, #ffffff);
 }
@@ -77,6 +124,89 @@
 .o_grade_matrix_input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
+}
+
+/* ── Subject summary columns (right of the RA matrix) ─────────────────────── */
+
+/* Divider between the RA block and the subject summary block. */
+.o_grade_matrix_sep {
+    border-left: 2px solid var(--o-brand-primary, #714b67) !important;
+}
+
+/* Read-only summary cells are not part of the spreadsheet selection. */
+.o_grade_matrix td.o_grade_matrix_subject {
+    cursor: default;
+    background-color: var(--o-view-background-color, #ffffff);
+}
+
+.o_grade_matrix_subinput {
+    width: 100%;
+    text-align: center;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.o_grade_matrix_subinput:focus {
+    border-color: var(--o-brand-primary, #714b67);
+    outline: none;
+}
+
+.o_grade_matrix_subinput::-webkit-outer-spin-button,
+.o_grade_matrix_subinput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.o_grade_matrix_subinput[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* Computed cells greyed while there are pending edits (they refresh on apply). */
+.o_grade_matrix td.o_grade_cell_stale {
+    color: #b0b0b0 !important;
+    background-color: #f0f0f0 !important;
+    font-style: italic;
+}
+
+/* Internal grade manually overridden: highlighted so it stands apart from the computed ones. */
+.o_grade_matrix td.o_grade_matrix_overridden {
+    background-color: #ede7f6;
+    color: #5e35b1;
+    font-weight: 600;
+}
+
+.o_grade_matrix td.o_grade_matrix_overridden .o_grade_matrix_subinput {
+    color: #5e35b1;
+    font-weight: 600;
+}
+
+/* Final grade stands out: bold text over the RA pass/fail background. */
+.o_grade_matrix td.o_grade_matrix_final {
+    font-weight: 700;
+}
+
+.o_grade_matrix td.o_grade_matrix_final .o_grade_matrix_subinput {
+    font-weight: 700;
+}
+
+/* Notes: left-aligned free text; the column grows with its content. */
+.o_grade_matrix td.o_grade_matrix_notes,
+.o_grade_matrix th.o_grade_matrix_notes_h {
+    text-align: left;
+    cursor: default;
+    background-color: var(--o-view-background-color, #ffffff);
+}
+
+.o_grade_matrix_notesinput {
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.o_grade_matrix_notesinput:focus {
+    border-color: var(--o-brand-primary, #714b67);
+    outline: none;
 }
 
 /* Colour codes: empty = white; score < 5 = pale red; score >= 5 = very light green. */

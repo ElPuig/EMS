@@ -129,19 +129,42 @@ class TestGradeSession(TransactionCase):
         lines.filtered(lambda line: line.outcome_id == self.outcome1).write({'score': 8, 'is_scored': True})
         lines.filtered(lambda line: line.outcome_id == self.outcome2).write({'score': 6, 'is_scored': True})
         subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
-        # (8*60 + 6*40) / 100 = 7.2
-        self.assertEqual(subject_line.internal_score, 7.2)
-        # 7.2*0.9 + 0*0.1 = 6.48
-        self.assertEqual(subject_line.computed_score, 6.48)
+        # (8*60 + 6*40) / 100 = 7.2, rounded to a whole number -> 7.
+        self.assertEqual(subject_line.internal_score, 7)
+        self.assertTrue(subject_line.internal_is_scored)
+        # The planning has a 10% external weight not yet informed -> no computed grade.
+        self.assertFalse(subject_line.computed_is_scored)
 
-    def test_missing_score_is_renormalized(self):
+    def test_missing_score_counts_as_zero(self):
         session = self._new_session()
         session.fill_students()
         lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
-        # Only outcome1 informed -> internal = 8 (renormalized over its own ponderation)
+        # Only outcome1 informed; outcome2 counts as a 0: (8*60 + 0*40) / 100 = 4.8, and because an
+        # outcome is missing the subject cannot be passed -> internal capped at 4.
         lines.filtered(lambda line: line.outcome_id == self.outcome1).write({'score': 8, 'is_scored': True})
         subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
-        self.assertEqual(subject_line.internal_score, 8.0)
+        self.assertEqual(subject_line.internal_score, 4.0)
+
+    def test_missing_score_caps_computed(self):
+        session = self._new_session()
+        session.fill_students()
+        lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
+        # outcome1 passed, outcome2 missing, external passed: the missing outcome caps computed at 4.
+        lines.filtered(lambda line: line.outcome_id == self.outcome1).write({'score': 10, 'is_scored': True})
+        subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
+        subject_line.write({'external_score': 10, 'external_is_scored': True})
+        self.assertTrue(subject_line.computed_is_scored)
+        self.assertEqual(subject_line.computed_score, 4)
+
+    def test_failed_outcome_caps_internal(self):
+        session = self._new_session()
+        session.fill_students()
+        lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
+        # (8*60 + 3*40) / 100 = 6.0, but outcome2 is failed (< 5) -> internal capped at 4.
+        lines.filtered(lambda line: line.outcome_id == self.outcome1).write({'score': 8, 'is_scored': True})
+        lines.filtered(lambda line: line.outcome_id == self.outcome2).write({'score': 3, 'is_scored': True})
+        subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
+        self.assertEqual(subject_line.internal_score, 4.0)
 
     def test_external_score_in_computed(self):
         session = self._new_session()
@@ -149,20 +172,62 @@ class TestGradeSession(TransactionCase):
         lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
         lines.write({'score': 8, 'is_scored': True})  # both outcomes -> internal 8
         subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
-        subject_line.external_score = 10.0
-        # 8*0.9 + 10*0.1 = 8.2
-        self.assertEqual(subject_line.computed_score, 8.2)
+        # Until the external grade is informed there is no computed (nor final) grade.
+        self.assertFalse(subject_line.computed_is_scored)
+        self.assertFalse(subject_line.has_final)
+        # An informed external 0 is different from empty; but a failed external part caps computed at 4.
+        subject_line.write({'external_score': 0, 'external_is_scored': True})
+        self.assertTrue(subject_line.computed_is_scored)
+        self.assertEqual(subject_line.computed_score, 4)
+        # A passing external grade lifts the cap: 8*0.9 + 10*0.1 = 8.2 -> 8.
+        subject_line.write({'external_score': 10, 'external_is_scored': True})
+        self.assertEqual(subject_line.computed_score, 8)
 
-    def test_final_score_default_and_override(self):
+    def test_failed_part_caps_computed(self):
+        session = self._new_session()
+        session.fill_students()
+        lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
+        lines.write({'score': 8, 'is_scored': True})  # internal passed (8)
+        subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
+        # External failed (< 5): even though 8*0.9 + 3*0.1 = 7.5, the subject cannot be passed -> cap 4.
+        subject_line.write({'external_score': 3, 'external_is_scored': True})
+        self.assertEqual(subject_line.computed_score, 4)
+        # Passing both parts lifts the cap: 8*0.9 + 6*0.1 = 8.4 -> 8.
+        subject_line.write({'external_score': 6, 'external_is_scored': True})
+        self.assertEqual(subject_line.computed_score, 8)
+
+    def test_no_final_without_both_components(self):
+        session = self._new_session()
+        session.fill_students()
+        lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
+        lines.write({'score': 8, 'is_scored': True})  # internal informed, external not
+        subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
+        self.assertTrue(subject_line.internal_is_scored)
+        self.assertFalse(subject_line.external_is_scored)
+        # No external grade (10% weight) -> no final grade.
+        self.assertFalse(subject_line.has_final)
+        # Overriding the internal grade does not bypass the missing external -> still no final.
+        subject_line.write({'is_overridden': True, 'internal_score': 9})
+        self.assertFalse(subject_line.has_final)
+        # Informing the external grade brings the final in.
+        subject_line.write({'external_score': 6, 'external_is_scored': True})
+        self.assertTrue(subject_line.has_final)
+
+    def test_internal_default_and_override(self):
         session = self._new_session()
         session.fill_students()
         lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
         lines.write({'score': 7, 'is_scored': True})
         subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
-        self.assertEqual(subject_line.final_score, subject_line.computed_score)
         self.assertFalse(subject_line.is_overridden)
-        subject_line.final_score = 9.0
-        self.assertTrue(subject_line.is_overridden)
+        # Internal computed from the outcomes: (7*60 + 7*40) / 100 = 7.
+        self.assertEqual(subject_line.internal_score, 7)
+        # Overriding is an explicit flag on the internal grade: mark it and set a manual value; it persists.
+        subject_line.write({'is_overridden': True, 'internal_score': 9})
+        self.assertEqual(subject_line.internal_score, 9)
+        # Clearing the override reverts the internal grade to the computed one.
+        subject_line.is_overridden = False
+        self.assertEqual(subject_line.internal_score, 7)
 
     def test_score_out_of_range(self):
         session = self._new_session()

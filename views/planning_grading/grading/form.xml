@@ -34,38 +34,39 @@
                             </group>
                         </group>
 
-                        <notebook>
-                            <page string="Grades per outcome">
-                                <field name="grade_outcome_line_ids" widget="grade_matrix" readonly="not can_edit">
-                                    <list limit="1000">
-                                        <field name="student_id"/>
-                                        <field name="student_firstname"/>
-                                        <field name="student_lastname"/>
-                                        <field name="outcome_id"/>
-                                        <field name="outcome_acronym"/>
-                                        <field name="ponderation"/>
-                                        <field name="score"/>
-                                        <field name="is_scored"/>
-                                    </list>
-                                </field>
-                            </page>
-                            <page string="Subject grades">
-                                <field name="grade_subject_line_ids">
-                                    <list editable="bottom" default_order="student_id asc" decoration-warning="is_overridden">
-                                        <field name="image_1920" widget="image" readonly="True" force_save="True"/>
-                                        <field name="student_id" class="align-middle" readonly="True" force_save="True"/>
-                                        <field name="internal_score" readonly="True"/>
-                                        <field name="external_score" readonly="not parent.can_edit"/>
-                                        <field name="computed_score" readonly="True"/>
-                                        <field name="final_score" readonly="not parent.can_edit"/>
-                                        <field name="is_overridden" column_invisible="True"/>
-                                    </list>
-                                </field>
-                            </page>
-                            <page string="Notes">
+                        <!-- The subject grades are shown as extra columns inside the matrix widget, so this
+                             field is only declared to make its records available to the widget. It is hidden
+                             with d-none (not invisible="1", which would stop Odoo from loading the records). -->
+                        <field name="grade_subject_line_ids" class="d-none">
+                            <list limit="1000">
+                                <field name="student_id"/>
+                                <field name="internal_ponderation"/>
+                                <field name="external_ponderation"/>
+                                <field name="internal_score"/>
+                                <field name="internal_is_scored"/>
+                                <field name="external_score"/>
+                                <field name="external_is_scored"/>
+                                <field name="computed_score"/>
+                                <field name="computed_is_scored"/>
+                                <field name="is_overridden"/>
+                                <field name="final_score"/>
+                                <field name="has_final"/>
                                 <field name="notes"/>
-                            </page>
-                        </notebook>
+                            </list>
+                        </field>
+
+                        <field name="grade_outcome_line_ids" widget="grade_matrix" readonly="not can_edit">
+                            <list limit="1000">
+                                <field name="student_id"/>
+                                <field name="student_firstname"/>
+                                <field name="student_lastname"/>
+                                <field name="outcome_id"/>
+                                <field name="outcome_acronym"/>
+                                <field name="ponderation"/>
+                                <field name="score"/>
+                                <field name="is_scored"/>
+                            </list>
+                        </field>
                     </sheet>
                 </form>
             </field>

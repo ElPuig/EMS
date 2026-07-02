@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="ems.GradeMatrixField">
-        <div class="o_grade_matrix" t-ref="root" tabindex="0" t-on-keydown="onRootKeydown" t-on-paste="onPaste">
+        <div class="o_grade_matrix" t-ref="root" tabindex="0" t-on-keydown="onRootKeydown">
+            <div t-if="applying.value" class="o_grade_matrix_overlay">
+                <div class="o_grade_matrix_overlay_box">
+                    <i class="fa fa-circle-o-notch fa-spin fa-2x me-2"/>
+                    <span>Applying changes…</span>
+                </div>
+            </div>
+            <div class="o_grade_matrix_toolbar">
+                <button type="button" class="btn btn-sm btn-primary" t-att-disabled="!dirty.value"
+                        t-on-click="() => this.applyChanges()">
+                    <i class="fa fa-check me-1"/>Apply changes
+                </button>
+                <span t-if="dirty.value" class="o_grade_matrix_hint ms-2">Pending changes — the computed grades will be recalculated on apply.</span>
+            </div>
             <table class="table table-sm table-bordered mb-0">
                 <colgroup>
                     <col t-att-style="colStyle('first')"/>
@@ -9,6 +22,10 @@
                     <t t-foreach="columns" t-as="col" t-key="col.id">
                         <col t-att-style="colStyle('ra_' + col.id)"/>
                     </t>
+                    <col t-att-style="colStyle('check')"/>
+                    <col t-att-style="colStyle('internal')"/>
+                    <col t-att-style="colStyle('final')"/>
+                    <col t-att-style="colStyle('notes')"/>
                 </colgroup>
                 <thead>
                     <tr>
@@ -21,11 +38,18 @@
                             <span class="o_grade_matrix_resizer" t-on-mousedown="(ev) => this.onResizeStart('last', ev)" t-on-click="(ev) => ev.stopPropagation()"/>
                         </th>
                         <t t-foreach="columns" t-as="col" t-key="col.id">
-                            <th class="text-center o_grade_matrix_col">
+                            <th class="text-center o_grade_matrix_col" t-att-class="col.isExternal ? 'o_grade_matrix_sep' : ''">
                                 <t t-esc="col.label"/>-<t t-esc="formatPonderation(col.ponderation)"/>%
                                 <span class="o_grade_matrix_resizer" t-on-mousedown="(ev) => this.onResizeStart('ra_' + col.id, ev)"/>
                             </th>
                         </t>
+                        <th class="text-center o_grade_matrix_col o_grade_matrix_sep">Override Internal</th>
+                        <th class="text-center o_grade_matrix_col" t-esc="internalHeader"/>
+                        <th class="text-center o_grade_matrix_col">Final</th>
+                        <th class="o_grade_matrix_col o_grade_matrix_notes_h">
+                            Notes
+                            <span class="o_grade_matrix_resizer" t-on-mousedown="(ev) => this.onResizeStart('notes', ev)"/>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,7 +67,7 @@
                                 t-on-mouseenter="() => this.onCellMouseEnter(row_index, col_index)"
                                 t-on-dblclick="() => this.onCellDblClick(row_index, col_index)">
                                 <input t-if="isEditingAt(row_index, col_index)"
-                                       type="number" min="0" max="10"
+                                       type="text" inputmode="numeric"
                                        class="o_grade_matrix_input"
                                        t-ref="editInput"
                                        t-att-value="edit.value"
@@ -53,6 +77,28 @@
                                 <span t-else="" t-esc="cellValue(row, col)"/>
                             </td>
                         </t>
+                        <td class="text-center o_grade_matrix_sep o_grade_matrix_subject">
+                            <input type="checkbox" t-att-checked="isOverridden(row)" t-att-disabled="props.readonly"
+                                   t-on-change="(ev) => this.onToggleOverride(row, ev)"
+                                   t-on-keydown="(ev) => ev.stopPropagation()"/>
+                        </td>
+                        <td class="text-center o_grade_matrix_subject" t-att-class="internalCellClass(row)">
+                            <input t-if="internalEditable(row)" type="number" min="0" max="10" step="1"
+                                   class="o_grade_matrix_subinput"
+                                   t-att-value="internalScore(row)"
+                                   t-on-change="(ev) => this.onInternalChange(row, ev)"
+                                   t-on-keydown="(ev) => this.onSubjectInputKeydown(ev, row, 'internal')"/>
+                            <t t-else="" t-esc="internalScore(row)"/>
+                        </td>
+                        <td class="text-center" t-att-class="finalCellClass(row)" t-esc="finalScore(row)"/>
+                        <td class="o_grade_matrix_notes">
+                            <span t-if="props.readonly" t-esc="notesValue(row)"/>
+                            <input t-else="" type="text"
+                                   class="o_grade_matrix_notesinput"
+                                   t-att-value="notesValue(row)"
+                                   t-on-change="(ev) => this.onNotesChange(row, ev)"
+                                   t-on-keydown="(ev) => this.onSubjectInputKeydown(ev, row, 'notes')"/>
+                        </td>
                     </tr>
                 </tbody>
             </table>

@@ -33,8 +33,6 @@ class ems_grade_session(models.Model):
 	grade_outcome_line_ids = fields.One2many(string="Grades per outcome", comodel_name="ems.grade_outcome_line", inverse_name="grade_session_id")
 	grade_subject_line_ids = fields.One2many(string="Subject grades", comodel_name="ems.grade_subject_line", inverse_name="grade_session_id")
 
-	notes = fields.Text("Notes")
-
 	@api.depends("group_id.study_id", "subject_id")
 	def _compute_planning_id(self):
 		for rec in self:

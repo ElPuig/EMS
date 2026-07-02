@@ -1,15 +1,20 @@
 /** @odoo-module **/
 
-import { Component, useState, useRef, onPatched } from "@odoo/owl";
+import { Component, useState, useRef, onPatched, onMounted, onWillUnmount } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { useSetupAction } from "@web/search/action_hook";
+import { useService } from "@web/core/utils/hooks";
+import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { _t } from "@web/core/l10n/translation";
 
-// Spreadsheet-like matrix widget for grade_outcome_line_ids: one row per student,
-// one column per learning outcome (ponderation in the header). Cells show the score
-// as plain text; a rectangular range can be selected freely (drag, shift-click,
-// shift-arrows), cleared (Delete) or pasted onto (Ctrl+V). Editing happens in a
-// single floating input at the anchor cell. Reuses the attendance-view avatar
-// mechanism. Changes persist with the form's Save button.
+// Spreadsheet-like matrix widget for grade_outcome_line_ids: one row per student, one column per
+// learning outcome, plus the external grade and the subject-level columns (internal / computed / final /
+// notes). All editing happens in a LOCAL BUFFER: typing, block paste, delete, arrows, the override
+// checkbox, the manual internal grade and the notes only touch the buffer, never the records. The
+// subject grades stay as computed by the model; while there are pending edits they are shown greyed and
+// the "Apply changes" button is enabled. Applying writes the whole buffer to the records and saves, so
+// the model recomputes everything server-side (the single source of truth for the calculations).
 export class GradeMatrixField extends Component {
     static template = "ems.GradeMatrixField";
     static props = { ...standardFieldProps };
@@ -19,21 +24,119 @@ export class GradeMatrixField extends Component {
         this.widths = useState({ first: 150, last: 150 });
         // Selection as index ranges into the current rows/columns; (r1,c1) is the anchor.
         this.sel = useState({ r1: null, c1: null, r2: null, c2: null });
-        this.edit = useState({ active: false, value: "" });
+        this.edit = useState({ active: false, value: "", selectAll: false });
+        // Local edit buffer (see class comment) and whether it differs from the applied values.
+        this.buffer = useState({ outcomes: {}, subjects: {} });
+        this.dirty = useState({ value: false });
+        // Whether an apply (write + save) is in progress, to show a processing overlay.
+        this.applying = useState({ value: false });
+        this.dialog = useService("dialog");
+        // Warn before leaving (in-app navigation and browser unload) with unapplied buffer changes.
+        useSetupAction({
+            beforeLeave: () => this._beforeLeave(),
+            beforeUnload: (ev) => this._beforeUnload(ev),
+        });
         this.rootRef = useRef("root");
         this.editRef = useRef("editInput");
         this._dragging = false;
+        // Whether the grid is the active interaction target. Paste is captured at the document level
+        // (a non-editable <div> does not reliably receive paste events until an <input> has been used),
+        // so we only act on paste when the grid is active.
+        this._active = false;
+        this._onDocMouseDown = (ev) => {
+            this._active = !!(this.rootRef.el && this.rootRef.el.contains(ev.target));
+        };
+        this._onDocPaste = (ev) => this.onPaste(ev);
+        this._syncBuffer();
+        onMounted(() => {
+            document.addEventListener("mousedown", this._onDocMouseDown, true);
+            document.addEventListener("paste", this._onDocPaste);
+        });
+        onWillUnmount(() => {
+            document.removeEventListener("mousedown", this._onDocMouseDown, true);
+            document.removeEventListener("paste", this._onDocPaste);
+        });
         onPatched(() => {
             if (this.edit.active && this.editRef.el && document.activeElement !== this.editRef.el) {
                 this.editRef.el.focus();
-                this.editRef.el.select();
+                if (this.edit.selectAll) {
+                    this.editRef.el.select();
+                }
             }
         });
     }
 
+    // ── Records / buffer ─────────────────────────────────────────────────────
+
     get lines() {
         return this.props.record.data[this.props.name].records;
     }
+
+    get subjectLines() {
+        const field = this.props.record.data.grade_subject_line_ids;
+        return field ? field.records : [];
+    }
+
+    // Copy the current record values into the buffer and mark it clean. Called on setup and after each
+    // apply (the records are reloaded with the freshly computed grades).
+    _syncBuffer() {
+        const outcomes = {};
+        for (const line of this.lines) {
+            outcomes[line.id] = { score: line.data.score, is_scored: line.data.is_scored };
+        }
+        const subjects = {};
+        for (const line of this.subjectLines) {
+            subjects[line.id] = {
+                external_score: line.data.external_score,
+                external_is_scored: line.data.external_is_scored,
+                is_overridden: line.data.is_overridden,
+                internal_score: line.data.internal_score,
+                notes: line.data.notes || "",
+            };
+        }
+        this.buffer.outcomes = outcomes;
+        this.buffer.subjects = subjects;
+        this.dirty.value = false;
+    }
+
+    _outcomeBuf(row, col) {
+        const rec = row.cells[col.id];
+        return rec ? this.buffer.outcomes[rec.id] : null;
+    }
+
+    _subjectBuf(row) {
+        return row.subject ? this.buffer.subjects[row.subject.id] : null;
+    }
+
+    // {score, is_scored} for a grid cell, read from the buffer (the external column maps to the subject
+    // line's external fields, every other column to its outcome line).
+    _cellGet(row, col) {
+        if (col.isExternal) {
+            const b = this._subjectBuf(row);
+            return { score: b ? b.external_score : 0, is_scored: b ? b.external_is_scored : false };
+        }
+        const b = this._outcomeBuf(row, col);
+        return { score: b ? b.score : 0, is_scored: b ? b.is_scored : false };
+    }
+
+    _cellSet(row, col, score, is_scored) {
+        if (col.isExternal) {
+            const b = this._subjectBuf(row);
+            if (b) {
+                b.external_score = score;
+                b.external_is_scored = is_scored;
+            }
+        } else {
+            const b = this._outcomeBuf(row, col);
+            if (b) {
+                b.score = score;
+                b.is_scored = is_scored;
+            }
+        }
+        this.dirty.value = true;
+    }
+
+    // ── Columns / rows ───────────────────────────────────────────────────────
 
     get columns() {
         const columns = new Map();
@@ -47,10 +150,19 @@ export class GradeMatrixField extends Component {
                 });
             }
         }
-        return [...columns.values()].sort((a, b) => a.label.localeCompare(b.label));
+        const cols = [...columns.values()].sort((a, b) => a.label.localeCompare(b.label));
+        // The external grade behaves like an RA column (selectable, pasteable): it is the last column of
+        // the grid but maps to the subject line's external_score / external_is_scored.
+        const externalPond = this.subjectLines.length ? this.subjectLines[0].data.external_ponderation : 0;
+        cols.push({ id: "external", label: "External", ponderation: externalPond, isExternal: true });
+        return cols;
     }
 
     get rows() {
+        const subjectByStudent = new Map();
+        for (const line of this.subjectLines) {
+            subjectByStudent.set(line.data.student_id[0], line);
+        }
         const rows = new Map();
         for (const line of this.lines) {
             const studentId = line.data.student_id[0];
@@ -60,15 +172,17 @@ export class GradeMatrixField extends Component {
                     firstname: line.data.student_firstname || "",
                     lastname: line.data.student_lastname || "",
                     cells: {},
+                    subject: subjectByStudent.get(studentId) || null,
                 });
             }
             rows.get(studentId).cells[line.data.outcome_id[0]] = line;
         }
+        const result = [...rows.values()];
         const { field, dir } = this.sort;
         const other = field === "lastname" ? "firstname" : "lastname";
         const sign = dir === "asc" ? 1 : -1;
         const opts = { sensitivity: "base" };
-        return [...rows.values()].sort((a, b) => {
+        return result.sort((a, b) => {
             const primary = a[field].localeCompare(b[field], undefined, opts);
             if (primary !== 0) {
                 return sign * primary;
@@ -99,11 +213,29 @@ export class GradeMatrixField extends Component {
     // ── Column resizing ──────────────────────────────────────────────────────
 
     colStyle(key) {
+        if (key === "notes") {
+            return `width:${this.notesColWidth}px`;
+        }
         const width = this.widths[key];
         if (width) {
             return `width:${width}px`;
         }
-        return key.startsWith("ra_") ? "width:70px" : "";
+        if (key.startsWith("ra_")) {
+            return "width:70px";
+        }
+        const fixed = { internal: 72, check: 108, final: 72 };
+        return fixed[key] ? `width:${fixed[key]}px` : "";
+    }
+
+    get notesColWidth() {
+        if (this.widths.notes) {
+            return this.widths.notes;
+        }
+        let maxLen = 10;
+        for (const row of this.rows) {
+            maxLen = Math.max(maxLen, this.notesValue(row).length);
+        }
+        return Math.min(800, Math.max(160, maxLen * 8 + 20));
     }
 
     onResizeStart(key, ev) {
@@ -133,16 +265,29 @@ export class GradeMatrixField extends Component {
         return (Math.round(ponderation * 100) / 100).toString();
     }
 
+    formatScore(value) {
+        return (Math.round((value || 0) * 100) / 100).toString();
+    }
+
+    get internalHeader() {
+        const pond = this.subjectLines.length ? this.subjectLines[0].data.internal_ponderation : 0;
+        return pond ? `Internal-${this.formatPonderation(pond)}%` : "Internal";
+    }
+
+    // RA / external cells (from the buffer).
     cellValue(row, col) {
-        const line = row.cells[col.id];
-        return line && line.data.is_scored ? line.data.score : "";
+        const { score, is_scored } = this._cellGet(row, col);
+        return is_scored ? score : "";
     }
 
     cellClass(row, col, rowIndex, colIndex) {
-        const line = row.cells[col.id];
+        const { score, is_scored } = this._cellGet(row, col);
         let cls = "";
-        if (line && line.data.is_scored) {
-            cls = line.data.score >= 5 ? "o_grade_cell_pass" : "o_grade_cell_fail";
+        if (is_scored) {
+            cls = score >= 5 ? "o_grade_cell_pass" : "o_grade_cell_fail";
+        }
+        if (col.isExternal) {
+            cls += " o_grade_matrix_sep";
         }
         if (this._inSelection(rowIndex, colIndex)) {
             cls += " o_grade_cell_selected";
@@ -152,6 +297,152 @@ export class GradeMatrixField extends Component {
         }
         return cls;
     }
+
+    // Subject columns. The internal grade is editable (from the buffer) when overridden, otherwise it is
+    // the model's computed value; computed and final are always the model's values. The computed values
+    // are shown greyed while there are pending edits (they refresh on apply).
+    staleClass() {
+        return this.dirty.value ? "o_grade_cell_stale" : "";
+    }
+
+    isOverridden(row) {
+        const b = this._subjectBuf(row);
+        return b ? b.is_overridden : false;
+    }
+
+    internalEditable(row) {
+        return !this.props.readonly && this.isOverridden(row);
+    }
+
+    internalScore(row) {
+        const b = this._subjectBuf(row);
+        if (b && b.is_overridden) {
+            return this.formatScore(b.internal_score);
+        }
+        return row.subject && row.subject.data.internal_is_scored
+            ? this.formatScore(row.subject.data.internal_score)
+            : "";
+    }
+
+    internalCellClass(row) {
+        if (this.isOverridden(row)) {
+            return "o_grade_matrix_overridden";
+        }
+        return this.staleClass();
+    }
+
+    computedScore(row) {
+        return row.subject && row.subject.data.computed_is_scored
+            ? this.formatScore(row.subject.data.computed_score)
+            : "";
+    }
+
+    hasFinal(row) {
+        return row.subject ? row.subject.data.has_final : false;
+    }
+
+    finalScore(row) {
+        return this.hasFinal(row) ? this.formatScore(row.subject.data.final_score) : "";
+    }
+
+    finalCellClass(row) {
+        let cls = "o_grade_matrix_final";
+        if (this.hasFinal(row)) {
+            cls += row.subject.data.final_score >= 5 ? " o_grade_cell_pass" : " o_grade_cell_fail";
+        }
+        if (this.dirty.value) {
+            cls += " o_grade_cell_stale";
+        }
+        return cls;
+    }
+
+    notesValue(row) {
+        const b = this._subjectBuf(row);
+        return b ? b.notes || "" : "";
+    }
+
+    // ── Subject-cell handlers (buffer only) ──────────────────────────────────
+
+    _parseScore(raw) {
+        const value = (raw || "").trim().replace(",", ".");
+        if (value === "") {
+            return 0;
+        }
+        const parsed = parseFloat(value);
+        if (Number.isNaN(parsed)) {
+            return null;
+        }
+        return Math.max(0, Math.min(10, Math.round(parsed)));
+    }
+
+    onToggleOverride(row, ev) {
+        const b = this._subjectBuf(row);
+        if (b) {
+            b.is_overridden = ev.target.checked;
+            this.dirty.value = true;
+        }
+    }
+
+    onInternalChange(row, ev) {
+        const b = this._subjectBuf(row);
+        if (!b) {
+            return;
+        }
+        const value = this._parseScore(ev.target.value);
+        if (value !== null) {
+            b.internal_score = value;
+            this.dirty.value = true;
+        }
+    }
+
+    onNotesChange(row, ev) {
+        const b = this._subjectBuf(row);
+        if (b) {
+            b.notes = ev.target.value;
+            this.dirty.value = true;
+        }
+    }
+
+    // Enter and the up/down arrows commit and move to the adjacent row's input; Tab and left/right keep
+    // their native behaviour.
+    onSubjectInputKeydown(ev, row, field) {
+        ev.stopPropagation();
+        let direction = 0;
+        if (ev.key === "Enter" || ev.key === "ArrowDown") {
+            direction = 1;
+        } else if (ev.key === "ArrowUp") {
+            direction = -1;
+        } else {
+            return;
+        }
+        ev.preventDefault();
+        const input = ev.target;
+        if (field === "internal") {
+            this.onInternalChange(row, { target: input });
+        } else if (field === "notes") {
+            this.onNotesChange(row, { target: input });
+        }
+        const td = input.closest("td");
+        const tr = td && td.closest("tr");
+        if (!tr) {
+            return;
+        }
+        const colIndex = [...tr.children].indexOf(td);
+        let sibling = direction === 1 ? tr.nextElementSibling : tr.previousElementSibling;
+        while (sibling) {
+            const nextInput = sibling.children[colIndex] && sibling.children[colIndex].querySelector("input");
+            if (nextInput) {
+                nextInput.focus();
+                if (nextInput.select) {
+                    nextInput.select();
+                }
+                return;
+            }
+            sibling = direction === 1 ? sibling.nextElementSibling : sibling.previousElementSibling;
+        }
+    }
+
+    // ── Selection / grid state ───────────────────────────────────────────────
 
     isEditingAt(rowIndex, colIndex) {
         return this.edit.active && rowIndex === this.sel.r1 && colIndex === this.sel.c1;
@@ -168,14 +459,6 @@ export class GradeMatrixField extends Component {
         return rowIndex >= rMin && rowIndex <= rMax && colIndex >= cMin && colIndex <= cMax;
     }
 
-    _lineAt(rowIndex, colIndex) {
-        const rows = this.rows;
-        const cols = this.columns;
-        const row = rows[rowIndex];
-        const col = cols[colIndex];
-        return row && col ? row.cells[col.id] : null;
-    }
-
     _changesFor(raw) {
         const value = (raw || "").trim().replace(",", ".");
         if (value === "") {
@@ -189,38 +472,20 @@ export class GradeMatrixField extends Component {
         return { score: parsed, is_scored: true };
     }
 
-    // Single cell: normal update so the subject grades refresh live.
-    _applyOne(line, raw) {
+    _applyOne(row, col, raw) {
         const changes = this._changesFor(raw);
         if (changes) {
-            line.update(changes);
+            this._cellSet(row, col, changes.score, changes.is_scored);
         }
     }
 
-    // Block (paste / clear): apply every cell in a single batch, without a per-cell
-    // onchange round-trip and updating the parent (re-render) only once at the end.
-    // The subject grades recompute on the server when saving.
-    async _applyMany(entries) {
-        const changes = [];
-        for (const { line, raw } of entries) {
-            const values = this._changesFor(raw);
-            if (values) {
-                changes.push({ line, values });
+    _applyMany(entries) {
+        for (const { row, col, raw } of entries) {
+            const changes = this._changesFor(raw);
+            if (changes) {
+                this._cellSet(row, col, changes.score, changes.is_scored);
             }
         }
-        if (!changes.length) {
-            return;
-        }
-        const model = this.props.record.model;
-        await model.mutex.exec(async () => {
-            for (let i = 0; i < changes.length; i++) {
-                const last = i === changes.length - 1;
-                await changes[i].line._update(changes[i].values, {
-                    withoutOnchange: true,
-                    withoutParentUpdate: !last,
-                });
-            }
-        });
     }
 
     // ── Mouse selection ──────────────────────────────────────────────────────
@@ -238,6 +503,11 @@ export class GradeMatrixField extends Component {
         this._dragging = true;
         const onUp = () => {
             this._dragging = false;
+            // Focus on mouseup too: a focus() during a mousedown that ran preventDefault() is not
+            // reliably applied in some browsers, which would break paste until a cell had been edited.
+            if (this.rootRef.el) {
+                this.rootRef.el.focus();
+            }
             document.removeEventListener("mouseup", onUp);
         };
         document.addEventListener("mouseup", onUp);
@@ -259,15 +529,18 @@ export class GradeMatrixField extends Component {
         this._startEdit();
     }
 
-    // ── Editing ──────────────────────────────────────────────────────────────
+    // ── Editing (floating input over the anchor cell) ────────────────────────
 
     _startEdit(initial) {
         if (this.props.readonly) {
             return;
         }
-        const line = this._lineAt(this.sel.r1, this.sel.c1);
+        const row = this.rows[this.sel.r1];
+        const col = this.columns[this.sel.c1];
+        this.edit.selectAll = initial === undefined;
         if (initial === undefined) {
-            initial = line && line.data.is_scored ? String(line.data.score) : "";
+            const { score, is_scored } = row && col ? this._cellGet(row, col) : {};
+            initial = is_scored ? String(score) : "";
         }
         this.edit.value = initial;
         this.edit.active = true;
@@ -281,10 +554,11 @@ export class GradeMatrixField extends Component {
         if (!this.edit.active) {
             return;
         }
-        const line = this._lineAt(this.sel.r1, this.sel.c1);
+        const row = this.rows[this.sel.r1];
+        const col = this.columns[this.sel.c1];
         this.edit.active = false;
-        if (line) {
-            this._applyOne(line, this.edit.value);
+        if (row && col) {
+            this._applyOne(row, col, this.edit.value);
         }
     }
 
@@ -296,6 +570,19 @@ export class GradeMatrixField extends Component {
             this._moveTo(this.sel.r1 + (ev.key === "Enter" ? 1 : 0), this.sel.c1 + (ev.key === "Tab" ? 1 : 0), false);
             if (this.rootRef.el) {
                 this.rootRef.el.focus();
+            }
+        } else if (ev.key === "ArrowRight" || ev.key === "ArrowLeft") {
+            const input = ev.target;
+            const goingRight = ev.key === "ArrowRight";
+            const atEnd = input.selectionStart === input.value.length && input.selectionEnd === input.value.length;
+            const atStart = input.selectionStart === 0 && input.selectionEnd === 0;
+            if ((goingRight && atEnd) || (!goingRight && atStart)) {
+                ev.preventDefault();
+                this.commitEdit();
+                this._moveTo(this.sel.r1, this.sel.c1 + (goingRight ? 1 : -1), false);
+                if (this.rootRef.el) {
+                    this.rootRef.el.focus();
+                }
             }
         } else if (ev.key === "Escape") {
             ev.preventDefault();
@@ -355,9 +642,8 @@ export class GradeMatrixField extends Component {
         const entries = [];
         for (let r = rMin; r <= rMax; r++) {
             for (let c = cMin; c <= cMax; c++) {
-                const line = rows[r] && cols[c] ? rows[r].cells[cols[c].id] : null;
-                if (line) {
-                    entries.push({ line, raw: "" });
+                if (rows[r] && cols[c]) {
+                    entries.push({ row: rows[r], col: cols[c], raw: "" });
                 }
             }
         }
@@ -366,9 +652,18 @@ export class GradeMatrixField extends Component {
 
     // ── Block paste ──────────────────────────────────────────────────────────
 
-    async onPaste(ev) {
-        if (this.props.readonly || this.sel.r1 === null) {
+    onPaste(ev) {
+        if (this.props.readonly || this.sel.r1 === null || !this._active || this.edit.active) {
             return;
+        }
+        const active = document.activeElement;
+        if (
+            active &&
+            (active.tagName === "INPUT" || active.tagName === "TEXTAREA") &&
+            this.rootRef.el &&
+            this.rootRef.el.contains(active)
+        ) {
+            return;  // a subject input is focused; let it paste normally
         }
         const text = ev.clipboardData && ev.clipboardData.getData("text");
         if (!text) {
@@ -401,20 +696,104 @@ export class GradeMatrixField extends Component {
                 if (!targetCol) {
                     break;
                 }
-                const line = targetRow.cells[targetCol.id];
-                if (line) {
-                    entries.push({ line, raw: values[j] });
-                }
+                entries.push({ row: targetRow, col: targetCol, raw: values[j] });
                 lastRow = startRow + i;
                 lastCol = startCol + j;
             }
         }
-        await this._applyMany(entries);
-        // Select the pasted block.
+        this._applyMany(entries);
         this.sel.r1 = startRow;
         this.sel.c1 = startCol;
         this.sel.r2 = lastRow;
         this.sel.c2 = lastCol;
+    }
+
+    // ── Leaving with unapplied changes ───────────────────────────────────────
+
+    // Returning false blocks the in-app navigation (see clearUncommittedChanges).
+    _beforeLeave() {
+        if (!this.dirty.value) {
+            return;
+        }
+        return new Promise((resolve) => {
+            this.dialog.add(
+                ConfirmationDialog,
+                {
+                    title: _t("Unapplied grade changes"),
+                    body: _t(
+                        "You have grade changes that have not been applied. If you leave now they will be lost."
+                    ),
+                    confirmLabel: _t("Leave and discard"),
+                    confirm: () => resolve(true),
+                    cancelLabel: _t("Stay"),
+                    cancel: () => resolve(false),
+                },
+                { onClose: () => resolve(false) }
+            );
+        });
+    }
+
+    _beforeUnload(ev) {
+        if (this.dirty.value) {
+            ev.preventDefault();
+            ev.returnValue = "Unapplied changes";
+        }
+    }
+
+    // ── Apply (buffer -> records -> save -> recompute) ───────────────────────
+
+    async applyChanges() {
+        if (!this.dirty.value || this.props.readonly || this.applying.value) {
+            return;
+        }
+        this.applying.value = true;
+        try {
+            await this._applyChanges();
+        } finally {
+            this.applying.value = false;
+        }
+    }
+
+    async _applyChanges() {
+        const model = this.props.record.model;
+        await model.mutex.exec(async () => {
+            for (const line of this.lines) {
+                const b = this.buffer.outcomes[line.id];
+                if (b && (b.score !== line.data.score || b.is_scored !== line.data.is_scored)) {
+                    await line._update({ score: b.score, is_scored: b.is_scored }, { withoutOnchange: true });
+                }
+            }
+            for (const line of this.subjectLines) {
+                const b = this.buffer.subjects[line.id];
+                if (!b) {
+                    continue;
+                }
+                const changes = {};
+                if (b.external_score !== line.data.external_score) {
+                    changes.external_score = b.external_score;
+                }
+                if (b.external_is_scored !== line.data.external_is_scored) {
+                    changes.external_is_scored = b.external_is_scored;
+                }
+                if (b.is_overridden !== line.data.is_overridden) {
+                    changes.is_overridden = b.is_overridden;
+                }
+                if ((b.notes || "") !== (line.data.notes || "")) {
+                    changes.notes = b.notes;
+                }
+                // The manual internal grade is only meaningful (and written) while overridden.
+                if (b.is_overridden && b.internal_score !== line.data.internal_score) {
+                    changes.internal_score = b.internal_score;
+                }
+                if (Object.keys(changes).length) {
+                    await line._update(changes, { withoutOnchange: true });
+                }
+            }
+        });
+        const saved = await model.root.save();
+        if (saved) {
+            this._syncBuffer();
+        }
     }
 }
 

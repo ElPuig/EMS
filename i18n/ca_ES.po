@@ -6486,6 +6486,48 @@ msgid "Overridden"
 msgstr "Sobreescrita"
 
 #. module: ems
+#: model:ir.actions.act_window,name:ems.action_grade_session_tree
+#: model:ir.ui.menu,name:ems.menu_grade_sessions
+msgid "Evaluation by group and subject"
+msgstr "Avaluació per grup i matèria"
+
+#. module: ems
+#: model:ir.actions.client,name:ems.action_grade_tutor_matrix
+#: model:ir.ui.menu,name:ems.menu_grade_tutor
+msgid "Evaluation for tutors"
+msgstr "Avaluació per a tutors"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
+msgid "You do not tutor any group with an open evaluation."
+msgstr "No ets tutor de cap grup amb avaluació oberta"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
+msgid "Ovr."
+msgstr "Sobr."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
+msgid "Int."
+msgstr "Int."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
+msgid "Pending changes — the grades will be recalculated on apply."
+msgstr "Canvis pendents: les notes es recalcularan en aplicar."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
+msgid "Applying changes…"
+msgstr "Aplicant canvis…"
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
 msgid "Override Internal"

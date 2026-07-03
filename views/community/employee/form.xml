@@ -4,8 +4,50 @@
             <field name="name">ems.employee.form</field>
             <field name="model">hr.employee</field>            
             <field name="inherit_id" ref="hr.view_employee_form"/> 
-            <field name="arch" type="xml">                                        
-                
+            <field name="arch" type="xml">
+
+                <xpath expr="//sheet" position="before">
+                    <header>
+                        <field name="google_ws_suspended" invisible="1"/>
+                        <button name="action_create_google_account" type="object"
+                                string="Create Google account"
+                                class="btn-secondary"
+                                invisible="employee_type not in ('teacher', 'asp') or work_email or google_ws_manual_email"
+                                groups="ems.group_admin,hr.group_hr_user"/>
+                        <button name="action_suspend_google_account" type="object"
+                                string="Suspend Google account"
+                                class="btn-secondary"
+                                invisible="employee_type not in ('teacher', 'asp') or not work_email or google_ws_suspended"
+                                groups="ems.group_admin,hr.group_hr_user"/>
+                        <button name="action_reactivate_google_account" type="object"
+                                string="Reactivate Google account"
+                                class="btn-secondary"
+                                invisible="employee_type not in ('teacher', 'asp') or not work_email or not google_ws_suspended"
+                                groups="ems.group_admin,hr.group_hr_user"/>
+                    </header>
+                </xpath>
+
+                <field name="work_email" position="attributes">
+                    <attribute name="readonly">employee_type in ('teacher', 'asp') and not google_ws_manual_email</attribute>
+                    <attribute name="help">Corporate account. It is generated automatically when the Google account is created (or the existing one is adopted). Tick "Assign corporate email manually" to edit it by hand.</attribute>
+                </field>
+
+                <field name="work_email" position="after">
+                    <field name="google_ws_domain" invisible="1"/>
+                    <field name="google_ws_manual_email"
+                           invisible="employee_type not in ('teacher', 'asp')"
+                           groups="ems.group_admin,hr.group_hr_user"/>
+                    <label for="google_ws_login" string="Suggested Google username"
+                           invisible="employee_type not in ('teacher', 'asp') or work_email or google_ws_manual_email"
+                           groups="ems.group_admin,hr.group_hr_user"/>
+                    <div class="o_row"
+                         invisible="employee_type not in ('teacher', 'asp') or work_email or google_ws_manual_email"
+                         groups="ems.group_admin,hr.group_hr_user">
+                        <field name="google_ws_login" placeholder="jdoe" nolabel="1"/>
+                        <span class="text-muted">@<field name="google_ws_domain" readonly="1" nolabel="1" class="oe_inline"/></span>
+                    </div>
+                </field>
+
                 <field name="name" position="replace">
                     <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->
                     <field name="name" placeholder="Teacher's Name" invisible="employee_type != 'teacher'"/>

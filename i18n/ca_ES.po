@@ -9165,6 +9165,7 @@ msgstr "↳ Altres conceptes de matrícula"
 #: model:ir.model,name:ems.communication
 msgid "This communication cannot be cancelled: it has already been sent or is being processed."
 msgstr "Aquesta comunicació no es pot cancel·lar: ja ha estat enviada o s'està processant."
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "All groups"

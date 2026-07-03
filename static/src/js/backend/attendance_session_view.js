@@ -124,7 +124,11 @@ class AttendanceSessionView extends Component {
 
         // 2. Schedules for this weekday (admin needs explicit filter; teachers use security rules)
         const weekday = this._weekdayStr(this.state.date);
-        const scheduleDomain = [["weekday", "=", weekday]];
+        const scheduleDomain = [
+            ["weekday", "=", weekday],
+            ["start_date", "<=", this.state.date],
+            ["end_date", ">=", this.state.date],
+        ];
         if (teacherIds.length) {
             scheduleDomain.push(["attendance_template_id.teacher_id", "in", teacherIds]);
         }
@@ -190,7 +194,13 @@ class AttendanceSessionView extends Component {
         const planned  = allPlanned.filter(s => s.start_time <= now && now < s.end_time);
         this.state.sessions = sessions;
         this.state.planned  = planned;
-        this.state.groups   = [];
+
+        const allGroups = new Set([
+            ...sessions.map(s => this._groupFromScheduleName(s.attendance_schedule_id ? s.attendance_schedule_id[1] : '')),
+            ...planned.map(s => this._groupFromScheduleName(s.name || '')),
+        ]);
+        allGroups.delete('');
+        this.state.groups = [...allGroups].sort();
         this.state.selectedGroup = null;
     }
 
@@ -283,6 +293,8 @@ class AttendanceSessionView extends Component {
 
     // ── Translatable strings ──────────────────────────────────────────────────
 
+    get todayStr() { return this._todayStr(); }
+
     get strings() {
         return {
             allGroups:         _t("All groups"),
@@ -362,13 +374,16 @@ class AttendanceSessionView extends Component {
     }
 
     async nextDay() {
-        this.state.date = this._shiftDate(this.state.date, 1);
+        const next = this._shiftDate(this.state.date, 1);
+        if (next > this._todayStr()) return;
+        this.state.date = next;
         await this._loadAll();
     }
 
     async onDateInput(ev) {
-        if (!ev.target.value) return;
-        this.state.date = ev.target.value;
+        const today = this._todayStr();
+        const val = ev.target.value || today;
+        this.state.date = val > today ? today : val;
         await this._loadAll();
     }
 

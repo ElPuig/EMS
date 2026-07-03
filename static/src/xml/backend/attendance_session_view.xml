@@ -18,7 +18,7 @@
                            t-att-disabled="state.guardMode"
                            t-on-change="onDateInput"/>
                     <button class="ems-av-nav-btn"
-                            t-att-disabled="state.guardMode"
+                            t-att-disabled="state.guardMode or state.date >= todayStr"
                             t-on-click="nextDay">&#8250;</button>
                 </div>
 
@@ -33,8 +33,8 @@
                     </label>
                 </div>
 
-                <!-- Group filter (only shown when >1 group present and not in guard mode) -->
-                <div class="ems-av-group-wrap" t-if="!state.guardMode and state.groups.length > 1">
+                <!-- Group filter (only shown in guard mode) -->
+                <div class="ems-av-group-wrap" t-if="state.guardMode">
                     <select class="ems-av-session-select" t-on-change="onGroupChange">
                         <option value=""><t t-esc="strings.allGroups"/></option>
                         <t t-foreach="state.groups" t-as="g" t-key="g">

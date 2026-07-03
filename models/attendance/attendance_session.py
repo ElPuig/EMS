@@ -539,14 +539,21 @@ class ems_attendance_session_header(models.Model):
 
 	@api.model
 	def get_guard_sessions(self, date):
-		# Guard teachers need to see all sessions for the day regardless of ownership.
+		# Guard teachers need to see all sessions for the day regardless of ownership,
+		# except their own (already shown in normal mode).
 		# sudo() is required here — see security/rules/attendance.xml and the same
 		# pattern used in _get_allowed_attendance_schedule_ids().
 		if not (self.env.user.has_group('ems.group_teacher') or
 				self.env.user.has_group('ems.group_admin')):
 			raise AccessError(_("Guard mode requires teacher access."))
+		own_emp = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
+		domain = [['date', '=', date]]
+		if own_emp:
+			domain += ['!', '|',
+				['template_teacher_id', '=', own_emp.id],
+				['session_teacher_id', '=', own_emp.id]]
 		return self.sudo().search_read(
-			[['date', '=', date]],
+			domain,
 			fields=['id', 'time_range', 'subject_id', 'study_id',
 					'attendance_schedule_id', 'start_time', 'end_time',
 					'attendance_session_line_ids'],
@@ -555,18 +562,24 @@ class ems_attendance_session_header(models.Model):
 
 	@api.model
 	def get_guard_planned(self, date):
-		# Guard mode: return planned schedules (no session yet today) for all teachers.
+		# Guard mode: return planned schedules (no session yet today) for other teachers.
+		# Own schedules are already shown in normal mode, so exclude them here.
 		# sudo() required — see get_guard_sessions().
 		if not (self.env.user.has_group('ems.group_teacher') or
 				self.env.user.has_group('ems.group_admin')):
 			raise AccessError(_("Guard mode requires teacher access."))
+		own_emp = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
 		weekday = str(datetime.strptime(date, '%Y-%m-%d').weekday())
 		used_ids = set(
 			self.sudo().search([['date', '=', date], ['attendance_schedule_id', '!=', False]])
 			.mapped('attendance_schedule_id.id')
 		)
+		domain = [['weekday', '=', weekday], ['id', 'not in', list(used_ids)],
+				  ['start_date', '<=', date], ['end_date', '>=', date]]
+		if own_emp:
+			domain.append(['attendance_template_id.teacher_id', '!=', own_emp.id])
 		return self.env['ems.attendance_schedule'].sudo().search_read(
-			[['weekday', '=', weekday], ['id', 'not in', list(used_ids)]],
+			domain,
 			fields=['id', 'name', 'time_range', 'attendance_template_id', 'start_time', 'end_time'],
 			order='start_time asc',
 		)

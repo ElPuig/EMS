@@ -302,6 +302,18 @@ class TestGradeSession(TransactionCase):
         with self.assertRaises(AccessError):
             line.with_user(stranger_user).write({'score': 5, 'is_scored': True})
 
+    def test_line_related_fields_for_tutor_view(self):
+        # The tutor view (client action) reads these related fields to group and label the grid.
+        session = self._new_session()
+        session.fill_students()
+        outcome_line = session.grade_outcome_line_ids[0]
+        self.assertEqual(outcome_line.subject_id, self.subject)
+        subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
+        self.assertEqual(subject_line.subject_id, self.subject)
+        self.assertEqual(subject_line.subject_name, self.subject.display_name)
+        self.assertEqual(subject_line.student_firstname, self.student1.firstname)
+        self.assertEqual(subject_line.student_lastname, self.student1.lastname)
+
     # --- state lifecycle -------------------------------------------------
 
     def test_teacher_cannot_edit_in_board(self):

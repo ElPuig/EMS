@@ -9,6 +9,7 @@ class ems_grade_outcome_line(models.Model):
 	_order = "student_id asc, outcome_id asc"
 
 	grade_session_id = fields.Many2one(string="Grade session", comodel_name="ems.grade_session", required=True, ondelete="cascade")
+	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", related="grade_session_id.subject_id", store=False)
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
 	student_firstname = fields.Char(string="First name", related="student_id.firstname", store=False)
 	student_lastname = fields.Char(string="Last name", related="student_id.lastname", store=False)

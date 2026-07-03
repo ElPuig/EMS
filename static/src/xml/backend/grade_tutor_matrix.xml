@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.GradeTutorMatrix">
+        <div class="o_grade_matrix o_grade_tutor" t-ref="root" tabindex="0" t-on-keydown="onRootKeydown">
+            <div t-if="applying.value" class="o_grade_matrix_overlay">
+                <div class="o_grade_matrix_overlay_box">
+                    <i class="fa fa-circle-o-notch fa-spin fa-2x me-2"/>
+                    <span>Applying changes…</span>
+                </div>
+            </div>
+
+            <t t-if="state.loading">
+                <div class="o_grade_tutor_center">
+                    <i class="fa fa-circle-o-notch fa-spin fa-2x"/>
+                </div>
+            </t>
+            <t t-elif="state.empty">
+                <div class="o_grade_tutor_center o_grade_tutor_empty">
+                    <div>
+                        <i class="fa fa-info-circle fa-2x mb-2"/>
+                        <p>You do not tutor any group with an open evaluation.</p>
+                    </div>
+                </div>
+            </t>
+            <t t-else="">
+                <!-- Toolbar: apply changes -->
+                <div class="o_grade_matrix_toolbar">
+                    <button type="button" class="btn btn-sm btn-primary" t-att-disabled="!dirty.value"
+                            t-on-click="() => this.applyChanges()">
+                        <i class="fa fa-check me-1"/>Apply changes
+                    </button>
+                    <span t-if="dirty.value" class="o_grade_matrix_hint ms-2">Pending changes — the grades will be recalculated on apply.</span>
+                    <span class="o_grade_tutor_scope ms-auto">
+                        <t t-if="data.groups.length > 1">
+                            <label class="me-1">Group:</label>
+                            <select class="o_grade_tutor_group_select" t-on-change="(ev) => this.onGroupChange(ev)">
+                                <option t-foreach="data.groups" t-as="g" t-key="g.id"
+                                        t-att-value="g.id" t-att-selected="g.id === state.groupId" t-esc="g.name"/>
+                            </select>
+                        </t>
+                        <span t-else="" class="fw-bold" t-esc="data.groupName"/>
+                        <span class="ms-2">· <t t-esc="roundLabel()"/></span>
+                    </span>
+                </div>
+
+                <!-- Student pager: ◀ far left, name centered, ▶ far right. -->
+                <div class="o_grade_tutor_pager" t-if="currentStudent">
+                    <button type="button" class="btn o_grade_tutor_navbtn" t-att-disabled="state.studentIdx === 0"
+                            t-on-click="() => this.prevStudent()">
+                        <i class="fa fa-chevron-left"/>
+                    </button>
+                    <div class="o_grade_tutor_pager_center">
+                        <img class="o_grade_tutor_avatar" t-att-src="avatarUrl(currentStudent.id)" alt=""/>
+                        <span class="o_grade_tutor_name">
+                            <t t-esc="currentStudent.lastname"/>, <t t-esc="currentStudent.firstname"/>
+                        </span>
+                        <select class="o_grade_tutor_student_select" t-on-change="(ev) => this.onStudentSelect(ev)">
+                            <option t-foreach="data.students" t-as="st" t-key="st.id"
+                                    t-att-value="st_index" t-att-selected="st_index === state.studentIdx"
+                                    t-esc="studentLabel(st)"/>
+                        </select>
+                        <span class="o_grade_tutor_count" t-esc="'(' + (state.studentIdx + 1) + ' / ' + studentCount + ')'"/>
+                    </div>
+                    <button type="button" class="btn o_grade_tutor_navbtn" t-att-disabled="state.studentIdx >= studentCount - 1"
+                            t-on-click="() => this.nextStudent()">
+                        <i class="fa fa-chevron-right"/>
+                    </button>
+                </div>
+
+                <div class="o_grade_tutor_scroll" t-if="currentStudent">
+                    <table class="table table-sm table-bordered mb-0">
+                        <colgroup>
+                            <col t-att-style="subjectColStyle()"/>
+                            <t t-foreach="columns" t-as="col" t-key="col.id">
+                                <col t-att-style="col.kind === 'external' ? 'width:46px' : 'width:38px'"/>
+                            </t>
+                            <col style="width:56px"/>
+                            <col style="width:50px"/>
+                            <col style="width:50px"/>
+                            <col style="width:150px"/>
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="o_grade_matrix_col o_grade_tutor_subject_h">
+                                    Subject
+                                    <span class="o_grade_matrix_resizer" t-on-mousedown="(ev) => this.onResizeStart(ev)"/>
+                                </th>
+                                <t t-foreach="columns" t-as="col" t-key="col.id">
+                                    <th class="text-center o_grade_matrix_col" t-att-class="col.kind === 'external' ? 'o_grade_matrix_sep' : ''"
+                                        t-att-title="col.kind === 'external' ? 'External' : ''"
+                                        t-esc="col.label"/>
+                                </t>
+                                <th class="text-center o_grade_matrix_col o_grade_matrix_sep" title="Override Internal">Ovr.</th>
+                                <th class="text-center o_grade_matrix_col" title="Internal">Int.</th>
+                                <th class="text-center o_grade_matrix_col">Final</th>
+                                <th class="o_grade_matrix_col o_grade_matrix_notes_h">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="rows" t-as="row" t-key="row.subjectLineId">
+                                <td class="o_grade_tutor_subject" t-att-title="row.subjectName">
+                                    <span class="o_grade_tutor_subject_txt" t-esc="row.subjectName"/>
+                                </td>
+                                <t t-foreach="columns" t-as="col" t-key="col.id">
+                                    <td class="text-center o_grade_matrix_cell" t-att-class="cellClass(row, col, row_index, col_index)"
+                                        t-att-title="cellTitle(row, col)"
+                                        t-on-mousedown="(ev) => this.onCellMouseDown(row_index, col_index, ev)"
+                                        t-on-dblclick="() => this.onCellDblClick(row_index, col_index)">
+                                        <input t-if="isEditingAt(row_index, col_index)"
+                                               type="text" inputmode="numeric"
+                                               class="o_grade_matrix_input"
+                                               t-ref="editInput"
+                                               t-att-value="edit.value"
+                                               t-on-input="onEditInput"
+                                               t-on-keydown="onEditKeydown"
+                                               t-on-blur="commitEdit"/>
+                                        <span t-else="" t-esc="cellValue(row, col)"/>
+                                    </td>
+                                </t>
+                                <td class="text-center o_grade_matrix_sep o_grade_matrix_subject">
+                                    <input type="checkbox" t-att-checked="isOverridden(row)"
+                                           t-on-change="(ev) => this.onToggleOverride(row, ev)"
+                                           t-on-keydown="(ev) => ev.stopPropagation()"/>
+                                </td>
+                                <td class="text-center o_grade_matrix_subject" t-att-class="internalCellClass(row)">
+                                    <input t-if="isOverridden(row)" type="number" min="0" max="10" step="1"
+                                           class="o_grade_matrix_subinput"
+                                           t-att-value="internalScore(row)"
+                                           t-on-change="(ev) => this.onInternalChange(row, ev)"
+                                           t-on-keydown="(ev) => this.onSubjectInputKeydown(ev, row, 'internal')"/>
+                                    <t t-else="" t-esc="internalScore(row)"/>
+                                </td>
+                                <td class="text-center" t-att-class="finalCellClass(row)" t-esc="finalScore(row)"/>
+                                <td class="o_grade_matrix_notes">
+                                    <input type="text"
+                                           class="o_grade_matrix_notesinput"
+                                           t-att-value="notesValue(row)"
+                                           t-on-change="(ev) => this.onNotesChange(row, ev)"
+                                           t-on-keydown="(ev) => this.onSubjectInputKeydown(ev, row, 'notes')"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

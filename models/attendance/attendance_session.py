@@ -4,7 +4,7 @@ from odoo import models, fields, api, _
 from .attendance_schedule import ems_attendance_schedule
 from .attendance_justification import ems_attendance_justification
 from datetime import datetime, timedelta
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import ValidationError, UserError, AccessError
 from psycopg2 import IntegrityError
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
@@ -401,6 +401,40 @@ class ems_attendance_session_header(models.Model):
 			'in_mode': 'auto_check_in',
 		})
 
+	def _auto_populate_lines(self):
+		"""Populate session lines when created via ORM (onchange doesn't fire outside form view)."""
+		template = self.attendance_schedule_id.attendance_template_id.sudo()
+		lines = []
+
+		previous = self.env["ems.attendance_session_header"].search([
+			("date", "=", self.date),
+			("attendance_schedule_id.attendance_template_id", "=", template.id),
+			("attendance_schedule_id.weekday", "=", self.attendance_schedule_id.weekday),
+			("id", "!=", self.id),
+		], order="end_time DESC", limit=1)
+
+		if previous and previous.end_time <= self.start_time:
+			for prev in previous.attendance_session_line_ids:
+				lines.append(self._setup_next_session_line_data(prev))
+		else:
+			previssions = ems_attendance_justification.get_current_justifications(self)
+			for student in template.student_ids:
+				line = None
+				for p in previssions:
+					if p.student_id == student:
+						line = p.perform_justification(self._setup_new_line_data(student), True)
+				if line is None:
+					line = self._setup_new_line_data(student, "a_attended")
+				lines.append(line)
+
+		if lines:
+			def _to_id(v):
+				return v.id if hasattr(v, '_name') else v
+			self.env['ems.attendance_session_line'].create([
+				{k: _to_id(v) for k, v in line.items()} | {'attendance_session_id': self.id}
+				for line in lines
+			])
+
 	@api.model_create_multi
 	def create(self, vals_list):
 		try:
@@ -412,6 +446,9 @@ class ems_attendance_session_header(models.Model):
 		notification_status_eta = self._get_notification_status_eta()
 
 		for record in records:
+			if not record.attendance_session_line_ids:
+				record._auto_populate_lines()
+
 			record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
 
 			# NOTE: Collecting all status data first allow some optimizations.
@@ -493,10 +530,56 @@ class ems_attendance_session_header(models.Model):
 	
 	def get_issue_status(self, attendance_session_line):
 		# NOTE: On rectification, multiple issue_status can be attanched to the same attendance_session_line, but we always
-		#		whant the most recent. 
+		#		whant the most recent.
 		repo = self.sudo().env['ems.attendance_issue_status']
 		issue_status = repo.search([('attendance_session_line_id', '=', attendance_session_line)], order='id desc', limit=1) or False
-		return {"repo": repo, "values": issue_status}	
+		return {"repo": repo, "values": issue_status}
+
+	# ── Guard mode (pass-list OWL component) ─────────────────────────────────
+
+	@api.model
+	def get_guard_sessions(self, date):
+		# Guard teachers need to see all sessions for the day regardless of ownership.
+		# sudo() is required here — see security/rules/attendance.xml and the same
+		# pattern used in _get_allowed_attendance_schedule_ids().
+		if not (self.env.user.has_group('ems.group_teacher') or
+				self.env.user.has_group('ems.group_admin')):
+			raise AccessError(_("Guard mode requires teacher access."))
+		return self.sudo().search_read(
+			[['date', '=', date]],
+			fields=['id', 'time_range', 'subject_id', 'study_id',
+					'attendance_schedule_id', 'start_time', 'end_time',
+					'attendance_session_line_ids'],
+			order='start_time asc',
+		)
+
+	@api.model
+	def get_guard_planned(self, date):
+		# Guard mode: return planned schedules (no session yet today) for all teachers.
+		# sudo() required — see get_guard_sessions().
+		if not (self.env.user.has_group('ems.group_teacher') or
+				self.env.user.has_group('ems.group_admin')):
+			raise AccessError(_("Guard mode requires teacher access."))
+		weekday = str(datetime.strptime(date, '%Y-%m-%d').weekday())
+		used_ids = set(
+			self.sudo().search([['date', '=', date], ['attendance_schedule_id', '!=', False]])
+			.mapped('attendance_schedule_id.id')
+		)
+		return self.env['ems.attendance_schedule'].sudo().search_read(
+			[['weekday', '=', weekday], ['id', 'not in', list(used_ids)]],
+			fields=['id', 'name', 'time_range', 'attendance_template_id', 'start_time', 'end_time'],
+			order='start_time asc',
+		)
+
+	@api.model
+	def write_guard_session_line(self, line_id, values):
+		# Guard teachers need write access to lines in sessions they don't own.
+		# sudo() is required — same justification as get_guard_sessions().
+		if not (self.env.user.has_group('ems.group_teacher') or
+				self.env.user.has_group('ems.group_admin')):
+			raise AccessError(_("Guard mode requires teacher access."))
+		self.env['ems.attendance_session_line'].sudo().browse(line_id).write(values)
+		return True
 
 # NOTE: moved here because the status is strongly related to the session, it has no own list or form (as happens with the
 #		attendance issues).

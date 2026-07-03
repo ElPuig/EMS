@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.AttendanceSessionView">
+        <div class="ems-av-root">
+
+            <!-- ── Header ──────────────────────────────────────────── -->
+            <div class="ems-av-header"
+                 t-att-class="state.guardMode ? 'ems-av-header ems-av-header--guard' : 'ems-av-header'">
+
+                <!-- Date navigation -->
+                <div t-att-class="state.guardMode ? 'ems-av-date-nav ems-av-date-nav--disabled' : 'ems-av-date-nav'">
+                    <button class="ems-av-nav-btn"
+                            t-att-disabled="state.guardMode"
+                            t-on-click="prevDay">&#8249;</button>
+                    <input class="ems-av-date-input"
+                           type="date"
+                           t-att-value="state.date"
+                           t-att-disabled="state.guardMode"
+                           t-on-change="onDateInput"/>
+                    <button class="ems-av-nav-btn"
+                            t-att-disabled="state.guardMode"
+                            t-on-click="nextDay">&#8250;</button>
+                </div>
+
+                <!-- Guard mode toggle -->
+                <div class="ems-av-guard-wrap">
+                    <label t-att-class="state.guardMode ? 'ems-av-guard-label ems-av-guard-label--active' : 'ems-av-guard-label'">
+                        <input type="checkbox"
+                               class="ems-av-guard-checkbox"
+                               t-att-checked="state.guardMode"
+                               t-on-change="onGuardModeChange"/>
+                        <t t-esc="strings.guardMode"/>
+                    </label>
+                </div>
+
+                <!-- Group filter (only shown when >1 group present and not in guard mode) -->
+                <div class="ems-av-group-wrap" t-if="!state.guardMode and state.groups.length > 1">
+                    <select class="ems-av-session-select" t-on-change="onGroupChange">
+                        <option value=""><t t-esc="strings.allGroups"/></option>
+                        <t t-foreach="state.groups" t-as="g" t-key="g">
+                            <option t-att-value="g"
+                                    t-att-selected="state.selectedGroup === g">
+                                <t t-esc="g"/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+
+                <!-- Sort selector -->
+                <div class="ems-av-sort-wrap">
+                    <select class="ems-av-session-select" t-on-change="onSortChange">
+                        <option value="lastname:asc"  t-att-selected="state.sortField === 'lastname' and state.sortDir === 'asc'"><t t-esc="strings.lastnameAZ"/></option>
+                        <option value="lastname:desc" t-att-selected="state.sortField === 'lastname' and state.sortDir === 'desc'"><t t-esc="strings.lastnameZA"/></option>
+                        <option value="name:asc"      t-att-selected="state.sortField === 'name' and state.sortDir === 'asc'"><t t-esc="strings.nameAZ"/></option>
+                        <option value="name:desc"     t-att-selected="state.sortField === 'name' and state.sortDir === 'desc'"><t t-esc="strings.nameZA"/></option>
+                    </select>
+                </div>
+
+                <!-- Session / schedule selector -->
+                <div class="ems-av-session-wrap"
+                     t-if="filteredSessions.length or filteredPlanned.length">
+                    <select class="ems-av-session-select" t-on-change="onSelectorChange">
+                        <optgroup t-if="filteredSessions.length" t-att-label="strings.sessions">
+                            <t t-foreach="filteredSessions" t-as="s" t-key="'session_' + s.id">
+                                <option t-att-value="'session_' + s.id"
+                                        t-att-selected="state.selected === 'session_' + s.id">
+                                    <t t-esc="sessionLabel(s)"/>
+                                </option>
+                            </t>
+                        </optgroup>
+                        <optgroup t-if="filteredPlanned.length" t-att-label="strings.planned">
+                            <t t-foreach="filteredPlanned" t-as="s" t-key="'schedule_' + s.id">
+                                <option t-att-value="'schedule_' + s.id"
+                                        t-att-selected="state.selected === 'schedule_' + s.id">
+                                    ○  <t t-esc="scheduleLabel(s)"/>
+                                </option>
+                            </t>
+                        </optgroup>
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- ── Body ────────────────────────────────────────────── -->
+            <div class="ems-av-body" t-if="!state.loading">
+
+                <!-- No items at all -->
+                <t t-if="!filteredSessions.length and !filteredPlanned.length">
+                    <div class="ems-av-empty"><t t-esc="strings.noSessionsDay"/></div>
+                </t>
+
+                <!-- Planned schedule selected → show start button -->
+                <t t-elif="selectedSchedule">
+                    <div class="ems-av-planned-card">
+                        <div class="ems-av-planned-icon">📋</div>
+                        <div class="ems-av-planned-title">
+                            <t t-esc="scheduleLabel(selectedSchedule)"/>
+                        </div>
+                        <p class="ems-av-planned-hint">
+                            <t t-esc="strings.sessionNotStarted"/>
+                        </p>
+                        <button class="ems-av-start-btn"
+                                t-on-click="() => this.onStartSession(selectedSchedule.id)">
+                            ▶  <t t-esc="strings.startSession"/>
+                        </button>
+                    </div>
+                </t>
+
+                <!-- Existing session selected → show student lines -->
+                <t t-else="">
+                    <t t-if="!state.lines.length">
+                        <div class="ems-av-empty"><t t-esc="strings.noStudents"/></div>
+                    </t>
+                    <t t-else="">
+                        <!-- Column headers aligned with student rows -->
+                        <div class="ems-av-col-headers">
+                            <div class="ems-av-col-header-avatar"/>
+                            <div class="ems-av-col-header-name"/>
+                            <div class="ems-av-btns">
+                                <t t-foreach="statuses" t-as="s" t-key="s.key">
+                                    <div class="ems-av-col-header-label"
+                                         t-att-title="s.title">
+                                        <t t-esc="s.title"/>
+                                    </div>
+                                </t>
+                            </div>
+                            <div class="ems-av-col-header-notes"/>
+                        </div>
+                        <t t-foreach="state.lines" t-as="line" t-key="line.id">
+                            <div class="ems-av-line">
+                                <img class="ems-av-avatar" t-att-src="avatarUrl(line)" alt=""/>
+                                <span class="ems-av-name"
+                                      t-att-title="line.student_id ? line.student_id[1] : ''"
+                                      t-esc="line.student_id ? line.student_id[1] : '—'"/>
+                                <div class="ems-av-btns">
+                                    <t t-foreach="statuses" t-as="s" t-key="s.key">
+                                        <button class="ems-av-status-btn"
+                                                t-att-class="line.status === s.key ? 'ems-av-status-btn--active' : ''"
+                                                t-att-title="s.title"
+                                                t-att-disabled="state.saving[line.id]"
+                                                t-on-click="() => this.onStatusClick(line.id, s.key)">
+                                            <t t-esc="s.label"/>
+                                        </button>
+                                    </t>
+                                </div>
+                                <button class="ems-av-notes-btn"
+                                        t-att-class="line.notes ? 'ems-av-notes-btn--has-notes' : ''"
+                                        t-att-title="line.notes || strings.addNotes"
+                                        t-on-click="() => this.onNotesClick(line.id, line.student_id ? line.student_id[1] : '', line.notes)">
+                                    <i class="fa fa-pencil"/>
+                                </button>
+                            </div>
+                        </t>
+                    </t>
+                </t>
+
+            </div>
+
+            <!-- ── Loading spinner ──────────────────────────────────── -->
+            <div class="ems-av-loading" t-if="state.loading">
+                <i class="fa fa-spinner fa-spin fa-2x"/>
+            </div>
+
+            <!-- ── Notes dialog ─────────────────────────────────────── -->
+            <dialog t-ref="notesDialog" class="ems-av-notes-dialog">
+                <div class="ems-av-notes-dialog-header">
+                    <i class="fa fa-pencil me-2"/>
+                    <span t-esc="state.editingStudentName"/>
+                </div>
+                <textarea t-ref="notesTextarea"
+                          class="ems-av-notes-textarea"
+                          rows="5"
+                          t-att-placeholder="strings.notesPlaceholder"/>
+                <div class="ems-av-notes-dialog-footer">
+                    <button class="ems-av-notes-cancel-btn" t-on-click="onNotesCancel">
+                        <t t-esc="strings.cancel"/>
+                    </button>
+                    <button class="ems-av-notes-save-btn" t-on-click="onNotesSave">
+                        <t t-esc="strings.save"/>
+                    </button>
+                </div>
+            </dialog>
+
+        </div>
+    </t>
+</templates>

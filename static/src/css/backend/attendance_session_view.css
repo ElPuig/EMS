@@ -1,0 +1,441 @@
+/* ============================================================
+   EMS Attendance Pass-List View
+   ============================================================ */
+
+.ems-av-root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f4f5f7;
+}
+
+/* --- Header ------------------------------------------------ */
+.ems-av-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    background: #fff;
+    border-bottom: 1px solid #dee2e6;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.ems-av-date-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ems-av-date-nav--disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.ems-av-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #ced4da;
+    background: #fff;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+.ems-av-nav-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.ems-av-date-input {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #212529;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 5px 8px;
+    background: #fff;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.ems-av-session-wrap {
+    flex: 0 1 auto;
+    min-width: 180px;
+}
+
+.ems-av-session-select {
+    width: auto;
+    max-width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: #fff;
+    color: #212529;
+    cursor: pointer;
+}
+
+/* --- Body -------------------------------------------------- */
+.ems-av-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.ems-av-line {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 20px;
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.1s;
+}
+.ems-av-line:hover {
+    background: #f8f9fa;
+}
+
+.ems-av-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid #dee2e6;
+    background: #e9ecef;
+}
+
+.ems-av-name {
+    flex: 0 0 220px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #212529;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+    .ems-av-name {
+        flex: 0 0 120px;
+    }
+}
+
+/* --- Column headers --------------------------------------- */
+.ems-av-col-headers {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    padding: 6px 20px 4px 24px; /* 24px = 20px padding + 4px to align with bordered rows */
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    position: sticky;
+    top: 0;
+    z-index: 9;
+}
+
+.ems-av-col-header-avatar {
+    width: 44px;
+    flex-shrink: 0;
+}
+
+.ems-av-col-header-name {
+    flex: 0 0 220px;
+}
+
+.ems-av-col-header-label {
+    width: 44px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.25;
+    word-break: break-word;
+    hyphens: auto;
+    color: #6c757d;
+}
+
+@media (max-width: 600px) {
+    .ems-av-col-headers {
+        gap: 10px;
+        padding-left: 16px; /* 12px + 4px */
+    }
+    .ems-av-col-header-name {
+        flex: 0 0 120px;
+    }
+}
+
+/* --- Status buttons --------------------------------------- */
+.ems-av-btns {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.ems-av-status-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #dee2e6;
+    background-color: #f1f3f5;
+    color: #adb5bd;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    padding: 0;
+    line-height: 1;
+}
+.ems-av-status-btn:hover {
+    background-color: #e2e6ea;
+    color: #495057;
+    border-color: #adb5bd;
+    transform: scale(1.08);
+}
+.ems-av-status-btn--active {
+    background-color: #343a40;
+    color: #fff;
+    border-color: #212529;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    transform: scale(1.05);
+}
+.ems-av-status-btn--active:hover {
+    background-color: #495057;
+    color: #fff;
+    border-color: #343a40;
+}
+.ems-av-status-btn:disabled {
+    cursor: wait;
+}
+
+/* --- Notes button ----------------------------------------- */
+.ems-av-notes-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #adb5bd;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.ems-av-notes-btn:hover {
+    background: #f0f0f0;
+    border-color: #adb5bd;
+    color: #495057;
+}
+.ems-av-notes-btn--has-notes {
+    color: #f07800;
+    border-color: #f07800;
+}
+.ems-av-notes-btn--has-notes:hover {
+    background: #fff3e0;
+}
+
+.ems-av-col-header-notes {
+    width: 36px;
+    flex-shrink: 0;
+}
+
+/* --- Notes dialog ----------------------------------------- */
+.ems-av-notes-dialog {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    width: 420px;
+    max-width: 95vw;
+}
+.ems-av-notes-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+}
+.ems-av-notes-dialog-header {
+    padding: 16px 20px 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #212529;
+    border-bottom: 1px solid #e9ecef;
+}
+.ems-av-notes-textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 20px;
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.92rem;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    color: #212529;
+    min-height: 120px;
+}
+.ems-av-notes-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 20px;
+}
+.ems-av-notes-cancel-btn {
+    padding: 7px 18px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background: #fff;
+    color: #495057;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.ems-av-notes-cancel-btn:hover { background: #f8f9fa; }
+.ems-av-notes-save-btn {
+    padding: 7px 18px;
+    border-radius: 6px;
+    border: none;
+    background: #00b269;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.ems-av-notes-save-btn:hover { background: #009558; }
+
+/* --- Planned session card ---------------------------------- */
+.ems-av-planned-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.ems-av-planned-icon {
+    font-size: 3rem;
+    line-height: 1;
+}
+
+.ems-av-planned-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.ems-av-planned-hint {
+    color: #6c757d;
+    margin: 0;
+}
+
+.ems-av-start-btn {
+    padding: 10px 28px;
+    border-radius: 8px;
+    border: none;
+    background: #00b269;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.ems-av-start-btn:hover {
+    background: #009558;
+}
+
+/* --- Empty / loading states ------------------------------- */
+.ems-av-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+    font-style: italic;
+    font-size: 1rem;
+}
+
+.ems-av-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: #6c757d;
+    font-size: 1.5rem;
+    padding: 60px;
+}
+
+/* --- Guard mode ------------------------------------------- */
+.ems-av-header--guard {
+    border-bottom-color: #fd7e14;
+    border-bottom-width: 2px;
+}
+
+.ems-av-guard-wrap {
+    flex-shrink: 0;
+}
+
+.ems-av-guard-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background: #fff;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    user-select: none;
+}
+.ems-av-guard-label:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+}
+.ems-av-guard-label--active {
+    background: #fff3e0;
+    border-color: #fd7e14;
+    color: #e36800;
+    font-weight: 600;
+}
+.ems-av-guard-label--active:hover {
+    background: #ffe5c2;
+}
+
+.ems-av-guard-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #fd7e14;
+}
+
+/* --- Mobile ≤ 600px --------------------------------------- */
+@media (max-width: 600px) {
+    .ems-av-header {
+        padding: 8px 12px;
+        gap: 10px;
+    }
+    .ems-av-session-wrap {
+        flex: 1 1 auto;
+    }
+    .ems-av-line {
+        padding: 8px 12px;
+        gap: 10px;
+    }
+    .ems-av-name {
+        flex: 0 0 120px;
+        font-size: 0.88rem;
+    }
+    .ems-av-status-btn {
+        width: 44px;
+        height: 44px;
+    }
+    .ems-av-btns {
+        gap: 4px;
+    }
+}

@@ -9177,4 +9177,98 @@ msgstr "↳ Otros conceptos de matrícula"
 #: model:ir.model,name:ems.communication
 msgid "This communication cannot be cancelled: it has already been sent or is being processed."
 msgstr "Esta comunicación no puede cancelarse: ya ha sido enviada o está siendo procesada."
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "All groups"
+msgstr "Todos los grupos"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Sessions"
+msgstr "Sesiones"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Planned (no session)"
+msgstr "Planificadas (sin sesión)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "No sessions or scheduled timetables for this day."
+msgstr "No hay sesiones ni horarios planificados para este día."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "This session has not been started for the selected day."
+msgstr "Esta sesión no ha sido iniciada para el día seleccionado."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Start session"
+msgstr "Iniciar sesión"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "This session has no students."
+msgstr "Esta sesión no tiene alumnos."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Notes for this student..."
+msgstr "Notas para este alumno..."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Add notes"
+msgstr "Añadir notas"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Save"
+msgstr "Guardar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Lastname A→Z"
+msgstr "Apellido A→Z"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Lastname Z→A"
+msgstr "Apellido Z→A"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Name A→Z"
+msgstr "Nombre A→Z"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Name Z→A"
+msgstr "Nombre Z→A"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Guard mode"
+msgstr "Modo guardia"
 

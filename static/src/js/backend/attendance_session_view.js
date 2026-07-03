@@ -6,10 +6,52 @@ import { useService } from "@web/core/utils/hooks";
 import { session } from "@web/session";
 import { _t } from "@web/core/l10n/translation";
 
+const { DateTime } = luxon;
+import { DateTimePicker } from "@web/core/datetime/datetime_picker";
+import { useDateTimePicker } from "@web/core/datetime/datetime_hook";
+import { usePopover } from "@web/core/popover/popover_hook";
+import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
+
+class EmsDatePickerPopover extends Component {
+    static components = { DateTimePicker };
+    static props = { close: Function, pickerProps: Object };
+    static template = "ems.EmsDatePickerPopover";
+
+    setup() {
+        useHotkey("escape", () => this.props.close());
+    }
+
+    goToday() {
+        this.props.pickerProps.onSelect?.(DateTime.now(), "date");
+        this.props.close();
+    }
+}
+
+class EmsDateInput extends Component {
+    static props = {
+        value:    Object,
+        onApply:  Function,
+        disabled: { type: Boolean, optional: true },
+    };
+    static template = "ems.EmsDateInput";
+
+    setup() {
+        const self = this;
+        useDateTimePicker({
+            createPopover: (_, options) => usePopover(EmsDatePickerPopover, options),
+            get pickerProps() {
+                return { type: "date", value: self.props.value, maxDate: DateTime.now() };
+            },
+            onApply: (value) => self.props.onApply(value),
+        });
+    }
+}
+
 
 class AttendanceSessionView extends Component {
     static template = "ems.AttendanceSessionView";
     static props = ["*"];
+    static components = { EmsDateInput };
 
     setup() {
         this.orm = useService("orm");
@@ -294,6 +336,15 @@ class AttendanceSessionView extends Component {
     // ── Translatable strings ──────────────────────────────────────────────────
 
     get todayStr() { return this._todayStr(); }
+
+    get dateValue() { return DateTime.fromISO(this.state.date); }
+
+    async onDateApply(value) {
+        const today = this._todayStr();
+        const str = (value ? value.toFormat("yyyy-MM-dd") : null) || today;
+        this.state.date = str > today ? today : str;
+        await this._loadAll();
+    }
 
     get strings() {
         return {

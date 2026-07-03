@@ -12,11 +12,10 @@
                     <button class="ems-av-nav-btn"
                             t-att-disabled="state.guardMode"
                             t-on-click="prevDay">&#8249;</button>
-                    <input class="ems-av-date-input"
-                           type="date"
-                           t-att-value="state.date"
-                           t-att-disabled="state.guardMode"
-                           t-on-change="onDateInput"/>
+                    <EmsDateInput
+                        value="dateValue"
+                        onApply.bind="onDateApply"
+                        disabled="state.guardMode"/>
                     <button class="ems-av-nav-btn"
                             t-att-disabled="state.guardMode or state.date >= todayStr"
                             t-on-click="nextDay">&#8250;</button>
@@ -182,5 +181,23 @@
             </dialog>
 
         </div>
+    </t>
+
+    <t t-name="ems.EmsDateInput">
+        <input type="text"
+               t-ref="start-date"
+               class="ems-av-date-input o_input"
+               autocomplete="off"
+               t-att-disabled="props.disabled"/>
+    </t>
+
+    <t t-name="ems.EmsDatePickerPopover">
+        <DateTimePicker t-props="props.pickerProps">
+            <t t-set-slot="bottom_left">
+                <button class="btn btn-secondary btn-sm h-100 d-flex align-items-center justify-content-center"
+                        tabindex="-1"
+                        t-on-click="goToday">Hoy</button>
+            </t>
+        </DateTimePicker>
     </t>
 </templates>

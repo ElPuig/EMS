@@ -16,7 +16,7 @@ Selecciona tu perfil para acceder a los manuales correspondientes:
 | [Profesores](professors/index.md) | Pasar lista, calificaciones y planificación de sesiones |
 | [Tutores](tutors/index.md) | Gestión de propuestas de matrícula y seguimiento de los alumnos del grupo |
 | [Secretaría](secretaria/index.md) | Gestión de matrículas, documentos, pagos y bonificaciones |
-| [Administrador](admin/curriculum-levels.md) | Configuración curricular: niveles, estudios y datos de catálogo |
+| [Administrador](admin/index.md) | Configuración curricular, gestión de profesores y cuentas de Google Workspace |
 | [Desarrolladores](../en/developers/index.md) | Referencia técnica para desarrolladores |
 
 ---

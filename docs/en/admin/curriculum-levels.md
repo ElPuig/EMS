@@ -51,3 +51,7 @@ Opening the menu shows a list of all levels sorted alphabetically by acronym. Ea
 3. Confirm the deletion in the dialog.
 
 > **Warning:** A level cannot be deleted if it has linked studies. You must first delete or reassign all studies associated with it.
+
+---
+
+[← Back to Administrator index](index.md)

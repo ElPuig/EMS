@@ -51,3 +51,7 @@ Al abrir el menú se muestra una lista de todos los niveles ordenada alfabética
 3. Confirma la eliminación en el diálogo.
 
 > **Aviso:** No se puede eliminar un nivel si tiene estudios vinculados. Debes eliminar o reasignar primero todos los estudios asociados.
+
+---
+
+[← Volver al índice de Administrador](index.md)

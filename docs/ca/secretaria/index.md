@@ -10,7 +10,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 
 ## Manuals disponibles
 
-*Pròximament...*
+- [Alta d'un professor i creació del compte de correu corporatiu (Google Workspace)](../admin/alta-professor-compte-google.md) — Com donar d'alta un professor o membre del PAS i com es genera el seu compte corporatiu.
 
 ## Temes previstos
 

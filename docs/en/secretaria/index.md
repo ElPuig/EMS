@@ -10,7 +10,7 @@ This section contains the manuals for **secretariat staff**.
 
 ## Available Manuals
 
-*Coming soon...*
+- [Onboarding a Teacher and Creating Their Corporate Email Account (Google Workspace)](../admin/alta-professor-compte-google.md) — How to onboard a teacher or ASP staff member and how their corporate account is generated.
 
 ## Planned Topics
 

@@ -152,7 +152,7 @@
 }
 
 .ems-av-col-header-label {
-    flex: 1 1 0;
+    flex: 0 0 var(--status-col-w, 80px);
     font-size: 0.68rem;
     font-weight: 600;
     text-align: center;
@@ -162,6 +162,7 @@
 
 .ems-av-col-header-notes {
     flex-shrink: 0;
+    margin-left: auto;
 }
 
 @media (max-width: 600px) {
@@ -175,10 +176,17 @@
 
 /* --- Status buttons --------------------------------------- */
 .ems-av-btns {
-    flex: 1 1 auto;
     display: flex;
+    flex: 0 0 auto;
     gap: 0;
-    justify-content: space-around;
+    justify-content: flex-start;
+}
+
+.ems-av-btn-cell {
+    flex: 0 0 var(--status-col-w, 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .ems-av-status-btn {
@@ -228,6 +236,7 @@
     font-size: 0.85rem;
     cursor: pointer;
     flex-shrink: 0;
+    margin-left: auto;
     display: flex;
     align-items: center;
     justify-content: center;

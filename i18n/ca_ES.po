@@ -1129,7 +1129,9 @@ msgstr "<strong>Vàlid fins: </strong>"
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_grade_session_grade_session_is_duped
 msgid "A grade session already exists for this group, subject and round."
-msgstr "Ja existeix una sessió d'avaluació per a aquest grup, assignatura i avaluació."
+msgstr ""
+"Ja existeix una sessió d'avaluació per a aquest grup, assignatura i "
+"avaluació."
 
 #. module: ems
 #. odoo-python
@@ -1137,7 +1139,9 @@ msgstr "Ja existeix una sessió d'avaluació per a aquest grup, assignatura i av
 msgid ""
 "A grade session already exists for this group, subject and round. Please "
 "edit the existing one."
-msgstr "Ja existeix una sessió d'avaluació per a aquest grup, assignatura i avaluació. Editeu la ja existent."
+msgstr ""
+"Ja existeix una sessió d'avaluació per a aquest grup, assignatura i "
+"avaluació. Editeu la ja existent."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_study_subject
@@ -2730,6 +2734,7 @@ msgstr "Cosí/Cosina"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Create Google account"
 msgstr "Crear compte de Google"
 
@@ -4244,7 +4249,9 @@ msgstr ""
 msgid ""
 "Grade outcome line: a student's score for a single learning outcome within a"
 " grade session."
-msgstr "Línia de qualificació per RA: la nota d'un estudiant per a un únic resultat d'aprenentatge dins d'una sessió d'avaluació."
+msgstr ""
+"Línia de qualificació per RA: la nota d'un estudiant per a un únic resultat "
+"d'aprenentatge dins d'una sessió d'avaluació."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__grade_session_id
@@ -4258,20 +4265,26 @@ msgstr "Sessió d'avaluació"
 msgid ""
 "Grade session state wizard: bulk state transition (board / final) by level "
 "or study."
-msgstr "Assistent d'estat de sessió d'avaluació: transició massiva d'estat (junta / final) per nivell o estudi."
+msgstr ""
+"Assistent d'estat de sessió d'avaluació: transició massiva d'estat (junta / "
+"final) per nivell o estudi."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_session_wizard
 msgid ""
 "Grade session wizard: bulk creation of grade sessions by level or study."
-msgstr "Assistent de sessions d'avaluació: creació massiva de sessions d'avaluació per nivell o estudi."
+msgstr ""
+"Assistent de sessions d'avaluació: creació massiva de sessions d'avaluació "
+"per nivell o estudi."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_session
 msgid ""
 "Grade session: student grading per learning outcome for a group, subject and"
 " round."
-msgstr "Sessió d'avaluació: qualificació de l'estudiant per resultat d'aprenentatge per a un grup, assignatura i avaluació."
+msgstr ""
+"Sessió d'avaluació: qualificació de l'estudiant per resultat d'aprenentatge "
+"per a un grup, assignatura i avaluació."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_grade_session_tree
@@ -4284,7 +4297,9 @@ msgstr "Sessions d'avaluació"
 msgid ""
 "Grade subject line: a student's subject grade within a grade session "
 "(computed from outcomes, teacher can override)."
-msgstr "Línia d'assignatura: la nota d'assignatura d'un estudiant dins d'una sessió d'avaluació (calculada a partir dels RA; el professor pot sobreescriure-la)."
+msgstr ""
+"Línia d'assignatura: la nota d'assignatura d'un estudiant dins d'una sessió "
+"d'avaluació (calculada a partir dels RA; el professor pot sobreescriure-la)."
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_grades
@@ -4902,7 +4917,9 @@ msgstr ""
 msgid ""
 "Internal grade (from the outcomes). Computed unless the teacher overrides "
 "it."
-msgstr "Nota interna (a partir dels RA). Es calcula tret que el professor la sobreescrigui."
+msgstr ""
+"Nota interna (a partir dels RA). Es calcula tret que el professor la "
+"sobreescrigui."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_planning__internal_ponderation
@@ -5987,13 +6004,18 @@ msgstr "No s'ha trobat contacte familiar"
 msgid ""
 "No grade sessions were created (they may already exist for the selected "
 "round, or the groups have no enrolled subjects)."
-msgstr "No s'ha creat cap sessió d'avaluació (pot ser que ja existeixin per a l'avaluació seleccionada, o que els grups no tinguin assignatures matriculades)."
+msgstr ""
+"No s'ha creat cap sessió d'avaluació (pot ser que ja existeixin per a "
+"l'avaluació seleccionada, o que els grups no tinguin assignatures "
+"matriculades)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/grade_session_wizard.py:0
 msgid "No grade sessions were found for the selected scope and round."
-msgstr "No s'ha trobat cap sessió d'avaluació per a l'àmbit i l'avaluació seleccionats."
+msgstr ""
+"No s'ha trobat cap sessió d'avaluació per a l'àmbit i l'avaluació "
+"seleccionats."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_form
@@ -6001,7 +6023,11 @@ msgid ""
 "No planning found for this group's study and subject, so the subject grade "
 "cannot be computed from the ponderations. You can still inform the outcome "
 "scores and set the final grade manually."
-msgstr "No s'ha trobat planificació per a l'estudi i l'assignatura d'aquest grup, de manera que la nota de l'assignatura no es pot calcular a partir de les ponderacions. Encara pots informar les notes dels RA i establir la nota final manualment."
+msgstr ""
+"No s'ha trobat planificació per a l'estudi i l'assignatura d'aquest grup, de"
+" manera que la nota de l'assignatura no es pot calcular a partir de les "
+"ponderacions. Encara pots informar les notes dels RA i establir la nota "
+"final manualment."
 
 #. module: ems
 #. odoo-python
@@ -6913,6 +6939,7 @@ msgstr "Reobrint enquestes"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Reactivate Google account"
 msgstr "Reactivar compte de Google"
 
@@ -8373,7 +8400,9 @@ msgstr "Enviat"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__computed_score
 msgid "Suggested subject grade applying the planning ponderations."
-msgstr "Nota de l'assignatura suggerida aplicant les ponderacions de la planificació."
+msgstr ""
+"Nota de l'assignatura suggerida aplicant les ponderacions de la "
+"planificació."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
@@ -8448,6 +8477,7 @@ msgstr "Enquestes pujades"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Suspend Google account"
 msgstr "Suspendre compte de Google"
 
@@ -8811,7 +8841,9 @@ msgstr ""
 #: code:addons/ems/models/grades/grade_subject_line.py:0
 msgid ""
 "This evaluation session is final; only administrators can edit the grades."
-msgstr "Aquesta sessió d'avaluació està en estat final; només els administradors poden editar les notes."
+msgstr ""
+"Aquesta sessió d'avaluació està en estat final; només els administradors "
+"poden editar les notes."
 
 #. module: ems
 #. odoo-python
@@ -8820,7 +8852,9 @@ msgstr "Aquesta sessió d'avaluació està en estat final; només els administra
 msgid ""
 "This evaluation session is in the board stage; only the group's tutor (or an"
 " administrator) can edit the grades."
-msgstr "Aquesta sessió d'avaluació està en fase de junta; només el tutor del grup (o un administrador) pot editar les notes."
+msgstr ""
+"Aquesta sessió d'avaluació està en fase de junta; només el tutor del grup (o"
+" un administrador) pot editar les notes."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -9440,41 +9474,53 @@ msgstr "Dia laborable"
 msgid ""
 "When set, the teacher's manual internal grade is kept; otherwise the "
 "internal grade is computed from the outcomes."
-msgstr "Quan està marcat, es manté la nota interna manual del professor; altrament, la nota interna es calcula a partir dels RA."
+msgstr ""
+"Quan està marcat, es manté la nota interna manual del professor; altrament, "
+"la nota interna es calcula a partir dels RA."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__computed_is_scored
 msgid ""
 "Whether every weighted component (internal / external) required by the "
 "planning has been informed."
-msgstr "Indica si s'han informat tots els components ponderats (intern / extern) requerits per la planificació."
+msgstr ""
+"Indica si s'han informat tots els components ponderats (intern / extern) "
+"requerits per la planificació."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_session__can_edit
 msgid ""
 "Whether the current user may edit the grades at the session's current state."
-msgstr "Indica si l'usuari actual pot editar les notes en l'estat actual de la sessió."
+msgstr ""
+"Indica si l'usuari actual pot editar les notes en l'estat actual de la "
+"sessió."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__external_is_scored
 msgid ""
 "Whether the external grade has been informed (an empty external grade is "
 "excluded from the subject grade)."
-msgstr "Indica si s'ha informat la nota externa (una nota externa buida s'exclou de la nota de l'assignatura)."
+msgstr ""
+"Indica si s'ha informat la nota externa (una nota externa buida s'exclou de "
+"la nota de l'assignatura)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__internal_is_scored
 msgid ""
 "Whether the internal grade is informed (an outcome scored, or the teacher "
 "overrode it)."
-msgstr "Indica si la nota interna està informada (algun RA puntuat, o el professor la va sobreescriure)."
+msgstr ""
+"Indica si la nota interna està informada (algun RA puntuat, o el professor "
+"la va sobreescriure)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_outcome_line__is_scored
 msgid ""
 "Whether the score has been informed (an empty score is excluded from the "
 "subject grade)."
-msgstr "Indica si s'ha informat la nota (una nota buida s'exclou de la nota de l'assignatura)."
+msgstr ""
+"Indica si s'ha informat la nota (una nota buida s'exclou de la nota de "
+"l'assignatura)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__has_final
@@ -9870,11 +9916,107 @@ msgstr "Obrir la matrícula"
 
 #. module: ems
 #: model:ir.model,name:ems.communication
-msgid "This communication cannot be cancelled: it has already been sent or is being processed."
-msgstr "Aquesta comunicació no es pot cancel·lar: ja ha estat enviada o s'està processant."
+msgid ""
+"This communication cannot be cancelled: it has already been sent or is being"
+" processed."
+msgstr ""
+"Aquesta comunicació no es pot cancel·lar: ja ha estat enviada o s'està "
+"processant."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_subject_id
 msgid "duplicated subject!"
 msgstr "tema duplicat!"
 
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_manual_email
+msgid "Assign corporate email manually"
+msgstr "Assignar correu corporatiu manualment"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_login
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Suggested Google username"
+msgstr "Nom d'usuari de Google suggerit"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_teacher
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_teacher
+msgid "OU (teachers)"
+msgstr "OU (professorat)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_asp
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_asp
+msgid "OU (ASP)"
+msgstr "OU (PAS)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_staff_suspended
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_staff_suspended
+msgid "OU (staff suspended)"
+msgstr "OU (baixes del personal)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for teachers"
+msgstr "OU per al professorat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for ASP"
+msgstr "OU per al PAS"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for suspended staff"
+msgstr "OU per a personal donat de baixa"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Credentials PDF saved as attachment"
+msgstr "PDF de credencials desat com a adjunt"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the employee already has a non-corporate work email (%s); "
+"the corporate account was NOT created to avoid overwriting it."
+msgstr ""
+"Google Workspace: l'empleat ja té un correu de treball no corporatiu (%s); "
+"no s'ha creat el compte corporatiu per evitar sobreescriure'l."
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: not authorized to create accounts in OU %(ou)s. The "
+"service account's custom admin role must be granted access to this "
+"Organizational Unit in Google Admin."
+msgstr ""
+"Google Workspace: no autoritzat per crear comptes a l'OU %(ou)s. El rol "
+"d'administrador personalitzat del compte de servei ha de tenir accés "
+"concedit a aquesta unitat organitzativa a Google Admin."
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_google_credentials_employee
+msgid "Google Workspace credentials (staff)"
+msgstr "Credencials de Google Workspace (personal)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials_employee
+msgid "Staff member"
+msgstr "Membre del personal"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_welcome_employee
+msgid "Google Workspace - Welcome credentials (staff)"
+msgstr "Google Workspace - Credencials de benvinguda (personal)"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the corporate account was not created automatically. "
+"Missing required data: %s."
+msgstr ""
+"Google Workspace: el compte corporatiu no s'ha creat automàticament. Falten "
+"dades obligatòries: %s."

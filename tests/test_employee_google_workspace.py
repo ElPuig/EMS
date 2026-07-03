@@ -45,6 +45,34 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
         teacher = self._new_teacher(private_email='ada@example.com')
         self.assertFalse(teacher._gw_missing_fields())
 
+    # --- chatter notifications ------------------------------------------
+    def test_create_without_personal_email_notifies_chatter(self):
+        teacher = self._new_teacher()
+        messages = teacher.message_ids.mapped('body')
+        self.assertTrue(any('Personal email' in b for b in messages))
+
+    def test_notification_not_duplicated_on_further_writes(self):
+        teacher = self._new_teacher()
+        count_before = len(teacher.message_ids)
+        teacher.write({'name': 'Ada Lovelace King Jr.'})
+        count_after = len(teacher.message_ids)
+        self.assertEqual(count_before, count_after)
+
+    def test_no_notification_once_ready(self):
+        teacher = self._new_teacher()
+        self.assertTrue(any('Personal email' in b for b in teacher.message_ids.mapped('body')))
+        # queue_job__no_delay makes with_delay() run synchronously so the
+        # write-triggered creation is directly observable in this test.
+        with patch.object(type(teacher), '_gw_deliver_credentials', return_value=(True, True)):
+            teacher.with_context(queue_job__no_delay=True).write({'private_email': 'ada@example.com'})
+        # once ready, the account is created (work_email set) instead of re-notifying
+        self.assertTrue(teacher.work_email)
+
+    def test_no_notification_for_manual_email_employees(self):
+        teacher = self._new_teacher(google_ws_manual_email=True)
+        messages = teacher.message_ids.mapped('body')
+        self.assertFalse(any('Personal email' in b for b in messages))
+
     # --- login candidates ---------------------------------------------
     def test_split_name(self):
         teacher = self._new_teacher(name='Ada Lovelace')

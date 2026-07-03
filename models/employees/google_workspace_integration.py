@@ -34,6 +34,10 @@ class HrEmployeeGoogleWorkspace(models.Model):
     google_ws_domain = fields.Char(
         related='company_id.google_ws_domain', readonly=True,
         string="Google Workspace domain")
+    google_ws_missing_notice_sent = fields.Boolean(
+        copy=False, default=False,
+        help="Internal flag: a chatter note about missing required data was already "
+             "posted, to avoid repeating it on every write.")
 
     # ------------------------------------------------------------------
     # Helpers
@@ -160,6 +164,30 @@ class HrEmployeeGoogleWorkspace(models.Model):
                     identity_key='gw_emp_create_%s' % employee.id,
                     description="Create Google Workspace account: %s" % employee.name,
                 ).action_create_google_account()
+            else:
+                employee._gw_notify_missing_fields()
+
+    def _gw_notify_missing_fields(self):
+        """Post a one-off chatter note when the account cannot be created yet
+        because required data is missing, so the reason is not silently lost.
+
+        Deduplicated via ``google_ws_missing_notice_sent``: once posted, it is
+        not repeated on further writes while the data is still missing.
+        """
+        self.ensure_one()
+        emp = self.sudo()
+        if emp.employee_type not in ('teacher', 'asp') or emp.work_email or emp.google_ws_manual_email:
+            return
+        if emp.google_ws_missing_notice_sent:
+            return
+        missing = self._gw_missing_fields()
+        if not missing:
+            return
+        self.message_post(body=_(
+            "Google Workspace: the corporate account was not created automatically. "
+            "Missing required data: %s."
+        ) % ", ".join(missing))
+        emp.google_ws_missing_notice_sent = True
 
     def _gw_enqueue_suspend(self):
         """Enqueue account suspension for staff with a corporate email (deduplicated)."""
@@ -281,7 +309,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 return
 
         # Save the corporate email on the employee
-        emp.work_email = email
+        emp.write({'work_email': email, 'google_ws_missing_notice_sent': False})
 
         # Deliver credentials: PDF attachment (always) + email (if personal email exists)
         pdf_saved, emailed = self._gw_deliver_credentials(email, password)

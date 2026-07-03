@@ -1131,7 +1131,8 @@ msgstr "<strong>Válido hasta: </strong>"
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_grade_session_grade_session_is_duped
 msgid "A grade session already exists for this group, subject and round."
-msgstr "Ya existe una sesión de evaluación para este grupo, asignatura y evaluación."
+msgstr ""
+"Ya existe una sesión de evaluación para este grupo, asignatura y evaluación."
 
 #. module: ems
 #. odoo-python
@@ -1139,7 +1140,9 @@ msgstr "Ya existe una sesión de evaluación para este grupo, asignatura y evalu
 msgid ""
 "A grade session already exists for this group, subject and round. Please "
 "edit the existing one."
-msgstr "Ya existe una sesión de evaluación para este grupo, asignatura y evaluación. Edite la existente."
+msgstr ""
+"Ya existe una sesión de evaluación para este grupo, asignatura y evaluación."
+" Edite la existente."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_study_subject
@@ -2734,6 +2737,7 @@ msgstr "Primo/Prima"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Create Google account"
 msgstr "Crear cuenta de Google"
 
@@ -4254,7 +4258,9 @@ msgstr ""
 msgid ""
 "Grade outcome line: a student's score for a single learning outcome within a"
 " grade session."
-msgstr "Línea de calificación por RA: la nota de un alumno para un único resultado de aprendizaje dentro de una sesión de evaluación."
+msgstr ""
+"Línea de calificación por RA: la nota de un alumno para un único resultado "
+"de aprendizaje dentro de una sesión de evaluación."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__grade_session_id
@@ -4268,20 +4274,26 @@ msgstr "Sesión de evaluación"
 msgid ""
 "Grade session state wizard: bulk state transition (board / final) by level "
 "or study."
-msgstr "Asistente de estado de sesión de evaluación: transición masiva de estado (junta / final) por nivel o estudio."
+msgstr ""
+"Asistente de estado de sesión de evaluación: transición masiva de estado "
+"(junta / final) por nivel o estudio."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_session_wizard
 msgid ""
 "Grade session wizard: bulk creation of grade sessions by level or study."
-msgstr "Asistente de sesiones de evaluación: creación masiva de sesiones de evaluación por nivel o estudio."
+msgstr ""
+"Asistente de sesiones de evaluación: creación masiva de sesiones de "
+"evaluación por nivel o estudio."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_session
 msgid ""
 "Grade session: student grading per learning outcome for a group, subject and"
 " round."
-msgstr "Sesión de evaluación: calificación del alumno por resultado de aprendizaje para un grupo, asignatura y evaluación."
+msgstr ""
+"Sesión de evaluación: calificación del alumno por resultado de aprendizaje "
+"para un grupo, asignatura y evaluación."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_grade_session_tree
@@ -4294,7 +4306,10 @@ msgstr "Sesiones de evaluación"
 msgid ""
 "Grade subject line: a student's subject grade within a grade session "
 "(computed from outcomes, teacher can override)."
-msgstr "Línea de asignatura: la nota de asignatura de un alumno dentro de una sesión de evaluación (calculada a partir de los RA; el profesor puede sobrescribirla)."
+msgstr ""
+"Línea de asignatura: la nota de asignatura de un alumno dentro de una sesión"
+" de evaluación (calculada a partir de los RA; el profesor puede "
+"sobrescribirla)."
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_grades
@@ -4915,7 +4930,9 @@ msgstr ""
 msgid ""
 "Internal grade (from the outcomes). Computed unless the teacher overrides "
 "it."
-msgstr "Nota interna (a partir de los RA). Se calcula salvo que el profesor la sobrescriba."
+msgstr ""
+"Nota interna (a partir de los RA). Se calcula salvo que el profesor la "
+"sobrescriba."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_planning__internal_ponderation
@@ -6000,13 +6017,18 @@ msgstr "No se encontró contacto familiar"
 msgid ""
 "No grade sessions were created (they may already exist for the selected "
 "round, or the groups have no enrolled subjects)."
-msgstr "No se creó ninguna sesión de evaluación (puede que ya existan para la evaluación seleccionada, o que los grupos no tengan asignaturas matriculadas)."
+msgstr ""
+"No se creó ninguna sesión de evaluación (puede que ya existan para la "
+"evaluación seleccionada, o que los grupos no tengan asignaturas "
+"matriculadas)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/grade_session_wizard.py:0
 msgid "No grade sessions were found for the selected scope and round."
-msgstr "No se encontró ninguna sesión de evaluación para el ámbito y la evaluación seleccionados."
+msgstr ""
+"No se encontró ninguna sesión de evaluación para el ámbito y la evaluación "
+"seleccionados."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_form
@@ -6014,7 +6036,11 @@ msgid ""
 "No planning found for this group's study and subject, so the subject grade "
 "cannot be computed from the ponderations. You can still inform the outcome "
 "scores and set the final grade manually."
-msgstr "No se ha encontrado planificación para el estudio y la asignatura de este grupo, por lo que la nota de la asignatura no puede calcularse a partir de las ponderaciones. Aún puedes informar las notas de los RA y establecer la nota final manualmente."
+msgstr ""
+"No se ha encontrado planificación para el estudio y la asignatura de este "
+"grupo, por lo que la nota de la asignatura no puede calcularse a partir de "
+"las ponderaciones. Aún puedes informar las notas de los RA y establecer la "
+"nota final manualmente."
 
 #. module: ems
 #. odoo-python
@@ -6926,6 +6952,7 @@ msgstr "Reabriendo encuestas"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Reactivate Google account"
 msgstr "Reactivar cuenta de Google"
 
@@ -8385,7 +8412,9 @@ msgstr "Enviado"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__computed_score
 msgid "Suggested subject grade applying the planning ponderations."
-msgstr "Nota de la asignatura sugerida aplicando las ponderaciones de la planificación."
+msgstr ""
+"Nota de la asignatura sugerida aplicando las ponderaciones de la "
+"planificación."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
@@ -8460,6 +8489,7 @@ msgstr "Encuestas subidas"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Suspend Google account"
 msgstr "Suspender cuenta de Google"
 
@@ -8823,7 +8853,9 @@ msgstr "Este bloque se generará una vez por cada asignatura matriculada."
 #: code:addons/ems/models/grades/grade_subject_line.py:0
 msgid ""
 "This evaluation session is final; only administrators can edit the grades."
-msgstr "Esta sesión de evaluación está en estado final; solo los administradores pueden editar las notas."
+msgstr ""
+"Esta sesión de evaluación está en estado final; solo los administradores "
+"pueden editar las notas."
 
 #. module: ems
 #. odoo-python
@@ -8832,7 +8864,9 @@ msgstr "Esta sesión de evaluación está en estado final; solo los administrado
 msgid ""
 "This evaluation session is in the board stage; only the group's tutor (or an"
 " administrator) can edit the grades."
-msgstr "Esta sesión de evaluación está en fase de junta; solo el tutor del grupo (o un administrador) puede editar las notas."
+msgstr ""
+"Esta sesión de evaluación está en fase de junta; solo el tutor del grupo (o "
+"un administrador) puede editar las notas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -9455,41 +9489,53 @@ msgstr "Día laborable"
 msgid ""
 "When set, the teacher's manual internal grade is kept; otherwise the "
 "internal grade is computed from the outcomes."
-msgstr "Cuando está marcado, se mantiene la nota interna manual del profesor; en caso contrario, la nota interna se calcula a partir de los RA."
+msgstr ""
+"Cuando está marcado, se mantiene la nota interna manual del profesor; en "
+"caso contrario, la nota interna se calcula a partir de los RA."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__computed_is_scored
 msgid ""
 "Whether every weighted component (internal / external) required by the "
 "planning has been informed."
-msgstr "Indica si se han informado todos los componentes ponderados (interno / externo) requeridos por la planificación."
+msgstr ""
+"Indica si se han informado todos los componentes ponderados (interno / "
+"externo) requeridos por la planificación."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_session__can_edit
 msgid ""
 "Whether the current user may edit the grades at the session's current state."
-msgstr "Indica si el usuario actual puede editar las notas en el estado actual de la sesión."
+msgstr ""
+"Indica si el usuario actual puede editar las notas en el estado actual de la"
+" sesión."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__external_is_scored
 msgid ""
 "Whether the external grade has been informed (an empty external grade is "
 "excluded from the subject grade)."
-msgstr "Indica si se ha informado la nota externa (una nota externa vacía se excluye de la nota de la asignatura)."
+msgstr ""
+"Indica si se ha informado la nota externa (una nota externa vacía se excluye"
+" de la nota de la asignatura)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__internal_is_scored
 msgid ""
 "Whether the internal grade is informed (an outcome scored, or the teacher "
 "overrode it)."
-msgstr "Indica si la nota interna está informada (algún RA puntuado, o el profesor la sobrescribió)."
+msgstr ""
+"Indica si la nota interna está informada (algún RA puntuado, o el profesor "
+"la sobrescribió)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_outcome_line__is_scored
 msgid ""
 "Whether the score has been informed (an empty score is excluded from the "
 "subject grade)."
-msgstr "Indica si se ha informado la nota (una nota vacía se excluye de la nota de la asignatura)."
+msgstr ""
+"Indica si se ha informado la nota (una nota vacía se excluye de la nota de "
+"la asignatura)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__has_final
@@ -9600,7 +9646,8 @@ msgstr "Sí, eliminar permanentemente"
 msgid ""
 "You have grade changes that have not been applied. If you leave now they "
 "will be lost."
-msgstr "Tienes cambios de notas que no se han aplicado. Si sales ahora se perderán."
+msgstr ""
+"Tienes cambios de notas que no se han aplicado. Si sales ahora se perderán."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -9882,11 +9929,107 @@ msgstr "Abrir matrícula"
 
 #. module: ems
 #: model:ir.model,name:ems.communication
-msgid "This communication cannot be cancelled: it has already been sent or is being processed."
-msgstr "Esta comunicación no puede cancelarse: ya ha sido enviada o está siendo procesada."
+msgid ""
+"This communication cannot be cancelled: it has already been sent or is being"
+" processed."
+msgstr ""
+"Esta comunicación no puede cancelarse: ya ha sido enviada o está siendo "
+"procesada."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_subject_id
 msgid "duplicated subject!"
 msgstr "¡Asignatura duplicada!"
 
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_manual_email
+msgid "Assign corporate email manually"
+msgstr "Asignar correo corporativo manualmente"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_login
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Suggested Google username"
+msgstr "Nombre de usuario de Google sugerido"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_teacher
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_teacher
+msgid "OU (teachers)"
+msgstr "OU (profesorado)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_asp
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_asp
+msgid "OU (ASP)"
+msgstr "OU (PAS)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_staff_suspended
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_staff_suspended
+msgid "OU (staff suspended)"
+msgstr "OU (bajas del personal)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for teachers"
+msgstr "OU para profesorado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for ASP"
+msgstr "OU para PAS"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for suspended staff"
+msgstr "OU para personal dado de baja"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Credentials PDF saved as attachment"
+msgstr "PDF de credenciales guardado como adjunto"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the employee already has a non-corporate work email (%s); "
+"the corporate account was NOT created to avoid overwriting it."
+msgstr ""
+"Google Workspace: el empleado ya tiene un correo de trabajo no corporativo "
+"(%s); no se ha creado la cuenta corporativa para evitar sobrescribirlo."
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: not authorized to create accounts in OU %(ou)s. The "
+"service account's custom admin role must be granted access to this "
+"Organizational Unit in Google Admin."
+msgstr ""
+"Google Workspace: no autorizado para crear cuentas en la OU %(ou)s. El rol "
+"de administrador personalizado de la cuenta de servicio debe tener acceso "
+"concedido a esta unidad organizativa en Google Admin."
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_google_credentials_employee
+msgid "Google Workspace credentials (staff)"
+msgstr "Credenciales de Google Workspace (personal)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials_employee
+msgid "Staff member"
+msgstr "Miembro del personal"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_welcome_employee
+msgid "Google Workspace - Welcome credentials (staff)"
+msgstr "Google Workspace - Credenciales de bienvenida (personal)"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the corporate account was not created automatically. "
+"Missing required data: %s."
+msgstr ""
+"Google Workspace: la cuenta corporativa no se creó automáticamente. Faltan "
+"datos obligatorios: %s."

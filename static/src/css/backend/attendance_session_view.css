@@ -36,6 +36,10 @@
 .ems-av-nav-btn {
     width: 36px;
     height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    flex-shrink: 0;
+    align-self: center;
     border-radius: 50%;
     border: 1px solid #ced4da;
     background: #fff;
@@ -62,7 +66,11 @@
     padding: 5px 8px;
     background: #fff;
     cursor: pointer;
-    min-width: 150px;
+    min-width: 120px;
+    max-width: 160px;
+    height: 36px;
+    box-sizing: border-box;
+    line-height: 1;
 }
 
 .ems-av-session-wrap {
@@ -121,12 +129,6 @@
     text-overflow: ellipsis;
 }
 
-@media (max-width: 600px) {
-    .ems-av-name {
-        flex: 0 0 120px;
-    }
-}
-
 /* --- Column headers --------------------------------------- */
 .ems-av-col-headers {
     display: flex;
@@ -150,14 +152,16 @@
 }
 
 .ems-av-col-header-label {
-    width: 44px;
+    flex: 1 1 0;
     font-size: 0.68rem;
     font-weight: 600;
     text-align: center;
     line-height: 1.25;
-    word-break: break-word;
-    hyphens: auto;
     color: #6c757d;
+}
+
+.ems-av-col-header-notes {
+    flex-shrink: 0;
 }
 
 @media (max-width: 600px) {
@@ -165,16 +169,16 @@
         gap: 10px;
         padding-left: 16px; /* 12px + 4px */
     }
-    .ems-av-col-header-name {
-        flex: 0 0 120px;
-    }
+    .ems-av-name { flex: 0 0 120px; }
+    .ems-av-col-header-name { flex: 0 0 120px; }
 }
 
 /* --- Status buttons --------------------------------------- */
 .ems-av-btns {
+    flex: 1 1 auto;
     display: flex;
-    gap: 6px;
-    flex-shrink: 0;
+    gap: 0;
+    justify-content: space-around;
 }
 
 .ems-av-status-btn {

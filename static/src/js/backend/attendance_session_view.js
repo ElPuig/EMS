@@ -21,6 +21,8 @@ class EmsDatePickerPopover extends Component {
         useHotkey("escape", () => this.props.close());
     }
 
+    get todayLabel() { return _t("Today"); }
+
     goToday() {
         this.props.pickerProps.onSelect?.(DateTime.now(), "date");
         this.props.close();

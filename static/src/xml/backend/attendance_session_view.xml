@@ -186,7 +186,7 @@
     <t t-name="ems.EmsDateInput">
         <input type="text"
                t-ref="start-date"
-               class="ems-av-date-input o_input"
+               class="ems-av-date-input"
                autocomplete="off"
                t-att-disabled="props.disabled"/>
     </t>
@@ -196,7 +196,7 @@
             <t t-set-slot="bottom_left">
                 <button class="btn btn-secondary btn-sm h-100 d-flex align-items-center justify-content-center"
                         tabindex="-1"
-                        t-on-click="goToday">Hoy</button>
+                        t-on-click="goToday"><t t-esc="todayLabel"/></button>
             </t>
         </DateTimePicker>
     </t>

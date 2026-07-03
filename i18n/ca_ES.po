@@ -8348,6 +8348,11 @@ msgid "Title"
 msgstr "Títol"
 
 #. module: ems
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Today"
+msgstr "Avuí"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__to_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__to_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__to_date

@@ -6511,6 +6511,11 @@ msgid "Evaluation for tutors"
 msgstr "Evaluación para tutores"
 
 #. module: ems
+#: model:ir.ui.menu,name:ems.menu_grade_management
+msgid "Evaluation management"
+msgstr "Gestión de evaluaciones"
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
 msgid "You do not tutor any group with an open evaluation."

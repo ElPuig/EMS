@@ -19,5 +19,8 @@
         </record>
 
         <menuitem name="Evaluation for tutors" sequence="2" id="menu_grade_tutor" parent="menu_grades" action="action_grade_tutor_matrix" groups="ems.group_teacher"/>
+
+        <!-- Container for the admin-only session management wizards (defined in wizard.xml). -->
+        <menuitem name="Evaluation management" sequence="3" id="menu_grade_management" parent="menu_grades" groups="ems.group_admin"/>
     </data>
 </odoo>

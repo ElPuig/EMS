@@ -27,7 +27,7 @@
             <field name="target">new</field>
         </record>
 
-        <menuitem name="Create grade sessions" sequence="2" id="menu_grade_session_wizard" parent="menu_grades" action="action_grade_session_wizard" groups="ems.group_admin"/>
+        <menuitem name="Create grade sessions" sequence="1" id="menu_grade_session_wizard" parent="menu_grade_management" action="action_grade_session_wizard" groups="ems.group_admin"/>
 
         <record model="ir.ui.view" id="view_grade_session_state_wizard_form">
             <field name="name">ems.grade_session_state_wizard.form</field>
@@ -56,6 +56,6 @@
             <field name="target">new</field>
         </record>
 
-        <menuitem name="Change grade session state" sequence="3" id="menu_grade_session_state_wizard" parent="menu_grades" action="action_grade_session_state_wizard" groups="ems.group_admin"/>
+        <menuitem name="Change grade session state" sequence="2" id="menu_grade_session_state_wizard" parent="menu_grade_management" action="action_grade_session_state_wizard" groups="ems.group_admin"/>
     </data>
 </odoo>

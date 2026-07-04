@@ -99,22 +99,62 @@ class ems_grade_session(models.Model):
 			# The outcomes to grade come from the planning; if there's no planning yet, fall back to the subject's outcomes.
 			outcomes = rec.planning_id.planning_outcome_ids.mapped("outcome_id") or rec.subject_id.outcome_ids
 
+			# Every evaluated outcome from an earlier round of the same group and subject is carried over:
+			# the new line starts from the score of the most recent earlier round. Passed outcomes stay
+			# locked (see grade_outcome_line.is_locked); failed ones are editable but keep their previous
+			# score as a starting point.
+			previous_scores = {}
+			if rec.group_id and rec.subject_id and rec.round:
+				best_round = {}
+				for line in self.env["ems.grade_outcome_line"].search([
+					("grade_session_id.group_id", "=", rec.group_id.id),
+					("grade_session_id.subject_id", "=", rec.subject_id.id),
+					("grade_session_id.round", "<", rec.round),
+					("is_scored", "=", True),
+				]):
+					key = (line.student_id.id, line.outcome_id.id)
+					line_round = line.grade_session_id.round
+					# round is a single-digit selection, so a string comparison is enough to keep the latest.
+					if key not in best_round or line_round > best_round[key]:
+						best_round[key] = line_round
+						previous_scores[key] = line.score
+
 			outcome_cmds = [(5, 0, 0)]
 			subject_cmds = [(5, 0, 0)]
 			for student in students:
 				subject_cmds.append((0, 0, {"student_id": student.id}))
 				for outcome in outcomes:
-					outcome_cmds.append((0, 0, {
+					vals = {
 						"student_id": student.id,
 						"outcome_id": outcome.id,
 						"is_auto_generated": True,
-					}))
+					}
+					previous = previous_scores.get((student.id, outcome.id))
+					if previous is not None:
+						vals["score"] = previous
+						vals["is_scored"] = True
+					outcome_cmds.append((0, 0, vals))
 
 			rec.grade_outcome_line_ids = outcome_cmds
 			rec.grade_subject_line_ids = subject_cmds
 
 	def reload_students(self):
 		self.fill_students()
+
+	@api.model
+	def apply_grade_changes(self, outcome_vals, subject_vals):
+		# Batch-write the buffered edits from the tutor view in a single request. Each line carries its own
+		# values, so the client cannot merge them into one ORM write; grouping them here turns what used to
+		# be one RPC per changed line into a single round trip. Outcome lines are written before subject
+		# lines so the subject grades recompute from the new outcome scores. The per-line write() overrides
+		# still enforce the locking and state rules. Computed fields recompute once at flush.
+		OutcomeLine = self.env["ems.grade_outcome_line"]
+		for line_id, vals in outcome_vals.items():
+			OutcomeLine.browse(int(line_id)).write(vals)
+		SubjectLine = self.env["ems.grade_subject_line"]
+		for line_id, vals in subject_vals.items():
+			SubjectLine.browse(int(line_id)).write(vals)
+		return True
 
 	@api.model_create_multi
 	def create(self, vals_list):
@@ -124,6 +164,10 @@ class ems_grade_session(models.Model):
 			raise e if "grade_session_is_duped" not in str(e) else ValidationError(_('A grade session already exists for this group, subject and round. Please edit the existing one.'))
 
 	def write(self, vals):
-		if "state" in vals and not self.env.user.has_group("ems.group_admin"):
-			raise UserError(_("Only administrators can change the evaluation state."))
+		if not self.env.user.has_group("ems.group_admin"):
+			if "state" in vals:
+				raise UserError(_("Only administrators can change the evaluation state."))
+			# Archiving / unarchiving (active) is a write; only administrators may archive or restore sessions.
+			if "active" in vals:
+				raise UserError(_("Only administrators can archive or delete evaluation sessions."))
 		return super().write(vals)

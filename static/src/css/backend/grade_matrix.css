@@ -218,6 +218,31 @@
     background-color: #ecfaf0;
 }
 
+/* Locked cell: an outcome already passed (score >= 5) in an earlier round. The passed value is carried
+   over and shown on the usual green, but it is read-only (marked with a small lock) and cannot be
+   edited, cleared or pasted over. */
+.o_grade_matrix td.o_grade_cell_locked {
+    cursor: default;
+    position: relative;
+}
+
+.o_grade_matrix td.o_grade_cell_locked::after {
+    content: "\1F512";
+    position: absolute;
+    top: 0;
+    right: 1px;
+    font-size: 8px;
+    line-height: 1;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* Provisional subject grade: some outcomes are still pending, so the internal / final grade is not
+   definitive. Rendered in italics (the value already carries a trailing "*"). */
+.o_grade_matrix td.o_grade_matrix_provisional {
+    font-style: italic;
+}
+
 /* Spreadsheet-like selection. */
 .o_grade_matrix:focus {
     outline: none;

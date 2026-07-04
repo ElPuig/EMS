@@ -19,6 +19,7 @@ class ems_grade_outcome_line(models.Model):
 	ponderation = fields.Float(string="Ponderation (%)", compute="_compute_ponderation", store=True)
 	score = fields.Integer(string="Score")
 	is_scored = fields.Boolean(string="Scored", default=False, help="Whether the score has been informed (an empty score is excluded from the subject grade).")
+	is_locked = fields.Boolean(string="Locked", compute="_compute_is_locked", store=False, help="Whether this outcome was already passed (score >= 5) in an earlier round for the same student, group and subject; a passed outcome cannot be re-evaluated.")
 	is_auto_generated = fields.Boolean(default=False)
 
 	# Used only for access-rule filtering.
@@ -30,13 +31,37 @@ class ems_grade_outcome_line(models.Model):
 			planning_outcome = rec.grade_session_id.planning_id.planning_outcome_ids.filtered(lambda po: po.outcome_id == rec.outcome_id)
 			rec.ponderation = planning_outcome[:1].ponderation
 
+	@api.depends("student_id", "outcome_id", "grade_session_id.group_id", "grade_session_id.subject_id", "grade_session_id.round")
+	def _compute_is_locked(self):
+		# A passed outcome (score >= 5) from an earlier round of the same group and subject is final: it
+		# must not be re-evaluated. This crosses grade sessions, so it is recomputed on read (store=False),
+		# like grade_session.can_edit.
+		for rec in self:
+			rec.is_locked = False
+			session = rec.grade_session_id
+			if not (rec.student_id and rec.outcome_id and session.group_id and session.subject_id and session.round):
+				continue
+			rec.is_locked = bool(self.search_count([
+				("student_id", "=", rec.student_id.id),
+				("outcome_id", "=", rec.outcome_id.id),
+				("grade_session_id.group_id", "=", session.group_id.id),
+				("grade_session_id.subject_id", "=", session.subject_id.id),
+				("grade_session_id.round", "<", session.round),
+				("is_scored", "=", True),
+				("score", ">=", 5),
+			]))
+
 	def write(self, vals):
 		# open: scoped teachers/tutors; board: only the group's tutor; final: only admin.
+		scoring = "score" in vals or "is_scored" in vals
 		for rec in self:
 			if not rec.grade_session_id.can_edit:
 				if rec.grade_session_id.state == "final":
 					raise UserError(_("This evaluation session is final; only administrators can edit the grades."))
 				raise UserError(_("This evaluation session is in the board stage; only the group's tutor (or an administrator) can edit the grades."))
+			# A passed outcome from an earlier round cannot be re-evaluated (no exception, not even for admins).
+			if scoring and rec.is_locked:
+				raise UserError(_("This learning outcome was already passed in an earlier round; its grade cannot be modified."))
 		return super().write(vals)
 
 	@api.constrains("score")

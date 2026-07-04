@@ -122,6 +122,100 @@ class TestGradeSession(TransactionCase):
         self.assertEqual(len(session.grade_subject_line_ids), 2)
         self.assertEqual(session.grade_outcome_line_ids.mapped('ponderation'), [60.0, 40.0, 60.0, 40.0])
 
+    def test_passed_outcome_is_locked_in_later_round(self):
+        # Student1 passes outcome1 (>= 5) in round 1; fails outcome2.
+        session1 = self._new_session(round="1")
+        session1.fill_students()
+        lines1 = session1.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
+        lines1.filtered(lambda line: line.outcome_id == self.outcome1).write({'score': 7, 'is_scored': True})
+        lines1.filtered(lambda line: line.outcome_id == self.outcome2).write({'score': 3, 'is_scored': True})
+
+        # Round 2: the passed outcome is locked and carried over; the failed one is carried over too (with
+        # its previous score) but stays open and editable.
+        session2 = self._new_session(round="2")
+        session2.fill_students()
+        lines2 = session2.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
+        locked = lines2.filtered(lambda line: line.outcome_id == self.outcome1)
+        reopen = lines2.filtered(lambda line: line.outcome_id == self.outcome2)
+        self.assertTrue(locked.is_locked)
+        self.assertEqual(locked.score, 7)
+        self.assertTrue(locked.is_scored)
+        self.assertFalse(reopen.is_locked)
+        self.assertTrue(reopen.is_scored)
+        self.assertEqual(reopen.score, 3)
+
+    def test_locked_outcome_cannot_be_rewritten(self):
+        session1 = self._new_session(round="1")
+        session1.fill_students()
+        session1.grade_outcome_line_ids.filtered(
+            lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
+        ).write({'score': 8, 'is_scored': True})
+
+        session2 = self._new_session(round="2")
+        session2.fill_students()
+        locked = session2.grade_outcome_line_ids.filtered(
+            lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
+        )
+        with self.assertRaises(UserError):
+            locked.write({'score': 4, 'is_scored': True})
+
+    def test_apply_grade_changes_batches_writes(self):
+        # The tutor view's batch entry point writes several outcome and subject lines in one call and
+        # recomputes the subject grades.
+        session = self._new_session()
+        session.fill_students()
+        lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
+        line1 = lines.filtered(lambda line: line.outcome_id == self.outcome1)
+        line2 = lines.filtered(lambda line: line.outcome_id == self.outcome2)
+        subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
+        self.env['ems.grade_session'].apply_grade_changes(
+            {str(line1.id): {'score': 8, 'is_scored': True}, str(line2.id): {'score': 6, 'is_scored': True}},
+            {str(subject_line.id): {'external_score': 7, 'external_is_scored': True}},
+        )
+        self.assertEqual(line1.score, 8)
+        self.assertEqual(line2.score, 6)
+        self.assertEqual(subject_line.external_score, 7)
+        # (8*60 + 6*40) / 100 = 7.2 -> 7 internal, complete evaluation.
+        self.assertEqual(subject_line.internal_score, 7)
+        self.assertTrue(subject_line.internal_is_complete)
+
+    def test_apply_grade_changes_enforces_lock(self):
+        session1 = self._new_session(round="1")
+        session1.fill_students()
+        session1.grade_outcome_line_ids.filtered(
+            lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
+        ).write({'score': 8, 'is_scored': True})
+        session2 = self._new_session(round="2")
+        session2.fill_students()
+        locked = session2.grade_outcome_line_ids.filtered(
+            lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
+        )
+        # The batch method still goes through the line write(), so a locked outcome is rejected.
+        with self.assertRaises(UserError):
+            self.env['ems.grade_session'].apply_grade_changes(
+                {str(locked.id): {'score': 3, 'is_scored': True}}, {},
+            )
+
+    def test_failed_outcome_carried_over_but_editable(self):
+        # A failed outcome (< 5) does not lock the next round: its previous score is carried over as a
+        # starting point, but it can still be re-evaluated.
+        session1 = self._new_session(round="1")
+        session1.fill_students()
+        session1.grade_outcome_line_ids.filtered(
+            lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
+        ).write({'score': 4, 'is_scored': True})
+
+        session2 = self._new_session(round="2")
+        session2.fill_students()
+        reopen = session2.grade_outcome_line_ids.filtered(
+            lambda line: line.student_id == self.student1 and line.outcome_id == self.outcome1
+        )
+        self.assertFalse(reopen.is_locked)
+        self.assertTrue(reopen.is_scored)
+        self.assertEqual(reopen.score, 4)  # carried over from round 1
+        reopen.write({'score': 6, 'is_scored': True})  # must not raise
+        self.assertEqual(reopen.score, 6)
+
     def test_internal_score_weighted_average(self):
         session = self._new_session()
         session.fill_students()
@@ -135,26 +229,39 @@ class TestGradeSession(TransactionCase):
         # The planning has a 10% external weight not yet informed -> no computed grade.
         self.assertFalse(subject_line.computed_is_scored)
 
-    def test_missing_score_counts_as_zero(self):
+    def test_missing_score_is_renormalized(self):
         session = self._new_session()
         session.fill_students()
         lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
-        # Only outcome1 informed; outcome2 counts as a 0: (8*60 + 0*40) / 100 = 4.8, and because an
-        # outcome is missing the subject cannot be passed -> internal capped at 4.
+        # Only outcome1 informed: the internal grade is the renormalized average over the evaluated
+        # outcomes (8*60 / 60 = 8), a provisional grade; the pending outcome is left out, not counted as 0.
         lines.filtered(lambda line: line.outcome_id == self.outcome1).write({'score': 8, 'is_scored': True})
         subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
-        self.assertEqual(subject_line.internal_score, 4.0)
+        self.assertEqual(subject_line.internal_score, 8)
+        self.assertTrue(subject_line.internal_is_scored)
+        # But the evaluation is incomplete (outcome2 still pending).
+        self.assertFalse(subject_line.internal_is_complete)
 
-    def test_missing_score_caps_computed(self):
+    def test_internal_complete_when_all_scored(self):
         session = self._new_session()
         session.fill_students()
         lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
-        # outcome1 passed, outcome2 missing, external passed: the missing outcome caps computed at 4.
+        lines.write({'score': 8, 'is_scored': True})  # both outcomes evaluated
+        subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
+        self.assertTrue(subject_line.internal_is_complete)
+
+    def test_missing_score_provisional_computed(self):
+        session = self._new_session()
+        session.fill_students()
+        lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
+        # outcome1 passed (10), outcome2 pending, external passed (10): the provisional internal is the
+        # renormalized 10, so the provisional computed grade is 10 - but the evaluation is not complete.
         lines.filtered(lambda line: line.outcome_id == self.outcome1).write({'score': 10, 'is_scored': True})
         subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
         subject_line.write({'external_score': 10, 'external_is_scored': True})
         self.assertTrue(subject_line.computed_is_scored)
-        self.assertEqual(subject_line.computed_score, 4)
+        self.assertEqual(subject_line.computed_score, 10)
+        self.assertFalse(subject_line.internal_is_complete)
 
     def test_failed_outcome_caps_internal(self):
         session = self._new_session()
@@ -353,6 +460,18 @@ class TestGradeSession(TransactionCase):
         session = self._new_session()
         with self.assertRaises(UserError):
             session.with_user(self.teacher_user).write({'state': 'board'})
+
+    def test_archive_only_admin(self):
+        session = self._new_session()
+        session.state = 'final'
+        # A teacher cannot archive a session (not even a finalised one).
+        with self.assertRaises(UserError):
+            session.with_user(self.teacher_user).write({'active': False})
+        with self.assertRaises(UserError):
+            session.with_user(self.teacher_user).action_archive()
+        # An administrator can.
+        session.action_archive()
+        self.assertFalse(session.active)
 
     def test_state_wizard_bulk_transition(self):
         session = self._new_session(round='1')

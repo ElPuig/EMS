@@ -8,6 +8,8 @@
             <field name="name">Evaluation by group and subject</field>
             <field name="res_model">ems.grade_session</field>
             <field name="view_mode">list,form</field>
+            <!-- Group by round first, then by group, for a clearer overview (the numeric values order the nesting). -->
+            <field name="context">{'search_default_group_by_round': 1, 'search_default_group_by_group': 2}</field>
         </record>
 
         <menuitem name="Evaluation by group and subject" sequence="1" id="menu_grade_sessions" parent="menu_grades" action="action_grade_session_tree"/>

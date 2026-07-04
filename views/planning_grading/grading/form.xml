@@ -44,6 +44,7 @@
                                 <field name="external_ponderation"/>
                                 <field name="internal_score"/>
                                 <field name="internal_is_scored"/>
+                                <field name="internal_is_complete"/>
                                 <field name="external_score"/>
                                 <field name="external_is_scored"/>
                                 <field name="computed_score"/>
@@ -65,6 +66,7 @@
                                 <field name="ponderation"/>
                                 <field name="score"/>
                                 <field name="is_scored"/>
+                                <field name="is_locked"/>
                             </list>
                         </field>
                     </sheet>

@@ -31,6 +31,7 @@ export class GradeMatrixField extends Component {
         // Whether an apply (write + save) is in progress, to show a processing overlay.
         this.applying = useState({ value: false });
         this.dialog = useService("dialog");
+        this.orm = useService("orm");
         // Warn before leaving (in-app navigation and browser unload) with unapplied buffer changes.
         useSetupAction({
             beforeLeave: () => this._beforeLeave(),
@@ -82,7 +83,7 @@ export class GradeMatrixField extends Component {
     _syncBuffer() {
         const outcomes = {};
         for (const line of this.lines) {
-            outcomes[line.id] = { score: line.data.score, is_scored: line.data.is_scored };
+            outcomes[line.id] = { score: line.data.score, is_scored: line.data.is_scored, is_locked: line.data.is_locked };
         }
         const subjects = {};
         for (const line of this.subjectLines) {
@@ -119,7 +120,20 @@ export class GradeMatrixField extends Component {
         return { score: b ? b.score : 0, is_scored: b ? b.is_scored : false };
     }
 
+    // Whether a cell is locked (an outcome already passed in an earlier round). Locked cells show the
+    // carried-over value but cannot be edited, cleared or pasted over. The external column is never locked.
+    _cellLocked(row, col) {
+        if (col.isExternal) {
+            return false;
+        }
+        const b = this._outcomeBuf(row, col);
+        return b ? !!b.is_locked : false;
+    }
+
     _cellSet(row, col, score, is_scored) {
+        if (this._cellLocked(row, col)) {
+            return;  // a passed outcome from an earlier round is final
+        }
         if (col.isExternal) {
             const b = this._subjectBuf(row);
             if (b) {
@@ -286,6 +300,9 @@ export class GradeMatrixField extends Component {
         if (is_scored) {
             cls = score >= 5 ? "o_grade_cell_pass" : "o_grade_cell_fail";
         }
+        if (this._cellLocked(row, col)) {
+            cls += " o_grade_cell_locked";
+        }
         if (col.isExternal) {
             cls += " o_grade_matrix_sep";
         }
@@ -310,6 +327,20 @@ export class GradeMatrixField extends Component {
         return b ? b.is_overridden : false;
     }
 
+    // A provisional grade: the internal grade is informed but not every outcome has been evaluated yet
+    // (an overridden grade is never provisional). Shown in italics with a trailing "*".
+    isProvisional(row) {
+        return !!(row.subject && row.subject.data.internal_is_scored && !row.subject.data.internal_is_complete);
+    }
+
+    provisionalMark(row) {
+        return this.isProvisional(row) ? "*" : "";
+    }
+
+    provisionalTitle(row) {
+        return this.isProvisional(row) ? _t("Provisional grade: some outcomes are still pending.") : "";
+    }
+
     internalEditable(row) {
         return !this.props.readonly && this.isOverridden(row);
     }
@@ -320,7 +351,7 @@ export class GradeMatrixField extends Component {
             return this.formatScore(b.internal_score);
         }
         return row.subject && row.subject.data.internal_is_scored
-            ? this.formatScore(row.subject.data.internal_score)
+            ? this.formatScore(row.subject.data.internal_score) + this.provisionalMark(row)
             : "";
     }
 
@@ -328,7 +359,11 @@ export class GradeMatrixField extends Component {
         if (this.isOverridden(row)) {
             return "o_grade_matrix_overridden";
         }
-        return this.staleClass();
+        let cls = this.staleClass();
+        if (this.isProvisional(row)) {
+            cls += " o_grade_matrix_provisional";
+        }
+        return cls;
     }
 
     computedScore(row) {
@@ -342,13 +377,16 @@ export class GradeMatrixField extends Component {
     }
 
     finalScore(row) {
-        return this.hasFinal(row) ? this.formatScore(row.subject.data.final_score) : "";
+        return this.hasFinal(row) ? this.formatScore(row.subject.data.final_score) + this.provisionalMark(row) : "";
     }
 
     finalCellClass(row) {
         let cls = "o_grade_matrix_final";
         if (this.hasFinal(row)) {
             cls += row.subject.data.final_score >= 5 ? " o_grade_cell_pass" : " o_grade_cell_fail";
+        }
+        if (this.isProvisional(row)) {
+            cls += " o_grade_matrix_provisional";
         }
         if (this.dirty.value) {
             cls += " o_grade_cell_stale";
@@ -537,6 +575,9 @@ export class GradeMatrixField extends Component {
         }
         const row = this.rows[this.sel.r1];
         const col = this.columns[this.sel.c1];
+        if (row && col && this._cellLocked(row, col)) {
+            return;  // a passed outcome from an earlier round cannot be edited
+        }
         this.edit.selectAll = initial === undefined;
         if (initial === undefined) {
             const { score, is_scored } = row && col ? this._cellGet(row, col) : {};
@@ -755,45 +796,50 @@ export class GradeMatrixField extends Component {
     }
 
     async _applyChanges() {
-        const model = this.props.record.model;
-        await model.mutex.exec(async () => {
-            for (const line of this.lines) {
-                const b = this.buffer.outcomes[line.id];
-                if (b && (b.score !== line.data.score || b.is_scored !== line.data.is_scored)) {
-                    await line._update({ score: b.score, is_scored: b.is_scored }, { withoutOnchange: true });
-                }
+        // Push the whole buffer to the server in a SINGLE request, then reload the record once. Writing
+        // the lines one by one through the record (line._update) re-rendered the matrix after every cell
+        // (each awaited update flushed a render), which looked like the grades appearing cell by cell and
+        // was slow for big pastes. The header fields are read-only on a saved session, so the form record
+        // is never dirty here and going straight to the ORM is safe.
+        const outcomeVals = {};
+        for (const line of this.lines) {
+            const b = this.buffer.outcomes[line.id];
+            if (b && (b.score !== line.data.score || b.is_scored !== line.data.is_scored)) {
+                outcomeVals[line.resId] = { score: b.score, is_scored: b.is_scored };
             }
-            for (const line of this.subjectLines) {
-                const b = this.buffer.subjects[line.id];
-                if (!b) {
-                    continue;
-                }
-                const changes = {};
-                if (b.external_score !== line.data.external_score) {
-                    changes.external_score = b.external_score;
-                }
-                if (b.external_is_scored !== line.data.external_is_scored) {
-                    changes.external_is_scored = b.external_is_scored;
-                }
-                if (b.is_overridden !== line.data.is_overridden) {
-                    changes.is_overridden = b.is_overridden;
-                }
-                if ((b.notes || "") !== (line.data.notes || "")) {
-                    changes.notes = b.notes;
-                }
-                // The manual internal grade is only meaningful (and written) while overridden.
-                if (b.is_overridden && b.internal_score !== line.data.internal_score) {
-                    changes.internal_score = b.internal_score;
-                }
-                if (Object.keys(changes).length) {
-                    await line._update(changes, { withoutOnchange: true });
-                }
-            }
-        });
-        const saved = await model.root.save();
-        if (saved) {
-            this._syncBuffer();
         }
+        const subjectVals = {};
+        for (const line of this.subjectLines) {
+            const b = this.buffer.subjects[line.id];
+            if (!b) {
+                continue;
+            }
+            const changes = {};
+            if (b.external_score !== line.data.external_score) {
+                changes.external_score = b.external_score;
+            }
+            if (b.external_is_scored !== line.data.external_is_scored) {
+                changes.external_is_scored = b.external_is_scored;
+            }
+            if (b.is_overridden !== line.data.is_overridden) {
+                changes.is_overridden = b.is_overridden;
+            }
+            if ((b.notes || "") !== (line.data.notes || "")) {
+                changes.notes = b.notes;
+            }
+            // The manual internal grade is only meaningful (and written) while overridden.
+            if (b.is_overridden && b.internal_score !== line.data.internal_score) {
+                changes.internal_score = b.internal_score;
+            }
+            if (Object.keys(changes).length) {
+                subjectVals[line.resId] = changes;
+            }
+        }
+        if (Object.keys(outcomeVals).length || Object.keys(subjectVals).length) {
+            await this.orm.call("ems.grade_session", "apply_grade_changes", [outcomeVals, subjectVals]);
+            await this.props.record.load();
+        }
+        this._syncBuffer();
     }
 }
 

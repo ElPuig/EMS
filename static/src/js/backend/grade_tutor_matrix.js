@@ -100,14 +100,14 @@ export class GradeTutorMatrix extends Component {
             [
                 "subject_id", "subject_name", "student_id", "student_firstname", "student_lastname",
                 "internal_ponderation", "external_ponderation", "internal_score", "internal_is_scored",
-                "external_score", "external_is_scored", "computed_score", "computed_is_scored",
-                "is_overridden", "final_score", "has_final", "notes",
+                "internal_is_complete", "external_score", "external_is_scored", "computed_score",
+                "computed_is_scored", "is_overridden", "final_score", "has_final", "notes",
             ]
         );
         const outcomeLines = await this.orm.searchRead(
             "ems.grade_outcome_line",
             [["grade_session_id", "in", sessionIds]],
-            ["subject_id", "student_id", "outcome_id", "outcome_acronym", "ponderation", "score", "is_scored"]
+            ["subject_id", "student_id", "outcome_id", "outcome_acronym", "ponderation", "score", "is_scored", "is_locked"]
         );
 
         // Outcome lines grouped by (student, subject).
@@ -120,7 +120,7 @@ export class GradeTutorMatrix extends Component {
         const studentsMap = new Map();
         const outBuf = {}, subBuf = {}, outRaw = {}, subRaw = {};
         for (const ol of outcomeLines) {
-            outBuf[ol.id] = { score: ol.score, is_scored: ol.is_scored };
+            outBuf[ol.id] = { score: ol.score, is_scored: ol.is_scored, is_locked: ol.is_locked };
             outRaw[ol.id] = { score: ol.score, is_scored: ol.is_scored };
         }
         for (const sl of subjectLines) {
@@ -158,6 +158,7 @@ export class GradeTutorMatrix extends Component {
                 model: {
                     internal_score: sl.internal_score,
                     internal_is_scored: sl.internal_is_scored,
+                    internal_is_complete: sl.internal_is_complete,
                     computed_score: sl.computed_score,
                     computed_is_scored: sl.computed_is_scored,
                     final_score: sl.final_score,
@@ -288,7 +289,7 @@ export class GradeTutorMatrix extends Component {
             return { disabled: true };
         }
         const b = this.buffer.outcomes[ol.id];
-        return { score: b ? b.score : 0, is_scored: b ? b.is_scored : false, disabled: false, outcome: ol };
+        return { score: b ? b.score : 0, is_scored: b ? b.is_scored : false, disabled: false, locked: b ? !!b.is_locked : false, outcome: ol };
     }
 
     _cellSet(row, col, score, is_scored) {
@@ -306,7 +307,8 @@ export class GradeTutorMatrix extends Component {
             return;  // disabled cell
         }
         const b = this.buffer.outcomes[ol.id];
-        if (b) {
+        if (b && !b.is_locked) {
+            // A passed outcome from an earlier round is final and cannot be re-evaluated.
             b.score = score;
             b.is_scored = is_scored;
             this.dirty.value = true;
@@ -360,13 +362,16 @@ export class GradeTutorMatrix extends Component {
     }
 
     cellClass(row, col, rowIndex, colIndex) {
-        const { score, is_scored, disabled } = this._cellGet(row, col);
+        const { score, is_scored, disabled, locked } = this._cellGet(row, col);
         if (disabled) {
             return "o_grade_cell_disabled";
         }
         let cls = "";
         if (is_scored) {
             cls = score >= 5 ? "o_grade_cell_pass" : "o_grade_cell_fail";
+        }
+        if (locked) {
+            cls += " o_grade_cell_locked";
         }
         if (col.kind === "external") {
             cls += " o_grade_matrix_sep";
@@ -387,26 +392,52 @@ export class GradeTutorMatrix extends Component {
         return b ? b.is_overridden : false;
     }
 
+    // A provisional grade: the internal grade is informed but not every outcome has been evaluated yet
+    // (an overridden grade is never provisional). Shown in italics with a trailing "*".
+    isProvisional(row) {
+        return !!(row.model.internal_is_scored && !row.model.internal_is_complete);
+    }
+
+    provisionalMark(row) {
+        return this.isProvisional(row) ? "*" : "";
+    }
+
+    provisionalTitle(row) {
+        return this.isProvisional(row) ? _t("Provisional grade: some outcomes are still pending.") : "";
+    }
+
     internalScore(row) {
         const b = this.buffer.subjects[row.subjectLineId];
         if (b && b.is_overridden) {
             return this.formatScore(b.internal_score);
         }
-        return row.model.internal_is_scored ? this.formatScore(row.model.internal_score) : "";
+        return row.model.internal_is_scored
+            ? this.formatScore(row.model.internal_score) + this.provisionalMark(row)
+            : "";
     }
 
     internalCellClass(row) {
-        return this.isOverridden(row) ? "o_grade_matrix_overridden" : this.staleClass();
+        if (this.isOverridden(row)) {
+            return "o_grade_matrix_overridden";
+        }
+        let cls = this.staleClass();
+        if (this.isProvisional(row)) {
+            cls += " o_grade_matrix_provisional";
+        }
+        return cls;
     }
 
     finalScore(row) {
-        return row.model.has_final ? this.formatScore(row.model.final_score) : "";
+        return row.model.has_final ? this.formatScore(row.model.final_score) + this.provisionalMark(row) : "";
     }
 
     finalCellClass(row) {
         let cls = "o_grade_matrix_final";
         if (row.model.has_final) {
             cls += row.model.final_score >= 5 ? " o_grade_cell_pass" : " o_grade_cell_fail";
+        }
+        if (this.isProvisional(row)) {
+            cls += " o_grade_matrix_provisional";
         }
         if (this.dirty.value) {
             cls += " o_grade_cell_stale";
@@ -542,7 +573,8 @@ export class GradeTutorMatrix extends Component {
     onCellDblClick(rowIndex, colIndex) {
         const row = this.rows[rowIndex];
         const col = this.columns[colIndex];
-        if (!row || !col || this._cellGet(row, col).disabled) {
+        const cell = row && col ? this._cellGet(row, col) : null;
+        if (!cell || cell.disabled || cell.locked) {
             return;
         }
         this.sel.r = rowIndex;
@@ -555,8 +587,9 @@ export class GradeTutorMatrix extends Component {
     _startEdit(initial) {
         const row = this.rows[this.sel.r];
         const col = this.columns[this.sel.c];
-        if (!row || !col || this._cellGet(row, col).disabled) {
-            return;
+        const cell = row && col ? this._cellGet(row, col) : null;
+        if (!cell || cell.disabled || cell.locked) {
+            return;  // disabled (n/a) or locked (passed in an earlier round)
         }
         this.edit.selectAll = initial === undefined;
         if (initial === undefined) {
@@ -742,15 +775,16 @@ export class GradeTutorMatrix extends Component {
     }
 
     async _applyChanges() {
+        // Collect only what changed, then write everything in a single server call (one round trip)
+        // instead of one RPC per line.
+        const outcomeVals = {};
         for (const [id, b] of Object.entries(this.buffer.outcomes)) {
             const raw = this._outRaw[id];
             if (raw && (b.score !== raw.score || b.is_scored !== raw.is_scored)) {
-                await this.orm.write("ems.grade_outcome_line", [Number(id)], {
-                    score: b.score,
-                    is_scored: b.is_scored,
-                });
+                outcomeVals[id] = { score: b.score, is_scored: b.is_scored };
             }
         }
+        const subjectVals = {};
         for (const [id, b] of Object.entries(this.buffer.subjects)) {
             const raw = this._subRaw[id];
             if (!raw) {
@@ -774,8 +808,11 @@ export class GradeTutorMatrix extends Component {
                 vals.internal_score = b.internal_score;
             }
             if (Object.keys(vals).length) {
-                await this.orm.write("ems.grade_subject_line", [Number(id)], vals);
+                subjectVals[id] = vals;
             }
+        }
+        if (Object.keys(outcomeVals).length || Object.keys(subjectVals).length) {
+            await this.orm.call("ems.grade_session", "apply_grade_changes", [outcomeVals, subjectVals]);
         }
         await this._load();
     }

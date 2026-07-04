@@ -21,6 +21,7 @@ class ems_grade_subject_line(models.Model):
 	is_overridden = fields.Boolean(string="Overridden", default=False, help="When set, the teacher's manual internal grade is kept; otherwise the internal grade is computed from the outcomes.")
 	internal_score = fields.Integer(string="Internal score", compute="_compute_internal_score", store=True, readonly=False, help="Internal grade (from the outcomes). Computed unless the teacher overrides it.")
 	internal_is_scored = fields.Boolean(string="Internal scored", compute="_compute_internal_is_scored", store=True, help="Whether the internal grade is informed (an outcome scored, or the teacher overrode it).")
+	internal_is_complete = fields.Boolean(string="Internal complete", compute="_compute_internal_is_complete", store=True, help="Whether every learning outcome has been evaluated (or the internal grade was overridden). An incomplete internal grade is provisional.")
 	external_score = fields.Integer(string="External score", default=0, help="External grade (e.g. work placement); informed manually.")
 	external_is_scored = fields.Boolean(string="External scored", default=False, help="Whether the external grade has been informed (an empty external grade is excluded from the subject grade).")
 	computed_score = fields.Integer(string="Computed grade", compute="_compute_computed_score", store=True, help="Suggested subject grade applying the planning ponderations.")
@@ -48,18 +49,18 @@ class ems_grade_subject_line(models.Model):
 				lambda line: line.student_id == rec.student_id
 			)
 			scored = all_lines.filtered("is_scored")
-			# An unscored outcome counts as a 0 (suspended): the average is taken over every outcome, so
-			# the missing ones weigh in as zeros rather than being renormalized away. The internal grade
-			# is a whole number (round half up).
-			total_pond = sum(line.ponderation for line in all_lines)
-			if total_pond:
-				internal = int(sum(line.score * line.ponderation for line in scored) / total_pond + 0.5)
+			# The internal grade is the weighted average over the outcomes that HAVE been evaluated
+			# (passed or failed), renormalized to their own ponderations and expressed on a 0-10 scale.
+			# Outcomes still pending are left out, so an incomplete evaluation yields a provisional grade
+			# rather than counting the missing ones as zeros. The grade is a whole number (round half up).
+			scored_pond = sum(line.ponderation for line in scored)
+			if scored_pond:
+				internal = int(sum(line.score * line.ponderation for line in scored) / scored_pond + 0.5)
 			else:
 				internal = 0
-			# A missing or failed outcome (score below 5) means the subject cannot be passed: the internal
+			# A failed evaluated outcome (score below 5) means the subject cannot be passed: the internal
 			# grade is capped at 4.
-			missing = len(scored) < len(all_lines)
-			if (missing or any(line.score < 5 for line in scored)) and internal > 4:
+			if any(line.score < 5 for line in scored) and internal > 4:
 				internal = 4
 			rec.internal_score = internal
 
@@ -77,6 +78,22 @@ class ems_grade_subject_line(models.Model):
 				rec.internal_is_scored = bool(rec.grade_session_id.grade_outcome_line_ids.filtered(
 					lambda line: line.student_id == rec.student_id and line.is_scored
 				))
+
+	@api.depends(
+		"is_overridden",
+		"grade_session_id.grade_outcome_line_ids.is_scored",
+	)
+	def _compute_internal_is_complete(self):
+		# Kept apart from _compute_internal_score for the same reason as _compute_internal_is_scored: the
+		# writable internal_score would skip a shared compute and leave this flag stale.
+		for rec in self:
+			if rec.is_overridden:
+				rec.internal_is_complete = True
+				continue
+			lines = rec.grade_session_id.grade_outcome_line_ids.filtered(
+				lambda line: line.student_id == rec.student_id
+			)
+			rec.internal_is_complete = bool(lines) and all(line.is_scored for line in lines)
 
 	@api.depends(
 		"internal_score",

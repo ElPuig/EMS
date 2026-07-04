@@ -122,7 +122,7 @@
                                            t-on-change="(ev) => this.onToggleOverride(row, ev)"
                                            t-on-keydown="(ev) => ev.stopPropagation()"/>
                                 </td>
-                                <td class="text-center o_grade_matrix_subject" t-att-class="internalCellClass(row)">
+                                <td class="text-center o_grade_matrix_subject" t-att-class="internalCellClass(row)" t-att-title="provisionalTitle(row)">
                                     <input t-if="isOverridden(row)" type="number" min="0" max="10" step="1"
                                            class="o_grade_matrix_subinput"
                                            t-att-value="internalScore(row)"
@@ -130,7 +130,7 @@
                                            t-on-keydown="(ev) => this.onSubjectInputKeydown(ev, row, 'internal')"/>
                                     <t t-else="" t-esc="internalScore(row)"/>
                                 </td>
-                                <td class="text-center" t-att-class="finalCellClass(row)" t-esc="finalScore(row)"/>
+                                <td class="text-center" t-att-class="finalCellClass(row)" t-att-title="provisionalTitle(row)" t-esc="finalScore(row)"/>
                                 <td class="o_grade_matrix_notes">
                                     <input type="text"
                                            class="o_grade_matrix_notesinput"

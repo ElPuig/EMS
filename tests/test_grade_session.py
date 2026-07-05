@@ -263,6 +263,23 @@ class TestGradeSession(TransactionCase):
         self.assertEqual(subject_line.computed_score, 10)
         self.assertFalse(subject_line.internal_is_complete)
 
+    def test_no_final_while_incomplete(self):
+        session = self._new_session()
+        session.fill_students()
+        lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student1)
+        # Only outcome1 scored; outcome2 pending -> internal incomplete.
+        lines.filtered(lambda line: line.outcome_id == self.outcome1).write({'score': 8, 'is_scored': True})
+        subject_line = session.grade_subject_line_ids.filtered(lambda line: line.student_id == self.student1)
+        subject_line.write({'external_score': 8, 'external_is_scored': True})
+        # A provisional computed grade exists, but the evaluation is incomplete -> no final (stays pending).
+        self.assertTrue(subject_line.computed_is_scored)
+        self.assertFalse(subject_line.internal_is_complete)
+        self.assertFalse(subject_line.has_final)
+        # Completing the remaining outcome brings the final in.
+        lines.filtered(lambda line: line.outcome_id == self.outcome2).write({'score': 6, 'is_scored': True})
+        self.assertTrue(subject_line.internal_is_complete)
+        self.assertTrue(subject_line.has_final)
+
     def test_failed_outcome_caps_internal(self):
         session = self._new_session()
         session.fill_students()

@@ -135,10 +135,14 @@ class ems_grade_subject_line(models.Model):
 		for rec in self:
 			rec.final_score = rec.computed_score
 
-	@api.depends("computed_is_scored")
+	@api.depends("computed_is_scored", "internal_is_complete")
 	def _compute_has_final(self):
 		for rec in self:
-			rec.has_final = rec.computed_is_scored
+			# A final grade only exists for a complete evaluation: every weighted component informed
+			# (handled by computed_is_scored) AND every outcome evaluated or the internal grade overridden
+			# (internal_is_complete). While the evaluation is incomplete the subject stays pending, with no
+			# provisional final; the provisional grade is only shown on the internal ("Centre") column.
+			rec.has_final = rec.computed_is_scored and rec.internal_is_complete
 
 	def write(self, vals):
 		# open: scoped teachers/tutors; board: only the group's tutor; final: only admin.

@@ -23,6 +23,11 @@ _PIVOT_SKIP_HEADERS = {"idalumne", "nom", "n. convocatoria", "n. convocatòria",
 # A grade column header in the pivoted "Notes" sheet: "<module>_<NN><RA|EM>".
 _PIVOT_OUTCOME_RE = re.compile(r"^(?P<mod>.+)_(?P<sub>\d{2})(?P<kind>RA|EM)$")
 
+# Aggregate "module" codes that Esfera exports for higher cycles (overall final grade and
+# university-access grade). They are not real subjects, so they are skipped instead of reported
+# as errors. Add any other export-only aggregate codes here.
+_SKIP_MODULE_CODES = {"QFINAL", "QUNIVERSITAT"}
+
 
 class ems_grade_import_wizard(models.TransientModel):
 	_name = "ems.grade_import_wizard"
@@ -217,6 +222,10 @@ class ems_grade_import_wizard(models.TransientModel):
 	def _apply_rows(self, rows, ctx, stats):
 		mp_rows = []
 		for idalu, codi_modul, tipus, subtipus, nota in rows:
+			# Skip export-only aggregate columns (overall / university-access final grade): they are not
+			# subjects, so they must not be reported as missing sessions.
+			if codi_modul.upper() in _SKIP_MODULE_CODES:
+				continue
 			student = ctx["student_by_idalu"].get(idalu)
 			if not student:
 				self._log_error(stats, idalu, codi_modul, tipus, _("Student not found (idAlumne %s).") % idalu)

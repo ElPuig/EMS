@@ -168,6 +168,21 @@ class TestGradeImportWizard(TransactionCase):
         wizard = self._run(file)
         self.assertIn('No evaluation session', wizard.result_html)
 
+    def test_aggregate_columns_skipped(self):
+        # QFINAL / QUNIVERSITAT are export-only aggregates, not subjects: skipped, not reported as errors.
+        s_no = self._session(self.subj_no_em)
+        file = self._flat_xlsx([
+            ('9990001', 'QFINAL', 'QFINAL', 'MP', 'MP', 8),
+            ('9990001', 'QUNIVERSITAT', 'QUNIVERSITAT', 'MP', 'MP', 7),
+            ('9990001', 'GI01', 'GI01_01RA', 'RA', '01', 6),
+        ])
+        wizard = self._run(file)
+        self.assertNotIn('QFINAL', wizard.result_html)
+        self.assertNotIn('QUNIVERSITAT', wizard.result_html)
+        self.assertNotIn('Errors', wizard.result_html)
+        # The real grade is still applied.
+        self.assertEqual(s_no.grade_outcome_line_ids.filtered(lambda l: l.outcome_id == self.o1).score, 6)
+
     def test_locked_outcome_overwritten_releases_lock_without_touching_past(self):
         # Pass o1 in round 1, then it is locked in round 2.
         s1 = self._session(self.subj_no_em, round="1")

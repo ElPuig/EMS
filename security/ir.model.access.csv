@@ -141,6 +141,7 @@ ems.access_ems_grade_subject_line_teacher,ems.access_ems_grade_subject_line_teac
 ems.access_ems_grade_subject_line_secretary,ems.access_ems_grade_subject_line_secretary,ems.model_ems_grade_subject_line,ems.group_secretary,1,0,0,0
 ems.access_ems_grade_session_wizard_admin,ems.access_ems_grade_session_wizard_admin,ems.model_ems_grade_session_wizard,ems.group_admin,1,1,1,1
 ems.access_ems_grade_session_state_wizard_admin,ems.access_ems_grade_session_state_wizard_admin,ems.model_ems_grade_session_state_wizard,ems.group_admin,1,1,1,1
+ems.access_ems_grade_import_wizard_admin,ems.access_ems_grade_import_wizard_admin,ems.model_ems_grade_import_wizard,ems.group_admin,1,1,1,1
 
 ems.access_ems_planning_admin,ems.access_ems_planning_admin,ems.model_ems_planning,ems.group_admin,1,1,1,1
 ems.access_ems_planning_teacher,ems.access_ems_planning_teacher,ems.model_ems_planning,ems.group_teacher,1,0,0,0

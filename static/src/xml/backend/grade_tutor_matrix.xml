@@ -87,13 +87,13 @@
                                 </th>
                                 <t t-foreach="columns" t-as="col" t-key="col.id">
                                     <th class="text-center o_grade_matrix_col" t-att-class="col.kind === 'external' ? 'o_grade_matrix_sep' : ''"
-                                        t-att-title="col.kind === 'external' ? 'External' : ''"
+                                        t-att-title="col.kind === 'external' ? col.label : ''"
                                         t-esc="col.label"/>
                                 </t>
                                 <th class="text-center o_grade_matrix_col o_grade_matrix_sep" title="Override Internal">Ovr.</th>
                                 <th class="text-center o_grade_matrix_col" title="Internal">Int.</th>
                                 <th class="text-center o_grade_matrix_col">Final</th>
-                                <th class="o_grade_matrix_col o_grade_matrix_notes_h">Notes</th>
+                                <th class="o_grade_matrix_col o_grade_matrix_notes_h">Comments</th>
                             </tr>
                         </thead>
                         <tbody>

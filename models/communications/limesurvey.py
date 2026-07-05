@@ -739,7 +739,7 @@ class ems_limesurvey_header(models.Model):
 					success = success and do_open_survey(ls_api, survey)
 					if not success: persistent_data["error"] = _("Something failed when trying to open a survey or send the invitations, please check the recipient entries for more details.")
 				persistent_data["success"] = success		
-		return run_action(self, _("LimeSurvey: open surveys"), _("Open"), "opening", "open", "uploaded", compute, persistent_data)				
+		return run_action(self, _("LimeSurvey: open surveys"), _("Open surveys"), "opening", "open", "uploaded", compute, persistent_data)
 
 	def action_close(self):
 		persistent_data = {}

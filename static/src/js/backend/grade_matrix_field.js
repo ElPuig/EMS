@@ -168,7 +168,7 @@ export class GradeMatrixField extends Component {
         // The external grade behaves like an RA column (selectable, pasteable): it is the last column of
         // the grid but maps to the subject line's external_score / external_is_scored.
         const externalPond = this.subjectLines.length ? this.subjectLines[0].data.external_ponderation : 0;
-        cols.push({ id: "external", label: "External", ponderation: externalPond, isExternal: true });
+        cols.push({ id: "external", label: _t("External"), ponderation: externalPond, isExternal: true });
         return cols;
     }
 
@@ -285,7 +285,7 @@ export class GradeMatrixField extends Component {
 
     get internalHeader() {
         const pond = this.subjectLines.length ? this.subjectLines[0].data.internal_ponderation : 0;
-        return pond ? `Internal-${this.formatPonderation(pond)}%` : "Internal";
+        return pond ? `${_t("Internal")}-${this.formatPonderation(pond)}%` : _t("Internal");
     }
 
     // RA / external cells (from the buffer).

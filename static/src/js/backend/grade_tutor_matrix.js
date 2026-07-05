@@ -273,7 +273,7 @@ export class GradeTutorMatrix extends Component {
         for (let j = 0; j < st.maxRA; j++) {
             cols.push({ kind: "ra", pos: j, id: "ra" + j, label: "RA " + (j + 1) });
         }
-        cols.push({ kind: "external", id: "external", label: "External" });
+        cols.push({ kind: "external", id: "external", label: _t("External") });
         return cols;
     }
 

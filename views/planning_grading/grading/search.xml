@@ -10,7 +10,7 @@
                     <field name="teacher_id"/>
                     <filter name="state_open" string="Open" domain="[('state', '=', 'open')]"/>
                     <filter name="state_board" string="Board" domain="[('state', '=', 'board')]"/>
-                    <filter name="state_final" string="Final" domain="[('state', '=', 'final')]"/>
+                    <filter name="state_final" string="Finalised" domain="[('state', '=', 'final')]"/>
                     <filter name="group_by_group" string="Group" context="{'group_by': 'group_id'}"/>
                     <filter name="group_by_subject" string="Subject" context="{'group_by': 'subject_id'}"/>
                     <filter name="group_by_round" string="Round" context="{'group_by': 'round'}"/>

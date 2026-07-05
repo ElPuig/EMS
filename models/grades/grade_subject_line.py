@@ -28,7 +28,7 @@ class ems_grade_subject_line(models.Model):
 	computed_is_scored = fields.Boolean(string="Computed scored", compute="_compute_computed_score", store=True, help="Whether every weighted component (internal / external) required by the planning has been informed.")
 	final_score = fields.Integer(string="Final grade", compute="_compute_final_score", store=True, help="Final subject grade (equal to the computed grade).")
 	has_final = fields.Boolean(string="Has final", compute="_compute_has_final", store=True, help="Whether there is a final grade (the computed grade is available).")
-	notes = fields.Char(string="Notes", help="Free per-student remark for this subject grade.")
+	notes = fields.Char(string="Comments", help="Free per-student remark for this subject grade.")
 
 	# Used only for access-rule filtering.
 	teacher_id = fields.Many2one(string="Teacher", related="grade_session_id.teacher_id", store=False)

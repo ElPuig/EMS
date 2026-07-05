@@ -5,7 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 from psycopg2 import IntegrityError
 
 grade_round_selection = [("1", "1a"), ("2", "2a"), ("3", "3a"), ("4", "4a")]
-grade_state_selection = [("open", "Open"), ("board", "Board"), ("final", "Final")]
+grade_state_selection = [("open", "Open"), ("board", "Board"), ("final", "Finalised")]
 
 class ems_grade_session(models.Model):
 	_name = "ems.grade_session"

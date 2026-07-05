@@ -10,12 +10,13 @@ This section contains the manuals for **teachers**.
 
 ## Available Manuals
 
-*Coming soon...*
+| Manual | Description |
+|--------|-------------|
+| [Evaluation: Record grades by learning outcome](qualificacions.md) | Record the grades for each evaluation to prepare the evaluation board |
 
 ## Planned Topics
 
 - Attendance: management of attendance sessions and guard mode
-- Grades: introduction and grade consultation
 - Planning: session and content programming
 
 ---

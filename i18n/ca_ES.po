@@ -1129,7 +1129,9 @@ msgstr "<strong>Vàlid fins: </strong>"
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_grade_session_grade_session_is_duped
 msgid "A grade session already exists for this group, subject and round."
-msgstr "Ja existeix una sessió d'avaluació per a aquest grup, assignatura i avaluació."
+msgstr ""
+"Ja existeix una sessió d'avaluació per a aquest grup, assignatura i "
+"avaluació."
 
 #. module: ems
 #. odoo-python
@@ -1137,7 +1139,9 @@ msgstr "Ja existeix una sessió d'avaluació per a aquest grup, assignatura i av
 msgid ""
 "A grade session already exists for this group, subject and round. Please "
 "edit the existing one."
-msgstr "Ja existeix una sessió d'avaluació per a aquest grup, assignatura i avaluació. Editeu la ja existent."
+msgstr ""
+"Ja existeix una sessió d'avaluació per a aquest grup, assignatura i "
+"avaluació. Editeu la ja existent."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_study_subject
@@ -2489,6 +2493,9 @@ msgstr "Comentari"
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+#: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__notes
+#: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
+#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
 msgid "Comments"
 msgstr "Comentaris"
 
@@ -3814,12 +3821,12 @@ msgstr "ID extern"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__external_score
 msgid "External grade (e.g. work placement); informed manually."
-msgstr "Nota externa (p. ex. pràctiques en empresa); s'informa manualment."
+msgstr "Nota de pràctiques en empresa; s'informa manualment."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_planning__external_ponderation
 msgid "External grading ponderation (%)"
-msgstr "Ponderació de la gradació externa (%)"
+msgstr "Ponderació nota pràctiques empresa (%)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__external_hours
@@ -3829,17 +3836,17 @@ msgstr "Horari extern"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__external_ponderation
 msgid "External ponderation (%)"
-msgstr "Ponderació externa (%)"
+msgstr "Ponderació nota pràctiques empresa (%)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__external_score
 msgid "External score"
-msgstr "Nota externa"
+msgstr "Nota pràctiques empresa"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__external_is_scored
 msgid "External scored"
-msgstr "Externa informada"
+msgstr "Nota pràctiques empresa informada"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__nature__extraordinary
@@ -4244,7 +4251,9 @@ msgstr ""
 msgid ""
 "Grade outcome line: a student's score for a single learning outcome within a"
 " grade session."
-msgstr "Línia de qualificació per RA: la nota d'un estudiant per a un únic resultat d'aprenentatge dins d'una sessió d'avaluació."
+msgstr ""
+"Línia de qualificació per RA: la nota d'un estudiant per a un únic resultat "
+"d'aprenentatge dins d'una sessió d'avaluació."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__grade_session_id
@@ -4258,20 +4267,26 @@ msgstr "Sessió d'avaluació"
 msgid ""
 "Grade session state wizard: bulk state transition (board / final) by level "
 "or study."
-msgstr "Assistent d'estat de sessió d'avaluació: transició massiva d'estat (junta / final) per nivell o estudi."
+msgstr ""
+"Assistent d'estat de sessió d'avaluació: transició massiva d'estat (junta / "
+"final) per nivell o estudi."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_session_wizard
 msgid ""
 "Grade session wizard: bulk creation of grade sessions by level or study."
-msgstr "Assistent de sessions d'avaluació: creació massiva de sessions d'avaluació per nivell o estudi."
+msgstr ""
+"Assistent de sessions d'avaluació: creació massiva de sessions d'avaluació "
+"per nivell o estudi."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_session
 msgid ""
 "Grade session: student grading per learning outcome for a group, subject and"
 " round."
-msgstr "Sessió d'avaluació: qualificació de l'estudiant per resultat d'aprenentatge per a un grup, assignatura i avaluació."
+msgstr ""
+"Sessió d'avaluació: qualificació de l'estudiant per resultat d'aprenentatge "
+"per a un grup, assignatura i avaluació."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_grade_session_tree
@@ -4284,7 +4299,9 @@ msgstr "Sessions d'avaluació"
 msgid ""
 "Grade subject line: a student's subject grade within a grade session "
 "(computed from outcomes, teacher can override)."
-msgstr "Línia d'assignatura: la nota d'assignatura d'un estudiant dins d'una sessió d'avaluació (calculada a partir dels RA; el professor pot sobreescriure-la)."
+msgstr ""
+"Línia d'assignatura: la nota d'assignatura d'un estudiant dins d'una sessió "
+"d'avaluació (calculada a partir dels RA; el professor pot sobreescriure-la)."
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_grades
@@ -4902,12 +4919,14 @@ msgstr ""
 msgid ""
 "Internal grade (from the outcomes). Computed unless the teacher overrides "
 "it."
-msgstr "Nota interna (a partir dels RA). Es calcula tret que el professor la sobreescrigui."
+msgstr ""
+"Nota del centre (a partir dels RA). Es calcula tret que el professor la "
+"sobreescrigui."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_planning__internal_ponderation
 msgid "Internal grading ponderation (%)"
-msgstr "Ponderació de la gradació interna (%)"
+msgstr "Ponderació nota del centre (%)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__internal_hours
@@ -4922,17 +4941,17 @@ msgstr "Notes internes..."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__internal_ponderation
 msgid "Internal ponderation (%)"
-msgstr "Ponderació interna (%)"
+msgstr "Ponderació nota del centre (%)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__internal_score
 msgid "Internal score"
-msgstr "Nota interna"
+msgstr "Nota del centre"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__internal_is_scored
 msgid "Internal scored"
-msgstr "Interna informada"
+msgstr "Nota del centre informada"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__inuse_group_ids
@@ -5987,13 +6006,18 @@ msgstr "No s'ha trobat contacte familiar"
 msgid ""
 "No grade sessions were created (they may already exist for the selected "
 "round, or the groups have no enrolled subjects)."
-msgstr "No s'ha creat cap sessió d'avaluació (pot ser que ja existeixin per a l'avaluació seleccionada, o que els grups no tinguin assignatures matriculades)."
+msgstr ""
+"No s'ha creat cap sessió d'avaluació (pot ser que ja existeixin per a "
+"l'avaluació seleccionada, o que els grups no tinguin assignatures "
+"matriculades)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/grade_session_wizard.py:0
 msgid "No grade sessions were found for the selected scope and round."
-msgstr "No s'ha trobat cap sessió d'avaluació per a l'àmbit i l'avaluació seleccionats."
+msgstr ""
+"No s'ha trobat cap sessió d'avaluació per a l'àmbit i l'avaluació "
+"seleccionats."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_form
@@ -6001,7 +6025,11 @@ msgid ""
 "No planning found for this group's study and subject, so the subject grade "
 "cannot be computed from the ponderations. You can still inform the outcome "
 "scores and set the final grade manually."
-msgstr "No s'ha trobat planificació per a l'estudi i l'assignatura d'aquest grup, de manera que la nota de l'assignatura no es pot calcular a partir de les ponderacions. Encara pots informar les notes dels RA i establir la nota final manualment."
+msgstr ""
+"No s'ha trobat planificació per a l'estudi i l'assignatura d'aquest grup, de"
+" manera que la nota de l'assignatura no es pot calcular a partir de les "
+"ponderacions. Encara pots informar les notes dels RA i establir la nota "
+"final manualment."
 
 #. module: ems
 #. odoo-python
@@ -6050,7 +6078,6 @@ msgstr "Nota"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes
@@ -6058,7 +6085,6 @@ msgstr "Nota"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__notes
 #: model:ir.model.fields,field_description:ems.field_ems_content__notes
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__notes
-#: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__notes
 #: model:ir.model.fields,field_description:ems.field_ems_group__notes
 #: model:ir.model.fields,field_description:ems.field_ems_level__notes
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__notes
@@ -6380,7 +6406,7 @@ msgstr "Només els tutors poden justificar les faltes dels alumnes."
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__target_state__open
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
 msgid "Open"
-msgstr "Obrir"
+msgstr "Oberta"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
@@ -6518,7 +6544,7 @@ msgstr "Sobr."
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
 msgid "Int."
-msgstr "Int."
+msgstr "Centre"
 
 #. module: ems
 #. odoo-javascript
@@ -6536,7 +6562,7 @@ msgstr "Aplicant canvis…"
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
 msgid "Override Internal"
-msgstr "Sobreescriure interna"
+msgstr "Sobreescriure centre"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__overrided_teachers
@@ -8373,7 +8399,9 @@ msgstr "Enviat"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__computed_score
 msgid "Suggested subject grade applying the planning ponderations."
-msgstr "Nota de l'assignatura suggerida aplicant les ponderacions de la planificació."
+msgstr ""
+"Nota de l'assignatura suggerida aplicant les ponderacions de la "
+"planificació."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
@@ -8811,7 +8839,9 @@ msgstr ""
 #: code:addons/ems/models/grades/grade_subject_line.py:0
 msgid ""
 "This evaluation session is final; only administrators can edit the grades."
-msgstr "Aquesta sessió d'avaluació està en estat final; només els administradors poden editar les notes."
+msgstr ""
+"Aquesta sessió d'avaluació està en estat final; només els administradors "
+"poden editar les notes."
 
 #. module: ems
 #. odoo-python
@@ -8820,7 +8850,9 @@ msgstr "Aquesta sessió d'avaluació està en estat final; només els administra
 msgid ""
 "This evaluation session is in the board stage; only the group's tutor (or an"
 " administrator) can edit the grades."
-msgstr "Aquesta sessió d'avaluació està en fase de junta; només el tutor del grup (o un administrador) pot editar les notes."
+msgstr ""
+"Aquesta sessió d'avaluació està en fase de junta; només el tutor del grup (o"
+" un administrador) pot editar les notes."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -9440,41 +9472,53 @@ msgstr "Dia laborable"
 msgid ""
 "When set, the teacher's manual internal grade is kept; otherwise the "
 "internal grade is computed from the outcomes."
-msgstr "Quan està marcat, es manté la nota interna manual del professor; altrament, la nota interna es calcula a partir dels RA."
+msgstr ""
+"Quan està marcat, es manté la nota del centre manual del professor; "
+"altrament, la nota del centre es calcula a partir dels RA."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__computed_is_scored
 msgid ""
 "Whether every weighted component (internal / external) required by the "
 "planning has been informed."
-msgstr "Indica si s'han informat tots els components ponderats (intern / extern) requerits per la planificació."
+msgstr ""
+"Indica si s'han informat tots els components ponderats (centre / empresa) "
+"requerits per la planificació."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_session__can_edit
 msgid ""
 "Whether the current user may edit the grades at the session's current state."
-msgstr "Indica si l'usuari actual pot editar les notes en l'estat actual de la sessió."
+msgstr ""
+"Indica si l'usuari actual pot editar les notes en l'estat actual de la "
+"sessió."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__external_is_scored
 msgid ""
 "Whether the external grade has been informed (an empty external grade is "
 "excluded from the subject grade)."
-msgstr "Indica si s'ha informat la nota externa (una nota externa buida s'exclou de la nota de l'assignatura)."
+msgstr ""
+"Indica si s'ha informat la nota de pràctiques en empresa (una nota de "
+"pràctiques buida s'exclou de la nota de l'assignatura)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__internal_is_scored
 msgid ""
 "Whether the internal grade is informed (an outcome scored, or the teacher "
 "overrode it)."
-msgstr "Indica si la nota interna està informada (algun RA puntuat, o el professor la va sobreescriure)."
+msgstr ""
+"Indica si la nota del centre està informada (algun RA puntuat, o el "
+"professor la va sobreescriure)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_outcome_line__is_scored
 msgid ""
 "Whether the score has been informed (an empty score is excluded from the "
 "subject grade)."
-msgstr "Indica si s'ha informat la nota (una nota buida s'exclou de la nota de l'assignatura)."
+msgstr ""
+"Indica si s'ha informat la nota (una nota buida s'exclou de la nota de "
+"l'assignatura)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__has_final
@@ -9870,11 +9914,87 @@ msgstr "Obrir la matrícula"
 
 #. module: ems
 #: model:ir.model,name:ems.communication
-msgid "This communication cannot be cancelled: it has already been sent or is being processed."
-msgstr "Aquesta comunicació no es pot cancel·lar: ja ha estat enviada o s'està processant."
+msgid ""
+"This communication cannot be cancelled: it has already been sent or is being"
+" processed."
+msgstr ""
+"Aquesta comunicació no es pot cancel·lar: ja ha estat enviada o s'està "
+"processant."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_subject_id
 msgid "duplicated subject!"
 msgstr "tema duplicat!"
 
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__internal_is_complete
+msgid "Internal complete"
+msgstr "Nota del centre completa"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
+msgid "Internal"
+msgstr "Centre"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grade_matrix_field.js:0
+#: code:addons/ems/static/src/js/backend/grade_tutor_matrix.js:0
+msgid "External"
+msgstr "Empresa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__is_locked
+msgid "Locked"
+msgstr "Bloquejat"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_outcome_line__is_locked
+msgid ""
+"Whether this outcome was already passed (score >= 5) in an earlier round for"
+" the same student, group and subject; a passed outcome cannot be re-"
+"evaluated."
+msgstr ""
+"Indica si aquest RA ja es va aprovar (nota ≥ 5) en una avaluació anterior "
+"per al mateix alumne, grup i matèria; un RA aprovat no es pot reavaluar."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_subject_line__internal_is_complete
+msgid ""
+"Whether every learning outcome has been evaluated (or the internal grade was"
+" overridden). An incomplete internal grade is provisional."
+msgstr ""
+"Indica si s'han avaluat tots els RA (o s'ha sobreescrit la nota del centre)."
+" Una nota del centre incompleta és provisional."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_session.py:0
+msgid "Only administrators can archive or delete evaluation sessions."
+msgstr ""
+"Només els administradors poden arxivar o eliminar sessions d'avaluació."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grade_matrix_field.js:0
+#: code:addons/ems/static/src/js/backend/grade_tutor_matrix.js:0
+msgid "Provisional grade: some outcomes are still pending."
+msgstr "Nota provisional: queden RA per avaluar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_outcome_line.py:0
+msgid ""
+"This learning outcome was already passed in an earlier round; its grade "
+"cannot be modified."
+msgstr ""
+"Aquest RA ja es va aprovar en una avaluació anterior; la seva nota no es pot"
+" modificar."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_session__state__final
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__target_state__final
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
+msgid "Finalised"
+msgstr "Finalitzada"

@@ -47,7 +47,7 @@
                         <th class="text-center o_grade_matrix_col" t-esc="internalHeader"/>
                         <th class="text-center o_grade_matrix_col">Final</th>
                         <th class="o_grade_matrix_col o_grade_matrix_notes_h">
-                            Notes
+                            Comments
                             <span class="o_grade_matrix_resizer" t-on-mousedown="(ev) => this.onResizeStart('notes', ev)"/>
                         </th>
                     </tr>

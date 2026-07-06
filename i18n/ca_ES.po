@@ -1116,6 +1116,12 @@ msgid "More than one session is scheduled for the current time slot. Please sele
 msgstr "Hi ha més d'una sessió programada per a la franja horària actual. Si us plau, seleccioneu-ne una manualment o canvieu al mode 'Manual'."
 
 #. module: ems
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+#, python-format
+msgid "Justified absence — status and notes are locked."
+msgstr "Absència justificada — l'estat i les notes estan bloquejats."
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "API endpoint (host address) where the LimeSurvey server is listening."
 msgstr ""

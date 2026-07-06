@@ -269,7 +269,7 @@ class AttendanceSessionView extends Component {
         const lines = await this.orm.searchRead(
             "ems.attendance_session_line",
             [["attendance_session_id", "=", sessionId]],
-            ["id", "student_id", "status", "notes"],
+            ["id", "student_id", "status", "notes", "attendance_justification_id", "attendance_prevision_id"],
         );
 
         // Fetch lastnames to allow client-side sorting
@@ -386,6 +386,7 @@ class AttendanceSessionView extends Component {
             viewModeGuard:          _t("Guard"),
             continuationBanner:     _t("A previous session for the same subject has been detected for today, so assistance data has been copied from the previous one. You can modify any of those as you please."),
             multipleSessionsWarning: _t("More than one session is scheduled for the current time slot. Please select one manually or switch to 'Manual' mode."),
+            justifiedTitle:          _t("Justified absence — status and notes are locked."),
             deleteSession:          _t("Delete session"),
             deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
         };

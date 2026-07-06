@@ -240,6 +240,21 @@
     text-align: center;
 }
 
+/* --- Justified rows --------------------------------------- */
+.ems-av-line--justified td {
+    background: #f8f5ff;
+}
+.ems-av-line--justified:hover td {
+    background: #f0eaff;
+}
+.ems-av-justified-icon {
+    margin-left: 6px;
+    font-size: 0.75rem;
+    color: #6f42c1;
+    vertical-align: middle;
+    opacity: 0.8;
+}
+
 /* --- Student cell contents --------------------------------- */
 .ems-av-avatar {
     width: 44px;

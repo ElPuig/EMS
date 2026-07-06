@@ -149,19 +149,23 @@
                             </thead>
                             <tbody>
                                 <t t-foreach="state.lines" t-as="line" t-key="line.id">
-                                    <tr class="ems-av-line">
+                                    <t t-set="isJustified" t-value="!!(line.attendance_justification_id || line.attendance_prevision_id)"/>
+                                    <tr t-att-class="isJustified ? 'ems-av-line ems-av-line--justified' : 'ems-av-line'">
                                         <td class="ems-av-td-student">
                                             <img class="ems-av-avatar" t-att-src="avatarUrl(line)" alt=""/>
                                             <span class="ems-av-name"
                                                   t-att-title="line.student_id ? line.student_id[1] : ''"
                                                   t-esc="line.student_id ? line.student_id[1] : '—'"/>
+                                            <i t-if="isJustified"
+                                               class="fa fa-shield ems-av-justified-icon"
+                                               t-att-title="strings.justifiedTitle"/>
                                         </td>
                                         <t t-foreach="statuses" t-as="s" t-key="s.key">
                                             <td class="ems-av-td-status">
                                                 <button class="ems-av-status-btn"
                                                         t-att-class="line.status === s.key ? 'ems-av-status-btn--active' : ''"
                                                         t-att-title="s.title"
-                                                        t-att-disabled="state.saving[line.id]"
+                                                        t-att-disabled="state.saving[line.id] || isJustified"
                                                         t-on-click="() => this.onStatusClick(line.id, s.key)">
                                                     <t t-esc="s.label"/>
                                                 </button>
@@ -176,6 +180,7 @@
                                             <button class="ems-av-notes-btn"
                                                     t-att-class="line.notes ? 'ems-av-notes-btn--has-notes' : ''"
                                                     t-att-title="line.notes || strings.addNotes"
+                                                    t-att-disabled="isJustified"
                                                     t-on-click="() => this.onNotesClick(line.id, line.student_id ? line.student_id[1] : '', line.notes)">
                                                 <i class="fa fa-pencil"/>
                                             </button>

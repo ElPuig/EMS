@@ -47,17 +47,16 @@ class ems_attendance_justification(models.Model):
 			if record.start_date and record.end_date and record.start_date >= record.end_date:
 				raise ValidationError("The completion date must be later than the start date.")
 
-			domain = [
+			candidates = self.search([
 				('student_id', '=', record.student_id.id),
-				('id', '!=', record.id),                  
-				('start_date', '<', record.end_date),     
-				('end_date', '>', record.start_date),     
-			]
-			
-			if self.search_count(domain) > 0:
-				raise ValidationError(
-					f"The student {record.student_id.name} has another justification which overlaps with the current one."
-				)
+				('id', '!=', record.id),
+			])
+
+			for other in candidates:
+				if record.ranges_overlap(record.start_date, record.end_date, other.start_date, other.end_date):
+					raise ValidationError(
+						f"The student {record.student_id.name} has another justification which overlaps with the current one."
+					)
 					
 	@api.model
 	def default_get(self, fields_list):

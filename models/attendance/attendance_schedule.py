@@ -69,6 +69,38 @@ class ems_attendance_schedule(models.Model):
 			rec.name = "%s | %s | %s" % (rec.attendance_template_id.display_name, weekday_str, rec.time_range)
 			rec.display_name = rec.name
 
+	@api.constrains('weekday', 'start_time', 'end_time', 'space_id')
+	def check_overlap(self):
+		for rec in self:
+			template = rec.attendance_template_id
+			if not template.active or not (template.start_date and template.end_date):
+				continue
+
+			candidates = self.search([
+				('id', '!=', rec.id),
+				('weekday', '=', rec.weekday),
+				('attendance_template_id.active', '=', True),
+				('attendance_template_id.start_date', '<=', template.end_date),
+				('attendance_template_id.end_date', '>=', template.start_date),
+				'|',
+					('teacher_id', '=', template.teacher_id.id),
+					('space_id', '=', rec.space_id.id),
+			])
+
+			for other in candidates:
+				if not rec.ranges_overlap(rec.start_time, rec.end_time, other.start_time, other.end_time):
+					continue
+
+				same_teacher = other.teacher_id == template.teacher_id
+				reason = _("the same teacher") if same_teacher else _("the same space")
+				raise ValidationError(_(
+					"This session overlaps with another one (%(other)s): both fall on %(weekday)s "
+					"with overlapping times for %(reason)s.",
+					other=other.attendance_template_id.display_name,
+					weekday=dict(rec.weekdays_selection).get(rec.weekday),
+					reason=reason,
+				))
+
 	def unlink(self):
 		if len(self.attendance_session_ids) > 0:
 			raise ValidationError(_("This schedule have been already used to check the student's attendances and cannot be deleted. Please, update its data instead or archive the entire template and create a new one with the correct data."))

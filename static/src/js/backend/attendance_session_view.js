@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { Component, useState, onWillStart, useRef } from "@odoo/owl";
+import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { session } from "@web/session";
@@ -58,6 +59,7 @@ class AttendanceSessionView extends Component {
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
+        this.dialog = useService("dialog");
         this.statuses = [];   // populated in onWillStart from model fields_get
 
         this.notesDialog   = useRef("notesDialog");
@@ -365,7 +367,9 @@ class AttendanceSessionView extends Component {
             lastnameZA:        _t("Lastname Z→A"),
             nameAZ:            _t("Name A→Z"),
             nameZA:            _t("Name Z→A"),
-            guardMode:         _t("Guard mode"),
+            guardMode:              _t("Guard mode"),
+            deleteSession:          _t("Delete session"),
+            deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
         };
     }
 
@@ -506,6 +510,24 @@ class AttendanceSessionView extends Component {
         if (line) line.notes = notes || false;
         this.notesDialog.el.close();
         this.state.editingLineId = null;
+    }
+
+    onDeleteSession() {
+        if (!this.selectedSession) return;
+        const sessionId = this.selectedSession.id;
+        this.dialog.add(ConfirmationDialog, {
+            body: this.strings.deleteSessionConfirm,
+            confirm: async () => {
+                this.state.loading = true;
+                try {
+                    await this.orm.unlink("ems.attendance_session_header", [sessionId]);
+                    this.state.selected = null;
+                    await this._loadAll();
+                } finally {
+                    this.state.loading = false;
+                }
+            },
+        });
     }
 
     async onStartSession(scheduleId) {

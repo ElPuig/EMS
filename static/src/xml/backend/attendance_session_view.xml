@@ -55,6 +55,14 @@
                     </select>
                 </div>
 
+                <!-- Delete session button -->
+                <button t-if="selectedSession and !state.guardMode"
+                        class="ems-av-delete-btn"
+                        t-on-click="onDeleteSession">
+                    <i class="fa fa-trash"/>
+                    <t t-esc="strings.deleteSession"/>
+                </button>
+
                 <!-- Session / schedule selector -->
                 <div class="ems-av-session-wrap"
                      t-if="filteredSessions.length or filteredPlanned.length">

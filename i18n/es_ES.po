@@ -9278,3 +9278,15 @@ msgstr "Nombre Z→A"
 msgid "Guard mode"
 msgstr "Modo guardia"
 
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Delete session"
+msgstr "Eliminar sesión"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Delete this session? This action cannot be undone."
+msgstr "¿Eliminar esta sesión? Esta acción no se puede deshacer."
+

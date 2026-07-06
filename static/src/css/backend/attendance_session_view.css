@@ -90,6 +90,28 @@
     cursor: pointer;
 }
 
+/* --- Delete session button --------------------------------- */
+.ems-av-delete-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid #dc3545;
+    background: #dc3545;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+}
+.ems-av-delete-btn:hover {
+    background: #bb2d3b;
+    border-color: #b02a37;
+}
+
 /* --- Body -------------------------------------------------- */
 .ems-av-body {
     flex: 1;

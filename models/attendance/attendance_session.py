@@ -51,11 +51,6 @@ class ems_attendance_session_header(models.Model):
 	
 	attendance_session_line_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")			
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)
-	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)
-	
-	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)
-	is_duped = fields.Boolean(store=False)
-	is_next = fields.Boolean(store=False)	
 
 	notes = fields.Text("Notes")	
 	
@@ -128,117 +123,10 @@ class ems_attendance_session_header(models.Model):
 		for rec in self:
 			rec.display_name = "%s | %s | %s" % (rec.attendance_schedule_id.display_name, rec.date, rec.space_id.name)
 
-	@api.onchange("mode")
-	def _onchange_mode(self):
-		for rec in self:
-			ids = []		
-			for allowed in self._get_allowed_attendance_schedule_ids():				
-				ids.append(allowed.id)
-			rec.allowed_attendance_schedule_ids = [(6, 0, ids)]
-			rec.attendance_schedule_id = False if len(rec.allowed_attendance_schedule_ids) == 0 else rec.allowed_attendance_schedule_ids[0]
-		
-	@api.onchange("attendance_schedule_id")	
-	def _onchange_attendance_schedule_id(self):		
-		for rec in self:			
-			lines = []
-			rec.is_next = False
-			rec.is_duped = False
-			
-			for attendance_session_line in rec.attendance_session_line_ids:
-				# Unlink previous students
-				lines.append([3, attendance_session_line.id])
-
-			if rec.attendance_schedule_id.id != False:
-				now = datetime.now()
-				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin
-				rec.is_duped = self.env["ems.attendance_session_header"].search([("date", "=", now), ("attendance_schedule_id.id", "=", schedule_id)]) or False
-								
-				# NOTE: The first approach was to check if start_date of current == end_date of previous, but what happens if there's a coffe break between sessions?	
-				#		Its better to check if the same subject has been teached previously and load the same data (maybe there's a gap between, but the student assistance 
-				# 		data should be almost the same). 
-				previous = self.env["ems.attendance_session_header"].search(
-					[
-						("date", "=", self.date), 
-						("attendance_schedule_id.attendance_template_id.id", "=", rec.attendance_schedule_id.attendance_template_id.sudo().id),
-						("attendance_schedule_id.weekday", "=", rec.attendance_schedule_id.weekday)
-					], order="end_time DESC", limit=1)
-				
-				if previous:
-					end = previous.end_time
-					start = self.start_time
-					rec.is_next = (end <= start)	
-
-					if rec.is_next:
-						# Load new entries but with the previous session's data
-						for prev in previous.attendance_session_line_ids:
-							lines.append([0, 0, self._setup_next_session_line_data(prev)])
-						
-			if not rec.is_next:
-				# Load empty entries, must check absence prevission				
-				previssions = ems_attendance_justification.get_current_justifications(self)
-				for student in rec.attendance_schedule_id.attendance_template_id.sudo().student_ids:
-					# Sources: 
-					# 	https://stackoverflow.com/a/70843263
-					#	https://www.odoo.com/ro_RO/forum/suport-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
-					
-					# Linking new students					
-					line = None
-					for p in previssions:
-						if p.student_id == student:
-							line = p.perform_justification(self._setup_new_line_data(student), True)
-
-					if line is None:
-						line = self._setup_new_line_data(student, "a_attended")
-						
-					lines.append([0, 0, line])	
-			
-			# NOTE: if duped, avoid next message.
-			if rec.is_duped: rec.is_next = False
-			rec.attendance_session_line_ids = lines
-
-	def _default_teacher_id(self):							
+	def _default_teacher_id(self):
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
 
-	def _default_display_warning(self):						
-		attendance_schedule_records = self._get_allowed_attendance_schedule_ids()
-		return self.id == False and len(attendance_schedule_records) != 1
-	
-	def _get_allowed_attendance_schedule_ids(self):		
-		# TODO: this method is called twice on load, one from the _default_display_warning and the other one from _onchange_guard_mode
-		# 		the context (self.context) is not shared because there calls come from different instances, so I 
-		# 		can't share the registers in order to avoid duped calls...
-		today = datetime.now()
-		where = [("start_date", "<=", today), ("end_date", ">=", today)]	
-		
-		if self.mode == "manual" and not self.env.user.has_group('ems.group_admin'):
-			where.append(("teacher_id.user_id", "=", self.env.uid))
-		elif self.mode != "manual":
-			where.append(("weekday", "=", today.weekday()))
-			where.append(("teacher_id.user_id", "!=" if self.mode == "guard" else "=", self.env.uid))
 
-		# NOTE: the file security/rules.xml should define which records can be loaded depeding on the current user, 
-		# BUT all records must be avaliable (read only) on guard mode, so sudo will be used. 		
-		regs = self.sudo().env["ems.attendance_schedule"].search(where)
-		
-		if self.mode == "manual": 
-			return regs
-		else:					
-			current = []
-			for r in regs:
-				# NOTE: I wasn't able to filter the search by hour-range due timezones, so ill do it manually
-				# 		- Spain's summer period time: GMT+2 (UTC + 2h)
-				#       - Spain's winter period time: GMT+1 (UTC + 1h)	
-				# 		- Getting a winter's UTC current time won't fit when compared with a summer's UTC stored time.
-				#		
-				# 		SOLUTION: converting all UTC dates (the BBDD ones, as Odoo does) to local and compare. Less efficient,
-				#		but the schedules entries have been filtered at maximum. 
-				start = r.utc_datetime_to_local(r.start_date).time()
-				end = r.utc_datetime_to_local(r.end_date).time()				
-				now = r.utc_datetime_to_local(datetime.now()).time()
-				if now >= start and now < end:
-					current.append(r)		
-			return current			
-	
 	def _get_notification_tutor_eta(self, tutor=None):
 		if tutor and tutor.resource_calendar_id and tutor.resource_calendar_id.id != 1:
 			today = fields.Datetime.now()

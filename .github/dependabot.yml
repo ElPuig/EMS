@@ -6,8 +6,7 @@ updates:
     schedule:
       interval: "weekly"
     labels:
-      - "python"
-      - "dependencies"
+      - "ci"
 
   # 2. GitHub Actions
   - package-ecosystem: "github-actions"
@@ -23,5 +22,4 @@ updates:
     schedule:
       interval: "monthly"
     labels:
-      - "javascript"
-      - "frontend"
+      - "ci"

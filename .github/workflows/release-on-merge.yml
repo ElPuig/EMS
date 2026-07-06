@@ -43,4 +43,5 @@ jobs:
           gh release create "$TAG" \
             --target main \
             --title "$TAG" \
-            --notes "$NOTES"
+            --notes "$NOTES" \
+            --prerelease

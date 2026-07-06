@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.AttendanceSessionView">
+        <div class="ems-av-root">
+
+            <!-- ── Header ──────────────────────────────────────────── -->
+            <div class="ems-av-header"
+                 t-att-class="state.viewMode === 'guard' ? 'ems-av-header--guard' : ''">
+
+                <!-- Date navigation -->
+                <div t-att-class="state.viewMode !== 'manual' ? 'ems-av-date-nav ems-av-date-nav--disabled' : 'ems-av-date-nav'">
+                    <button class="ems-av-nav-btn"
+                            t-att-disabled="state.viewMode !== 'manual'"
+                            t-on-click="prevDay">&#8249;</button>
+                    <EmsDateInput
+                        value="dateValue"
+                        onApply.bind="onDateApply"
+                        disabled="state.viewMode !== 'manual'"/>
+                    <button class="ems-av-nav-btn"
+                            t-att-disabled="state.viewMode !== 'manual' or state.date >= todayStr"
+                            t-on-click="nextDay">&#8250;</button>
+                </div>
+
+                <!-- View mode selector -->
+                <div class="ems-av-mode-wrap">
+                    <select class="ems-av-session-select" t-on-change="onViewModeChange">
+                        <option value="current" t-att-selected="state.viewMode === 'current'">
+                            <t t-esc="strings.viewModeCurrent"/>
+                        </option>
+                        <option value="manual" t-att-selected="state.viewMode === 'manual'">
+                            <t t-esc="strings.viewModeManual"/>
+                        </option>
+                        <option value="guard" t-att-selected="state.viewMode === 'guard'">
+                            <t t-esc="strings.viewModeGuard"/>
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Group filter (manual and guard modes only) -->
+                <div class="ems-av-group-wrap" t-if="state.viewMode !== 'current'">
+                    <select class="ems-av-session-select" t-on-change="onGroupChange">
+                        <option value=""><t t-esc="strings.allGroups"/></option>
+                        <t t-foreach="state.groups" t-as="g" t-key="g">
+                            <option t-att-value="g"
+                                    t-att-selected="state.selectedGroup === g">
+                                <t t-esc="g"/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+
+                <!-- Sort selector -->
+                <div class="ems-av-sort-wrap">
+                    <select class="ems-av-session-select" t-on-change="onSortChange">
+                        <option value="lastname:asc"  t-att-selected="state.sortField === 'lastname' and state.sortDir === 'asc'"><t t-esc="strings.lastnameAZ"/></option>
+                        <option value="lastname:desc" t-att-selected="state.sortField === 'lastname' and state.sortDir === 'desc'"><t t-esc="strings.lastnameZA"/></option>
+                        <option value="name:asc"      t-att-selected="state.sortField === 'name' and state.sortDir === 'asc'"><t t-esc="strings.nameAZ"/></option>
+                        <option value="name:desc"     t-att-selected="state.sortField === 'name' and state.sortDir === 'desc'"><t t-esc="strings.nameZA"/></option>
+                    </select>
+                </div>
+
+                <!-- Delete session button -->
+                <button t-if="selectedSession and state.viewMode !== 'guard'"
+                        class="ems-av-delete-btn"
+                        t-on-click="onDeleteSession">
+                    <i class="fa fa-trash"/>
+                    <t t-esc="strings.deleteSession"/>
+                </button>
+
+                <!-- Session / schedule selector -->
+                <div class="ems-av-session-wrap"
+                     t-if="filteredSessions.length or filteredPlanned.length">
+                    <select class="ems-av-session-select" t-on-change="onSelectorChange">
+                        <optgroup t-if="filteredSessions.length" t-att-label="strings.sessions">
+                            <t t-foreach="filteredSessions" t-as="s" t-key="'session_' + s.id">
+                                <option t-att-value="'session_' + s.id"
+                                        t-att-selected="state.selected === 'session_' + s.id">
+                                    <t t-esc="sessionLabel(s)"/>
+                                </option>
+                            </t>
+                        </optgroup>
+                        <optgroup t-if="filteredPlanned.length" t-att-label="strings.planned">
+                            <t t-foreach="filteredPlanned" t-as="s" t-key="'schedule_' + s.id">
+                                <option t-att-value="'schedule_' + s.id"
+                                        t-att-selected="state.selected === 'schedule_' + s.id">
+                                    ○  <t t-esc="scheduleLabel(s)"/>
+                                </option>
+                            </t>
+                        </optgroup>
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- ── Body ────────────────────────────────────────────── -->
+            <div class="ems-av-body" t-if="!state.loading">
+
+                <!-- Multiple sessions warning (current mode only) -->
+                <div t-if="state.multipleCurrentSessions" class="ems-av-multiple-warning">
+                    <i class="fa fa-exclamation-triangle"/>
+                    <span><t t-esc="strings.multipleSessionsWarning"/></span>
+                </div>
+
+                <!-- No items at all -->
+                <t t-if="!filteredSessions.length and !filteredPlanned.length">
+                    <div class="ems-av-empty"><t t-esc="strings.noSessionsDay"/></div>
+                </t>
+
+                <!-- Planned schedule selected → show start button -->
+                <t t-elif="selectedSchedule">
+                    <div class="ems-av-planned-card">
+                        <div class="ems-av-planned-icon">📋</div>
+                        <div class="ems-av-planned-title">
+                            <t t-esc="scheduleLabel(selectedSchedule)"/>
+                        </div>
+                        <p class="ems-av-planned-hint">
+                            <t t-esc="strings.sessionNotStarted"/>
+                        </p>
+                        <button class="ems-av-start-btn"
+                                t-on-click="() => this.onStartSession(selectedSchedule.id)">
+                            ▶  <t t-esc="strings.startSession"/>
+                        </button>
+                    </div>
+                </t>
+
+                <!-- Existing session selected → show student lines -->
+                <t t-else="">
+                    <t t-if="!state.lines.length">
+                        <div class="ems-av-empty"><t t-esc="strings.noStudents"/></div>
+                    </t>
+                    <t t-else="">
+                        <div t-if="state.showContinuationBanner" class="ems-av-continuation-banner">
+                            <i class="fa fa-info-circle"/>
+                            <span><t t-esc="strings.continuationBanner"/></span>
+                            <button class="ems-av-continuation-close" t-on-click="dismissContinuationBanner">&#x2715;</button>
+                        </div>
+                        <table class="ems-av-table">
+                            <thead>
+                                <tr class="ems-av-col-headers">
+                                    <th class="ems-av-th-student"></th>
+                                    <t t-foreach="statuses" t-as="s" t-key="s.key">
+                                        <th class="ems-av-th-status" t-att-title="s.title">
+                                            <t t-esc="s.title"/>
+                                        </th>
+                                    </t>
+                                    <th class="ems-av-th-preview"></th>
+                                    <th class="ems-av-th-notes"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="state.lines" t-as="line" t-key="line.id">
+                                    <t t-set="isJustified" t-value="!!(line.attendance_justification_id || line.attendance_prevision_id)"/>
+                                    <tr t-att-class="isJustified ? 'ems-av-line ems-av-line--justified' : 'ems-av-line'">
+                                        <td class="ems-av-td-student">
+                                            <img class="ems-av-avatar" t-att-src="avatarUrl(line)" alt=""/>
+                                            <span class="ems-av-name"
+                                                  t-att-title="line.student_id ? line.student_id[1] : ''"
+                                                  t-esc="line.student_id ? line.student_id[1] : '—'"/>
+                                            <i t-if="isJustified"
+                                               class="fa fa-shield ems-av-justified-icon"
+                                               t-att-title="strings.justifiedTitle"/>
+                                        </td>
+                                        <t t-foreach="statuses" t-as="s" t-key="s.key">
+                                            <td class="ems-av-td-status">
+                                                <button class="ems-av-status-btn"
+                                                        t-att-class="line.status === s.key ? 'ems-av-status-btn--active' : ''"
+                                                        t-att-title="s.title"
+                                                        t-att-disabled="state.saving[line.id] || isJustified"
+                                                        t-on-click="() => this.onStatusClick(line.id, s.key)">
+                                                    <t t-esc="s.label"/>
+                                                </button>
+                                            </td>
+                                        </t>
+                                        <td class="ems-av-td-preview">
+                                            <span class="ems-av-notes-preview"
+                                                  t-if="line.notes"
+                                                  t-esc="line.notes"/>
+                                        </td>
+                                        <td class="ems-av-td-notes">
+                                            <button class="ems-av-notes-btn"
+                                                    t-att-class="line.notes ? 'ems-av-notes-btn--has-notes' : ''"
+                                                    t-att-title="line.notes || strings.addNotes"
+                                                    t-att-disabled="isJustified"
+                                                    t-on-click="() => this.onNotesClick(line.id, line.student_id ? line.student_id[1] : '', line.notes)">
+                                                <i class="fa fa-pencil"/>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+                </t>
+
+            </div>
+
+            <!-- ── Loading spinner ──────────────────────────────────── -->
+            <div class="ems-av-loading" t-if="state.loading">
+                <i class="fa fa-spinner fa-spin fa-2x"/>
+            </div>
+
+            <!-- ── Notes dialog ─────────────────────────────────────── -->
+            <dialog t-ref="notesDialog" class="ems-av-notes-dialog">
+                <div class="ems-av-notes-dialog-header">
+                    <i class="fa fa-pencil me-2"/>
+                    <span t-esc="state.editingStudentName"/>
+                </div>
+                <textarea t-ref="notesTextarea"
+                          class="ems-av-notes-textarea"
+                          rows="5"
+                          t-att-placeholder="strings.notesPlaceholder"/>
+                <div class="ems-av-notes-dialog-footer">
+                    <button class="ems-av-notes-cancel-btn" t-on-click="onNotesCancel">
+                        <t t-esc="strings.cancel"/>
+                    </button>
+                    <button class="ems-av-notes-save-btn" t-on-click="onNotesSave">
+                        <t t-esc="strings.save"/>
+                    </button>
+                </div>
+            </dialog>
+
+        </div>
+    </t>
+
+    <t t-name="ems.EmsDateInput">
+        <input type="text"
+               t-ref="start-date"
+               class="ems-av-date-input"
+               autocomplete="off"
+               t-att-disabled="props.disabled"/>
+    </t>
+
+    <t t-name="ems.EmsDatePickerPopover">
+        <DateTimePicker t-props="props.pickerProps">
+            <t t-set-slot="bottom_left">
+                <button class="btn btn-secondary btn-sm h-100 d-flex align-items-center justify-content-center"
+                        tabindex="-1"
+                        t-on-click="goToday"><t t-esc="todayLabel"/></button>
+            </t>
+        </DateTimePicker>
+    </t>
+</templates>

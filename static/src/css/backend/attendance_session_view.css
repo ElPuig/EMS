@@ -1,0 +1,522 @@
+/* ============================================================
+   EMS Attendance Pass-List View
+   ============================================================ */
+
+.ems-av-root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f4f5f7;
+}
+
+/* --- Header ------------------------------------------------ */
+.ems-av-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    background: #fff;
+    border-bottom: 1px solid #dee2e6;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.ems-av-date-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ems-av-date-nav--disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.ems-av-nav-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    flex-shrink: 0;
+    align-self: center;
+    border-radius: 50%;
+    border: 1px solid #ced4da;
+    background: #fff;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+.ems-av-nav-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.ems-av-date-input {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #212529;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 5px 8px;
+    background: #fff;
+    cursor: pointer;
+    min-width: 120px;
+    max-width: 160px;
+    height: 36px;
+    box-sizing: border-box;
+    line-height: 1;
+}
+
+.ems-av-session-wrap {
+    flex: 0 1 auto;
+    min-width: 180px;
+}
+
+.ems-av-session-select {
+    width: auto;
+    max-width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: #fff;
+    color: #212529;
+    cursor: pointer;
+}
+
+/* --- Delete session button --------------------------------- */
+.ems-av-delete-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid #dc3545;
+    background: #dc3545;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+}
+.ems-av-delete-btn:hover {
+    background: #bb2d3b;
+    border-color: #b02a37;
+}
+
+/* --- Body -------------------------------------------------- */
+.ems-av-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* --- Multiple sessions warning ----------------------------- */
+.ems-av-multiple-warning {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: #fff3cd;
+    border-bottom: 1px solid #ffc107;
+    color: #664d03;
+    font-size: 0.88rem;
+}
+.ems-av-multiple-warning .fa {
+    flex-shrink: 0;
+    font-size: 1rem;
+}
+.ems-av-multiple-warning span {
+    flex: 1;
+}
+
+/* --- Continuation banner ----------------------------------- */
+.ems-av-continuation-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: #cff4fc;
+    border-bottom: 1px solid #9eeaf9;
+    color: #055160;
+    font-size: 0.88rem;
+}
+.ems-av-continuation-banner .fa {
+    flex-shrink: 0;
+    font-size: 1rem;
+}
+.ems-av-continuation-banner span {
+    flex: 1;
+}
+.ems-av-continuation-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: #055160;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 2px;
+    opacity: 0.7;
+}
+.ems-av-continuation-close:hover {
+    opacity: 1;
+}
+
+/* --- Table ------------------------------------------------- */
+.ems-av-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+/* Sticky header */
+.ems-av-col-headers th {
+    position: sticky;
+    top: 0;
+    z-index: 9;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 6px 8px 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-align: center;
+    color: #6c757d;
+    line-height: 1.25;
+    white-space: normal;
+}
+
+/* Body rows */
+.ems-av-line td {
+    padding: 8px;
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+    transition: background 0.1s;
+}
+.ems-av-line:hover td {
+    background: #f8f9fa;
+}
+
+/* Student column */
+.ems-av-th-student {
+    padding-left: 20px;
+    text-align: left;
+}
+.ems-av-td-student {
+    padding: 8px 8px 8px 20px;
+    white-space: nowrap;
+}
+
+/* Status columns */
+.ems-av-th-status,
+.ems-av-td-status {
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Preview column — expands to fill all remaining space, clips with ellipsis */
+.ems-av-th-preview,
+.ems-av-td-preview {
+    width: 100%;
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+/* Pencil column */
+.ems-av-th-notes,
+.ems-av-td-notes {
+    white-space: nowrap;
+    padding-right: 20px;
+    text-align: center;
+}
+
+/* --- Justified rows --------------------------------------- */
+.ems-av-line--justified td {
+    background: #f8f5ff;
+}
+.ems-av-line--justified:hover td {
+    background: #f0eaff;
+}
+.ems-av-justified-icon {
+    margin-left: 6px;
+    font-size: 0.75rem;
+    color: #6f42c1;
+    vertical-align: middle;
+    opacity: 0.8;
+}
+
+/* --- Student cell contents --------------------------------- */
+.ems-av-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #dee2e6;
+    background: #e9ecef;
+    vertical-align: middle;
+}
+
+.ems-av-name {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #212529;
+    margin-left: 10px;
+}
+
+.ems-av-notes-preview {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* --- Status buttons --------------------------------------- */
+.ems-av-status-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #dee2e6;
+    background-color: #f1f3f5;
+    color: #adb5bd;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    padding: 0;
+    line-height: 1;
+}
+.ems-av-status-btn:hover {
+    background-color: #e2e6ea;
+    color: #495057;
+    border-color: #adb5bd;
+    transform: scale(1.08);
+}
+.ems-av-status-btn--active {
+    background-color: #343a40;
+    color: #fff;
+    border-color: #212529;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    transform: scale(1.05);
+}
+.ems-av-status-btn--active:hover {
+    background-color: #495057;
+    color: #fff;
+    border-color: #343a40;
+}
+.ems-av-status-btn:disabled {
+    cursor: wait;
+}
+
+/* --- Notes button ----------------------------------------- */
+.ems-av-notes-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #adb5bd;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.ems-av-notes-btn:hover {
+    background: #f0f0f0;
+    border-color: #adb5bd;
+    color: #495057;
+}
+.ems-av-notes-btn--has-notes {
+    color: #f07800;
+    border-color: #f07800;
+}
+.ems-av-notes-btn--has-notes:hover {
+    background: #fff3e0;
+}
+
+/* --- Notes dialog ----------------------------------------- */
+.ems-av-notes-dialog {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    width: 420px;
+    max-width: 95vw;
+}
+.ems-av-notes-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+}
+.ems-av-notes-dialog-header {
+    padding: 16px 20px 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #212529;
+    border-bottom: 1px solid #e9ecef;
+}
+.ems-av-notes-textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 20px;
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.92rem;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    color: #212529;
+    min-height: 120px;
+}
+.ems-av-notes-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 20px;
+}
+.ems-av-notes-cancel-btn {
+    padding: 7px 18px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background: #fff;
+    color: #495057;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.ems-av-notes-cancel-btn:hover { background: #f8f9fa; }
+.ems-av-notes-save-btn {
+    padding: 7px 18px;
+    border-radius: 6px;
+    border: none;
+    background: #00b269;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.ems-av-notes-save-btn:hover { background: #009558; }
+
+/* --- Planned session card ---------------------------------- */
+.ems-av-planned-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.ems-av-planned-icon {
+    font-size: 3rem;
+    line-height: 1;
+}
+
+.ems-av-planned-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.ems-av-planned-hint {
+    color: #6c757d;
+    margin: 0;
+}
+
+.ems-av-start-btn {
+    padding: 10px 28px;
+    border-radius: 8px;
+    border: none;
+    background: #00b269;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.ems-av-start-btn:hover {
+    background: #009558;
+}
+
+/* --- Empty / loading states ------------------------------- */
+.ems-av-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+    font-style: italic;
+    font-size: 1rem;
+}
+
+.ems-av-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: #6c757d;
+    font-size: 1.5rem;
+    padding: 60px;
+}
+
+/* --- Guard mode ------------------------------------------- */
+.ems-av-header--guard {
+    border-bottom-color: #fd7e14;
+    border-bottom-width: 2px;
+}
+
+.ems-av-mode-wrap {
+    flex-shrink: 0;
+}
+
+.ems-av-group-wrap {
+    flex-shrink: 0;
+}
+
+.ems-av-sort-wrap {
+    flex-shrink: 0;
+}
+
+/* --- Mobile ≤ 600px --------------------------------------- */
+@media (max-width: 600px) {
+    .ems-av-header {
+        padding: 8px 12px;
+        gap: 10px;
+    }
+    .ems-av-session-wrap {
+        flex: 1 1 auto;
+    }
+    .ems-av-th-student,
+    .ems-av-td-student {
+        padding-left: 12px;
+    }
+    .ems-av-td-notes {
+        padding-right: 12px;
+    }
+    .ems-av-name {
+        max-width: 100px;
+        font-size: 0.88rem;
+    }
+    .ems-av-status-btn {
+        width: 40px;
+        height: 40px;
+    }
+}

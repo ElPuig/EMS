@@ -4,77 +4,54 @@
             <field name="name">ems.attendance_session_header.form</field>
             <field name="model">ems.attendance_session_header</field>
             <field name="arch" type="xml">
-                <form string="Session" duplicate="0">
-                    <field name="is_duped" invisible="1"/> 
-                    <field name="is_next" invisible="1"/> 
-                    <field name="display_warning" invisible="1"/> 
-                    
-                    <!-- NOTE: other CSS classes: alert-success (green); alert-light; alert-primary; alert-secondary; alert-dark -->
-
-                    <div class="alert alert-danger" role="alert" name="alert-danger" invisible="not is_duped">
-                        <!-- TODO: this should be translated (localization) -->
-                        <!-- TODO: add the link to the existing one -->
-                        The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session.
-                    </div>
-
-                    <div class="alert alert-info" role="alert" name="alert-info" invisible="not is_next">
-                        <!-- TODO: this should be translated (localization) -->
-                        A previous session for the same subject has been detected for today, so assistance data has been copied from the previous one. You can modify any of those as you please.
-                    </div>
-
-                    <div class="alert alert-warning" role="alert" name="alert-warning" invisible="not display_warning">
-                        <!-- TODO: this should be translated (localization) -->
-                        Unable to load the current session, maybe none (or more than one) has been scheduled for the current date and time?. Please, choose one manually or activate the "guard mode" if needed.
-                    </div>
-                    
-                    <sheet>     
-                         <group string="Main data" col="4">
+                <form string="Session" create="0" duplicate="0">
+                    <sheet>
+                        <group string="Main data" col="4">
                             <group>
-                                <field name="mode" readonly="id"/>
-                            </group>   
+                                <field name="mode" readonly="True"/>
+                            </group>
 
-                            <group colspan="3">      
-                                <!-- <field name="attendance_schedule_id" readonly="id or (not display_warning and mode == 'scheduled')" domain="[('id', 'in', allowed_attendance_schedule_ids)]"/> -->
-                                <field name="attendance_schedule_id" readonly="id" domain="[('id', 'in', allowed_attendance_schedule_ids)]"/>
-                                <!-- <field name="attendance_schedule_id" domain="[('id', 'in', allowed_attendance_schedule_ids)]"/> -->
+                            <group colspan="3">
+                                <field name="attendance_schedule_id" readonly="True"/>
                             </group>
 
                             <group>
-                                <field name="date" readonly="id or mode != 'manual'"/>
-                            </group> 
+                                <field name="date" readonly="True"/>
+                            </group>
 
                             <group>
-                                <field name="session_teacher_id" string="Teacher" readonly="id or not user_is_admin" widget="many2one_avatar_employee"/>
-                            </group>   
+                                <field name="session_teacher_id" string="Teacher" readonly="True" widget="many2one_avatar_employee"/>
+                            </group>
 
                             <group>
                                 <field name="template_teacher_id" string="Holder" readonly="True" invisible="mode != 'guard' and not user_is_admin" widget="many2one_avatar_employee"/>
-                            </group>   
-                        
+                            </group>
+
                             <group>
-                                <field name="space_id" readonly="id"/>
-                            </group>                                             
-                        </group>                      
+                                <field name="space_id" readonly="True"/>
+                            </group>
+                        </group>
 
                         <notebook>
                             <page string="Statuses">
-                                <field name="attendance_session_line_ids" widget="one2many_list" context="{'show_attribute': False}"  mouseover="_onMouseOver">                                    
-                                    <list editable="bottom" default_order="student_id asc">                                       
-                                        <field name="image_1920" widget="image" readonly="True" force_save="True" />
-                                        <field name="student_id" width="175px" class="align-middle" domain="[('contact_type', '=', 'student'), ('id','not in', inuse_student_ids)]" readonly="id or is_auto_generated" force_save="True"/>
-                                        <field name="status" widget="radio" class="align-middle" options="{'horizontal': true}" readonly="attendance_justification_id or attendance_prevision_id" force_save="True" />
-                                        <field name="notes" width="350px" class="align-middle" readonly="attendance_justification_id or attendance_prevision_id" force_save="True" /> 
-                                        <field name="attendance_prevision_id" column_invisible="True"/> <!-- NOTE: needed in order to get and store the value in the back. --> 
+                                <field name="attendance_session_line_ids" widget="one2many_list">
+                                    <list default_order="student_id asc" editable="bottom" create="0" delete="0">
+                                        <field name="image_1920" widget="image" readonly="True"/>
+                                        <field name="student_id" width="175px" class="align-middle" readonly="True"/>
+                                        <field name="status" widget="radio" class="align-middle" options="{'horizontal': true}" readonly="True"/>
+                                        <field name="notes" width="350px" class="align-middle" readonly="True"/>
+                                        <field name="attendance_justification_id" readonly="True"/>
+                                        <field name="attendance_prevision_id" column_invisible="True"/>
                                     </list>
                                 </field>
-                            </page>     
+                            </page>
                             <page string="Notes">
-                                <field name="notes"/>
+                                <field name="notes" readonly="True"/>
                             </page>
                         </notebook>
-                    </sheet>	
-                </form>              
-            </field>			
+                    </sheet>
+                </form>
+            </field>
         </record>
     </data>
 </odoo>

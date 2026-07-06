@@ -4,7 +4,7 @@ from odoo import models, fields, api, _
 from .attendance_schedule import ems_attendance_schedule
 from .attendance_justification import ems_attendance_justification
 from datetime import datetime, timedelta
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import ValidationError, UserError, AccessError
 from psycopg2 import IntegrityError
 
 # NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
@@ -51,11 +51,6 @@ class ems_attendance_session_header(models.Model):
 	
 	attendance_session_line_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")			
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)
-	allowed_attendance_schedule_ids = fields.Many2many(comodel_name='ems.attendance_schedule', store=False)
-	
-	display_warning = fields.Boolean(default=lambda self: self._default_display_warning(), store=False)
-	is_duped = fields.Boolean(store=False)
-	is_next = fields.Boolean(store=False)	
 
 	notes = fields.Text("Notes")	
 	
@@ -128,117 +123,10 @@ class ems_attendance_session_header(models.Model):
 		for rec in self:
 			rec.display_name = "%s | %s | %s" % (rec.attendance_schedule_id.display_name, rec.date, rec.space_id.name)
 
-	@api.onchange("mode")
-	def _onchange_mode(self):
-		for rec in self:
-			ids = []		
-			for allowed in self._get_allowed_attendance_schedule_ids():				
-				ids.append(allowed.id)
-			rec.allowed_attendance_schedule_ids = [(6, 0, ids)]
-			rec.attendance_schedule_id = False if len(rec.allowed_attendance_schedule_ids) == 0 else rec.allowed_attendance_schedule_ids[0]
-		
-	@api.onchange("attendance_schedule_id")	
-	def _onchange_attendance_schedule_id(self):		
-		for rec in self:			
-			lines = []
-			rec.is_next = False
-			rec.is_duped = False
-			
-			for attendance_session_line in rec.attendance_session_line_ids:
-				# Unlink previous students
-				lines.append([3, attendance_session_line.id])
-
-			if rec.attendance_schedule_id.id != False:
-				now = datetime.now()
-				schedule_id = rec.attendance_schedule_id.id if isinstance(rec.attendance_schedule_id.id, int) else rec.attendance_schedule_id.id.origin
-				rec.is_duped = self.env["ems.attendance_session_header"].search([("date", "=", now), ("attendance_schedule_id.id", "=", schedule_id)]) or False
-								
-				# NOTE: The first approach was to check if start_date of current == end_date of previous, but what happens if there's a coffe break between sessions?	
-				#		Its better to check if the same subject has been teached previously and load the same data (maybe there's a gap between, but the student assistance 
-				# 		data should be almost the same). 
-				previous = self.env["ems.attendance_session_header"].search(
-					[
-						("date", "=", self.date), 
-						("attendance_schedule_id.attendance_template_id.id", "=", rec.attendance_schedule_id.attendance_template_id.sudo().id),
-						("attendance_schedule_id.weekday", "=", rec.attendance_schedule_id.weekday)
-					], order="end_time DESC", limit=1)
-				
-				if previous:
-					end = previous.end_time
-					start = self.start_time
-					rec.is_next = (end <= start)	
-
-					if rec.is_next:
-						# Load new entries but with the previous session's data
-						for prev in previous.attendance_session_line_ids:
-							lines.append([0, 0, self._setup_next_session_line_data(prev)])
-						
-			if not rec.is_next:
-				# Load empty entries, must check absence prevission				
-				previssions = ems_attendance_justification.get_current_justifications(self)
-				for student in rec.attendance_schedule_id.attendance_template_id.sudo().student_ids:
-					# Sources: 
-					# 	https://stackoverflow.com/a/70843263
-					#	https://www.odoo.com/ro_RO/forum/suport-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
-					
-					# Linking new students					
-					line = None
-					for p in previssions:
-						if p.student_id == student:
-							line = p.perform_justification(self._setup_new_line_data(student), True)
-
-					if line is None:
-						line = self._setup_new_line_data(student, "a_attended")
-						
-					lines.append([0, 0, line])	
-			
-			# NOTE: if duped, avoid next message.
-			if rec.is_duped: rec.is_next = False
-			rec.attendance_session_line_ids = lines
-
-	def _default_teacher_id(self):							
+	def _default_teacher_id(self):
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
 
-	def _default_display_warning(self):						
-		attendance_schedule_records = self._get_allowed_attendance_schedule_ids()
-		return self.id == False and len(attendance_schedule_records) != 1
-	
-	def _get_allowed_attendance_schedule_ids(self):		
-		# TODO: this method is called twice on load, one from the _default_display_warning and the other one from _onchange_guard_mode
-		# 		the context (self.context) is not shared because there calls come from different instances, so I 
-		# 		can't share the registers in order to avoid duped calls...
-		today = datetime.now()
-		where = [("start_date", "<=", today), ("end_date", ">=", today)]	
-		
-		if self.mode == "manual" and not self.env.user.has_group('ems.group_admin'):
-			where.append(("teacher_id.user_id", "=", self.env.uid))
-		elif self.mode != "manual":
-			where.append(("weekday", "=", today.weekday()))
-			where.append(("teacher_id.user_id", "!=" if self.mode == "guard" else "=", self.env.uid))
 
-		# NOTE: the file security/rules.xml should define which records can be loaded depeding on the current user, 
-		# BUT all records must be avaliable (read only) on guard mode, so sudo will be used. 		
-		regs = self.sudo().env["ems.attendance_schedule"].search(where)
-		
-		if self.mode == "manual": 
-			return regs
-		else:					
-			current = []
-			for r in regs:
-				# NOTE: I wasn't able to filter the search by hour-range due timezones, so ill do it manually
-				# 		- Spain's summer period time: GMT+2 (UTC + 2h)
-				#       - Spain's winter period time: GMT+1 (UTC + 1h)	
-				# 		- Getting a winter's UTC current time won't fit when compared with a summer's UTC stored time.
-				#		
-				# 		SOLUTION: converting all UTC dates (the BBDD ones, as Odoo does) to local and compare. Less efficient,
-				#		but the schedules entries have been filtered at maximum. 
-				start = r.utc_datetime_to_local(r.start_date).time()
-				end = r.utc_datetime_to_local(r.end_date).time()				
-				now = r.utc_datetime_to_local(datetime.now()).time()
-				if now >= start and now < end:
-					current.append(r)		
-			return current			
-	
 	def _get_notification_tutor_eta(self, tutor=None):
 		if tutor and tutor.resource_calendar_id and tutor.resource_calendar_id.id != 1:
 			today = fields.Datetime.now()
@@ -335,13 +223,18 @@ class ems_attendance_session_header(models.Model):
 		}
 	
 	def _setup_next_session_line_data(self, previous):
-		return  {
+		if previous.status == "m_justified":
+			return {
+				"student_id": previous.student_id,
+				"status": "m_miss",
+				"notes": None,
+				"is_auto_generated": True,
+			}
+		return {
 			"student_id": previous.student_id,
 			"status": "a_attended" if previous.status == "a_delayed" else previous.status,
 			"notes": previous.notes,
-			"attendance_justification_id": previous.attendance_justification_id,
-			"attendance_prevision_id" : previous.attendance_prevision_id,
-			"is_auto_generated" : True 
+			"is_auto_generated": True,
 		}
 
 	def _auto_checkin_teacher(self, teacher, date, schedule=None):
@@ -401,6 +294,47 @@ class ems_attendance_session_header(models.Model):
 			'in_mode': 'auto_check_in',
 		})
 
+	def _auto_populate_lines(self):
+		"""Populate session lines when created via ORM (onchange doesn't fire outside form view)."""
+		template = self.attendance_schedule_id.attendance_template_id.sudo()
+		lines = []
+
+		previous = self.env["ems.attendance_session_header"].search([
+			("date", "=", self.date),
+			("attendance_schedule_id.attendance_template_id", "=", template.id),
+			("attendance_schedule_id.weekday", "=", self.attendance_schedule_id.weekday),
+			("id", "!=", self.id),
+		], order="end_time DESC", limit=1)
+
+		previssions = ems_attendance_justification.get_current_justifications(self, self.start_date, self.end_date)
+
+		if previous and previous.end_time <= self.start_time:
+			for prev in previous.attendance_session_line_ids:
+				line = None
+				for p in previssions:
+					if p.student_id == prev.student_id:
+						line = p.perform_justification(self._setup_new_line_data(prev.student_id), True)
+				if line is None:
+					line = self._setup_next_session_line_data(prev)
+				lines.append(line)
+		else:
+			for student in template.student_ids:
+				line = None
+				for p in previssions:
+					if p.student_id == student:
+						line = p.perform_justification(self._setup_new_line_data(student), True)
+				if line is None:
+					line = self._setup_new_line_data(student, "a_attended")
+				lines.append(line)
+
+		if lines:
+			def _to_id(v):
+				return v.id if hasattr(v, '_name') else v
+			self.env['ems.attendance_session_line'].create([
+				{k: _to_id(v) for k, v in line.items()} | {'attendance_session_id': self.id}
+				for line in lines
+			])
+
 	@api.model_create_multi
 	def create(self, vals_list):
 		try:
@@ -412,6 +346,9 @@ class ems_attendance_session_header(models.Model):
 		notification_status_eta = self._get_notification_status_eta()
 
 		for record in records:
+			if not record.attendance_session_line_ids:
+				record._auto_populate_lines()
+
 			record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
 
 			# NOTE: Collecting all status data first allow some optimizations.
@@ -493,10 +430,118 @@ class ems_attendance_session_header(models.Model):
 	
 	def get_issue_status(self, attendance_session_line):
 		# NOTE: On rectification, multiple issue_status can be attanched to the same attendance_session_line, but we always
-		#		whant the most recent. 
+		#		whant the most recent.
 		repo = self.sudo().env['ems.attendance_issue_status']
 		issue_status = repo.search([('attendance_session_line_id', '=', attendance_session_line)], order='id desc', limit=1) or False
-		return {"repo": repo, "values": issue_status}	
+		return {"repo": repo, "values": issue_status}
+
+	# ── Guard mode (pass-list OWL component) ─────────────────────────────────
+
+	@api.model
+	def get_guard_sessions(self, date):
+		# Guard teachers need to see all sessions for the day regardless of ownership,
+		# except their own (already shown in normal mode).
+		# sudo() is required here — see security/rules/attendance.xml and the same
+		# pattern used in _get_allowed_attendance_schedule_ids().
+		if not (self.env.user.has_group('ems.group_teacher') or
+				self.env.user.has_group('ems.group_admin')):
+			raise AccessError(_("Guard mode requires teacher access."))
+		own_emp = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
+		domain = [['date', '=', date]]
+		if own_emp:
+			domain += ['!', '|',
+				['template_teacher_id', '=', own_emp.id],
+				['session_teacher_id', '=', own_emp.id]]
+		return self.sudo().search_read(
+			domain,
+			fields=['id', 'time_range', 'subject_id', 'study_id',
+					'attendance_schedule_id', 'start_time', 'end_time',
+					'attendance_session_line_ids'],
+			order='start_time asc',
+		)
+
+	@api.model
+	def get_guard_planned(self, date):
+		# Guard mode: return planned schedules (no session yet today) for other teachers.
+		# Own schedules are already shown in normal mode, so exclude them here.
+		# sudo() required — see get_guard_sessions().
+		if not (self.env.user.has_group('ems.group_teacher') or
+				self.env.user.has_group('ems.group_admin')):
+			raise AccessError(_("Guard mode requires teacher access."))
+		own_emp = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
+		weekday = str(datetime.strptime(date, '%Y-%m-%d').weekday())
+		used_ids = set(
+			self.sudo().search([['date', '=', date], ['attendance_schedule_id', '!=', False]])
+			.mapped('attendance_schedule_id.id')
+		)
+		domain = [['weekday', '=', weekday], ['id', 'not in', list(used_ids)],
+				  ['start_date', '<=', date], ['end_date', '>=', date]]
+		if own_emp:
+			domain.append(['attendance_template_id.teacher_id', '!=', own_emp.id])
+		return self.env['ems.attendance_schedule'].sudo().search_read(
+			domain,
+			fields=['id', 'name', 'time_range', 'attendance_template_id', 'start_time', 'end_time'],
+			order='start_time asc',
+		)
+
+	@api.model
+	def get_normal_sessions_and_planned(self, date):
+		is_admin = self.env.user.has_group('ems.group_admin')
+		own_emp  = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
+
+		session_domain = [['date', '=', date]]
+		if is_admin and own_emp:
+			session_domain += ['|',
+				['template_teacher_id', '=', own_emp.id],
+				['session_teacher_id',  '=', own_emp.id]]
+		sessions = self.search_read(
+			session_domain,
+			fields=['id', 'time_range', 'subject_id', 'study_id', 'attendance_schedule_id',
+					'attendance_session_line_ids', 'start_time', 'end_time'],
+			order='start_time asc',
+		)
+
+		weekday  = str(datetime.strptime(date, '%Y-%m-%d').weekday())
+		used_ids = [s['attendance_schedule_id'][0] for s in sessions if s['attendance_schedule_id']]
+		sched_domain = [
+			['weekday',    '=',  weekday],
+			['start_date', '<=', date],
+			['end_date',   '>=', date],
+			['id', 'not in', used_ids],
+		]
+		if is_admin and own_emp:
+			sched_domain.append(['attendance_template_id.teacher_id', '=', own_emp.id])
+		planned = self.env['ems.attendance_schedule'].search_read(
+			sched_domain,
+			fields=['id', 'name', 'time_range', 'attendance_template_id', 'start_time', 'end_time'],
+			order='start_time asc',
+		)
+		return {'sessions': sessions, 'planned': planned}
+
+	@api.model
+	def create_scheduled_session(self, date, schedule_id):
+		record   = self.create({'date': date, 'attendance_schedule_id': schedule_id, 'mode': 'scheduled'})
+		template = record.attendance_schedule_id.attendance_template_id
+		previous = self.search([
+			('date', '=', date),
+			('attendance_schedule_id.attendance_template_id', '=', template.id),
+			('attendance_schedule_id.weekday', '=', record.attendance_schedule_id.weekday),
+			('id', '!=', record.id),
+		], order='end_time DESC', limit=1)
+		return {
+			'id': record.id,
+			'is_continuation': bool(previous and previous.end_time <= record.start_time),
+		}
+
+	@api.model
+	def write_guard_session_line(self, line_id, values):
+		# Guard teachers need write access to lines in sessions they don't own.
+		# sudo() is required — same justification as get_guard_sessions().
+		if not (self.env.user.has_group('ems.group_teacher') or
+				self.env.user.has_group('ems.group_admin')):
+			raise AccessError(_("Guard mode requires teacher access."))
+		self.env['ems.attendance_session_line'].sudo().browse(line_id).write(values)
+		return True
 
 # NOTE: moved here because the status is strongly related to the session, it has no own list or form (as happens with the
 #		attendance issues).
@@ -557,7 +602,7 @@ class ems_attendance_session_line(models.Model):
 			if not rec.is_auto_generated:
 				data = rec.attendance_session_id._setup_new_line_data(rec.student_id)
 				data["is_auto_generated"] = False
-				previssions = ems_attendance_justification.get_current_justifications(self)
+				previssions = ems_attendance_justification.get_current_justifications(self, rec.attendance_session_id.start_date, rec.attendance_session_id.end_date)
 				for p in previssions:
 					if p.student_id == rec.student_id:
 						data = p.perform_justification(rec, True)

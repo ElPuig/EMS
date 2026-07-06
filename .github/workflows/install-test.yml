@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout EMS
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install system dependencies
         run: |

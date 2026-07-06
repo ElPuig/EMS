@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime, timedelta, timezone
 
-from odoo import models, fields, _
+from odoo import api, models, fields, _
 
 _logger = logging.getLogger(__name__)
 
@@ -13,6 +13,91 @@ class ems_attendance(models.Model):
     _description = 'HR Attendance: auto check-in/check-out extension.'
 
     in_mode = fields.Selection(selection_add=[('auto_check_in', 'Automatic Check-In')])
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Before opening a new check-in, try to auto-close any stale open
+        attendance the employee already has (e.g. the nightly cron missed a
+        run). Only closes attendances whose scheduled check-out has already
+        passed, so a genuinely ongoing session from today is never touched."""
+        for vals in vals_list:
+            employee_id = vals.get('employee_id')
+            if not employee_id or vals.get('check_out'):
+                continue
+
+            open_attendance = self.sudo().search([
+                ('employee_id', '=', employee_id),
+                ('check_out', '=', False),
+                ('employee_id.company_id.auto_check_out', '=', True),
+                ('employee_id.resource_calendar_id.flexible_hours', '=', False),
+            ], limit=1)
+            if open_attendance:
+                open_attendance._auto_close_attendance()
+
+        return super().create(vals_list)
+
+    def _auto_close_attendance(self):
+        """Close this open attendance using the last scheduled working hour
+        for its check-in date (with a check_in+1h fallback), regardless of
+        the current time of day. Returns True if it was closed, False if it
+        could not be (no schedule for that day, or the scheduled check-out
+        hasn't happened yet)."""
+        self.ensure_one()
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        work_date = self.check_in.date()
+        check_out = self._get_last_working_hour(self.employee_id, work_date)
+
+        if check_out is None:
+            _logger.warning(
+                "EMS auto-checkout: employee %s (id=%d) has no working schedule "
+                "for %s — skipping.",
+                self.employee_id.name, self.employee_id.id, work_date,
+            )
+            return False
+
+        if check_out > now:
+            return False
+
+        fallback = check_out <= self.check_in
+        if fallback:
+            check_out = self.check_in + timedelta(hours=1)
+            _logger.warning(
+                "EMS auto-checkout: computed check_out was before check_in for employee %s "
+                "(attendance id=%d) — using check_in + 1h fallback (%s).",
+                self.employee_id.name, self.id, check_out,
+            )
+            if check_out > now:
+                return False
+
+        self.sudo().write({
+            'check_out': check_out,
+            'out_mode': 'auto_check_out',
+        })
+
+        if fallback:
+            partners = (
+                self.employee_id.user_id.partner_id
+                | self.employee_id.parent_id.user_id.partner_id
+            )
+            self.message_post(
+                body=_(
+                    'Automatic check-out could not use the scheduled working hours '
+                    'because the check-in time (%s) is after the last scheduled hour. '
+                    'The check-out has been set to one hour after check-in (%s). '
+                    'Please review and correct the actual check-out time.'
+                ) % (self.check_in, check_out),
+                partner_ids=partners.ids,
+            )
+        else:
+            self.message_post(
+                body=_('This attendance was automatically checked out at the end of the scheduled working hours.')
+            )
+
+        _logger.info(
+            "EMS auto-checkout: employee %s checked out at %s (attendance id=%d).",
+            self.employee_id.name, check_out, self.id,
+        )
+        return True
 
     def _get_last_working_hour(self, employee, work_date):
         """Return the last hour_to (as naive UTC datetime) for the employee on work_date.
@@ -57,11 +142,8 @@ class ems_attendance(models.Model):
             )
             return
 
-        now = datetime.now(timezone.utc).replace(tzinfo=None)
-
         open_attendances = self.sudo().search([
             ('check_out', '=', False),
-            ('check_in', '<', now),
             ('employee_id.company_id.auto_check_out', '=', True),
             ('employee_id.resource_calendar_id.flexible_hours', '=', False),
         ])
@@ -74,64 +156,7 @@ class ems_attendance(models.Model):
 
         for attendance in open_attendances:
             try:
-                work_date = attendance.check_in.date()
-                check_out = self._get_last_working_hour(attendance.employee_id, work_date)
-
-                if check_out is None:
-                    _logger.warning(
-                        "EMS auto-checkout: employee %s (id=%d) has no working schedule "
-                        "for %s — skipping.",
-                        attendance.employee_id.name, attendance.employee_id.id, work_date,
-                    )
-                    continue
-
-                # Only close if the expected check_out has already passed
-                if check_out > now:
-                    continue
-
-                # If the employee checked in after their last scheduled hour, the computed
-                # check_out would be before check_in (invalid). Fall back to check_in + 1h
-                # and notify for manual correction.
-                fallback = check_out <= attendance.check_in
-                if fallback:
-                    check_out = attendance.check_in + timedelta(hours=1)
-                    _logger.warning(
-                        "EMS auto-checkout: computed check_out was before check_in for employee %s "
-                        "(attendance id=%d) — using check_in + 1h fallback (%s).",
-                        attendance.employee_id.name, attendance.id, check_out,
-                    )
-                    if check_out > now:
-                        continue
-
-                attendance.sudo().write({
-                    'check_out': check_out,
-                    'out_mode': 'auto_check_out',
-                })
-
-                if fallback:
-                    partners = (
-                        attendance.employee_id.user_id.partner_id
-                        | attendance.employee_id.parent_id.user_id.partner_id
-                    )
-                    attendance.message_post(
-                        body=_(
-                            'Automatic check-out could not use the scheduled working hours '
-                            'because the check-in time (%s) is after the last scheduled hour. '
-                            'The check-out has been set to one hour after check-in (%s). '
-                            'Please review and correct the actual check-out time.'
-                        ) % (attendance.check_in, check_out),
-                        partner_ids=partners.ids,
-                    )
-                else:
-                    attendance.message_post(
-                        body=_('This attendance was automatically checked out at the end of the scheduled working hours.')
-                    )
-
-                _logger.info(
-                    "EMS auto-checkout: employee %s checked out at %s (attendance id=%d).",
-                    attendance.employee_id.name, check_out, attendance.id,
-                )
-
+                attendance._auto_close_attendance()
             except Exception:
                 _logger.exception(
                     "EMS auto-checkout: unexpected error processing attendance id=%d "

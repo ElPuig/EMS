@@ -96,99 +96,111 @@
     overflow-y: auto;
 }
 
-.ems-av-line {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 10px 20px;
+/* --- Table ------------------------------------------------- */
+.ems-av-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+/* Sticky header */
+.ems-av-col-headers th {
+    position: sticky;
+    top: 0;
+    z-index: 9;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 6px 8px 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-align: center;
+    color: #6c757d;
+    line-height: 1.25;
+    white-space: normal;
+}
+
+/* Body rows */
+.ems-av-line td {
+    padding: 8px;
     background: #fff;
     border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
     transition: background 0.1s;
 }
-.ems-av-line:hover {
+.ems-av-line:hover td {
     background: #f8f9fa;
 }
 
+/* Student column */
+.ems-av-th-student {
+    padding-left: 20px;
+    text-align: left;
+}
+.ems-av-td-student {
+    padding: 8px 8px 8px 20px;
+    white-space: nowrap;
+}
+
+/* Status columns */
+.ems-av-td-status {
+    text-align: center;
+}
+
+/* Preview column — expands to fill all remaining space, clips with ellipsis */
+.ems-av-th-preview,
+.ems-av-td-preview {
+    width: 100%;
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+/* Pencil column */
+.ems-av-th-notes,
+.ems-av-td-notes {
+    white-space: nowrap;
+    padding-right: 20px;
+    text-align: center;
+}
+
+/* --- Student cell contents --------------------------------- */
 .ems-av-avatar {
     width: 44px;
     height: 44px;
     border-radius: 50%;
     object-fit: cover;
-    flex-shrink: 0;
     border: 2px solid #dee2e6;
     background: #e9ecef;
+    vertical-align: middle;
 }
 
 .ems-av-name {
-    flex: 0 0 220px;
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 0.95rem;
     font-weight: 500;
     color: #212529;
-    white-space: nowrap;
+    margin-left: 10px;
+}
+
+.ems-av-notes-preview {
+    display: block;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-/* --- Column headers --------------------------------------- */
-.ems-av-col-headers {
-    display: flex;
-    align-items: flex-end;
-    gap: 14px;
-    padding: 6px 20px 4px 24px; /* 24px = 20px padding + 4px to align with bordered rows */
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
-    position: sticky;
-    top: 0;
-    z-index: 9;
-}
-
-.ems-av-col-header-avatar {
-    width: 44px;
-    flex-shrink: 0;
-}
-
-.ems-av-col-header-name {
-    flex: 0 0 220px;
-}
-
-.ems-av-col-header-label {
-    flex: 0 0 var(--status-col-w, 80px);
-    font-size: 0.68rem;
-    font-weight: 600;
-    text-align: center;
-    line-height: 1.25;
+    white-space: nowrap;
+    font-size: 0.75rem;
     color: #6c757d;
-}
-
-.ems-av-col-header-notes {
-    flex-shrink: 0;
-    margin-left: auto;
-}
-
-@media (max-width: 600px) {
-    .ems-av-col-headers {
-        gap: 10px;
-        padding-left: 16px; /* 12px + 4px */
-    }
-    .ems-av-name { flex: 0 0 120px; }
-    .ems-av-col-header-name { flex: 0 0 120px; }
+    font-style: italic;
 }
 
 /* --- Status buttons --------------------------------------- */
-.ems-av-btns {
-    display: flex;
-    flex: 0 0 auto;
-    gap: 0;
-    justify-content: flex-start;
-}
-
-.ems-av-btn-cell {
-    flex: 0 0 var(--status-col-w, 80px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .ems-av-status-btn {
     width: 44px;
     height: 44px;
@@ -235,8 +247,6 @@
     color: #adb5bd;
     font-size: 0.85rem;
     cursor: pointer;
-    flex-shrink: 0;
-    margin-left: auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -253,11 +263,6 @@
 }
 .ems-av-notes-btn--has-notes:hover {
     background: #fff3e0;
-}
-
-.ems-av-col-header-notes {
-    width: 36px;
-    flex-shrink: 0;
 }
 
 /* --- Notes dialog ----------------------------------------- */
@@ -436,19 +441,19 @@
     .ems-av-session-wrap {
         flex: 1 1 auto;
     }
-    .ems-av-line {
-        padding: 8px 12px;
-        gap: 10px;
+    .ems-av-th-student,
+    .ems-av-td-student {
+        padding-left: 12px;
+    }
+    .ems-av-td-notes {
+        padding-right: 12px;
     }
     .ems-av-name {
-        flex: 0 0 120px;
+        max-width: 100px;
         font-size: 0.88rem;
     }
     .ems-av-status-btn {
-        width: 44px;
-        height: 44px;
-    }
-    .ems-av-btns {
-        gap: 4px;
+        width: 40px;
+        height: 40px;
     }
 }

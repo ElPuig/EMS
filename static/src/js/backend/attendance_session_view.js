@@ -82,6 +82,7 @@ class AttendanceSessionView extends Component {
             sortDir:   'asc',       // 'asc' | 'desc'
             viewMode: 'current',    // 'current' | 'manual' | 'guard'
             showContinuationBanner: false,
+            multipleCurrentSessions: false,
         });
 
         onWillStart(async () => {
@@ -217,6 +218,9 @@ class AttendanceSessionView extends Component {
 
         this.state.sessions = filteredSessions;
         this.state.planned  = filteredPlanned;
+        this.state.multipleCurrentSessions =
+            this.state.viewMode === 'current' &&
+            (filteredSessions.length + filteredPlanned.length) > 1;
 
         // Build a scheduleId → name map for sessions whose schedule wasn't in today's planned list
         const extraScheduleNameMap = Object.fromEntries(extraSchedules.map(s => [s.id, s.name]));
@@ -378,8 +382,10 @@ class AttendanceSessionView extends Component {
             nameAZ:            _t("Name A→Z"),
             nameZA:            _t("Name Z→A"),
             viewModeCurrent:        _t("Current session"),
-            viewModeManual:         _t("Manual selection"),
+            viewModeManual:         _t("Manual"),
             viewModeGuard:          _t("Guard"),
+            continuationBanner:     _t("A previous session for the same subject has been detected for today, so assistance data has been copied from the previous one. You can modify any of those as you please."),
+            multipleSessionsWarning: _t("More than one session is scheduled for the current time slot. Please select one manually or switch to 'Manual' mode."),
             deleteSession:          _t("Delete session"),
             deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
         };
@@ -549,6 +555,25 @@ class AttendanceSessionView extends Component {
     async onStartSession(scheduleId) {
         this.state.loading = true;
         try {
+            // Check for a previous session before creating, using data already in memory.
+            // Uses the same domain logic as _auto_populate_lines on the server.
+            const schedule = this.selectedSchedule;
+            let isCont = false;
+            if (schedule && schedule.attendance_template_id) {
+                const prev = await this.orm.searchRead(
+                    "ems.attendance_session_header",
+                    [
+                        ["date", "=", this.state.date],
+                        ["attendance_schedule_id.attendance_template_id", "=",
+                         schedule.attendance_template_id[0]],
+                        ["end_time", "<=", schedule.start_time],
+                    ],
+                    ["id"],
+                    { limit: 1 }
+                );
+                isCont = prev.length > 0;
+            }
+
             const [newId] = await this.orm.create("ems.attendance_session_header", [{
                 date: this.state.date,
                 attendance_schedule_id: scheduleId,
@@ -557,9 +582,14 @@ class AttendanceSessionView extends Component {
             await this._loadAll();
             this.state.selected = "session_" + newId;
             await this._loadLines(newId);
+            this.state.showContinuationBanner = isCont;
         } finally {
             this.state.loading = false;
         }
+    }
+
+    dismissContinuationBanner() {
+        this.state.showContinuationBanner = false;
     }
 }
 

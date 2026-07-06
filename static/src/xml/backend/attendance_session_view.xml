@@ -95,6 +95,12 @@
             <!-- ── Body ────────────────────────────────────────────── -->
             <div class="ems-av-body" t-if="!state.loading">
 
+                <!-- Multiple sessions warning (current mode only) -->
+                <div t-if="state.multipleCurrentSessions" class="ems-av-multiple-warning">
+                    <i class="fa fa-exclamation-triangle"/>
+                    <span><t t-esc="strings.multipleSessionsWarning"/></span>
+                </div>
+
                 <!-- No items at all -->
                 <t t-if="!filteredSessions.length and !filteredPlanned.length">
                     <div class="ems-av-empty"><t t-esc="strings.noSessionsDay"/></div>

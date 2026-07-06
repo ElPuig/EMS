@@ -459,20 +459,6 @@ class ems_attendance_session_header(models.Model):
 			record.create_notification_entries(issue_status_by_tutor, notification_status_eta=notification_status_eta)
 		return records
 	
-	@api.model
-	def is_continuation(self, session_id):
-		session = self.browse(session_id)
-		if not session.attendance_schedule_id:
-			return False
-		template = session.attendance_schedule_id.attendance_template_id.sudo()
-		previous = self.search([
-			("date", "=", session.date),
-			("attendance_schedule_id.attendance_template_id", "=", template.id),
-			("attendance_schedule_id.weekday", "=", session.attendance_schedule_id.weekday),
-			("id", "!=", session_id),
-		], order="end_time DESC", limit=1)
-		return bool(previous and previous.end_time <= session.start_time)
-
 	def copy(self, default=None):
 		raise UserError(_("Attendance sessions cannot be duplicated."))
 

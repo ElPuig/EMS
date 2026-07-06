@@ -37,6 +37,13 @@ class ems_attendance_template(models.Model):
 			if not rec.group_ids:
 				raise ValidationError(_("At least one group must be selected."))
 
+	@api.constrains('teacher_id', 'start_date', 'end_date', 'active')
+	def _check_schedule_overlap(self):
+		# NOTE: @api.constrains does not support dotted paths through relations, so changes to
+		# these template fields must re-trigger the check owned by ems.attendance_schedule.
+		for rec in self:
+			rec.attendance_schedule_ids.check_overlap()
+
 	@api.depends('subject_id', 'group_ids')
 	def _compute_display_name(self):
 		for rec in self:

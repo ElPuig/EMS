@@ -51,6 +51,9 @@ class ems_datetime_utils(models.AbstractModel):
             target_local += timedelta(days=1)
         return self.datetime_to_odoo(self.local_datetime_to_utc(target_local))
 
+    def ranges_overlap(self, start_a, end_a, start_b, end_b):
+        return start_a < end_b and end_a > start_b
+
     def time_string_to_float(self, value):
         # To convert from string like "17:45" to float like 17.75
 		# Source: https://www.odoo.com/es_ES/forum/ayuda-1/convert-hours-and-minute-into-float-value-168236

@@ -5,35 +5,39 @@
 
             <!-- ── Header ──────────────────────────────────────────── -->
             <div class="ems-av-header"
-                 t-att-class="state.guardMode ? 'ems-av-header ems-av-header--guard' : 'ems-av-header'">
+                 t-att-class="state.viewMode === 'guard' ? 'ems-av-header ems-av-header--guard' : 'ems-av-header'">
 
                 <!-- Date navigation -->
-                <div t-att-class="state.guardMode ? 'ems-av-date-nav ems-av-date-nav--disabled' : 'ems-av-date-nav'">
+                <div t-att-class="state.viewMode !== 'manual' ? 'ems-av-date-nav ems-av-date-nav--disabled' : 'ems-av-date-nav'">
                     <button class="ems-av-nav-btn"
-                            t-att-disabled="state.guardMode"
+                            t-att-disabled="state.viewMode !== 'manual'"
                             t-on-click="prevDay">&#8249;</button>
                     <EmsDateInput
                         value="dateValue"
                         onApply.bind="onDateApply"
-                        disabled="state.guardMode"/>
+                        disabled="state.viewMode !== 'manual'"/>
                     <button class="ems-av-nav-btn"
-                            t-att-disabled="state.guardMode or state.date >= todayStr"
+                            t-att-disabled="state.viewMode !== 'manual' or state.date >= todayStr"
                             t-on-click="nextDay">&#8250;</button>
                 </div>
 
-                <!-- Guard mode toggle -->
-                <div class="ems-av-guard-wrap">
-                    <label t-att-class="state.guardMode ? 'ems-av-guard-label ems-av-guard-label--active' : 'ems-av-guard-label'">
-                        <input type="checkbox"
-                               class="ems-av-guard-checkbox"
-                               t-att-checked="state.guardMode"
-                               t-on-change="onGuardModeChange"/>
-                        <t t-esc="strings.guardMode"/>
-                    </label>
+                <!-- View mode selector -->
+                <div class="ems-av-mode-wrap">
+                    <select class="ems-av-session-select" t-on-change="onViewModeChange">
+                        <option value="current" t-att-selected="state.viewMode === 'current'">
+                            <t t-esc="strings.viewModeCurrent"/>
+                        </option>
+                        <option value="manual" t-att-selected="state.viewMode === 'manual'">
+                            <t t-esc="strings.viewModeManual"/>
+                        </option>
+                        <option value="guard" t-att-selected="state.viewMode === 'guard'">
+                            <t t-esc="strings.viewModeGuard"/>
+                        </option>
+                    </select>
                 </div>
 
-                <!-- Group filter (only shown in guard mode) -->
-                <div class="ems-av-group-wrap" t-if="state.guardMode">
+                <!-- Group filter (manual and guard modes only) -->
+                <div class="ems-av-group-wrap" t-if="state.viewMode !== 'current'">
                     <select class="ems-av-session-select" t-on-change="onGroupChange">
                         <option value=""><t t-esc="strings.allGroups"/></option>
                         <t t-foreach="state.groups" t-as="g" t-key="g">
@@ -56,7 +60,7 @@
                 </div>
 
                 <!-- Delete session button -->
-                <button t-if="selectedSession and !state.guardMode"
+                <button t-if="selectedSession and state.viewMode !== 'guard'"
                         class="ems-av-delete-btn"
                         t-on-click="onDeleteSession">
                     <i class="fa fa-trash"/>

@@ -9263,8 +9263,20 @@ msgstr "Nom Z→A"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
-msgid "Guard mode"
-msgstr "Mode guàrdia"
+msgid "Current time"
+msgstr "Hora actual"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Manual"
+msgstr "Manual"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Guard"
+msgstr "Guàrdia"
 
 #. module: ems
 #. odoo-javascript

@@ -80,7 +80,7 @@ class AttendanceSessionView extends Component {
             editingStudentName: "",
             sortField: 'lastname',  // 'lastname' | 'name'
             sortDir:   'asc',       // 'asc' | 'desc'
-            guardMode: false,
+            viewMode: 'current',    // 'current' | 'manual' | 'guard'
         });
 
         onWillStart(async () => {
@@ -130,7 +130,7 @@ class AttendanceSessionView extends Component {
     async _loadAll() {
         this.state.loading = true;
 
-        if (this.state.guardMode) {
+        if (this.state.viewMode === 'guard') {
             await this._loadAllGuard();
         } else {
             await this._loadAllNormal();
@@ -200,13 +200,22 @@ class AttendanceSessionView extends Component {
             );
         }
 
-        this.state.sessions = sessions;
-
         // 4. Keep only schedules without an existing header for this date
         const usedScheduleIds = new Set(
             sessions.filter(s => s.attendance_schedule_id).map(s => s.attendance_schedule_id[0])
         );
-        this.state.planned = schedules.filter(s => !usedScheduleIds.has(s.id));
+        let filteredSessions = sessions;
+        let filteredPlanned = schedules.filter(s => !usedScheduleIds.has(s.id));
+
+        // In "current" mode restrict to the running time slot
+        if (this.state.viewMode === 'current') {
+            const now = this._nowAsFloat();
+            filteredSessions = filteredSessions.filter(s => s.start_time <= now && now < s.end_time);
+            filteredPlanned  = filteredPlanned.filter(s => s.start_time <= now && now < s.end_time);
+        }
+
+        this.state.sessions = filteredSessions;
+        this.state.planned  = filteredPlanned;
 
         // Build a scheduleId → name map for sessions whose schedule wasn't in today's planned list
         const extraScheduleNameMap = Object.fromEntries(extraSchedules.map(s => [s.id, s.name]));
@@ -367,7 +376,9 @@ class AttendanceSessionView extends Component {
             lastnameZA:        _t("Lastname Z→A"),
             nameAZ:            _t("Name A→Z"),
             nameZA:            _t("Name Z→A"),
-            guardMode:              _t("Guard mode"),
+            viewModeCurrent:        _t("Current time"),
+            viewModeManual:         _t("Manual"),
+            viewModeGuard:          _t("Guard"),
             deleteSession:          _t("Delete session"),
             deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
         };
@@ -458,8 +469,11 @@ class AttendanceSessionView extends Component {
         }
     }
 
-    async onGuardModeChange(ev) {
-        this.state.guardMode = ev.target.checked;
+    async onViewModeChange(ev) {
+        this.state.viewMode = ev.target.value;
+        if (this.state.viewMode !== 'manual') {
+            this.state.date = this._todayStr();
+        }
         await this._loadAll();
     }
 
@@ -467,7 +481,7 @@ class AttendanceSessionView extends Component {
         if (this.state.saving[lineId]) return;
         this.state.saving[lineId] = true;
         try {
-            if (this.state.guardMode) {
+            if (this.state.viewMode === 'guard') {
                 await this.orm.call(
                     "ems.attendance_session_header", "write_guard_session_line",
                     [lineId, { status }]
@@ -498,7 +512,7 @@ class AttendanceSessionView extends Component {
     async onNotesSave() {
         const lineId = this.state.editingLineId;
         const notes = this.notesTextarea.el.value.trim();
-        if (this.state.guardMode) {
+        if (this.state.viewMode === 'guard') {
             await this.orm.call(
                 "ems.attendance_session_header", "write_guard_session_line",
                 [lineId, { notes: notes || false }]

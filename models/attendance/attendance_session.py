@@ -223,13 +223,18 @@ class ems_attendance_session_header(models.Model):
 		}
 	
 	def _setup_next_session_line_data(self, previous):
-		return  {
+		if previous.status == "m_justified":
+			return {
+				"student_id": previous.student_id,
+				"status": "m_miss",
+				"notes": None,
+				"is_auto_generated": True,
+			}
+		return {
 			"student_id": previous.student_id,
 			"status": "a_attended" if previous.status == "a_delayed" else previous.status,
 			"notes": previous.notes,
-			"attendance_justification_id": previous.attendance_justification_id,
-			"attendance_prevision_id" : previous.attendance_prevision_id,
-			"is_auto_generated" : True 
+			"is_auto_generated": True,
 		}
 
 	def _auto_checkin_teacher(self, teacher, date, schedule=None):
@@ -301,11 +306,18 @@ class ems_attendance_session_header(models.Model):
 			("id", "!=", self.id),
 		], order="end_time DESC", limit=1)
 
+		previssions = ems_attendance_justification.get_current_justifications(self, self.start_date, self.end_date)
+
 		if previous and previous.end_time <= self.start_time:
 			for prev in previous.attendance_session_line_ids:
-				lines.append(self._setup_next_session_line_data(prev))
+				line = None
+				for p in previssions:
+					if p.student_id == prev.student_id:
+						line = p.perform_justification(self._setup_new_line_data(prev.student_id), True)
+				if line is None:
+					line = self._setup_next_session_line_data(prev)
+				lines.append(line)
 		else:
-			previssions = ems_attendance_justification.get_current_justifications(self)
 			for student in template.student_ids:
 				line = None
 				for p in previssions:
@@ -473,6 +485,55 @@ class ems_attendance_session_header(models.Model):
 		)
 
 	@api.model
+	def get_normal_sessions_and_planned(self, date):
+		is_admin = self.env.user.has_group('ems.group_admin')
+		own_emp  = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
+
+		session_domain = [['date', '=', date]]
+		if is_admin and own_emp:
+			session_domain += ['|',
+				['template_teacher_id', '=', own_emp.id],
+				['session_teacher_id',  '=', own_emp.id]]
+		sessions = self.search_read(
+			session_domain,
+			fields=['id', 'time_range', 'subject_id', 'study_id', 'attendance_schedule_id',
+					'attendance_session_line_ids', 'start_time', 'end_time'],
+			order='start_time asc',
+		)
+
+		weekday  = str(datetime.strptime(date, '%Y-%m-%d').weekday())
+		used_ids = [s['attendance_schedule_id'][0] for s in sessions if s['attendance_schedule_id']]
+		sched_domain = [
+			['weekday',    '=',  weekday],
+			['start_date', '<=', date],
+			['end_date',   '>=', date],
+			['id', 'not in', used_ids],
+		]
+		if is_admin and own_emp:
+			sched_domain.append(['attendance_template_id.teacher_id', '=', own_emp.id])
+		planned = self.env['ems.attendance_schedule'].search_read(
+			sched_domain,
+			fields=['id', 'name', 'time_range', 'attendance_template_id', 'start_time', 'end_time'],
+			order='start_time asc',
+		)
+		return {'sessions': sessions, 'planned': planned}
+
+	@api.model
+	def create_scheduled_session(self, date, schedule_id):
+		record   = self.create({'date': date, 'attendance_schedule_id': schedule_id, 'mode': 'scheduled'})
+		template = record.attendance_schedule_id.attendance_template_id
+		previous = self.search([
+			('date', '=', date),
+			('attendance_schedule_id.attendance_template_id', '=', template.id),
+			('attendance_schedule_id.weekday', '=', record.attendance_schedule_id.weekday),
+			('id', '!=', record.id),
+		], order='end_time DESC', limit=1)
+		return {
+			'id': record.id,
+			'is_continuation': bool(previous and previous.end_time <= record.start_time),
+		}
+
+	@api.model
 	def write_guard_session_line(self, line_id, values):
 		# Guard teachers need write access to lines in sessions they don't own.
 		# sudo() is required — same justification as get_guard_sessions().
@@ -541,7 +602,7 @@ class ems_attendance_session_line(models.Model):
 			if not rec.is_auto_generated:
 				data = rec.attendance_session_id._setup_new_line_data(rec.student_id)
 				data["is_auto_generated"] = False
-				previssions = ems_attendance_justification.get_current_justifications(self)
+				previssions = ems_attendance_justification.get_current_justifications(self, rec.attendance_session_id.start_date, rec.attendance_session_id.end_date)
 				for p in previssions:
 					if p.student_id == rec.student_id:
 						data = p.perform_justification(rec, True)

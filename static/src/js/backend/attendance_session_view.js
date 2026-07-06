@@ -104,18 +104,6 @@ class AttendanceSessionView extends Component {
         return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
     }
 
-    _weekdayStr(dateStr) {
-        const [y, m, d] = dateStr.split("-").map(Number);
-        return String((new Date(y, m - 1, d).getDay() + 6) % 7);
-    }
-
-    formatDate(dateStr) {
-        const [y, m, d] = dateStr.split("-").map(Number);
-        return new Date(y, m - 1, d).toLocaleDateString("es-ES", {
-            weekday: "long", day: "numeric", month: "long", year: "numeric",
-        });
-    }
-
     // ── Data loading ──────────────────────────────────────────────────────────
 
     async _loadStatuses() {
@@ -131,89 +119,30 @@ class AttendanceSessionView extends Component {
 
     async _loadAll() {
         this.state.loading = true;
-
-        if (this.state.viewMode === 'guard') {
-            await this._loadAllGuard();
-        } else {
-            await this._loadAllNormal();
+        try {
+            const now = this._nowAsFloat();
+            if (this.state.viewMode === 'guard') {
+                await this._loadAllGuard(now);
+            } else {
+                await this._loadAllNormal(now);
+            }
+            await this._autoSelect(now);
+        } finally {
+            this.state.loading = false;
         }
-
-        await this._autoSelect();
-        this.state.loading = false;
     }
 
-    async _loadAllNormal() {
-        // Admins bypass security rules, so we need an explicit teacher filter for both
-        // sessions and schedules. Non-admin teachers rely on record rules.
-        let teacherIds = [];
-        if (session.is_admin || session.is_system) {
-            const employees = await this.orm.searchRead(
-                "hr.employee", [["user_id", "=", session.uid]], ["id"]
-            );
-            teacherIds = employees.map(e => e.id);
-        }
-
-        // 1. Existing session headers for this date
-        const sessionDomain = [["date", "=", this.state.date]];
-        if (teacherIds.length) {
-            sessionDomain.push(
-                "|",
-                ["template_teacher_id", "in", teacherIds],
-                ["session_teacher_id", "in", teacherIds],
-            );
-        }
-        const sessions = await this.orm.searchRead(
-            "ems.attendance_session_header",
-            sessionDomain,
-            ["id", "time_range", "subject_id", "study_id", "attendance_schedule_id",
-             "attendance_session_line_ids", "start_time", "end_time"],
-            { order: "start_time asc" }
+    async _loadAllNormal(now) {
+        const { sessions, planned } = await this.orm.call(
+            "ems.attendance_session_header", "get_normal_sessions_and_planned", [this.state.date]
         );
 
-        // 2. Schedules for this weekday (admin needs explicit filter; teachers use security rules)
-        const weekday = this._weekdayStr(this.state.date);
-        const scheduleDomain = [
-            ["weekday", "=", weekday],
-            ["start_date", "<=", this.state.date],
-            ["end_date", ">=", this.state.date],
-        ];
-        if (teacherIds.length) {
-            scheduleDomain.push(["attendance_template_id.teacher_id", "in", teacherIds]);
-        }
-        const schedules = await this.orm.searchRead(
-            "ems.attendance_schedule",
-            scheduleDomain,
-            ["id", "name", "time_range", "attendance_template_id", "start_time", "end_time"],
-            { order: "start_time asc" }
-        );
-
-        // 3. Fetch extra schedules linked to existing sessions not in today's planned list
-        const plannedScheduleIds = new Set(schedules.map(s => s.id));
-        const extraScheduleIds = sessions
-            .filter(s => s.attendance_schedule_id && !plannedScheduleIds.has(s.attendance_schedule_id[0]))
-            .map(s => s.attendance_schedule_id[0]);
-
-        let extraSchedules = [];
-        if (extraScheduleIds.length) {
-            extraSchedules = await this.orm.searchRead(
-                "ems.attendance_schedule",
-                [["id", "in", extraScheduleIds]],
-                ["id", "name", "attendance_template_id"]
-            );
-        }
-
-        // 4. Keep only schedules without an existing header for this date
-        const usedScheduleIds = new Set(
-            sessions.filter(s => s.attendance_schedule_id).map(s => s.attendance_schedule_id[0])
-        );
         let filteredSessions = sessions;
-        let filteredPlanned = schedules.filter(s => !usedScheduleIds.has(s.id));
+        let filteredPlanned  = planned;
 
-        // In "current" mode restrict to the running time slot
         if (this.state.viewMode === 'current') {
-            const now = this._nowAsFloat();
-            filteredSessions = filteredSessions.filter(s => s.start_time <= now && now < s.end_time);
-            filteredPlanned  = filteredPlanned.filter(s => s.start_time <= now && now < s.end_time);
+            filteredSessions = filteredSessions.filter(s => this._isCurrentSlot(s, now));
+            filteredPlanned  = filteredPlanned.filter(s => this._isCurrentSlot(s, now));
         }
 
         this.state.sessions = filteredSessions;
@@ -222,41 +151,30 @@ class AttendanceSessionView extends Component {
             this.state.viewMode === 'current' &&
             (filteredSessions.length + filteredPlanned.length) > 1;
 
-        // Build a scheduleId → name map for sessions whose schedule wasn't in today's planned list
-        const extraScheduleNameMap = Object.fromEntries(extraSchedules.map(s => [s.id, s.name]));
-
-        // 5. Build the group selector from schedule names (format: "Subject (Group) | ...")
         const allGroups = new Set([
-            ...this.state.sessions.map(s => {
-                if (!s.attendance_schedule_id) return '';
-                const name = s.attendance_schedule_id[1] || extraScheduleNameMap[s.attendance_schedule_id[0]] || '';
-                return this._groupFromScheduleName(name);
-            }),
-            ...this.state.planned.map(s => this._groupFromScheduleName(s.name || '')),
+            ...filteredSessions.map(s => this._groupFromScheduleName(
+                s.attendance_schedule_id ? s.attendance_schedule_id[1] : '')),
+            ...filteredPlanned.map(s => this._groupFromScheduleName(s.name || '')),
         ]);
         allGroups.delete('');
         this.state.groups = [...allGroups].sort();
-
-        // Reset group filter when changing day (new day may have different groups)
         this.state.selectedGroup = null;
     }
 
-    async _loadAllGuard() {
-        // Guard mode: fetch all sessions and planned schedules for today via sudo() on the server.
+    async _loadAllGuard(now) {
         this.state.date = this._todayStr();
-        const now = this._nowAsFloat();
         const [allSessions, allPlanned] = await Promise.all([
             this.orm.call("ems.attendance_session_header", "get_guard_sessions", [this.state.date]),
             this.orm.call("ems.attendance_session_header", "get_guard_planned",  [this.state.date]),
         ]);
-        // Guard mode: only show sessions and planned schedules for the current time slot.
-        const sessions = allSessions.filter(s => s.start_time <= now && now < s.end_time);
-        const planned  = allPlanned.filter(s => s.start_time <= now && now < s.end_time);
+        const sessions = allSessions.filter(s => this._isCurrentSlot(s, now));
+        const planned  = allPlanned.filter(s => this._isCurrentSlot(s, now));
         this.state.sessions = sessions;
         this.state.planned  = planned;
 
         const allGroups = new Set([
-            ...sessions.map(s => this._groupFromScheduleName(s.attendance_schedule_id ? s.attendance_schedule_id[1] : '')),
+            ...sessions.map(s => this._groupFromScheduleName(
+                s.attendance_schedule_id ? s.attendance_schedule_id[1] : '')),
             ...planned.map(s => this._groupFromScheduleName(s.name || '')),
         ]);
         allGroups.delete('');
@@ -314,7 +232,25 @@ class AttendanceSessionView extends Component {
         return now.getHours() + now.getMinutes() / 60;
     }
 
-    async _autoSelect() {
+    _isCurrentSlot(s, now) {
+        return s.start_time <= now && now < s.end_time;
+    }
+
+    _parseSelectedId() {
+        return parseInt(this.state.selected.split("_")[1]);
+    }
+
+    async _writeSessionLine(lineId, values) {
+        if (this.state.viewMode === 'guard') {
+            await this.orm.call(
+                "ems.attendance_session_header", "write_guard_session_line", [lineId, values]
+            );
+        } else {
+            await this.orm.write("ems.attendance_session_line", [lineId], values);
+        }
+    }
+
+    async _autoSelect(now) {
         const sessions = this.filteredSessions;
         const planned = this.filteredPlanned;
 
@@ -329,10 +265,9 @@ class AttendanceSessionView extends Component {
         let bestSession = null;
         let bestSchedule = null;
         if (this.state.date === this._todayStr()) {
-            const now = this._nowAsFloat();
-            bestSession = sessions.find(s => s.start_time <= now && now < s.end_time) || null;
+            bestSession = sessions.find(s => this._isCurrentSlot(s, now)) || null;
             if (!bestSession) {
-                bestSchedule = planned.find(s => s.start_time <= now && now < s.end_time) || null;
+                bestSchedule = planned.find(s => this._isCurrentSlot(s, now)) || null;
             }
         }
 
@@ -413,14 +348,12 @@ class AttendanceSessionView extends Component {
 
     get selectedSession() {
         if (!this.state.selected?.startsWith("session_")) return null;
-        const id = parseInt(this.state.selected.split("_")[1]);
-        return this.filteredSessions.find(s => s.id === id) || null;
+        return this.filteredSessions.find(s => s.id === this._parseSelectedId()) || null;
     }
 
     get selectedSchedule() {
         if (!this.state.selected?.startsWith("schedule_")) return null;
-        const id = parseInt(this.state.selected.split("_")[1]);
-        return this.filteredPlanned.find(s => s.id === id) || null;
+        return this.filteredPlanned.find(s => s.id === this._parseSelectedId()) || null;
     }
 
     _groupFromScheduleName(name) {
@@ -456,12 +389,7 @@ class AttendanceSessionView extends Component {
         await this._loadAll();
     }
 
-    async onDateInput(ev) {
-        const today = this._todayStr();
-        const val = ev.target.value || today;
-        this.state.date = val > today ? today : val;
-        await this._loadAll();
-    }
+
 
     onGroupChange(ev) {
         this.state.selectedGroup = ev.target.value || null;
@@ -490,14 +418,7 @@ class AttendanceSessionView extends Component {
         if (this.state.saving[lineId]) return;
         this.state.saving[lineId] = true;
         try {
-            if (this.state.viewMode === 'guard') {
-                await this.orm.call(
-                    "ems.attendance_session_header", "write_guard_session_line",
-                    [lineId, { status }]
-                );
-            } else {
-                await this.orm.write("ems.attendance_session_line", [lineId], { status });
-            }
+            await this._writeSessionLine(lineId, { status });
             const line = this.state.lines.find(l => l.id === lineId);
             if (line) line.status = status;
         } finally {
@@ -520,15 +441,8 @@ class AttendanceSessionView extends Component {
 
     async onNotesSave() {
         const lineId = this.state.editingLineId;
-        const notes = this.notesTextarea.el.value.trim();
-        if (this.state.viewMode === 'guard') {
-            await this.orm.call(
-                "ems.attendance_session_header", "write_guard_session_line",
-                [lineId, { notes: notes || false }]
-            );
-        } else {
-            await this.orm.write("ems.attendance_session_line", [lineId], { notes: notes || false });
-        }
+        const notes  = this.notesTextarea.el.value.trim();
+        await this._writeSessionLine(lineId, { notes: notes || false });
         const line = this.state.lines.find(l => l.id === lineId);
         if (line) line.notes = notes || false;
         this.notesDialog.el.close();
@@ -556,34 +470,14 @@ class AttendanceSessionView extends Component {
     async onStartSession(scheduleId) {
         this.state.loading = true;
         try {
-            // Check for a previous session before creating, using data already in memory.
-            // Uses the same domain logic as _auto_populate_lines on the server.
-            const schedule = this.selectedSchedule;
-            let isCont = false;
-            if (schedule && schedule.attendance_template_id) {
-                const prev = await this.orm.searchRead(
-                    "ems.attendance_session_header",
-                    [
-                        ["date", "=", this.state.date],
-                        ["attendance_schedule_id.attendance_template_id", "=",
-                         schedule.attendance_template_id[0]],
-                        ["end_time", "<=", schedule.start_time],
-                    ],
-                    ["id"],
-                    { limit: 1 }
-                );
-                isCont = prev.length > 0;
-            }
-
-            const [newId] = await this.orm.create("ems.attendance_session_header", [{
-                date: this.state.date,
-                attendance_schedule_id: scheduleId,
-                mode: "scheduled",
-            }]);
+            const { id: newId, is_continuation } = await this.orm.call(
+                "ems.attendance_session_header", "create_scheduled_session",
+                [this.state.date, scheduleId]
+            );
             await this._loadAll();
             this.state.selected = "session_" + newId;
             await this._loadLines(newId);
-            this.state.showContinuationBanner = isCont;
+            this.state.showContinuationBanner = is_continuation;
         } finally {
             this.state.loading = false;
         }

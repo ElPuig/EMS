@@ -216,8 +216,10 @@
 }
 
 /* Status columns */
+.ems-av-th-status,
 .ems-av-td-status {
     text-align: center;
+    white-space: nowrap;
 }
 
 /* Preview column — expands to fill all remaining space, clips with ellipsis */
@@ -481,11 +483,15 @@
     border-bottom-width: 2px;
 }
 
-.ems-av-guard-wrap {
+.ems-av-mode-wrap {
     flex-shrink: 0;
 }
 
-.ems-av-mode-wrap {
+.ems-av-group-wrap {
+    flex-shrink: 0;
+}
+
+.ems-av-sort-wrap {
     flex-shrink: 0;
 }
 

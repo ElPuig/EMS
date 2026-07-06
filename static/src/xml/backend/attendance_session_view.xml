@@ -5,7 +5,7 @@
 
             <!-- ── Header ──────────────────────────────────────────── -->
             <div class="ems-av-header"
-                 t-att-class="state.viewMode === 'guard' ? 'ems-av-header ems-av-header--guard' : 'ems-av-header'">
+                 t-att-class="state.viewMode === 'guard' ? 'ems-av-header--guard' : ''">
 
                 <!-- Date navigation -->
                 <div t-att-class="state.viewMode !== 'manual' ? 'ems-av-date-nav ems-av-date-nav--disabled' : 'ems-av-date-nav'">

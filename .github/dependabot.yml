@@ -6,8 +6,7 @@ updates:
     schedule:
       interval: "weekly"
     labels:
-      - "python"
-      - "dependencies"
+      - "dependabot"
 
   # 2. GitHub Actions
   - package-ecosystem: "github-actions"
@@ -15,7 +14,7 @@ updates:
     schedule:
       interval: "monthly"
     labels:
-      - "ci"
+      - "dependabot"
 
   # 3. Frontend JS/OWL dependencies (package.json)
   - package-ecosystem: "npm"
@@ -23,5 +22,4 @@ updates:
     schedule:
       interval: "monthly"
     labels:
-      - "javascript"
-      - "frontend"
+      - "dependabot"

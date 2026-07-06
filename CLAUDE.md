@@ -77,6 +77,10 @@ Key rules applied in this project:
 - Loop variable named after the model, not `rec` (`for level in self:`).
 - XML `<record>`: `id` attribute before `model`.
 - f-strings instead of `%s` formatting.
+- **DRY, both server (Python) and client (JS):** never duplicate code. Reuse existing methods, extend them, or extract a new shared method/RPC call instead of copy-pasting logic.
+- **"Odoo way" first:** don't build a custom solution unless strictly necessary. Always check the official Odoo v18 documentation and existing Odoo/EMS patterns for a built-in mechanism before writing bespoke code.
+- Resulting code must be clean, simple, non-redundant, and well-refactored.
+- **All literals must be translatable:** wrap every user-facing string for translation (`_("...")` in Python, `_t("...")` in JS/OWL) so it can be picked up by the i18n files, with English as the default/source language.
 
 ## Documentation structure
 

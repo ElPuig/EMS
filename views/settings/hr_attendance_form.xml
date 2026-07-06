@@ -26,6 +26,9 @@
                             <field name="auto_checkout_time" widget="float_time" class="text-center" style="width: 5ch;"/>
                             <span class="ms-4 me-2">Retry until</span>
                             <field name="auto_checkout_retry_until" widget="float_time" class="text-center" style="width: 5ch;"/>
+                            <div class="text-muted mt-1">
+                                This only resolves attendances left open from previous days, never for the current day.
+                            </div>
                         </div>
                     </div>
                 </xpath>

@@ -134,8 +134,11 @@ class ems_attendance_justification(models.Model):
 		is_tutor = self.get_user_is_tutor_of_self()							
 		return is_admin or is_tutor
 
-	def get_current_justifications(self):
-		return self.sudo().env["ems.attendance_justification"].search([("start_date", "<=", fields.Datetime.now()), ("end_date", ">=", fields.Datetime.now())])
+	def get_current_justifications(self, start_date, end_date):
+		return self.sudo().env["ems.attendance_justification"].search([
+			("start_date", "<", end_date),
+			("end_date", ">", start_date),
+		])
 		
 	# NOTE: Called also from attendance_session (when creating lines as absence_prevission). 
 	# 		Write and create methods always want a dictionary (values) to know which fields must be updated. 
@@ -158,14 +161,12 @@ class ems_attendance_justification(models.Model):
 		vals["attendance_prevision_id" if prevision else "attendance_justification_id"] = self
 		return vals	
 
-	def remove_justification(self, line):	
+	def remove_justification(self, line):
 		# Given an attendance_session_line, changes the values to remove a justification (does not write).
-		# NOTE: this method uses always line as a model, removing a justification always work with already existing lines.			
-		text = PREVISION_CAPTION if line.attendance_prevision_id.id != False else JUSTIFICATION_CAPTION						
-		notes = False if line.notes == False else line.notes.replace(text + self.teacher_id.display_name, "")
+		# NOTE: this method uses always line as a model, removing a justification always work with already existing lines.
 		return {
 			"status": "m_miss",
-			"notes":  False if len(notes) == 0 else notes,
+			"notes": False,
 			"attendance_justification_id": None,
 			"attendance_prevision_id": None
 		}	

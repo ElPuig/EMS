@@ -1110,6 +1110,18 @@ msgstr ""
 " modificar-los al vostre gust."
 
 #. module: ems
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+#, python-format
+msgid "More than one session is scheduled for the current time slot. Please select one manually or switch to 'Manual' mode."
+msgstr "Hi ha més d'una sessió programada per a la franja horària actual. Si us plau, seleccioneu-ne una manualment o canvieu al mode 'Manual'."
+
+#. module: ems
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+#, python-format
+msgid "Justified absence — status and notes are locked."
+msgstr "Absència justificada — l'estat i les notes estan bloquejats."
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "API endpoint (host address) where the LimeSurvey server is listening."
 msgstr ""
@@ -8348,6 +8360,11 @@ msgid "Title"
 msgstr "Títol"
 
 #. module: ems
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Today"
+msgstr "Avuí"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__to_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__to_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__to_date
@@ -9165,4 +9182,140 @@ msgstr "↳ Altres conceptes de matrícula"
 #: model:ir.model,name:ems.communication
 msgid "This communication cannot be cancelled: it has already been sent or is being processed."
 msgstr "Aquesta comunicació no es pot cancel·lar: ja ha estat enviada o s'està processant."
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "All groups"
+msgstr "Tots els grups"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Sessions"
+msgstr "Sessions"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Planned (no session)"
+msgstr "Planificades (sense sessió)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "No sessions or scheduled timetables for this day."
+msgstr "No hi ha sessions ni horaris planificats per a aquest dia."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "This session has not been started for the selected day."
+msgstr "Aquesta sessió no ha estat iniciada per al dia seleccionat."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Start session"
+msgstr "Iniciar sessió"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "This session has no students."
+msgstr "Aquesta sessió no té alumnes."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Notes for this student..."
+msgstr "Notes per a aquest alumne..."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Add notes"
+msgstr "Afegir notes"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Cancel"
+msgstr "Cancel·lar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Save"
+msgstr "Guardar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Lastname A→Z"
+msgstr "Cognom A→Z"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Lastname Z→A"
+msgstr "Cognom Z→A"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Name A→Z"
+msgstr "Nom A→Z"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Name Z→A"
+msgstr "Nom Z→A"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Current time"
+msgstr "Hora actual"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Manual selection"
+msgstr "Sel·lecció manual"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Guard"
+msgstr "Guàrdia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Delete session"
+msgstr "Eliminar sessió"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Delete this session? This action cannot be undone."
+msgstr "Eliminar aquesta sessió? Aquesta acció no es pot desfer."
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_passlist
+#: model:ir.actions.client,name:ems.action_attendance_passlist
+msgid "Current"
+msgstr "Actual"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Current session"
+msgstr "Sessió actual"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_sessions
+msgid "History"
+msgstr "Històric"
 

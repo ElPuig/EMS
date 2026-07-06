@@ -123,6 +123,11 @@
                         <div class="ems-av-empty"><t t-esc="strings.noStudents"/></div>
                     </t>
                     <t t-else="">
+                        <div t-if="state.showContinuationBanner" class="ems-av-continuation-banner">
+                            <i class="fa fa-info-circle"/>
+                            <span><t t-esc="strings.continuationBanner"/></span>
+                            <button class="ems-av-continuation-close" t-on-click="dismissContinuationBanner">&#x2715;</button>
+                        </div>
                         <table class="ems-av-table">
                             <thead>
                                 <tr class="ems-av-col-headers">

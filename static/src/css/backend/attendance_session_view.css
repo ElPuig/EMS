@@ -118,6 +118,39 @@
     overflow-y: auto;
 }
 
+/* --- Continuation banner ----------------------------------- */
+.ems-av-continuation-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: #cff4fc;
+    border-bottom: 1px solid #9eeaf9;
+    color: #055160;
+    font-size: 0.88rem;
+}
+.ems-av-continuation-banner .fa {
+    flex-shrink: 0;
+    font-size: 1rem;
+}
+.ems-av-continuation-banner span {
+    flex: 1;
+}
+.ems-av-continuation-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: #055160;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 2px;
+    opacity: 0.7;
+}
+.ems-av-continuation-close:hover {
+    opacity: 1;
+}
+
 /* --- Table ------------------------------------------------- */
 .ems-av-table {
     width: 100%;

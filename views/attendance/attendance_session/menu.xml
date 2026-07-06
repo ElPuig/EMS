@@ -10,11 +10,11 @@
         </record>
 
         <record id="action_attendance_passlist" model="ir.actions.client">
-            <field name="name">Pass List</field>
+            <field name="name">Current</field>
             <field name="tag">ems_attendance_session_view</field>
         </record>
 
-        <menuitem name="Pass List" sequence="0" id="menu_attendance_passlist" parent="menu_attendance" action="action_attendance_passlist"/>
-        <menuitem name="Sessions" sequence="1" id="menu_attendance_sessions" parent="menu_attendance" action="action_attendance_session_tree"/>
+        <menuitem name="Current" sequence="0" id="menu_attendance_passlist" parent="menu_attendance" action="action_attendance_passlist"/>
+        <menuitem name="History" sequence="1" id="menu_attendance_sessions" parent="menu_attendance" action="action_attendance_session_tree"/>
     </data>
 </odoo>

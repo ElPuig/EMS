@@ -9269,8 +9269,8 @@ msgstr "Hora actual"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
-msgid "Manual"
-msgstr "Manual"
+msgid "Manual selection"
+msgstr "Sel·lecció manual"
 
 #. module: ems
 #. odoo-javascript
@@ -9289,4 +9289,21 @@ msgstr "Eliminar sessió"
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Delete this session? This action cannot be undone."
 msgstr "Eliminar aquesta sessió? Aquesta acció no es pot desfer."
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_passlist
+#: model:ir.actions.client,name:ems.action_attendance_passlist
+msgid "Current"
+msgstr "Actual"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Current session"
+msgstr "Sessió actual"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_attendance_sessions
+msgid "History"
+msgstr "Històric"
 

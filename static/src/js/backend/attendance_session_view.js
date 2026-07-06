@@ -81,6 +81,7 @@ class AttendanceSessionView extends Component {
             sortField: 'lastname',  // 'lastname' | 'name'
             sortDir:   'asc',       // 'asc' | 'desc'
             viewMode: 'current',    // 'current' | 'manual' | 'guard'
+            showContinuationBanner: false,
         });
 
         onWillStart(async () => {
@@ -376,8 +377,8 @@ class AttendanceSessionView extends Component {
             lastnameZA:        _t("Lastname Z→A"),
             nameAZ:            _t("Name A→Z"),
             nameZA:            _t("Name Z→A"),
-            viewModeCurrent:        _t("Current time"),
-            viewModeManual:         _t("Manual"),
+            viewModeCurrent:        _t("Current session"),
+            viewModeManual:         _t("Manual selection"),
             viewModeGuard:          _t("Guard"),
             deleteSession:          _t("Delete session"),
             deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
@@ -462,6 +463,7 @@ class AttendanceSessionView extends Component {
 
     async onSelectorChange(ev) {
         this.state.selected = ev.target.value;
+        this.state.showContinuationBanner = false;
         if (this.selectedSession) {
             await this._loadLines(this.selectedSession.id);
         } else {

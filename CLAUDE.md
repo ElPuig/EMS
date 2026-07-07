@@ -118,13 +118,24 @@ The `data/` directory has three subfolders with different ID ownership semantics
 
 **Load order:** within `data/custom/`, always list files so that referenced records are declared before the files that reference them (e.g. `ems.subject.csv` before `ems.study.csv`).
 
-## DTON methodology
+## DTON cleaning methodology
 
 A retroactive code quality process applied model by model:
 
 1. **D — Diagrams:** Technical docs in English (`docs/en/developers/`) with Mermaid diagrams; user docs in all three languages (`docs/{en,ca,es}/admin/`).
 2. **T — Testing:** Backend `TransactionCase` tests + browser tour test.
-3. **O — Optimization:** `_order`, `_sql_constraints`, view fixes, computed field guards.
+3. **O — Optimization:** `_order`, `_sql_constraints`, view fixes, computed field guards, refactoring, cleaner and simple code.
 4. **N — Normalization:** Apply Odoo v18 official coding guidelines.
 
 Run the full test suite after O and again after N to gate each phase.
+
+## New feature workflow (TDD + DTON)
+
+DTON above is the retroactive process; this is how new models/features should be built so that they arrive already DTON-compliant instead of needing a cleanup pass later. It is TDD's Red-Green-Refactor cycle, with D/O/N slotted into it — no separate process to remember:
+
+1. **Spec (before Red) — D:** Before any test or code, stub `docs/en/developers/<area>/<model>.md` (Mermaid diagram of hierarchy/relations, CRUD flow, access-control table) and `docs/{en,ca,es}/admin/<model>.md`. This stub is the acceptance criteria for the cycle below.
+2. **Red — T:** Write `tests/test_<model>.py` (`TransactionCase`) and, if applicable, the tour (`static/tests/tours/<model>_tour.js` + `tests/test_<model>_tour.py`) before the model exists. `./test.sh` must fail.
+3. **Green — T:** Write the minimum code to pass: `models/<area>/<model>.py`, `security/ir.model.access.csv` (+ `security/rules/*.xml` if needed), `views/<area>/<model>/{form,list,menu}.xml`, manifest bump. `./test.sh` must pass.
+4. **Refactor — O + N:** In the same cycle, not as a later pass: add `_order`, `_sql_constraints`, computed field guards, view fixes (O); apply the Odoo v18 coding guidelines from the "Coding standards" section above — model attribute order, alphabetical imports, f-strings, loop variable naming, translatable literals (N).
+5. **Gate:** `./upgrade.sh` and `./test.sh` after each Red-Green-Refactor cycle.
+6. **Close — D:** Fill in the three admin doc translations and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle.

@@ -93,7 +93,7 @@
             <field name="name">Administrator</field>
             <field name="comment">Access rights for the Secretary department's administrator. Currently identical to Manager.</field>
             <field name="category_id" ref="ems.category_secretary"/>
-            <field name="implied_ids" eval="[(4, ref('ems.group_secretary'))]"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_secretary')), (4, ref('hr.group_hr_manager'))]"/>
         </record>
 
         <record model="res.groups" id="group_academic_admin">

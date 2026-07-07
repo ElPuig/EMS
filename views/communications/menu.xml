@@ -8,11 +8,11 @@
         </record>
 
         <menuitem name="Communications" sequence="5" id="menu_communications"
-                  groups="ems.group_admin"/>
+                  groups="ems.group_academic_admin"/>
 
         <menuitem name="Notices" sequence="1" id="menu_communications_list"
                   parent="menu_communications"
                   action="action_communication_list"
-                  groups="ems.group_admin"/>
+                  groups="ems.group_academic_admin"/>
     </data>
 </odoo>

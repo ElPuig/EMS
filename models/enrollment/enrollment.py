@@ -233,7 +233,7 @@ class ems_SaleOrder(models.Model):
         teachers = (
             self.env.ref('ems.group_teacher').users
             - self.env.ref('ems.group_secretary').users
-            - self.env.ref('ems.group_admin').users
+            - self.env.ref('ems.group_academic_admin').users
         )
         teacher_partner_ids = teachers.mapped('partner_id').ids
         if teacher_partner_ids:
@@ -374,7 +374,7 @@ class ems_SaleOrder(models.Model):
         return (
             self.env.user.has_group('ems.group_teacher') and
             not self.env.user.has_group('ems.group_tutor') and
-            not self.env.user.has_group('ems.group_admin') and
+            not self.env.user.has_group('ems.group_academic_admin') and
             not self.env.user.has_group('ems.group_secretary')
         )
 

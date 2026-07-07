@@ -444,7 +444,7 @@ class ems_attendance_session_header(models.Model):
 		# sudo() is required here — see security/rules/attendance.xml and the same
 		# pattern used in _get_allowed_attendance_schedule_ids().
 		if not (self.env.user.has_group('ems.group_teacher') or
-				self.env.user.has_group('ems.group_admin')):
+				self.env.user.has_group('ems.group_academic_admin')):
 			raise AccessError(_("Guard mode requires teacher access."))
 		own_emp = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
 		domain = [['date', '=', date]]
@@ -466,7 +466,7 @@ class ems_attendance_session_header(models.Model):
 		# Own schedules are already shown in normal mode, so exclude them here.
 		# sudo() required — see get_guard_sessions().
 		if not (self.env.user.has_group('ems.group_teacher') or
-				self.env.user.has_group('ems.group_admin')):
+				self.env.user.has_group('ems.group_academic_admin')):
 			raise AccessError(_("Guard mode requires teacher access."))
 		own_emp = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
 		weekday = str(datetime.strptime(date, '%Y-%m-%d').weekday())
@@ -486,7 +486,7 @@ class ems_attendance_session_header(models.Model):
 
 	@api.model
 	def get_normal_sessions_and_planned(self, date):
-		is_admin = self.env.user.has_group('ems.group_admin')
+		is_admin = self.env.user.has_group('ems.group_academic_admin')
 		own_emp  = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
 
 		session_domain = [['date', '=', date]]
@@ -538,7 +538,7 @@ class ems_attendance_session_header(models.Model):
 		# Guard teachers need write access to lines in sessions they don't own.
 		# sudo() is required — same justification as get_guard_sessions().
 		if not (self.env.user.has_group('ems.group_teacher') or
-				self.env.user.has_group('ems.group_admin')):
+				self.env.user.has_group('ems.group_academic_admin')):
 			raise AccessError(_("Guard mode requires teacher access."))
 		self.env['ems.attendance_session_line'].sudo().browse(line_id).write(values)
 		return True

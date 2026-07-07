@@ -15,12 +15,29 @@ class TestEmployeeRoleGroupSync(TransactionCase):
             'employee_type': 'teacher',
             'user_id': cls.user.id,
         })
+        cls.asp_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test ASP User',
+            'login': 'test_asp_user',
+        })
+        cls.asp_employee = cls.env['hr.employee'].create({
+            'name': 'Test ASP Employee',
+            'employee_type': 'asp',
+            'user_id': cls.asp_user.id,
+        })
         cls.role_hos = cls.env.ref('ems.role_hos')
         cls.role_dhos = cls.env.ref('ems.role_dhos')
+        cls.role_director = cls.env.ref('ems.role_director')
+        cls.role_secretary = cls.env.ref('ems.role_secretary')
+        cls.role_secretary_admin = cls.env.ref('ems.role_secretary_admin')
+        cls.job_secretary = cls.env.ref('ems.job_secretary')
         cls.group_head_of_studies = cls.env.ref('ems.group_head_of_studies')
+        cls.group_director = cls.env.ref('ems.group_director')
+        cls.group_secretary = cls.env.ref('ems.group_secretary')
+        cls.group_secretary_admin = cls.env.ref('ems.group_secretary_admin')
         # These roles are unipersonal and may already be assigned to a real employee
         # in the working database; clear them so the tests are self-contained.
-        (cls.role_hos + cls.role_dhos).sudo().write({'employee_ids': [(5, 0, 0)]})
+        unipersonal_roles = cls.role_hos + cls.role_dhos + cls.role_director + cls.role_secretary_admin
+        unipersonal_roles.sudo().write({'employee_ids': [(5, 0, 0)]})
 
     def test_assign_role_hos_adds_group(self):
         self.employee.write({'role_ids': [(4, self.role_hos.id)]})
@@ -39,3 +56,39 @@ class TestEmployeeRoleGroupSync(TransactionCase):
         self.employee.write({'role_ids': [(4, self.role_dhos.id)]})
         self.employee.write({'role_ids': [(3, self.role_dhos.id)]})
         self.assertNotIn(self.group_head_of_studies, self.user.groups_id)
+
+    def test_assign_role_director_adds_group(self):
+        self.employee.write({'role_ids': [(4, self.role_director.id)]})
+        self.assertIn(self.group_director, self.user.groups_id)
+
+    def test_unassign_role_director_removes_group(self):
+        self.employee.write({'role_ids': [(4, self.role_director.id)]})
+        self.employee.write({'role_ids': [(3, self.role_director.id)]})
+        self.assertNotIn(self.group_director, self.user.groups_id)
+
+    def test_assign_role_secretary_adds_group(self):
+        self.employee.write({'role_ids': [(4, self.role_secretary.id)]})
+        self.assertIn(self.group_secretary, self.user.groups_id)
+
+    def test_unassign_role_secretary_removes_group(self):
+        self.employee.write({'role_ids': [(4, self.role_secretary.id)]})
+        self.employee.write({'role_ids': [(3, self.role_secretary.id)]})
+        self.assertNotIn(self.group_secretary, self.user.groups_id)
+
+    def test_assign_role_secretary_admin_adds_group(self):
+        self.asp_employee.write({'role_ids': [(4, self.role_secretary_admin.id)]})
+        self.assertIn(self.group_secretary_admin, self.asp_user.groups_id)
+
+    def test_unassign_role_secretary_admin_removes_group(self):
+        self.asp_employee.write({'role_ids': [(4, self.role_secretary_admin.id)]})
+        self.asp_employee.write({'role_ids': [(3, self.role_secretary_admin.id)]})
+        self.assertNotIn(self.group_secretary_admin, self.asp_user.groups_id)
+
+    def test_assign_job_secretary_adds_group(self):
+        self.asp_employee.write({'job_id': self.job_secretary.id})
+        self.assertIn(self.group_secretary, self.asp_user.groups_id)
+
+    def test_unassign_job_secretary_removes_group(self):
+        self.asp_employee.write({'job_id': self.job_secretary.id})
+        self.asp_employee.write({'job_id': False})
+        self.assertNotIn(self.group_secretary, self.asp_user.groups_id)

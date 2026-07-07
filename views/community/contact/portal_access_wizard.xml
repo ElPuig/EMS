@@ -37,7 +37,7 @@
             <field name="model_id" ref="base.model_res_partner"/>
             <field name="binding_model_id" ref="base.model_res_partner"/>
             <field name="binding_view_types">list</field>
-            <field name="groups_id" eval="[(4, ref('ems.group_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_teacher'))]"/>
+            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_teacher'))]"/>
             <field name="state">code</field>
             <field name="code">
 students = env['res.partner'].browse(env.context.get('active_ids', [])).filtered(lambda p: p.contact_type == 'student')

@@ -304,6 +304,7 @@
         'data/main/ems.role_group_relationship.xml',
         'data/cat/ems.workgroup.csv',
         'data/cat/hr.job.csv',
+        'data/main/ems.job_group_relationship.xml',
         'data/cat/ems_product_category_data.xml',
         'data/cat/ems_product_generic_products.xml',
         'data/cat/ems_enrollment_template_data.xml',

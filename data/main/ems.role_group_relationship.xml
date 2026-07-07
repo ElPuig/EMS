@@ -12,5 +12,17 @@
         <record id="role_dhos" model="ems.role">
             <field name="group_id" ref="ems.group_head_of_studies"/>
         </record>
+
+        <record id="role_director" model="ems.role">
+            <field name="group_id" ref="ems.group_director"/>
+        </record>
+
+        <record id="role_secretary" model="ems.role">
+            <field name="group_id" ref="ems.group_secretary"/>
+        </record>
+
+        <record id="role_secretary_admin" model="ems.role">
+            <field name="group_id" ref="ems.group_secretary_admin"/>
+        </record>
     </data>
 </odoo>

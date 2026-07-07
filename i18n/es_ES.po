@@ -1453,7 +1453,7 @@ msgid "Administrative data"
 msgstr "Datos administrativos"
 
 #. module: ems
-#: model:res.groups,name:ems.group_admin
+#: model:res.groups,name:ems.group_academic_admin
 msgid "Administrator"
 msgstr "Administrador"
 
@@ -1507,7 +1507,7 @@ msgid "All Studies"
 msgstr "Todos los estudios"
 
 #. module: ems
-#: model:res.groups,comment:ems.group_admin
+#: model:res.groups,comment:ems.group_academic_admin
 msgid "All access rights."
 msgstr "Todos los derechos de acceso."
 

@@ -4,12 +4,16 @@
           <!-- TODO: this is just temporal, remove after v18.0.0.0.3 -->
          <function name="write" model="ir.model.data">
             <function name="search" model="ir.model.data">
-                <value eval="[('module', '=', 'ems'), ('name', 'in', ['category_main', 'group_teacher', 'group_secretary', 'group_admin'])]"/>
+                <value eval="[('module', '=', 'ems'), ('name', 'in', ['category_main', 'group_teacher', 'group_secretary', 'group_academic_admin'])]"/>
             </function>
             <value eval="{'noupdate': False}"/>
         </function>         
         <!-- To get all the groups available, export the list from user/groups including the "name" and the "external ID" fields -->
  
+        <!-- Pure top-level label: holds no groups directly. Odoo's group-category selector widget
+             (base.user_groups_view) only shows a category's name as the visible section title when
+             that category is used as another category's *parent* - a category with groups assigned
+             to it directly but no parent falls into an unlabelled "Other" bucket. -->
         <record model="ir.module.category" id="category_main">
             <field name="name">EMS</field>
             <field name="description">Educational Management System</field>
@@ -17,12 +21,24 @@
             <field name="visible">True</field>
         </record>
 
-        <!-- Kept in its own category: it is not part of the Teacher/Tutor/Head of Studies/Administrator
-             hierarchy, so mixing it into "category_main" would break the strict implication chain that
-             Odoo requires to render a group category as a visible role selector outside of debug mode. -->
+        <!-- Holds the Teacher/Tutor/Head of Studies/Director/Administrator role hierarchy. -->
+        <record model="ir.module.category" id="category_roles">
+            <field name="name">Academic</field>
+            <field name="description">Educational Management System - Academic roles</field>
+            <field name="parent_id" ref="ems.category_main"/>
+            <field name="sequence">1</field>
+            <field name="visible">True</field>
+        </record>
+
+        <!-- Kept separate from category_roles: it is not part of the Teacher/Tutor/Head of Studies/
+             Director/Administrator hierarchy, so mixing it in would break the strict implication chain
+             that Odoo requires to render a group category as a visible role selector outside of debug
+             mode. Sharing the same parent as category_roles still groups both selectors under one "EMS"
+             section. -->
         <record model="ir.module.category" id="category_secretary">
-            <field name="name">EMS - Secretary</field>
+            <field name="name">Secretary</field>
             <field name="description">Educational Management System - Secretary</field>
+            <field name="parent_id" ref="ems.category_main"/>
             <field name="sequence">2</field>
             <field name="visible">True</field>
         </record>
@@ -30,27 +46,36 @@
         <record model="res.groups" id="group_teacher">
             <field name="name">Teacher</field>
             <field name="comment">Teacher's access rights.</field>
-            <field name="category_id" ref="ems.category_main"/>
+            <field name="category_id" ref="ems.category_roles"/>
             <field name="implied_ids" eval="[(4, ref('hr_attendance.group_hr_attendance_own_reader'))]"/>
         </record>
 
         <record model="res.groups" id="group_tutor">
             <field name="name">Tutor</field>
             <field name="comment">Access rights for tutors (teachers in charge of a group).</field>
-            <field name="category_id" ref="ems.category_main"/>
+            <field name="category_id" ref="ems.category_roles"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_teacher'))]"/>
         </record>
 
         <record model="res.groups" id="group_head_of_studies">
             <field name="name">Head of Studies</field>
             <field name="comment">Access rights for Head of Studies / Deputy Head of Studies. Grants full read/write access to all employees' attendance records.</field>
-            <field name="category_id" ref="ems.category_main"/>
+            <field name="category_id" ref="ems.category_roles"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_tutor')), (4, ref('hr_attendance.group_hr_attendance_manager'))]"/>
+        </record>
+
+        <!-- Same privileges as Head of Studies for now; kept as its own group so it can be
+             differentiated later without another migration. -->
+        <record model="res.groups" id="group_director">
+            <field name="name">Director</field>
+            <field name="comment">Access rights for the Director. Currently identical to Head of Studies.</field>
+            <field name="category_id" ref="ems.category_roles"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_head_of_studies'))]"/>
         </record>
 
         <!-- TODO: this group has not been yet setup in ir.modal.access.  -->
         <record model="res.groups" id="group_secretary">
-            <field name="name">Secretary</field>
+            <field name="name">Manager</field>
             <field name="comment">Secretary's access rights.</field>
             <field name="category_id" ref="ems.category_secretary"/>
             <field name="implied_ids" eval="[
@@ -62,20 +87,25 @@
             ]"/>
         </record>
 
-        <record model="res.groups" id="group_admin">
+        <!-- Same privileges as Manager for now; kept as its own group so it can be
+             differentiated later without another migration. -->
+        <record model="res.groups" id="group_secretary_admin">
+            <field name="name">Administrator</field>
+            <field name="comment">Access rights for the Secretary department's administrator. Currently identical to Manager.</field>
+            <field name="category_id" ref="ems.category_secretary"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_secretary'))]"/>
+        </record>
+
+        <record model="res.groups" id="group_academic_admin">
             <field name="name">Administrator</field>
             <field name="comment">All access rights.</field>
-            <field name="category_id" ref="ems.category_main"/>
+            <field name="category_id" ref="ems.category_roles"/>
             <field name="implied_ids" eval="[(6, 0, [
-                ref('ems.group_head_of_studies'),
-                ref('sales_team.group_sale_salesman_all_leads'),
-                ref('account.group_account_invoice'),
-                ref('account.group_account_readonly'),
-                ref('account.group_validate_bank_account'),
-                ref('base.group_partner_manager'),
+                ref('ems.group_director'),
+                ref('ems.group_secretary_admin'),
             ])]"/>
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
-        </record>  
+        </record>
 
         <record model="res.groups" id="project.group_project_manager">
             <field name="users" eval="[(3,ref('base.user_root')), (3,ref('base.user_admin'))]"/>
@@ -102,7 +132,7 @@
         </record>
 
         <record id="base.menu_apps" model="ir.ui.menu">
-            <field name="groups_id" eval="[(6, 0, [ref('ems.group_admin')])]"/>
+            <field name="groups_id" eval="[(6, 0, [ref('ems.group_academic_admin')])]"/>
         </record>
 <!-- 
         <delete id="utm.menu_link_tracker_root" model="ir.ui.menu" ></delete>

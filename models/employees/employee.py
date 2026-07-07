@@ -57,6 +57,10 @@ class ems_employee_base(models.AbstractModel):
                 rec.roles = "%s, %s" % (rec.roles, role.name) 			
             rec.roles = rec.roles.lstrip(", ")
     
+    @api.onchange('job_id')
+    def _onchange_job_id(self):
+        self._sync_security_groups()
+
     @api.onchange('role_ids')
     def _onchange_role_ids(self):
         role_tutor = self.env.ref('ems.role_tutor').ids[0]  
@@ -82,15 +86,17 @@ class ems_employee_base(models.AbstractModel):
             rec.role_ids = [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)] # link if tutor, otherwise unlink
 
     def _sync_security_groups(self):
-        """Sync res.users.groups_id based on role_ids that have a linked security group."""
-        managed_groups = self.env['ems.role'].sudo().search([('group_id', '!=', False)]).mapped('group_id')
+        """Sync res.users.groups_id based on role_ids and job_id that have a linked security group."""
+        role_groups = self.env['ems.role'].sudo().search([('group_id', '!=', False)]).mapped('group_id')
+        job_groups = self.env['hr.job'].sudo().search([('group_id', '!=', False)]).mapped('group_id')
+        managed_groups = role_groups | job_groups
         if not managed_groups:
             return
         for rec in self:
             employee = self.env['hr.employee'].sudo().search([('id', '=', rec.id)], limit=1)
             if not employee or not employee.user_id:
                 continue
-            should_have = rec.role_ids.mapped('group_id')
+            should_have = rec.role_ids.mapped('group_id') | rec.job_id.group_id
             commands = []
             for g in managed_groups:
                 if g in should_have and g not in employee.user_id.groups_id:
@@ -106,7 +112,7 @@ class ems_employee_base(models.AbstractModel):
             for command in vals["tutorship_ids"]:
                 if command[0] == 2: command[0] = 3
         res = super(ems_employee_base, self).write(vals)
-        if 'role_ids' in vals or 'tutorship_ids' in vals:
+        if 'role_ids' in vals or 'tutorship_ids' in vals or 'job_id' in vals:
             self._sync_security_groups()
         return res
                         

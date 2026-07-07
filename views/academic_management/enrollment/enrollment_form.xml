@@ -148,7 +148,7 @@
             </xpath>
 
             <xpath expr="//page[@name='ems_authorizations']" position="after">
-                <page string="Payment" name="ems_payment" groups="ems.group_secretary,ems.group_admin">
+                <page string="Payment" name="ems_payment" groups="ems.group_secretary,ems.group_academic_admin">
                     <group>
                         <group string="Payment plan">
                             <field name="payment_term_id" options="{'no_create': True}"/>
@@ -174,19 +174,19 @@
 
             <!-- Ocultar botones de cambio de estado para tutores (solo visibles para admins y secretaría) -->
             <xpath expr="//header/button[@id='send_by_email_primary']" position="attributes">
-                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+                <attribute name="groups">ems.group_academic_admin,ems.group_secretary</attribute>
             </xpath>
             <xpath expr="//header/button[@id='send_by_email']" position="attributes">
-                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+                <attribute name="groups">ems.group_academic_admin,ems.group_secretary</attribute>
             </xpath>
             <xpath expr="//header/button[@id='action_confirm']" position="attributes">
-                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+                <attribute name="groups">ems.group_academic_admin,ems.group_secretary</attribute>
             </xpath>
             <xpath expr="//header/button[@name='action_confirm' and not(@id)]" position="attributes">
-                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+                <attribute name="groups">ems.group_academic_admin,ems.group_secretary</attribute>
             </xpath>
             <xpath expr="//header/button[@name='action_cancel']" position="attributes">
-                <attribute name="groups">ems.group_admin,ems.group_secretary</attribute>
+                <attribute name="groups">ems.group_academic_admin,ems.group_secretary</attribute>
             </xpath>
         </field>
     </record>

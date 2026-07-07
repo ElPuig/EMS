@@ -19,7 +19,7 @@ class ems_base(models.AbstractModel):
     
     # The current user is admin. 
     def get_user_is_admin(self):	
-        return self.env.user.has_group('ems.group_admin')
+        return self.env.user.has_group('ems.group_academic_admin')
 
     # The current user is tutor of some group. 
     def get_user_is_tutor(self):

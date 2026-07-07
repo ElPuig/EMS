@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
+    <data noupdate="0">
         <record id="role_tutor" model="ems.role">
             <field name="group_id" ref="ems.group_tutor"/>
+        </record>
+
+        <record id="role_hos" model="ems.role">
+            <field name="group_id" ref="ems.group_head_of_studies"/>
+        </record>
+
+        <record id="role_dhos" model="ems.role">
+            <field name="group_id" ref="ems.group_head_of_studies"/>
         </record>
     </data>
 </odoo>

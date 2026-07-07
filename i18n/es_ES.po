@@ -8254,6 +8254,7 @@ msgstr "Asistencia de los estudiantes"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
 msgid "Students"
 msgstr "Estudiantes"
 
@@ -10185,3 +10186,75 @@ msgstr "Notas de empresa aplicadas"
 #: code:addons/ems/models/grades/grade_import_wizard.py:0
 msgid "openpyxl is required to import xlsx files."
 msgstr "openpyxl es necesario para importar ficheros xlsx."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__applicant
+#: model:res.partner.category,name:ems.partner_category_applicant
+msgid "Applicant"
+msgstr "Solicitante"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__alumni
+#: model:res.partner.category,name:ems.partner_category_alumni
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Alumni"
+msgstr "Graduados/as"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__withdrawal
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__exit_type__withdrawal
+#: model:res.partner.category,name:ems.partner_category_withdrawal
+msgid "Withdrawal"
+msgstr "Baja"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Withdrawals"
+msgstr "Bajas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__exit_type__graduation
+msgid "Graduation"
+msgstr "Graduación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__has_graduated
+#: model:ir.model.fields,field_description:ems.field_res_users__has_graduated
+msgid "Has graduated"
+msgstr "Se ha graduado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__exit_type
+#: model:ir.model.fields,field_description:ems.field_res_users__exit_type
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Exit type"
+msgstr "Tipo de salida"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__exit_course_id
+#: model:ir.model.fields,field_description:ems.field_res_users__exit_course_id
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Exit course"
+msgstr "Curso de salida"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__exit_date
+#: model:ir.model.fields,field_description:ems.field_res_users__exit_date
+msgid "Exit date"
+msgstr "Fecha de salida"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__exit_reason
+#: model:ir.model.fields,field_description:ems.field_res_users__exit_reason
+msgid "Exit reason"
+msgstr "Motivo de salida"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Former student"
+msgstr "Antiguo/a alumno/a"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Former students"
+msgstr "Antiguo alumnado"

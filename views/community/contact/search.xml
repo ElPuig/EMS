@@ -6,6 +6,16 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="display_name" string="Student" filter_domain="['|', ('display_name', 'ilike', self), ('student_email', 'ilike', self)]" />
+                    <field name="exit_course_id"/>
+                    <filter name="students_only" string="Students" domain="[('contact_type', '=', 'student')]"/>
+                    <filter name="former_students" string="Former students" domain="[('contact_type', 'in', ['alumni', 'withdrawal'])]"/>
+                    <separator/>
+                    <filter name="alumni" string="Alumni" domain="[('contact_type', '=', 'alumni')]"/>
+                    <filter name="withdrawals" string="Withdrawals" domain="[('contact_type', '=', 'withdrawal')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_exit_course" string="Exit course" context="{'group_by': 'exit_course_id'}"/>
+                        <filter name="group_by_exit_type" string="Exit type" context="{'group_by': 'exit_type'}"/>
+                    </group>
                     <searchpanel>
                         <field name="main_group_id" string="Student group" icon="fa-users" enable_counters="1" />
                     </searchpanel>

@@ -71,7 +71,30 @@ class ems_contact(models.Model):
     # model-data fields:
     main_group_id = fields.Many2one(string='Main Group', comodel_name='ems.group')     
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
-    contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student'), ('family', 'Family')])   
+    # Contact lifecycle: applicant -> student -> alumni (graduated at least once)
+    #                                         \-> withdrawal (never graduated).
+    # The ~25 domains filtering by contact_type == 'student' exclude applicant,
+    # alumni and withdrawal automatically (no changes needed elsewhere).
+    contact_type = fields.Selection(string='Contact Type', selection=[
+        ('provider', 'Provider'),
+        ('student', 'Student'),
+        ('family', 'Family'),
+        ('applicant', 'Applicant'),
+        ('alumni', 'Alumni'),
+        ('withdrawal', 'Withdrawal'),
+    ])
+    # Permanent graduation mark: set to True when the graduation is registered and
+    # never reset to False. It is the key that decides alumni vs withdrawal in
+    # _ems_convert_to_ex_student().
+    has_graduated = fields.Boolean(string="Has graduated", default=False)
+    # Exit metadata (written by the graduation/withdrawal wizards in a later phase).
+    exit_type = fields.Selection([
+        ('graduation', 'Graduation'),
+        ('withdrawal', 'Withdrawal'),
+    ], string="Exit type")
+    exit_course_id = fields.Many2one('ems.course', string="Exit course")
+    exit_date = fields.Date(string="Exit date")
+    exit_reason = fields.Text(string="Exit reason")
     family_relation = fields.Char(string="Family relation")
     document_id = fields.Char(string="Document ID")
     passport_id = fields.Char(string="Passport")
@@ -386,15 +409,49 @@ class ems_contact(models.Model):
                 partner_ids=student.ids,
             )
 
+    def _ems_convert_to_student(self):
+        """Convert applicants or ex-students back into active students.
+
+        Invoked by the sale.order confirmation (applicant admission), the
+        transition wizard and the final Esfer@ re-import. Clears the exit
+        metadata but never touches has_graduated, which is a permanent mark.
+        """
+        self.write({
+            'contact_type': 'student',
+            'exit_type': False,
+            'exit_course_id': False,
+            'exit_date': False,
+            'exit_reason': False,
+        })
+
+    def _ems_convert_to_ex_student(self):
+        """Convert students into alumni or withdrawals depending on has_graduated.
+
+        A partner who has graduated from any study at least once is alumni
+        forever; one who never graduated becomes a withdrawal. In both cases the
+        student is detached from its group/level/study so it no longer occupies a
+        place. Used by the withdrawal wizard (immediate) and the transition wizard.
+        """
+        for partner in self:
+            partner.write({
+                'contact_type': 'alumni' if partner.has_graduated else 'withdrawal',
+                'main_group_id': False,
+                'level_id': False,
+                'study_id': False,
+            })
+
     def _sync_category(self):
         category_map = {
             'student': self.env.ref('ems.partner_category_student'),
             'family': self.env.ref('ems.partner_category_family'),
             'provider': self.env.ref('ems.partner_category_provider'),
+            'applicant': self.env.ref('ems.partner_category_applicant'),
+            'alumni': self.env.ref('ems.partner_category_alumni'),
+            'withdrawal': self.env.ref('ems.partner_category_withdrawal'),
         }
-        all_managed = self.env.ref('ems.partner_category_student') | \
-                      self.env.ref('ems.partner_category_family') | \
-                      self.env.ref('ems.partner_category_provider')
+        all_managed = self.env['res.partner.category']
+        for category in category_map.values():
+            all_managed |= category
         for record in self:
             category = category_map.get(record.contact_type)
             if category:

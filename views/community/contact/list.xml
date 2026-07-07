@@ -48,6 +48,8 @@
 
                 <xpath expr="//field[@name='main_group_id']" position="after">
                     <field name="tutor_id" optional="show" column_invisible="context.get('default_contact_type') != 'student'"/>
+                    <field name="exit_type" optional="show" column_invisible="context.get('default_contact_type') != 'student'"/>
+                    <field name="exit_course_id" optional="show" column_invisible="context.get('default_contact_type') != 'student'"/>
                 </xpath>
             </field>
         </record>

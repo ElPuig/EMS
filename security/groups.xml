@@ -21,6 +21,7 @@
             <field name="name">Teacher</field>
             <field name="comment">Teacher's access rights.</field>
             <field name="category_id" ref="ems.category_main"/>
+            <field name="implied_ids" eval="[(4, ref('hr_attendance.group_hr_attendance_own_reader'))]"/>
         </record>
 
         <record model="res.groups" id="group_tutor">

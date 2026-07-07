@@ -124,6 +124,7 @@ class ems_employee(models.AbstractModel):
         'teacher': 'set default'
     })
 
+    attendance_manager_id = fields.Many2one(groups="hr_attendance.group_hr_attendance_officer,ems.group_teacher")
     activity_ids = fields.One2many(groups="hr.group_hr_user,ems.group_teacher")
     activity_exception_decoration = fields.Selection(groups="hr.group_hr_user,ems.group_teacher")
     activity_exception_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")

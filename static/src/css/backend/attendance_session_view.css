@@ -56,6 +56,14 @@
     background: #e9ecef;
     border-color: #adb5bd;
 }
+.ems-av-nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.ems-av-nav-btn:disabled:hover {
+    background: #fff;
+    border-color: #ced4da;
+}
 
 .ems-av-date-input {
     font-weight: 600;

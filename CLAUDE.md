@@ -88,16 +88,22 @@ Trilingual: English (`docs/en/`), Catalan (`docs/ca/`), Spanish (`docs/es/`).
 
 ```
 docs/
-├── assets/           # Shared images (all languages reference this)
+├── assets/            # Shared images (all languages reference this)
 │   ├── families/
 │   └── tutors/
 ├── en/
-│   ├── admin/        # Admin user guides
-│   ├── developers/   # Technical docs with Mermaid diagrams
+│   ├── admin/         # Administrator user guides
+│   ├── developers/    # Technical docs with Mermaid diagrams (English only)
 │   ├── families/
+│   ├── head_of_studies/  # Head of Studies / Deputy / Director user guides
+│   ├── secretary/
+│   ├── teachers/
 │   └── tutors/
-├── ca/  (same structure)
-└── es/  (same structure)
+├── ca/  (same structure, minus developers/)
+└── es/  (same structure, minus developers/)
+```
+
+Folder names are always in English regardless of the language tree (`teachers/`, not `professors/`; `secretary/`, not `secretaria/`), so paths stay consistent across `en/`, `ca/` and `es/` — only the file contents and index labels are translated.
 ```
 
 Image references in markdown use relative paths: `../../assets/<section>/filename.png`

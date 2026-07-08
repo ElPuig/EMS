@@ -1,4 +1,4 @@
-[Català](../../ca/professors/index.md) | [Castellano](index.md) | [English](../../en/professors/index.md)
+[Català](../../ca/teachers/index.md) | [Castellano](index.md) | [English](../../en/teachers/index.md)
 
 ---
 
@@ -10,7 +10,7 @@ Esta sección contiene los manuales para los **profesores**.
 
 ## Manuales disponibles
 
-*Próximamente...*
+- [Fichajes: revisar tus entradas/salidas y solicitar correcciones](attendance-corrections.md)
 
 ## Temas previstos
 

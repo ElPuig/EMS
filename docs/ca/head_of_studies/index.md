@@ -1,0 +1,17 @@
+[Català](index.md) | [Castellano](../../es/head_of_studies/index.md) | [English](../../en/head_of_studies/index.md)
+
+---
+
+# Cap d'Estudis — Manuals d'usuari
+
+Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a i Direcció**.
+
+---
+
+## Manuals disponibles
+
+- [Decidir sobre sol·licituds de correcció de fitxatges](attendance-corrections.md)
+
+---
+
+[← Tornar a l'índex general](../index.md)

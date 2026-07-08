@@ -60,9 +60,18 @@ class TestExitManagement(TransactionCase):
 
     def test_transition_status_enrolled(self):
         student = self._student('TS Enrolled')
+        # Enrolled *with* a destination group -> fully placed.
+        self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_course_id': self.next_course.id,
+            'ems_group_id': self.group.id})
+        self.assertEqual(student.transition_status, 'enrolled')
+
+    def test_transition_status_unplaced(self):
+        student = self._student('TS Unplaced')
+        # Enrolled but no destination group yet -> unplaced (needs a group).
         self.env['sale.order'].create({
             'partner_id': student.id, 'ems_course_id': self.next_course.id})
-        self.assertEqual(student.transition_status, 'enrolled')
+        self.assertEqual(student.transition_status, 'unplaced')
 
     def test_transition_status_missing_and_search(self):
         student = self._student('TS Missing')

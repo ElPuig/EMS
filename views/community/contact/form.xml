@@ -268,6 +268,29 @@
                     </page>
                 </xpath>
 
+                <!-- Applicant data (pre-enrollment intake). Placed first so it is the
+                     default open page for applicants; for students it is invisible and the
+                     notebook falls through to "Student data". -->
+                <xpath expr="//page[@name='student']" position="before">
+                    <page name="applicant" string="Applicant data"
+                          invisible="contact_type != 'applicant'">
+                        <group cols="2">
+                            <group string="Pre-enrollment">
+                                <field name="study_id" required="contact_type == 'applicant'"/>
+                                <field name="preinscription_shift" required="contact_type == 'applicant'"/>
+                                <field name="student_id" required="contact_type == 'applicant'"/>
+                            </group>
+                            <group string="Personal data">
+                                <field name="email" widget="email" required="contact_type == 'applicant'"/>
+                                <field name="document_id"/>
+                                <field name="birth_date"/>
+                                <field name="phone"/>
+                                <field name="mobile"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+
                 <!-- Former student data (alumni / withdrawals). The active-student
                      pages hide themselves via invisible="contact_type != 'student'". -->
                 <xpath expr="//page[@name='documentation']" position="after">

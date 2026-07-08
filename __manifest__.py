@@ -224,6 +224,7 @@
             'views/academic_management/enrollment/enrollment_search.xml',
             'views/academic_management/enrollment/menu.xml',
             'views/academic_management/enrollment/no_destination.xml',
+            'views/academic_management/enrollment/applicants.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_form.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
             'views/academic_management/enrollment_configuration/enrollment_authorization_search.xml',
@@ -280,6 +281,7 @@
         
         ### Data entries (do not alter the order) ###
         'data/main/res.partner.category.xml',
+        'data/main/resync_lifecycle_categories.xml',
         'data/main/ems.space_type.csv',
         'data/main/hr.work.location.csv',
         'data/main/ems.contact.relation.type.xml',

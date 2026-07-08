@@ -17,7 +17,7 @@ class EmsPortalAccessWizard(models.TransientModel):
     ], string='Action', default='grant', required=True)
     student_ids = fields.Many2many(
         'res.partner', string='Students',
-        domain=[('contact_type', '=', 'student')],
+        domain=[('contact_type', 'in', ('student', 'applicant'))],
     )
     line_ids = fields.One2many(
         'ems.portal.access.wizard.line', 'wizard_id',
@@ -29,7 +29,7 @@ class EmsPortalAccessWizard(models.TransientModel):
         res = super().default_get(fields_list)
         active_ids = self.env.context.get('active_ids') or []
         students = self.env['res.partner'].browse(active_ids).filtered(
-            lambda p: p.contact_type == 'student')
+            lambda p: p.contact_type in ('student', 'applicant'))
         # A tutor only manages its own students; admin/secretary manage any.
         students = students.filtered(self._user_can_manage)
         res['student_ids'] = [(6, 0, students.ids)]
@@ -60,9 +60,14 @@ class EmsPortalAccessWizard(models.TransientModel):
     def _resolve_recipients(self, student):
         """Partners that should get/lose portal access for this student.
 
+        - Applicant -> the applicant himself (his personal `email`), regardless of
+          age: at preinscription the family contacts are not known yet. Age and
+          family are reviewed later, once admitted as a student.
         - Adult student -> the student himself (uses his main `email`).
         - Minor student -> his associated family contacts.
         """
+        if student.contact_type == 'applicant':
+            return student
         if student.is_adult:
             return student
         rels = self.env['res.partner.relation.all'].sudo().search([
@@ -156,7 +161,7 @@ class EmsPortalAccessWizard(models.TransientModel):
             if not self._user_can_manage(student):
                 issues.append(_("%s: not your student") % student.name)
                 continue
-            if student.is_adult and not student.email:
+            if student.contact_type != 'applicant' and student.is_adult and not student.email:
                 issues.append(_("%s: adult student without main email") % student.name)
                 continue
             recipients = self._resolve_recipients(student)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from odoo.addons.mail.tools.discuss import Store
 
@@ -60,6 +60,20 @@ class ems_SaleOrder(models.Model):
         #required=True,
         #default='morning',
         help="Morning or afternoon shift for this enrollment."
+    )
+
+    # Destination group: the single source of truth for group placement. Optional
+    # (never blocks confirmation); there is no equivalent field on res.partner.
+    # The domain only restricts by study (a student may switch shift); a shift/course
+    # mismatch is surfaced as a soft warning instead of being blocked.
+    ems_group_id = fields.Many2one(
+        'ems.group',
+        string="Destination group",
+        copy=False,
+        domain="[('study_id', '=', ems_study_id)]",
+        help="Group the student will be placed in: in bulk when the destination "
+             "study is transitioned, or individually when a latecomer confirms "
+             "after that transition. Left empty until known."
     )
 
     # Modificamos el campo nativo 'sale_order_template_id' (Plantilla de Presupuesto)
@@ -296,6 +310,31 @@ class ems_SaleOrder(models.Model):
     def _onchange_ems_study_id(self):
         self.sale_order_template_id = False
         self.with_context(skip_tutoria_check=True).order_line = [(5, 0, 0)]
+        # Drop a destination group that no longer belongs to the selected study.
+        if self.ems_group_id and self.ems_group_id.study_id != self.ems_study_id:
+            self.ems_group_id = False
+
+    @api.onchange('ems_group_id')
+    def _onchange_ems_group_id(self):
+        """Soft warning when the chosen group's shift or course does not match the
+        enrollment/template (the domain only enforces the study)."""
+        group = self.ems_group_id
+        if not group:
+            return
+        issues = []
+        if self.shift and group.shift and group.shift != self.shift:
+            issues.append(_("The group shift does not match the enrollment shift."))
+        template_year = self.sale_order_template_id.study_year
+        if template_year and group.course != template_year:
+            issues.append(_(
+                "The group course (%(group)s) does not match the enrollment "
+                "template course (%(template)s).",
+                group=group.course, template=template_year))
+        if issues:
+            return {'warning': {
+                'title': _("Destination group mismatch"),
+                'message': "\n".join(issues),
+            }}
 
     @api.depends('order_line.product_template_id')
     def _compute_existing_products(self):
@@ -436,6 +475,7 @@ class ems_SaleOrder(models.Model):
         comment_type = self.env.ref('ems.mail_activity_enrollment_comment', raise_if_not_found=False)
         for order in self:
             if order.ems_study_id:
+                order._ems_admit_student()
                 order._ems_generate_enrollment_invoice()
                 # The enrollment is settled: drop any pending comment-review tasks.
                 if comment_type:
@@ -444,6 +484,100 @@ class ems_SaleOrder(models.Model):
                     )
                     stale.with_context(ems_activity_cascade=True).unlink()
         return res
+
+    # ------------------------------------------------------------------
+    # Admission (applicant -> student) and destination placement
+    # ------------------------------------------------------------------
+    def _ems_admit_student(self):
+        """Formal admission act on enrollment confirmation.
+
+        Always converts an applicant into a student. Placement (group + subject
+        enrollments) only runs for latecomers whose destination study has already
+        been transitioned; in the normal case (study still active) the transition
+        wizard places everyone in bulk later. The `transition_state` field lands in
+        the transition phase, so until then this branch stays dormant.
+        """
+        self.ensure_one()
+        partner = self.partner_id
+        if partner.contact_type == 'applicant':
+            partner._ems_convert_to_student()
+        if getattr(self.ems_study_id, 'transition_state', False) == 'transitioned':
+            self._ems_apply_destination_placement()
+
+    def _ems_suggest_group(self):
+        """Suggest a destination group for this enrollment from its own data.
+
+        Continuing student: the same acronym as the student's current group plus
+        the enrollment shift, in the destination study/course. Applicant: the
+        lowest-letter group of the shift. Empty when there is no single match.
+        """
+        self.ensure_one()
+        study = self.ems_study_id
+        course = self.sale_order_template_id.study_year
+        if not (study and course):
+            return self.env['ems.group']
+        Group = self.env['ems.group']
+        partner = self.partner_id
+        if partner.contact_type == 'applicant':
+            domain = [('study_id', '=', study.id), ('course', '=', course)]
+            shift = self.shift or partner.preinscription_shift
+            if shift:
+                domain.append(('shift', '=', shift))
+            return Group.search(domain, order='acronym', limit=1)
+        current = partner.main_group_id
+        if not current:
+            return Group
+        domain = [('study_id', '=', study.id), ('course', '=', course),
+                  ('acronym', '=', current.acronym)]
+        shift = self.shift or current.shift
+        if shift:
+            domain.append(('shift', '=', shift))
+        matches = Group.search(domain)
+        return matches if len(matches) == 1 else Group
+
+    def _ems_fill_suggested_group(self):
+        """Fill ems_group_id with the suggestion on enrollments that have none.
+        Returns the number of enrollments updated."""
+        filled = 0
+        for order in self:
+            if order.ems_group_id:
+                continue
+            group = order._ems_suggest_group()
+            if group:
+                order.ems_group_id = group
+                filled += 1
+        return filled
+
+    def _ems_apply_destination_placement(self):
+        """Place the student in the destination group and materialize the subject
+        enrollments from the order lines.
+
+        Idempotent: an existing (student, group, subject) triple is not
+        duplicated. Shared by action_confirm (individual latecomers) and the
+        transition wizard (bulk). Runs with sudo because ems.enrollment blocks
+        manual creation for non-admins and the secretary may be confirming.
+        """
+        self.ensure_one()
+        group = self.ems_group_id
+        if not group:
+            return
+        student = self.partner_id
+        if student.main_group_id != group:
+            student.sudo().main_group_id = group
+        Enrollment = self.env['ems.enrollment'].sudo()
+        subjects = self.env['ems.subject'].sudo().search([
+            ('product_id', 'in', self.order_line.product_id.ids)])
+        for subject in subjects:
+            exists = Enrollment.search_count([
+                ('student_id', '=', student.id),
+                ('group_id', '=', group.id),
+                ('subject_id', '=', subject.id)])
+            if not exists:
+                Enrollment.create({
+                    'student_id': student.id,
+                    'group_id': group.id,
+                    'subject_id': subject.id,
+                })
 
     # ------------------------------------------------------------------
     # Billing

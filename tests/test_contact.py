@@ -57,7 +57,8 @@ class TestContactLifecycle(TransactionCase):
         applicant = self.env['res.partner'].create({
             'name': 'Applicant Cat', 'contact_type': 'applicant'})
         self.assertIn(self.cat_applicant, applicant.category_id)
-        self.assertNotIn(self.cat_student, applicant.category_id)
+        # "student" doubles as the shared student-lifecycle marker.
+        self.assertIn(self.cat_student, applicant.category_id)
 
     def test_sync_category_swaps_on_write(self):
         student = self.env['res.partner'].create({
@@ -65,7 +66,8 @@ class TestContactLifecycle(TransactionCase):
         self.assertIn(self.cat_student, student.category_id)
         student.write({'contact_type': 'alumni'})
         self.assertIn(self.cat_alumni, student.category_id)
-        self.assertNotIn(self.cat_student, student.category_id)
+        # The shared lifecycle marker survives the transition.
+        self.assertIn(self.cat_student, student.category_id)
 
     # --- _ems_convert_to_ex_student -----------------------------------------
 
@@ -79,7 +81,8 @@ class TestContactLifecycle(TransactionCase):
         self.assertFalse(student.level_id)
         self.assertFalse(student.study_id)
         self.assertIn(self.cat_alumni, student.category_id)
-        self.assertNotIn(self.cat_student, student.category_id)
+        # The shared lifecycle marker survives graduation.
+        self.assertIn(self.cat_student, student.category_id)
 
     def test_convert_to_ex_student_not_graduated_becomes_withdrawal(self):
         student = self.env['res.partner'].create({

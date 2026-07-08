@@ -9,15 +9,20 @@
                     <sheet>
                         <group>
                             <field name="available_template_ids" invisible="1"/>
+                            <field name="dest_study_id" invisible="1"/>
                             <field name="template_id"
                                    domain="[('id', 'in', available_template_ids)]"
                                    options="{'no_create': True}"/>
+                            <field name="ems_group_id" options="{'no_create': True}"
+                                   help="Written to every generated enrollment. Leave empty to suggest one group per student."/>
                         </group>
                         <group string="Students">
                             <field name="student_ids" nolabel="1">
                                 <list>
                                     <field name="name"/>
+                                    <field name="contact_type"/>
                                     <field name="main_group_id"/>
+                                    <field name="preinscription_shift"/>
                                     <field name="study_id"/>
                                 </list>
                             </field>

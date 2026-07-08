@@ -69,8 +69,15 @@ class ems_contact(models.Model):
     tutor_id = fields.Many2one(string='Tutor', related="main_group_id.tutor_id") # Related field: auto-computed and auto-refreshed within the form.
     
     # model-data fields:
-    main_group_id = fields.Many2one(string='Main Group', comodel_name='ems.group')     
+    main_group_id = fields.Many2one(string='Main Group', comodel_name='ems.group')
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
+    # Shift granted at pre-enrollment (GEDAC/preinscription), stored on the applicant
+    # who still has no group to derive it from. Consumed by the enrollment proposal to
+    # pre-fill the enrollment shift and pick the destination group.
+    preinscription_shift = fields.Selection(
+        selection=[('morning', 'Morning'), ('afternoon', 'Afternoon')],
+        string='Preinscription shift',
+        help="Shift granted to the applicant at pre-enrollment (before having a group).")
     # Contact lifecycle: applicant -> student -> alumni (graduated at least once)
     #                                         \-> withdrawal (never graduated).
     # The ~25 domains filtering by contact_type == 'student' exclude applicant,
@@ -98,6 +105,7 @@ class ems_contact(models.Model):
     # Derived transition state (not stored). Consumed by the "no destination" report.
     transition_status = fields.Selection([
         ('enrolled', 'Enrolled next course'),
+        ('unplaced', 'Enrolled without group'),
         ('graduated', 'Graduated'),
         ('former', 'Former student'),
         ('missing', 'No destination'),
@@ -247,12 +255,13 @@ class ems_contact(models.Model):
             'context': {
                 'default_partner_id': self.id,
                 'default_ems_study_id': self.study_id.id if self.study_id else False,
-                'default_shift': self.main_group_id.shift if self.main_group_id else False,
+                'default_shift': (self.main_group_id.shift if self.main_group_id
+                                  else self.preinscription_shift),
             }
         }
-    
+
     def action_enrollment_proposal(self):
-        students = self.filtered(lambda p: p.contact_type == 'student')
+        students = self.filtered(lambda p: p.contact_type in ('student', 'applicant'))
         return {
             'type': 'ir.actions.act_window',
             'name': _('Enrollment proposal'),
@@ -286,6 +295,30 @@ class ems_contact(models.Model):
             'context': {'active_ids': students.ids},
         }
 
+    def action_suggest_destination_group(self):
+        """Fill the destination group on the selected students' next-course
+        enrollments that still have none. Students without an enrollment are
+        skipped (there is no matrícula to place). Used from the "students without
+        destination" report."""
+        enrollments = self.mapped('ems_current_enrollment_id')
+        filled = enrollments._ems_fill_suggested_group()
+        skipped = len(self.filtered(lambda p: not p.ems_current_enrollment_id))
+        message = _("%(filled)s destination group(s) filled.", filled=filled)
+        if skipped:
+            message += " " + _("%(skipped)s skipped (no enrollment).", skipped=skipped)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Suggest destination group"),
+                'message': message,
+                'type': 'success',
+                'sticky': False,
+            },
+        }
+
+    @api.depends('contact_type', 'exit_type', 'sale_order_ids.ems_course_id',
+                 'sale_order_ids.state', 'sale_order_ids.ems_group_id')
     def _compute_transition_status(self):
         next_course = self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
         for partner in self:
@@ -295,13 +328,19 @@ class ems_contact(models.Model):
                 # A still-active student with a graduation mark is a pending graduate
                 # (once executed it becomes alumni, caught by 'former' above).
                 partner.transition_status = 'graduated'
-            elif next_course and self.env['sale.order'].search_count([
+            else:
+                enrollment = next_course and self.env['sale.order'].search([
                     ('partner_id', '=', partner.id),
                     ('ems_course_id', '=', next_course.id),
-                    ('state', '!=', 'cancel')]):
-                partner.transition_status = 'enrolled'
-            else:
-                partner.transition_status = 'missing'
+                    ('state', '!=', 'cancel')], limit=1)
+                if not enrollment:
+                    # No next-course enrollment at all.
+                    partner.transition_status = 'missing'
+                elif enrollment.ems_group_id:
+                    partner.transition_status = 'enrolled'
+                else:
+                    # Enrolled but not placeable yet (no destination group).
+                    partner.transition_status = 'unplaced'
 
     def _search_transition_status(self, operator, value):
         if operator not in ('=', '!='):
@@ -501,21 +540,36 @@ class ems_contact(models.Model):
             partner.sudo()._gw_enqueue_suspend()
 
     def _sync_category(self):
+        # The "student" category doubles as the shared student-lifecycle marker: the
+        # four lifecycle types (student, applicant, alumni, withdrawal) all carry it,
+        # so the family-relation conditions (right side = student category) stay valid
+        # through every transition, while family/provider never get it (no
+        # family-to-family relations). Ex-students and applicants additionally carry
+        # their own distinctive tag.
+        student = self.env.ref('ems.partner_category_student')
         category_map = {
-            'student': self.env.ref('ems.partner_category_student'),
+            'student': student,
             'family': self.env.ref('ems.partner_category_family'),
             'provider': self.env.ref('ems.partner_category_provider'),
-            'applicant': self.env.ref('ems.partner_category_applicant'),
-            'alumni': self.env.ref('ems.partner_category_alumni'),
-            'withdrawal': self.env.ref('ems.partner_category_withdrawal'),
+            'applicant': student | self.env.ref('ems.partner_category_applicant'),
+            'alumni': student | self.env.ref('ems.partner_category_alumni'),
+            'withdrawal': student | self.env.ref('ems.partner_category_withdrawal'),
         }
         all_managed = self.env['res.partner.category']
-        for category in category_map.values():
-            all_managed |= category
+        for categories in category_map.values():
+            all_managed |= categories
         for record in self:
-            category = category_map.get(record.contact_type)
-            if category:
-                record.category_id = (record.category_id - all_managed) | category
+            categories = category_map.get(record.contact_type)
+            if categories:
+                record.category_id = (record.category_id - all_managed) | categories
+
+    @api.model
+    def _ems_resync_lifecycle_categories(self):
+        """Re-tag applicants and ex-students so they carry the shared student
+        category the family-relation conditions rely on. Idempotent; invoked from a
+        data <function> on upgrade to heal partners created before the shared marker."""
+        partners = self.search([('contact_type', 'in', ('applicant', 'alumni', 'withdrawal'))])
+        partners._sync_category()
 
     def _compute_group_data(self, values):
         # Avoids incongruences between the main_group, level and studies.     

@@ -14,3 +14,9 @@ def migrate(cr, _version):
             (new, old),
         )
         _logger.info("Migration 18.0.0.19.0: renamed XML ID '%s' → '%s'.", old, new)
+
+    cr.execute("ALTER TABLE ems_planning DROP CONSTRAINT IF EXISTS ems_planning_unique_subject_id")
+    _logger.info(
+        "Migration 18.0.0.19.0: dropped stale constraint 'ems_planning_unique_subject_id' "
+        "(replaced by 'ems_planning_unique_study_subject')."
+    )

@@ -27,6 +27,11 @@
                                 class="btn-secondary"
                                 invisible="contact_type != 'student' or not student_email or not google_ws_suspended"
                                 groups="ems.group_secretary,ems.group_admin"/>
+                        <button name="action_withdrawal_wizard" type="object"
+                                string="Withdrawal"
+                                class="btn-secondary"
+                                invisible="contact_type != 'student'"
+                                groups="ems.group_secretary,ems.group_admin"/>
                     </header>
                 </xpath>
 

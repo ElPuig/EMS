@@ -58,6 +58,30 @@ class ems_company(models.Model):
                                               inverse='_inverse_google_ws_sa_json', store=False)
     google_ws_sa_json_encrypted = fields.Char(copy=False)
 
+    def _sync_current_course_flag(self):
+        """Keep ems.course.is_current in sync with the configured current course
+        (the "Current course" setting, current_course_id). Selecting the course in the
+        settings marks it as the operational one and clears the flag on any other course,
+        so all the code that relies on is_current stays consistent with the setting."""
+        Course = self.env['ems.course']
+        for company in self:
+            course = company.current_course_id
+            (Course.search([('is_current', '=', True)]) - course).write({'is_current': False})
+            if course and not course.is_current:
+                course.is_current = True
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        companies = super().create(vals_list)
+        companies._sync_current_course_flag()
+        return companies
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'current_course_id' in vals:
+            self._sync_current_course_flag()
+        return res
+
     @api.model
     def _get_fernet_key(self):
         key = config.get('secret') 

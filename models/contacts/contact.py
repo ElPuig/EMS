@@ -87,7 +87,7 @@ class ems_contact(models.Model):
     # never reset to False. It is the key that decides alumni vs withdrawal in
     # _ems_convert_to_ex_student().
     has_graduated = fields.Boolean(string="Has graduated", default=False)
-    # Exit metadata (written by the graduation/withdrawal wizards in a later phase).
+    # Exit metadata (written by the graduation/withdrawal wizards).
     exit_type = fields.Selection([
         ('graduation', 'Graduation'),
         ('withdrawal', 'Withdrawal'),
@@ -95,6 +95,14 @@ class ems_contact(models.Model):
     exit_course_id = fields.Many2one('ems.course', string="Exit course")
     exit_date = fields.Date(string="Exit date")
     exit_reason = fields.Text(string="Exit reason")
+    # Derived transition state (not stored). Consumed by the "no destination" report.
+    transition_status = fields.Selection([
+        ('enrolled', 'Enrolled next course'),
+        ('graduated', 'Graduated'),
+        ('former', 'Former student'),
+        ('missing', 'No destination'),
+    ], string="Transition status", compute='_compute_transition_status',
+        search='_search_transition_status', store=False)
     family_relation = fields.Char(string="Family relation")
     document_id = fields.Char(string="Document ID")
     passport_id = fields.Char(string="Passport")
@@ -255,6 +263,54 @@ class ems_contact(models.Model):
                 'active_ids': students.ids,
             },
         }
+
+    def action_graduation_wizard(self):
+        students = self.filtered(lambda p: p.contact_type == 'student')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Graduation'),
+            'res_model': 'ems.graduation_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'active_ids': students.ids},
+        }
+
+    def action_withdrawal_wizard(self):
+        students = self.filtered(lambda p: p.contact_type == 'student')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Withdrawal'),
+            'res_model': 'ems.withdrawal_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'active_ids': students.ids},
+        }
+
+    def _compute_transition_status(self):
+        next_course = self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
+        for partner in self:
+            if partner.contact_type in ('alumni', 'withdrawal'):
+                partner.transition_status = 'former'
+            elif partner.exit_type == 'graduation':
+                # A still-active student with a graduation mark is a pending graduate
+                # (once executed it becomes alumni, caught by 'former' above).
+                partner.transition_status = 'graduated'
+            elif next_course and self.env['sale.order'].search_count([
+                    ('partner_id', '=', partner.id),
+                    ('ems_course_id', '=', next_course.id),
+                    ('state', '!=', 'cancel')]):
+                partner.transition_status = 'enrolled'
+            else:
+                partner.transition_status = 'missing'
+
+    def _search_transition_status(self, operator, value):
+        if operator not in ('=', '!='):
+            raise NotImplementedError(_("Unsupported search on transition_status"))
+        # Only lifecycle contacts can have a transition status.
+        candidates = self.search([('contact_type', 'in', ['student', 'alumni', 'withdrawal'])])
+        matching = candidates.filtered(lambda p: p.transition_status == value)
+        positive = (operator == '=')
+        return [('id', 'in' if positive else 'not in', matching.ids)]
     
     @api.depends('benefit_ids', 'benefit_ids.category')
     def _compute_benefit_status(self):
@@ -439,6 +495,10 @@ class ems_contact(models.Model):
                 'level_id': False,
                 'study_id': False,
             })
+            # Suspend the corporate Google account (moved to the /alumnos/bajas OU).
+            # sudo: the secretary running the withdrawal has no rights over the queue
+            # job / res.users. Guarded internally by google_ws_enabled and student_email.
+            partner.sudo()._gw_enqueue_suspend()
 
     def _sync_category(self):
         category_map = {

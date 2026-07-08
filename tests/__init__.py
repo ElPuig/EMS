@@ -1,4 +1,5 @@
 from . import test_contact
+from . import test_exit_management
 from . import test_level
 from . import test_level_tour
 from . import test_grade_session

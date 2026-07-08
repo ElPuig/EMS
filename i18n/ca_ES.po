@@ -9319,3 +9319,167 @@ msgstr "Sessió actual"
 msgid "History"
 msgstr "Històric"
 
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "%(employee)s (%(date)s)"
+msgstr "%(employee)s (%(date)s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+msgid "Accept"
+msgstr "Acceptar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__approver_id
+msgid "Approver"
+msgstr "Aprovador"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_attendance_correction_check_requested_values
+msgid "At least one of the requested check-in/check-out times must be set."
+msgstr "Cal indicar almenys una de les hores sol·licitades (entrada o sortida)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Attendance correction request"
+msgstr "Sol·licitud de correcció de fitxatge"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+msgid "Attendance correction"
+msgstr "Correcció de fitxatge"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_correction_tree
+#: model:ir.ui.menu,name:ems.menu_attendance_correction
+msgid "Correction Requests"
+msgstr "Sol·licituds de correcció"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Correction requested by %(employee)s."
+msgstr "Correcció sol·licitada per %(employee)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__decision_date
+msgid "Decision date"
+msgstr "Data de la decisió"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__decision_note
+msgid "Decision note"
+msgstr "Nota de la decisió"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+msgid "Decision"
+msgstr "Decisió"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__is_approver
+msgid "Is approver"
+msgstr "És aprovador"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "New correction request"
+msgstr "Nova sol·licitud de correcció"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Only pending requests can be decided."
+msgstr "Només es poden decidir les sol·licituds pendents."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__original_check_in
+msgid "Original check-in"
+msgstr "Entrada original"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__original_check_out
+msgid "Original check-out"
+msgstr "Sortida original"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__reason
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+msgid "Reason"
+msgstr "Motiu"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_correction_new
+msgid "Request Attendance Correction"
+msgstr "Sol·licitar correcció de fitxatge"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_form_inherit_correction
+msgid "Request Correction"
+msgstr "Sol·licitar correcció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__requested_check_in
+msgid "Requested check-in"
+msgstr "Entrada sol·licitada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__requested_check_out
+msgid "Requested check-out"
+msgstr "Sortida sol·licitada"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_attendance_correction
+msgid "Review attendance correction request"
+msgstr "Revisar sol·licitud de correcció de fitxatge"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Your correction request has been accepted."
+msgstr "La teva sol·licitud de correcció ha estat acceptada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Your correction request has been rejected."
+msgstr "La teva sol·licitud de correcció ha estat rebutjada."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_correction
+msgid ""
+"Attendance correction: a teacher's request to amend a check-in/check-out."
+msgstr ""
+"Correcció de fitxatge: sol·licitud d'un professor per esmenar una entrada/"
+"sortida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid ""
+"No Head of Studies could be found in %(employee)s's management chain; an "
+"Academic Administrator must fix the org chart."
+msgstr ""
+"No s'ha trobat cap Cap d'Estudis a la cadena de comandament de "
+"%(employee)s; un Administrador acadèmic ha de corregir l'organigrama."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid ""
+"Only the resolved approver or an Academic Administrator can decide on this "
+"request."
+msgstr ""
+"Només l'aprovador resolt o un Administrador acadèmic pot decidir sobre "
+"aquesta sol·licitud."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid ""
+"You must request a correction for the check-in and/or the check-out time."
+msgstr ""
+"Cal sol·licitar una correcció per a l'hora d'entrada i/o de sortida."

@@ -1,0 +1,35 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_correction_form">
+            <field name="name">ems.attendance_correction.form</field>
+            <field name="model">ems.attendance_correction</field>
+            <field name="arch" type="xml">
+                <form string="Attendance correction">
+                    <header>
+                        <button string="Accept" name="action_accept" type="object" class="btn-primary" invisible="state != 'pending' or not is_approver"/>
+                        <button string="Reject" name="action_reject" type="object" class="btn-secondary" invisible="state != 'pending' or not is_approver"/>
+                        <field name="state" widget="statusbar" statusbar_visible="pending,accepted,rejected"/>
+                    </header>
+                    <sheet>
+                        <group string="Main data" col="4">
+                            <field name="employee_id" widget="many2one_avatar_employee" readonly="1"/>
+                            <field name="attendance_id" readonly="1"/>
+                            <field name="original_check_in" readonly="1"/>
+                            <field name="original_check_out" readonly="1"/>
+                            <field name="requested_check_in"/>
+                            <field name="requested_check_out"/>
+                        </group>
+                        <group string="Reason">
+                            <field name="reason" nolabel="1"/>
+                        </group>
+                        <group string="Decision" invisible="state == 'pending'">
+                            <field name="approver_id" readonly="1"/>
+                            <field name="decision_date" readonly="1"/>
+                            <field name="decision_note"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

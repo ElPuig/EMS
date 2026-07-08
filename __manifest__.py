@@ -192,6 +192,11 @@
             'views/attendance/attendance_justification/form.xml',
             'views/attendance/attendance_justification/search.xml',
 
+            'views/attendance/attendance_correction/menu.xml',
+            'views/attendance/attendance_correction/list.xml',
+            'views/attendance/attendance_correction/form.xml',
+            'views/attendance/attendance_correction/hr_attendance_form.xml',
+
             'views/attendance/attendance_issue/menu.xml',
             'views/attendance/attendance_issue/list.xml',
             'views/attendance/attendance_issue/form.xml',

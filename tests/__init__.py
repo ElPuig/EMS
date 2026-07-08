@@ -3,3 +3,4 @@ from . import test_level_tour
 from . import test_attendance_template
 from . import test_attendance_justification
 from . import test_employee_role_group_sync
+from . import test_attendance_correction

@@ -138,3 +138,18 @@ class ems_employee(models.AbstractModel):
     activity_summary = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
     activity_type_id = fields.Many2one(groups="hr.group_hr_user,ems.group_teacher")
     activity_type_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
+
+    def find_head_of_studies(self):
+        # NOTE: role_hos/role_dhos both map to the same global group_head_of_studies
+        # (no per-employee hierarchy field), so this walks parent_id looking for the
+        # nearest ascendant in that group; self-approves if the employee is already in it.
+        self.ensure_one()
+        group = "ems.group_head_of_studies"
+        if self.user_id and self.user_id.has_group(group):
+            return self
+        employee = self.parent_id
+        while employee:
+            if employee.user_id and employee.user_id.has_group(group):
+                return employee
+            employee = employee.parent_id
+        return self.env["hr.employee"]

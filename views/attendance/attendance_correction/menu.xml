@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="action_attendance_correction_tree">
+            <field name="name">Correction Requests</field>
+            <field name="res_model">ems.attendance_correction</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_attendance_correction_new">
+            <field name="name">Request Attendance Correction</field>
+            <field name="res_model">ems.attendance_correction</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem name="Correction Requests" sequence="7" id="menu_attendance_correction" parent="hr_attendance.menu_hr_attendance_root" action="action_attendance_correction_tree"/>
+    </data>
+</odoo>

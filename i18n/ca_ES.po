@@ -10434,3 +10434,176 @@ msgid ""
 msgstr ""
 "Google Workspace: el compte corporatiu no s'ha creat automàticament. Falten "
 "dades obligatòries: %s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_import_wizard_form
+msgid ""
+"<strong>Import process:</strong><br/>\n"
+"                                This wizard imports the grades exported from Esfera for one group's evaluation.\n"
+"                                The grade sessions for that group, subjects and evaluation must already exist\n"
+"                                (create them first with \"Create grade sessions\"). The import will:<br/>\n"
+"                                • Update the learning-outcome (RA) grades and the work-placement (EM) grade.<br/>\n"
+"                                • Store the module final grade (MP) as an override for subjects without work placement.<br/>\n"
+"                                • Overwrite any previous grade, including outcomes locked from earlier evaluations.<br/>\n"
+"                                <br/>\n"
+"                                Select the evaluation and the xlsx file, then click \"Import grades\"."
+msgstr ""
+"<strong>Procés d'importació:</strong><br/>\n"
+"                                Aquest assistent importa les notes exportades d'Esfera per a l'avaluació d'un grup.\n"
+"                                Les sessions d'avaluació d'aquest grup, assignatures i avaluació han d'existir prèviament\n"
+"                                (crea-les abans amb \"Crear sessions d'avaluació\"). La importació:<br/>\n"
+"                                • Actualitza les notes dels RA i la nota d'empresa (EM).<br/>\n"
+"                                • Desa la nota final del mòdul (MP) com a sobreescriptura per a les assignatures sense empresa.<br/>\n"
+"                                • Sobreescriu qualsevol nota prèvia, inclosos els RA bloquejats d'avaluacions anteriors.<br/>\n"
+"                                <br/>\n"
+"                                Selecciona l'avaluació i el fitxer xlsx, i prem \"Importar notes\"."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "Errors"
+msgstr "Errors"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__round
+msgid "Evaluation"
+msgstr "Avaluació"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_grade_import_wizard
+msgid "Grade import wizard (Esfera xlsx)"
+msgstr "Assistent d'importació de notes (xlsx Esfera)"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_grade_import_wizard
+#: model:ir.ui.menu,name:ems.menu_grade_import_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_import_wizard_form
+msgid "Import grades"
+msgstr "Importar notes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_import_wizard_form
+msgid "Import grades from Esfera"
+msgstr "Importar notes des d'Esfera"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "Learning outcome grades applied"
+msgstr "Notes de RA aplicades"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__is_lock_released
+msgid "Lock released"
+msgstr "Bloqueig alliberat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "Locked outcomes overwritten"
+msgstr "RA bloquejats sobreescrits"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "Module final grades overridden"
+msgstr "Notes finals de mòdul sobreescrites"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "Module final mismatch for %s / %s: file says %s, EMS computes %s."
+msgstr ""
+"Discrepància en la nota final del mòdul per a %s / %s: el fitxer indica %s, "
+"EMS calcula %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "No evaluation session for module '%s' in this evaluation."
+msgstr "No hi ha sessió d'avaluació per al mòdul '%s' en aquesta avaluació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid ""
+"No grade line for student in outcome '%s' (not enrolled or session not "
+"filled)."
+msgstr ""
+"No hi ha línia de nota per a l'alumne en el RA '%s' (no matriculat o sessió "
+"sense generar)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid ""
+"No subject grade line for student (not enrolled or session not filled)."
+msgstr ""
+"No hi ha línia de nota d'assignatura per a l'alumne (no matriculat o sessió "
+"sense generar)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "Outcome '%s' not found for subject '%s'."
+msgstr "No s'ha trobat el RA '%s' per a l'assignatura '%s'."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_outcome_line__is_lock_released
+msgid ""
+"Set when the official grade import overwrites this line: the cross-round "
+"lock is released for this line only, so the imported grade is shown without "
+"the padlock. Earlier rounds are left untouched, preserving their history."
+msgstr ""
+"S'activa quan la importació oficial de notes sobreescriu aquesta línia: el "
+"bloqueig entre avaluacions s'allibera només per a aquesta línia, de manera "
+"que la nota importada es mostra sense el cadenat. Les avaluacions anteriors "
+"no es modifiquen, preservant-ne l'historial."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "Student not found (idAlumne %s)."
+msgstr "Alumne no trobat (idAlumne %s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid ""
+"The 'Notes Flat' sheet is missing required columns (idAlumne, Codi Mòdul, "
+"Tipus, Subtipus, Nota)."
+msgstr ""
+"Al full 'Notes Flat' li falten columnes obligatòries (idAlumne, Codi Mòdul, "
+"Tipus, Subtipus, Nota)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid ""
+"The file has no gradeable rows. Expected a 'Notes Flat' or 'Notes' sheet."
+msgstr ""
+"El fitxer no té files avaluables. S'esperava un full 'Notes Flat' o 'Notes'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "The file spans several groups: %s."
+msgstr "El fitxer abasta diversos grups: %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "Warnings"
+msgstr "Avisos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "Work placement grades applied"
+msgstr "Notes d'empresa aplicades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "openpyxl is required to import xlsx files."
+msgstr "openpyxl és necessari per importar fitxers xlsx."

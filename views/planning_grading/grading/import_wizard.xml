@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_grade_import_wizard_form">
+            <field name="name">ems.grade_import_wizard.form</field>
+            <field name="model">ems.grade_import_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Import grades from Esfera">
+                    <sheet>
+                        <group invisible="result_html">
+                            <p colspan="2" style="color: #666; font-size: 13px; margin-bottom: 15px;">
+                                <strong>Import process:</strong><br/>
+                                This wizard imports the grades exported from Esfera for one group's evaluation.
+                                The grade sessions for that group, subjects and evaluation must already exist
+                                (create them first with "Create grade sessions"). The import will:<br/>
+                                • Update the learning-outcome (RA) grades and the work-placement (EM) grade.<br/>
+                                • Store the module final grade (MP) as an override for subjects without work placement.<br/>
+                                • Overwrite any previous grade, including outcomes locked from earlier evaluations.<br/>
+                                <br/>
+                                Select the evaluation and the xlsx file, then click "Import grades".
+                            </p>
+                            <field name="round"/>
+                            <field name="file" widget="binary" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                        </group>
+                        <group invisible="not result_html">
+                            <field name="result_html" nolabel="1" colspan="2"/>
+                            <field name="log_file" widget="auto_download_binary" filename="log_file_name" string="Download import log (CSV)"/>
+                            <field name="log_file_name" invisible="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_import" type="object" string="Import grades" class="btn-primary" invisible="result_html"/>
+                        <button special="cancel" string="Close"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_grade_import_wizard">
+            <field name="name">Import grades</field>
+            <field name="res_model">ems.grade_import_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        </record>
+
+        <menuitem name="Import grades" sequence="3" id="menu_grade_import_wizard" parent="menu_grade_management" action="action_grade_import_wizard" groups="ems.group_academic_admin"/>
+    </data>
+</odoo>

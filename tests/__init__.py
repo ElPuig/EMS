@@ -5,6 +5,7 @@ from . import test_attendance_justification
 from . import test_employee_role_group_sync
 from . import test_attendance_correction
 from . import test_grade_session
+from . import test_grade_import_wizard
 from . import test_planning
 from . import test_grade_session_tour
 from . import test_employee_google_workspace

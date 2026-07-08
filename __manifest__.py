@@ -46,8 +46,9 @@
     'external_dependencies': {
         'python': [
             'lxml',
-            'lxml_html_clean', 
-            'phonenumbers'
+            'lxml_html_clean',
+            'phonenumbers',
+            'openpyxl'
         ],
     },
     
@@ -162,6 +163,7 @@
             'views/planning_grading/grading/search.xml',
             'views/planning_grading/grading/menu.xml',
             'views/planning_grading/grading/wizard.xml',
+            'views/planning_grading/grading/import_wizard.xml',
 
             'views/communications/menu.xml',
 

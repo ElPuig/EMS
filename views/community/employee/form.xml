@@ -13,17 +13,17 @@
                                 string="Create Google account"
                                 class="btn-secondary"
                                 invisible="employee_type not in ('teacher', 'asp') or work_email or google_ws_manual_email"
-                                groups="ems.group_admin,hr.group_hr_user"/>
+                                groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
                                 class="btn-secondary"
                                 invisible="employee_type not in ('teacher', 'asp') or not work_email or google_ws_suspended"
-                                groups="ems.group_admin,hr.group_hr_user"/>
+                                groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_reactivate_google_account" type="object"
                                 string="Reactivate Google account"
                                 class="btn-secondary"
                                 invisible="employee_type not in ('teacher', 'asp') or not work_email or not google_ws_suspended"
-                                groups="ems.group_admin,hr.group_hr_user"/>
+                                groups="ems.group_academic_admin,hr.group_hr_user"/>
                     </header>
                 </xpath>
 
@@ -36,13 +36,13 @@
                     <field name="google_ws_domain" invisible="1"/>
                     <field name="google_ws_manual_email"
                            invisible="employee_type not in ('teacher', 'asp')"
-                           groups="ems.group_admin,hr.group_hr_user"/>
+                           groups="ems.group_academic_admin,hr.group_hr_user"/>
                     <label for="google_ws_login" string="Suggested Google username"
                            invisible="employee_type not in ('teacher', 'asp') or work_email or google_ws_manual_email"
-                           groups="ems.group_admin,hr.group_hr_user"/>
+                           groups="ems.group_academic_admin,hr.group_hr_user"/>
                     <div class="o_row"
                          invisible="employee_type not in ('teacher', 'asp') or work_email or google_ws_manual_email"
-                         groups="ems.group_admin,hr.group_hr_user">
+                         groups="ems.group_academic_admin,hr.group_hr_user">
                         <field name="google_ws_login" placeholder="jdoe" nolabel="1"/>
                         <span class="text-muted">@<field name="google_ws_domain" readonly="1" nolabel="1" class="oe_inline"/></span>
                     </div>

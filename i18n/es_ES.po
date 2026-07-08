@@ -2752,6 +2752,7 @@ msgstr "Primo/Prima"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Create Google account"
 msgstr "Crear cuenta de Google"
 
@@ -6964,6 +6965,7 @@ msgstr "Reabriendo encuestas"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Reactivate Google account"
 msgstr "Reactivar cuenta de Google"
 
@@ -8500,6 +8502,7 @@ msgstr "Encuestas subidas"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Suspend Google account"
 msgstr "Suspender cuenta de Google"
 
@@ -10351,3 +10354,96 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
 msgid "Finalised"
 msgstr "Finalizada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_manual_email
+msgid "Assign corporate email manually"
+msgstr "Asignar correo corporativo manualmente"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_login
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Suggested Google username"
+msgstr "Nombre de usuario de Google sugerido"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_teacher
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_teacher
+msgid "OU (teachers)"
+msgstr "OU (profesorado)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_asp
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_asp
+msgid "OU (ASP)"
+msgstr "OU (PAS)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_staff_suspended
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_staff_suspended
+msgid "OU (staff suspended)"
+msgstr "OU (bajas del personal)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for teachers"
+msgstr "OU para profesorado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for ASP"
+msgstr "OU para PAS"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for suspended staff"
+msgstr "OU para personal dado de baja"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Credentials PDF saved as attachment"
+msgstr "PDF de credenciales guardado como adjunto"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the employee already has a non-corporate work email (%s); "
+"the corporate account was NOT created to avoid overwriting it."
+msgstr ""
+"Google Workspace: el empleado ya tiene un correo de trabajo no corporativo "
+"(%s); no se ha creado la cuenta corporativa para evitar sobrescribirlo."
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: not authorized to create accounts in OU %(ou)s. The "
+"service account's custom admin role must be granted access to this "
+"Organizational Unit in Google Admin."
+msgstr ""
+"Google Workspace: no autorizado para crear cuentas en la OU %(ou)s. El rol "
+"de administrador personalizado de la cuenta de servicio debe tener acceso "
+"concedido a esta unidad organizativa en Google Admin."
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_google_credentials_employee
+msgid "Google Workspace credentials (staff)"
+msgstr "Credenciales de Google Workspace (personal)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials_employee
+msgid "Staff member"
+msgstr "Miembro del personal"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_welcome_employee
+msgid "Google Workspace - Welcome credentials (staff)"
+msgstr "Google Workspace - Credenciales de bienvenida (personal)"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the corporate account was not created automatically. "
+"Missing required data: %s."
+msgstr ""
+"Google Workspace: la cuenta corporativa no se creó automáticamente. Faltan "
+"datos obligatorios: %s."

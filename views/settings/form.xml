@@ -92,7 +92,19 @@
                                 <field name="google_ws_ou_suspended"/>
                             </setting>
 
-                            <setting string="Service Account JSON" help="Paste here the full JSON key of the Google Cloud service account. It is stored encrypted. The service account must have a custom admin role scoped to the students OU." id="google_ws_sa_json">
+                            <setting string="OU for teachers" help="Organizational Unit path where teacher accounts are created." id="google_ws_ou_teacher">
+                                <field name="google_ws_ou_teacher"/>
+                            </setting>
+
+                            <setting string="OU for ASP" help="Organizational Unit path where Administrative and Services Personnel accounts are created." id="google_ws_ou_asp">
+                                <field name="google_ws_ou_asp"/>
+                            </setting>
+
+                            <setting string="OU for suspended staff" help="Organizational Unit path where suspended (former) staff accounts are moved. Must be manageable by the service account role." id="google_ws_ou_staff_suspended">
+                                <field name="google_ws_ou_staff_suspended"/>
+                            </setting>
+
+                            <setting string="Service Account JSON" help="Paste here the full JSON key of the Google Cloud service account. It is stored encrypted. The service account must have a custom admin role scoped to the managed OUs (students and staff)." id="google_ws_sa_json">
                                 <field name="google_ws_sa_json" widget="text" placeholder='{ "type": "service_account", ... }'/>
                             </setting>
                         </block>

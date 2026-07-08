@@ -2749,6 +2749,7 @@ msgstr "Cosí/Cosina"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Create Google account"
 msgstr "Crear compte de Google"
 
@@ -6951,6 +6952,7 @@ msgstr "Reobrint enquestes"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Reactivate Google account"
 msgstr "Reactivar compte de Google"
 
@@ -8488,6 +8490,7 @@ msgstr "Enquestes pujades"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Suspend Google account"
 msgstr "Suspendre compte de Google"
 
@@ -10338,3 +10341,96 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
 msgid "Finalised"
 msgstr "Finalitzada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_manual_email
+msgid "Assign corporate email manually"
+msgstr "Assignar correu corporatiu manualment"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_login
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Suggested Google username"
+msgstr "Nom d'usuari de Google suggerit"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_teacher
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_teacher
+msgid "OU (teachers)"
+msgstr "OU (professorat)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_asp
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_asp
+msgid "OU (ASP)"
+msgstr "OU (PAS)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_staff_suspended
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_staff_suspended
+msgid "OU (staff suspended)"
+msgstr "OU (baixes del personal)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for teachers"
+msgstr "OU per al professorat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for ASP"
+msgstr "OU per al PAS"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "OU for suspended staff"
+msgstr "OU per a personal donat de baixa"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Credentials PDF saved as attachment"
+msgstr "PDF de credencials desat com a adjunt"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the employee already has a non-corporate work email (%s); "
+"the corporate account was NOT created to avoid overwriting it."
+msgstr ""
+"Google Workspace: l'empleat ja té un correu de treball no corporatiu (%s); "
+"no s'ha creat el compte corporatiu per evitar sobreescriure'l."
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: not authorized to create accounts in OU %(ou)s. The "
+"service account's custom admin role must be granted access to this "
+"Organizational Unit in Google Admin."
+msgstr ""
+"Google Workspace: no autoritzat per crear comptes a l'OU %(ou)s. El rol "
+"d'administrador personalitzat del compte de servei ha de tenir accés "
+"concedit a aquesta unitat organitzativa a Google Admin."
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_google_credentials_employee
+msgid "Google Workspace credentials (staff)"
+msgstr "Credencials de Google Workspace (personal)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_google_credentials_employee
+msgid "Staff member"
+msgstr "Membre del personal"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_welcome_employee
+msgid "Google Workspace - Welcome credentials (staff)"
+msgstr "Google Workspace - Credencials de benvinguda (personal)"
+
+#. module: ems
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid ""
+"Google Workspace: the corporate account was not created automatically. "
+"Missing required data: %s."
+msgstr ""
+"Google Workspace: el compte corporatiu no s'ha creat automàticament. Falten "
+"dades obligatòries: %s."

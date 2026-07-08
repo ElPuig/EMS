@@ -17,7 +17,7 @@ Seleccioneu el vostre perfil per accedir als manuals corresponents:
 | [Tutors](tutors/index.md) | Gestió de propostes de matrícula i seguiment dels alumnes del grup |
 | [Secretaria](secretary/index.md) | Gestió de matrícules, documents, pagaments i bonificacions |
 | [Cap d'Estudis](head_of_studies/index.md) | Decidir sobre sol·licituds de correcció de fitxatges |
-| [Administrador](admin/index.md) | Configuració curricular i dades de catàleg |
+| [Administrador](admin/index.md) | Configuració curricular, gestió de professors i comptes de Google Workspace |
 | [Desenvolupadors](../en/developers/index.md) | Referència tècnica per a desenvolupadors |
 
 ---

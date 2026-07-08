@@ -10,12 +10,14 @@ This section contains the manuals for **teachers**.
 
 ## Available Manuals
 
-- [Attendance: Reviewing Your Check-ins and Requesting Corrections](attendance-corrections.md)
+| Manual | Description |
+|--------|-------------|
+| [Attendance: Reviewing Your Check-ins and Requesting Corrections](attendance-corrections.md) | Review your attendance check-ins and check-outs and request corrections |
+| [Evaluation: Record grades by learning outcome](qualificacions.md) | Record the grades for each evaluation to prepare the evaluation board |
 
 ## Planned Topics
 
 - Attendance: management of attendance sessions and guard mode
-- Grades: introduction and grade consultation
 - Planning: session and content programming
 
 ---

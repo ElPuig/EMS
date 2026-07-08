@@ -57,6 +57,8 @@
         'security/rules/attendance.xml',
         'security/rules/communications.xml',
         'security/rules/contacts.xml',
+        'security/rules/grading.xml',
+        'security/rules/planning.xml',
         'security/rules/portal.xml',
         'security/ir.model.access.csv',
 
@@ -155,7 +157,12 @@
             'views/planning_grading/planning/list.xml',
             'views/planning_grading/planning/form.xml',
             'views/planning_grading/planning/menu.xml',
-            
+            'views/planning_grading/grading/list.xml',
+            'views/planning_grading/grading/form.xml',
+            'views/planning_grading/grading/search.xml',
+            'views/planning_grading/grading/menu.xml',
+            'views/planning_grading/grading/wizard.xml',
+
             'views/communications/menu.xml',
 
             'views/communications/surveys/header/list.xml',

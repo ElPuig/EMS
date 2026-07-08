@@ -10,12 +10,14 @@ Esta sección contiene los manuales para los **profesores**.
 
 ## Manuales disponibles
 
-- [Fichajes: revisar tus entradas/salidas y solicitar correcciones](attendance-corrections.md)
+| Manual | Descripción |
+|--------|-------------|
+| [Fichajes: revisar tus entradas/salidas y solicitar correcciones](attendance-corrections.md) | Revisar tus entradas/salidas y solicitar correcciones |
+| [Evaluación: Introducir calificaciones por RAs](qualificacions.md) | Introducir las calificaciones de cada evaluación para preparar la junta de evaluación |
 
 ## Temas previstos
 
 - Pasar lista: gestión de sesiones de asistencia y modo guardia
-- Calificaciones: introducción y consulta de calificaciones
 - Planificación: programación de sesiones y contenidos
 
 ---

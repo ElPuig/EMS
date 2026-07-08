@@ -84,7 +84,12 @@ Key rules applied in this project:
 
 ## Documentation structure
 
-Trilingual: English (`docs/en/`), Catalan (`docs/ca/`), Spanish (`docs/es/`).
+There are **two distinct categories** of documentation, for two different audiences — every new feature needs both, they are not alternatives:
+
+- **Technical documentation** (`docs/en/developers/`): for developers reading the code. English only. Mermaid diagrams of hierarchy/relations, CRUD flow, access-control tables.
+- **User documentation** (`docs/{en,ca,es}/<role>/`): manuals for the people who actually operate the feature in the running app — one folder per role (`admin`, `teachers`, `tutors`, `secretary`, `head_of_studies`, `families`). Trilingual: every user doc needs a Catalan, Spanish and English version. A single feature can need more than one role's manual (e.g. a teacher-facing screen plus the admin config behind it) — see the New feature workflow below for how to identify which roles apply.
+
+Trilingual tree: English (`docs/en/`), Catalan (`docs/ca/`), Spanish (`docs/es/`).
 
 ```
 docs/
@@ -92,19 +97,18 @@ docs/
 │   ├── families/
 │   └── tutors/
 ├── en/
-│   ├── admin/         # Administrator user guides
-│   ├── developers/    # Technical docs with Mermaid diagrams (English only)
-│   ├── families/
-│   ├── head_of_studies/  # Head of Studies / Deputy / Director user guides
-│   ├── secretary/
-│   ├── teachers/
-│   └── tutors/
-├── ca/  (same structure, minus developers/)
-└── es/  (same structure, minus developers/)
+│   ├── admin/         # [USER doc] Administrator manuals
+│   ├── developers/    # [TECHNICAL doc] Mermaid diagrams, CRUD flow, access-control tables (English only)
+│   ├── families/      # [USER doc] Family/student manuals
+│   ├── head_of_studies/  # [USER doc] Head of Studies / Deputy / Director manuals
+│   ├── secretary/      # [USER doc] Secretariat manuals
+│   ├── teachers/       # [USER doc] Teacher manuals
+│   └── tutors/         # [USER doc] Group tutor manuals
+├── ca/  (same structure, minus developers/ — user docs only, no technical docs in Catalan)
+└── es/  (same structure, minus developers/ — user docs only, no technical docs in Spanish)
 ```
 
 Folder names are always in English regardless of the language tree (`teachers/`, not `professors/`; `secretary/`, not `secretaria/`), so paths stay consistent across `en/`, `ca/` and `es/` — only the file contents and index labels are translated.
-```
 
 Image references in markdown use relative paths: `../../assets/<section>/filename.png`
 
@@ -136,7 +140,7 @@ Any change that alters or renames something Odoo identifies by **XML ID** — re
 
 A retroactive code quality process applied model by model:
 
-1. **D — Diagrams:** Technical docs in English (`docs/en/developers/`) with Mermaid diagrams; user docs in all three languages (`docs/{en,ca,es}/admin/`).
+1. **D — Diagrams:** Technical docs in English (`docs/en/developers/`) with Mermaid diagrams; user docs in all three languages, one file per role that actually interacts with the feature (`docs/{en,ca,es}/<role>/`, where `<role>` is `admin`, `teachers`, `tutors`, `secretary`, `head_of_studies` or `families` — not only `admin/`; a feature can be relevant to more than one role and then needs a doc file under each).
 2. **T — Testing:** Backend `TransactionCase` tests + browser tour test.
 3. **O — Optimization:** `_order`, `_sql_constraints`, view fixes, computed field guards, refactoring, cleaner and simple code.
 4. **N — Normalization:** Apply Odoo v18 official coding guidelines.
@@ -147,9 +151,9 @@ Run the full test suite after O and again after N to gate each phase.
 
 DTON above is the retroactive process; this is how new models/features should be built so that they arrive already DTON-compliant instead of needing a cleanup pass later. It is TDD's Red-Green-Refactor cycle, with D/O/N slotted into it — no separate process to remember:
 
-1. **Spec (before Red) — D:** Before any test or code, stub `docs/en/developers/<area>/<model>.md` (Mermaid diagram of hierarchy/relations, CRUD flow, access-control table) and `docs/{en,ca,es}/admin/<model>.md`. This stub is the acceptance criteria for the cycle below.
+1. **Spec (before Red) — D:** Before any test or code, stub `docs/en/developers/<area>/<model>.md` (Mermaid diagram of hierarchy/relations, CRUD flow, access-control table). From that access-control table, identify **every role that will actually use the feature** (`admin`, `teachers`, `tutors`, `secretary`, `head_of_studies`, `families` — a feature is frequently relevant to more than one, e.g. a teacher-facing grading screen plus an admin config screen) and stub one `docs/{en,ca,es}/<role>/<model>.md` per role identified, not just `admin/`. These stubs are the acceptance criteria for the cycle below.
 2. **Red — T:** Write `tests/test_<model>.py` (`TransactionCase`) and, if applicable, the tour (`static/tests/tours/<model>_tour.js` + `tests/test_<model>_tour.py`) before the model exists. `./test.sh` must fail.
 3. **Green — T:** Write the minimum code to pass: `models/<area>/<model>.py`, `security/ir.model.access.csv` (+ `security/rules/*.xml` if needed), `views/<area>/<model>/{form,list,menu}.xml`, manifest bump. `./test.sh` must pass.
 4. **Refactor — O + N:** In the same cycle, not as a later pass: add `_order`, `_sql_constraints`, computed field guards, view fixes (O); apply the Odoo v18 coding guidelines from the "Coding standards" section above — model attribute order, alphabetical imports, f-strings, loop variable naming, translatable literals (N).
 5. **Gate:** `./upgrade.sh` and `./test.sh` after each Red-Green-Refactor cycle.
-6. **Close — D:** Fill in the three admin doc translations, add the new strings' real Catalan/Spanish translations to `i18n/ca_ES.po` and `i18n/es_ES.po` (see "All literals must be translatable" above — wrapping in `_()`/`_t()` during Green/Refactor is not enough on its own), and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle.
+6. **Close — D:** For every role identified in the Spec step, fill in the three language versions of that role's user doc (`docs/{en,ca,es}/<role>/<model>.md`) — this is a mandatory deliverable of every new feature, not an optional extra to be requested separately; skipping it because the feature "isn't for admins" is the most common way this step gets missed. Also update the role's `index.md` to link the new manual. Add the new strings' real Catalan/Spanish translations to `i18n/ca_ES.po` and `i18n/es_ES.po` (see "All literals must be translatable" above — wrapping in `_()`/`_t()` during Green/Refactor is not enough on its own), and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle.

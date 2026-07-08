@@ -3,7 +3,7 @@ echo "Upgrading the EMS..."
 sudo service odoo stop || true
 
 echo "Upgrading odoo package..."
-apt-get install --only-upgrade -y odoo
+sudo apt-get install --only-upgrade -y odoo
 
 # Build psql connection args from /etc/odoo/odoo.conf when a db_host is configured
 # (e.g. in CI where PostgreSQL is a remote service). Locally, db_host is absent

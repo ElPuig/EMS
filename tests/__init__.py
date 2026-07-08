@@ -7,6 +7,6 @@ from . import test_attendance_correction
 from . import test_grade_session
 from . import test_grade_import_wizard
 from . import test_planning
-from . import test_migration_18_0_0_19_1
+from . import test_data_custom_import_prefix
 from . import test_grade_session_tour
 from . import test_employee_google_workspace

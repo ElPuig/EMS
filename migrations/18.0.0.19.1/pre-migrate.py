@@ -8,6 +8,69 @@ _logger = logging.getLogger(__name__)
 
 MODULE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
+# (model, name) pairs whose data/custom/ record id gained the __import__.
+# prefix in this version (see CLAUDE.md's "Data folder conventions"). These
+# xmlids already exist in production under module='ems' - repoint their
+# ownership to '__import__' in place so the module upgrade never sees them
+# as new/missing (no res_id changes, purely an ownership rename).
+RENAMED_CUSTOM_XMLIDS = [
+    ('crm.team', 'team_administration'),
+    ('crm.team', 'team_after_school'),
+    ('crm.team', 'team_shop'),
+    ('ems.group', 'group_btx1_101ct'),
+    ('ems.group', 'group_btx1_101hu'),
+    ('ems.group', 'group_btx1_102ci'),
+    ('ems.group', 'group_btx1_102so'),
+    ('ems.group', 'group_btx2_201'),
+    ('ems.group', 'group_btx2_202'),
+    ('ems.group', 'group_eso1a'),
+    ('ems.group', 'group_eso1b'),
+    ('ems.group', 'group_eso1c'),
+    ('ems.group', 'group_eso1d'),
+    ('ems.group', 'group_eso1e'),
+    ('ems.group', 'group_eso2a'),
+    ('ems.group', 'group_eso2b'),
+    ('ems.group', 'group_eso2c'),
+    ('ems.group', 'group_eso2d'),
+    ('ems.group', 'group_eso3a'),
+    ('ems.group', 'group_eso3b'),
+    ('ems.group', 'group_eso3c'),
+    ('ems.group', 'group_eso3d'),
+    ('ems.group', 'group_eso4a'),
+    ('ems.group', 'group_eso4b'),
+    ('ems.group', 'group_eso4c'),
+    ('ems.group', 'group_eso4d'),
+    ('ems.group', 'group_eso4e'),
+]
+
+# NOTE: the ems.planning, ems.authorization.template, ems.course,
+# ir.sequence and sale.order.template.line records under data/custom/ are
+# declared via XML <record> tags, not CSV. Odoo's XML loader
+# (odoo/tools/convert.py::_test_xml_id) unconditionally rejects any record
+# id whose module prefix isn't an actually installed Odoo module - and
+# '__import__' never is - so `<record id="__import__.xxx">` always raises
+# "The ID ... refers to an uninstalled module" and aborts the whole load.
+# __import__ is only usable for CSV-loaded data (odoo/models.py's
+# _load_records default context, used by CSV import/load()). Those XML
+# records are therefore intentionally left owned by 'ems' for now; see the
+# note left in CLAUDE.md's "Data folder conventions" - fixing them requires
+# converting the files to CSV (straightforward for flat models, non-trivial
+# for ems.planning's nested planning_outcome_ids), not a simple id rename.
+
+
+def _rename_custom_xmlid_ownership(cr):
+    for model, name in RENAMED_CUSTOM_XMLIDS:
+        cr.execute(
+            "UPDATE ir_model_data SET module = '__import__' "
+            "WHERE module = 'ems' AND model = %s AND name = %s",
+            (model, name),
+        )
+        if cr.rowcount:
+            _logger.info(
+                "Migration 18.0.0.19.1: rescoped xml_id 'ems.%s' (%s) -> '__import__.%s'.",
+                name, model, name,
+            )
+
 
 def _iter_planning_records():
     """Yield (xml_id, study_ref, subject_ref) for every ems.planning record
@@ -48,6 +111,8 @@ def migrate(cr, _version):
     constraint and aborts the whole module load. Re-link each such orphaned
     xml_id to its matching live row so the loader performs an update instead.
     """
+    _rename_custom_xmlid_ownership(cr)
+
     for xml_id, study_ref, subject_ref in _iter_planning_records():
         planning_id = _resolve_xmlid(cr, xml_id)
         if planning_id is not None:

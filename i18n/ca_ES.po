@@ -1645,6 +1645,7 @@ msgstr "Aplicar a prematrícules"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
+#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
 msgid "Applying changes…"
 msgstr "Aplicant els canvis…"
 
@@ -2288,6 +2289,8 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 #: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -4421,6 +4424,8 @@ msgstr "Grups: On s'assignen els estudiants."
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__guard
 #: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__g
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Guard"
 msgstr "Guàrdia"
 
@@ -6567,12 +6572,6 @@ msgstr "Canvis pendents: les notes es recalcularan en aplicar."
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
-msgid "Applying changes…"
-msgstr "Aplicant canvis…"
-
-#. module: ems
-#. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
 msgid "Override Internal"
 msgstr "Sobreescriure centre"
@@ -7423,6 +7422,8 @@ msgstr "Dissabte"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Save"
 msgstr "Desar"
 
@@ -7730,8 +7731,10 @@ msgstr "Docent de la sessió"
 #: model:ir.ui.menu,name:ems.menu_attendance_sessions
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Sessions"
-msgstr "Sesions"
+msgstr "Sessions"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
@@ -9883,12 +9886,6 @@ msgstr "Tots els grups"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
-msgid "Sessions"
-msgstr "Sessions"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Planned (no session)"
 msgstr "Planificades (sense sessió)"
 
@@ -9931,18 +9928,6 @@ msgstr "Afegir notes"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
-msgid "Cancel"
-msgstr "Cancel·lar"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
-msgid "Save"
-msgstr "Guardar"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Lastname A→Z"
 msgstr "Cognom A→Z"
 
@@ -9975,12 +9960,6 @@ msgstr "Hora actual"
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Manual selection"
 msgstr "Sel·lecció manual"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
-msgid "Guard"
-msgstr "Guàrdia"
 
 #. module: ems
 #. odoo-javascript

@@ -2,6 +2,7 @@
 
 from datetime import datetime
 
+from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
@@ -82,7 +83,7 @@ class TestAttendanceCorrection(TransactionCase):
         vals = {
             'attendance_id': self.attendance.id,
             'reason': 'Forgot to check in on time.',
-            'requested_check_in': datetime(2026, 1, 5, 8, 30),
+            'requested_check_in': 8.5,  # 08:30
         }
         vals.update(values)
         return self.env['ems.attendance_correction'].with_user(user).create(vals)
@@ -142,16 +143,63 @@ class TestAttendanceCorrection(TransactionCase):
         approver = self.other_teacher_employee.find_head_of_studies()
         self.assertFalse(approver)
 
+    def test_default_requested_times_match_original(self):
+        correction = self.env['ems.attendance_correction'].with_context(
+            default_attendance_id=self.attendance.id
+        ).with_user(self.teacher_user).new({})
+        expected_check_in = correction.time_to_float(correction.utc_datetime_to_local(self.attendance.check_in).time())
+        expected_check_out = correction.time_to_float(correction.utc_datetime_to_local(self.attendance.check_out).time())
+        self.assertAlmostEqual(correction.requested_check_in, expected_check_in, places=4)
+        self.assertAlmostEqual(correction.requested_check_out, expected_check_out, places=4)
+
+    def test_default_requested_check_out_falls_back_to_schedule_when_open(self):
+        calendar = self.env['resource.calendar'].create({
+            'name': 'Test Schedule (Attendance Correction)',
+            'attendance_ids': [(0, 0, {
+                'name': 'Monday Morning',
+                'dayofweek': '0',
+                'hour_from': 8.0,
+                'hour_to': 15.0,
+            })],
+        })
+        self.teacher_employee.resource_calendar_id = calendar.id
+        open_attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id,
+            'check_in': datetime(2026, 1, 12, 8, 0),  # also a Monday, no check_out yet
+        })
+        correction = self.env['ems.attendance_correction'].with_context(
+            default_attendance_id=open_attendance.id
+        ).with_user(self.teacher_user).new({})
+        self.assertEqual(correction.requested_check_out, 15.0)
+
     def test_accept_applies_correction(self):
+        original_check_in = self.attendance.check_in
+        original_check_out = self.attendance.check_out
         correction = self._create_correction(
             self.teacher_user,
-            requested_check_in=datetime(2026, 1, 5, 8, 30),
-            requested_check_out=datetime(2026, 1, 5, 16, 30),
+            requested_check_in=8.5,  # 08:30
+            requested_check_out=16.5,  # 16:30
         )
         correction.with_user(self.hos_user).action_accept()
         self.assertEqual(correction.state, 'accepted')
-        self.assertEqual(self.attendance.check_in, datetime(2026, 1, 5, 8, 30))
-        self.assertEqual(self.attendance.check_out, datetime(2026, 1, 5, 16, 30))
+
+        # The date must stay the same as the original attendance; only the time changes.
+        self.assertEqual(
+            correction.utc_datetime_to_local(self.attendance.check_in).date(),
+            correction.utc_datetime_to_local(original_check_in).date(),
+        )
+        self.assertEqual(
+            correction.time_to_float(correction.utc_datetime_to_local(self.attendance.check_in).time()),
+            8.5,
+        )
+        self.assertEqual(
+            correction.utc_datetime_to_local(self.attendance.check_out).date(),
+            correction.utc_datetime_to_local(original_check_out).date(),
+        )
+        self.assertEqual(
+            correction.time_to_float(correction.utc_datetime_to_local(self.attendance.check_out).time()),
+            16.5,
+        )
         self.assertEqual(correction.approver_id, self.hos_user)
         self.assertTrue(correction.decision_date)
 
@@ -176,6 +224,10 @@ class TestAttendanceCorrection(TransactionCase):
             ('activity_type_id', '=', activity_type.id),
         ])
         self.assertEqual(activities.user_id, self.hos_user)
+        # Deadline must not default to "today" (see attendance_correction.py's
+        # APPROVAL_ACTIVITY_DEADLINE_DAYS) or the notification email reads as if
+        # the request were already overdue on the day it was submitted.
+        self.assertGreater(activities.date_deadline, fields.Date.context_today(correction))
 
     def test_requester_notified_on_decision(self):
         correction = self._create_correction(self.teacher_user)
@@ -186,3 +238,36 @@ class TestAttendanceCorrection(TransactionCase):
             ('partner_ids', 'in', self.teacher_user.partner_id.ids),
         ])
         self.assertTrue(messages)
+
+    def test_can_revise_decision_after_accept(self):
+        correction = self._create_correction(self.teacher_user)
+        correction.with_user(self.hos_user).action_accept()
+        self.assertEqual(correction.state, 'accepted')
+        self.assertNotEqual(self.attendance.check_in, correction.original_check_in)
+
+        # The approver made a mistake and now rejects it instead: the attendance
+        # must be restored to its original value.
+        correction.with_user(self.hos_user).action_reject()
+        self.assertEqual(correction.state, 'rejected')
+        self.assertEqual(self.attendance.check_in, correction.original_check_in)
+
+    def test_can_revise_decision_after_reject(self):
+        correction = self._create_correction(self.teacher_user)
+        correction.with_user(self.hos_user).action_reject()
+        self.assertEqual(correction.state, 'rejected')
+        self.assertEqual(self.attendance.check_in, correction.original_check_in)
+
+        correction.with_user(self.hos_user).action_accept()
+        self.assertEqual(correction.state, 'accepted')
+        self.assertNotEqual(self.attendance.check_in, correction.original_check_in)
+
+    def test_hr_attendance_correction_ids_and_count(self):
+        correction = self._create_correction(self.teacher_user)
+        self.assertIn(correction, self.attendance.correction_ids)
+        self.assertEqual(self.attendance.correction_count, 1)
+
+    def test_action_view_corrections_domain(self):
+        correction = self._create_correction(self.teacher_user)
+        action = self.attendance.action_view_corrections()
+        self.assertEqual(action['domain'], [('attendance_id', '=', self.attendance.id)])
+        self.assertIn(correction.id, self.env['ems.attendance_correction'].search(action['domain']).ids)

@@ -11,6 +11,20 @@
             <field name="groups_id" eval="[(4, ref('ems.group_teacher'))]"/>
         </record>
 
+        <!-- "Kiosk Mode" and "Management" are only relevant to a technical/whole-company
+             administrator, not to a Head of Studies / Deputy / Director: those roles get
+             hr_attendance's manager/officer groups implied for approval purposes (see
+             ems.group_head_of_studies in security/groups.xml), but that shouldn't also
+             surface these two native menu entries to them. Replace (not add to) groups_id
+             so only ems.group_academic_admin sees them. -->
+        <record model="ir.ui.menu" id="hr_attendance.menu_action_open_form">
+            <field name="groups_id" eval="[(6, 0, [ref('ems.group_academic_admin')])]"/>
+        </record>
+
+        <record model="ir.ui.menu" id="hr_attendance.menu_hr_attendance_view_attendances_management">
+            <field name="groups_id" eval="[(6, 0, [ref('ems.group_academic_admin')])]"/>
+        </record>
+
         <record model="ir.actions.act_window" id="hr_attendance.hr_attendance_action">
             <field name="name">Employee Attendances</field>
         </record>

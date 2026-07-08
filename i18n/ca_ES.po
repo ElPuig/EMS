@@ -9423,18 +9423,43 @@ msgstr "Sol·licitar correcció"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__requested_check_in
-msgid "Requested check-in"
-msgstr "Entrada sol·licitada"
+msgid "Requested check-in time"
+msgstr "Hora d'entrada sol·licitada"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__requested_check_out
-msgid "Requested check-out"
-msgstr "Sortida sol·licitada"
+msgid "Requested check-out time"
+msgstr "Hora de sortida sol·licitada"
 
 #. module: ems
 #: model:mail.activity.type,name:ems.mail_activity_attendance_correction
 msgid "Review attendance correction request"
 msgstr "Revisar sol·licitud de correcció de fitxatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_attendance__correction_ids
+msgid "Correction requests"
+msgstr "Sol·licituds de correcció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_attendance__correction_count
+msgid "Correction requests count"
+msgstr "Nombre de sol·licituds de correcció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_form_inherit_correction
+msgid "Corrections"
+msgstr "Correccions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+msgid "Requested correction"
+msgstr "Correcció sol·licitada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+msgid "Optional note for the requester..."
+msgstr "Nota opcional per al sol·licitant..."
 
 #. module: ems
 #. odoo-python

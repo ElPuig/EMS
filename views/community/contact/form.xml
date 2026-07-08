@@ -16,17 +16,17 @@
                                 string="Create Google account"
                                 class="btn-secondary"
                                 invisible="contact_type != 'student' or student_email"
-                                groups="ems.group_secretary,ems.group_admin"/>
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
                                 class="btn-secondary"
                                 invisible="contact_type != 'student' or not student_email or google_ws_suspended"
-                                groups="ems.group_secretary,ems.group_admin"/>
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
                         <button name="action_reactivate_google_account" type="object"
                                 string="Reactivate Google account"
                                 class="btn-secondary"
                                 invisible="contact_type != 'student' or not student_email or not google_ws_suspended"
-                                groups="ems.group_secretary,ems.group_admin"/>
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
                     </header>
                 </xpath>
 
@@ -243,7 +243,7 @@
                         </group>
                     </page>
                     <page name="documentation" string="Documentation" invisible="contact_type != 'student'"
-                          groups="ems.group_admin,ems.group_secretary">
+                          groups="ems.group_academic_admin,ems.group_secretary">
                         <field name="document_ids" nolabel="1"
                                context="{'default_partner_id': id}">
                             <list create="0" delete="0"
@@ -357,11 +357,11 @@
             <field name="inherit_id" ref="account.view_partner_property_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//page[@name='accounting']" position="attributes">
-                    <attribute name="groups">account.group_account_invoice,account.group_account_readonly,ems.group_admin,ems.group_secretary</attribute>
+                    <attribute name="groups">account.group_account_invoice,account.group_account_readonly,ems.group_academic_admin,ems.group_secretary</attribute>
                 </xpath>
                 <xpath expr="//group[@name='banks']" position="attributes">
                     <attribute name="colspan">2</attribute>
-                    <attribute name="groups">account.group_account_invoice,account.group_account_readonly,ems.group_admin,ems.group_secretary</attribute>
+                    <attribute name="groups">account.group_account_invoice,account.group_account_readonly,ems.group_academic_admin,ems.group_secretary</attribute>
                 </xpath>
                 <xpath expr="//group[@id='invoice_send_settings']" position="attributes">
                     <attribute name="invisible">1</attribute>

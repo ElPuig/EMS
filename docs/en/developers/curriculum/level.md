@@ -106,7 +106,7 @@ Defined in `security/ir.model.access.csv` (lines 34–36, 205).
 
 | Role | Create | Read | Write | Delete | Group XML ID |
 |------|:------:|:----:|:-----:|:------:|--------------|
-| Administrator | ✓ | ✓ | ✓ | ✓ | `ems.group_admin` |
+| Administrator | ✓ | ✓ | ✓ | ✓ | `ems.group_academic_admin` |
 | Teacher | — | ✓ | — | — | `ems.group_teacher` |
 | Secretary | — | ✓ | — | — | `ems.group_secretary` |
 | Portal | — | ✓ | — | — | `base.group_portal` |

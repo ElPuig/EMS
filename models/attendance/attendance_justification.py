@@ -76,7 +76,7 @@ class ems_attendance_justification(models.Model):
 			
 			students = self.env["res.partner"].search(where)			
 			for s in students:
-				if self.env.user.has_group('ems.group_admin') or s.main_group_id in rec.teacher_id.tutorship_ids:
+				if self.env.user.has_group('ems.group_academic_admin') or s.main_group_id in rec.teacher_id.tutorship_ids:
 					allowed.append(s.id)
 
 			rec.allowed_student_ids = [(6, 0, allowed)]	

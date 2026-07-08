@@ -12,7 +12,7 @@
                     <attribute name="edit">0</attribute>
                     <attribute name="create">0</attribute>
                 </xpath>
-                <xpath expr="//form" position="attributes" groups="ems.group_admin,ems.group_secretary">
+                <xpath expr="//form" position="attributes" groups="ems.group_academic_admin,ems.group_secretary">
                     <attribute name="edit">1</attribute>
                     <attribute name="create">1</attribute>
                 </xpath>

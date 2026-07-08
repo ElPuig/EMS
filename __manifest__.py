@@ -66,6 +66,7 @@
         'views/settings/form.xml',
         'views/settings/hr_attendance_form.xml',
         'views/settings/hr_employees_form.xml',
+        'views/settings/res_users_form.xml',
         'views/settings/menu.xml',                                    
         
         'views/community/contact/search.xml', # Should be loaded prior to menu
@@ -191,6 +192,11 @@
             'views/attendance/attendance_justification/form.xml',
             'views/attendance/attendance_justification/search.xml',
 
+            'views/attendance/attendance_correction/menu.xml',
+            'views/attendance/attendance_correction/list.xml',
+            'views/attendance/attendance_correction/form.xml',
+            'views/attendance/attendance_correction/hr_attendance_form.xml',
+
             'views/attendance/attendance_issue/menu.xml',
             'views/attendance/attendance_issue/list.xml',
             'views/attendance/attendance_issue/form.xml',
@@ -304,6 +310,7 @@
         'data/main/ems.role_group_relationship.xml',
         'data/cat/ems.workgroup.csv',
         'data/cat/hr.job.csv',
+        'data/main/ems.job_group_relationship.xml',
         'data/cat/ems_product_category_data.xml',
         'data/cat/ems_product_generic_products.xml',
         'data/cat/ems_enrollment_template_data.xml',

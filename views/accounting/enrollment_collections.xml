@@ -51,7 +51,7 @@
                   name="Enrollment collections"
                   parent="account.menu_finance"
                   action="action_enrollment_collections"
-                  groups="ems.group_secretary,ems.group_admin"
+                  groups="ems.group_secretary,ems.group_academic_admin"
                   sequence="50"/>
 
     </data>

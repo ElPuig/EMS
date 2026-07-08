@@ -80,7 +80,7 @@
             <field name="res_model">ems.student_update_wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
-            <field name="groups_id" eval="[(4, ref('ems.group_admin')), (4, ref('ems.group_secretary'))]"/>
+            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary'))]"/>
         </record>
 
     </data>

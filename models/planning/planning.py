@@ -7,7 +7,7 @@ class ems_planning(models.Model):
 	_name = "ems.planning"
 	_description = "Planning: Curriculum deployment in the classroom (in development: just for grading ponderation at the moment)."
 	_sql_constraints = [
-		('unique_subject_id', 'unique (subject_id)', 'duplicated subject!')
+		('unique_study_subject', 'unique (study_id, subject_id)', 'A planning already exists for this study and subject!')
     ]
 
 	#TODO: For now, only for grading ponderation. 

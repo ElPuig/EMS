@@ -14,3 +14,4 @@ id,name,color,employee_type,unipersonal
 "ems.role_vetcoord","VET coordinator",13,teacher,true
 "ems.role_schieff","Secretary chieff",1,asp,true
 "ems.role_cchieff","Concierje chieff",2,asp,true
+"ems.role_secretary_admin","Secretary Administrator",3,asp,true

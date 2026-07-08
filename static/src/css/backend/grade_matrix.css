@@ -1,0 +1,430 @@
+/* No nested scroll: let the whole form scroll so the RA header can stick to
+   the top of the content area and the rest of the sheet (fields, tabs) scrolls
+   out of view, maximising the working space. */
+.o_grade_matrix {
+    overflow: visible;
+}
+
+/* Toolbar (Apply changes) sticks to the top; the header row sticks just below it. */
+.o_grade_matrix_toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 2px 4px;
+    background-color: var(--o-view-background-color, #ffffff);
+}
+
+.o_grade_matrix_hint {
+    font-size: 0.85em;
+    color: #6c757d;
+}
+
+/* Processing veil shown while applying changes (write + save). */
+.o_grade_matrix_overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.o_grade_matrix_overlay_box {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    font-size: 1.1em;
+    color: var(--o-brand-primary, #714b67);
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.o_grade_matrix table {
+    table-layout: fixed;
+    width: max-content;
+    min-width: 100%;
+}
+
+/* Clip overflowing content (long surnames) instead of invading the next cell. */
+.o_grade_matrix th,
+.o_grade_matrix td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+    /* Tight rows: remove the wasted vertical space around the cell content. */
+    padding-top: 1px;
+    padding-bottom: 1px;
+    line-height: 1.1;
+    vertical-align: middle;
+}
+
+/* Keep the RA header row visible while scrolling vertically, just below the toolbar. */
+.o_grade_matrix thead th {
+    position: sticky;
+    top: 36px;
+    z-index: 2;
+    background-color: var(--o-view-background-color, #ffffff);
+}
+
+.o_grade_matrix_col {
+    font-size: 0.85em;
+}
+
+.o_grade_matrix_sort {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Column resize handle (spreadsheet-like). */
+.o_grade_matrix_resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    user-select: none;
+}
+
+.o_grade_matrix_avatar {
+    width: 29px;
+    height: 29px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.o_grade_matrix_input {
+    width: 3.5em;
+    text-align: center;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.o_grade_matrix_input:focus {
+    border-color: var(--o-brand-primary, #714b67);
+    outline: none;
+}
+
+/* Remove the number input spinner arrows for a clean cell. */
+.o_grade_matrix_input::-webkit-outer-spin-button,
+.o_grade_matrix_input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.o_grade_matrix_input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* ── Subject summary columns (right of the RA matrix) ─────────────────────── */
+
+/* Divider between the RA block and the subject summary block. */
+.o_grade_matrix_sep {
+    border-left: 2px solid var(--o-brand-primary, #714b67) !important;
+}
+
+/* Read-only summary cells are not part of the spreadsheet selection. */
+.o_grade_matrix td.o_grade_matrix_subject {
+    cursor: default;
+    background-color: var(--o-view-background-color, #ffffff);
+}
+
+.o_grade_matrix_subinput {
+    width: 100%;
+    text-align: center;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.o_grade_matrix_subinput:focus {
+    border-color: var(--o-brand-primary, #714b67);
+    outline: none;
+}
+
+.o_grade_matrix_subinput::-webkit-outer-spin-button,
+.o_grade_matrix_subinput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.o_grade_matrix_subinput[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* Computed cells greyed while there are pending edits (they refresh on apply). */
+.o_grade_matrix td.o_grade_cell_stale {
+    color: #b0b0b0 !important;
+    background-color: #f0f0f0 !important;
+    font-style: italic;
+}
+
+/* Internal grade manually overridden: highlighted so it stands apart from the computed ones. */
+.o_grade_matrix td.o_grade_matrix_overridden {
+    background-color: #ede7f6;
+    color: #5e35b1;
+    font-weight: 600;
+}
+
+.o_grade_matrix td.o_grade_matrix_overridden .o_grade_matrix_subinput {
+    color: #5e35b1;
+    font-weight: 600;
+}
+
+/* Final grade stands out: bold text over the RA pass/fail background. */
+.o_grade_matrix td.o_grade_matrix_final {
+    font-weight: 700;
+}
+
+.o_grade_matrix td.o_grade_matrix_final .o_grade_matrix_subinput {
+    font-weight: 700;
+}
+
+/* Notes: left-aligned free text; the column grows with its content. */
+.o_grade_matrix td.o_grade_matrix_notes,
+.o_grade_matrix th.o_grade_matrix_notes_h {
+    text-align: left;
+    cursor: default;
+    background-color: var(--o-view-background-color, #ffffff);
+}
+
+.o_grade_matrix_notesinput {
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.o_grade_matrix_notesinput:focus {
+    border-color: var(--o-brand-primary, #714b67);
+    outline: none;
+}
+
+/* Colour codes: empty = white; score < 5 = pale red; score >= 5 = very light green. */
+.o_grade_matrix td.o_grade_cell_fail {
+    background-color: #fdecea;
+}
+
+.o_grade_matrix td.o_grade_cell_pass {
+    background-color: #ecfaf0;
+}
+
+/* Locked cell: an outcome already passed (score >= 5) in an earlier round. The passed value is carried
+   over and shown on the usual green, but it is read-only (marked with a small lock) and cannot be
+   edited, cleared or pasted over. */
+.o_grade_matrix td.o_grade_cell_locked {
+    cursor: default;
+    position: relative;
+}
+
+.o_grade_matrix td.o_grade_cell_locked::after {
+    content: "\1F512";
+    position: absolute;
+    top: 0;
+    right: 1px;
+    font-size: 8px;
+    line-height: 1;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* Provisional subject grade: some outcomes are still pending, so the internal / final grade is not
+   definitive. Rendered in italics (the value already carries a trailing "*"). */
+.o_grade_matrix td.o_grade_matrix_provisional {
+    font-style: italic;
+}
+
+/* Spreadsheet-like selection. */
+.o_grade_matrix:focus {
+    outline: none;
+}
+
+.o_grade_matrix td.o_grade_matrix_cell {
+    cursor: cell;
+    user-select: none;
+}
+
+/* Translucent tint so the pass/fail colour still shows through the selection. */
+.o_grade_matrix td.o_grade_cell_selected {
+    box-shadow: inset 0 0 0 9999px rgba(113, 75, 103, 0.10);
+}
+
+.o_grade_matrix td.o_grade_cell_anchor {
+    outline: 2px solid var(--o-brand-primary, #714b67);
+    outline-offset: -2px;
+}
+
+/* ── Tutor view (client action) ──────────────────────────────────────────── */
+
+/* The tutor view fills the action area: fixed toolbar + pager on top, and a single scroll region
+   (both axes) for the grid. This gives a reliable horizontal scrollbar when there are many RAs. */
+.o_grade_tutor {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Toolbar / pager are static flex items (always visible); the grid scrolls under them. */
+.o_grade_tutor .o_grade_matrix_toolbar {
+    position: static;
+    padding: 4px 12px;
+}
+
+.o_grade_tutor_scroll {
+    flex: 1 1 auto;
+    overflow: auto;
+    padding: 0 12px 12px;
+}
+
+/* Loading / empty states. */
+.o_grade_tutor_center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40vh;
+    color: #714b67;
+}
+
+.o_grade_tutor_empty {
+    text-align: center;
+    color: #6c757d;
+}
+
+/* Student pager: ◀ pinned far left, name centered, ▶ pinned far right. */
+.o_grade_tutor_pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    background-color: var(--o-view-background-color, #ffffff);
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.o_grade_tutor_pager_center {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.o_grade_tutor_navbtn {
+    font-size: 1.6em;
+    line-height: 1;
+    padding: 6px 22px;
+    border: 1px solid #d0d0d0;
+    background-color: #f8f8f8;
+}
+
+.o_grade_tutor_navbtn:hover:not(:disabled) {
+    background-color: #efe9ee;
+}
+
+.o_grade_tutor_navbtn:disabled {
+    opacity: 0.3;
+}
+
+.o_grade_tutor_avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #e0e0e0;
+}
+
+.o_grade_tutor_name {
+    font-size: 1.4em;
+    font-weight: 600;
+}
+
+/* Jump directly to a student (alternative to the ◀ ▶ buttons). */
+.o_grade_tutor_student_select {
+    max-width: 220px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+.o_grade_tutor_count {
+    color: #6c757d;
+    font-size: 1.1em;
+}
+
+.o_grade_tutor_scope {
+    font-size: 0.9em;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+}
+
+.o_grade_tutor_group_select {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 1px 4px;
+}
+
+/* The RA header row sticks to the top of the scroll region. */
+.o_grade_tutor thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: var(--o-view-background-color, #ffffff);
+}
+
+/* Only one student on screen: taller rows, but very tight horizontal padding so the score columns are
+   narrow (easier to scan) and more of them fit before needing to scroll. */
+.o_grade_tutor td,
+.o_grade_tutor th {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 2px;
+    padding-right: 2px;
+    line-height: 1.4;
+}
+
+/* Subject column: left-aligned; truncate from the LEFT (keep the descriptive tail visible, the code on
+   the left is hidden — it is well known). Full name available on hover (title). */
+.o_grade_matrix td.o_grade_tutor_subject,
+.o_grade_matrix th.o_grade_tutor_subject_h {
+    text-align: left;
+    padding-left: 6px;
+}
+
+.o_grade_matrix td.o_grade_tutor_subject {
+    font-weight: 600;
+}
+
+.o_grade_tutor_subject_txt {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* right-to-left flow clips the START (left) of the string, keeping the descriptive tail visible. */
+    direction: rtl;
+    text-align: left;
+}
+
+/* Disabled RA cell (a subject that does not have this positional outcome). */
+.o_grade_matrix td.o_grade_cell_disabled {
+    cursor: default;
+    background-color: #f5f5f5;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 4px,
+        rgba(0, 0, 0, 0.04) 4px,
+        rgba(0, 0, 0, 0.04) 8px
+    );
+}

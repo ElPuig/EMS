@@ -50,6 +50,13 @@ class ems_company(models.Model):
     google_ws_ou_adult      = fields.Char(string="OU (adults 18+)", default='/alumnos/+18')
     google_ws_ou_suspended  = fields.Char(string="OU (suspended)", default='/alumnos/bajas',
         help="OU where suspended (former) students are moved.")
+    # --- Staff accounts (teachers and ASP) ---
+    google_ws_ou_teacher    = fields.Char(string="OU (teachers)", default='/claustro/doble-factor-autenticación',
+        help="OU where teacher accounts are created.")
+    google_ws_ou_asp        = fields.Char(string="OU (ASP)", default='/pas',
+        help="OU where Administrative and Services Personnel accounts are created.")
+    google_ws_ou_staff_suspended = fields.Char(string="OU (staff suspended)", default='/claustro/bajas',
+        help="OU where suspended (former) staff accounts are moved.")
     google_ws_dry_run       = fields.Boolean(
         string="Google Workspace dry-run", default=True,
         help="If enabled, the account creation is logged without calling the real Google API.")

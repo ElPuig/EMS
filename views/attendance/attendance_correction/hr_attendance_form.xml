@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_hr_attendance_form_inherit_correction" model="ir.ui.view">
+            <field name="name">hr.attendance.form.inherit.ems.correction</field>
+            <field name="model">hr.attendance</field>
+            <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button string="Request Correction" type="action" name="%(ems.action_attendance_correction_new)d" class="btn-secondary" context="{'default_attendance_id': id}"/>
+                </xpath>
+                <xpath expr="//sheet/group[1]" position="before">
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_view_corrections" icon="fa-clock-o" invisible="correction_count == 0">
+                            <field name="correction_count" widget="statinfo" string="Corrections"/>
+                        </button>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

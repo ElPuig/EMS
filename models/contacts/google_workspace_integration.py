@@ -1,38 +1,20 @@
 # -*- coding: utf-8 -*-
 import base64
-import json
 import logging
-import secrets
-import string
-import unicodedata
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
+from ..shared.google_workspace_mixin import HttpError
+
 _logger = logging.getLogger(__name__)
-
-# Google client libraries are optional at import time so the module always loads.
-# They are required only when actually creating accounts (non dry-run).
-try:
-    from google.oauth2 import service_account
-    from googleapiclient.discovery import build
-    from googleapiclient.errors import HttpError
-    GOOGLE_LIBS_AVAILABLE = True
-except ImportError:
-    service_account = None
-    build = None
-    HttpError = Exception
-    GOOGLE_LIBS_AVAILABLE = False
-
-try:
-    import phonenumbers
-except ImportError:
-    phonenumbers = None
-
-GW_SCOPES = ['https://www.googleapis.com/auth/admin.directory.user']
 
 
 class ResPartnerGoogleWorkspace(models.Model):
+    # NOTE: 'google.workspace.mixin' is NOT added to _inherit. Mixing an extra
+    # abstract model into res.partner's inheritance re-triggers the shared-table
+    # check on inherited Many2many fields (channel_ids) and Odoo refuses to load.
+    # We reach the shared helpers through self.env['google.workspace.mixin'].
     _inherit = 'res.partner'
 
     google_ws_suspended = fields.Boolean(
@@ -42,15 +24,9 @@ class ResPartnerGoogleWorkspace(models.Model):
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
-    @api.model
-    def _gw_normalize(self, text):
-        """Lowercase, strip accents (ñ→n, ç→c, ü→u...) and keep only alphanumerics."""
-        if not text:
-            return ''
-        text = text.strip().lower()
-        nfkd = unicodedata.normalize('NFKD', text)
-        text = ''.join(c for c in nfkd if not unicodedata.combining(c))
-        return ''.join(c for c in text if c.isalnum())
+    def _gw(self):
+        """Shared Google Workspace helpers (normalize / service / password / phone)."""
+        return self.env['google.workspace.mixin']
 
     def _gw_email_candidates(self):
         """Ordered list of email prefixes (without domain) following the fixed strategy.
@@ -63,10 +39,11 @@ class ResPartnerGoogleWorkspace(models.Model):
             5. jmorotep6789    base + 4 últimas cifras del IDALU
         """
         self.ensure_one()
-        first = self._gw_normalize(self.firstname or '')
+        gw = self._gw()
+        first = gw._gw_normalize(self.firstname or '')
         last_parts = (self.lastname or '').strip().split()
-        apellido1 = self._gw_normalize(last_parts[0]) if last_parts else ''
-        apellido2 = self._gw_normalize(last_parts[1]) if len(last_parts) > 1 else ''
+        apellido1 = gw._gw_normalize(last_parts[0]) if last_parts else ''
+        apellido2 = gw._gw_normalize(last_parts[1]) if len(last_parts) > 1 else ''
         ini_nombre = first[0] if first else ''
         ini_ape2 = apellido2[0] if apellido2 else ''
 
@@ -95,26 +72,6 @@ class ResPartnerGoogleWorkspace(models.Model):
                 result.append(c)
         return result
 
-    def _gw_get_service(self):
-        """Build the Directory API client from the service account JSON.
-
-        Uses a custom admin role scoped to the students OU (no domain-wide
-        delegation, so NO .with_subject() impersonation).
-        """
-        if not GOOGLE_LIBS_AVAILABLE:
-            raise UserError(_(
-                "Google API libraries are not installed on the server "
-                "(google-api-python-client, google-auth)."))
-        raw = self.env.company.sudo().google_ws_sa_json
-        if not raw:
-            raise UserError(_("The Google Workspace Service Account JSON is not configured."))
-        try:
-            info = json.loads(raw)
-        except Exception:
-            raise UserError(_("The Google Workspace Service Account JSON is not valid."))
-        creds = service_account.Credentials.from_service_account_info(info, scopes=GW_SCOPES)
-        return build('admin', 'directory_v1', credentials=creds, cache_discovery=False)
-
     def _gw_email_used_in_ems(self, email):
         """True if the email is already assigned to another student in EMS."""
         return bool(self.sudo().search_count([
@@ -133,29 +90,9 @@ class ResPartnerGoogleWorkspace(models.Model):
         candidates = ['%s@%s' % (p, domain) for p in self._gw_email_candidates()]
         return [e for e in candidates if not self._gw_email_used_in_ems(e)]
 
-    @api.model
-    def _gw_random_password(self, length=12):
-        alphabet = string.ascii_letters + string.digits
-        while True:
-            pwd = ''.join(secrets.choice(alphabet) for _ in range(length))
-            if (any(c.islower() for c in pwd) and any(c.isupper() for c in pwd)
-                    and any(c.isdigit() for c in pwd)):
-                return pwd
-
     def _gw_format_mobile(self):
         """Return the student's mobile in E.164 (+34...) or False."""
-        mobile = self.mobile or self.phone
-        if not mobile:
-            return False
-        if phonenumbers:
-            try:
-                num = phonenumbers.parse(mobile, 'ES')
-                if phonenumbers.is_valid_number(num):
-                    return phonenumbers.format_number(num, phonenumbers.PhoneNumberFormat.E164)
-            except Exception:
-                return False
-            return False
-        return mobile
+        return self._gw()._gw_format_phone(self.mobile or self.phone)
 
     # ------------------------------------------------------------------
     # Readiness checks
@@ -246,15 +183,16 @@ class ResPartnerGoogleWorkspace(models.Model):
                 "The following required data is missing: %(fields)s."
             ) % {'name': self.name, 'fields': ", ".join(missing)})
 
+        gw = self._gw()
         dry_run = company.google_ws_dry_run
-        service = None if dry_run else self._gw_get_service()
+        service = None if dry_run else gw._gw_get_service()
 
         candidates = self._gw_email_full_candidates()
         if not candidates:
             self.message_post(body=_("Google Workspace: could not generate a free email address."))
             return
 
-        password = self._gw_random_password()
+        password = gw._gw_random_password()
         ou = company.google_ws_ou_adult if self.is_adult else company.google_ws_ou_minor
 
         base_body = {
@@ -374,7 +312,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         if company.google_ws_dry_run:
             _logger.info("[GW dry-run] suspend %s -> suspended=True, OU=%s", self.student_email, ou)
         else:
-            service = self._gw_get_service()
+            service = self._gw()._gw_get_service()
             try:
                 service.users().patch(
                     userKey=self.student_email,
@@ -422,7 +360,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                 "Google Workspace account reactivated: %s [dry-run].") % self.student_email)
             return
 
-        service = self._gw_get_service()
+        service = self._gw()._gw_get_service()
         try:
             service.users().patch(
                 userKey=self.student_email,

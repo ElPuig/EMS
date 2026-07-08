@@ -29,6 +29,9 @@ class ems_settings(models.TransientModel):
    google_ws_ou_minor = fields.Char(related="company_id.google_ws_ou_minor", readonly=False)
    google_ws_ou_adult = fields.Char(related="company_id.google_ws_ou_adult", readonly=False)
    google_ws_ou_suspended = fields.Char(related="company_id.google_ws_ou_suspended", readonly=False)
+   google_ws_ou_teacher = fields.Char(related="company_id.google_ws_ou_teacher", readonly=False)
+   google_ws_ou_asp = fields.Char(related="company_id.google_ws_ou_asp", readonly=False)
+   google_ws_ou_staff_suspended = fields.Char(related="company_id.google_ws_ou_staff_suspended", readonly=False)
    google_ws_dry_run  = fields.Boolean(related="company_id.google_ws_dry_run", readonly=False)
    google_ws_sa_json  = fields.Text(related="company_id.google_ws_sa_json", readonly=False)
 

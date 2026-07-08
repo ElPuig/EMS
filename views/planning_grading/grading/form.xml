@@ -1,0 +1,77 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_grade_session_form">
+            <field name="name">ems.grade_session.form</field>
+            <field name="model">ems.grade_session</field>
+            <field name="arch" type="xml">
+                <form string="Grade session" duplicate="0" create="0">
+                    <field name="has_planning" invisible="1"/>
+                    <field name="allowed_subject_ids" invisible="1"/>
+                    <field name="can_edit" invisible="1"/>
+
+                    <div class="alert alert-warning" role="alert" name="alert-warning" invisible="has_planning or group_id == False or subject_id == False">
+                        <!-- TODO: this should be translated (localization) -->
+                        No planning found for this group's study and subject, so the subject grade cannot be computed from the ponderations. You can still inform the outcome scores and set the final grade manually.
+                    </div>
+
+                    <header>
+                        <field name="state" widget="statusbar" readonly="1"/>
+                    </header>
+
+                    <sheet>
+                        <group col="4">
+                            <group>
+                                <field name="group_id" readonly="id"/>
+                            </group>
+                            <group>
+                                <field name="subject_id" readonly="id or group_id == False" domain="[('id','in', allowed_subject_ids)]"/>
+                            </group>
+                            <group>
+                                <field name="round" readonly="id"/>
+                            </group>
+                            <group>
+                                <field name="teacher_id" readonly="id or not user_is_admin" widget="many2one_avatar_employee"/>
+                            </group>
+                        </group>
+
+                        <!-- The subject grades are shown as extra columns inside the matrix widget, so this
+                             field is only declared to make its records available to the widget. It is hidden
+                             with d-none (not invisible="1", which would stop Odoo from loading the records). -->
+                        <field name="grade_subject_line_ids" class="d-none">
+                            <list limit="1000">
+                                <field name="student_id"/>
+                                <field name="internal_ponderation"/>
+                                <field name="external_ponderation"/>
+                                <field name="internal_score"/>
+                                <field name="internal_is_scored"/>
+                                <field name="internal_is_complete"/>
+                                <field name="external_score"/>
+                                <field name="external_is_scored"/>
+                                <field name="computed_score"/>
+                                <field name="computed_is_scored"/>
+                                <field name="is_overridden"/>
+                                <field name="final_score"/>
+                                <field name="has_final"/>
+                                <field name="notes"/>
+                            </list>
+                        </field>
+
+                        <field name="grade_outcome_line_ids" widget="grade_matrix" readonly="not can_edit">
+                            <list limit="1000">
+                                <field name="student_id"/>
+                                <field name="student_firstname"/>
+                                <field name="student_lastname"/>
+                                <field name="outcome_id"/>
+                                <field name="outcome_acronym"/>
+                                <field name="ponderation"/>
+                                <field name="score"/>
+                                <field name="is_scored"/>
+                                <field name="is_locked"/>
+                            </list>
+                        </field>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

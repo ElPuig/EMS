@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.18.7',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.19.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -46,8 +46,9 @@
     'external_dependencies': {
         'python': [
             'lxml',
-            'lxml_html_clean', 
-            'phonenumbers'
+            'lxml_html_clean',
+            'phonenumbers',
+            'openpyxl'
         ],
     },
     
@@ -57,6 +58,8 @@
         'security/rules/attendance.xml',
         'security/rules/communications.xml',
         'security/rules/contacts.xml',
+        'security/rules/grading.xml',
+        'security/rules/planning.xml',
         'security/rules/portal.xml',
         'security/ir.model.access.csv',
 
@@ -66,6 +69,7 @@
         'views/settings/form.xml',
         'views/settings/hr_attendance_form.xml',
         'views/settings/hr_employees_form.xml',
+        'views/settings/res_users_form.xml',
         'views/settings/menu.xml',                                    
         
         'views/community/contact/search.xml', # Should be loaded prior to menu
@@ -154,7 +158,13 @@
             'views/planning_grading/planning/list.xml',
             'views/planning_grading/planning/form.xml',
             'views/planning_grading/planning/menu.xml',
-            
+            'views/planning_grading/grading/list.xml',
+            'views/planning_grading/grading/form.xml',
+            'views/planning_grading/grading/search.xml',
+            'views/planning_grading/grading/menu.xml',
+            'views/planning_grading/grading/wizard.xml',
+            'views/planning_grading/grading/import_wizard.xml',
+
             'views/communications/menu.xml',
 
             'views/communications/surveys/header/list.xml',
@@ -191,6 +201,11 @@
             'views/attendance/attendance_justification/form.xml',
             'views/attendance/attendance_justification/search.xml',
 
+            'views/attendance/attendance_correction/menu.xml',
+            'views/attendance/attendance_correction/list.xml',
+            'views/attendance/attendance_correction/form.xml',
+            'views/attendance/attendance_correction/hr_attendance_form.xml',
+
             'views/attendance/attendance_issue/menu.xml',
             'views/attendance/attendance_issue/list.xml',
             'views/attendance/attendance_issue/form.xml',
@@ -221,6 +236,8 @@
             'reports/authorizations/report_authorization_certificate.xml',
             'reports/contacts/report_google_credentials.xml',
             'data/mail_template_google_welcome.xml',
+            'reports/employees/report_google_credentials_employee.xml',
+            'data/mail_template_google_welcome_employee.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
@@ -304,6 +321,7 @@
         'data/main/ems.role_group_relationship.xml',
         'data/cat/ems.workgroup.csv',
         'data/cat/hr.job.csv',
+        'data/main/ems.job_group_relationship.xml',
         'data/cat/ems_product_category_data.xml',
         'data/cat/ems_product_generic_products.xml',
         'data/cat/ems_enrollment_template_data.xml',
@@ -316,7 +334,17 @@
         'data/custom/btx/ems.study.csv',
         'data/custom/ccff/ems.subject.csv',
         'data/custom/ccff/ems.study.csv',
+        'data/custom/ccff/ems.outcome.csv',
         'data/custom/ccff/ems_enrollment_template_opt.xml',
+        'data/custom/ccff/ems.planning.smx.xml',
+        'data/custom/ccff/ems.planning.asix.xml',
+        'data/custom/ccff/ems.planning.dam.xml',
+        'data/custom/ccff/ems.planning.daw.xml',
+        'data/custom/ccff/ems.planning.ga.xml',
+        'data/custom/ccff/ems.planning.aif.xml',
+        'data/custom/ccff/ems.planning.ad.xml',
+        'data/custom/ccff/ems.planning.sa.xml',
+        'data/custom/ccff/ems.planning.opt.xml',
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',
         'data/custom/hr.department.csv',

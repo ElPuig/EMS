@@ -1,0 +1,18 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_grade_session_list">
+            <field name="name">ems.grade_session.list</field>
+            <field name="model">ems.grade_session</field>
+            <field name="arch" type="xml">
+                <list expand="True" create="0" default_order="group_id asc, subject_id asc">
+                    <field name="group_id"/>
+                    <field name="subject_id"/>
+                    <field name="round"/>
+                    <field name="state" widget="badge" decoration-success="state == 'open'" decoration-warning="state == 'board'" decoration-muted="state == 'final'"/>
+                    <field name="teacher_id" widget="many2one_avatar_employee"/>
+                    <field name="has_planning" optional="hide"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

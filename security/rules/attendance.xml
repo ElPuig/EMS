@@ -4,7 +4,7 @@
     <record id="rule_attendance_template_admin" model="ir.rule">
         <field name="name">Attendance template: all data</field>
         <field name="model_id" ref="ems.model_ems_attendance_template"/>
-        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -27,7 +27,7 @@
      <record id="rule_attendance_schedule_admin" model="ir.rule">
         <field name="name">Attendance schedule: all data</field>
         <field name="model_id" ref="ems.model_ems_attendance_schedule"/>
-        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -50,7 +50,7 @@
     <record id="rule_attendance_session_admin" model="ir.rule">
         <field name="name">Attendance session: all data</field>
         <field name="model_id" ref="ems.model_ems_attendance_session_header"/>
-        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -81,7 +81,7 @@
     <record id="rule_attendance_session_line_admin" model="ir.rule">
         <field name="name">Attendance status: all data</field>
         <field name="model_id" ref="ems.model_ems_attendance_session_line"/>
-        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -136,7 +136,7 @@
      <record id="rule_attendance_justification_admin" model="ir.rule">
         <field name="name">Attendance justification: all data</field>
         <field name="model_id" ref="ems.model_ems_attendance_justification"/>
-        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -172,11 +172,47 @@
         <field name="perm_unlink" eval="False"/> 
     </record>
 
+    <!-- ems.attendance_correction -->
+    <record id="rule_attendance_correction_admin" model="ir.rule">
+        <field name="name">Attendance correction: all data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_correction"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_correction_hos" model="ir.rule">
+        <!-- NOTE: group_head_of_studies is global (not scoped per branch), so any
+             Head/Deputy Head of Studies can decide on any pending request. -->
+        <field name="name">Attendance correction: Head of Studies (all data)</field>
+        <field name="model_id" ref="ems.model_ems_attendance_correction"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_attendance_correction_teacher_own" model="ir.rule">
+        <field name="name">Attendance correction: own data</field>
+        <field name="model_id" ref="ems.model_ems_attendance_correction"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('employee_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <!-- ems.attendance_issue -->
     <record id="rule_attendance_issue_tutor_admin" model="ir.rule">
         <field name="name">Attendance notification (tutor): all data</field>
         <field name="model_id" ref="ems.model_ems_attendance_issue_tutor"/>
-        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -198,7 +234,7 @@
     <record id="rule_attendance_issue_student_admin" model="ir.rule">
         <field name="name">Attendance notification (student): all data</field>
         <field name="model_id" ref="ems.model_ems_attendance_issue_student"/>
-        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -220,7 +256,7 @@
     <record id="rule_attendance_issue_status_admin" model="ir.rule">
         <field name="name">Attendance notification (status): all data</field>
         <field name="model_id" ref="ems.model_ems_attendance_issue_status"/>
-        <field name="groups" eval="[(4, ref('ems.group_admin'))]"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>

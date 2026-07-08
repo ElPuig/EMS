@@ -106,7 +106,7 @@
             <field name="res_model">ems.student.document</field>
             <field name="view_mode">list,form</field>
             <field name="context">{'search_default_pending': 1}</field>
-            <field name="groups_id" eval="[(4, ref('ems.group_admin')), (4, ref('ems.group_secretary'))]"/>
+            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary'))]"/>
         </record>
 
     </data>

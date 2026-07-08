@@ -13,6 +13,7 @@
                             t-att-disabled="state.viewMode !== 'manual'"
                             t-on-click="prevDay">&#8249;</button>
                     <EmsDateInput
+                        t-key="state.viewMode"
                         value="dateValue"
                         onApply.bind="onDateApply"
                         disabled="state.viewMode !== 'manual'"/>

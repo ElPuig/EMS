@@ -13,10 +13,11 @@ Selecciona tu perfil para acceder a los manuales correspondientes:
 | Perfil | Descripción |
 |--------|------------|
 | [Familias y alumnos](families/index.md) | Portal de matrícula, cuenta bancaria, documentos y bonificaciones |
-| [Profesores](professors/index.md) | Pasar lista, calificaciones y planificación de sesiones |
+| [Profesores](teachers/index.md) | Pasar lista, calificaciones y planificación de sesiones |
 | [Tutores](tutors/index.md) | Gestión de propuestas de matrícula y seguimiento de los alumnos del grupo |
-| [Secretaría](secretaria/index.md) | Gestión de matrículas, documentos, pagos y bonificaciones |
-| [Administrador](admin/curriculum-levels.md) | Configuración curricular: niveles, estudios y datos de catálogo |
+| [Secretaría](secretary/index.md) | Gestión de matrículas, documentos, pagos y bonificaciones |
+| [Jefatura de Estudios](head_of_studies/index.md) | Decidir sobre solicitudes de corrección de fichajes |
+| [Administrador](admin/index.md) | Configuración curricular, gestión de profesores y cuentas de Google Workspace |
 | [Desarrolladores](../en/developers/index.md) | Referencia técnica para desarrolladores |
 
 ---

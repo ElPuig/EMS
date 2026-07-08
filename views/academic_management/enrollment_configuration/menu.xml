@@ -4,13 +4,13 @@
         <menuitem name="Student Documents" id="menu_student_documents"
                   parent="menu_ems_academic_management"
                   action="action_student_document"
-                  groups="ems.group_admin,ems.group_secretary"
+                  groups="ems.group_academic_admin,ems.group_secretary"
                   sequence="10"/>
 
         <menuitem id="menu_ems_configuration"
                   name="Configuration"
                   parent="menu_ems_academic_management"
-                  groups="ems.group_admin,ems.group_secretary"
+                  groups="ems.group_academic_admin,ems.group_secretary"
                   sequence="100"/>
 
         <menuitem id="menu_ems_enrollment_items"

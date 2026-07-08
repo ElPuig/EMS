@@ -13,10 +13,11 @@ Seleccioneu el vostre perfil per accedir als manuals corresponents:
 | Perfil | Descripció |
 |--------|------------|
 | [Famílies i alumnes](families/index.md) | Portal de matrícula, compte bancari, documents i bonificacions |
-| [Professors](professors/index.md) | Passar llista, qualificacions i planificació de sessions |
+| [Professors](teachers/index.md) | Passar llista, qualificacions i planificació de sessions |
 | [Tutors](tutors/index.md) | Gestió de propostes de matrícula i seguiment dels alumnes del grup |
-| [Secretaria](secretaria/index.md) | Gestió de matrícules, documents, pagaments i bonificacions |
-| [Administrador](admin/curriculum-levels.md) | Configuració curricular: nivells, estudis i dades de catàleg |
+| [Secretaria](secretary/index.md) | Gestió de matrícules, documents, pagaments i bonificacions |
+| [Cap d'Estudis](head_of_studies/index.md) | Decidir sobre sol·licituds de correcció de fitxatges |
+| [Administrador](admin/index.md) | Configuració curricular, gestió de professors i comptes de Google Workspace |
 | [Desenvolupadors](../en/developers/index.md) | Referència tècnica per a desenvolupadors |
 
 ---

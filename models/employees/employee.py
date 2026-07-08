@@ -57,6 +57,10 @@ class ems_employee_base(models.AbstractModel):
                 rec.roles = "%s, %s" % (rec.roles, role.name) 			
             rec.roles = rec.roles.lstrip(", ")
     
+    @api.onchange('job_id')
+    def _onchange_job_id(self):
+        self._sync_security_groups()
+
     @api.onchange('role_ids')
     def _onchange_role_ids(self):
         role_tutor = self.env.ref('ems.role_tutor').ids[0]  
@@ -82,15 +86,17 @@ class ems_employee_base(models.AbstractModel):
             rec.role_ids = [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)] # link if tutor, otherwise unlink
 
     def _sync_security_groups(self):
-        """Sync res.users.groups_id based on role_ids that have a linked security group."""
-        managed_groups = self.env['ems.role'].sudo().search([('group_id', '!=', False)]).mapped('group_id')
+        """Sync res.users.groups_id based on role_ids and job_id that have a linked security group."""
+        role_groups = self.env['ems.role'].sudo().search([('group_id', '!=', False)]).mapped('group_id')
+        job_groups = self.env['hr.job'].sudo().search([('group_id', '!=', False)]).mapped('group_id')
+        managed_groups = role_groups | job_groups
         if not managed_groups:
             return
         for rec in self:
             employee = self.env['hr.employee'].sudo().search([('id', '=', rec.id)], limit=1)
             if not employee or not employee.user_id:
                 continue
-            should_have = rec.role_ids.mapped('group_id')
+            should_have = rec.role_ids.mapped('group_id') | rec.job_id.group_id
             commands = []
             for g in managed_groups:
                 if g in should_have and g not in employee.user_id.groups_id:
@@ -106,7 +112,7 @@ class ems_employee_base(models.AbstractModel):
             for command in vals["tutorship_ids"]:
                 if command[0] == 2: command[0] = 3
         res = super(ems_employee_base, self).write(vals)
-        if 'role_ids' in vals or 'tutorship_ids' in vals:
+        if 'role_ids' in vals or 'tutorship_ids' in vals or 'job_id' in vals:
             self._sync_security_groups()
         return res
                         
@@ -124,6 +130,7 @@ class ems_employee(models.AbstractModel):
         'teacher': 'set default'
     })
 
+    attendance_manager_id = fields.Many2one(groups="hr_attendance.group_hr_attendance_officer,ems.group_teacher")
     activity_ids = fields.One2many(groups="hr.group_hr_user,ems.group_teacher")
     activity_exception_decoration = fields.Selection(groups="hr.group_hr_user,ems.group_teacher")
     activity_exception_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
@@ -131,3 +138,18 @@ class ems_employee(models.AbstractModel):
     activity_summary = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
     activity_type_id = fields.Many2one(groups="hr.group_hr_user,ems.group_teacher")
     activity_type_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
+
+    def find_head_of_studies(self):
+        # NOTE: role_hos/role_dhos both map to the same global group_head_of_studies
+        # (no per-employee hierarchy field), so this walks parent_id looking for the
+        # nearest ascendant in that group; self-approves if the employee is already in it.
+        self.ensure_one()
+        group = "ems.group_head_of_studies"
+        if self.user_id and self.user_id.has_group(group):
+            return self
+        employee = self.parent_id
+        while employee:
+            if employee.user_id and employee.user_id.has_group(group):
+                return employee
+            employee = employee.parent_id
+        return self.env["hr.employee"]

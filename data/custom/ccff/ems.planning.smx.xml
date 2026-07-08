@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- MP 0221 -->
+        <record id="planning_smx_0221" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_0221"/>
+            <field name="internal_ponderation">90.0</field>
+            <field name="external_ponderation">10.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_0221_01RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0221_02RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0221_03RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0221_04RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0221_05RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0221_06RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0221_07RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0221_08RA'), 'ponderation': 12.5})]"/>
+        </record>
+        <!-- MP 0222 -->
+        <record id="planning_smx_0222" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_0222"/>
+            <field name="internal_ponderation">90.0</field>
+            <field name="external_ponderation">10.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_0222_01RA'), 'ponderation': 10.0}), (0, 0, {'outcome_id': ref('ems.outcome_0222_02RA'), 'ponderation': 10.0}), (0, 0, {'outcome_id': ref('ems.outcome_0222_03RA'), 'ponderation': 30.0}), (0, 0, {'outcome_id': ref('ems.outcome_0222_04RA'), 'ponderation': 30.0}), (0, 0, {'outcome_id': ref('ems.outcome_0222_05RA'), 'ponderation': 20.0})]"/>
+        </record>
+        <!-- MP 0223 -->
+        <record id="planning_smx_0223" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_0223"/>
+            <field name="internal_ponderation">90.0</field>
+            <field name="external_ponderation">10.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_0223_01RA'), 'ponderation': 2.02}), (0, 0, {'outcome_id': ref('ems.outcome_0223_02RA'), 'ponderation': 23.23}), (0, 0, {'outcome_id': ref('ems.outcome_0223_03RA'), 'ponderation': 22.22}), (0, 0, {'outcome_id': ref('ems.outcome_0223_04RA'), 'ponderation': 25.26}), (0, 0, {'outcome_id': ref('ems.outcome_0223_05RA'), 'ponderation': 5.05}), (0, 0, {'outcome_id': ref('ems.outcome_0223_06RA'), 'ponderation': 5.05}), (0, 0, {'outcome_id': ref('ems.outcome_0223_07RA'), 'ponderation': 6.06}), (0, 0, {'outcome_id': ref('ems.outcome_0223_08RA'), 'ponderation': 5.05}), (0, 0, {'outcome_id': ref('ems.outcome_0223_09RA'), 'ponderation': 6.06})]"/>
+        </record>
+        <!-- MP 0224 -->
+        <record id="planning_smx_0224" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_0224"/>
+            <field name="internal_ponderation">90.0</field>
+            <field name="external_ponderation">10.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_0224_01RA'), 'ponderation': 16.65}), (0, 0, {'outcome_id': ref('ems.outcome_0224_02RA'), 'ponderation': 16.67}), (0, 0, {'outcome_id': ref('ems.outcome_0224_03RA'), 'ponderation': 16.67}), (0, 0, {'outcome_id': ref('ems.outcome_0224_04RA'), 'ponderation': 16.67}), (0, 0, {'outcome_id': ref('ems.outcome_0224_05RA'), 'ponderation': 16.67}), (0, 0, {'outcome_id': ref('ems.outcome_0224_06RA'), 'ponderation': 16.67})]"/>
+        </record>
+        <!-- MP 0225 -->
+        <record id="planning_smx_0225" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_0225"/>
+            <field name="internal_ponderation">90.0</field>
+            <field name="external_ponderation">10.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_0225_01RA'), 'ponderation': 35.0}), (0, 0, {'outcome_id': ref('ems.outcome_0225_02RA'), 'ponderation': 10.0}), (0, 0, {'outcome_id': ref('ems.outcome_0225_03RA'), 'ponderation': 10.0}), (0, 0, {'outcome_id': ref('ems.outcome_0225_04RA'), 'ponderation': 35.0}), (0, 0, {'outcome_id': ref('ems.outcome_0225_05RA'), 'ponderation': 7.5}), (0, 0, {'outcome_id': ref('ems.outcome_0225_06RA'), 'ponderation': 2.5})]"/>
+        </record>
+        <!-- MP 0226 -->
+        <record id="planning_smx_0226" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_0226"/>
+            <field name="internal_ponderation">90.0</field>
+            <field name="external_ponderation">10.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_0226_01RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0226_02RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0226_03RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0226_04RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0226_05RA'), 'ponderation': 20.0})]"/>
+        </record>
+        <!-- MP 0227 -->
+        <record id="planning_smx_0227" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_0227"/>
+            <field name="internal_ponderation">90.0</field>
+            <field name="external_ponderation">10.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_0227_01RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0227_02RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0227_03RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0227_04RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0227_05RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0227_06RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0227_07RA'), 'ponderation': 12.5}), (0, 0, {'outcome_id': ref('ems.outcome_0227_08RA'), 'ponderation': 12.5})]"/>
+        </record>
+        <!-- MP 0228 -->
+        <record id="planning_smx_0228" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_0228"/>
+            <field name="internal_ponderation">90.0</field>
+            <field name="external_ponderation">10.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_0228_01RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0228_02RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0228_03RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0228_04RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0228_05RA'), 'ponderation': 20.0})]"/>
+        </record>
+        <!-- MP 0156 -->
+        <record id="planning_smx_0156" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_0156"/>
+            <field name="internal_ponderation">100.0</field>
+            <field name="external_ponderation">0.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_0156_01RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0156_02RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0156_03RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0156_04RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_0156_05RA'), 'ponderation': 20.0})]"/>
+        </record>
+        <!-- MP 1664 -->
+        <record id="planning_smx_1664" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_1664"/>
+            <field name="internal_ponderation">100.0</field>
+            <field name="external_ponderation">0.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_1664_01RA'), 'ponderation': 18.0}), (0, 0, {'outcome_id': ref('ems.outcome_1664_02RA'), 'ponderation': 15.0}), (0, 0, {'outcome_id': ref('ems.outcome_1664_03RA'), 'ponderation': 15.0}), (0, 0, {'outcome_id': ref('ems.outcome_1664_04RA'), 'ponderation': 18.0}), (0, 0, {'outcome_id': ref('ems.outcome_1664_05RA'), 'ponderation': 34.0})]"/>
+        </record>
+        <!-- MP 1708 -->
+        <record id="planning_smx_1708" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_1708"/>
+            <field name="internal_ponderation">100.0</field>
+            <field name="external_ponderation">0.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_1708_01RA'), 'ponderation': 16.65}), (0, 0, {'outcome_id': ref('ems.outcome_1708_02RA'), 'ponderation': 16.67}), (0, 0, {'outcome_id': ref('ems.outcome_1708_03RA'), 'ponderation': 16.67}), (0, 0, {'outcome_id': ref('ems.outcome_1708_04RA'), 'ponderation': 16.67}), (0, 0, {'outcome_id': ref('ems.outcome_1708_05RA'), 'ponderation': 16.67}), (0, 0, {'outcome_id': ref('ems.outcome_1708_06RA'), 'ponderation': 16.67})]"/>
+        </record>
+        <!-- MP 1709 -->
+        <record id="planning_smx_1709" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_1709"/>
+            <field name="internal_ponderation">100.0</field>
+            <field name="external_ponderation">0.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_1709_01RA'), 'ponderation': 10.0}), (0, 0, {'outcome_id': ref('ems.outcome_1709_02RA'), 'ponderation': 30.0}), (0, 0, {'outcome_id': ref('ems.outcome_1709_03RA'), 'ponderation': 36.0}), (0, 0, {'outcome_id': ref('ems.outcome_1709_04RA'), 'ponderation': 10.0}), (0, 0, {'outcome_id': ref('ems.outcome_1709_05RA'), 'ponderation': 14.0})]"/>
+        </record>
+        <!-- MP 1710 -->
+        <record id="planning_smx_1710" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_1710"/>
+            <field name="internal_ponderation">100.0</field>
+            <field name="external_ponderation">0.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_1710_01RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_1710_02RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_1710_03RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_1710_04RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_1710_05RA'), 'ponderation': 20.0})]"/>
+        </record>
+        <!-- MP 1713 -->
+        <record id="planning_smx_1713" model="ems.planning">
+            <field name="study_id" ref="ems.study_cfgm_ic10_smx_2024"/>
+            <field name="subject_id" ref="ems.subject_1713"/>
+            <field name="internal_ponderation">100.0</field>
+            <field name="external_ponderation">0.0</field>
+            <field name="planning_outcome_ids" eval="[(0, 0, {'outcome_id': ref('ems.outcome_1713_01RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_1713_02RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_1713_03RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_1713_04RA'), 'ponderation': 20.0}), (0, 0, {'outcome_id': ref('ems.outcome_1713_05RA'), 'ponderation': 20.0})]"/>
+        </record>
+    </data>
+</odoo>

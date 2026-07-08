@@ -51,3 +51,7 @@ En obrir el menú es mostra una llista de tots els nivells ordenada alfabèticam
 3. Confirma l'eliminació al diàleg.
 
 > **Avís:** No es pot eliminar un nivell si té estudis vinculats. Cal eliminar o reassignar primer tots els estudis associats.
+
+---
+
+[← Tornar a l'índex d'Administrador](index.md)

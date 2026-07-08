@@ -16,5 +16,10 @@
 
         <menuitem name="Current" sequence="0" id="menu_attendance_passlist" parent="menu_attendance" action="action_attendance_passlist"/>
         <menuitem name="History" sequence="1" id="menu_attendance_sessions" parent="menu_attendance" action="action_attendance_session_tree"/>
+
+        <!-- Bind the app's root menu directly to "Current" so clicking the app icon lands there by default for every user. -->
+        <record model="ir.ui.menu" id="menu_attendance">
+            <field name="action" ref="action_attendance_passlist"/>
+        </record>
     </data>
 </odoo>

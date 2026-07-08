@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="job_secretary" model="hr.job">
+            <field name="group_id" ref="ems.group_secretary"/>
+        </record>
+    </data>
+</odoo>

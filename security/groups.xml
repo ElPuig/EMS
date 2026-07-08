@@ -43,6 +43,28 @@
             <field name="visible">True</field>
         </record>
 
+        <!-- Kept separate for the same reason as category_secretary: its own independent
+             Manager/Administrator chain, sharing category_main as parent so it still groups
+             under the "EMS" section. -->
+        <record model="ir.module.category" id="category_quality">
+            <field name="name">Quality</field>
+            <field name="description">Educational Management System - Quality</field>
+            <field name="parent_id" ref="ems.category_main"/>
+            <field name="sequence">3</field>
+            <field name="visible">True</field>
+        </record>
+
+        <!-- Consolidates Odoo's native Administration (Access Rights/Settings), Canned Responses
+             and Job Queue permissions - previously scattered technical selectors - into one clean
+             EMS selector. Kept separate for the same reason as category_secretary/category_quality. -->
+        <record model="ir.module.category" id="category_settings">
+            <field name="name">Settings</field>
+            <field name="description">Educational Management System - Settings</field>
+            <field name="parent_id" ref="ems.category_main"/>
+            <field name="sequence">4</field>
+            <field name="visible">True</field>
+        </record>
+
         <record model="res.groups" id="group_teacher">
             <field name="name">Teacher</field>
             <field name="comment">Teacher's access rights.</field>
@@ -96,6 +118,45 @@
             <field name="implied_ids" eval="[(4, ref('ems.group_secretary')), (4, ref('hr.group_hr_manager'))]"/>
         </record>
 
+        <!-- The Surveys section (EMS's own LimeSurvey integration), not to be confused with
+             Odoo's native "Surveys" app (hidden - see group.py). -->
+        <record model="res.groups" id="group_quality">
+            <field name="name">Manager</field>
+            <field name="comment">Access rights for the Quality team (EMS Surveys section).</field>
+            <field name="category_id" ref="ems.category_quality"/>
+        </record>
+
+        <!-- Same privileges as Manager for now; kept as its own group so it can be
+             differentiated later without another migration. -->
+        <record model="res.groups" id="group_quality_admin">
+            <field name="name">Administrator</field>
+            <field name="comment">Access rights for the Quality coordinator. Currently identical to Manager.</field>
+            <field name="category_id" ref="ems.category_quality"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_quality'))]"/>
+        </record>
+
+        <!-- Administration/Access Rights level, plus Canned Responses and Job Queue management
+             granted explicitly (not only via Settings) so Manager keeps them even without Settings. -->
+        <record model="res.groups" id="group_settings">
+            <field name="name">Manager</field>
+            <field name="comment">Access Rights level of Odoo's Administration, plus Canned Responses and Job Queue management.</field>
+            <field name="category_id" ref="ems.category_settings"/>
+            <field name="implied_ids" eval="[
+                (4, ref('base.group_erp_manager')),
+                (4, ref('mail.group_mail_canned_response_admin')),
+                (4, ref('queue_job.group_queue_job_manager')),
+            ]"/>
+        </record>
+
+        <!-- Only difference from Manager: Settings level of Odoo's Administration (which also
+             implies Access Rights) instead of Access Rights alone. -->
+        <record model="res.groups" id="group_settings_admin">
+            <field name="name">Administrator</field>
+            <field name="comment">Settings level of Odoo's Administration, plus Canned Responses and Job Queue management.</field>
+            <field name="category_id" ref="ems.category_settings"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_settings')), (4, ref('base.group_system'))]"/>
+        </record>
+
         <record model="res.groups" id="group_academic_admin">
             <field name="name">Administrator</field>
             <field name="comment">All access rights.</field>
@@ -103,6 +164,8 @@
             <field name="implied_ids" eval="[(6, 0, [
                 ref('ems.group_director'),
                 ref('ems.group_secretary_admin'),
+                ref('ems.group_quality_admin'),
+                ref('ems.group_settings_admin'),
             ])]"/>
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>

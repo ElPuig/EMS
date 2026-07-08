@@ -16,4 +16,13 @@ class ems_groups(models.Model):
             'base.module_category_accounting_accounting',        # Invoicing -> Secretary
             'account.module_category_accounting_bank',           # Bank -> Secretary
             'base.module_category_human_resources_employees',    # Employees -> Academic/Secretary Administrator
+            'base.module_category_marketing_surveys',            # Odoo's native Surveys app; EMS has its own (Quality)
+            # Unused apps: not granted to anyone (not even admin), so hidden rather than
+            # left as a permanently-blank, confusing selector.
+            'base.module_category_services_project',             # Project
+            'base.module_category_marketing_email_marketing',    # Email Marketing
+            'base.module_category_productivity_dashboard',       # Dashboard
+            'base.module_category_administration_administration',  # Administration -> Settings
+            'mail.module_category_canned_response',                # Canned Responses -> Settings
+            'queue_job.module_category_queue_job',                 # Job Queue -> Settings
         ]

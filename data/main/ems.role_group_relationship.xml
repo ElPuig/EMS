@@ -24,5 +24,9 @@
         <record id="role_secretary_admin" model="ems.role">
             <field name="group_id" ref="ems.group_secretary_admin"/>
         </record>
+
+        <record id="role_quality" model="ems.role">
+            <field name="group_id" ref="ems.group_quality_admin"/>
+        </record>
     </data>
 </odoo>

@@ -29,14 +29,19 @@ class TestEmployeeRoleGroupSync(TransactionCase):
         cls.role_director = cls.env.ref('ems.role_director')
         cls.role_secretary = cls.env.ref('ems.role_secretary')
         cls.role_secretary_admin = cls.env.ref('ems.role_secretary_admin')
+        cls.role_quality = cls.env.ref('ems.role_quality')
         cls.job_secretary = cls.env.ref('ems.job_secretary')
         cls.group_head_of_studies = cls.env.ref('ems.group_head_of_studies')
         cls.group_director = cls.env.ref('ems.group_director')
         cls.group_secretary = cls.env.ref('ems.group_secretary')
         cls.group_secretary_admin = cls.env.ref('ems.group_secretary_admin')
+        cls.group_quality_admin = cls.env.ref('ems.group_quality_admin')
         # These roles are unipersonal and may already be assigned to a real employee
         # in the working database; clear them so the tests are self-contained.
-        unipersonal_roles = cls.role_hos + cls.role_dhos + cls.role_director + cls.role_secretary_admin
+        unipersonal_roles = (
+            cls.role_hos + cls.role_dhos + cls.role_director
+            + cls.role_secretary_admin + cls.role_quality
+        )
         unipersonal_roles.sudo().write({'employee_ids': [(5, 0, 0)]})
 
     def test_assign_role_hos_adds_group(self):
@@ -83,6 +88,15 @@ class TestEmployeeRoleGroupSync(TransactionCase):
         self.asp_employee.write({'role_ids': [(4, self.role_secretary_admin.id)]})
         self.asp_employee.write({'role_ids': [(3, self.role_secretary_admin.id)]})
         self.assertNotIn(self.group_secretary_admin, self.asp_user.groups_id)
+
+    def test_assign_role_quality_adds_group(self):
+        self.employee.write({'role_ids': [(4, self.role_quality.id)]})
+        self.assertIn(self.group_quality_admin, self.user.groups_id)
+
+    def test_unassign_role_quality_removes_group(self):
+        self.employee.write({'role_ids': [(4, self.role_quality.id)]})
+        self.employee.write({'role_ids': [(3, self.role_quality.id)]})
+        self.assertNotIn(self.group_quality_admin, self.user.groups_id)
 
     def test_assign_job_secretary_adds_group(self):
         self.asp_employee.write({'job_id': self.job_secretary.id})

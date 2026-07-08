@@ -8,7 +8,7 @@
         </record>
 
         <menuitem name="Communications" sequence="5" id="menu_communications"
-                  groups="ems.group_academic_admin"/>
+                  groups="ems.group_academic_admin,ems.group_quality"/>
 
         <menuitem name="Notices" sequence="1" id="menu_communications_list"
                   parent="menu_communications"

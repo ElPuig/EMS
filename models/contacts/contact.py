@@ -78,6 +78,25 @@ class ems_contact(models.Model):
         selection=[('morning', 'Morning'), ('afternoon', 'Afternoon')],
         string='Preinscription shift',
         help="Shift granted to the applicant at pre-enrollment (before having a group).")
+    # Course the applicant is admitted into, from the preinscription. Lets the
+    # enrollment proposal preselect the right-course template (some applicants join
+    # directly beyond 1st course) and lets the intake list group by course. Covers
+    # up to 4th course (ESO); FP/BTX only use 1st-2nd.
+    preinscription_course = fields.Selection(
+        selection=[('1', '1r'), ('2', '2n'), ('3', '3r'), ('4', '4t')],
+        string='Preinscription course',
+        help="Course granted to the applicant at pre-enrollment (1st to 4th).")
+    # Special educational needs (NEE) typology, as reported by the preinscription
+    # ("Tipus alumne"). Sensitive data: the ORM `groups` restrict it to tutors,
+    # secretary and admin, and it is never rendered on the portal. Empty = ordinary.
+    special_needs = fields.Selection(
+        selection=[('nee_a', 'NEE-A'), ('nee_b', 'NEE-B')],
+        string='Special educational needs',
+        groups='ems.group_tutor,ems.group_secretary,ems.group_admin',
+        help="Special educational needs typology from the preinscription: type A "
+             "(disability, ASD, serious behavioural/developmental/mental disorders); "
+             "type B (specially disadvantaged socio-economic or socio-cultural "
+             "situation). Leave empty for ordinary students.")
     # Contact lifecycle: applicant -> student -> alumni (graduated at least once)
     #                                         \-> withdrawal (never graduated).
     # The ~25 domains filtering by contact_type == 'student' exclude applicant,
@@ -434,6 +453,12 @@ class ems_contact(models.Model):
         # Google Workspace: with form autosave the student is created with partial
         # data; enqueue once the required fields are completed (deduplicated).
         self._gw_enqueue_if_ready()
+
+        # Google Workspace: when the birth date arrives/changes on a student that
+        # already has an account, re-place it in the minor/adult OU accordingly
+        # (accounts created without a birth date start in the minors OU).
+        if 'birth_date' in values:
+            self._gw_enqueue_relocate()
 
         # Google Workspace: archive -> suspend account; unarchive -> reactivate.
         if 'active' in values:

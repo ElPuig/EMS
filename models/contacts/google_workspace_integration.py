@@ -163,11 +163,15 @@ class ResPartnerGoogleWorkspace(models.Model):
     def _gw_missing_fields(self):
         """Return the labels of the required fields that are still empty."""
         self.ensure_one()
+        # birth_date is intentionally NOT required: the account must be created as
+        # soon as the student is admitted (matriculation), even with only the GEDAC
+        # data, which has no birth date. Without it the student is treated as a minor
+        # (is_adult is False) and placed in the minors OU; when the birth date later
+        # arrives and reveals an adult, the account is relocated (see write override).
         required = [
             ('firstname',  _("First name")),
             ('lastname',   _("Last name")),
             ('student_id', _("IDALU")),
-            ('birth_date', _("Birth date")),
             ('email',      _("Personal email")),
         ]
         return [label for fname, label in required if not self[fname]]
@@ -195,6 +199,21 @@ class ResPartnerGoogleWorkspace(models.Model):
                     identity_key='gw_create_account_%s' % rec.id,
                     description="Create Google Workspace account: %s" % rec.name,
                 ).action_create_google_account()
+
+    def _gw_enqueue_relocate(self):
+        """Enqueue an OU relocation for students that already have an account, used
+        when their birth date is filled in later and changes their minor/adult status
+        (accounts created at matriculation from GEDAC data start in the minors OU)."""
+        if not self.env.company.google_ws_enabled:
+            return
+        for rec in self.filtered(
+            lambda r: r.contact_type == 'student' and r.student_email
+            and not r.google_ws_suspended
+        ):
+            rec.with_delay(
+                identity_key='gw_relocate_%s' % rec.id,
+                description="Relocate Google Workspace account: %s" % rec.name,
+            ).action_relocate_google_account()
 
     def _gw_enqueue_suspend(self):
         """Enqueue account suspension for students/ex-students with a corporate email
@@ -404,6 +423,38 @@ class ResPartnerGoogleWorkspace(models.Model):
             "Google Workspace account suspended: %(email)s (moved to OU %(ou)s)%(dry)s.") % {
                 'email': self.student_email, 'ou': ou,
                 'dry': _(" [dry-run]") if company.google_ws_dry_run else ''})
+
+    def action_relocate_google_account(self):
+        """Move the account to the OU matching the current age (minor/adult).
+
+        Used when the birth date arrives after the account was created (an account
+        created at matriculation from GEDAC data has no birth date, so the student is
+        provisionally placed in the minors OU). Idempotent: patching to the same OU
+        is a no-op on Google's side. Skips suspended accounts (they live in the
+        suspended OU; reactivation re-derives their OU).
+        """
+        self.ensure_one()
+        company = self.env.company
+        if not company.google_ws_enabled:
+            return
+        if self.contact_type != 'student' or not self.student_email or self.google_ws_suspended:
+            return
+
+        ou = company.google_ws_ou_adult if self.is_adult else company.google_ws_ou_minor
+        if company.google_ws_dry_run:
+            _logger.info("[GW dry-run] relocate %s -> OU=%s", self.student_email, ou)
+            return
+
+        service = self._gw_get_service()
+        try:
+            service.users().patch(
+                userKey=self.student_email, body={'orgUnitPath': ou},
+            ).execute()
+        except HttpError:
+            _logger.exception("Could not relocate Google account for %s", self.name)
+            raise
+        self.message_post(body=_(
+            "Google Workspace account moved to OU %(ou)s.") % {'ou': ou})
 
     def action_reactivate_google_account(self):
         """Reactivate a suspended account; if it was deleted in Admin, recreate it.

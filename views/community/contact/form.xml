@@ -154,7 +154,18 @@
                                     <span class="badge text-bg-info" invisible="benefit_status != 'bonification'">Bonification</span>
                                     <span class="badge text-bg-secondary" invisible="benefit_status != 'none'">None</span>
                                 </div>
-                            </group> 
+                                <!-- Special educational needs (NEE): benefits-like display.
+                                     Editable dropdown for secretary/admin; read-only badge for
+                                     tutors. Restricted to tutor/secretary/admin, off the portal. -->
+                                <span class="o_form_label" groups="ems.group_tutor,ems.group_secretary,ems.group_admin">Special educational needs</span>
+                                <div class="o_row" groups="ems.group_tutor,ems.group_secretary,ems.group_admin">
+                                    <field name="special_needs" nolabel="1" placeholder="None"
+                                           invisible="read_only_user or is_tutor_readonly"/>
+                                    <span class="badge text-bg-danger" invisible="special_needs != 'nee_a' or not (read_only_user or is_tutor_readonly)">NEE-A</span>
+                                    <span class="badge text-bg-warning" invisible="special_needs != 'nee_b' or not (read_only_user or is_tutor_readonly)">NEE-B</span>
+                                    <span class="badge text-bg-secondary" invisible="special_needs or not (read_only_user or is_tutor_readonly)">None</span>
+                                </div>
+                            </group>
 
                             <separator name="data" string="Authorizations"/>
                             <group>
@@ -278,7 +289,11 @@
                             <group string="Pre-enrollment">
                                 <field name="study_id" required="contact_type == 'applicant'"/>
                                 <field name="preinscription_shift" required="contact_type == 'applicant'"/>
+                                <field name="preinscription_course"/>
                                 <field name="student_id" required="contact_type == 'applicant'"/>
+                                <!-- Plain field so it matches its neighbours; ORM groups keep
+                                     it staff-only and off the portal. -->
+                                <field name="special_needs" readonly="read_only_user or is_tutor_readonly"/>
                             </group>
                             <group string="Personal data">
                                 <field name="email" widget="email" required="contact_type == 'applicant'"/>

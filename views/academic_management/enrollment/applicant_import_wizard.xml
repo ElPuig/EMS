@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_applicant_import_wizard_form">
+            <field name="name">ems.applicant.import.wizard.form</field>
+            <field name="model">ems.applicant_import_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Import applicants from GEDAC">
+                    <sheet>
+                        <group invisible="result_html">
+                            <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+                                <strong>Import process:</strong><br/>
+                                This wizard imports the applicants granted a place at this center from a
+                                GEDAC preinscription file (Excel <em>.xlsx</em> or <em>.csv</em>). The import will:<br/>
+                                • Create new applicants (contact type <em>Applicant</em>, no group) matched by RALC<br/>
+                                • Fill the granted study and pre-enrollment shift from the assignment<br/>
+                                • Store the provenance data (origin center and studies) in the notes<br/>
+                                • Update the personal data of already-known contacts (active students keep their group)<br/>
+                                • Skip rows assigned to another center or with no place granted<br/>
+                                <br/>
+                                Select the GEDAC file (.xlsx or .csv) and click "Import applicants" to proceed.
+                            </p>
+                            <field name="file" widget="binary" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                        </group>
+                        <group invisible="not result_html">
+                            <field name="result_html" nolabel="1"/>
+                            <field name="log_file" widget="auto_download_binary" filename="log_file_name" string="Download import log (CSV)"/>
+                            <field name="log_file_name" invisible="1"/>
+                            <field name="students_file" widget="auto_download_binary" filename="students_file_name" string="Download active students (CSV)" invisible="not students_file"/>
+                            <field name="students_file_name" invisible="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_import" type="object" string="Import applicants" class="btn-primary" invisible="result_html"/>
+                        <button special="cancel" string="Close"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Opened from the cog-wheel of the Preinscription list only. The cog entry
+             is added by an OWL component scoped to the ems.menu_ems_applicants action
+             (static/src/js/backend/import_gedac_cog_menu.js) — the same per-list
+             mechanism used by the Esfera import, so it does NOT leak into other
+             res.partner lists (unlike a model-wide binding). -->
+        <record model="ir.actions.act_window" id="action_applicant_import_wizard">
+            <field name="name">Import from GEDAC</field>
+            <field name="res_model">ems.applicant_import_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_admin')), (4, ref('ems.group_secretary'))]"/>
+        </record>
+    </data>
+</odoo>

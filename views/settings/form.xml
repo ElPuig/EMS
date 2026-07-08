@@ -29,7 +29,10 @@
                             </setting>
                         </block>
 
-                         <block title="Center Emails" name="ems_email_settings">
+                         <block title="Center Data" name="ems_email_settings">
+                            <setting string="Center code" help="Official Departament d'Educació center code, leading zero included (e.g. 08028047). Used by the GEDAC applicant import to keep only the applicants assigned to this center; the comparison ignores the leading zero the Excel drops." id="center_code">
+                                <field name="center_code" placeholder="08028047"/>
+                            </setting>
                             <setting string="Secretariat" help="Email address used as the recipient for messages addressed to the center's secretariat (e.g. portal personal-data change requests)." id="secretariat_email">
                                 <field name="secretariat_email" widget="email" placeholder="secretaria@example.com"/>
                             </setting>

@@ -145,6 +145,15 @@ class TestEnrollmentPlacement(TransactionCase):
         # First-course template auto-selected (study_year=1 over study_year=2).
         self.assertEqual(wizard.template_id, self.template1)
 
+    def test_proposal_preselects_by_entry_course(self):
+        # An applicant granted 2nd course preselects the 2nd-course template.
+        applicant = self.env['res.partner'].create({
+            'name': 'C2 App', 'contact_type': 'applicant',
+            'study_id': self.study.id, 'preinscription_shift': 'morning',
+            'preinscription_course': '2'})
+        wizard = self.Wizard.with_context(active_ids=applicant.ids).create({})
+        self.assertEqual(wizard.template_id, self.template2)
+
     def test_proposal_onchange_suggests_group_for_applicant(self):
         applicant = self.env['res.partner'].create({
             'name': 'Onch App', 'contact_type': 'applicant',

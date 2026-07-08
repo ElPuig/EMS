@@ -61,12 +61,20 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
                     "No enrollment templates available for the selected students' study."
                 ))
             res['student_ids'] = [fields.Command.set(students.ids)]
-            # Applicant intake: preselect the first-course template so the secretary
-            # only reviews (the destination group is filled by _onchange_suggest_group).
+            # Applicant intake: preselect the template matching the granted course
+            # (preinscription_course) so the secretary only reviews. When the selected
+            # applicants share no single course, fall back to the lowest-course
+            # template. The destination group is filled by _onchange_suggest_group.
             if students and all(p.contact_type == 'applicant' for p in students):
-                first_template = templates.sorted('study_year')[:1]
-                if first_template:
-                    res['template_id'] = first_template.id
+                courses = set(students.mapped('preinscription_course')) - {False}
+                target = self.env['sale.order.template']
+                if len(courses) == 1:
+                    target = templates.filtered(
+                        lambda t: t.study_year == int(next(iter(courses))))[:1]
+                if not target:
+                    target = templates.sorted('study_year')[:1]
+                if target:
+                    res['template_id'] = target.id
         return res
 
     @api.onchange('template_id', 'student_ids')

@@ -12,9 +12,13 @@
                     <field name="study_id" string="Study"/>
                     <filter name="morning" string="Morning" domain="[('preinscription_shift', '=', 'morning')]"/>
                     <filter name="afternoon" string="Afternoon" domain="[('preinscription_shift', '=', 'afternoon')]"/>
+                    <separator/>
+                    <filter name="nee" string="NEE" domain="[('special_needs', '!=', False)]"/>
                     <group expand="0" string="Group by">
                         <filter name="groupby_study" string="Study" context="{'group_by': 'study_id'}"/>
                         <filter name="groupby_shift" string="Shift" context="{'group_by': 'preinscription_shift'}"/>
+                        <filter name="groupby_course" string="Course" context="{'group_by': 'preinscription_course'}"/>
+                        <filter name="groupby_nee" string="NEE" context="{'group_by': 'special_needs'}"/>
                     </group>
                     <searchpanel>
                         <field name="study_id" string="Study" icon="fa-graduation-cap" enable_counters="1"/>
@@ -37,6 +41,10 @@
                     <field name="name" string="Applicant"/>
                     <field name="study_id"/>
                     <field name="preinscription_shift"/>
+                    <field name="preinscription_course"/>
+                    <field name="special_needs" optional="show"
+                           decoration-danger="special_needs == 'nee_a'"
+                           decoration-warning="special_needs == 'nee_b'"/>
                     <field name="student_email" optional="hide"/>
                     <field name="phone" optional="hide"/>
                     <field name="mobile" optional="hide"/>
@@ -54,7 +62,9 @@
             <field name="res_model">res.partner</field>
             <field name="view_mode">list,form</field>
             <field name="domain">[('contact_type', '=', 'applicant')]</field>
-            <field name="context">{'default_contact_type': 'applicant'}</field>
+            <!-- Default nested grouping to make the intake easy to launch proposals
+                 from: first by shift, then by course. -->
+            <field name="context">{'default_contact_type': 'applicant', 'search_default_groupby_shift': 1, 'search_default_groupby_course': 2}</field>
             <field name="search_view_id" ref="view_applicant_search"/>
             <field name="view_ids" eval="[(5,0,0),
                 (0,0,{'view_mode': 'list', 'view_id': ref('view_applicant_list')}),

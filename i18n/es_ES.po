@@ -9889,9 +9889,10 @@ msgid "↳ Other enrollment concepts"
 msgstr "↳ Otros conceptos de matrícula"
 
 #. module: ems
-#: model:ir.model,name:ems.communication
-msgid "This communication cannot be cancelled: it has already been sent or is being processed."
-msgstr "Esta comunicación no puede cancelarse: ya ha sido enviada o está siendo procesada."
+#. odoo-python
+#: code:addons/ems/models/communications/communication.py:0
+msgid "(New communication)"
+msgstr "(Nueva comunicación)"
 
 #. module: ems
 #. odoo-javascript
@@ -10197,12 +10198,6 @@ msgstr ""
 "Debe solicitarse una corrección para la hora de entrada y/o de salida."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/communication.py:0
-msgid "(New communication)"
-msgstr "(Nueva comunicación)"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_communication_line__communication_id
 #: model_terms:ir.ui.view,arch_db:ems.view_communication_form
 msgid "Communication"
@@ -10255,6 +10250,15 @@ msgstr "Solo se pueden enviar comunicaciones en estado borrador."
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 msgid "Open Enrollment"
 msgstr "Abrir matrícula"
+
+#. module: ems
+#: model:ir.model,name:ems.communication
+msgid ""
+"This communication cannot be cancelled: it has already been sent or is being"
+" processed."
+msgstr ""
+"Esta comunicación no puede cancelarse: ya ha sido enviada o está siendo "
+"procesada."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_subject_id

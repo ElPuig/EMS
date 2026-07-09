@@ -11,6 +11,7 @@ This section contains the manuals for **administrators**.
 ## Available Manuals
 
 - [Levels](curriculum-levels.md) — Curriculum configuration: levels, studies and related catalog data.
+- [Teacher Roles and Permission Levels](teacher-roles.md) — How to assign roles (Tutor, Head of Department, Head of Studies, Director...) to grant permission levels.
 - [Onboarding a Teacher and Creating Their Corporate Email Account (Google Workspace)](alta-professor-compte-google.md) — How to onboard a teacher or ASP staff member and how their corporate account is generated.
 
 ---

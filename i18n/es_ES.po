@@ -1294,6 +1294,13 @@ msgstr ""
 "grupo)."
 
 #. module: ems
+#: model:res.groups,comment:ems.group_head_of_department
+msgid "Access rights for department heads. Currently identical to Tutor."
+msgstr ""
+"Permisos de acceso para los jefes de departamento. Actualmente idénticos a "
+"los del Tutor."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_value2
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 msgid "Account holder"
@@ -9055,6 +9062,11 @@ msgstr "Martes"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 msgid "Tutor"
 msgstr "Tutor/a"
+
+#. module: ems
+#: model:res.groups,name:ems.group_head_of_department
+msgid "Head of Department"
+msgstr "Jefe de Departamento"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__tutor_id

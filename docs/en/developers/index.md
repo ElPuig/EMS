@@ -12,4 +12,12 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Employees
+
+| Topic | Description |
+|-------|-------------|
+| [Academic role hierarchy](employees/role_hierarchy.md) | Teacher → Tutor → Head of Department → Head of Studies → Director → Administrator group chain and how roles sync to `res.users.groups_id` |
+
+---
+
 More information about the project on the [GitHub repository](https://github.com/ElPuig/EMS).

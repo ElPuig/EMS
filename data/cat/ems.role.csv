@@ -5,7 +5,7 @@ id,name,color,employee_type,unipersonal
 "ems.role_quality","Quality coordinator",4,teacher,true
 "ems.role_secretary","Secretary",5,teacher,false
 "ems.role_tutor","Tutor",6,teacher,false
-"ems.role_dchieff_cs","Department chieff",7,teacher,false
+"ems.role_dchieff","Department chieff",7,teacher,false
 "ems.role_catskills","CatSkills coordinator",8,teacher,true
 "ems.role_director","Director",9,teacher,true
 "ems.role_coexistence","Coexistence coordinator",10,teacher,true

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import date
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.addons.mail.tools.discuss import Store
 
 class ems_SaleOrder(models.Model):
@@ -446,6 +446,39 @@ class ems_SaleOrder(models.Model):
                 action['context']['default_template_id'] = template.id
                 return action
         return super().action_quotation_send()
+
+    def action_send_enrollment_proposal(self):
+        """One-click bulk action for the Matricules list: email the enrollment
+        proposal (``email_template_enrollment_send``) to the selected
+        enrollments and mark the drafts as sent, merging the "Send an email"
+        and "Mark Quotation as Sent" steps into a single button."""
+        if self._is_blocked_tutor():
+            raise ValidationError(_(
+                "Tutors cannot send enrollments to students. "
+                "Please contact the secretary or admin."))
+        template = self.env.ref(
+            'ems.email_template_enrollment_send', raise_if_not_found=False)
+        if not template:
+            raise UserError(_("The enrollment proposal email template is missing."))
+        orders = self.filtered(
+            lambda order: order.ems_study_id and order.state in ('draft', 'sent'))
+        if not orders:
+            raise UserError(_("Select draft enrollments to send."))
+        for order in orders:
+            template.send_mail(order.id, force_send=True)
+        orders.filtered(lambda order: order.state == 'draft').action_quotation_sent()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Enrollments sent"),
+                'message': _(
+                    "%(count)s enrollment(s) emailed and marked as sent.",
+                    count=len(orders)),
+                'type': 'success',
+                'sticky': False,
+            },
+        }
 
     def _notify_get_recipients_groups(self, message, model_description, msg_vals=None):
         groups = super()._notify_get_recipients_groups(message, model_description, msg_vals=msg_vals)

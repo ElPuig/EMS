@@ -230,9 +230,19 @@ msgid ""
 "                            <li>Access the school portal: <a t-attf-href=\"{{ object.get_base_url() }}/ca/my/gestion-matriculas\">my enrollment</a></li>\n"
 "                            <li>Respond to the required authorizations.</li>\n"
 "                            <li>Review the enrollment fees.</li>\n"
+"                            <li>Review the possible discounts or exemptions (CFGS).</li>\n"
 "                            <li>Select the payment method.</li>\n"
 "                            <li>Click the <strong>Final Confirmation</strong> button.</li>\n"
 "                        </ol>\n"
+"                        <p>A more detailed manual is available: <a t-attf-href=\"https://docs.ems.elpuig.xeill.net/ca/families/manual-confirmacio-matricula.html\">Guide to confirm the enrollment proposal.</a></p>\n"
+"                        <p><strong>Note for higher-level VET (CFGS) students:</strong> <em>Higher-level vocational training fees may qualify for a 50% discount or even a 100% exemption if you meet these requirements; send us the documentation from the student portal <strong>before</strong> confirming the enrollment:</em></p>\n"
+"                        <ul>\n"
+"                            <li>Large family</li>\n"
+"                            <li>Single-parent family</li>\n"
+"                            <li>MEC grant</li>\n"
+"                            <li>Disability &gt; 33%</li>\n"
+"                            <li>Others (Batxillerat honours enrolment, gender-based violence, minimum income, Batxillerat award, VET award, ...)</li>\n"
+"                        </ul>\n"
 "                        <p><em>Note: If you notice any issue or have any questions about the fees, you can send a comment to the Secretariat directly from the portal before confirming.</em></p>\n"
 "                        <p>\n"
 "                            Kind regards,<br/>\n"
@@ -240,9 +250,7 @@ msgid ""
 "                            <t t-if=\"object.company_id.phone\"><br/>📞 <t t-out=\"object.company_id.phone\"/></t>\n"
 "                            <t t-if=\"object.company_id.email\"><br/>✉️ <t t-out=\"object.company_id.email\"/></t>\n"
 "                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
+"                    </div>"
 msgstr ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Estimado/a <strong t-out=\"object.partner_id.name\"/>,</p>\n"
@@ -255,9 +263,19 @@ msgstr ""
 "                            <li>Acceda al portal del centro: <a t-attf-href=\"{{ object.get_base_url() }}/ca/my/gestion-matriculas\">mi matrícula</a></li>\n"
 "                            <li>Responda las autorizaciones requeridas.</li>\n"
 "                            <li>Revise los conceptos económicos de la matrícula.</li>\n"
+"                            <li>Revise las posibles bonificaciones o exenciones (CFGS).</li>\n"
 "                            <li>Seleccione la forma de pago.</li>\n"
 "                            <li>Pulse el botón de <strong>Confirmación final</strong>.</li>\n"
 "                        </ol>\n"
+"                        <p>Dispone de un manual más detallado: <a t-attf-href=\"https://docs.ems.elpuig.xeill.net/ca/families/manual-confirmacio-matricula.html\">Guía para confirmar la propuesta de matrícula.</a></p>\n"
+"                        <p><strong>Nota Alumnado CFGS:</strong> <em>Las tasas de los ciclos de grado superior pueden tener una bonificación del 50% o incluso una exención del 100% si estás bajo estos requisitos, envíanos la documentación desde el portal del alumno <strong>antes</strong> de confirmar la matrícula:</em></p>\n"
+"                        <ul>\n"
+"                            <li>Familia numerosa</li>\n"
+"                            <li>Familia monoparental</li>\n"
+"                            <li>Beca MEC</li>\n"
+"                            <li>Discapacidad &gt; 33%</li>\n"
+"                            <li>Otros (matrícula honor Batx, violencia de género, renta mínima, premio Batx, premio FP,...)</li>\n"
+"                        </ul>\n"
 "                        <p><em>Nota: Si detecta alguna incidencia o tiene alguna duda con los conceptes, puede enviar un comentario a Secretaría desde el mismo portal, antes de confirmar el trámite.</em></p>\n"
 "                        <p>\n"
 "                            Atentamente,<br/>\n"
@@ -265,9 +283,7 @@ msgstr ""
 "                            <t t-if=\"object.company_id.phone\"><br/>📞 <t t-out=\"object.company_id.phone\"/></t>\n"
 "                            <t t-if=\"object.company_id.email\"><br/>✉️ <t t-out=\"object.company_id.email\"/></t>\n"
 "                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
+"                    </div>"
 
 #. module: ems
 #: model:mail.template,body_html:ems.mail_attendance_issue_status
@@ -1292,6 +1308,13 @@ msgstr ""
 "grupo).Derechos de acceso para tutores (profesores responsables de un "
 "grupo).Derechos de acceso para tutores (profesores responsables de un "
 "grupo)."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_head_of_department
+msgid "Access rights for department heads. Currently identical to Tutor."
+msgstr ""
+"Permisos de acceso para los jefes de departamento. Actualmente idénticos a "
+"los del Tutor."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_value2
@@ -9057,6 +9080,11 @@ msgid "Tutor"
 msgstr "Tutor/a"
 
 #. module: ems
+#: model:res.groups,name:ems.group_head_of_department
+msgid "Head of Department"
+msgstr "Jefe de Departamento"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__tutor_id
 msgid "Tutor (sent to)"
 msgstr "Tutor/a (enviar a)"
@@ -11369,3 +11397,58 @@ msgstr ""
 "transición de curso). Vuelve a lanzar esta importación tras su transición "
 "para darlos de alta como aspirantes del nuevo ciclo. Sus datos están en el "
 "CSV de 'alumnos activos' de abajo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
+msgid "Send Enrollment"
+msgstr "Enviar matrícula"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Enrollments sent"
+msgstr "Matrículas enviadas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+msgid "Not confirmed"
+msgstr "No confirmadas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+msgid "Not sent"
+msgstr "Sin enviar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+msgid "Confirmed"
+msgstr "Confirmadas"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Select draft enrollments to send."
+msgstr "Selecciona matrículas en borrador para enviar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "The enrollment proposal email template is missing."
+msgstr "Falta la plantilla de correo de propuesta de matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Tutors cannot send enrollments to students. Please contact the secretary or admin."
+msgstr "Los tutores no pueden enviar matrículas a los alumnos. Contacta con secretaría o administración."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "%(count)s enrollment(s) emailed and marked as sent."
+msgstr "%(count)s matrícula(s) enviada(s) por correo y marcada(s) como enviadas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
+msgid "Email the enrollment proposal to the selected enrollments and mark the drafts as sent?"
+msgstr "¿Enviar por correo la propuesta de matrícula a las seleccionadas y marcar los borradores como enviados?"

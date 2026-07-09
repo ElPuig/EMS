@@ -10,11 +10,11 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 
 ## Manuals disponibles
 
+- [Matriculació per l'alumnat de preinscripció](manual-matriculacio-preinscripcio.md) — Com importar els aspirants de GEDAC, crear-los les propostes de matrícula, donar-los accés al portal i enviar-los la proposta.
 - [Alta d'un professor i creació del compte de correu corporatiu (Google Workspace)](../admin/alta-professor-compte-google.md) — Com donar d'alta un professor o membre del PAS i com es genera el seu compte corporatiu.
 
 ## Temes previstos
 
-- Gestió de matrícules: revisió, validació i enviament a les famílies
 - Gestió de documents: aprovació de documents i IBAN dels alumnes
 - Pagaments: formes de pagament i terminis
 - Bonificacions i exempcions: validació de documents justificatius

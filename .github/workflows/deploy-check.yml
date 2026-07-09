@@ -1,0 +1,123 @@
+name: Deploy Check (manual)
+
+# Manual, on-demand gate: comment "/deploy-check" on a PR to run the EMS
+# upgrade against a throwaway copy of the current production database,
+# using the PR's code. Meant to be run once, right before merging/squashing
+# - not on every push (that would put unnecessary load on the production
+# host, which is also the self-hosted runner used below).
+#
+# Requires a repo secret TEAM_READ_TOKEN: a token with permission to read
+# organization team membership (a fine-grained PAT scoped to
+# "Members: Read-only" is enough), used to verify the commenter belongs to
+# the "Integrators" team before anything runs on the production runner.
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  authorize:
+    if: github.event.issue.pull_request && github.event.comment.body == '/deploy-check'
+    runs-on: ubuntu-latest
+    outputs:
+      is_member: ${{ steps.check.outputs.is_member }}
+    steps:
+      - name: Check Integrators team membership
+        id: check
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.TEAM_READ_TOKEN }}
+          script: |
+            const username = context.payload.comment.user.login;
+            try {
+              const res = await github.rest.teams.getMembershipForUserInOrg({
+                org: context.repo.owner,
+                team_slug: 'integrators',
+                username,
+              });
+              const isMember = res.data.state === 'active';
+              core.setOutput('is_member', isMember ? 'true' : 'false');
+              core.info(`${username} membership state: ${res.data.state}`);
+            } catch (err) {
+              core.setOutput('is_member', 'false');
+              core.info(`${username} is not a member of Integrators (${err.message})`);
+            }
+
+  staging-upgrade-check:
+    needs: authorize
+    if: needs.authorize.outputs.is_member == 'true'
+    runs-on: self-hosted
+    concurrency:
+      group: deploy-check
+      cancel-in-progress: true
+    steps:
+      - name: Resolve PR head commit
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner, repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+            core.setOutput('sha', pr.data.head.sha);
+
+      - name: Mark check as pending
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner, repo: context.repo.repo,
+              sha: '${{ steps.pr.outputs.sha }}', state: 'pending',
+              context: 'deploy-check',
+              description: 'Running upgrade dry-run against production data...',
+            });
+
+      - name: Checkout PR head commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.pr.outputs.sha }}
+          path: pr-checkout
+
+      - name: Write isolated odoo config
+        run: |
+          cat <<EOF | sudo tee /tmp/odoo-deploy-check.conf
+          [options]
+          addons_path = /usr/lib/python3/dist-packages/odoo/addons,${{ github.workspace }}/pr-checkout,/root/myModules/queue,/root/myModules/partner-contact
+          EOF
+
+      - name: Clone production data into a scratch database
+        run: |
+          sudo -u odoo dropdb --if-exists ems_pr_check
+          sudo -u odoo createdb ems_pr_check
+          sudo -u odoo bash -c "pg_dump --no-owner -d ems | psql -q -d ems_pr_check"
+
+      - name: Dry-run the EMS upgrade
+        id: dryrun
+        run: |
+          set -o pipefail
+          sudo -u odoo bash -c "odoo -d ems_pr_check -u ems --stop-after-init -c /tmp/odoo-deploy-check.conf" 2>&1 | tee /tmp/odoo-deploy-check.log
+
+      - name: Cleanup
+        if: always()
+        run: sudo -u odoo dropdb --if-exists ems_pr_check
+
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: deploy-check-log
+          path: /tmp/odoo-deploy-check.log
+
+      - name: Report result on the commit
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const state = '${{ steps.dryrun.outcome }}' === 'success' ? 'success' : 'failure';
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner, repo: context.repo.repo,
+              sha: '${{ steps.pr.outputs.sha }}', state,
+              context: 'deploy-check',
+              description: state === 'success' ? 'Upgrade dry-run passed' : 'Upgrade dry-run failed - see logs',
+            });

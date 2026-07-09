@@ -22,7 +22,7 @@ class EmsGraduationWizard(models.TransientModel):
 
     def _user_can_manage(self, student):
         """Admin/secretary manage any student; a tutor only its own students."""
-        if self.env.user.has_group('ems.group_admin') or self.env.user.has_group('ems.group_secretary'):
+        if self.env.user.has_group('ems.group_academic_admin') or self.env.user.has_group('ems.group_secretary'):
             return True
         return bool(student.tutor_id) and student.tutor_id.user_id.id == self.env.uid
 
@@ -152,7 +152,7 @@ class EmsWithdrawalWizard(models.TransientModel):
         return res
 
     def _is_secretary_or_admin(self):
-        return self.env.user.has_group('ems.group_admin') or self.env.user.has_group('ems.group_secretary')
+        return self.env.user.has_group('ems.group_academic_admin') or self.env.user.has_group('ems.group_secretary')
 
     def _current_course(self):
         return self.env.company.current_course_id \

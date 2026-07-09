@@ -36,7 +36,7 @@
                   name="Students without destination"
                   parent="menu_ems_enrollment"
                   action="action_students_no_destination"
-                  groups="ems.group_admin,ems.group_secretary"
+                  groups="ems.group_academic_admin,ems.group_secretary"
                   sequence="40"/>
     </data>
 </odoo>

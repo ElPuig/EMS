@@ -28,6 +28,50 @@ class ems_contact_portal(models.Model):
             return relations.mapped('other_partner_id').sorted('id')
         return self
 
+    def _ems_revoke_student_portal(self):
+        """Revoke portal access for this student/ex-student and its family.
+
+        A family member keeps its access if it still has another enrolled child
+        (sibling check); otherwise its access is revoked too. Reuses the sudo
+        revoke path of ems.portal.access.wizard. Returns a summary dict
+        {'revoked': [...], 'skipped': [...], 'issues': [...]} for the caller log.
+        """
+        self.ensure_one()
+        wizard = self.env['ems.portal.access.wizard'].sudo().new({'mode': 'revoke'})
+        summary = {'revoked': [], 'skipped': [], 'issues': []}
+
+        def _revoke(partner):
+            if not partner._has_active_portal_user():
+                return
+            try:
+                if wizard._apply_one(partner) == 'revoked':
+                    summary['revoked'].append(partner.display_name)
+            except Exception as e:
+                msg = e.args[0] if getattr(e, 'args', None) else str(e)
+                summary['issues'].append('%s: %s' % (partner.display_name, msg))
+
+        # 1. The student/ex-student's own portal user (typically adult students).
+        _revoke(self)
+
+        # 2. Family contacts: revoke only if they have no other still-enrolled child.
+        Relation = self.env['res.partner.relation.all'].sudo()
+        families = Relation.search([
+            ('this_partner_id', '=', self.id),
+            ('other_partner_id.contact_type', '=', 'family'),
+        ]).mapped('other_partner_id')
+        for member in families:
+            other_students = Relation.search([
+                ('this_partner_id', '=', member.id),
+                ('other_partner_id.contact_type', '=', 'student'),
+                ('other_partner_id.active', '=', True),
+                ('other_partner_id', '!=', self.id),
+            ])
+            if other_students:
+                summary['skipped'].append(member.display_name)
+                continue
+            _revoke(member)
+        return summary
+
     def get_portal_student(self, student_id=None):
         """Returns the student partner for this partner.
 

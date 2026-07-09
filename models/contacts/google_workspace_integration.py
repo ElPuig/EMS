@@ -134,11 +134,13 @@ class ResPartnerGoogleWorkspace(models.Model):
                 ).action_create_google_account()
 
     def _gw_enqueue_suspend(self):
-        """Enqueue account suspension for students with a corporate email (deduplicated)."""
+        """Enqueue account suspension for students/ex-students with a corporate email
+        (deduplicated). Covers archiving and the withdrawal/graduation conversion."""
         if not self.env.company.google_ws_enabled:
             return
         for rec in self.filtered(
-            lambda r: r.contact_type == 'student' and r.student_email and not r.google_ws_suspended
+            lambda r: r.contact_type in ('student', 'alumni', 'withdrawal')
+            and r.student_email and not r.google_ws_suspended
         ):
             rec.with_delay(
                 identity_key='gw_suspend_%s' % rec.id,
@@ -297,13 +299,14 @@ class ResPartnerGoogleWorkspace(models.Model):
     def action_suspend_google_account(self):
         """Suspend the student's Google account and move it to the suspended OU.
 
-        Triggered when a student is archived. Idempotent.
+        Triggered when a student is archived or converted to an ex-student
+        (withdrawal/graduation). Idempotent.
         """
         self.ensure_one()
         company = self.env.company
         if not company.google_ws_enabled:
             return
-        if self.contact_type != 'student' or not self.student_email:
+        if self.contact_type not in ('student', 'alumni', 'withdrawal') or not self.student_email:
             return
         if self.google_ws_suspended:
             return

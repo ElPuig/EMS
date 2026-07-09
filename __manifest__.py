@@ -93,6 +93,7 @@
             'views/community/contact/import_wizard.xml',
             'views/community/contact/update_wizard.xml',            
             'views/community/contact/portal_access_wizard.xml',
+            'views/community/contact/exit_wizards.xml',
             'views/community/contact/student_document.xml',
 
             'views/community/group/list.xml',
@@ -228,6 +229,7 @@
             'views/academic_management/enrollment/enrollment_proposal_wizard.xml',
             'views/academic_management/enrollment/enrollment_search.xml',
             'views/academic_management/enrollment/menu.xml',
+            'views/academic_management/enrollment/no_destination.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_form.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
             'views/academic_management/enrollment_configuration/enrollment_authorization_search.xml',

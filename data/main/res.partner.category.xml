@@ -10,5 +10,14 @@
         <record model="res.partner.category" id="partner_category_provider">
             <field name="name">Provider</field>
         </record>
+        <record model="res.partner.category" id="partner_category_applicant">
+            <field name="name">Applicant</field>
+        </record>
+        <record model="res.partner.category" id="partner_category_alumni">
+            <field name="name">Alumni</field>
+        </record>
+        <record model="res.partner.category" id="partner_category_withdrawal">
+            <field name="name">Withdrawal</field>
+        </record>
     </data>
 </odoo>

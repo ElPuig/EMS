@@ -27,6 +27,11 @@
                                 class="btn-secondary"
                                 invisible="contact_type != 'student' or not student_email or not google_ws_suspended"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
+                        <button name="action_withdrawal_wizard" type="object"
+                                string="Withdrawal"
+                                class="btn-secondary"
+                                invisible="contact_type != 'student'"
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
                     </header>
                 </xpath>
 
@@ -260,6 +265,25 @@
                                 <field name="rejection_reason" optional="hide"/>
                             </list>
                         </field>
+                    </page>
+                </xpath>
+
+                <!-- Former student data (alumni / withdrawals). The active-student
+                     pages hide themselves via invisible="contact_type != 'student'". -->
+                <xpath expr="//page[@name='documentation']" position="after">
+                    <page name="former_student" string="Former student"
+                          invisible="contact_type not in ['alumni', 'withdrawal']">
+                        <group cols="2">
+                            <group>
+                                <field name="exit_type"/>
+                                <field name="exit_course_id"/>
+                                <field name="exit_date"/>
+                            </group>
+                            <group>
+                                <field name="has_graduated"/>
+                            </group>
+                            <field name="exit_reason"/>
+                        </group>
                     </page>
                 </xpath>
 

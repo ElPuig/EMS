@@ -5,6 +5,12 @@ sudo service odoo stop || true
 echo "Upgrading odoo package..."
 sudo apt-get install --only-upgrade -y odoo
 
+# The odoo .deb package's postinst restarts the odoo.service unit on its
+# own once the package is set up, regardless of it having been stopped
+# above - stop it again so it doesn't hold the HTTP port when the explicit
+# upgrade run below tries to bind it.
+sudo service odoo stop || true
+
 # Build psql connection args from /etc/odoo/odoo.conf when a db_host is configured
 # (e.g. in CI where PostgreSQL is a remote service). Locally, db_host is absent
 # and psql falls back to the unix socket.

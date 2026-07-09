@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 MODULES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 echo "Updating EMS references..."
 

@@ -11372,6 +11372,11 @@ msgstr "No confirmades"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+msgid "Not sent"
+msgstr "Sense enviar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
 msgid "Confirmed"
 msgstr "Confirmades"
 

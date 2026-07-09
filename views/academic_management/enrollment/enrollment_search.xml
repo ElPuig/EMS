@@ -41,6 +41,8 @@
                     <separator/>
                     <filter string="Not confirmed" name="no_confirmades"
                             domain="[('state', 'in', ('draft', 'sent'))]"/>
+                    <filter string="Not sent" name="sense_enviar"
+                            domain="[('state', '=', 'draft')]"/>
                     <filter string="Confirmed" name="confirmades"
                             domain="[('state', '=', 'sale')]"/>
                     <filter string="Cancelled" name="cancel_lades"

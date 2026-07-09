@@ -6,7 +6,23 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_tree"/>
             <field name="arch" type="xml">
-                
+
+                <!-- Enrollment lists: replace the native "Create Invoices" bulk
+                     action with a one-click "Send Enrollment" (email the
+                     proposal + mark the drafts as sent). Scoped by the
+                     ems_enrollment context flag so native Sales lists keep
+                     their "Create Invoices" button untouched. -->
+                <xpath expr="//header/button[@type='action']" position="attributes">
+                    <attribute name="invisible">context.get('ems_enrollment')</attribute>
+                </xpath>
+                <xpath expr="//header" position="inside">
+                    <button name="action_send_enrollment_proposal" type="object"
+                            string="Send Enrollment" class="btn-primary"
+                            invisible="not context.get('ems_enrollment')"
+                            confirm="Email the enrollment proposal to the selected enrollments and mark the drafts as sent?"
+                            groups="ems.group_academic_admin,ems.group_secretary"/>
+                </xpath>
+
                 <xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="string">Student</attribute>
                 </xpath>

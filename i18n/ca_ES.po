@@ -229,9 +229,19 @@ msgid ""
 "                            <li>Access the school portal: <a t-attf-href=\"{{ object.get_base_url() }}/ca/my/gestion-matriculas\">my enrollment</a></li>\n"
 "                            <li>Respond to the required authorizations.</li>\n"
 "                            <li>Review the enrollment fees.</li>\n"
+"                            <li>Review the possible discounts or exemptions (CFGS).</li>\n"
 "                            <li>Select the payment method.</li>\n"
 "                            <li>Click the <strong>Final Confirmation</strong> button.</li>\n"
 "                        </ol>\n"
+"                        <p>A more detailed manual is available: <a t-attf-href=\"https://docs.ems.elpuig.xeill.net/ca/families/manual-confirmacio-matricula.html\">Guide to confirm the enrollment proposal.</a></p>\n"
+"                        <p><strong>Note for higher-level VET (CFGS) students:</strong> <em>Higher-level vocational training fees may qualify for a 50% discount or even a 100% exemption if you meet these requirements; send us the documentation from the student portal <strong>before</strong> confirming the enrollment:</em></p>\n"
+"                        <ul>\n"
+"                            <li>Large family</li>\n"
+"                            <li>Single-parent family</li>\n"
+"                            <li>MEC grant</li>\n"
+"                            <li>Disability &gt; 33%</li>\n"
+"                            <li>Others (Batxillerat honours enrolment, gender-based violence, minimum income, Batxillerat award, VET award, ...)</li>\n"
+"                        </ul>\n"
 "                        <p><em>Note: If you notice any issue or have any questions about the fees, you can send a comment to the Secretariat directly from the portal before confirming.</em></p>\n"
 "                        <p>\n"
 "                            Kind regards,<br/>\n"
@@ -239,9 +249,7 @@ msgid ""
 "                            <t t-if=\"object.company_id.phone\"><br/>📞 <t t-out=\"object.company_id.phone\"/></t>\n"
 "                            <t t-if=\"object.company_id.email\"><br/>✉️ <t t-out=\"object.company_id.email\"/></t>\n"
 "                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
+"                    </div>"
 msgstr ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Benvolgut/da <strong t-out=\"object.partner_id.name\"/>,</p>\n"
@@ -254,9 +262,19 @@ msgstr ""
 "                            <li>Accedeixi al portal del centre: <a t-attf-href=\"{{ object.get_base_url() }}/ca/my/gestion-matriculas\">la meva matrícula</a></li>\n"
 "                            <li>Respongui les autoritzacions requerides.</li>\n"
 "                            <li>Revisi els conceptes econòmics de la matrícula.</li>\n"
+"                            <li>Revisi les possibles bonificacions o exempcions (CFGS).</li>\n"
 "                            <li>Seleccioni la forma de pagament.</li>\n"
 "                            <li>Premi el botó de <strong>Confirmació final</strong>.</li>\n"
 "                        </ol>\n"
+"                        <p>Disposa d'un manual més detallat: <a t-attf-href=\"https://docs.ems.elpuig.xeill.net/ca/families/manual-confirmacio-matricula.html\">Guia per confirmar la proposta de matrícula.</a></p>\n"
+"                        <p><strong>Nota Alumnat CFGS:</strong> <em>Les taxes dels cicles de grau superior poden tenir una bonificació del 50% o fins i tot una exempció del 100% si estàs sota aquests requisits, envia'ns la documentació des del portal de l'alumne <strong>abans</strong> de confirmar la matrícula:</em></p>\n"
+"                        <ul>\n"
+"                            <li>Família nombrosa</li>\n"
+"                            <li>Família monoparental</li>\n"
+"                            <li>Beca MEC</li>\n"
+"                            <li>Discapacitat &gt; 33%</li>\n"
+"                            <li>Altres (matricula honor Batx, violencia genere, renda minima, premi Batx, premi FP,...)</li>\n"
+"                        </ul>\n"
 "                        <p><em>Nota: Si detecta alguna incidència o té algun dubte amb els conceptes, pot enviar un comentari a Secretaria des del mateix portal, abans de confirmar el tràmit.</em></p>\n"
 "                        <p>\n"
 "                            Atentament,<br/>\n"
@@ -264,9 +282,7 @@ msgstr ""
 "                            <t t-if=\"object.company_id.phone\"><br/>📞 <t t-out=\"object.company_id.phone\"/></t>\n"
 "                            <t t-if=\"object.company_id.email\"><br/>✉️ <t t-out=\"object.company_id.email\"/></t>\n"
 "                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
+"                    </div>"
 
 #. module: ems
 #: model:mail.template,body_html:ems.mail_attendance_issue_status
@@ -11353,3 +11369,58 @@ msgstr ""
 "transició de curs). Torneu a llançar aquesta importació després de la seva "
 "transició per donar-los d'alta com a aspirants del nou cicle. Les seves "
 "dades són al CSV d'\"alumnes actius\" de sota."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
+msgid "Send Enrollment"
+msgstr "Enviar matrícula"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Enrollments sent"
+msgstr "Matrícules enviades"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+msgid "Not confirmed"
+msgstr "No confirmades"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+msgid "Not sent"
+msgstr "Sense enviar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+msgid "Confirmed"
+msgstr "Confirmades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Select draft enrollments to send."
+msgstr "Selecciona matrícules en esborrany per enviar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "The enrollment proposal email template is missing."
+msgstr "Falta la plantilla de correu de proposta de matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Tutors cannot send enrollments to students. Please contact the secretary or admin."
+msgstr "Els tutors no poden enviar matrícules als alumnes. Contacta amb secretaria o administració."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "%(count)s enrollment(s) emailed and marked as sent."
+msgstr "%(count)s matrícula/es enviada/es per correu i marcada/es com a enviades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
+msgid "Email the enrollment proposal to the selected enrollments and mark the drafts as sent?"
+msgstr "Enviar per correu la proposta de matrícula a les seleccionades i marcar els esborranys com a enviats?"

@@ -30,9 +30,19 @@
                             <li>Access the school portal: <a t-attf-href="{{ object.get_base_url() }}/ca/my/gestion-matriculas">my enrollment</a></li>
                             <li>Respond to the required authorizations.</li>
                             <li>Review the enrollment fees.</li>
+                            <li>Review the possible discounts or exemptions (CFGS).</li>
                             <li>Select the payment method.</li>
                             <li>Click the <strong>Final Confirmation</strong> button.</li>
                         </ol>
+                        <p>A more detailed manual is available: <a t-attf-href="https://docs.ems.elpuig.xeill.net/ca/families/manual-confirmacio-matricula.html">Guide to confirm the enrollment proposal.</a></p>
+                        <p><strong>Note for higher-level VET (CFGS) students:</strong> <em>Higher-level vocational training fees may qualify for a 50% discount or even a 100% exemption if you meet these requirements; send us the documentation from the student portal <strong>before</strong> confirming the enrollment:</em></p>
+                        <ul>
+                            <li>Large family</li>
+                            <li>Single-parent family</li>
+                            <li>MEC grant</li>
+                            <li>Disability &gt; 33%</li>
+                            <li>Others (Batxillerat honours enrolment, gender-based violence, minimum income, Batxillerat award, VET award, ...)</li>
+                        </ul>
                         <p><em>Note: If you notice any issue or have any questions about the fees, you can send a comment to the Secretariat directly from the portal before confirming.</em></p>
                         <p>
                             Kind regards,<br/>
@@ -60,9 +70,19 @@
                             <li>Accedeixi al portal del centre: <a t-attf-href="{{ object.get_base_url() }}/ca/my/gestion-matriculas">la meva matrícula</a></li>
                             <li>Respongui les autoritzacions requerides.</li>
                             <li>Revisi els conceptes econòmics de la matrícula.</li>
+                            <li>Revisi les possibles bonificacions o exempcions (CFGS).</li>
                             <li>Seleccioni la forma de pagament.</li>
                             <li>Premi el botó de <strong>Confirmació final</strong>.</li>
                         </ol>
+                        <p>Disposa d'un manual més detallat: <a t-attf-href="https://docs.ems.elpuig.xeill.net/ca/families/manual-confirmacio-matricula.html">Guia per confirmar la proposta de matrícula.</a></p>
+                        <p><strong>Nota Alumnat CFGS:</strong> <em>Les taxes dels cicles de grau superior poden tenir una bonificació del 50% o fins i tot una exempció del 100% si estàs sota aquests requisits, envia'ns la documentació des del portal de l'alumne <strong>abans</strong> de confirmar la matrícula:</em></p>
+                        <ul>
+                            <li>Família nombrosa</li>
+                            <li>Família monoparental</li>
+                            <li>Beca MEC</li>
+                            <li>Discapacitat &gt; 33%</li>
+                            <li>Altres (matricula honor Batx, violencia genere, renda minima, premi Batx, premi FP,...)</li>
+                        </ul>
                         <p><em>Nota: Si detecta alguna incidència o té algun dubte amb els conceptes, pot enviar un comentari a Secretaria des del mateix portal, abans de confirmar el tràmit.</em></p>
                         <p>
                             Atentament,<br/>
@@ -90,9 +110,19 @@
                             <li>Acceda al portal del centro: <a t-attf-href="{{ object.get_base_url() }}/ca/my/gestion-matriculas">mi matrícula</a></li>
                             <li>Responda las autorizaciones requeridas.</li>
                             <li>Revise los conceptos económicos de la matrícula.</li>
+                            <li>Revise las posibles bonificaciones o exenciones (CFGS).</li>
                             <li>Seleccione la forma de pago.</li>
                             <li>Pulse el botón de <strong>Confirmación final</strong>.</li>
                         </ol>
+                        <p>Dispone de un manual más detallado: <a t-attf-href="https://docs.ems.elpuig.xeill.net/ca/families/manual-confirmacio-matricula.html">Guía para confirmar la propuesta de matrícula.</a></p>
+                        <p><strong>Nota Alumnado CFGS:</strong> <em>Las tasas de los ciclos de grado superior pueden tener una bonificación del 50% o incluso una exención del 100% si estás bajo estos requisitos, envíanos la documentación desde el portal del alumno <strong>antes</strong> de confirmar la matrícula:</em></p>
+                        <ul>
+                            <li>Familia numerosa</li>
+                            <li>Familia monoparental</li>
+                            <li>Beca MEC</li>
+                            <li>Discapacidad &gt; 33%</li>
+                            <li>Otros (matrícula honor Batx, violencia de género, renta mínima, premio Batx, premio FP,...)</li>
+                        </ul>
                         <p><em>Nota: Si detecta alguna incidencia o tiene alguna duda con los conceptes, puede enviar un comentario a Secretaría desde el mismo portal, antes de confirmar el trámite.</em></p>
                         <p>
                             Atentamente,<br/>

@@ -37,6 +37,18 @@
                     <field name="shift" string="Shift"/>
                 </xpath>
 
+                <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                    <separator/>
+                    <filter string="Not sent" name="sense_enviar"
+                            domain="[('state', '=', 'draft')]"/>
+                    <filter string="Not confirmed" name="no_confirmades"
+                            domain="[('state', 'in', ('draft', 'sent'))]"/>
+                    <filter string="Confirmed" name="confirmades"
+                            domain="[('state', '=', 'sale')]"/>
+                    <filter string="Cancelled" name="cancel_lades"
+                            domain="[('state', '=', 'cancel')]"/>
+                </xpath>
+
                 <xpath expr="//field[@name='user_id']" position="attributes">
                     <attribute name="invisible">1</attribute> </xpath>
                 <xpath expr="//field[@name='team_id']" position="attributes">

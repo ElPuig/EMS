@@ -39,28 +39,28 @@ __import__.group_sa1a,1,"A","ems.level_cfgb","ems.study_cfpb_ag10_sa_2024","__im
 
 __import__.group_ao1a,1,"A","ems.level_pfi","ems.study_pfi_ag10_ao_2024","__import__.space_101",
 
-ems.group_eso1a,1,"A","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM101
-ems.group_eso1b,1,"B","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM102
-ems.group_eso1c,1,"C","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM103
-ems.group_eso1d,1,"D","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM104
-ems.group_eso1e,1,"E","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM105
-ems.group_eso2a,2,"A","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM201
-ems.group_eso2b,2,"B","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM202
-ems.group_eso2c,2,"C","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM203
-ems.group_eso2d,2,"D","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM204
-ems.group_eso3a,3,"A","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM301
-ems.group_eso3b,3,"B","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM302
-ems.group_eso3c,3,"C","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM303
-ems.group_eso3d,3,"D","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM304
-ems.group_eso4a,4,"A","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM401
-ems.group_eso4b,4,"B","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM402
-ems.group_eso4c,4,"C","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM403
-ems.group_eso4d,4,"D","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM404
-ems.group_eso4e,4,"E","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM405
+__import__.group_eso1a,1,"A","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM101
+__import__.group_eso1b,1,"B","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM102
+__import__.group_eso1c,1,"C","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM103
+__import__.group_eso1d,1,"D","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM104
+__import__.group_eso1e,1,"E","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM105
+__import__.group_eso2a,2,"A","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM201
+__import__.group_eso2b,2,"B","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM202
+__import__.group_eso2c,2,"C","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM203
+__import__.group_eso2d,2,"D","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM204
+__import__.group_eso3a,3,"A","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM301
+__import__.group_eso3b,3,"B","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM302
+__import__.group_eso3c,3,"C","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM303
+__import__.group_eso3d,3,"D","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM304
+__import__.group_eso4a,4,"A","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM401
+__import__.group_eso4b,4,"B","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM402
+__import__.group_eso4c,4,"C","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM403
+__import__.group_eso4d,4,"D","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM404
+__import__.group_eso4e,4,"E","ems.level_eso","ems.study_eso_175_2022",,ESO LOEM405
 
-ems.group_btx1_101ct,1,"01CT","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM2000101
-ems.group_btx1_102ci,1,"02CI","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM2000102
-ems.group_btx2_201,2,"01","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM2000201
-ems.group_btx1_102so,1,"02SO","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM3000101
-ems.group_btx1_101hu,1,"01HU","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM3000102
-ems.group_btx2_202,2,"02","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM3000201
+__import__.group_btx1_101ct,1,"01CT","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM2000101
+__import__.group_btx1_102ci,1,"02CI","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM2000102
+__import__.group_btx2_201,2,"01","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM2000201
+__import__.group_btx1_102so,1,"02SO","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM3000101
+__import__.group_btx1_101hu,1,"01HU","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM3000102
+__import__.group_btx2_202,2,"02","ems.level_btx","ems.study_btx_171_2022",,BATXLOEM3000201

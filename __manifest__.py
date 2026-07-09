@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.19.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.19.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -290,6 +290,7 @@
         'data/main/hr.work.location.csv',
         'data/main/ems.contact.relation.type.xml',
         'data/main/ems.mail_activity_type.xml',
+        'data/main/product.category.csv',
 
         'data/cat/attachments/asix/ir.attachment.csv',
         'data/cat/attachments/dam/ir.attachment.csv',
@@ -322,7 +323,6 @@
         'data/cat/ems.workgroup.csv',
         'data/cat/hr.job.csv',
         'data/main/ems.job_group_relationship.xml',
-        'data/cat/ems_product_category_data.xml',
         'data/cat/ems_product_generic_products.xml',
         'data/cat/ems_enrollment_template_data.xml',
         
@@ -352,7 +352,6 @@
         'data/custom/res.partner.csv',
         'data/custom/ems.course.xml',
         'data/custom/crm.team.csv',
-        'data/custom/product.category.csv',
         'data/custom/ems_authorization_template_data.xml',
         'data/custom/ems.sequence.enrollment.xml',
 

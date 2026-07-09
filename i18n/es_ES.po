@@ -11369,3 +11369,53 @@ msgstr ""
 "transición de curso). Vuelve a lanzar esta importación tras su transición "
 "para darlos de alta como aspirantes del nuevo ciclo. Sus datos están en el "
 "CSV de 'alumnos activos' de abajo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
+msgid "Send Enrollment"
+msgstr "Enviar matrícula"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Enrollments sent"
+msgstr "Matrículas enviadas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+msgid "Not confirmed"
+msgstr "No confirmadas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+msgid "Confirmed"
+msgstr "Confirmadas"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Select draft enrollments to send."
+msgstr "Selecciona matrículas en borrador para enviar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "The enrollment proposal email template is missing."
+msgstr "Falta la plantilla de correo de propuesta de matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Tutors cannot send enrollments to students. Please contact the secretary or admin."
+msgstr "Los tutores no pueden enviar matrículas a los alumnos. Contacta con secretaría o administración."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "%(count)s enrollment(s) emailed and marked as sent."
+msgstr "%(count)s matrícula(s) enviada(s) por correo y marcada(s) como enviadas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
+msgid "Email the enrollment proposal to the selected enrollments and mark the drafts as sent?"
+msgstr "¿Enviar por correo la propuesta de matrícula a las seleccionadas y marcar los borradores como enviados?"

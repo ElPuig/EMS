@@ -11353,3 +11353,53 @@ msgstr ""
 "transició de curs). Torneu a llançar aquesta importació després de la seva "
 "transició per donar-los d'alta com a aspirants del nou cicle. Les seves "
 "dades són al CSV d'\"alumnes actius\" de sota."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
+msgid "Send Enrollment"
+msgstr "Enviar matrícula"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Enrollments sent"
+msgstr "Matrícules enviades"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+msgid "Not confirmed"
+msgstr "No confirmades"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+msgid "Confirmed"
+msgstr "Confirmades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Select draft enrollments to send."
+msgstr "Selecciona matrícules en esborrany per enviar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "The enrollment proposal email template is missing."
+msgstr "Falta la plantilla de correu de proposta de matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Tutors cannot send enrollments to students. Please contact the secretary or admin."
+msgstr "Els tutors no poden enviar matrícules als alumnes. Contacta amb secretaria o administració."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "%(count)s enrollment(s) emailed and marked as sent."
+msgstr "%(count)s matrícula/es enviada/es per correu i marcada/es com a enviades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
+msgid "Email the enrollment proposal to the selected enrollments and mark the drafts as sent?"
+msgstr "Enviar per correu la proposta de matrícula a les seleccionades i marcar els esborranys com a enviats?"

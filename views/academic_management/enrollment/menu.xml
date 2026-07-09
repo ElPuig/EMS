@@ -2,22 +2,17 @@
 <odoo>
     <data>
 
-        <record id="action_ems_pre_enrollments" model="ir.actions.act_window">
-            <field name="name">Pre-enrollments</field>
-            <field name="res_model">sale.order</field>
-            <field name="view_mode">list,form,kanban</field>
-            
-            <field name="domain" eval="[('state', 'in', ('draft', 'sent', 'cancel'))]"/>
-             <!-- <field name="context" eval="{'default_team_id': ref('ems.team_administration')}"/> -->
-        </record>
-
+        <!-- Unified enrollments list: every EMS enrollment (any state), filtered
+             from the search bar (Not confirmed / Confirmed / Cancelled). Opens on
+             the "Not confirmed" (draft + sent) working set. The ems_enrollment
+             context flag turns the native "Create Invoices" header button into
+             the "Send Enrollment" one (see enrollment_list.xml). -->
         <record id="action_ems_enrollments" model="ir.actions.act_window">
             <field name="name">Enrollments</field>
             <field name="res_model">sale.order</field>
             <field name="view_mode">list,form,kanban</field>
-            
-            <field name="domain" eval="[('state', 'not in', ('draft', 'sent', 'cancel'))]"/>
-             <!-- <field name="context" eval="{'default_team_id': ref('ems.team_administration')}"/> -->
+            <field name="domain" eval="[('ems_study_id', '!=', False)]"/>
+            <field name="context">{'ems_enrollment': 1, 'search_default_no_confirmades': 1}</field>
         </record>
 
 
@@ -33,20 +28,11 @@
                       groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor"
                       sequence="20"/>
 
-            <menuitem id="menu_ems_pre_enrollments"
-                      name="Pre-enrollments"
-                      parent="menu_ems_enrollment"
-                      action="action_ems_pre_enrollments"
-                      groups="ems.group_academic_admin,ems.group_secretary"
-                      sequence="30"/>
-
             <menuitem id="menu_ems_enrollments"
                       name="Enrollments"
                       parent="menu_ems_enrollment"
                       action="action_ems_enrollments"
                       groups="ems.group_academic_admin,ems.group_secretary"
-                      sequence="40"/>
+                      sequence="30"/>
     </data>
 </odoo>
-            <!-- para pre-enrollments action="sale.action_quotations" -->
-            <!-- para Enrollments action="sale.action_orders" -->

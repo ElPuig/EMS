@@ -41,6 +41,10 @@ class ems_company(models.Model):
 
     secretariat_email = fields.Char()
 
+    # Official Departament d'Educació center code (e.g. '8028047'). Used by the GEDAC
+    # applicant import to keep only the rows assigned to this center.
+    center_code = fields.Char(string="Center code")
+
     # --- Google Workspace (creación automática de cuentas de alumno) ---
     # Enfoque: rol de administrador personalizado asignado a la cuenta de servicio,
     # restringido a la OU /alumnos (NO domain-wide delegation, sin suplantación).

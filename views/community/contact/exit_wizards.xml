@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_graduation_wizard_form">
+            <field name="name">ems.graduation.wizard.form</field>
+            <field name="model">ems.graduation_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Graduation">
+                    <sheet>
+                        <div class="alert alert-info" role="alert">
+                            Marks the selected students as graduated (deferred mark). It sets the
+                            permanent "Has graduated" flag; the conversion to alumni and the portal
+                            revocation run later, in the transition wizard.
+                        </div>
+                        <field name="line_ids" nolabel="1">
+                            <list create="0" delete="0"
+                                  decoration-danger="blocked"
+                                  decoration-warning="warning != False and not blocked">
+                                <field name="blocked" column_invisible="1"/>
+                                <field name="student_id"/>
+                                <field name="already_marked" widget="boolean_toggle" readonly="1"/>
+                                <field name="warning"/>
+                            </list>
+                        </field>
+                    </sheet>
+                    <footer>
+                        <button name="action_apply" type="object" string="Mark graduation" class="btn-primary"/>
+                        <button name="action_unmark" type="object" string="Unmark"/>
+                        <button special="cancel" string="Cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_withdrawal_wizard_form">
+            <field name="name">ems.withdrawal.wizard.form</field>
+            <field name="model">ems.withdrawal_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Withdrawal">
+                    <sheet>
+                        <div class="alert alert-warning" role="alert">
+                            Immediate effect: the selected students are withdrawn now — converted to
+                            alumni/withdrawal, detached from group/level/study, removed from active
+                            attendance templates, pending enrolments cancelled and portal access revoked
+                            (family access kept if another child is still enrolled).
+                        </div>
+                        <group>
+                            <field name="exit_date"/>
+                            <field name="exit_reason"/>
+                        </group>
+                        <field name="line_ids" nolabel="1">
+                            <list create="0" delete="0">
+                                <field name="student_id"/>
+                                <field name="note"/>
+                            </list>
+                        </field>
+                    </sheet>
+                    <footer>
+                        <button name="action_apply" type="object" string="Withdraw" class="btn-danger"
+                                confirm="This withdraws the selected students immediately. Continue?"/>
+                        <button special="cancel" string="Cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

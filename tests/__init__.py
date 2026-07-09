@@ -1,3 +1,6 @@
+from . import test_contact
+from . import test_enrollment_placement
+from . import test_exit_management
 from . import test_level
 from . import test_level_tour
 from . import test_attendance_template
@@ -6,7 +9,10 @@ from . import test_employee_role_group_sync
 from . import test_attendance_correction
 from . import test_grade_session
 from . import test_grade_import_wizard
+from . import test_applicant_import_wizard
 from . import test_planning
 from . import test_data_custom_import_prefix
+from . import test_data_main_cat_prefix
+from . import test_security_group_references
 from . import test_grade_session_tour
 from . import test_employee_google_workspace

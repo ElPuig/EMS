@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_student_search_no_destination">
+            <field name="name">ems.student.no_destination.search</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" string="Student"/>
+                    <field name="main_group_id" string="Group"/>
+                    <field name="study_id" string="Study"/>
+                    <field name="ems_current_enrollment_id" string="Enrollment"/>
+                    <!-- Two faces of "without destination": no enrollment at all, or an
+                         enrollment that still has no destination group. -->
+                    <filter name="no_enrollment" string="Students without enrollment"
+                            domain="[('transition_status', '=', 'missing')]"/>
+                    <filter name="no_group" string="Students without group"
+                            domain="[('transition_status', '=', 'unplaced')]"/>
+                    <separator/>
+                    <!-- In enrollment-flow studies a missing destination is suspicious;
+                         otherwise it is expected until the September Esfer@ re-import. -->
+                    <filter name="enrollment_flow" string="Enrollment-flow studies (suspicious)"
+                            domain="[('study_id.uses_enrollment_flow', '=', True)]"/>
+                    <filter name="no_enrollment_flow" string="No enrollment flow (expected)"
+                            domain="[('study_id.uses_enrollment_flow', '=', False)]"/>
+                    <group expand="1" string="Group By">
+                        <filter name="gb_group" string="Group" context="{'group_by': 'main_group_id'}"/>
+                        <filter name="gb_study" string="Study" context="{'group_by': 'study_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_student_list_no_destination">
+            <field name="name">ems.student.no_destination.list</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <list string="Students without destination"
+                      default_order="study_id asc, name asc" create="0">
+                    <header>
+                        <button name="action_suggest_destination_group"
+                                type="object"
+                                string="Suggest destination group"/>
+                    </header>
+                    <field name="name" string="Student"/>
+                    <field name="main_group_id"/>
+                    <field name="study_id"/>
+                    <field name="ems_enrollment_state" column_invisible="1"/>
+                    <field name="ems_current_enrollment_id" string="Enrollment"
+                           decoration-warning="ems_enrollment_state == 'draft'"
+                           decoration-info="ems_enrollment_state == 'sent'"
+                           decoration-success="ems_enrollment_state == 'sale'"/>
+                    <field name="transition_status" widget="badge"
+                           decoration-warning="transition_status == 'unplaced'"
+                           decoration-muted="transition_status == 'missing'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_students_no_destination" model="ir.actions.act_window">
+            <field name="name">Students without destination</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">['&amp;', ('contact_type', '=', 'student'),
+                '|', ('transition_status', '=', 'missing'), ('transition_status', '=', 'unplaced')]</field>
+            <field name="context">{'default_contact_type': 'student',
+                'search_default_enrollment_flow': 1, 'search_default_gb_group': 1}</field>
+            <field name="search_view_id" ref="view_student_search_no_destination"/>
+            <field name="view_ids" eval="[(5,0,0),
+                (0,0,{'view_mode': 'list', 'view_id': ref('view_student_list_no_destination')}),
+            ]"/>
+        </record>
+
+        <menuitem id="menu_students_no_destination"
+                  name="Students without destination"
+                  parent="menu_ems_enrollment"
+                  action="action_students_no_destination"
+                  groups="ems.group_academic_admin,ems.group_secretary"
+                  sequence="50"/>
+    </data>
+</odoo>

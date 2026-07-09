@@ -36,22 +36,45 @@ backup_database() {
 }
 
 # If the real upgrade fails (e.g. production data drifted since the
-# /deploy-check dry-run on the PR), restore the pre-deploy backup so
-# production isn't left half-migrated.
+# /deploy-check dry-run on the PR), restore the pre-deploy backup - code
+# AND database together, not just the database. update.sh already pulled
+# the new (failing) code before upgrade.sh ran, so restoring only the DB
+# would leave it mismatched against that code (the same "column does not
+# exist" class of failure as the 2026-07-08 incident's manual recovery).
 restore_backup() {
-    echo ">> Upgrade failed - restoring pre-deploy backup..." >&2
+    echo ">> Upgrade failed - restoring pre-deploy backup (v${VERSION})..." >&2
     sudo service odoo stop || true
+
+    git fetch --tags
+    git checkout "v${VERSION}"
+
     sudo -u odoo dropdb --if-exists ems
     sudo -u odoo createdb ems
     sudo -u odoo psql -d ems -q < "$WORK_DIR/dump.sql"
     rm -rf "$FILESTORE_PATH"
     cp -r "$WORK_DIR/filestore" "$FILESTORE_PATH"
+
+    # Reconcile schema with the reverted code - should be a fast no-op
+    # since both now match, but confirms consistency before real traffic
+    # hits it instead of just hoping it's fine.
+    sudo -u odoo bash -c "odoo -d ems -u ems --stop-after-init -c /etc/odoo/odoo.conf"
+
     sudo service odoo start || true
-    echo ">> Production restored to its pre-deploy state." >&2
+
+    # Leave the checkout back on main so the *next* deploy's update.sh can
+    # git pull normally instead of failing (or worse, silently no-op'ing)
+    # on a detached HEAD.
+    git checkout main
+
+    echo ">> Production restored to its pre-deploy state (v${VERSION})." >&2
 }
 
 cd /root/myModules/ems
 echo ">> New EMS release detected: starting deployment for $1"
+
+# Always deploy from main, regardless of what a previous manual recovery
+# left checked out - don't rely on remembering to do this by hand.
+git checkout main
 
 backup_database
 ./update.sh

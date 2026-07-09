@@ -69,9 +69,67 @@ class ems_contact(models.Model):
     tutor_id = fields.Many2one(string='Tutor', related="main_group_id.tutor_id") # Related field: auto-computed and auto-refreshed within the form.
     
     # model-data fields:
-    main_group_id = fields.Many2one(string='Main Group', comodel_name='ems.group')     
+    main_group_id = fields.Many2one(string='Main Group', comodel_name='ems.group')
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
-    contact_type = fields.Selection(string='Contact Type', selection=[('provider', 'Provider'), ('student', 'Student'), ('family', 'Family')])   
+    # Shift granted at pre-enrollment (GEDAC/preinscription), stored on the applicant
+    # who still has no group to derive it from. Consumed by the enrollment proposal to
+    # pre-fill the enrollment shift and pick the destination group.
+    preinscription_shift = fields.Selection(
+        selection=[('morning', 'Morning'), ('afternoon', 'Afternoon')],
+        string='Preinscription shift',
+        help="Shift granted to the applicant at pre-enrollment (before having a group).")
+    # Course the applicant is admitted into, from the preinscription. Lets the
+    # enrollment proposal preselect the right-course template (some applicants join
+    # directly beyond 1st course) and lets the intake list group by course. Covers
+    # up to 4th course (ESO); FP/BTX only use 1st-2nd.
+    preinscription_course = fields.Selection(
+        selection=[('1', '1r'), ('2', '2n'), ('3', '3r'), ('4', '4t')],
+        string='Preinscription course',
+        help="Course granted to the applicant at pre-enrollment (1st to 4th).")
+    # Special educational needs (NEE) typology, as reported by the preinscription
+    # ("Tipus alumne"). Sensitive data: the ORM `groups` restrict it to tutors,
+    # secretary and admin, and it is never rendered on the portal. Empty = ordinary.
+    special_needs = fields.Selection(
+        selection=[('nee_a', 'NEE-A'), ('nee_b', 'NEE-B')],
+        string='Special educational needs',
+        groups='ems.group_tutor,ems.group_secretary,ems.group_academic_admin',
+        help="Special educational needs typology from the preinscription: type A "
+             "(disability, ASD, serious behavioural/developmental/mental disorders); "
+             "type B (specially disadvantaged socio-economic or socio-cultural "
+             "situation). Leave empty for ordinary students.")
+    # Contact lifecycle: applicant -> student -> alumni (graduated at least once)
+    #                                         \-> withdrawal (never graduated).
+    # The ~25 domains filtering by contact_type == 'student' exclude applicant,
+    # alumni and withdrawal automatically (no changes needed elsewhere).
+    contact_type = fields.Selection(string='Contact Type', selection=[
+        ('provider', 'Provider'),
+        ('student', 'Student'),
+        ('family', 'Family'),
+        ('applicant', 'Applicant'),
+        ('alumni', 'Alumni'),
+        ('withdrawal', 'Withdrawal'),
+    ])
+    # Permanent graduation mark: set to True when the graduation is registered and
+    # never reset to False. It is the key that decides alumni vs withdrawal in
+    # _ems_convert_to_ex_student().
+    has_graduated = fields.Boolean(string="Has graduated", default=False)
+    # Exit metadata (written by the graduation/withdrawal wizards).
+    exit_type = fields.Selection([
+        ('graduation', 'Graduation'),
+        ('withdrawal', 'Withdrawal'),
+    ], string="Exit type")
+    exit_course_id = fields.Many2one('ems.course', string="Exit course")
+    exit_date = fields.Date(string="Exit date")
+    exit_reason = fields.Text(string="Exit reason")
+    # Derived transition state (not stored). Consumed by the "no destination" report.
+    transition_status = fields.Selection([
+        ('enrolled', 'Enrolled next course'),
+        ('unplaced', 'Enrolled without group'),
+        ('graduated', 'Graduated'),
+        ('former', 'Former student'),
+        ('missing', 'No destination'),
+    ], string="Transition status", compute='_compute_transition_status',
+        search='_search_transition_status', store=False)
     family_relation = fields.Char(string="Family relation")
     document_id = fields.Char(string="Document ID")
     passport_id = fields.Char(string="Passport")
@@ -216,12 +274,13 @@ class ems_contact(models.Model):
             'context': {
                 'default_partner_id': self.id,
                 'default_ems_study_id': self.study_id.id if self.study_id else False,
-                'default_shift': self.main_group_id.shift if self.main_group_id else False,
+                'default_shift': (self.main_group_id.shift if self.main_group_id
+                                  else self.preinscription_shift),
             }
         }
-    
+
     def action_enrollment_proposal(self):
-        students = self.filtered(lambda p: p.contact_type == 'student')
+        students = self.filtered(lambda p: p.contact_type in ('student', 'applicant'))
         return {
             'type': 'ir.actions.act_window',
             'name': _('Enrollment proposal'),
@@ -232,6 +291,84 @@ class ems_contact(models.Model):
                 'active_ids': students.ids,
             },
         }
+
+    def action_graduation_wizard(self):
+        students = self.filtered(lambda p: p.contact_type == 'student')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Graduation'),
+            'res_model': 'ems.graduation_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'active_ids': students.ids},
+        }
+
+    def action_withdrawal_wizard(self):
+        students = self.filtered(lambda p: p.contact_type == 'student')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Withdrawal'),
+            'res_model': 'ems.withdrawal_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'active_ids': students.ids},
+        }
+
+    def action_suggest_destination_group(self):
+        """Fill the destination group on the selected students' next-course
+        enrollments that still have none. Students without an enrollment are
+        skipped (there is no matrícula to place). Used from the "students without
+        destination" report."""
+        enrollments = self.mapped('ems_current_enrollment_id')
+        filled = enrollments._ems_fill_suggested_group()
+        skipped = len(self.filtered(lambda p: not p.ems_current_enrollment_id))
+        message = _("%(filled)s destination group(s) filled.", filled=filled)
+        if skipped:
+            message += " " + _("%(skipped)s skipped (no enrollment).", skipped=skipped)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Suggest destination group"),
+                'message': message,
+                'type': 'success',
+                'sticky': False,
+            },
+        }
+
+    @api.depends('contact_type', 'exit_type', 'sale_order_ids.ems_course_id',
+                 'sale_order_ids.state', 'sale_order_ids.ems_group_id')
+    def _compute_transition_status(self):
+        next_course = self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
+        for partner in self:
+            if partner.contact_type in ('alumni', 'withdrawal'):
+                partner.transition_status = 'former'
+            elif partner.exit_type == 'graduation':
+                # A still-active student with a graduation mark is a pending graduate
+                # (once executed it becomes alumni, caught by 'former' above).
+                partner.transition_status = 'graduated'
+            else:
+                enrollment = next_course and self.env['sale.order'].search([
+                    ('partner_id', '=', partner.id),
+                    ('ems_course_id', '=', next_course.id),
+                    ('state', '!=', 'cancel')], limit=1)
+                if not enrollment:
+                    # No next-course enrollment at all.
+                    partner.transition_status = 'missing'
+                elif enrollment.ems_group_id:
+                    partner.transition_status = 'enrolled'
+                else:
+                    # Enrolled but not placeable yet (no destination group).
+                    partner.transition_status = 'unplaced'
+
+    def _search_transition_status(self, operator, value):
+        if operator not in ('=', '!='):
+            raise NotImplementedError(_("Unsupported search on transition_status"))
+        # Only lifecycle contacts can have a transition status.
+        candidates = self.search([('contact_type', 'in', ['student', 'alumni', 'withdrawal'])])
+        matching = candidates.filtered(lambda p: p.transition_status == value)
+        positive = (operator == '=')
+        return [('id', 'in' if positive else 'not in', matching.ids)]
     
     @api.depends('benefit_ids', 'benefit_ids.category')
     def _compute_benefit_status(self):
@@ -317,6 +454,12 @@ class ems_contact(models.Model):
         # data; enqueue once the required fields are completed (deduplicated).
         self._gw_enqueue_if_ready()
 
+        # Google Workspace: when the birth date arrives/changes on a student that
+        # already has an account, re-place it in the minor/adult OU accordingly
+        # (accounts created without a birth date start in the minors OU).
+        if 'birth_date' in values:
+            self._gw_enqueue_relocate()
+
         # Google Workspace: archive -> suspend account; unarchive -> reactivate.
         if 'active' in values:
             if values['active']:
@@ -386,19 +529,72 @@ class ems_contact(models.Model):
                 partner_ids=student.ids,
             )
 
+    def _ems_convert_to_student(self):
+        """Convert applicants or ex-students back into active students.
+
+        Invoked by the sale.order confirmation (applicant admission), the
+        transition wizard and the final Esfer@ re-import. Clears the exit
+        metadata but never touches has_graduated, which is a permanent mark.
+        """
+        self.write({
+            'contact_type': 'student',
+            'exit_type': False,
+            'exit_course_id': False,
+            'exit_date': False,
+            'exit_reason': False,
+        })
+
+    def _ems_convert_to_ex_student(self):
+        """Convert students into alumni or withdrawals depending on has_graduated.
+
+        A partner who has graduated from any study at least once is alumni
+        forever; one who never graduated becomes a withdrawal. In both cases the
+        student is detached from its group/level/study so it no longer occupies a
+        place. Used by the withdrawal wizard (immediate) and the transition wizard.
+        """
+        for partner in self:
+            partner.write({
+                'contact_type': 'alumni' if partner.has_graduated else 'withdrawal',
+                'main_group_id': False,
+                'level_id': False,
+                'study_id': False,
+            })
+            # Suspend the corporate Google account (moved to the /alumnos/bajas OU).
+            # sudo: the secretary running the withdrawal has no rights over the queue
+            # job / res.users. Guarded internally by google_ws_enabled and student_email.
+            partner.sudo()._gw_enqueue_suspend()
+
     def _sync_category(self):
+        # The "student" category doubles as the shared student-lifecycle marker: the
+        # four lifecycle types (student, applicant, alumni, withdrawal) all carry it,
+        # so the family-relation conditions (right side = student category) stay valid
+        # through every transition, while family/provider never get it (no
+        # family-to-family relations). Ex-students and applicants additionally carry
+        # their own distinctive tag.
+        student = self.env.ref('ems.partner_category_student')
         category_map = {
-            'student': self.env.ref('ems.partner_category_student'),
+            'student': student,
             'family': self.env.ref('ems.partner_category_family'),
             'provider': self.env.ref('ems.partner_category_provider'),
+            'applicant': student | self.env.ref('ems.partner_category_applicant'),
+            'alumni': student | self.env.ref('ems.partner_category_alumni'),
+            'withdrawal': student | self.env.ref('ems.partner_category_withdrawal'),
         }
-        all_managed = self.env.ref('ems.partner_category_student') | \
-                      self.env.ref('ems.partner_category_family') | \
-                      self.env.ref('ems.partner_category_provider')
+        all_managed = self.env['res.partner.category']
+        for categories in category_map.values():
+            all_managed |= categories
         for record in self:
-            category = category_map.get(record.contact_type)
-            if category:
-                record.category_id = (record.category_id - all_managed) | category
+            categories = category_map.get(record.contact_type)
+            if categories:
+                record.category_id = (record.category_id - all_managed) | categories
+
+    @api.model
+    def _ems_resync_lifecycle_categories(self):
+        """Re-tag applicants and ex-students so they carry the shared student
+        category the family-relation conditions rely on. Idempotent; invoked from a
+        data <function> on upgrade to heal partners created before the shared marker."""
+        partners = self.search([('contact_type', 'in', ('applicant', 'alumni', 'withdrawal'))])
+        partners._sync_category()
 
     def _compute_group_data(self, values):
         # Avoids incongruences between the main_group, level and studies.     

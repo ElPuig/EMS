@@ -27,6 +27,11 @@
                                 class="btn-secondary"
                                 invisible="contact_type != 'student' or not student_email or not google_ws_suspended"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
+                        <button name="action_withdrawal_wizard" type="object"
+                                string="Withdrawal"
+                                class="btn-secondary"
+                                invisible="contact_type != 'student'"
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
                     </header>
                 </xpath>
 
@@ -149,7 +154,18 @@
                                     <span class="badge text-bg-info" invisible="benefit_status != 'bonification'">Bonification</span>
                                     <span class="badge text-bg-secondary" invisible="benefit_status != 'none'">None</span>
                                 </div>
-                            </group> 
+                                <!-- Special educational needs (NEE): benefits-like display.
+                                     Editable dropdown for secretary/admin; read-only badge for
+                                     tutors. Restricted to tutor/secretary/admin, off the portal. -->
+                                <span class="o_form_label" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin">Special educational needs</span>
+                                <div class="o_row" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin">
+                                    <field name="special_needs" nolabel="1" placeholder="None"
+                                           invisible="read_only_user or is_tutor_readonly"/>
+                                    <span class="badge text-bg-danger" invisible="special_needs != 'nee_a' or not (read_only_user or is_tutor_readonly)">NEE-A</span>
+                                    <span class="badge text-bg-warning" invisible="special_needs != 'nee_b' or not (read_only_user or is_tutor_readonly)">NEE-B</span>
+                                    <span class="badge text-bg-secondary" invisible="special_needs or not (read_only_user or is_tutor_readonly)">None</span>
+                                </div>
+                            </group>
 
                             <separator name="data" string="Authorizations"/>
                             <group>
@@ -260,6 +276,52 @@
                                 <field name="rejection_reason" optional="hide"/>
                             </list>
                         </field>
+                    </page>
+                </xpath>
+
+                <!-- Applicant data (pre-enrollment intake). Placed first so it is the
+                     default open page for applicants; for students it is invisible and the
+                     notebook falls through to "Student data". -->
+                <xpath expr="//page[@name='student']" position="before">
+                    <page name="applicant" string="Applicant data"
+                          invisible="contact_type != 'applicant'">
+                        <group cols="2">
+                            <group string="Pre-enrollment">
+                                <field name="study_id" required="contact_type == 'applicant'"/>
+                                <field name="preinscription_shift" required="contact_type == 'applicant'"/>
+                                <field name="preinscription_course"/>
+                                <field name="student_id" required="contact_type == 'applicant'"/>
+                                <!-- Plain field so it matches its neighbours; ORM groups keep
+                                     it staff-only and off the portal. -->
+                                <field name="special_needs" readonly="read_only_user or is_tutor_readonly"/>
+                            </group>
+                            <group string="Personal data">
+                                <field name="email" widget="email" required="contact_type == 'applicant'"/>
+                                <field name="document_id"/>
+                                <field name="birth_date"/>
+                                <field name="phone"/>
+                                <field name="mobile"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+
+                <!-- Former student data (alumni / withdrawals). The active-student
+                     pages hide themselves via invisible="contact_type != 'student'". -->
+                <xpath expr="//page[@name='documentation']" position="after">
+                    <page name="former_student" string="Former student"
+                          invisible="contact_type not in ['alumni', 'withdrawal']">
+                        <group cols="2">
+                            <group>
+                                <field name="exit_type"/>
+                                <field name="exit_course_id"/>
+                                <field name="exit_date"/>
+                            </group>
+                            <group>
+                                <field name="has_graduated"/>
+                            </group>
+                            <field name="exit_reason"/>
+                        </group>
                     </page>
                 </xpath>
 

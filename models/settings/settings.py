@@ -18,6 +18,7 @@ class ems_settings(models.TransientModel):
    current_course_id = fields.Many2one(comodel_name="ems.course", related="company_id.current_course_id", readonly=False)
 
    secretariat_email = fields.Char(related="company_id.secretariat_email", readonly=False)
+   center_code = fields.Char(related="company_id.center_code", readonly=False)
 
    limesurvey_api = fields.Char(related="company_id.limesurvey_api", readonly=False)
    limesurvey_usr = fields.Char(related="company_id.limesurvey_usr", readonly=False)

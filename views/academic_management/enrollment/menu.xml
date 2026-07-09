@@ -26,26 +26,26 @@
                   parent="menu_ems_academic_management"
                   sequence="10"/>
 
+            <menuitem id="menu_students_tutor"
+                      name="Enrollment proposal"
+                      parent="menu_ems_enrollment"
+                      action="ems.action_student_group_enrollment"
+                      groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor"
+                      sequence="20"/>
+
             <menuitem id="menu_ems_pre_enrollments"
                       name="Pre-enrollments"
                       parent="menu_ems_enrollment"
                       action="action_ems_pre_enrollments"
                       groups="ems.group_academic_admin,ems.group_secretary"
-                      sequence="10"/>
+                      sequence="30"/>
 
             <menuitem id="menu_ems_enrollments"
                       name="Enrollments"
                       parent="menu_ems_enrollment"
                       action="action_ems_enrollments"
                       groups="ems.group_academic_admin,ems.group_secretary"
-                      sequence="20"/>
-
-            <menuitem id="menu_students_tutor"
-                      name="Enrollment proposal"
-                      parent="menu_ems_enrollment"
-                      action="ems.action_student_group_enrollment"
-                      groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor"
-                      sequence="30"/>
+                      sequence="40"/>
     </data>
 </odoo>
             <!-- para pre-enrollments action="sale.action_quotations" -->

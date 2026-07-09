@@ -32,6 +32,9 @@
                         <button name="action_enrollment_proposal"
                                 type="object"
                                 string="Enrollment proposal"/>
+                        <button name="action_graduation_wizard"
+                                type="object"
+                                string="Graduation"/>
                     </header>
                     <field name="name" string="Student"/>
                     <field name="main_group_id" optional="show"/>
@@ -55,6 +58,12 @@
                            decoration-warning="ems_enrollment_state == 'draft'"
                            decoration-info="ems_enrollment_state == 'sent'"
                            decoration-success="ems_enrollment_state == 'sale'"/>
+
+                    <field name="transition_status" optional="show" widget="badge"
+                           help="Graduated = marked for graduation (deferred) · Enrolled = already has a next-course enrollment · No destination = neither yet"
+                           decoration-success="transition_status == 'graduated'"
+                           decoration-info="transition_status == 'enrolled'"
+                           decoration-muted="transition_status == 'missing'"/>
 
                                     </list>
                                 </field>

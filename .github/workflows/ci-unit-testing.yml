@@ -74,7 +74,7 @@ jobs:
 
       - name: Update external dependencies
         run: |
-          sudo -u odoo /opt/modules/ems/update.sh
+          sudo /opt/modules/ems/update.sh
 
       - name: Upgrade EMS module
         run: |

@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.19.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.19.2',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -93,6 +93,7 @@
             'views/community/contact/import_wizard.xml',
             'views/community/contact/update_wizard.xml',            
             'views/community/contact/portal_access_wizard.xml',
+            'views/community/contact/exit_wizards.xml',
             'views/community/contact/student_document.xml',
 
             'views/community/group/list.xml',
@@ -228,6 +229,9 @@
             'views/academic_management/enrollment/enrollment_proposal_wizard.xml',
             'views/academic_management/enrollment/enrollment_search.xml',
             'views/academic_management/enrollment/menu.xml',
+            'views/academic_management/enrollment/no_destination.xml',
+            'views/academic_management/enrollment/applicants.xml',
+            'views/academic_management/enrollment/applicant_import_wizard.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_form.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
             'views/academic_management/enrollment_configuration/enrollment_authorization_search.xml',
@@ -286,6 +290,7 @@
         
         ### Data entries (do not alter the order) ###
         'data/main/res.partner.category.xml',
+        'data/main/resync_lifecycle_categories.xml',
         'data/main/ems.space_type.csv',
         'data/main/hr.work.location.csv',
         'data/main/ems.contact.relation.type.xml',

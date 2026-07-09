@@ -20,6 +20,7 @@
                     <field name="ems_study_id" optional="show"/>
                     <field name="shift" optional="show"/>
                     <field name="ems_course_id" optional="show"/>
+                    <field name="ems_group_id" optional="show"/>
                 </xpath>
 
                 <xpath expr="//field[@name='state']" position="attributes">

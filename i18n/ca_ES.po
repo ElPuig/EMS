@@ -3699,6 +3699,7 @@ msgstr ""
 #: code:addons/ems/models/contacts/contact.py:0
 #: model:ir.ui.menu,name:ems.menu_students_tutor
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_list
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
 msgid "Enrollment proposal"
 msgstr "Propostes de matrícula"
@@ -4364,6 +4365,7 @@ msgstr "Atorgar accés"
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_list
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 msgid "Group"
 msgstr "Grup"
@@ -8094,12 +8096,14 @@ msgstr "Carrer 2"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__student_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice_line__recipient_type__student
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__student
 #: model:res.partner.category,name:ems.partner_category_student
@@ -8121,6 +8125,7 @@ msgstr "Carrer 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 msgid "Student"
 msgstr "Estudiant"
@@ -8256,6 +8261,7 @@ msgstr "Assistència dels estudiants"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
 msgid "Students"
 msgstr "Estudiants"
 
@@ -8302,7 +8308,9 @@ msgstr "Estudis per a matrícula"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search
 #: model_terms:ir.ui.view,arch_db:ems.view_sale_order_template_search_inherit_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 msgid "Study"
 msgstr "Estudi"
 
@@ -9873,9 +9881,10 @@ msgid "↳ Other enrollment concepts"
 msgstr "↳ Altres conceptes de matrícula"
 
 #. module: ems
-#: model:ir.model,name:ems.communication
-msgid "This communication cannot be cancelled: it has already been sent or is being processed."
-msgstr "Aquesta comunicació no es pot cancel·lar: ja ha estat enviada o s'està processant."
+#. odoo-python
+#: code:addons/ems/models/communications/communication.py:0
+msgid "(New communication)"
+msgstr "(Nova comunicació)"
 
 #. module: ems
 #. odoo-javascript
@@ -10181,12 +10190,6 @@ msgstr ""
 "Cal sol·licitar una correcció per a l'hora d'entrada i/o de sortida."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/communication.py:0
-msgid "(New communication)"
-msgstr "(Nova comunicació)"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_communication_line__communication_id
 #: model_terms:ir.ui.view,arch_db:ems.view_communication_form
 msgid "Communication"
@@ -10242,6 +10245,15 @@ msgstr "Només es poden enviar comunicacions en estat esborrany."
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 msgid "Open Enrollment"
 msgstr "Obrir la matrícula"
+
+#. module: ems
+#: model:ir.model,name:ems.communication
+msgid ""
+"This communication cannot be cancelled: it has already been sent or is being"
+" processed."
+msgstr ""
+"Aquesta comunicació no es pot cancel·lar: ja ha estat enviada o s'està "
+"processant."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_subject_id
@@ -10586,3 +10598,758 @@ msgstr "Notes d'empresa aplicades"
 #: code:addons/ems/models/grades/grade_import_wizard.py:0
 msgid "openpyxl is required to import xlsx files."
 msgstr "openpyxl és necessari per importar fitxers xlsx."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__applicant
+#: model:res.partner.category,name:ems.partner_category_applicant
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_list
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
+msgid "Applicant"
+msgstr "Sol·licitant"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__alumni
+#: model:res.partner.category,name:ems.partner_category_alumni
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Alumni"
+msgstr "Graduats/des"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__withdrawal
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__exit_type__withdrawal
+#: model:res.partner.category,name:ems.partner_category_withdrawal
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
+msgid "Withdrawal"
+msgstr "Baixa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Withdrawals"
+msgstr "Baixes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__exit_type__graduation
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_graduation_wizard_form
+msgid "Graduation"
+msgstr "Graduació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__has_graduated
+#: model:ir.model.fields,field_description:ems.field_res_users__has_graduated
+msgid "Has graduated"
+msgstr "S'ha graduat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__exit_type
+#: model:ir.model.fields,field_description:ems.field_res_users__exit_type
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Exit type"
+msgstr "Tipus de sortida"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__exit_course_id
+#: model:ir.model.fields,field_description:ems.field_res_users__exit_course_id
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Exit course"
+msgstr "Curs de sortida"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__exit_date
+#: model:ir.model.fields,field_description:ems.field_res_users__exit_date
+msgid "Exit date"
+msgstr "Data de sortida"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__exit_reason
+#: model:ir.model.fields,field_description:ems.field_res_users__exit_reason
+msgid "Exit reason"
+msgstr "Motiu de sortida"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Former student"
+msgstr "Antic/ga alumne/a"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Former students"
+msgstr "Antic alumnat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "%s graduation mark(s) removed."
+msgstr "Marques de graduació esborrades: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "%s kept (sibling still enrolled)"
+msgstr "Accessos conservats (germà/na matriculat/da): %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "%s pending enrolment(s) will be cancelled"
+msgstr "Es cancel·laran %s matrícula(es) pendent(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "%s portal access(es) revoked"
+msgstr "Accessos al portal revocats: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "%s student(s) marked as graduated."
+msgstr "Graduació marcada a %s estudiant(s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "%s student(s) withdrawn"
+msgstr "Baixes tramitades: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "Already enrolled for the next course — graduation is incompatible"
+msgstr "Ja té matrícula per al curs vinent — la graduació és incompatible"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "Only the secretary or an administrator can register withdrawals."
+msgstr "Només secretaria o administració poden registrar baixes."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Unsupported search on transition_status"
+msgstr "Cerca no admesa en transition_status"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/curriculum/study.py:0
+msgid "Unsupported search on uses_enrollment_flow"
+msgstr "Cerca no admesa en uses_enrollment_flow"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__already_marked
+msgid "Already marked"
+msgstr "Ja marcat"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__transition_status__enrolled
+msgid "Enrolled next course"
+msgstr "Amb matrícula (per al curs vinent)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__transition_status__graduated
+msgid "Graduated"
+msgstr "Graduat/da"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__transition_status__missing
+msgid "No destination"
+msgstr "Sense destí"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__transition_status
+#: model:ir.model.fields,field_description:ems.field_res_users__transition_status
+msgid "Transition status"
+msgstr "Estat de transició"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__uses_enrollment_flow
+msgid "Uses enrollment flow"
+msgstr "Utilitza flux de matrícula"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__warning
+msgid "Warning"
+msgstr "Avís"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_graduation_wizard
+msgid "Graduation wizard (deferred exit mark)"
+msgstr "Assistent de graduació (marca de sortida diferida)"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_graduation_wizard_line
+msgid "Graduation wizard line (preview)"
+msgstr "Línia de l'assistent de graduació (vista prèvia)"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_withdrawal_wizard
+msgid "Withdrawal wizard (immediate exit)"
+msgstr "Assistent de baixa (sortida immediata)"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_withdrawal_wizard_line
+msgid "Withdrawal wizard line (preview)"
+msgstr "Línia de l'assistent de baixa (vista prèvia)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
+msgid "Enrollment-flow studies (suspicious)"
+msgstr "Estudis amb flux de matrícula (sospitós)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
+msgid "No enrollment flow (expected)"
+msgstr "Sense flux de matrícula (esperat)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_graduation_wizard_form
+msgid "Mark graduation"
+msgstr "Marcar graduació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_graduation_wizard_form
+msgid "Unmark"
+msgstr "Desmarcar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
+msgid "Withdraw"
+msgstr "Donar de baixa"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_students_no_destination
+#: model:ir.ui.menu,name:ems.menu_students_no_destination
+msgid "Students without destination"
+msgstr "Estudiants sense destí"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
+msgid "This withdraws the selected students immediately. Continue?"
+msgstr ""
+"Això donarà de baixa els estudiants seleccionats immediatament. Continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_graduation_wizard_form
+msgid ""
+"Marks the selected students as graduated (deferred mark). It sets the\n"
+"                            permanent \"Has graduated\" flag; the conversion to alumni and the portal\n"
+"                            revocation run later, in the transition wizard."
+msgstr ""
+"Marca els estudiants seleccionats com a graduats (marca diferida). Activa "
+"l'indicador permanent «S'ha graduat»; la conversió a exalumne i la revocació"
+" del portal s'executen més tard, a l'assistent de transició."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
+msgid ""
+"Immediate effect: the selected students are withdrawn now — converted to\n"
+"                            alumni/withdrawal, detached from group/level/study, removed from active\n"
+"                            attendance templates, pending enrolments cancelled and portal access revoked\n"
+"                            (family access kept if another child is still enrolled)."
+msgstr ""
+"Efecte immediat: els estudiants seleccionats es donen de baixa ara — es "
+"converteixen a graduat/baixa, es desvinculen de grup/nivell/estudis, es "
+"treuen de les plantilles d'assistència actives, es cancel·len les matrícules"
+" pendents i es revoca l'accés al portal (l'accés de la família es conserva "
+"si un altre fill/a continua matriculat/da)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "Not in the last course of the study — cannot graduate"
+msgstr "No està a l'últim curs de l'estudi — no es pot graduar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "%s skipped (not in the last course)."
+msgstr "S'ometen %s (no estan a l'últim curs)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__blocked
+msgid "Blocked"
+msgstr "Blocat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+msgid ""
+"Graduated = marked for graduation (deferred) · Enrolled = already has a "
+"next-course enrollment · No destination = neither yet"
+msgstr ""
+"Graduat/da = marcat per a graduació (diferida) · Amb matrícula = ja té "
+"matrícula del curs vinent · Sense destí = cap de les dues encara"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__ems_group_id
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_group_id
+msgid "Destination group"
+msgstr "Grup destí"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__dest_study_id
+msgid "Destination study"
+msgstr "Estudi destí"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__preinscription_shift
+#: model:ir.model.fields,field_description:ems.field_res_users__preinscription_shift
+msgid "Preinscription shift"
+msgstr "Torn de preinscripció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Applicant data"
+msgstr "Dades del sol·licitant"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_ems_applicants
+#: model:ir.ui.menu,name:ems.menu_ems_applicants
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_list
+msgid "Preinscription"
+msgstr "Pre-inscripció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Pre-enrollment"
+msgstr "Preinscripció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Personal data"
+msgstr "Dades personals"
+
+#. module: ems
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Destination group mismatch"
+msgstr "Grup destí incongruent"
+
+#. module: ems
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "The group shift does not match the enrollment shift."
+msgstr "El torn del grup no coincideix amb el torn de la matrícula."
+
+#. module: ems
+#: code:addons/ems/models/enrollment/enrollment.py:0
+#, python-format
+msgid ""
+"The group course (%(group)s) does not match the enrollment template course "
+"(%(template)s)."
+msgstr ""
+"El curs del grup (%(group)s) no coincideix amb el curs de la plantilla de "
+"matrícula (%(template)s)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_sale_order__ems_group_id
+msgid ""
+"Group the student will be placed in: in bulk when the destination study is "
+"transitioned, or individually when a latecomer confirms after that "
+"transition. Left empty until known."
+msgstr ""
+"Grup on s'ubicarà l'alumne: en bloc quan l'estudi destí faci la transició, o"
+" individualment quan un ressagat confirmi després d'aquesta transició. Es "
+"deixa buit fins a conèixer-lo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__preinscription_shift
+#: model:ir.model.fields,help:ems.field_res_users__preinscription_shift
+msgid ""
+"Shift granted to the applicant at pre-enrollment (before having a group)."
+msgstr ""
+"Torn concedit al sol·licitant en la preinscripció (abans de tenir grup)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_enrollment_proposal_wizard__ems_group_id
+msgid ""
+"Suggested group written to every generated enrollment. Leave empty to let "
+"each student get its own suggested group."
+msgstr ""
+"Grup suggerit que s'escriu a cada matrícula generada. Deixa'l buit perquè "
+"cada alumne rebi el seu propi grup suggerit."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
+msgid ""
+"Written to every generated enrollment. Leave empty to suggest one group per "
+"student."
+msgstr ""
+"S'escriu a cada matrícula generada. Deixa'l buit per suggerir un grup per "
+"alumne."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__transition_status__unplaced
+msgid "Enrolled without group"
+msgstr "Amb matrícula sense grup"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
+msgid "Students without enrollment"
+msgstr "Estudiants sense matrícula"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
+msgid "Students without group"
+msgstr "Estudiants sense grup"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination
+msgid "Suggest destination group"
+msgstr "Suggerir grup destí"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#, python-format
+msgid "%(filled)s destination group(s) filled."
+msgstr "%(filled)s grup(s) destí assignat(s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#, python-format
+msgid "%(skipped)s skipped (no enrollment)."
+msgstr "%(skipped)s sense matrícula (s'ometen)."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_course__1
+msgid "1r"
+msgstr "1r"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_course__2
+msgid "2n"
+msgstr "2n"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_course__3
+msgid "3r"
+msgstr "3r"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_course__4
+msgid "4t"
+msgstr "4t"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"<span class=\"badge text-bg-danger\" invisible=\"special_needs != 'nee_a' or not (read_only_user or is_tutor_readonly)\">NEE-A</span>\n"
+"                                    <span class=\"badge text-bg-warning\" invisible=\"special_needs != 'nee_b' or not (read_only_user or is_tutor_readonly)\">NEE-B</span>\n"
+"                                    <span class=\"badge text-bg-secondary\" invisible=\"special_needs or not (read_only_user or is_tutor_readonly)\">None</span>"
+msgstr ""
+"<span class=\"badge text-bg-danger\" invisible=\"special_needs != 'nee_a' or not (read_only_user or is_tutor_readonly)\">NEE-A</span>\n"
+"                                    <span class=\"badge text-bg-warning\" invisible=\"special_needs != 'nee_b' or not (read_only_user or is_tutor_readonly)\">NEE-B</span>\n"
+"                                    <span class=\"badge text-bg-secondary\" invisible=\"special_needs or not (read_only_user or is_tutor_readonly)\">Cap</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_import_wizard_form
+msgid ""
+"<strong>Import process:</strong><br/>\n"
+"                                This wizard imports the applicants granted a place at this center from a\n"
+"                                GEDAC preinscription file (Excel <em>.xlsx</em> or <em>.csv</em>). The import will:<br/>\n"
+"                                • Create new applicants (contact type <em>Applicant</em>, no group) matched by RALC<br/>\n"
+"                                • Fill the granted study and pre-enrollment shift from the assignment<br/>\n"
+"                                • Store the provenance data (origin center and studies) in the notes<br/>\n"
+"                                • Update the personal data of already-known contacts (active students keep their group)<br/>\n"
+"                                • Skip rows assigned to another center or with no place granted<br/>\n"
+"                                <br/>\n"
+"                                Select the GEDAC file (.xlsx or .csv) and click \"Import applicants\" to proceed."
+msgstr ""
+"<strong>Procés d'importació:</strong><br/>\n"
+"                                Aquest auxiliar importa els aspirants amb plaça concedida en aquest centre des d'un\n"
+"                                fitxer de preinscripció GEDAC (Excel <em>.xlsx</em> o <em>.csv</em>). La importació:<br/>\n"
+"                                • Crea nous aspirants (tipus de contacte <em>Aspirant</em>, sense grup) fent coincidir pel RALC<br/>\n"
+"                                • Omple l'estudi concedit i el torn de preinscripció des de l'assignació<br/>\n"
+"                                • Desa les dades de procedència (centre i estudis d'origen) a les notes<br/>\n"
+"                                • Actualitza les dades personals dels contactes ja coneguts (els alumnes actius conserven el grup)<br/>\n"
+"                                • Omet les files assignades a un altre centre o sense plaça concedida<br/>\n"
+"                                <br/>\n"
+"                                Seleccioneu el fitxer GEDAC (.xlsx o .csv) i feu clic a \"Importar aspirants\" per continuar."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_applicant_import_wizard
+msgid "Applicant import wizard (GEDAC preinscription xlsx/csv)"
+msgstr "Auxiliar d'importació d'aspirants (preinscripció GEDAC xlsx/csv)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Applicants created:"
+msgstr "Aspirants creats:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Applicants updated:"
+msgstr "Aspirants actualitzats:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Application number"
+msgstr "Número de sol·licitud"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Center Data"
+msgstr "Dades del centre"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__center_code
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__center_code
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Center code"
+msgstr "Codi de centre"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid ""
+"Could not find the header row. Make sure the file contains a column 'Ident. "
+"RALC'."
+msgstr ""
+"No s'ha trobat la fila de capçalera. Assegureu-vos que el fitxer conté una "
+"columna 'Ident. RALC'."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__preinscription_course
+#: model:ir.model.fields,help:ems.field_res_users__preinscription_course
+msgid "Course granted to the applicant at pre-enrollment (1st to 4th)."
+msgstr "Curs concedit a l'aspirant a la preinscripció (de 1r a 4t)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__file
+msgid "GEDAC file (xlsx or csv)"
+msgstr "Fitxer GEDAC (xlsx o csv)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace account moved to OU %(ou)s."
+msgstr "Compte de Google Workspace mogut a la OU %(ou)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "High-level athlete"
+msgstr "Esportista d'alt nivell"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Import GEDAC"
+msgstr "Importació GEDAC"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_import_wizard_form
+msgid "Import applicants"
+msgstr "Importar aspirants"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_import_wizard_form
+msgid "Import applicants from GEDAC"
+msgstr "Importar aspirants des de GEDAC"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/import_gedac_cog_menu.xml:0
+#: model:ir.actions.act_window,name:ems.action_applicant_import_wizard
+msgid "Import from GEDAC"
+msgstr "Importar des de GEDAC"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
+msgid "NEE"
+msgstr "NEE"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__special_needs__nee_a
+msgid "NEE-A"
+msgstr "NEE-A"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__special_needs__nee_b
+msgid "NEE-B"
+msgstr "NEE-B"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Not assigned to this center"
+msgstr "No assignat a aquest centre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Official Departament d'Educació center code, leading zero included (e.g. "
+"08028047). Used by the GEDAC applicant import to keep only the applicants "
+"assigned to this center; the comparison ignores the leading zero the Excel "
+"drops."
+msgstr ""
+"Codi de centre oficial del Departament d'Educació, amb el zero inicial (p. "
+"ex. 08028047). L'utilitza la importació d'aspirants GEDAC per quedar-se "
+"només amb els assignats a aquest centre; la comparació ignora el zero "
+"inicial que l'Excel elimina."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Origin center"
+msgstr "Centre de procedència"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Origin center code"
+msgstr "Codi centre de procedència"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Origin course"
+msgstr "Curs de procedència"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Origin study"
+msgstr "Ensenyament de procedència"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Origin study code"
+msgstr "Codi ensenyament de procedència"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Preference granted"
+msgstr "Petició atesa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__preinscription_course
+#: model:ir.model.fields,field_description:ems.field_res_users__preinscription_course
+msgid "Preinscription course"
+msgstr "Curs de preinscripció"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Provenance"
+msgstr "Procedència"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Requested study (1st choice)"
+msgstr "Estudi sol·licitat (1a opció)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Rows skipped (not assigned to this center):"
+msgstr "Files omeses (no assignades a aquest centre):"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__special_needs
+#: model:ir.model.fields,field_description:ems.field_res_users__special_needs
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Special educational needs"
+msgstr "Necessitats educatives especials"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__special_needs
+#: model:ir.model.fields,help:ems.field_res_users__special_needs
+msgid ""
+"Special educational needs typology from the preinscription: type A "
+"(disability, ASD, serious behavioural/developmental/mental disorders); type "
+"B (specially disadvantaged socio-economic or socio-cultural situation). "
+"Leave empty for ordinary students."
+msgstr ""
+"Tipologia de necessitats educatives especials de la preinscripció: tipus A "
+"(discapacitat, TEA, trastorns greus de conducta/desenvolupament/mentals); "
+"tipus B (situació socioeconòmica o sociocultural especialment desafavorida)."
+" Deixeu-ho buit per a alumnes ordinaris."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Study not found: %s / %s"
+msgstr "Estudi no trobat: %s / %s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_name
+msgid "Subject name"
+msgstr "Nom de l'assignatura"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid ""
+"The center code is not configured. Set it in Settings > EMS Management > "
+"Center Data before importing GEDAC applicants."
+msgstr ""
+"El codi de centre no està configurat. Configureu-lo a Configuració > EMS "
+"Management > Dades del centre abans d'importar aspirants GEDAC."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "The csv file is empty."
+msgstr "El fitxer csv és buit."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Yes"
+msgstr "Sí"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__students_file
+msgid "Active students report (CSV)"
+msgstr "Informe d'alumnes actius (CSV)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid "Already active students (left untouched):"
+msgstr "Alumnes ja actius (no modificats):"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid ""
+"Already an active student (internal continuer, pending course transition): "
+"left untouched"
+msgstr ""
+"Ja és alumne actiu (continuista intern, pendent de transició de curs): no "
+"modificat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_import_wizard_form
+msgid "Download active students (CSV)"
+msgstr "Descarregar alumnes actius (CSV)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+msgid ""
+"Internal continuers still enrolled (e.g. CFGM to CFGS before the course "
+"transition). Re-run this import after their transition to set them up as "
+"applicants for the new cycle. Their data is in the 'active students' CSV "
+"below."
+msgstr ""
+"Continuistes interns encara matriculats (p. ex. de CFGM a CFGS abans de la "
+"transició de curs). Torneu a llançar aquesta importació després de la seva "
+"transició per donar-los d'alta com a aspirants del nou cicle. Les seves "
+"dades són al CSV d'\"alumnes actius\" de sota."

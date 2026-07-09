@@ -3699,6 +3699,7 @@ msgstr ""
 #: code:addons/ems/models/contacts/contact.py:0
 #: model:ir.ui.menu,name:ems.menu_students_tutor
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_list
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
 msgid "Enrollment proposal"
 msgstr "Propostes de matrícula"
@@ -8309,6 +8310,7 @@ msgstr "Estudis per a matrícula"
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 msgid "Study"
 msgstr "Estudi"
 
@@ -10600,6 +10602,8 @@ msgstr "openpyxl és necessari per importar fitxers xlsx."
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__applicant
 #: model:res.partner.category,name:ems.partner_category_applicant
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_list
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 msgid "Applicant"
 msgstr "Sol·licitant"
 
@@ -10871,3 +10875,115 @@ msgid ""
 "Graduated = marked for graduation (deferred) · Enrolled = already has a "
 "next-course enrollment · No destination = neither yet"
 msgstr "Graduat/da = marcat per a graduació (diferida) · Amb matrícula = ja té matrícula del curs vinent · Sense destí = cap de les dues encara"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__ems_group_id
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_group_id
+msgid "Destination group"
+msgstr "Grup destí"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__dest_study_id
+msgid "Destination study"
+msgstr "Estudi destí"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__preinscription_shift
+#: model:ir.model.fields,field_description:ems.field_res_users__preinscription_shift
+msgid "Preinscription shift"
+msgstr "Torn de preinscripció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Applicant data"
+msgstr "Dades del sol·licitant"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_ems_applicants
+#: model:ir.ui.menu,name:ems.menu_ems_applicants
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_list
+msgid "Preinscription"
+msgstr "Pre-inscripció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Pre-enrollment"
+msgstr "Preinscripció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Personal data"
+msgstr "Dades personals"
+
+#. module: ems
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Destination group mismatch"
+msgstr "Grup destí incongruent"
+
+#. module: ems
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "The group shift does not match the enrollment shift."
+msgstr "El torn del grup no coincideix amb el torn de la matrícula."
+
+#. module: ems
+#: code:addons/ems/models/enrollment/enrollment.py:0
+#, python-format
+msgid "The group course (%(group)s) does not match the enrollment template course (%(template)s)."
+msgstr "El curs del grup (%(group)s) no coincideix amb el curs de la plantilla de matrícula (%(template)s)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_sale_order__ems_group_id
+msgid "Group the student will be placed in: in bulk when the destination study is transitioned, or individually when a latecomer confirms after that transition. Left empty until known."
+msgstr "Grup on s'ubicarà l'alumne: en bloc quan l'estudi destí faci la transició, o individualment quan un ressagat confirmi després d'aquesta transició. Es deixa buit fins a conèixer-lo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__preinscription_shift
+#: model:ir.model.fields,help:ems.field_res_users__preinscription_shift
+msgid "Shift granted to the applicant at pre-enrollment (before having a group)."
+msgstr "Torn concedit al sol·licitant en la preinscripció (abans de tenir grup)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_enrollment_proposal_wizard__ems_group_id
+msgid "Suggested group written to every generated enrollment. Leave empty to let each student get its own suggested group."
+msgstr "Grup suggerit que s'escriu a cada matrícula generada. Deixa'l buit perquè cada alumne rebi el seu propi grup suggerit."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
+msgid "Written to every generated enrollment. Leave empty to suggest one group per student."
+msgstr "S'escriu a cada matrícula generada. Deixa'l buit per suggerir un grup per alumne."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__transition_status__unplaced
+msgid "Enrolled without group"
+msgstr "Amb matrícula sense grup"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
+msgid "Students without enrollment"
+msgstr "Estudiants sense matrícula"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
+msgid "Students without group"
+msgstr "Estudiants sense grup"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination
+msgid "Suggest destination group"
+msgstr "Suggerir grup destí"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#, python-format
+msgid "%(filled)s destination group(s) filled."
+msgstr "%(filled)s grup(s) destí assignat(s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#, python-format
+msgid "%(skipped)s skipped (no enrollment)."
+msgstr "%(skipped)s sense matrícula (s'ometen)."

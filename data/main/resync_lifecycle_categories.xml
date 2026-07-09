@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Heal applicants/ex-students created before the "student" category became the
+         shared student-lifecycle marker, so the family-relation type conditions loaded
+         right after validate. Idempotent; runs on every upgrade. -->
+    <function model="res.partner" name="_ems_resync_lifecycle_categories"/>
+</odoo>

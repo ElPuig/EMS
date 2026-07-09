@@ -4,7 +4,7 @@ MODULES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 echo "Updating EMS references..."
 
 echo "# Updating apt package index..."
-apt-get update -qq
+sudo apt-get update -qq
 
 for dir in "$MODULES_DIR"/*/; do
     if [ -d "$dir/.git" ]; then

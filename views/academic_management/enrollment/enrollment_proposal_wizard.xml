@@ -7,10 +7,20 @@
             <field name="arch" type="xml">
                 <form string="Enrollment proposal">
                     <sheet>
+                        <!-- Restricted to the same groups as allow_other_study: the
+                             field is stripped from the arch for anyone else, and a
+                             modifier referencing a missing field breaks the form. -->
+                        <div class="alert alert-info" role="alert"
+                             groups="ems.group_secretary,ems.group_academic_admin"
+                             invisible="not allow_other_study">
+                            Templates from every study are listed. Check the destination study and group before creating the enrollments.
+                        </div>
                         <group>
                             <field name="available_template_ids" invisible="1"/>
                             <field name="dest_study_id" invisible="1"/>
-                            <field name="template_id"
+                            <field name="allow_other_study"
+                                   groups="ems.group_secretary,ems.group_academic_admin"/>
+                            <field name="template_id" required="1"
                                    domain="[('id', 'in', available_template_ids)]"
                                    options="{'no_create': True}"/>
                             <field name="ems_group_id" options="{'no_create': True}"

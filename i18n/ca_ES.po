@@ -11436,3 +11436,50 @@ msgstr "%(count)s matrícula/es enviada/es per correu i marcada/es com a enviade
 #: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
 msgid "Email the enrollment proposal to the selected enrollments and mark the drafts as sent?"
 msgstr "Enviar per correu la proposta de matrícula a les seleccionades i marcar els esborranys com a enviats?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__allow_other_study
+msgid "Enroll in a different study"
+msgstr "Matricular en altres estudis"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_enrollment_proposal_wizard__allow_other_study
+msgid ""
+"List the enrollment templates of every study instead of only the students' "
+"own one. Needed to enroll a current student into a new study (e.g. an ESO "
+"student granted a place in SMX)."
+msgstr ""
+"Mostra les plantilles de matrícula de tots els estudis, no només les dels "
+"estudis de l'estudiant. Necessari per matricular un estudiant actual en uns "
+"estudis nous (p. ex. un estudiant d'ESO amb plaça assignada a SMX)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
+msgid "Select at least one student or applicant."
+msgstr "Selecciona com a mínim un estudiant o sol·licitant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
+msgid "Select an enrollment template."
+msgstr "Selecciona una plantilla de matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
+msgid ""
+"Only the secretary can enroll a student into a study other than its own: "
+"%(students)s"
+msgstr ""
+"Només secretaria pot matricular un estudiant en uns estudis diferents dels "
+"seus: %(students)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
+msgid ""
+"Templates from every study are listed. Check the destination study and group"
+" before creating the enrollments."
+msgstr ""
+"Es mostren les plantilles de tots els estudis. Comprova l'estudi i el grup "
+"de destí abans de crear les matrícules."

@@ -1,11 +1,13 @@
 from datetime import date
 
+from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
 
 class TestEnrollmentPlacement(TransactionCase):
     """Fase 4: destination group, applicant admission on confirm, placement helper
-    and the enrollment-proposal group suggestion."""
+    and the enrollment-proposal group suggestion. Also covers the cross-study
+    proposal (enrolling a current student into a study other than its own)."""
 
     @classmethod
     def setUpClass(cls):
@@ -42,6 +44,41 @@ class TestEnrollmentPlacement(TransactionCase):
         cls.template2 = cls.env['sale.order.template'].create({
             'name': 'Placement Template C2', 'ems_study_id': cls.study.id, 'study_year': 2})
         cls.Wizard = cls.env['ems.enrollment_proposal_wizard']
+
+        # A second study (the cross-study destination) with its own first-course
+        # groups, and a third one with no template at all: the situation a GEDAC
+        # internal continuer lands in.
+        cls.study2 = cls.env['ems.study'].create({
+            'code': 'PLC002', 'acronym': 'PLS2', 'name': 'Placement Study 2',
+            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id})
+        cls.study_no_template = cls.env['ems.study'].create({
+            'code': 'PLC003', 'acronym': 'PLS3', 'name': 'Placement Study 3',
+            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id})
+        cls.s2_g1a = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'A', 'shift': 'morning',
+            'level_id': cls.level.id, 'study_id': cls.study2.id})
+        cls.s2_g1a_aft = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'A', 'shift': 'afternoon',
+            'level_id': cls.level.id, 'study_id': cls.study2.id})
+        cls.template_s2 = cls.env['sale.order.template'].create({
+            'name': 'Placement Template S2 C1', 'ems_study_id': cls.study2.id,
+            'study_year': 1})
+
+        # Only the secretary (and the academic admin) may cross studies; the tutor
+        # keeps proposing same-study renewals.
+        cls.secretary = cls._ems_user('plc_secretary', 'ems.group_secretary')
+        cls.tutor = cls._ems_user('plc_tutor', 'ems.group_tutor')
+
+    @classmethod
+    def _ems_user(cls, login, group_xmlid):
+        return cls.env['res.users'].create({
+            'name': login,
+            'login': login,
+            'groups_id': [
+                (4, cls.env.ref('base.group_user').id),
+                (4, cls.env.ref(group_xmlid).id),
+            ],
+        })
 
     def _order(self, partner, group=False, shift='morning', lines=True):
         vals = {
@@ -211,3 +248,95 @@ class TestEnrollmentPlacement(TransactionCase):
         self.assertTrue(order)
         self.assertEqual(order.ems_group_id, self.g1a_aft)
         self.assertEqual(order.shift, 'afternoon')
+
+    # --- cross-study proposal ------------------------------------------------
+
+    def _wizard_as(self, user, students, **vals):
+        return self.Wizard.with_user(user).with_context(active_ids=students.ids).create(vals)
+
+    def _student(self, name, study=None, group=None):
+        return self.env['res.partner'].create({
+            'name': name, 'contact_type': 'student',
+            'study_id': study.id if study else False,
+            'main_group_id': group.id if group else False})
+
+    def test_no_template_opens_wizard_for_secretary(self):
+        # The GEDAC continuer: its current study has no template, so the wizard
+        # opens in free mode instead of raising, listing the whole catalogue.
+        student = self._student('Cross NoTpl', self.study_no_template)
+        wizard = self._wizard_as(self.secretary, student)
+        self.assertTrue(wizard.allow_other_study)
+        self.assertIn(self.template1, wizard.available_template_ids)
+        self.assertIn(self.template_s2, wizard.available_template_ids)
+
+    def test_no_template_still_raises_for_tutor(self):
+        student = self._student('Cross NoTpl Tut', self.study_no_template)
+        with self.assertRaises(UserError):
+            self._wizard_as(self.tutor, student)
+
+    def test_different_studies_open_in_free_mode_for_secretary(self):
+        # Rayan (study A) and Quique (study B) both heading to the same destination.
+        one = self._student('Cross Mixed 1', self.study, self.g1a)
+        two = self._student('Cross Mixed 2', self.study2)
+        wizard = self._wizard_as(self.secretary, one + two)
+        self.assertTrue(wizard.allow_other_study)
+        self.assertEqual(wizard.student_ids, one + two)
+
+    def test_different_studies_still_raise_for_tutor(self):
+        one = self._student('Cross Mixed T1', self.study, self.g1a)
+        two = self._student('Cross Mixed T2', self.study2)
+        with self.assertRaises(UserError):
+            self._wizard_as(self.tutor, one + two)
+
+    def test_free_mode_drops_study_and_course_filters(self):
+        # A 2nd-course student normally sees only its own study from course 2 on;
+        # free mode must also drop the study_year floor, or a 4th-course ESO
+        # student would never reach a 1st-course SMX template.
+        student = self._student('Cross Filters', self.study, self.g2a)
+        wizard = self._wizard_as(self.secretary, student)
+        self.assertEqual(wizard.available_template_ids, self.template2)
+        wizard.allow_other_study = True
+        self.assertIn(self.template1, wizard.available_template_ids)
+        self.assertIn(self.template_s2, wizard.available_template_ids)
+
+    def test_tutor_cannot_write_allow_other_study(self):
+        student = self._student('Cross Tutor Write', self.study, self.g1a)
+        wizard = self._wizard_as(self.tutor, student)
+        # The tutor still renders the dialog: the compute reads the restricted
+        # flag through sudo, so its own template list stays readable.
+        self.assertIn(self.template1, wizard.available_template_ids)
+        with self.assertRaises(AccessError):
+            wizard.allow_other_study = True
+
+    def test_cross_study_enrollment_uses_destination_study(self):
+        # The order must be booked against the template's study, not the origin
+        # one, or it would carry the wrong numbering and authorizations.
+        student = self._student('Cross Dest', self.study, self.g1a)
+        wizard = self._wizard_as(self.secretary, student)
+        wizard.allow_other_study = True
+        wizard.template_id = self.template_s2
+        wizard.ems_group_id = self.s2_g1a
+        wizard.action_create_enrollments()
+        order = self.env['sale.order'].search([('partner_id', '=', student.id)], limit=1)
+        self.assertEqual(order.ems_study_id, self.study2)
+        self.assertEqual(order.ems_group_id, self.s2_g1a)
+
+    def test_cross_study_shift_comes_from_destination_group(self):
+        # Rayan: morning in his current group, afternoon in the destination one.
+        student = self._student('Cross Shift', self.study, self.g1a)
+        wizard = self._wizard_as(self.secretary, student)
+        wizard.allow_other_study = True
+        wizard.template_id = self.template_s2
+        wizard.ems_group_id = self.s2_g1a_aft
+        wizard.action_create_enrollments()
+        order = self.env['sale.order'].search([('partner_id', '=', student.id)], limit=1)
+        self.assertEqual(order.shift, 'afternoon')
+
+    def test_tutor_cannot_cross_study_through_the_orm(self):
+        # The checkbox is the UI gate; the server must refuse the cross-study
+        # template even when it is set directly (the view domain is not a rule).
+        student = self._student('Cross Tutor Rpc', self.study, self.g1a)
+        wizard = self._wizard_as(self.tutor, student)
+        wizard.template_id = self.template_s2
+        with self.assertRaises(UserError):
+            wizard.action_create_enrollments()

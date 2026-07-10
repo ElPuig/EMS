@@ -44,6 +44,8 @@ Per fer la importació:
 
 En acabar, l'auxiliar mostra un **resum de la importació**: quants aspirants s'han creat, quants s'han actualitzat i quantes files s'han omès (per no estar assignades a aquest centre). També podeu **descarregar el registre (CSV)** amb el detall de la importació.
 
+> Si el fitxer conté alumnes que **ja són actius al centre** i canvien d'estudis, l'auxiliar els deixa intactes i els llista a part, al CSV `gedac_alumnes_actius_<data>.csv`. Per matricular-los dels estudis nous, seguiu [Matricular un alumne actual en uns altres estudis](matricula-altres-estudis.md).
+
 ![Resum del resultat de la importació](../../assets/secretary/preinscrpcio-Secretaria-03.png)
 
 ---

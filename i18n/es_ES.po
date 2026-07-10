@@ -11452,3 +11452,51 @@ msgstr "%(count)s matrícula(s) enviada(s) por correo y marcada(s) como enviadas
 #: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
 msgid "Email the enrollment proposal to the selected enrollments and mark the drafts as sent?"
 msgstr "¿Enviar por correo la propuesta de matrícula a las seleccionadas y marcar los borradores como enviados?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__allow_other_study
+msgid "Enroll in a different study"
+msgstr "Matricular en otros estudios"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_enrollment_proposal_wizard__allow_other_study
+msgid ""
+"List the enrollment templates of every study instead of only the students' "
+"own one. Needed to enroll a current student into a new study (e.g. an ESO "
+"student granted a place in SMX)."
+msgstr ""
+"Muestra las plantillas de matrícula de todos los estudios, no solo las de "
+"los estudios del estudiante. Necesario para matricular a un estudiante "
+"actual en unos estudios nuevos (p. ej. un estudiante de ESO con plaza "
+"asignada en SMX)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
+msgid "Select at least one student or applicant."
+msgstr "Selecciona al menos un estudiante o solicitante."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
+msgid "Select an enrollment template."
+msgstr "Selecciona una plantilla de matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
+msgid ""
+"Only the secretary can enroll a student into a study other than its own: "
+"%(students)s"
+msgstr ""
+"Solo secretaría puede matricular a un estudiante en unos estudios distintos "
+"de los suyos: %(students)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
+msgid ""
+"Templates from every study are listed. Check the destination study and group"
+" before creating the enrollments."
+msgstr ""
+"Se muestran las plantillas de todos los estudios. Comprueba el estudio y el "
+"grupo de destino antes de crear las matrículas."

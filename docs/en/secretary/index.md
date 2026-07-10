@@ -10,6 +10,7 @@ This section contains the manuals for **secretariat staff**.
 
 ## Available Manuals
 
+- [Enrolling a current student into a different study](matricula-altres-estudis.md) — How to propose an enrollment to students of the centre who change study next year (ESO → SMX, AO → GA…).
 - [Onboarding a Teacher and Creating Their Corporate Email Account (Google Workspace)](../admin/alta-professor-compte-google.md) — How to onboard a teacher or ASP staff member and how their corporate account is generated.
 
 ## Planned Topics

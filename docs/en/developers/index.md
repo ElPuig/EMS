@@ -20,4 +20,12 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Enrollment
+
+| Model | Description |
+|-------|-------------|
+| [ems.enrollment_proposal_wizard](enrollment/enrollment_proposal_wizard.md) | Bulk draft enrollments from a student selection, and the secretary-only `allow_other_study` flag that enrolls a current student into a different study |
+
+---
+
 More information about the project on the [GitHub repository](https://github.com/ElPuig/EMS).

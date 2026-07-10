@@ -8,7 +8,16 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
     _description = 'Enrollment proposal wizard'
 
     student_ids = fields.Many2many('res.partner', string='Students')
-    template_id = fields.Many2one('sale.order.template', string='Enrollment template', required=True)
+    # Not required at field level: the wizard legitimately opens with no template
+    # when the students' study has none (see default_get). The form marks it
+    # required and action_create_enrollments enforces it server-side.
+    template_id = fields.Many2one('sale.order.template', string='Enrollment template')
+    allow_other_study = fields.Boolean(
+        string='Enroll in a different study',
+        groups='ems.group_secretary,ems.group_academic_admin',
+        help="List the enrollment templates of every study instead of only the "
+             "students' own one. Needed to enroll a current student into a new "
+             "study (e.g. an ESO student granted a place in SMX).")
     available_template_ids = fields.Many2many(
         'sale.order.template',
         compute='_compute_available_templates',
@@ -22,59 +31,58 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
         help="Suggested group written to every generated enrollment. Leave empty to "
              "let each student get its own suggested group.")
 
-    @api.depends('student_ids')
+    @api.depends('student_ids', 'allow_other_study')
     def _compute_available_templates(self):
         for wizard in self:
-            if not wizard.student_ids:
-                wizard.available_template_ids = False
-                continue
-            studies = wizard.student_ids.mapped('study_id')
-            courses = wizard.student_ids.mapped('main_group_id.course')
-            min_course = min(courses) if courses else 1
-            wizard.available_template_ids = self.env['sale.order.template'].search([
-                ('ems_study_id', 'in', studies.ids),
-                ('study_year', '>=', min_course),
-            ])
+            # sudo: allow_other_study is secretary-only, but every user needs the
+            # computed list to render the template dropdown.
+            wizard.available_template_ids = self._ems_templates_for(
+                wizard.student_ids, wizard.sudo().allow_other_study)
 
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         active_ids = self.env.context.get('active_ids', [])
-        if active_ids:
-            students = self.env['res.partner'].browse(active_ids).filtered(
-                lambda p: p.contact_type in ('student', 'applicant')
-            )
-            studies = students.mapped('study_id')
-            if len(studies) > 1:
+        if not active_ids:
+            return res
+        students = self.env['res.partner'].browse(active_ids).filtered(
+            lambda p: p.contact_type in ('student', 'applicant')
+        )
+        if not students:
+            raise UserError(_("Select at least one student or applicant."))
+        res['student_ids'] = [fields.Command.set(students.ids)]
+
+        # Two situations the students' own study cannot serve: a mixed selection,
+        # and a study with no template (the GEDAC internal continuer). Both open in
+        # free mode for the secretary, and still block anyone who cannot cross studies.
+        multi_study = len(students.mapped('study_id')) > 1
+        templates = self.env['sale.order.template'] if multi_study \
+            else self._ems_templates_for(students, allow_other_study=False)
+        if multi_study or not templates:
+            if not self._ems_can_enroll_other_study():
+                if multi_study:
+                    raise UserError(_(
+                        "Selected students belong to different studies. "
+                        "Please select students from the same group."))
                 raise UserError(_(
-                    "Selected students belong to different studies. "
-                    "Please select students from the same group."
-                ))
-            courses = students.mapped('main_group_id.course')
-            min_course = min(courses) if courses else 1
-            templates = self.env['sale.order.template'].search([
-                ('ems_study_id', 'in', studies.ids),
-                ('study_year', '>=', min_course),
-            ])
-            if not templates:
-                raise UserError(_(
-                    "No enrollment templates available for the selected students' study."
-                ))
-            res['student_ids'] = [fields.Command.set(students.ids)]
-            # Applicant intake: preselect the template matching the granted course
-            # (preinscription_course) so the secretary only reviews. When the selected
-            # applicants share no single course, fall back to the lowest-course
-            # template. The destination group is filled by _onchange_suggest_group.
-            if students and all(p.contact_type == 'applicant' for p in students):
-                courses = set(students.mapped('preinscription_course')) - {False}
-                target = self.env['sale.order.template']
-                if len(courses) == 1:
-                    target = templates.filtered(
-                        lambda t: t.study_year == int(next(iter(courses))))[:1]
-                if not target:
-                    target = templates.sorted('study_year')[:1]
-                if target:
-                    res['template_id'] = target.id
+                    "No enrollment templates available for the selected students' study."))
+            res['allow_other_study'] = True
+            return res
+
+        # Applicant intake: preselect the template matching the granted course
+        # (preinscription_course) so the secretary only reviews. When the selected
+        # applicants share no single course, fall back to the lowest-course
+        # template. The destination group is filled by _onchange_suggest_group.
+        if all(p.contact_type == 'applicant' for p in students):
+            courses = set(students.mapped('preinscription_course')) - {False}
+            target = self.env['sale.order.template']
+            if len(courses) == 1:
+                target = templates.filtered(
+                    lambda t: t.study_year == int(next(iter(courses))))[:1]
+            if not target:
+                target = templates.sorted('study_year')[:1]
+            if target:
+                res['template_id'] = target.id
         return res
 
     @api.onchange('template_id', 'student_ids')
@@ -95,6 +103,33 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
         if len(self.student_ids) == 1 or len(groups) == 1:
             self.ems_group_id = self._ems_suggested_group(
                 self.student_ids[0], self.template_id)
+
+    def _ems_templates_for(self, students, allow_other_study):
+        """Enrollment templates offered for `students`.
+
+        Free mode (allow_other_study) drops both filters, not just the study one:
+        keeping the `study_year` floor would still hide the 1st-course template of
+        the destination study from a 4th-course student.
+        """
+        Template = self.env['sale.order.template']
+        if allow_other_study:
+            return Template.search([('ems_study_id', '!=', False)])
+        if not students:
+            return Template
+        courses = students.mapped('main_group_id.course')
+        return Template.search([
+            ('ems_study_id', 'in', students.mapped('study_id').ids),
+            ('study_year', '>=', min(courses) if courses else 1),
+        ])
+
+    def _ems_can_enroll_other_study(self):
+        """Only the secretary and the academic admin may cross studies. Tutors keep
+        proposing same-study renewals."""
+        return (
+            self.env.su
+            or self.env.user.has_group('ems.group_secretary')
+            or self.env.user.has_group('ems.group_academic_admin')
+        )
 
     def _ems_suggested_group(self, partner, template):
         """Suggest a destination group for a proposed enrollment.
@@ -130,6 +165,21 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
 
     def action_create_enrollments(self):
         self.ensure_one()
+        if not self.template_id:
+            raise UserError(_("Select an enrollment template."))
+        dest_study = self.dest_study_id
+        # The template dropdown is filtered by a view domain, which is not a security
+        # rule: re-check the crossing itself before writing any enrollment.
+        if not self._ems_can_enroll_other_study():
+            crossing = self.student_ids.filtered(
+                lambda s: s.study_id and s.study_id != dest_study)
+            if crossing:
+                raise UserError(_(
+                    "Only the secretary can enroll a student into a study other "
+                    "than its own: %(students)s",
+                    students=', '.join(crossing.mapped('name')),
+                ))
+
         current_course = self.env['ems.course'].search(
             [('is_enrollment_default', '=', True)], limit=1
         )
@@ -151,10 +201,12 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
                 continue
 
             group = self.ems_group_id or self._ems_suggested_group(student, self.template_id)
-            shift = student.main_group_id.shift or student.preinscription_shift
+            # The destination group carries the shift of the study the student is
+            # moving into, which is the one that must reach the enrollment.
+            shift = group.shift or student.main_group_id.shift or student.preinscription_shift
             order = self.env['sale.order'].create({
                 'partner_id': student.id,
-                'ems_study_id': student.study_id.id if student.study_id else False,
+                'ems_study_id': dest_study.id,
                 'ems_course_id': current_course.id if current_course else False,
                 'shift': shift,
                 'ems_group_id': group.id if group else False,

@@ -5,7 +5,9 @@ from odoo.tests.common import TransactionCase, tagged
 
 MODULE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 SCANNED_EXTENSIONS = ('.py', '.xml', '.csv')
-EXCLUDED_DIRS = {'docs', '.git'}
+# 'temp' is the gitignored scratch folder: it holds raw centre exports (latin-1
+# csv) that are not module source and blow up the utf-8 read below.
+EXCLUDED_DIRS = {'docs', '.git', 'temp'}
 # Suffix must start with a letter so this doesn't also match ems.group_<N>
 # xmlids, which are demo records of the unrelated ems.group (class group) model.
 GROUP_REF_RE = re.compile(r'ems\.group_[A-Za-z][A-Za-z0-9_]*')

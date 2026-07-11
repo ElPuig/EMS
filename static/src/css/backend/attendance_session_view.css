@@ -392,6 +392,17 @@
     border-color: #dc3545;
     color: #dc3545;
 }
+.ems-av-strike-btn--has-strikes {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+    font-weight: 700;
+}
+.ems-av-strike-btn--has-strikes:hover {
+    background: #c82333;
+    border-color: #c82333;
+    color: #fff;
+}
 
 /* --- Strike dialog ------------------------------------------ */
 .ems-av-strike-dialog {

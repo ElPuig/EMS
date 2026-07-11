@@ -180,10 +180,12 @@
                                         </td>
                                         <td class="ems-av-td-strike">
                                             <button class="ems-av-strike-btn"
-                                                    t-att-title="strings.addStrike"
+                                                    t-att-class="line.strike_ids.length ? 'ems-av-strike-btn--has-strikes' : ''"
+                                                    t-att-title="line.strike_ids.length ? strings.strikeCount(line.strike_ids.length) : strings.addStrike"
                                                     t-att-disabled="!line.student_id"
-                                                    t-on-click="() => this.onStrikeClick(line.student_id[0], line.student_id[1])">
-                                                <i class="fa fa-exclamation-triangle"/>
+                                                    t-on-click="() => this.onStrikeClick(line.id, line.student_id[0], line.student_id[1])">
+                                                <t t-if="line.strike_ids.length" t-esc="line.strike_ids.length"/>
+                                                <i t-else="" class="fa fa-exclamation-triangle"/>
                                             </button>
                                         </td>
                                         <td class="ems-av-td-notes">

@@ -269,3 +269,21 @@ class TestStrike(TransactionCase):
         self.assertEqual(self.minor_student.strike_count, 2)
         action = self.minor_student.action_view_strikes()
         self.assertEqual(action['domain'], [('student_id', '=', self.minor_student.id)])
+
+    def test_attendance_session_line_id_is_optional(self):
+        strike = self._create_strike(self.teacher_a_user)
+        self.assertFalse(strike.attendance_session_line_id)
+
+    def test_strike_count_per_session_line(self):
+        session_line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.minor_student.id,
+        })
+        self._create_strike(self.teacher_a_user, attendance_session_line_id=session_line.id)
+        self.assertEqual(len(session_line.strike_ids), 1)
+        self._create_strike(self.teacher_a_user, attendance_session_line_id=session_line.id)
+        self.assertEqual(len(session_line.strike_ids), 2)
+
+        other_session_line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.minor_student.id,
+        })
+        self.assertEqual(len(other_session_line.strike_ids), 0)

@@ -31,8 +31,11 @@ Every strike notifies the student's own email always, the family (subject to the
 | `notes` | `Text` | No | Free-text details |
 | `send_to` | `Char` (readonly) | — | Resolved recipient addresses, semicolon-separated (bookkeeping) |
 | `strike_count_at_creation` | `Integer` (readonly) | — | Student's cumulative strike count snapshotted at creation time |
+| `attendance_session_line_id` | `Many2one → ems.attendance_session_line` | No | Optional; set only when issued from the roll-call view, `ondelete='set null'` — the strike record is never deleted just because its session/line is |
 
 `display_name` is computed as `"{student} | {date} | {reason}"`.
+
+**Per-session strike count (UI only):** `ems.attendance_session_line` carries the inverse `strike_ids` (`One2many`, inverse of `attendance_session_line_id`) purely so the roll-call view can show, per student row, how many strikes were issued during *that specific session* — the strike button turns solid red and displays the count instead of the icon once `strike_ids.length > 0` (`static/src/xml/backend/attendance_session_view.xml`, `.ems-av-strike-btn--has-strikes` in the matching CSS). Date/time-window matching was deliberately rejected for this: the school runs parallel sessions (e.g. a scheduled class and a guard-duty session covering the same room/time), so only an explicit link captured at creation time is unambiguous. `ems.strike`'s core identity and independence from the attendance model are otherwise unchanged — the field is optional and a strike created outside the roll-call flow (e.g. directly in the backend) is still perfectly valid with no session line at all.
 
 ---
 

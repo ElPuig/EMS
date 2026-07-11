@@ -52,6 +52,24 @@ registry.category("web_tour.tours").add("ems_strike_issue", {
             content: "Send the strike with no extra notes",
             run: "click",
         },
+        {
+            trigger: ".ems-av-strike-btn.ems-av-strike-btn--has-strikes:contains('1')",
+            content: "Strike button now shows a count of 1 and is highlighted",
+        },
+        {
+            trigger: ".ems-av-strike-btn",
+            content: "Click the strike button again for a second strike",
+            run: "click",
+        },
+        {
+            trigger: ".ems-av-strike-send-btn",
+            content: "Send the second strike",
+            run: "click",
+        },
+        {
+            trigger: ".ems-av-strike-btn.ems-av-strike-btn--has-strikes:contains('2')",
+            content: "Strike button now shows a count of 2",
+        },
     ],
 });
 

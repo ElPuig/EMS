@@ -11723,6 +11723,7 @@ msgstr "Strike: un aviso disciplinario puesto por un profesor a un alumno."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_strike_list
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__strike_ids
 #: model:ir.model.fields,field_description:ems.field_res_partner__strike_ids
 #: model:ir.model.fields,field_description:ems.field_res_users__strike_ids
 #: model:ir.ui.menu,name:ems.menu_coexistence_strikes
@@ -11940,3 +11941,14 @@ msgstr ""
 "                    </div>\n"
 "                \n"
 "            "
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "%s strike(s) issued this session — click to add another"
+msgstr "%s strike(s) puesto(s) en esta sesión — haz clic para añadir otro"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_strike__attendance_session_line_id
+msgid "Session line"
+msgstr "Línea de sesión"

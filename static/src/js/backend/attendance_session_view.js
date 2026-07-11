@@ -6,6 +6,7 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { session } from "@web/session";
 import { _t } from "@web/core/l10n/translation";
+import { sprintf } from "@web/core/utils/strings";
 
 const { DateTime } = luxon;
 import { DateTimePicker } from "@web/core/datetime/datetime_picker";
@@ -83,6 +84,7 @@ class AttendanceSessionView extends Component {
             saving: {},
             editingLineId: null,
             editingStudentName: "",
+            editingStrikeLineId: null,
             editingStrikeStudentId: null,
             editingStrikeStudentName: "",
             sortField: 'lastname',  // 'lastname' | 'name'
@@ -200,7 +202,7 @@ class AttendanceSessionView extends Component {
         const lines = await this.orm.searchRead(
             "ems.attendance_session_line",
             [["attendance_session_id", "=", sessionId]],
-            ["id", "student_id", "status", "notes", "attendance_justification_id", "attendance_prevision_id"],
+            ["id", "student_id", "status", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids"],
         );
 
         // Fetch lastnames to allow client-side sorting
@@ -326,6 +328,7 @@ class AttendanceSessionView extends Component {
             cancel:            _t("Cancel"),
             save:              _t("Save"),
             addStrike:            _t("Issue a strike"),
+            strikeCount:          (count) => sprintf(_t("%s strike(s) issued this session — click to add another"), count),
             strikeNotesPlaceholder: _t("Details (optional)..."),
             send:                 _t("Send"),
             lastnameAZ:        _t("Lastname A→Z"),
@@ -465,7 +468,8 @@ class AttendanceSessionView extends Component {
         this.state.editingLineId = null;
     }
 
-    onStrikeClick(studentId, studentName) {
+    onStrikeClick(lineId, studentId, studentName) {
+        this.state.editingStrikeLineId = lineId;
         this.state.editingStrikeStudentId = studentId;
         this.state.editingStrikeStudentName = studentName;
         this.strikeReasonSelect.el.value = this.strikeReasons.length ? this.strikeReasons[0].id : "";
@@ -475,19 +479,25 @@ class AttendanceSessionView extends Component {
 
     onStrikeCancel() {
         this.strikeDialog.el.close();
+        this.state.editingStrikeLineId = null;
         this.state.editingStrikeStudentId = null;
     }
 
     async onStrikeSend() {
+        const lineId    = this.state.editingStrikeLineId;
         const studentId = this.state.editingStrikeStudentId;
         const reasonId  = parseInt(this.strikeReasonSelect.el.value);
         const notes     = this.strikeNotesTextarea.el.value.trim();
-        await this.orm.create("ems.strike", [{
+        const strikeId = await this.orm.create("ems.strike", [{
             student_id: studentId,
             reason_id: reasonId,
             notes: notes || false,
+            attendance_session_line_id: lineId,
         }]);
+        const line = this.state.lines.find(l => l.id === lineId);
+        if (line) line.strike_ids = [...line.strike_ids, ...strikeId];
         this.strikeDialog.el.close();
+        this.state.editingStrikeLineId = null;
         this.state.editingStrikeStudentId = null;
     }
 

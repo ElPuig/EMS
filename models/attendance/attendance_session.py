@@ -567,6 +567,7 @@ class ems_attendance_session_line(models.Model):
 	# Used to know if the student can be chosen manually or not (should be disabled, otherwise a justified student can be swaped for another).
 	is_auto_generated = fields.Boolean(default=False)
 	notes = fields.Text("Notes")
+	strike_ids = fields.One2many(string="Strikes", comodel_name="ems.strike", inverse_name="attendance_session_line_id")
 
 	def status_is_notificable(self):
 		# TODO: load from EMS settings.

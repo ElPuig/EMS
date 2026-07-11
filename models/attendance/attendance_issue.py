@@ -99,24 +99,33 @@ class ems_attendance_issue_status(models.Model):
 		self.ensure_one()
 		separator = "; "
 
-		template = self.env.ref('ems.mail_attendance_issue_rectification' if self.rectification else 'ems.mail_attendance_issue_status', raise_if_not_found=True)
+		# The student and the family get the same underlying notification, but worded for
+		# their own audience (mails/attendance/attendance_issue_status.xml has both). A
+		# rectification keeps using the same template for everyone, as before.
+		family_template = self.env.ref('ems.mail_attendance_issue_rectification' if self.rectification else 'ems.mail_attendance_issue_status_family', raise_if_not_found=True)
+		student_template = family_template if self.rectification else self.env.ref('ems.mail_attendance_issue_status_student', raise_if_not_found=True)
 
-		# Build an email -> lang map so each recipient gets the mail in their own language.
+		# Build email -> lang/kind maps so each recipient gets the mail in their own language
+		# and with the wording that matches who they are.
 		student = self.attendance_issue_student_id.student_id
 		lang_by_email = {}
+		kind_by_email = {}
 		if student.student_email:
 			lang_by_email[student.student_email] = student.lang
-			
+			kind_by_email[student.student_email] = 'student'
+
 		for relation in student.relation_all_ids:
 			partner = relation.other_partner_id
 			if partner.contact_type == 'family' and partner.email:
 				lang_by_email[partner.email] = partner.lang
+				kind_by_email[partner.email] = 'family'
 
 		# NOTE: there's no BBC field within the email template, and we want to protect personal addresses
 		# when sending to multiple destinations. So, it will be send one by one setting up here the address.
 		for to in self.send_to.split(separator):
 			to = to.strip()
 			lang = lang_by_email.get(to)
+			template = student_template if kind_by_email.get(to) == 'student' else family_template
 			tmpl = template.with_context(lang=lang).sudo() if lang else template.sudo()
 			tmpl.send_mail(self.id, force_send=True, email_values={'email_to': to})
 		

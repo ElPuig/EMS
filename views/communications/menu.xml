@@ -7,7 +7,7 @@
             <field name="view_mode">list,form</field>
         </record>
 
-        <menuitem name="Communications" sequence="5" id="menu_communications"
+        <menuitem name="Communications" sequence="7" id="menu_communications"
                   groups="ems.group_academic_admin,ems.group_quality"/>
 
         <menuitem name="Notices" sequence="1" id="menu_communications_list"

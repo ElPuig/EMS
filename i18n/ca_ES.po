@@ -285,7 +285,7 @@ msgstr ""
 "                    </div>"
 
 #. module: ems
-#: model:mail.template,body_html:ems.mail_attendance_issue_status
+#: model:mail.template,body_html:ems.mail_attendance_issue_status_family
 msgid ""
 "<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>\n"
@@ -329,6 +329,57 @@ msgstr ""
 "                            </ul>                        \n"
 "                        \n"
 "                        <p>Si necessita més informació, pot contactar amb <t t-out=\"object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name\"/> contestant a aquest correu.</p>                                                \n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_attendance_issue_status_student
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Dear <t t-out=\"object.attendance_issue_student_id.student_id.name\"/>,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            This is an automated email, to inform you about your attendance status:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Date:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> from <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>\n"
+"                                <li><strong>Session:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
+"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>If you need further information, you can contact with <t t-out=\"object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name\"/> just replaying to this email.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Benvolgut/da <t t-out=\"object.attendance_issue_student_id.student_id.name\"/>,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Aquest és un correu automàtic, per informar-te de la teva assistència:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Data:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> de <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>\n"
+"                                <li><strong>Sessió:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
+"                                <li><strong>Estat:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Detalls:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>Si necessites més informació, pots contactar amb <t t-out=\"object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name\"/> responent a aquest correu.</p>\n"
 "                        <p>\n"
 "                            Salutacions cordials,<br/>\n"
 "                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
@@ -3504,9 +3555,14 @@ msgid "Email notice to students/families"
 msgstr "Comunicació per correu a estudiants/famílies"
 
 #. module: ems
-#: model:mail.template,name:ems.mail_attendance_issue_status
+#: model:mail.template,name:ems.mail_attendance_issue_status_family
 msgid "Email notification for families: student attendance status"
 msgstr "Email de notificació per a les famílies: assistència de l'estudiant"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_attendance_issue_status_student
+msgid "Email notification for students: student attendance status"
+msgstr "Email de notificació per als estudiants: assistència de l'estudiant"
 
 #. module: ems
 #: model:mail.template,name:ems.mail_attendance_issue_rectification
@@ -8203,7 +8259,8 @@ msgstr ""
 "{{object.attendance_issue_student_id.student_id.display_name}}"
 
 #. module: ems
-#: model:mail.template,subject:ems.mail_attendance_issue_status
+#: model:mail.template,subject:ems.mail_attendance_issue_status_family
+#: model:mail.template,subject:ems.mail_attendance_issue_status_student
 msgid ""
 "Student attendance notification: "
 "{{object.attendance_issue_student_id.student_id.display_name}}"

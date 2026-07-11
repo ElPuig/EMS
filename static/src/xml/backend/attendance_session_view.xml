@@ -145,6 +145,7 @@
                                         </th>
                                     </t>
                                     <th class="ems-av-th-preview"></th>
+                                    <th class="ems-av-th-strike"></th>
                                     <th class="ems-av-th-notes"></th>
                                 </tr>
                             </thead>
@@ -176,6 +177,16 @@
                                             <span class="ems-av-notes-preview"
                                                   t-if="line.notes"
                                                   t-esc="line.notes"/>
+                                        </td>
+                                        <td class="ems-av-td-strike">
+                                            <button class="ems-av-strike-btn"
+                                                    t-att-class="line.strike_ids.length ? 'ems-av-strike-btn--has-strikes' : ''"
+                                                    t-att-title="line.strike_ids.length ? strings.strikeCount(line.strike_ids.length) : strings.addStrike"
+                                                    t-att-disabled="!line.student_id"
+                                                    t-on-click="() => this.onStrikeClick(line.id, line.student_id[0], line.student_id[1])">
+                                                <t t-if="line.strike_ids.length" t-esc="line.strike_ids.length"/>
+                                                <i t-else="" class="fa fa-exclamation-triangle"/>
+                                            </button>
                                         </td>
                                         <td class="ems-av-td-notes">
                                             <button class="ems-av-notes-btn"
@@ -216,6 +227,31 @@
                     </button>
                     <button class="ems-av-notes-save-btn" t-on-click="onNotesSave">
                         <t t-esc="strings.save"/>
+                    </button>
+                </div>
+            </dialog>
+
+            <!-- ── Strike dialog ────────────────────────────────────── -->
+            <dialog t-ref="strikeDialog" class="ems-av-strike-dialog">
+                <div class="ems-av-strike-dialog-header">
+                    <i class="fa fa-exclamation-triangle me-2"/>
+                    <span t-esc="state.editingStrikeStudentName"/>
+                </div>
+                <select t-ref="strikeReasonSelect" class="ems-av-strike-reason-select">
+                    <t t-foreach="strikeReasons" t-as="reason" t-key="reason.id">
+                        <option t-att-value="reason.id"><t t-esc="reason.name"/></option>
+                    </t>
+                </select>
+                <textarea t-ref="strikeNotesTextarea"
+                          class="ems-av-strike-notes-textarea"
+                          rows="4"
+                          t-att-placeholder="strings.strikeNotesPlaceholder"/>
+                <div class="ems-av-strike-dialog-footer">
+                    <button class="ems-av-strike-cancel-btn" t-on-click="onStrikeCancel">
+                        <t t-esc="strings.cancel"/>
+                    </button>
+                    <button class="ems-av-strike-send-btn" t-on-click="onStrikeSend">
+                        <t t-esc="strings.send"/>
                     </button>
                 </div>
             </dialog>

@@ -14,6 +14,7 @@ Esta sección contiene los manuales para los **profesores**.
 |--------|-------------|
 | [Fichajes: revisar tus entradas/salidas y solicitar correcciones](attendance-corrections.md) | Revisar tus entradas/salidas y solicitar correcciones |
 | [Evaluación: Introducir calificaciones por RAs](qualificacions.md) | Introducir las calificaciones de cada evaluación para preparar la junta de evaluación |
+| [Strikes: notificar una incidencia disciplinaria](strike.md) | Poner un strike desde la vista de pasar lista cuando hay que dejar constancia del comportamiento de un alumno |
 
 ## Temas previstos
 

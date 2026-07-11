@@ -52,6 +52,12 @@
 
                         </block>
 
+                         <block title="Strikes Settings" name="ems_strike_settings">
+                            <setting string="Coexistence escalation threshold" help="Every time a student's cumulative strike count reaches a multiple of this number, the matching coexistence coordinator(s) are notified by email (in addition to the usual student/family/tutor notification sent on every strike)." id="strike_escalation_threshold">
+                                <field name="strike_escalation_threshold" class="text-center" style="width: 5ch;"/>
+                            </setting>
+                        </block>
+
                          <block title="LimeSurvey Settings" name="ems_limesurvey_settings">                          
                             <setting string="LimeSurvey's API endpoint" help="API endpoint (host address) where the LimeSurvey server is listening." id="limesurvey_api">
                                 <field name="limesurvey_api" />                              

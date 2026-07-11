@@ -1,0 +1,6 @@
+id,name,sequence
+"ems.strike_reason_other","Other / General",1
+"ems.strike_reason_behaviour","Disruptive behaviour",10
+"ems.strike_reason_disrespect","Disrespect towards a teacher or classmate",20
+"ems.strike_reason_material","Missing required material",30
+"ems.strike_reason_device_misuse","Improper use of a mobile device or electronic equipment",40

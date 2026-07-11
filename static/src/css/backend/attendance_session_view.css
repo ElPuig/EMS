@@ -242,6 +242,14 @@
     padding-right: 12px;
 }
 
+/* Strike column */
+.ems-av-th-strike,
+.ems-av-td-strike {
+    white-space: nowrap;
+    padding-right: 8px;
+    text-align: center;
+}
+
 /* Pencil column */
 .ems-av-th-notes,
 .ems-av-td-notes {
@@ -363,6 +371,112 @@
 .ems-av-notes-btn--has-notes:hover {
     background: #fff3e0;
 }
+
+/* --- Strike button ------------------------------------------ */
+.ems-av-strike-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #adb5bd;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.ems-av-strike-btn:hover {
+    background: #fff0f0;
+    border-color: #dc3545;
+    color: #dc3545;
+}
+.ems-av-strike-btn--has-strikes {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+    font-weight: 700;
+}
+.ems-av-strike-btn--has-strikes:hover {
+    background: #c82333;
+    border-color: #c82333;
+    color: #fff;
+}
+
+/* --- Strike dialog ------------------------------------------ */
+.ems-av-strike-dialog {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    width: 420px;
+    max-width: 95vw;
+}
+.ems-av-strike-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+}
+.ems-av-strike-dialog-header {
+    padding: 16px 20px 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #212529;
+    border-bottom: 1px solid #e9ecef;
+}
+.ems-av-strike-reason-select {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 20px;
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.92rem;
+    outline: none;
+    font-family: inherit;
+    color: #212529;
+    background: #fff;
+}
+.ems-av-strike-notes-textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 20px;
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.92rem;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    color: #212529;
+    min-height: 90px;
+}
+.ems-av-strike-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 20px;
+}
+.ems-av-strike-cancel-btn {
+    padding: 7px 18px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    background: #fff;
+    color: #495057;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.ems-av-strike-cancel-btn:hover { background: #f8f9fa; }
+.ems-av-strike-send-btn {
+    padding: 7px 18px;
+    border-radius: 6px;
+    border: none;
+    background: #dc3545;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.ems-av-strike-send-btn:hover { background: #c82333; }
 
 /* --- Notes dialog ----------------------------------------- */
 .ems-av-notes-dialog {

@@ -20,6 +20,14 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Coexistence
+
+| Model | Description |
+|-------|-------------|
+| [ems.strike](coexistence/strike.md) | Disciplinary notices issued from the roll-call view: recipient/authorization rules, HoS/DHoS-branch escalation matching, access control |
+
+---
+
 ## Enrollment
 
 | Model | Description |

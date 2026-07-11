@@ -54,6 +54,17 @@
             <field name="visible">True</field>
         </record>
 
+        <!-- Kept separate for the same reason as category_secretary/category_quality: coexistence
+             is transversal to the teacher/tutor/HoS hierarchy (it doesn't sit "under" a department),
+             so it gets its own independent Manager/Administrator chain. -->
+        <record model="ir.module.category" id="category_coexistence">
+            <field name="name">Coexistence</field>
+            <field name="description">Educational Management System - Coexistence</field>
+            <field name="parent_id" ref="ems.category_main"/>
+            <field name="sequence">4</field>
+            <field name="visible">True</field>
+        </record>
+
         <!-- Consolidates Odoo's native Administration (Access Rights/Settings), Canned Responses
              and Job Queue permissions - previously scattered technical selectors - into one clean
              EMS selector. Kept separate for the same reason as category_secretary/category_quality. -->
@@ -61,7 +72,7 @@
             <field name="name">Settings</field>
             <field name="description">Educational Management System - Settings</field>
             <field name="parent_id" ref="ems.category_main"/>
-            <field name="sequence">4</field>
+            <field name="sequence">5</field>
             <field name="visible">True</field>
         </record>
 
@@ -142,6 +153,24 @@
             <field name="implied_ids" eval="[(4, ref('ems.group_quality'))]"/>
         </record>
 
+        <!-- Transversal to the teacher/tutor/HoS hierarchy: a coexistence coordinator can read every
+             strike centre-wide, regardless of which HoS/DHoS branch issued it (that branch-matching
+             logic is only used to route the escalation email, not to gate read access). -->
+        <record model="res.groups" id="group_coexistence">
+            <field name="name">Manager</field>
+            <field name="comment">Access rights for the Coexistence team: can read all strikes centre-wide.</field>
+            <field name="category_id" ref="ems.category_coexistence"/>
+        </record>
+
+        <!-- Same privileges as Manager for now; kept as its own group so it can be
+             differentiated later without another migration. -->
+        <record model="res.groups" id="group_coexistence_admin">
+            <field name="name">Administrator</field>
+            <field name="comment">Access rights for the Coexistence coordinator. Currently identical to Manager.</field>
+            <field name="category_id" ref="ems.category_coexistence"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_coexistence'))]"/>
+        </record>
+
         <!-- Administration/Access Rights level, plus Canned Responses and Job Queue management
              granted explicitly (not only via Settings) so Manager keeps them even without Settings. -->
         <record model="res.groups" id="group_settings">
@@ -172,6 +201,7 @@
                 ref('ems.group_director'),
                 ref('ems.group_secretary_admin'),
                 ref('ems.group_quality_admin'),
+                ref('ems.group_coexistence_admin'),
                 ref('ems.group_settings_admin'),
             ])]"/>
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>

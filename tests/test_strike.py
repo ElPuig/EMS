@@ -191,6 +191,10 @@ class TestStrike(TransactionCase):
         self.assertIn(self.family_partner.email, recipients)
         self.assertIn(self.tutor_employee.email, recipients)
 
+    def test_notification_templates_resolve(self):
+        for xml_id in ('ems.mail_strike_notification_student', 'ems.mail_strike_notification_family', 'ems.mail_strike_notification_tutor'):
+            self.assertTrue(self.env.ref(xml_id).exists())
+
     def test_notification_recipients_adult_no_auth(self):
         adult_student = self.env['res.partner'].create({
             'name': 'Test Adult Student No Auth (Strike)',

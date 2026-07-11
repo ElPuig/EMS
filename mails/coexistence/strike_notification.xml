@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record model="mail.template" id="mail_strike_notification">
-            <field name="name">Strike notification: student, family and tutor</field>
+        <!-- NOTE: there's no BCC field to add a private direction list, so recipients are
+             addressed one by one within Python code (ems.strike._send_per_recipient) — one of
+             these three templates is picked per recipient kind (ems.strike._notify). -->
+
+        <record model="mail.template" id="mail_strike_notification_family">
+            <field name="name">Strike notification: family</field>
             <field name="model_id" ref="ems.model_ems_strike"/>
             <field name="subject">Strike notification: {{object.student_id.display_name}}</field>
             <field name="auto_delete" eval="True"/>
-            <!-- NOTE: there's no BCC field to add a private direction list, so recipients are
-                 addressed one by one within Python code (ems.strike._send_per_recipient). -->
             <field name="email_from">ems@elpuig.xeill.net</field>
             <field name="reply_to">{{object.teacher_id.email}}</field>
             <field name="body_html">
@@ -20,7 +22,7 @@
                             This is an automated email, in order to inform you about a strike issued to a student:
                             <ul>
                                 <li><strong>Student:</strong> <span t-field="object.student_id"/></li>
-                                <li><strong>Date:</strong> <span t-field="object.date"/></li>
+                                <li><strong>Date and time:</strong> <span t-field="object.date"/></li>
                                 <li><strong>Teacher:</strong> <span t-field="object.teacher_id"/></li>
                                 <li><strong>Reason:</strong> <span t-field="object.reason_id"/></li>
                                 <t t-if="object.notes">
@@ -29,6 +31,75 @@
                             </ul>
                         </p>
                         <p>If you need further information, you can contact with <t t-out="object.teacher_id.display_name"/> just replying to this email.</p>
+                        <p>
+                            Kind regards,<br>
+                            <t t-out="object.create_uid.company_id.name"/>
+                        </p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+        <record model="mail.template" id="mail_strike_notification_student">
+            <field name="name">Strike notification: student</field>
+            <field name="model_id" ref="ems.model_ems_strike"/>
+            <field name="subject">Strike notification: {{object.student_id.display_name}}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_from">ems@elpuig.xeill.net</field>
+            <field name="reply_to">{{object.teacher_id.email}}</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;">
+                        <p>
+                            Dear <t t-out="object.student_id.name"/>,
+                        </p>
+                        <p>
+                            This is an automated email, to inform you that you have received a strike:
+                            <ul>
+                                <li><strong>Date and time:</strong> <span t-field="object.date"/></li>
+                                <li><strong>Teacher:</strong> <span t-field="object.teacher_id"/></li>
+                                <li><strong>Reason:</strong> <span t-field="object.reason_id"/></li>
+                                <t t-if="object.notes">
+                                    <li><strong>Details:</strong> <span t-field="object.notes"/></li>
+                                </t>
+                            </ul>
+                        </p>
+                        <p>If you need further information, you can contact with <t t-out="object.teacher_id.display_name"/> just replying to this email.</p>
+                        <p>
+                            Kind regards,<br>
+                            <t t-out="object.create_uid.company_id.name"/>
+                        </p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+        <record model="mail.template" id="mail_strike_notification_tutor">
+            <field name="name">Strike notification: tutor</field>
+            <field name="model_id" ref="ems.model_ems_strike"/>
+            <field name="subject">Strike notification: {{object.student_id.display_name}}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_from">ems@elpuig.xeill.net</field>
+            <field name="reply_to">{{object.teacher_id.email}}</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;">
+                        <p>
+                            Dear tutor,
+                        </p>
+                        <p>
+                            This is an automated email, to inform you that one of your students has received a strike:
+                            <ul>
+                                <li><strong>Student:</strong> <span t-field="object.student_id"/></li>
+                                <li><strong>Date and time:</strong> <span t-field="object.date"/></li>
+                                <li><strong>Teacher:</strong> <span t-field="object.teacher_id"/></li>
+                                <li><strong>Reason:</strong> <span t-field="object.reason_id"/></li>
+                                <t t-if="object.notes">
+                                    <li><strong>Details:</strong> <span t-field="object.notes"/></li>
+                                </t>
+                            </ul>
+                        </p>
+                        <p>You can review the full history under Coexistence &gt; Strikes.</p>
                         <p>
                             Kind regards,<br>
                             <t t-out="object.create_uid.company_id.name"/>

@@ -27,7 +27,7 @@ Every strike notifies the student's own email always, the family (subject to the
 | `student_id` | `Many2one → res.partner` | Yes | Domain `contact_type = student`, `ondelete='cascade'` |
 | `teacher_id` | `Many2one → hr.employee` | Yes | Issuer; defaults to the current user's employee |
 | `reason_id` | `Many2one → ems.strike.reason` | Yes | Defaults to `ems.strike_reason_other` |
-| `date` | `Date` | Yes | Defaults to today |
+| `date` | `Datetime` | Yes | Defaults to now (date and time of the incident) |
 | `notes` | `Text` | No | Free-text details |
 | `send_to` | `Char` (readonly) | — | Resolved recipient addresses, semicolon-separated (bookkeeping) |
 | `strike_count_at_creation` | `Integer` (readonly) | — | Student's cumulative strike count snapshotted at creation time |
@@ -44,14 +44,14 @@ flowchart TD
     B --> C["orm.create('ems.strike', vals)"]
     C --> D[ems.strike.create override]
     D --> E[Snapshot strike_count_at_creation]
-    D --> F["_notify(): student + family (if minor/auth_share) + tutor"]
+    D --> F["_notify(): one template per recipient kind (student / family if minor-auth_share / tutor)"]
     D --> G{"count % threshold == 0 ?"}
     G -- yes --> H["_check_escalation(): notify matching coexistence coordinator(s)"]
     G -- no --> I[Done]
 ```
 
 - **Create**: only entry point — the list view has `create="0"`, records are only created via `create()`, either from the roll-call button (`orm.create`) or the backend for admins.
-- **Notification** (`_notify`): reuses the exact minor/`auth_share` authorization rule already used by `ems.attendance_issue_status`/`ems.notice` — student email always; family emails from `student.relation_all_ids` filtered to `contact_type == 'family'`, only if `not student.is_adult or student.auth_share`; plus `student.tutor_id.email` (the group tutor, via the existing `res.partner.tutor_id` related field). One `send_mail(force_send=True, email_values={'email_to': ...})` call per recipient address, in that recipient's own language — same pattern as `ems_attendance_issue_status.send_notification()`.
+- **Notification** (`_notify`): `_collect_recipients_by_kind()` reuses the exact minor/`auth_share` authorization rule already used by `ems.attendance_issue_status`/`ems.notice`, but keeps the three recipient kinds separate instead of flattening them — student email always; family emails from `student.relation_all_ids` filtered to `contact_type == 'family'`, only if `not student.is_adult or student.auth_share`; the group tutor's email (`student.tutor_id.email`, via the existing `res.partner.tutor_id` related field). Each kind gets its own `mail.template` (`ems.mail_strike_notification_student` / `_family` / `_tutor`, all three defined in `mails/coexistence/strike_notification.xml`) so the wording matches who's actually reading it (e.g. the student's own copy skips the redundant "Student:" row, the tutor's copy points to the Convivencia list instead of "reply to the teacher"). One `send_mail(force_send=True, email_values={'email_to': ...})` call per recipient address, in that recipient's own language — same pattern as `ems_attendance_issue_status.send_notification()`.
 - **Escalation** (`_check_escalation`): fires every time `strike_count_at_creation % strike_escalation_threshold == 0` (repeating, not one-time — e.g. at 3, 6, 9... strikes with the default threshold). Matching coordinators are resolved by walking `ems.role_coexistence.employee_ids` (bridged from `hr.employee.public` to `hr.employee`) and comparing each coordinator's `find_head_of_studies()` result to the issuing teacher's — only coordinators in the same HoS/DHoS branch are notified.
 - **Read**: see Access Control below.
 - **Update/Delete**: only Administrators (`ems.group_academic_admin`).
@@ -101,8 +101,12 @@ Record rules: `security/rules/coexistence.xml`. `ems.group_coexistence` is a **n
 
 | Template | File | Purpose |
 |----------|------|---------|
-| `ems.mail_strike_notification` | `mails/coexistence/strike_notification.xml` | Student/family/tutor notification, sent on every strike |
+| `ems.mail_strike_notification_student` | `mails/coexistence/strike_notification.xml` | Sent to the student, on every strike |
+| `ems.mail_strike_notification_family` | `mails/coexistence/strike_notification.xml` | Sent to the family (if minor or `auth_share`), on every strike |
+| `ems.mail_strike_notification_tutor` | `mails/coexistence/strike_notification.xml` | Sent to the group tutor, on every strike |
 | `ems.mail_strike_escalation` | `mails/coexistence/strike_escalation.xml` | Coexistence coordinator escalation, sent every time the threshold multiple is reached |
+
+All three notification templates live in the same file since they're the same underlying notification, just addressed and worded differently per recipient (not three unrelated features) — `ems.strike._notify()` picks the matching template per recipient kind returned by `_collect_recipients_by_kind()`.
 
 ---
 

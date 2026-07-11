@@ -12,7 +12,7 @@ class ems_strike(models.Model):
     student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", required=True, ondelete="cascade")
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", required=True, default=lambda self: self.env.user.employee_id)
     reason_id = fields.Many2one(string="Reason", comodel_name="ems.strike.reason", required=True, default=lambda self: self.env.ref("ems.strike_reason_other", raise_if_not_found=False))
-    date = fields.Date(string="Date", default=fields.Date.context_today, required=True)
+    date = fields.Datetime(string="Date and time", default=fields.Datetime.now, required=True)
     notes = fields.Text(string="Details")
     send_to = fields.Char(string="Sent to", readonly=True, copy=False)
     strike_count_at_creation = fields.Integer(string="Strike count", readonly=True, copy=False)
@@ -36,27 +36,25 @@ class ems_strike(models.Model):
             strike._check_escalation()
         return strikes
 
-    def _collect_recipients(self):
-        """Returns [(email, lang), ...] following the same minor/auth_share family
-        authorization rule as ems.attendance_issue_status, plus the group tutor."""
+    def _collect_recipients_by_kind(self):
+        """Returns {"student": [(email, lang), ...], "family": [...], "tutor": [...]}
+        following the same minor/auth_share family authorization rule as
+        ems.attendance_issue_status, plus the group tutor. Split by kind (rather than a
+        flat list) so _notify() can address each recipient with its own template."""
         self.ensure_one()
         student = self.student_id
-        recipients = []
+        by_kind = {"student": [], "family": [], "tutor": []}
         if student.student_email:
-            recipients.append((student.student_email, student.lang))
+            by_kind["student"].append((student.student_email, student.lang))
         if not student.is_adult or student.auth_share:
             for relation in student.relation_all_ids:
                 partner = relation.other_partner_id
                 if partner.contact_type == "family" and partner.email:
-                    recipients.append((partner.email, partner.lang))
+                    by_kind["family"].append((partner.email, partner.lang))
         if student.tutor_id and student.tutor_id.email:
             tutor_lang = student.tutor_id.user_id.lang if student.tutor_id.user_id else False
-            recipients.append((student.tutor_id.email, tutor_lang))
-        # De-dup by email, preserving first-seen order/lang.
-        seen = {}
-        for email, lang in recipients:
-            seen.setdefault(email, lang)
-        return list(seen.items())
+            by_kind["tutor"].append((student.tutor_id.email, tutor_lang))
+        return by_kind
 
     def _send_per_recipient(self, template, recipients):
         self.ensure_one()
@@ -66,10 +64,17 @@ class ems_strike(models.Model):
 
     def _notify(self):
         self.ensure_one()
-        recipients = self._collect_recipients()
-        self.sudo().write({"send_to": "; ".join(email for email, _lang in recipients)})
-        template = self.env.ref("ems.mail_strike_notification", raise_if_not_found=True)
-        self._send_per_recipient(template, recipients)
+        by_kind = self._collect_recipients_by_kind()
+        all_recipients = [recipient for recipients in by_kind.values() for recipient in recipients]
+        self.sudo().write({"send_to": "; ".join(email for email, _lang in all_recipients)})
+        templates = {
+            "student": self.env.ref("ems.mail_strike_notification_student", raise_if_not_found=True),
+            "family": self.env.ref("ems.mail_strike_notification_family", raise_if_not_found=True),
+            "tutor": self.env.ref("ems.mail_strike_notification_tutor", raise_if_not_found=True),
+        }
+        for kind, recipients in by_kind.items():
+            if recipients:
+                self._send_per_recipient(templates[kind], recipients)
 
     def _matching_coexistence_coordinators(self):
         """Coexistence coordinators sharing the issuing teacher's ascendant Head of

@@ -4,7 +4,7 @@
             <field name="name">ems.strike.form</field>
             <field name="model">ems.strike</field>
             <field name="arch" type="xml">
-                <form string="Strike">
+                <form string="Strike" create="0">
                     <sheet>
                         <group col="4">
                             <field name="student_id"/>

@@ -16,22 +16,24 @@ class ems_strike(models.Model):
     date = fields.Datetime(string="Date and time", default=fields.Datetime.now, required=True)
     notes = fields.Text(string="Details")
     send_to = fields.Char(string="Sent to", readonly=True, copy=False)
-    strike_count_at_creation = fields.Integer(string="Strike count", readonly=True, copy=False)
+    strike_count = fields.Integer(string="Strike count", compute="_compute_strike_count")
 
     @api.depends("student_id", "date", "reason_id")
     def _compute_display_name(self):
         for strike in self:
             strike.display_name = f"{strike.student_id.display_name} | {strike.date} | {strike.reason_id.name}"
 
+    @api.depends("student_id")
+    def _compute_strike_count(self):
+        for strike in self:
+            strike.strike_count = self.search_count([
+                ("student_id", "=", strike.student_id.id), ("id", "<=", strike.id),
+            ]) if strike.id else 0
+
     @api.model_create_multi
     def create(self, vals_list):
         strikes = super().create(vals_list)
         for strike in strikes:
-            # sudo(): bookkeeping computed by the system, not a user-editable field —
-            # a teacher may only create strikes (no write access), see security/rules/coexistence.xml.
-            strike.sudo().write({"strike_count_at_creation": self.search_count([
-                ("student_id", "=", strike.student_id.id), ("id", "<=", strike.id),
-            ])})
             strike.sudo().chatter(_("Strike issued by %(teacher)s: %(reason)s", teacher=strike.teacher_id.display_name, reason=strike.reason_id.name))
             strike._notify()
             strike._check_escalation()
@@ -96,7 +98,7 @@ class ems_strike(models.Model):
     def _check_escalation(self):
         self.ensure_one()
         threshold = self.env.company.strike_escalation_threshold
-        if threshold <= 0 or self.strike_count_at_creation % threshold != 0:
+        if threshold <= 0 or self.strike_count % threshold != 0:
             return
         coordinators = self._matching_coexistence_coordinators()
         if not coordinators:

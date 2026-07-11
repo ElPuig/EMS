@@ -247,14 +247,14 @@ class TestStrike(TransactionCase):
         third_strike = self.env['ems.strike'].search(
             [('student_id', '=', self.minor_student.id)], order='id desc', limit=1
         )
-        self.assertEqual(third_strike.strike_count_at_creation, 3)
+        self.assertEqual(third_strike.strike_count, 3)
 
         for _i in range(3):
             self._create_strike(self.teacher_a_user)
         sixth_strike = self.env['ems.strike'].search(
             [('student_id', '=', self.minor_student.id)], order='id desc', limit=1
         )
-        self.assertEqual(sixth_strike.strike_count_at_creation, 6)
+        self.assertEqual(sixth_strike.strike_count, 6)
 
     def test_escalation_recipient_matches_teacher_branch(self):
         self.env.company.strike_escalation_threshold = 1

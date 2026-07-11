@@ -1428,6 +1428,8 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__active
 #: model:ir.model.fields,field_description:ems.field_ems_notice__active
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__active
+#: model:ir.model.fields,field_description:ems.field_ems_strike__active
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__active
 msgid "Active"
 msgstr "Actiu"
@@ -3227,6 +3229,7 @@ msgid "Description & Notes"
 msgstr "Descripció i notes"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_strike__notes
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
@@ -5967,6 +5970,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_role__name
 #: model:ir.model.fields,field_description:ems.field_ems_space__name
 #: model:ir.model.fields,field_description:ems.field_ems_space_type__name
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__name
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__name
 #: model:ir.model.fields,field_description:ems.field_ems_study__name
 #: model:ir.model.fields,field_description:ems.field_ems_subject__name
@@ -7786,6 +7790,7 @@ msgstr "Enviat el"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -8218,6 +8223,7 @@ msgstr "Carrer 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model:ir.model.fields,field_description:ems.field_ems_strike__student_id
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 msgid "Student"
@@ -8633,6 +8639,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_strike__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__teacher_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__teacher
@@ -10186,6 +10193,7 @@ msgstr "Sortida original"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__reason
+#: model:ir.model.fields,field_description:ems.field_ems_strike__reason_id
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
 msgid "Reason"
 msgstr "Motiu"
@@ -11570,10 +11578,10 @@ msgstr "Llindar d'escalat de convivència"
 #: model:mail.template,subject:ems.mail_strike_escalation
 msgid ""
 "Coexistence escalation: {{object.student_id.display_name}} "
-"({{object.strike_count_at_creation}} strikes)"
+"({{object.strike_count}} strikes)"
 msgstr ""
 "Escalat de convivència: {{object.student_id.display_name}} "
-"({{object.strike_count_at_creation}} strikes)"
+"({{object.strike_count}} strikes)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_list
@@ -11640,7 +11648,7 @@ msgid "Strike Escalation Threshold"
 msgstr "Llindar d'escalat de strikes"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_strike__strike_count_at_creation
+#: model:ir.model.fields,field_description:ems.field_ems_strike__strike_count
 #: model:ir.model.fields,field_description:ems.field_res_partner__strike_count
 #: model:ir.model.fields,field_description:ems.field_res_users__strike_count
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form
@@ -11730,7 +11738,7 @@ msgid ""
 "                            This is an automated email: a student has reached a strike count that requires your attention:\n"
 "                            </p><ul>\n"
 "                                <li><strong>Student:</strong> <span t-field=\"object.student_id\"/></li>\n"
-"                                <li><strong>Total strikes:</strong> <span t-field=\"object.strike_count_at_creation\"/></li>\n"
+"                                <li><strong>Total strikes:</strong> <span t-field=\"object.strike_count\"/></li>\n"
 "                                <li><strong>Latest strike date and time:</strong> <span t-field=\"object.date\"/></li>\n"
 "                                <li><strong>Issued by:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
 "                                <li><strong>Latest reason:</strong> <span t-field=\"object.reason_id\"/></li>\n"
@@ -11753,7 +11761,7 @@ msgstr ""
 "                            Aquest és un correu automàtic: un alumne ha arribat a un recompte de strikes que requereix la vostra atenció:\n"
 "                            </p><ul>\n"
 "                                <li><strong>Alumne:</strong> <span t-field=\"object.student_id\"/></li>\n"
-"                                <li><strong>Total de strikes:</strong> <span t-field=\"object.strike_count_at_creation\"/></li>\n"
+"                                <li><strong>Total de strikes:</strong> <span t-field=\"object.strike_count\"/></li>\n"
 "                                <li><strong>Data i hora de l'últim strike:</strong> <span t-field=\"object.date\"/></li>\n"
 "                                <li><strong>Posat per:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
 "                                <li><strong>Últim motiu:</strong> <span t-field=\"object.reason_id\"/></li>\n"

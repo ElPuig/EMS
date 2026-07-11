@@ -9,7 +9,6 @@
                     <field name="student_id"/>
                     <field name="teacher_id"/>
                     <field name="reason_id"/>
-                    <field name="strike_count_at_creation" string="Count"/>
                     <field name="notes"/>
                 </list>
             </field>

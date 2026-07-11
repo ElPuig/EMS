@@ -1537,8 +1537,19 @@ msgstr "Datos administrativos"
 
 #. module: ems
 #: model:res.groups,name:ems.group_academic_admin
+#: model:res.groups,name:ems.group_coexistence_admin
+#: model:res.groups,name:ems.group_quality_admin
+#: model:res.groups,name:ems.group_secretary_admin
+#: model:res.groups,name:ems.group_settings_admin
 msgid "Administrator"
 msgstr "Administrador"
+
+#. module: ems
+#: model:res.groups,name:ems.group_coexistence
+#: model:res.groups,name:ems.group_quality
+#: model:res.groups,name:ems.group_settings
+msgid "Manager"
+msgstr "Gestor/a"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__is_adult
@@ -2604,6 +2615,7 @@ msgstr "Ajustes de configuración"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_settings
 #: model:ir.ui.menu,name:ems.menu_attendance_config
+#: model:ir.ui.menu,name:ems.menu_coexistence_config
 #: model:ir.ui.menu,name:ems.menu_community_config
 #: model:ir.ui.menu,name:ems.menu_ems_configuration
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
@@ -6528,6 +6540,7 @@ msgid "Other"
 msgstr "Otro"
 
 #. module: ems
+#: model:ems.strike.reason,name:ems.strike_reason_other
 #: model:ir.model.fields.selection,name:ems.selection__ems_authorization_template__auth_type__other
 msgid "Other / General"
 msgstr "Otro / General"
@@ -11500,3 +11513,256 @@ msgid ""
 msgstr ""
 "Se muestran las plantillas de todos los estudios. Comprueba el estudio y el "
 "grupo de destino antes de crear las matrículas."
+
+#. module: ems
+#: model:ir.module.category,name:ems.category_coexistence
+#: model:ir.ui.menu,name:ems.menu_coexistence
+msgid "Coexistence"
+msgstr "Convivencia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Coexistence escalation threshold"
+msgstr "Umbral de escalado de convivencia"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_strike_escalation
+msgid ""
+"Coexistence escalation: {{object.student_id.display_name}} "
+"({{object.strike_count_at_creation}} strikes)"
+msgstr ""
+"Escalado de convivencia: {{object.student_id.display_name}} "
+"({{object.strike_count_at_creation}} strikes)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_list
+msgid "Count"
+msgstr "Recuento"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Details (optional)..."
+msgstr "Detalles (opcional)..."
+
+#. module: ems
+#: model:ems.strike.reason,name:ems.strike_reason_disrespect
+msgid "Disrespect towards a teacher or classmate"
+msgstr "Falta de respeto a un profesor o compañero"
+
+#. module: ems
+#: model:ems.strike.reason,name:ems.strike_reason_behaviour
+msgid "Disruptive behaviour"
+msgstr "Comportamiento disruptivo"
+
+#. module: ems
+#: model:ir.module.category,description:ems.category_coexistence
+msgid "Educational Management System - Coexistence"
+msgstr "Sistema de Gestión Educativa - Convivencia"
+
+#. module: ems
+#: model:ems.strike.reason,name:ems.strike_reason_device_misuse
+msgid "Improper use of a mobile device or electronic equipment"
+msgstr "Uso inadecuado de un dispositivo móvil o equipo electrónico"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Issue a strike"
+msgstr "Poner un strike"
+
+#. module: ems
+#: model:ems.strike.reason,name:ems.strike_reason_material
+msgid "Missing required material"
+msgstr "Falta de material necesario"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Send"
+msgstr "Enviar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_strike__send_to
+msgid "Sent to"
+msgstr "Enviado a"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_form
+msgid "Strike"
+msgstr "Strike"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__strike_escalation_threshold
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__strike_escalation_threshold
+msgid "Strike Escalation Threshold"
+msgstr "Umbral de escalado de strikes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_strike__strike_count_at_creation
+#: model:ir.model.fields,field_description:ems.field_res_partner__strike_count
+#: model:ir.model.fields,field_description:ems.field_res_users__strike_count
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_form
+msgid "Strike count"
+msgstr "Recuento de strikes"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_strike_escalation
+msgid "Strike escalation: coexistence coordinator"
+msgstr "Escalado de strikes: coordinador de convivencia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/coexistence/strike.py:0
+msgid "Strike issued by %(teacher)s: %(reason)s"
+msgstr "Strike puesto por %(teacher)s: %(reason)s"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_strike_notification
+msgid "Strike notification: student, family and tutor"
+msgstr "Notificación de strike: alumno, familia y tutor"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_strike_notification
+msgid "Strike notification: {{object.student_id.display_name}}"
+msgstr "Notificación de strike: {{object.student_id.display_name}}"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_reason_form
+msgid "Strike reason"
+msgstr "Motivo del strike"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_strike_reason
+msgid ""
+"Strike reason: predefined reasons a teacher can pick when issuing a strike."
+msgstr ""
+"Motivo de strike: motivos predefinidos que un profesor puede elegir al"
+" poner un strike."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_strike_reason_list
+#: model:ir.ui.menu,name:ems.menu_coexistence_strike_reasons
+msgid "Strike reasons"
+msgstr "Motivos de strike"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_strike
+msgid "Strike: a disciplinary notice issued by a teacher against a student."
+msgstr "Strike: un aviso disciplinario puesto por un profesor a un alumno."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_strike_list
+#: model:ir.model.fields,field_description:ems.field_res_partner__strike_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__strike_ids
+#: model:ir.ui.menu,name:ems.menu_coexistence_strikes
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Strikes"
+msgstr "Strikes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Strikes Settings"
+msgstr "Configuración de los strikes"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_strike_escalation
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Dear coexistence coordinator,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            This is an automated email: a student has reached a strike count that requires your attention:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Student:</strong> <span t-field=\"object.student_id\"/></li>\n"
+"                                <li><strong>Total strikes:</strong> <span t-field=\"object.strike_count_at_creation\"/></li>\n"
+"                                <li><strong>Latest strike date:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Issued by:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Latest reason:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>You can review the full history under Coexistence &gt; Strikes.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Estimado/a coordinador/a de convivencia,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Este es un correo automático: un alumno ha alcanzado un recuento de strikes que requiere su atención:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Alumno:</strong> <span t-field=\"object.student_id\"/></li>\n"
+"                                <li><strong>Total de strikes:</strong> <span t-field=\"object.strike_count_at_creation\"/></li>\n"
+"                                <li><strong>Fecha del último strike:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Puesto por:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Último motivo:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>Puede consultar el historial completo en Convivencia &gt; Strikes.</p>\n"
+"                        <p>\n"
+"                            Saludos cordiales,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_strike_notification
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Dear family,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            This is an automated email, in order to inform you about a strike issued to a student:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Student:</strong> <span t-field=\"object.student_id\"/></li>\n"
+"                                <li><strong>Date:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Teacher:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Reason:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>If you need further information, you can contact with <t t-out=\"object.teacher_id.display_name\"/> just replying to this email.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Estimada familia,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Este es un correo automático, para informarle de un strike puesto a un alumno:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Alumno:</strong> <span t-field=\"object.student_id\"/></li>\n"
+"                                <li><strong>Fecha:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Profesor:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Motivo:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Detalles:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>Si necesita más información, puede contactar con <t t-out=\"object.teacher_id.display_name\"/> respondiendo a este correo.</p>\n"
+"                        <p>\n"
+"                            Saludos cordiales,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "

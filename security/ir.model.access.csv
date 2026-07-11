@@ -270,3 +270,10 @@ ems.access_ems_student_document_secretary,ems.access_ems_student_document_secret
 ems.access_ems_student_document_portal,ems.access_ems_student_document_portal,ems.model_ems_student_document,base.group_portal,1,1,0,0
 ems.access_account_move_teacher,ems.access_account_move_teacher,account.model_account_move,ems.group_teacher,1,0,0,0
 ems.access_account_move_line_teacher,ems.access_account_move_line_teacher,account.model_account_move_line,ems.group_teacher,1,0,0,0
+
+ems.access_ems_strike_reason_admin,ems.access_ems_strike_reason_admin,ems.model_ems_strike_reason,ems.group_academic_admin,1,1,1,1
+ems.access_ems_strike_reason_teacher,ems.access_ems_strike_reason_teacher,ems.model_ems_strike_reason,ems.group_teacher,1,0,0,0
+
+ems.access_ems_strike_admin,ems.access_ems_strike_admin,ems.model_ems_strike,ems.group_academic_admin,1,1,1,1
+ems.access_ems_strike_teacher,ems.access_ems_strike_teacher,ems.model_ems_strike,ems.group_teacher,1,0,1,0
+ems.access_ems_strike_coexistence,ems.access_ems_strike_coexistence,ems.model_ems_strike,ems.group_coexistence,1,0,0,0

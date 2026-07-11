@@ -8,7 +8,7 @@ id,name,color,employee_type,unipersonal
 "ems.role_dchieff","Department chieff",7,teacher,false
 "ems.role_catskills","CatSkills coordinator",8,teacher,true
 "ems.role_director","Director",9,teacher,true
-"ems.role_coexistence","Coexistence coordinator",10,teacher,true
+"ems.role_coexistence","Coexistence coordinator",10,teacher,false
 "ems.role_orc","Occupational risk coordinator",11,teacher,true
 "ems.role_erasmus","Erasmus coordinator",12,teacher,true
 "ems.role_vetcoord","VET coordinator",13,teacher,true

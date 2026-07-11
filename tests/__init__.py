@@ -16,3 +16,5 @@ from . import test_data_main_cat_prefix
 from . import test_security_group_references
 from . import test_grade_session_tour
 from . import test_employee_google_workspace
+from . import test_strike
+from . import test_strike_tour

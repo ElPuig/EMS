@@ -1,0 +1,26 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_strike_form">
+            <field name="name">ems.strike.form</field>
+            <field name="model">ems.strike</field>
+            <field name="arch" type="xml">
+                <form string="Strike">
+                    <sheet>
+                        <group col="4">
+                            <field name="student_id"/>
+                            <field name="teacher_id"/>
+                            <field name="reason_id"/>
+                            <field name="date"/>
+                            <field name="strike_count_at_creation" string="Strike count"/>
+                            <field name="send_to"/>
+                        </group>
+                        <group string="Details">
+                            <field name="notes" nolabel="1"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

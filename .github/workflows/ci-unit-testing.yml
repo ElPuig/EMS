@@ -32,9 +32,23 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y wget gnupg \
+          sudo apt-get install -y wget gnupg python3-pip \
             python3-lxml python3-lxml-html-clean python3-phonenumbers
-      
+
+      # Required to run the browser (tour) tests — mirrors the "Only under development
+      # environments" section of README.md, so CI exercises the same tours a developer
+      # would run locally instead of silently skipping them for missing dependencies.
+      - name: Install browser test dependencies (websocket-client, Chrome)
+        run: |
+          sudo pip install --break-system-packages websocket-client
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
+            | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
+          echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
+            | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update -qq
+          sudo apt-get install -y google-chrome-stable
+
       - name: Install Odoo v18 from official repository
         run: |
           wget -q -O - https://nightly.odoo.com/odoo.key \

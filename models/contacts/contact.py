@@ -71,6 +71,8 @@ class ems_contact(models.Model):
     # model-data fields:
     main_group_id = fields.Many2one(string='Main Group', comodel_name='ems.group')
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
+    strike_ids = fields.One2many(string='Strikes', comodel_name='ems.strike', inverse_name='student_id')
+    strike_count = fields.Integer(string='Strike count', compute='_compute_strike_count')
     # Shift granted at pre-enrollment (GEDAC/preinscription), stored on the applicant
     # who still has no group to derive it from. Consumed by the enrollment proposal to
     # pre-fill the enrollment shift and pick the destination group.
@@ -264,6 +266,13 @@ class ems_contact(models.Model):
             'target': 'current',
         }
 
+    def action_view_strikes(self):
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_strike_list')
+        action['domain'] = [('student_id', '=', self.id)]
+        action['context'] = {}
+        return action
+
     def action_new_enrollment(self):
         self.ensure_one()
         return {
@@ -387,8 +396,13 @@ class ems_contact(models.Model):
                 else:
                     rec.benefit_status = 'none'
 
+    @api.depends('strike_ids')
+    def _compute_strike_count(self):
+        for partner in self:
+            partner.strike_count = len(partner.strike_ids)
+
     @api.depends('birth_date')
-    def _compute_is_adult(self):	
+    def _compute_is_adult(self):
         for rec in self:	
             rec.is_adult = bool(rec.birth_date) and (relativedelta(datetime.date.today(), rec.birth_date).years >= 18)
 

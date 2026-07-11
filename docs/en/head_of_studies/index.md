@@ -11,6 +11,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 ## Available Manuals
 
 - [Deciding on Attendance Correction Requests](attendance-corrections.md)
+- [Strikes: Convivencia Menu and Escalation Emails](strike.md)
 
 ---
 

@@ -14,6 +14,7 @@ This section contains the manuals for **teachers**.
 |--------|-------------|
 | [Attendance: Reviewing Your Check-ins and Requesting Corrections](attendance-corrections.md) | Review your attendance check-ins and check-outs and request corrections |
 | [Evaluation: Record grades by learning outcome](qualificacions.md) | Record the grades for each evaluation to prepare the evaluation board |
+| [Strikes: Flagging a Disciplinary Incident](strike.md) | Issue a strike from the roll-call view when a student's behaviour needs to be flagged |
 
 ## Planned Topics
 

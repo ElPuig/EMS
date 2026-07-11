@@ -66,6 +66,11 @@ class AttendanceSessionView extends Component {
         this.notesTextarea = useRef("notesTextarea");
         this._lastnameMap  = {};
 
+        this.strikeDialog        = useRef("strikeDialog");
+        this.strikeReasonSelect  = useRef("strikeReasonSelect");
+        this.strikeNotesTextarea = useRef("strikeNotesTextarea");
+        this.strikeReasons = [];   // populated in onWillStart from ems.strike.reason
+
         this.state = useState({
             date: this._todayStr(),
             sessions: [],
@@ -78,6 +83,8 @@ class AttendanceSessionView extends Component {
             saving: {},
             editingLineId: null,
             editingStudentName: "",
+            editingStrikeStudentId: null,
+            editingStrikeStudentName: "",
             sortField: 'lastname',  // 'lastname' | 'name'
             sortDir:   'asc',       // 'asc' | 'desc'
             viewMode: 'current',    // 'current' | 'manual' | 'guard'
@@ -86,7 +93,7 @@ class AttendanceSessionView extends Component {
         });
 
         onWillStart(async () => {
-            await this._loadStatuses();
+            await Promise.all([this._loadStatuses(), this._loadStrikeReasons()]);
             await this._loadAll();
         });
     }
@@ -115,6 +122,12 @@ class AttendanceSessionView extends Component {
             title,
             label: title.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase(),
         }));
+    }
+
+    async _loadStrikeReasons() {
+        this.strikeReasons = await this.orm.searchRead(
+            "ems.strike.reason", [["active", "=", true]], ["id", "name"]
+        );
     }
 
     async _loadAll() {
@@ -312,6 +325,9 @@ class AttendanceSessionView extends Component {
             addNotes:          _t("Add notes"),
             cancel:            _t("Cancel"),
             save:              _t("Save"),
+            addStrike:            _t("Issue a strike"),
+            strikeNotesPlaceholder: _t("Details (optional)..."),
+            send:                 _t("Send"),
             lastnameAZ:        _t("Lastname A→Z"),
             lastnameZA:        _t("Lastname Z→A"),
             nameAZ:            _t("Name A→Z"),
@@ -447,6 +463,32 @@ class AttendanceSessionView extends Component {
         if (line) line.notes = notes || false;
         this.notesDialog.el.close();
         this.state.editingLineId = null;
+    }
+
+    onStrikeClick(studentId, studentName) {
+        this.state.editingStrikeStudentId = studentId;
+        this.state.editingStrikeStudentName = studentName;
+        this.strikeReasonSelect.el.value = this.strikeReasons.length ? this.strikeReasons[0].id : "";
+        this.strikeNotesTextarea.el.value = "";
+        this.strikeDialog.el.showModal();
+    }
+
+    onStrikeCancel() {
+        this.strikeDialog.el.close();
+        this.state.editingStrikeStudentId = null;
+    }
+
+    async onStrikeSend() {
+        const studentId = this.state.editingStrikeStudentId;
+        const reasonId  = parseInt(this.strikeReasonSelect.el.value);
+        const notes     = this.strikeNotesTextarea.el.value.trim();
+        await this.orm.create("ems.strike", [{
+            student_id: studentId,
+            reason_id: reasonId,
+            notes: notes || false,
+        }]);
+        this.strikeDialog.el.close();
+        this.state.editingStrikeStudentId = null;
     }
 
     onDeleteSession() {

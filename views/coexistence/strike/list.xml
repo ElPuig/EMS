@@ -1,0 +1,18 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_strike_list">
+            <field name="name">ems.strike.list</field>
+            <field name="model">ems.strike</field>
+            <field name="arch" type="xml">
+                <list default_order="date desc" create="0">
+                    <field name="date"/>
+                    <field name="student_id"/>
+                    <field name="teacher_id"/>
+                    <field name="reason_id"/>
+                    <field name="strike_count_at_creation" string="Count"/>
+                    <field name="notes"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

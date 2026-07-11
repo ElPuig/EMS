@@ -57,6 +57,10 @@ After any change, run `upgrade.sh` and check for WARNING / ERROR / CRITICAL outp
 - Use `assertRaises(Exception)` for DB-level violations (Odoo's `assertRaises` does not accept exception tuples).
 - Use unique codes/acronyms in test data that do not conflict with production data (ESO, BTX, CFGM, CFGS, EFPS, CFGB, PFI already exist).
 
+**Email safety in tests:** this environment's `ir.mail_server` table can point to real, credentialed outgoing servers (e.g. AWS SES, Gmail). Odoo's test runner does **not** suppress real SMTP delivery on its own — `mail.mail.send()` attempts a genuine connection/send even during `TransactionCase`/`HttpCase` tests, regardless of `--test-enable`. Any test whose code path can trigger an email (`send_mail(..., force_send=True)`, `message_post()` with followers, a cron/queue_job send invoked synchronously, etc.) must neutralize real delivery — never let a test send to an address read from seed/production data, since it could be a real person's mailbox. Two options, in order of preference:
+- **Default — mock the transport:** patch `odoo.addons.base.models.ir_mail_server.IrMailServer.send_email` (e.g. `unittest.mock.patch(...).start()` + `cls.addClassCleanup(...)` in `setUpClass`) so the full recipient-resolution/template logic still runs and stays assertable, but no network call happens. See `tests/test_strike.py`/`tests/test_strike_tour.py` for the pattern. Use only fictitious addresses (`@example.com` or similar) in test fixtures.
+- **Only if explicitly requested by the developer:** if a real send is genuinely needed (e.g. to visually verify formatting), do not use an address read from the database — require an explicit, authorized address from the developer (their own inbox, a designated test mailbox) passed in for that run, and confirm with them before sending.
+
 **Browser (tour) tests** — `static/tests/tours/<model>_tour.js` + `tests/test_<model>_tour.py`:
 - Tours use `registry.category("web_tour.tours").add(...)`.
 - Navigate to the target via `url: "/odoo/action-ems.<action_id>"` — do not chain menu-click steps.

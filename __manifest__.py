@@ -56,6 +56,7 @@
    'data': [
         'security/groups.xml',
         'security/rules/attendance.xml',
+        'security/rules/coexistence.xml',
         'security/rules/communications.xml',
         'security/rules/contacts.xml',
         'security/rules/grading.xml',
@@ -222,6 +223,13 @@
             'views/communications/notice/list.xml',
             'views/communications/notice/form.xml',
 
+        'views/coexistence/strike/list.xml',
+        'views/coexistence/strike/form.xml',
+        'views/coexistence/strike/menu.xml',
+        'views/coexistence/strike_reason/list.xml',
+        'views/coexistence/strike_reason/form.xml',
+        'views/coexistence/strike_reason/menu.xml',
+
         'views/academic_management/menu.xml',
             'views/academic_management/enrollment/enrollment_form.xml',
             'views/academic_management/enrollment/enrollment_list.xml',
@@ -276,6 +284,8 @@
         'mails/attendance/attendance_issue_status.xml',
         'mails/attendance/attendance_issue_rectification.xml',
         'mails/attendance/attendance_issue_tutor.xml',
+        'mails/coexistence/strike_notification.xml',
+        'mails/coexistence/strike_escalation.xml',
         'mails/enrollment/enrollment_send.xml',
 
         ### Reports templates ###
@@ -296,6 +306,7 @@
         'data/main/ems.contact.relation.type.xml',
         'data/main/ems.mail_activity_type.xml',
         'data/main/product.category.csv',
+        'data/main/ems.strike.reason.csv',
 
         'data/cat/attachments/asix/ir.attachment.csv',
         'data/cat/attachments/dam/ir.attachment.csv',

@@ -1,0 +1,19 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_strike_reason_form">
+            <field name="name">ems.strike.reason.form</field>
+            <field name="model">ems.strike.reason</field>
+            <field name="arch" type="xml">
+                <form string="Strike reason">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

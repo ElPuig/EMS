@@ -5,68 +5,488 @@
             <field name="name">Default schedule framework</field>
             <field name="is_framework">True</field>
             <field name="full_time_required_hours">24</field>
-            <field name="attendance_ids" eval="[
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 11, 'hour_to': 12, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 12, 'hour_to': 13, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 13, 'hour_to': 14, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 15, 'hour_to': 16, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 16, 'hour_to': 17, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 17, 'hour_to': 18, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 18, 'hour_to': 19, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 19, 'hour_to': 20, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '0', 'hour_from': 20, 'hour_to': 21, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 11, 'hour_to': 12, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 12, 'hour_to': 13, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 13, 'hour_to': 14, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 15, 'hour_to': 16, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 16, 'hour_to': 17, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 17, 'hour_to': 18, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 18, 'hour_to': 19, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 19, 'hour_to': 20, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '1', 'hour_from': 20, 'hour_to': 21, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 11, 'hour_to': 12, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 12, 'hour_to': 13, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 13, 'hour_to': 14, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 15, 'hour_to': 16, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 16, 'hour_to': 17, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 17, 'hour_to': 18, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 18, 'hour_to': 19, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 19, 'hour_to': 20, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '2', 'hour_from': 20, 'hour_to': 21, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 11, 'hour_to': 12, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 12, 'hour_to': 13, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 13, 'hour_to': 14, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 15, 'hour_to': 16, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 16, 'hour_to': 17, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 17, 'hour_to': 18, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 18, 'hour_to': 19, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 19, 'hour_to': 20, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '3', 'hour_from': 20, 'hour_to': 21, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 11, 'hour_to': 12, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 12, 'hour_to': 13, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 13, 'hour_to': 14, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 15, 'hour_to': 16, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 16, 'hour_to': 17, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 17, 'hour_to': 18, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 18, 'hour_to': 19, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 19, 'hour_to': 20, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Free', 'dayofweek': '4', 'hour_from': 20, 'hour_to': 21, 'day_period': 'afternoon'}),
-            ]"/>
+            <field name="attendance_ids" eval="[(5, 0, 0)]"/>
         </record>
+        <record id="schedule_framework_default_0_01" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">8</field>
+            <field name="hour_to">9</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_0_02" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">9</field>
+            <field name="hour_to">10</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_0_03" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">10</field>
+            <field name="hour_to">11</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_0_04" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">11</field>
+            <field name="hour_to">12</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_0_05" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">12</field>
+            <field name="hour_to">13</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_0_06" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">13</field>
+            <field name="hour_to">14</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_0_07" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">15</field>
+            <field name="hour_to">16</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_0_08" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">16</field>
+            <field name="hour_to">17</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_0_09" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">17</field>
+            <field name="hour_to">18</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_0_10" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">18</field>
+            <field name="hour_to">19</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_0_11" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">19</field>
+            <field name="hour_to">20</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_0_12" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">0</field>
+            <field name="hour_from">20</field>
+            <field name="hour_to">21</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_1_01" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">8</field>
+            <field name="hour_to">9</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_1_02" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">9</field>
+            <field name="hour_to">10</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_1_03" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">10</field>
+            <field name="hour_to">11</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_1_04" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">11</field>
+            <field name="hour_to">12</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_1_05" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">12</field>
+            <field name="hour_to">13</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_1_06" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">13</field>
+            <field name="hour_to">14</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_1_07" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">15</field>
+            <field name="hour_to">16</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_1_08" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">16</field>
+            <field name="hour_to">17</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_1_09" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">17</field>
+            <field name="hour_to">18</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_1_10" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">18</field>
+            <field name="hour_to">19</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_1_11" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">19</field>
+            <field name="hour_to">20</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_1_12" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">1</field>
+            <field name="hour_from">20</field>
+            <field name="hour_to">21</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_2_01" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">8</field>
+            <field name="hour_to">9</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_2_02" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">9</field>
+            <field name="hour_to">10</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_2_03" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">10</field>
+            <field name="hour_to">11</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_2_04" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">11</field>
+            <field name="hour_to">12</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_2_05" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">12</field>
+            <field name="hour_to">13</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_2_06" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">13</field>
+            <field name="hour_to">14</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_2_07" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">15</field>
+            <field name="hour_to">16</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_2_08" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">16</field>
+            <field name="hour_to">17</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_2_09" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">17</field>
+            <field name="hour_to">18</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_2_10" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">18</field>
+            <field name="hour_to">19</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_2_11" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">19</field>
+            <field name="hour_to">20</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_2_12" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">2</field>
+            <field name="hour_from">20</field>
+            <field name="hour_to">21</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_3_01" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">8</field>
+            <field name="hour_to">9</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_3_02" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">9</field>
+            <field name="hour_to">10</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_3_03" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">10</field>
+            <field name="hour_to">11</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_3_04" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">11</field>
+            <field name="hour_to">12</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_3_05" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">12</field>
+            <field name="hour_to">13</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_3_06" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">13</field>
+            <field name="hour_to">14</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_3_07" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">15</field>
+            <field name="hour_to">16</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_3_08" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">16</field>
+            <field name="hour_to">17</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_3_09" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">17</field>
+            <field name="hour_to">18</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_3_10" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">18</field>
+            <field name="hour_to">19</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_3_11" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">19</field>
+            <field name="hour_to">20</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_3_12" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">3</field>
+            <field name="hour_from">20</field>
+            <field name="hour_to">21</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_4_01" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">8</field>
+            <field name="hour_to">9</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_4_02" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">9</field>
+            <field name="hour_to">10</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_4_03" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">10</field>
+            <field name="hour_to">11</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_4_04" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">11</field>
+            <field name="hour_to">12</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_4_05" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">12</field>
+            <field name="hour_to">13</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_4_06" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">13</field>
+            <field name="hour_to">14</field>
+            <field name="day_period">morning</field>
+        </record>
+        <record id="schedule_framework_default_4_07" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">15</field>
+            <field name="hour_to">16</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_4_08" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">16</field>
+            <field name="hour_to">17</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_4_09" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">17</field>
+            <field name="hour_to">18</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_4_10" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">18</field>
+            <field name="hour_to">19</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_4_11" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">19</field>
+            <field name="hour_to">20</field>
+            <field name="day_period">afternoon</field>
+        </record>
+        <record id="schedule_framework_default_4_12" model="resource.calendar.attendance">
+            <field name="calendar_id" ref="schedule_framework_default"/>
+            <field name="name">Free</field>
+            <field name="dayofweek">4</field>
+            <field name="hour_from">20</field>
+            <field name="hour_to">21</field>
+            <field name="day_period">afternoon</field>
+        </record>
+
     </data>
 </odoo>

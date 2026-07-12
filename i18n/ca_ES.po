@@ -1698,6 +1698,11 @@ msgid "Another Coordinations"
 msgstr "Altres Coordinacions"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__br
+msgid "Break"
+msgstr "Pati"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Answer"
 msgstr "Resposta"

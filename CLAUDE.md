@@ -50,6 +50,8 @@ Both scripts must be run from the project root (`/root/myModules/ems/`).
 
 After any change, run `upgrade.sh` and check for WARNING / ERROR / CRITICAL output.
 
+**The full test suite is slow — don't run it more than necessary.** `./test.sh` (no argument) runs every test class and takes several minutes; running it after every small change wastes time without adding useful signal. Prefer `./test.sh TestClassName`, scoped to whatever model(s) you're actually touching, as the normal gate during iterative work (Red/Green/Refactor cycles, DTON phases, bug fixes). Run the full, unscoped `./test.sh` only once — as the final check before considering a piece of work done — not after every intermediate step. If a change plausibly affects other models (e.g. a shared mixin, a migration, a widget used in several views), scope down to the smallest set of `TestClassName` runs that actually covers the blast radius instead of reaching for the full suite by default.
+
 ## Testing conventions
 
 **Backend tests** — `tests/test_<model>.py`, using `odoo.tests.common.TransactionCase`:
@@ -159,15 +161,15 @@ A retroactive code quality process applied model by model:
 3. **O — Optimization:** `_order`, `_sql_constraints`, view fixes, computed field guards, refactoring, cleaner and simple code.
 4. **N — Normalization:** Apply Odoo v18 official coding guidelines.
 
-Run the full test suite after O and again after N to gate each phase.
+Gate O and N with `./test.sh TestClassName` for the model being cleaned (see "The full test suite is slow" above); run the full, unscoped `./test.sh` once, after N, not after both phases.
 
 ## New feature workflow (TDD + DTON)
 
 DTON above is the retroactive process; this is how new models/features should be built so that they arrive already DTON-compliant instead of needing a cleanup pass later. It is TDD's Red-Green-Refactor cycle, with D/O/N slotted into it — no separate process to remember:
 
 1. **Spec (before Red) — D:** Before any test or code, stub `docs/en/developers/<area>/<model>.md` (Mermaid diagram of hierarchy/relations, CRUD flow, access-control table). From that access-control table, identify **every role that will actually use the feature** (`admin`, `teachers`, `tutors`, `secretary`, `head_of_studies`, `families` — a feature is frequently relevant to more than one, e.g. a teacher-facing grading screen plus an admin config screen) and stub one `docs/{en,ca,es}/<role>/<model>.md` per role identified, not just `admin/`. These stubs are the acceptance criteria for the cycle below.
-2. **Red — T:** Write `tests/test_<model>.py` (`TransactionCase`) and, if applicable, the tour (`static/tests/tours/<model>_tour.js` + `tests/test_<model>_tour.py`) before the model exists. `./test.sh` must fail.
-3. **Green — T:** Write the minimum code to pass: `models/<area>/<model>.py`, `security/ir.model.access.csv` (+ `security/rules/*.xml` if needed), `views/<area>/<model>/{form,list,menu}.xml`, manifest bump. `./test.sh` must pass.
+2. **Red — T:** Write `tests/test_<model>.py` (`TransactionCase`) and, if applicable, the tour (`static/tests/tours/<model>_tour.js` + `tests/test_<model>_tour.py`) before the model exists. `./test.sh TestClassName` (scoped to the new test class) must fail.
+3. **Green — T:** Write the minimum code to pass: `models/<area>/<model>.py`, `security/ir.model.access.csv` (+ `security/rules/*.xml` if needed), `views/<area>/<model>/{form,list,menu}.xml`, manifest bump. `./test.sh TestClassName` must pass.
 4. **Refactor — O + N:** In the same cycle, not as a later pass: add `_order`, `_sql_constraints`, computed field guards, view fixes (O); apply the Odoo v18 coding guidelines from the "Coding standards" section above — model attribute order, alphabetical imports, f-strings, loop variable naming, translatable literals (N).
-5. **Gate:** `./upgrade.sh` and `./test.sh` after each Red-Green-Refactor cycle.
-6. **Close — D:** For every role identified in the Spec step, fill in the three language versions of that role's user doc (`docs/{en,ca,es}/<role>/<model>.md`) — this is a mandatory deliverable of every new feature, not an optional extra to be requested separately; skipping it because the feature "isn't for admins" is the most common way this step gets missed. Also update the role's `index.md` to link the new manual. Add the new strings' real Catalan/Spanish translations to `i18n/ca_ES.po` and `i18n/es_ES.po` (see "All literals must be translatable" above — wrapping in `_()`/`_t()` during Green/Refactor is not enough on its own), and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle.
+5. **Gate:** `./upgrade.sh` and `./test.sh TestClassName` after each Red-Green-Refactor cycle (see "The full test suite is slow" above — don't reach for the unscoped `./test.sh` here).
+6. **Close — D:** For every role identified in the Spec step, fill in the three language versions of that role's user doc (`docs/{en,ca,es}/<role>/<model>.md`) — this is a mandatory deliverable of every new feature, not an optional extra to be requested separately; skipping it because the feature "isn't for admins" is the most common way this step gets missed. Also update the role's `index.md` to link the new manual. Add the new strings' real Catalan/Spanish translations to `i18n/ca_ES.po` and `i18n/es_ES.po` (see "All literals must be translatable" above — wrapping in `_()`/`_t()` during Green/Refactor is not enough on its own), and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle. Finish by running the full, unscoped `./test.sh` exactly once, as the final gate for the whole feature.

@@ -48,6 +48,7 @@ class ems_working_schedule_assignation(models.Model):
 
 	non_teaching_selection=[
 		("AC", "Another Coordinations"),
+		("BR", "Break"),
 		("CM", "Coordination Meeting"),
 		("CT", "Coordination Time"),
         ("G", "Guard"),

@@ -1703,6 +1703,11 @@ msgid "Another Coordinations"
 msgstr "Otras Coordinaciones"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__br
+msgid "Break"
+msgstr "Patio"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Answer"
 msgstr "Respuesta"

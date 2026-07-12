@@ -367,6 +367,8 @@
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',
         'data/custom/hr.department.csv',
+        'data/custom/resource.calendar.csv',
+        'data/custom/resource.calendar.attendance.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',
         'data/custom/ems.course.xml',
@@ -387,6 +389,7 @@
     'license': 'AGPL-3',
     'installable': True,
     'application': True,
+    'post_init_hook': 'post_init_hook',
     
     # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [

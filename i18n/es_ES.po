@@ -9208,8 +9208,10 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
@@ -12123,3 +12125,21 @@ msgstr "No se ha cargado ningún archivo XML. Por favor, proporciona al menos un
 #: model:ir.actions.report,print_report_name:ems.action_report_working_schedule
 msgid "'Working Schedule - %s - %s' % (object.name, object.company_id.current_course_id.name)"
 msgstr "'Horario - %s - %s' % (object.name, object.company_id.current_course_id.name)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Weekly teaching hours"
+msgstr "Horas lectivas semanales"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Other fixed-schedule hours"
+msgstr "Otras horas en horario fijo"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Overall total:"
+msgstr "Total general:"

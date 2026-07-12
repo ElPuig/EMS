@@ -64,6 +64,12 @@ Nothing needs to be assigned yet — open their **Schedule** tab and use **Edit*
 
 Each block shows its exact start–end time, the subject/group or the non-teaching reason, and the classroom (taken from the group's own default classroom). Periods that are still unassigned simply show no block — the framework's structure (breaks, meetings) is what tells you a slot is expected there.
 
+Below the grid, a small summary table shows the teacher's total weekly hours in two columns:
+- **Weekly teaching hours**: one row per level of studies (e.g. CFGS, CFGM, ESO), plus any non-teaching activity not listed in the other column.
+- **Other fixed-schedule hours**: guard duties (any day) and coordination meetings specifically on Wednesday.
+
+The break is never counted in either column. A period that only partially overlaps an hour still counts as a full hour. Each column shows its own total, followed by the overall total (24 hours for a full-time teacher). This summary always reflects the saved schedule, so it disappears while you're editing and reappears (updated) once you save.
+
 ---
 
 ## Edit a Teacher's Schedule

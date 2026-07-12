@@ -64,6 +64,12 @@ Todavía no hace falta asignar nada — abre su pestaña **Horario** y usa **Edi
 
 Cada bloque muestra su hora exacta de inicio y fin, la asignatura/grupo o el motivo no lectivo, y el aula (según el aula por defecto del grupo). Las franjas todavía sin asignar simplemente no muestran ningún bloque — la estructura del marco (patios, reuniones) ya indica que se espera algo ahí.
 
+Debajo de la cuadrícula, una pequeña tabla resumen muestra el total de horas semanales del docente en dos columnas:
+- **Horas lectivas semanales**: una fila por nivel de estudios (p. ej. CFGS, CFGM, ESO), más cualquier actividad no lectiva que no aparezca en la otra columna.
+- **Otras horas en horario fijo**: guardias (cualquier día) y reuniones de coordinación específicamente los miércoles.
+
+El patio nunca se cuenta en ninguna de las dos columnas. Una franja que solo se solapa parcialmente con una hora igualmente cuenta como una hora completa. Cada columna muestra su propio total, seguido del total general (24 horas para un docente a tiempo completo). Este resumen siempre refleja el horario guardado, por lo que desaparece mientras lo estás editando y vuelve a aparecer (actualizado) al guardarlo.
+
 ---
 
 ## Editar el horario de un docente

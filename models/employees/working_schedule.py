@@ -4,6 +4,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 import xml.etree.ElementTree as ET
 import base64
+import math
 
 class ems_working_schedule(models.Model):
 	_inherit = 'resource.calendar'
@@ -96,6 +97,58 @@ class ems_working_schedule(models.Model):
 	def _format_report_time(self, value):
 		hour, minutes = divmod(round(value * 60), 60)
 		return "%02d:%02d" % (hour, minutes)
+
+	# Wednesday is dayofweek '2' (dayofweek follows date.weekday(): '0'=Monday).
+	FIXED_HOURS_WEDNESDAY = '2'
+
+	def get_schedule_hours_summary(self):
+		"""Weekly hours totals for the Schedule tab's summary table, split into two columns exactly
+		like the real external schedules this data is modelled on:
+		- 'teaching': weekly teaching hours grouped by level (ems.group.level_id), plus every
+		  non-teaching activity that ISN'T a guard duty or a Wednesday coordination meeting (the
+		  break, 'BR', is dropped entirely from both columns).
+		- 'fixed': guard duties (any day) and coordination meetings ('CM') specifically on Wednesday —
+		  the centre's fixed non-teaching commitments.
+		Each period's duration is rounded UP to the nearest whole hour (a period that only partially
+		overlaps an hour still counts as one full hour), then summed. Not stored — cheap to compute
+		from the calendar's own attendance_ids, and reused as-is by the PDF report's own summary table
+		later. For a full-time teacher, 'total' should equal 24 (full_time_required_hours)."""
+		self.ensure_one()
+		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
+
+		teaching_rows = {}
+		fixed_rows = {}
+		for attendance in weekday_entries:
+			duration = math.ceil(attendance.hour_to - attendance.hour_from)
+			if attendance.subject_id:
+				level = attendance.group_ids[:1].level_id
+				key = ('level', level.id)
+				bucket = teaching_rows
+				label = level.display_name
+			elif attendance.non_teaching == 'BR':
+				continue
+			elif attendance.non_teaching:
+				is_fixed = attendance.non_teaching == 'G' or (attendance.non_teaching == 'CM' and attendance.dayofweek == self.FIXED_HOURS_WEDNESDAY)
+				bucket = fixed_rows if is_fixed else teaching_rows
+				key = ('activity', attendance.non_teaching)
+				label = attendance.get_report_label()
+			else:
+				continue
+
+			if key not in bucket:
+				bucket[key] = {'label': label, 'hours': 0}
+			bucket[key]['hours'] += duration
+
+		teaching = sorted(teaching_rows.values(), key=lambda row: row['label'])
+		fixed = sorted(fixed_rows.values(), key=lambda row: row['label'])
+		teaching_total = sum(row['hours'] for row in teaching)
+		fixed_total = sum(row['hours'] for row in fixed)
+
+		return {
+			'teaching': {'rows': teaching, 'total': teaching_total},
+			'fixed': {'rows': fixed, 'total': fixed_total},
+			'total': teaching_total + fixed_total,
+		}
 
 class ems_working_schedule_assignation(models.Model):
 	_inherit = 'resource.calendar.attendance'

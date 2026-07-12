@@ -146,6 +146,48 @@
                         </div>
                     </t>
                 </div>
+
+                <div t-if="!editing.value and (summary.teaching.rows.length or summary.fixed.rows.length)" class="o_schedule_grid_summary mt-3">
+                    <div class="o_schedule_grid_summary_columns">
+                        <div class="o_schedule_grid_summary_column">
+                            <div class="o_schedule_grid_summary_header">Weekly teaching hours</div>
+                            <table class="o_schedule_grid_summary_table">
+                                <tbody>
+                                    <t t-foreach="summary.teaching.rows" t-as="row" t-key="row.label">
+                                        <tr>
+                                            <td t-esc="row.label"/>
+                                            <td t-esc="row.hours + ' h'"/>
+                                        </tr>
+                                    </t>
+                                    <tr class="o_schedule_grid_summary_total">
+                                        <td>Total</td>
+                                        <td t-esc="summary.teaching.total + ' h'"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="o_schedule_grid_summary_column">
+                            <div class="o_schedule_grid_summary_header">Other fixed-schedule hours</div>
+                            <table class="o_schedule_grid_summary_table">
+                                <tbody>
+                                    <t t-foreach="summary.fixed.rows" t-as="row" t-key="row.label">
+                                        <tr>
+                                            <td t-esc="row.label"/>
+                                            <td t-esc="row.hours + ' h'"/>
+                                        </tr>
+                                    </t>
+                                    <tr class="o_schedule_grid_summary_total">
+                                        <td>Total</td>
+                                        <td t-esc="summary.fixed.total + ' h'"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="o_schedule_grid_summary_grand_total">
+                        <span>Overall total:</span> <t t-esc="summary.total + ' h'"/>
+                    </div>
+                </div>
             </t>
         </div>
     </t>

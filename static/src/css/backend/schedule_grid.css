@@ -160,3 +160,47 @@
     font-size: 12px;
     max-width: 260px;
 }
+
+.o_schedule_grid_summary_columns {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.o_schedule_grid_summary_column {
+    min-width: 220px;
+}
+
+.o_schedule_grid_summary_header {
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.o_schedule_grid_summary_table {
+    font-size: 12px;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.o_schedule_grid_summary_table td {
+    padding: 2px 10px 2px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.o_schedule_grid_summary_table td:last-child {
+    text-align: right;
+    font-weight: 600;
+}
+
+.o_schedule_grid_summary_total td {
+    border-bottom: none;
+    border-top: 1px solid #adb5bd;
+    font-weight: 600;
+}
+
+.o_schedule_grid_summary_grand_total {
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}

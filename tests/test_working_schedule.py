@@ -189,6 +189,95 @@ class TestWorkingSchedule(TransactionCase):
         self.assertEqual(monday['color'], wednesday['color'])
         self.assertNotEqual(monday['color'], tuesday['color'])
 
+    def test_get_schedule_hours_summary_groups_teaching_hours_by_level(self):
+        other_level = self.env['ems.level'].create({'acronym': 'TWSL2', 'name': 'Test Level 2 (Working Schedule)'})
+        other_study = self.env['ems.study'].create({
+            'code': 'TWSL002', 'acronym': 'TWSL2', 'name': 'Test Study 2 (Working Schedule)',
+            'date': date.today(), 'deprecated': False, 'level_id': other_level.id,
+        })
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TWSL2', 'level_id': other_level.id, 'study_id': other_study.id, 'space_id': self.space.id,
+        })
+        schedule = self.env['resource.calendar'].create({'name': 'Test Hours Summary (Working Schedule)'})
+        schedule.apply_schedule_changes([
+            {
+                'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            },
+            {
+                'dayofweek': '1', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            },
+            {
+                'dayofweek': '2', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [other_group.id], 'name': 'TWSL: TWSL2',
+            },
+        ])
+
+        summary = schedule.get_schedule_hours_summary()
+
+        teaching = {row['label']: row['hours'] for row in summary['teaching']['rows']}
+        self.assertEqual(teaching[self.level.display_name], 2)
+        self.assertEqual(teaching[other_level.display_name], 1)
+        self.assertEqual(summary['teaching']['total'], 3)
+
+    def test_get_schedule_hours_summary_excludes_break(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Hours Summary Break (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 9.5, 'day_period': 'morning',
+            'non_teaching': 'BR', 'name': 'BR: Break',
+        }])
+
+        summary = schedule.get_schedule_hours_summary()
+
+        self.assertFalse(summary['teaching']['rows'])
+        self.assertFalse(summary['fixed']['rows'])
+        self.assertEqual(summary['total'], 0)
+
+    def test_get_schedule_hours_summary_guard_and_wednesday_coordination_go_to_fixed_column(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Hours Summary Fixed (Working Schedule)'})
+        schedule.apply_schedule_changes([
+            {
+                'dayofweek': '0', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
+                'non_teaching': 'G', 'name': 'G: Guard',
+            },
+            {
+                'dayofweek': '2', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
+                'non_teaching': 'CM', 'name': 'CM: Coordination Meeting',
+            },
+            {
+                'dayofweek': '1', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
+                'non_teaching': 'CM', 'name': 'CM: Coordination Meeting',
+            },
+            {
+                'dayofweek': '3', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
+                'non_teaching': 'SC', 'name': 'SC: School Council',
+            },
+        ])
+
+        summary = schedule.get_schedule_hours_summary()
+
+        fixed = {row['label']: row['hours'] for row in summary['fixed']['rows']}
+        teaching = {row['label']: row['hours'] for row in summary['teaching']['rows']}
+        self.assertEqual(fixed['Guard'], 1)
+        self.assertEqual(fixed['Coordination Meeting'], 1)  # only the Wednesday one
+        self.assertEqual(teaching['Coordination Meeting'], 1)  # Tuesday one, not fixed
+        self.assertEqual(teaching['School Council'], 1)
+        self.assertEqual(summary['fixed']['total'], 2)
+        self.assertEqual(summary['teaching']['total'], 2)
+        self.assertEqual(summary['total'], 4)
+
+    def test_get_schedule_hours_summary_rounds_partial_hours_up(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Hours Summary Rounding (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 9.5, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        summary = schedule.get_schedule_hours_summary()
+
+        self.assertEqual(summary['teaching']['rows'][0]['hours'], 1)
+
     def test_report_working_schedule_renders(self):
         self.teacher.resource_calendar_id = self.framework
         self.teacher.resource_calendar_id.apply_schedule_changes([{

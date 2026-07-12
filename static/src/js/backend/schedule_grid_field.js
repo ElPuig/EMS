@@ -49,16 +49,31 @@ export class ScheduleGridField extends Component {
         this._pendingSourceFrameworkId = false;
         this.newPanel = useState({ open: false, value: "", frameworks: [], teachers: [] });
         this.catalog = useState({ subjects: [], groups: [], nonTeaching: [] });
+        this.summary = useState({ teaching: { rows: [], total: 0 }, fixed: { rows: [], total: 0 }, total: 0 });
         onWillStart(async () => {
             const [subjects, groups, attendanceFields] = await Promise.all([
                 this.orm.searchRead("ems.subject", [], ["id", "display_name"]),
                 this.orm.searchRead("ems.group", [], ["id", "display_name"]),
                 this.orm.call("resource.calendar.attendance", "fields_get", [["non_teaching"], ["selection"]]),
+                this._loadSummary(),
             ]);
             this.catalog.subjects = subjects;
             this.catalog.groups = groups;
             this.catalog.nonTeaching = attendanceFields.non_teaching.selection.filter((item) => item[0]);
         });
+    }
+
+    // Weekly hours summary table (below the grid, view mode only) — always reflects the last SAVED
+    // schedule, never the in-progress edit buffer (see the class comment on 'apply_schedule_changes'
+    // for why unsaved state shouldn't drive server-computed aggregates).
+    async _loadSummary() {
+        if (!this.calendarId) {
+            return;
+        }
+        const result = await this.orm.call("resource.calendar", "get_schedule_hours_summary", [[this.calendarId]]);
+        this.summary.teaching = result.teaching;
+        this.summary.fixed = result.fixed;
+        this.summary.total = result.total;
     }
 
     get calendarId() {
@@ -484,6 +499,7 @@ export class ScheduleGridField extends Component {
         }
         await this.orm.call("resource.calendar", "apply_schedule_changes", [[this.calendarId], cells, this._pendingSourceFrameworkId || false]);
         await this.props.record.load();
+        await this._loadSummary();
         this.editing.value = false;
         this.dirty.value = false;
     }

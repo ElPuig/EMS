@@ -4,8 +4,9 @@
             <field name="name">ems.working_schedules_import.wizard</field>
             <field name="model">ems.working_schedules_import_wizard</field>
             <field name="arch" type="xml">
-                <form string="Session"> 
-                    <field name="is_overriding" invisible="1"/> 
+                <form string="Session">
+                    <field name="teacher_id" invisible="1"/>
+                    <field name="is_overriding" invisible="1"/>
                     <div class="alert alert-warning" role="alert" name="alert-warning" invisible="not is_overriding">
                         Attention please: some teachers (<field name="overrided_teachers" readonly="1" class="oe_inline fw-bold" options="{'no_open': True}"/>) already have a schedule defined for the current course. If you continue with the process: <br/>
                         <ul>
@@ -15,12 +16,15 @@
                         </ul>
                     </div>
 
-                    <group>
+                    <group invisible="not teacher_id">
                          <field name="file" readonly="False" options="{'accepted_file_extensions': '.xml'}"/>
+                    </group>
+                    <group invisible="teacher_id">
+                         <field name="attachment_ids" widget="many2many_binary" options="{'accepted_file_extensions': '.xml'}"/>
                     </group>
 
                     <footer>
-                        <button name="import_planner_data" string="Import" type="object" class="btn-primary" icon="fa-calendar-plus-o" invisible="file == False" />
+                        <button name="import_planner_data" string="Import" type="object" class="btn-primary" icon="fa-calendar-plus-o" invisible="file == False and not attachment_ids" />
                         <button name="cancel" string="Cancel" special="cancel"/>
                     </footer>
                 </form>              

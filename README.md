@@ -66,7 +66,6 @@ sudo chown -R root:odoo myModules
 sudo chmod g+s myModules
 
 apt install pip -y
-apt install python3-lxml python3-lxml-html-clean python3-phonenumbers -y
 
 cd myModules
 git clone https://github.com/ElPuig/EMS.git ems
@@ -76,7 +75,7 @@ python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().
 
 ```
 
-> **Note:** the required OCA modules (`queue` and `partner-contact`) are cloned automatically by `install.sh` when you run it for the first time.
+> **Note:** the required OCA modules (`queue` and `partner-contact`) are cloned automatically by `install.sh` when you run it for the first time. System (apt) Python dependencies are also installed/kept up to date automatically by `install.sh` and `upgrade.sh`, from the list in [`apt-requirements.txt`](apt-requirements.txt) — do not install them with pip.
 
 Copy the generated secret key and use it to setup the odoo configuration file as follows:
 ```

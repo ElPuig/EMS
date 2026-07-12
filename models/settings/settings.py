@@ -8,6 +8,7 @@ class ems_settings(models.TransientModel):
    # NOTE: check within company why this filed has been created as a related one, and also where is the string property defined.
    attendance_issue_status_delay = fields.Integer(related="company_id.attendance_issue_status_delay", readonly=False)
    attendance_issue_tutor_default = fields.Float(related="company_id.attendance_issue_tutor_default", readonly=False)
+   strike_escalation_threshold = fields.Integer(related="company_id.strike_escalation_threshold", readonly=False)
    auto_checkin_mode = fields.Selection(related="company_id.auto_checkin_mode", readonly=False)
    auto_checkout_mode = fields.Selection(related="company_id.auto_checkout_mode", readonly=False)
    auto_checkout_time = fields.Float(related="company_id.auto_checkout_time", readonly=False)
@@ -16,6 +17,9 @@ class ems_settings(models.TransientModel):
    schedule_import_last_entry_time  = fields.Float(related="company_id.schedule_import_last_entry_time",  readonly=False)
 
    current_course_id = fields.Many2one(comodel_name="ems.course", related="company_id.current_course_id", readonly=False)
+   # NOTE: cannot be named 'default_*' here — res.config.settings treats that prefix as a special
+   # ir.default-setting field (requires a 'default_model' attribute), not a plain related field.
+   schedule_framework_id = fields.Many2one(comodel_name="resource.calendar", related="company_id.default_schedule_framework_id", readonly=False, domain="[('is_framework', '=', True)]")
 
    secretariat_email = fields.Char(related="company_id.secretariat_email", readonly=False)
    center_code = fields.Char(related="company_id.center_code", readonly=False)

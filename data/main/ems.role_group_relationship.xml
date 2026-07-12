@@ -32,5 +32,9 @@
         <record id="role_quality" model="ems.role">
             <field name="group_id" ref="ems.group_quality_admin"/>
         </record>
+
+        <record id="role_coexistence" model="ems.role">
+            <field name="group_id" ref="ems.group_coexistence"/>
+        </record>
     </data>
 </odoo>

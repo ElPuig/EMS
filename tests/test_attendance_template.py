@@ -131,3 +131,91 @@ class TestAttendanceTemplate(TransactionCase):
 
         with self.assertRaises(ValidationError):
             template2.write({'teacher_id': self.teacher_a.id})
+
+
+class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.level = cls.env['ems.level'].create({'acronym': 'TATS', 'name': 'Test Level (Attendance Template Sync)'})
+        cls.study = cls.env['ems.study'].create({
+            'code': 'TATS001',
+            'acronym': 'TATS',
+            'name': 'Test Study (Attendance Template Sync)',
+            'date': date.today(),
+            'deprecated': False,
+            'level_id': cls.level.id,
+        })
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TATS001',
+            'acronym': 'TATS',
+            'name': 'Test Subject (Attendance Template Sync)',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        cls.space = cls.env['ems.space'].create({
+            'code': 'TATS-A',
+            'name': 'Test Space (Attendance Template Sync)',
+            'space_type_id': cls.env.ref('ems.space_type_classroom').id,
+            'work_location_id': cls.env.ref('ems.work_location_main').id,
+        })
+        cls.group = cls.env['ems.group'].create({
+            'course': 1,
+            'acronym': 'TATS',
+            'level_id': cls.level.id,
+            'study_id': cls.study.id,
+            'space_id': cls.space.id,
+        })
+        cls.teacher = cls.env['hr.employee'].create({
+            'name': 'Test Teacher (Attendance Template Sync)',
+            'employee_type': 'teacher',
+        })
+
+    def _entry(self, hour_from=9, hour_to=10, dayofweek='0'):
+        return {
+            'subject_id': self.subject.id,
+            'group_ids': [self.group.id],
+            'hour_from': hour_from,
+            'hour_to': hour_to,
+            'dayofweek': dayofweek,
+        }
+
+    def test_creates_template_with_schedule_and_space_from_group(self):
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry()], start_date=date(2026, 2, 1))
+
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_id', '=', self.teacher.id),
+            ('subject_id', '=', self.subject.id),
+        ])
+        self.assertTrue(template)
+        self.assertEqual(template.space_id, self.space)
+        self.assertEqual(template.start_date, date(2026, 2, 1))
+        self.assertEqual(len(template.attendance_schedule_ids), 1)
+
+    def test_default_start_date_is_september_first(self):
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry()])
+
+        template = self.env['ems.attendance_template'].search([('teacher_id', '=', self.teacher.id)])
+        self.assertEqual(template.start_date.month, 9)
+        self.assertEqual(template.start_date.day, 1)
+
+    def test_archives_template_no_longer_in_entries(self):
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry()])
+        template = self.env['ems.attendance_template'].search([('teacher_id', '=', self.teacher.id)])
+
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [])
+
+        self.assertFalse(template.active)
+
+    def test_second_entry_same_key_reuses_template(self):
+        # Two schedule slots for the same subject+group must land on the SAME template, not create two.
+        entries = [self._entry(9, 10, '0'), self._entry(9, 10, '2')]
+
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, entries)
+
+        templates = self.env['ems.attendance_template'].search([
+            ('teacher_id', '=', self.teacher.id),
+            ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(len(templates), 1)
+        self.assertEqual(len(templates.attendance_schedule_ids), 2)

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="action_strike_list">
+            <field name="name">Strikes</field>
+            <field name="res_model">ems.strike</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Coexistence" sequence="8" id="menu_coexistence"/>
+
+        <menuitem name="Strikes" sequence="1" id="menu_coexistence_strikes"
+                  parent="menu_coexistence" action="action_strike_list"/>
+    </data>
+</odoo>

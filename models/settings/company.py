@@ -12,6 +12,7 @@ class ems_company(models.Model):
     #       Also, string and help values are only defined within the settings form. 
     attendance_issue_status_delay = fields.Integer(default=15)
     attendance_issue_tutor_default = fields.Float(default=21.0)
+    strike_escalation_threshold = fields.Integer(default=3)
     auto_checkin_mode = fields.Selection(
         selection=[
             ('disabled', 'Disabled'),
@@ -38,6 +39,9 @@ class ems_company(models.Model):
     schedule_import_last_entry_time  = fields.Float(default=21.0)
 
     current_course_id = fields.Many2one(comodel_name="ems.course")
+    default_schedule_framework_id = fields.Many2one(
+        comodel_name="resource.calendar", domain="[('is_framework', '=', True)]", required=True,
+        default=lambda self: self.env.ref('ems.schedule_framework_default', raise_if_not_found=False))
 
     secretariat_email = fields.Char()
 

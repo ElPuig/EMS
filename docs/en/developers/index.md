@@ -17,6 +17,15 @@ Technical reference for developers working on the EMS module.
 | Topic | Description |
 |-------|-------------|
 | [Academic role hierarchy](employees/role_hierarchy.md) | Teacher → Tutor → Head of Department → Head of Studies → Director → Administrator group chain and how roles sync to `res.users.groups_id` |
+| [Teacher working schedules & schedule frameworks](employees/working_schedule.md) | The "Schedule" tab widget, schedule frameworks, the empty-slot rule, employee lifecycle hooks, the XML import wizard |
+
+---
+
+## Coexistence
+
+| Model | Description |
+|-------|-------------|
+| [ems.strike](coexistence/strike.md) | Disciplinary notices issued from the roll-call view: recipient/authorization rules, HoS/DHoS-branch escalation matching, access control |
 
 ---
 

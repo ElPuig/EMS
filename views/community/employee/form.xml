@@ -6,6 +6,10 @@
             <field name="inherit_id" ref="hr.view_employee_form"/> 
             <field name="arch" type="xml">
 
+                <xpath expr="//header/button" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
                 <xpath expr="//sheet" position="before">
                     <header>
                         <field name="google_ws_suspended" invisible="1"/>
@@ -120,24 +124,49 @@
                 <xpath expr="//div[hasclass('oe_title')]/h2" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>
-                
+
+                <field name="work_location_id" position="after">
+                    <field name="tz" position="move"/>
+                </field>
+
+                <xpath expr="//group[field[@name='resource_calendar_id']]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
                 <xpath expr="//notebook" position="inside">
+                    <page string="Schedule" name="schedule" invisible="employee_type == 'asp'">
+                        <field name="resource_calendar_id" invisible="1"/>
+                        <field name="can_edit_schedule" invisible="1"/>
+                        <field name="schedule_attendance_ids" widget="schedule_grid" nolabel="1">
+                            <list limit="200">
+                                <field name="name"/>
+                                <field name="dayofweek"/>
+                                <field name="hour_from"/>
+                                <field name="hour_to"/>
+                                <field name="day_period"/>
+                                <field name="subject_id"/>
+                                <field name="group_ids"/>
+                                <field name="non_teaching"/>
+                                <field name="space_id"/>
+                            </list>
+                        </field>
+                    </page>
+
                     <page string="Teaching" invisible="employee_type == 'asp'">
                         <group string="Tutorships">
                             <field name="tutorship_ids" widget="many2many_tags" nolabel="1" />
                         </group>
 
                         <group string="Subjects">
-                            <field name="teaching_ids" nolabel="1">
-                                <list editable="bottom" default_order="subject_id asc, group_id asc">
+                            <field name="teaching_ids" nolabel="1" readonly="1">
+                                <list default_order="subject_id asc, group_id asc">
                                     <field name="subject_id" />
-                                    <field name="group_id" domain="[('id','not in', inuse_group_ids)]"/>
-                                    <field name="inuse_group_ids" column_invisible="True"/>                             
+                                    <field name="group_id" />
                                 </list>
                             </field>
                         </group>
-                    </page>                     
-                </xpath>                
+                    </page>
+                </xpath>
             </field>		      
         </record>  
 

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="mail.template" id="mail_strike_escalation">
+            <field name="name">Strike escalation: coexistence coordinator</field>
+            <field name="model_id" ref="ems.model_ems_strike"/>
+            <field name="subject">Coexistence escalation: {{object.student_id.display_name}} ({{object.strike_count}} strikes)</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_from">ems@elpuig.xeill.net</field>
+            <field name="reply_to">{{object.teacher_id.email}}</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;">
+                        <p>
+                            Dear coexistence coordinator,
+                        </p>
+                        <p>
+                            This is an automated email: a student has reached a strike count that requires your attention:
+                            <ul>
+                                <li><strong>Student:</strong> <span t-field="object.student_id"/></li>
+                                <li><strong>Total strikes:</strong> <span t-field="object.strike_count"/></li>
+                                <li><strong>Latest strike date and time:</strong> <span t-field="object.date"/></li>
+                                <li><strong>Issued by:</strong> <span t-field="object.teacher_id"/></li>
+                                <li><strong>Latest reason:</strong> <span t-field="object.reason_id"/></li>
+                            </ul>
+                        </p>
+                        <p>You can review the full history under Coexistence &gt; Strikes.</p>
+                        <p>
+                            Kind regards,<br>
+                            <t t-out="object.create_uid.company_id.name"/>
+                        </p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+    </data>
+</odoo>

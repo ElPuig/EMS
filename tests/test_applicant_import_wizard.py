@@ -208,7 +208,7 @@ class TestApplicantImportWizard(TransactionCase):
         self.assertEqual(applicants.email, 'laia2@example.com')
         self.assertIn('Applicants updated', wizard.result_html)
 
-    def test_active_student_left_untouched_and_reported(self):
+    def test_active_student_keeps_its_identity_but_records_the_destination(self):
         student = self.env['res.partner'].create({
             'name': 'Old Name', 'contact_type': 'student', 'student_id': '7000001',
             'main_group_id': self.group.id, 'email': 'old@example.com',
@@ -216,13 +216,20 @@ class TestApplicantImportWizard(TransactionCase):
         wizard = self._run([self._base_row(**{
             'Ident. RALC': 7000001, 'Nom': 'New', 'Primer cognom': 'Name',
             'Segon cognom': None, 'Correu electrònic': 'new@example.com',
+            'Torn assignat': 'Tarda', 'Curs': 1,
         })])
         student.invalidate_recordset()
-        # Not modified at all: no GEDAC data overwrites the active student.
+        # Own data untouched: GEDAC never overwrites the active student's identity,
+        # group or contact details.
         self.assertEqual(student.contact_type, 'student')
         self.assertEqual(student.main_group_id, self.group)
         self.assertEqual(student.name, 'Old Name')
         self.assertEqual(student.email, 'old@example.com')
+        # ...but the granted destination is captured now: it used to die with the
+        # wizard, leaving the enrollment proposal blind to where the student is going.
+        self.assertEqual(student.preinscription_study_id, self.study)
+        self.assertEqual(student.preinscription_shift, 'afternoon')
+        self.assertEqual(student.preinscription_course, '1')
         # Reported apart and offered as its own CSV, with the granted study captured.
         self.assertIn('active students', wizard.result_html.lower())
         self.assertTrue(wizard.students_file)

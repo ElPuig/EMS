@@ -285,7 +285,7 @@ msgstr ""
 "                    </div>"
 
 #. module: ems
-#: model:mail.template,body_html:ems.mail_attendance_issue_status
+#: model:mail.template,body_html:ems.mail_attendance_issue_status_family
 msgid ""
 "<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>\n"
@@ -329,6 +329,57 @@ msgstr ""
 "                            </ul>                        \n"
 "                        \n"
 "                        <p>Si necessita més informació, pot contactar amb <t t-out=\"object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name\"/> contestant a aquest correu.</p>                                                \n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_attendance_issue_status_student
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Dear <t t-out=\"object.attendance_issue_student_id.student_id.name\"/>,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            This is an automated email, to inform you about your attendance status:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Date:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> from <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>\n"
+"                                <li><strong>Session:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
+"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>If you need further information, you can contact with <t t-out=\"object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name\"/> just replaying to this email.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Benvolgut/da <t t-out=\"object.attendance_issue_student_id.student_id.name\"/>,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Aquest és un correu automàtic, per informar-te de la teva assistència:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Data:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> de <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>\n"
+"                                <li><strong>Sessió:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
+"                                <li><strong>Estat:</strong> <span t-field=\"object.attendance_status\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Detalls:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>Si necessites més informació, pots contactar amb <t t-out=\"object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name\"/> responent a aquest correu.</p>\n"
 "                        <p>\n"
 "                            Salutacions cordials,<br/>\n"
 "                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
@@ -1377,6 +1428,8 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__active
 #: model:ir.model.fields,field_description:ems.field_ems_notice__active
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__active
+#: model:ir.model.fields,field_description:ems.field_ems_strike__active
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__active
 msgid "Active"
 msgstr "Actiu"
@@ -1532,8 +1585,19 @@ msgstr "Dades administratives"
 
 #. module: ems
 #: model:res.groups,name:ems.group_academic_admin
+#: model:res.groups,name:ems.group_coexistence_admin
+#: model:res.groups,name:ems.group_quality_admin
+#: model:res.groups,name:ems.group_secretary_admin
+#: model:res.groups,name:ems.group_settings_admin
 msgid "Administrator"
 msgstr "Administrador/a"
+
+#. module: ems
+#: model:res.groups,name:ems.group_coexistence
+#: model:res.groups,name:ems.group_quality
+#: model:res.groups,name:ems.group_settings
+msgid "Manager"
+msgstr "Gestor/a"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__is_adult
@@ -1632,6 +1696,94 @@ msgstr ""
 #: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ac
 msgid "Another Coordinations"
 msgstr "Altres Coordinacions"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__br
+msgid "Break"
+msgstr "Pati"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Add period"
+msgstr "Afegeix franja"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_employees_ems
+msgid "Blank schedule template automatically assigned to every new teacher."
+msgstr "Plantilla d'horari en blanc assignada automàticament a cada nou docent."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Copy from teacher"
+msgstr "Copia d'un altre docent"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__default_schedule_framework_id
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__schedule_framework_id
+msgid "Default Schedule Framework"
+msgstr "Marc horari predeterminat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_employees_ems
+msgid "Default schedule framework"
+msgstr "Marc horari predeterminat"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Edit"
+msgstr "Edita"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Load"
+msgstr "Carrega"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "New"
+msgstr "Nou"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Remove period"
+msgstr "Elimina la franja"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_schedule_frameworks_tree
+msgid "Schedule Frameworks"
+msgstr "Marcs horaris"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar__is_framework
+msgid "Schedule framework"
+msgstr "Marc horari"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_resource_calendar__is_framework
+msgid ""
+"A reusable blank period template for a level of studies, instead of a real "
+"teacher's schedule."
+msgstr ""
+"Una plantilla de franges en blanc reutilitzable per a un nivell "
+"d'estudis, en lloc de l'horari real d'un docent."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model:ir.ui.menu,name:ems.menu_schedule_frameworks
+msgid "Schedule frameworks"
+msgstr "Marcs horaris"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar__source_framework_id
+msgid "Source framework"
+msgstr "Marc d'origen"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
@@ -2314,6 +2466,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2459,6 +2612,7 @@ msgstr "Ciutat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__space_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id
 msgid "Classroom"
 msgstr "Aula"
 
@@ -2599,6 +2753,7 @@ msgstr "Paràmetres de configuració"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_settings
 #: model:ir.ui.menu,name:ems.menu_attendance_config
+#: model:ir.ui.menu,name:ems.menu_coexistence_config
 #: model:ir.ui.menu,name:ems.menu_community_config
 #: model:ir.ui.menu,name:ems.menu_ems_configuration
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
@@ -3032,6 +3187,7 @@ msgid "Date"
 msgstr "Data"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_strike__date
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 msgid "Date and time"
 msgstr "Data i hora"
@@ -3163,6 +3319,7 @@ msgid "Description & Notes"
 msgstr "Descripció i notes"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_strike__notes
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
@@ -3491,9 +3648,14 @@ msgid "Email notice to students/families"
 msgstr "Comunicació per correu a estudiants/famílies"
 
 #. module: ems
-#: model:mail.template,name:ems.mail_attendance_issue_status
+#: model:mail.template,name:ems.mail_attendance_issue_status_family
 msgid "Email notification for families: student attendance status"
 msgstr "Email de notificació per a les famílies: assistència de l'estudiant"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_attendance_issue_status_student
+msgid "Email notification for students: student attendance status"
+msgstr "Email de notificació per als estudiants: assistència de l'estudiant"
 
 #. module: ems
 #: model:mail.template,name:ems.mail_attendance_issue_rectification
@@ -4100,8 +4262,11 @@ msgid "Free per-student remark for this subject grade."
 msgstr "Comentari per l'alumne de l'assignatura"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__4
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Friday"
 msgstr "Divendres"
 
@@ -4895,6 +5060,8 @@ msgid "Image Rights"
 msgstr "Drets d'imatge"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "Import"
@@ -5353,6 +5520,7 @@ msgstr "Text legal (renderitzat)"
 #: model:ir.model.fields,field_description:ems.field_ems_study__level_id
 #: model:ir.model.fields,field_description:ems.field_res_partner__level_id
 #: model:ir.model.fields,field_description:ems.field_res_users__level_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar__level_id
 #: model:ir.model.fields,field_description:ems.field_sale_order__ems_level_id
 #: model_terms:ir.ui.view,arch_db:ems.level_view_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
@@ -5827,8 +5995,11 @@ msgid "Mode"
 msgstr "Modo"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__0
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Monday"
 msgstr "Dilluns"
 
@@ -5898,6 +6069,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_role__name
 #: model:ir.model.fields,field_description:ems.field_ems_space__name
 #: model:ir.model.fields,field_description:ems.field_ems_space_type__name
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__name
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__name
 #: model:ir.model.fields,field_description:ems.field_ems_study__name
 #: model:ir.model.fields,field_description:ems.field_ems_subject__name
@@ -6093,6 +6265,9 @@ msgid "Non-fee Amount"
 msgstr "Import d'altres conceptes"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__non_teaching
 msgid "Non-teaching"
 msgstr "No lectiva"
@@ -6515,6 +6690,7 @@ msgid "Other"
 msgstr "Altre"
 
 #. module: ems
+#: model:ems.strike.reason,name:ems.strike_reason_other
 #: model:ir.model.fields.selection,name:ems.selection__ems_authorization_template__auth_type__other
 msgid "Other / General"
 msgstr "Altre / General"
@@ -7449,11 +7625,16 @@ msgstr "Dissabte"
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "Save"
 msgstr "Desar"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 msgid "Schedule"
 msgstr "Horari"
@@ -7716,6 +7897,7 @@ msgstr "Enviat el"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -8148,6 +8330,7 @@ msgstr "Carrer 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model:ir.model.fields,field_description:ems.field_ems_strike__student_id
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 msgid "Student"
@@ -8189,7 +8372,8 @@ msgstr ""
 "{{object.attendance_issue_student_id.student_id.display_name}}"
 
 #. module: ems
-#: model:mail.template,subject:ems.mail_attendance_issue_status
+#: model:mail.template,subject:ems.mail_attendance_issue_status_family
+#: model:mail.template,subject:ems.mail_attendance_issue_status_student
 msgid ""
 "Student attendance notification: "
 "{{object.attendance_issue_student_id.student_id.display_name}}"
@@ -8413,6 +8597,9 @@ msgid "Subject: The main item for a student's subject."
 msgstr "Assignatura: L'element principal de l'assignatura d'un estudiant."
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model:ir.actions.act_window,name:ems.action_subject_tree
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__allowed_subject_ids
 #: model:ir.model.fields,field_description:ems.field_ems_planning__allowed_subject_ids
@@ -8562,8 +8749,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_strike__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__teacher_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__teacher
 #: model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__teacher
 #: model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__teacher
@@ -8955,8 +9144,11 @@ msgstr ""
 "l'alumne i no es pot eliminar. Si us plau, arxiva-la en el seu lloc."
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__3
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Thursday"
 msgstr "Dijous"
 
@@ -9000,8 +9192,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
@@ -9045,8 +9240,11 @@ msgstr ""
 "Cert quan el compte de Google Workspace de l'alumne està suspès (exalumne)."
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__1
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Tuesday"
 msgstr "Dimarts"
 
@@ -9515,8 +9713,11 @@ msgid "Website communication history"
 msgstr "Històric de comunicacions del lloc web"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__2
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Wednesday"
 msgstr "Dimecres"
 
@@ -10115,6 +10316,7 @@ msgstr "Sortida original"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__reason
+#: model:ir.model.fields,field_description:ems.field_ems_strike__reason_id
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
 msgid "Reason"
 msgstr "Motiu"
@@ -11350,18 +11552,18 @@ msgstr "Informe d'alumnes actius (CSV)"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/applicant_import_wizard.py:0
-msgid "Already active students (left untouched):"
-msgstr "Alumnes ja actius (no modificats):"
+msgid "Already active students (destination recorded):"
+msgstr "Alumnes ja actius (destí registrat):"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/applicant_import_wizard.py:0
 msgid ""
 "Already an active student (internal continuer, pending course transition): "
-"left untouched"
+"granted destination recorded"
 msgstr ""
-"Ja és alumne actiu (continuista intern, pendent de transició de curs): no "
-"modificat"
+"Ja és alumne actiu (continuista intern, pendent de transició de curs): destí "
+"assignat registrat"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_applicant_import_wizard_form
@@ -11373,14 +11575,16 @@ msgstr "Descarregar alumnes actius (CSV)"
 #: code:addons/ems/models/contacts/applicant_import_wizard.py:0
 msgid ""
 "Internal continuers still enrolled (e.g. CFGM to CFGS before the course "
-"transition). Re-run this import after their transition to set them up as "
-"applicants for the new cycle. Their data is in the 'active students' CSV "
+"transition). Their own data is kept, and the granted study, shift and course "
+"are recorded on them: enroll them from the 'With GEDAC assignment' filter of "
+"the enrollment proposals. Their data is also in the 'active students' CSV "
 "below."
 msgstr ""
 "Continuistes interns encara matriculats (p. ex. de CFGM a CFGS abans de la "
-"transició de curs). Torneu a llançar aquesta importació després de la seva "
-"transició per donar-los d'alta com a aspirants del nou cicle. Les seves "
-"dades són al CSV d'\"alumnes actius\" de sota."
+"transició de curs). Es conserven les seves dades pròpies i s'hi registren "
+"l'estudi, el torn i el curs assignats: matricula'ls des del filtre \"Amb "
+"assignació GEDAC\" de les propostes de matrícula. Les seves dades també són "
+"al CSV d'\"alumnes actius\" de sota."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
@@ -11483,3 +11687,485 @@ msgid ""
 msgstr ""
 "Es mostren les plantilles de tots els estudis. Comprova l'estudi i el grup "
 "de destí abans de crear les matrícules."
+
+#. module: ems
+#: model:ir.module.category,name:ems.category_coexistence
+#: model:ir.ui.menu,name:ems.menu_coexistence
+msgid "Coexistence"
+msgstr "Convivència"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Coexistence escalation threshold"
+msgstr "Llindar d'escalat de convivència"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_strike_escalation
+msgid ""
+"Coexistence escalation: {{object.student_id.display_name}} "
+"({{object.strike_count}} strikes)"
+msgstr ""
+"Escalat de convivència: {{object.student_id.display_name}} "
+"({{object.strike_count}} strikes)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_list
+msgid "Count"
+msgstr "Recompte"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Details (optional)..."
+msgstr "Detalls (opcional)..."
+
+#. module: ems
+#: model:ems.strike.reason,name:ems.strike_reason_disrespect
+msgid "Disrespect towards a teacher or classmate"
+msgstr "Falta de respecte a un professor o company"
+
+#. module: ems
+#: model:ems.strike.reason,name:ems.strike_reason_behaviour
+msgid "Disruptive behaviour"
+msgstr "Comportament disruptiu"
+
+#. module: ems
+#: model:ir.module.category,description:ems.category_coexistence
+msgid "Educational Management System - Coexistence"
+msgstr "Sistema de Gestió Educativa - Convivència"
+
+#. module: ems
+#: model:ems.strike.reason,name:ems.strike_reason_device_misuse
+msgid "Improper use of a mobile device or electronic equipment"
+msgstr "Ús inadequat d'un dispositiu mòbil o equip electrònic"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Issue a strike"
+msgstr "Posar un strike"
+
+#. module: ems
+#: model:ems.strike.reason,name:ems.strike_reason_material
+msgid "Missing required material"
+msgstr "Manca de material necessari"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Send"
+msgstr "Enviar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_strike__send_to
+msgid "Sent to"
+msgstr "Enviat a"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_form
+msgid "Strike"
+msgstr "Strike"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__strike_escalation_threshold
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__strike_escalation_threshold
+msgid "Strike Escalation Threshold"
+msgstr "Llindar d'escalat de strikes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_strike__strike_count
+#: model:ir.model.fields,field_description:ems.field_res_partner__strike_count
+#: model:ir.model.fields,field_description:ems.field_res_users__strike_count
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_form
+msgid "Strike count"
+msgstr "Recompte de strikes"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_strike_escalation
+msgid "Strike escalation: coexistence coordinator"
+msgstr "Escalat de strikes: coordinador de convivència"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/coexistence/strike.py:0
+msgid "Strike issued by %(teacher)s: %(reason)s"
+msgstr "Strike posat per %(teacher)s: %(reason)s"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_strike_notification_family
+msgid "Strike notification: family"
+msgstr "Notificació de strike: família"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_strike_notification_student
+msgid "Strike notification: student"
+msgstr "Notificació de strike: alumne"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_strike_notification_tutor
+msgid "Strike notification: tutor"
+msgstr "Notificació de strike: tutor"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_strike_notification_family
+#: model:mail.template,subject:ems.mail_strike_notification_student
+#: model:mail.template,subject:ems.mail_strike_notification_tutor
+msgid "Strike notification: {{object.student_id.display_name}}"
+msgstr "Notificació de strike: {{object.student_id.display_name}}"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_reason_form
+msgid "Strike reason"
+msgstr "Motiu del strike"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_strike_reason
+msgid ""
+"Strike reason: predefined reasons a teacher can pick when issuing a strike."
+msgstr ""
+"Motiu de strike: motius predefinits que un professor pot triar en posar un"
+" strike."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_strike_reason_list
+#: model:ir.ui.menu,name:ems.menu_coexistence_strike_reasons
+msgid "Strike reasons"
+msgstr "Motius de strike"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_strike
+msgid "Strike: a disciplinary notice issued by a teacher against a student."
+msgstr "Strike: un avís disciplinari posat per un professor a un alumne."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_strike_list
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__strike_ids
+#: model:ir.model.fields,field_description:ems.field_res_partner__strike_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__strike_ids
+#: model:ir.ui.menu,name:ems.menu_coexistence_strikes
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Strikes"
+msgstr "Strikes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Strikes Settings"
+msgstr "Configuració dels strikes"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_strike_escalation
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Dear coexistence coordinator,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            This is an automated email: a student has reached a strike count that requires your attention:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Student:</strong> <span t-field=\"object.student_id\"/></li>\n"
+"                                <li><strong>Total strikes:</strong> <span t-field=\"object.strike_count\"/></li>\n"
+"                                <li><strong>Latest strike date and time:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Issued by:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Latest reason:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>You can review the full history under Coexistence &gt; Strikes.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Benvolgut/da coordinador/a de convivència,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Aquest és un correu automàtic: un alumne ha arribat a un recompte de strikes que requereix la vostra atenció:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Alumne:</strong> <span t-field=\"object.student_id\"/></li>\n"
+"                                <li><strong>Total de strikes:</strong> <span t-field=\"object.strike_count\"/></li>\n"
+"                                <li><strong>Data i hora de l'últim strike:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Posat per:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Últim motiu:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>Podeu consultar l'historial complet a Convivència &gt; Strikes.</p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_strike_notification_family
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Dear family,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            This is an automated email, in order to inform you about a strike issued to a student:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Student:</strong> <span t-field=\"object.student_id\"/></li>\n"
+"                                <li><strong>Date and time:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Teacher:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Reason:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>If you need further information, you can contact with <t t-out=\"object.teacher_id.display_name\"/> just replying to this email.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Benvolguda família,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Aquest és un correu automàtic, per informar-vos d'un strike posat a un alumne:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Alumne:</strong> <span t-field=\"object.student_id\"/></li>\n"
+"                                <li><strong>Data i hora:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Professor:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Motiu:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Detalls:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>Si necessiteu més informació, podeu contactar amb <t t-out=\"object.teacher_id.display_name\"/> responent a aquest correu.</p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_strike_notification_student
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Dear <t t-out=\"object.student_id.name\"/>,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            This is an automated email, to inform you that you have received a strike:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Date and time:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Teacher:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Reason:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>If you need further information, you can contact with <t t-out=\"object.teacher_id.display_name\"/> just replying to this email.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Benvolgut/da <t t-out=\"object.student_id.name\"/>,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Aquest és un correu automàtic, per informar-te que has rebut un strike:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Data i hora:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Professor:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Motiu:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Detalls:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>Si necessites més informació, pots contactar amb <t t-out=\"object.teacher_id.display_name\"/> responent a aquest correu.</p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_strike_notification_tutor
+msgid ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Dear tutor,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            This is an automated email, to inform you that one of your students has received a strike:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Student:</strong> <span t-field=\"object.student_id\"/></li>\n"
+"                                <li><strong>Date and time:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Teacher:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Reason:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>You can review the full history under Coexistence &gt; Strikes.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>\n"
+"                            Benvolgut/da tutor/a,\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Aquest és un correu automàtic, per informar-vos que un dels vostres alumnes ha rebut un strike:\n"
+"                            </p><ul>\n"
+"                                <li><strong>Alumne:</strong> <span t-field=\"object.student_id\"/></li>\n"
+"                                <li><strong>Data i hora:</strong> <span t-field=\"object.date\"/></li>\n"
+"                                <li><strong>Professor:</strong> <span t-field=\"object.teacher_id\"/></li>\n"
+"                                <li><strong>Motiu:</strong> <span t-field=\"object.reason_id\"/></li>\n"
+"                                <t t-if=\"object.notes\">\n"
+"                                    <li><strong>Detalls:</strong> <span t-field=\"object.notes\"/></li>\n"
+"                                </t>\n"
+"                            </ul>\n"
+"                        \n"
+"                        <p>Podeu consultar l'historial complet a Convivència &gt; Strikes.</p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "%s strike(s) issued this session — click to add another"
+msgstr "%s strike(s) posat(s) en aquesta sessió — clica per afegir-ne un altre"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_strike__attendance_session_line_id
+msgid "Session line"
+msgstr "Línia de sessió"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__preinscription_study_id
+msgid "Preinscription study"
+msgstr "Estudi de preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__preinscription_study_id
+msgid ""
+"Study granted by the preinscription (GEDAC) for the next course. Only set on "
+"students already enrolled in another study; an applicant keeps its granted "
+"study in the study field."
+msgstr ""
+"Estudi assignat per la preinscripció (GEDAC) per al curs vinent. Només "
+"s'estableix en alumnes ja matriculats en un altre estudi; un aspirant manté "
+"el seu estudi assignat al camp d'estudi."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+msgid "With GEDAC assignment"
+msgstr "Amb assignació GEDAC"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+msgid "Assigned study"
+msgstr "Estudi assignat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+msgid "Assigned course"
+msgstr "Curs assignat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+msgid "Assigned shift"
+msgstr "Torn assignat"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_working_schedule
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+msgid "Working Schedule"
+msgstr "Horari"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+msgid "No working schedule assigned to this employee."
+msgstr "Aquest docent no té cap horari assignat."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "PDF"
+msgstr "PDF"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__can_edit_schedule
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__can_edit_schedule
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__can_edit_schedule
+msgid "Can edit schedule"
+msgstr "Pot editar l'horari"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__attachment_ids
+msgid "Planner files (XML)"
+msgstr "Fitxers de planificació (XML)"
+
+#. module: ems
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "No XML file has been loaded. Please, provide at least one XML file and try again."
+msgstr "No s'ha carregat cap fitxer XML. Si us plau, proporciona almenys un fitxer XML i torna-ho a provar."
+
+#. module: ems
+#: model:ir.actions.report,print_report_name:ems.action_report_working_schedule
+msgid "'Working Schedule - %s - %s' % (object.name, object.company_id.current_course_id.name)"
+msgstr "'Horari - %s - %s' % (object.name, object.company_id.current_course_id.name)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+msgid "Weekly teaching hours"
+msgstr "Hores lectives setmanals"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+msgid "Other fixed-schedule hours"
+msgstr "Altres hores en horari fix"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Overall total:"
+msgstr "Total general:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+msgid "<span>Overall total:</span>"
+msgstr "<span>Total general:</span>"

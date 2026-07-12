@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="action_report_working_schedule" model="ir.actions.report">
+            <field name="name">Working Schedule</field>
+            <field name="model">hr.employee</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_working_schedule</field>
+            <field name="report_file">ems.report_working_schedule</field>
+            <field name="print_report_name">'Working Schedule - %s - %s' % (object.name, object.company_id.current_course_id.name)</field>
+            <field name="binding_model_id" ref="model_hr_employee"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_working_schedule">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="employee">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <style>
+                                .ws-employee-title { font-size: 22px; margin-bottom: 2px; }
+                                .ws-department-title { font-size: 14px; font-weight: 500; color: #444; margin: 0 0 4px 0; }
+                                .ws-role-title { font-size: 11px; font-weight: normal; color: #666; margin: 0 0 14px 0; line-height: 1.5; }
+                                .ws-table { font-size: 10px; table-layout: fixed; }
+                                .ws-table th, .ws-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; height: 38px; overflow: hidden; }
+                                .ws-table td.ws-time { white-space: nowrap; font-weight: bold; }
+                                .ws-cell-content { display: block; border-radius: 3px; padding: 3px 4px; color: #fff; }
+                                .ws-cell-label { display: block; font-weight: 600; }
+                                .ws-cell-room { display: block; font-size: 9px; color: #fff; }
+                                .ws-summary-table { width: 100%; margin-top: 16px; font-size: 10px; border-collapse: collapse; }
+                                .ws-summary-table th { text-align: left; padding: 6px 10px; }
+                                .ws-summary-table td { padding: 3px 10px; border-bottom: 1px solid #eee; }
+                                .ws-summary-table td:nth-child(2), .ws-summary-table td:nth-child(4) { text-align: right; font-weight: 600; }
+                                .ws-summary-total td { border-bottom: none; border-top: 1px solid #adb5bd; font-weight: 600; }
+                                .ws-summary-grand-total td { border-top: 2px solid #333; font-weight: 700; padding-top: 8px; }
+                            </style>
+
+                            <t t-set="role_lines" t-value="employee.get_report_role_lines()"/>
+                            <h1 class="ws-employee-title"><span t-field="employee.name"/> (<span t-field="employee.company_id.current_course_id.name"/>)</h1>
+                            <h2 t-if="employee.department_id" class="ws-department-title"><span t-field="employee.department_id.name"/></h2>
+                            <h3 t-if="role_lines" class="ws-role-title">
+                                <t t-foreach="role_lines" t-as="role_line">
+                                    <span t-esc="role_line"/><t t-if="not role_line_last"><br/></t>
+                                </t>
+                            </h3>
+
+                            <t t-if="employee.resource_calendar_id">
+                                <t t-set="summary" t-value="employee.resource_calendar_id.get_schedule_hours_summary()"/>
+
+                                <table class="table table-bordered ws-table">
+                                    <thead>
+                                        <tr>
+                                            <th/>
+                                            <th>Monday</th>
+                                            <th>Tuesday</th>
+                                            <th>Wednesday</th>
+                                            <th>Thursday</th>
+                                            <th>Friday</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="employee.resource_calendar_id.get_schedule_report_lines()" t-as="line">
+                                            <tr>
+                                                <td class="ws-time" t-esc="line['time_label']"/>
+                                                <t t-foreach="line['cells']" t-as="cell">
+                                                    <td>
+                                                        <t t-if="cell['entry']">
+                                                            <span class="ws-cell-content" t-att-style="'background-color:' + cell['color']">
+                                                                <span class="ws-cell-label" t-esc="cell['entry'].get_report_label()"/>
+                                                                <span t-if="cell['entry'].space_id" class="ws-cell-room" t-esc="cell['entry'].space_id.display_name"/>
+                                                            </span>
+                                                        </t>
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+
+                                <t t-set="teaching_rows" t-value="summary['teaching']['rows']"/>
+                                <t t-set="fixed_rows" t-value="summary['fixed']['rows']"/>
+                                <table class="ws-summary-table">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2" style="width:50%;">Weekly teaching hours</th>
+                                            <th colspan="2" style="width:50%;">Other fixed-schedule hours</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="range(max(len(teaching_rows), len(fixed_rows)))" t-as="i">
+                                            <tr>
+                                                <td t-esc="teaching_rows[i]['label'] if i &lt; len(teaching_rows) else ''"/>
+                                                <td t-esc="(str(teaching_rows[i]['hours']) + ' h') if i &lt; len(teaching_rows) else ''"/>
+                                                <td t-esc="fixed_rows[i]['label'] if i &lt; len(fixed_rows) else ''"/>
+                                                <td t-esc="(str(fixed_rows[i]['hours']) + ' h') if i &lt; len(fixed_rows) else ''"/>
+                                            </tr>
+                                        </t>
+                                        <tr class="ws-summary-total">
+                                            <td>Total</td>
+                                            <td t-esc="str(summary['teaching']['total']) + ' h'"/>
+                                            <td>Total</td>
+                                            <td t-esc="str(summary['fixed']['total']) + ' h'"/>
+                                        </tr>
+                                        <tr class="ws-summary-grand-total">
+                                            <td colspan="4"><span>Overall total:</span> <span t-esc="str(summary['total']) + ' h'"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                            <p t-else="">No working schedule assigned to this employee.</p>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

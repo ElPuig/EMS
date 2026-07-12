@@ -18,6 +18,21 @@ for repo_url in "${OCA_REPOS[@]}"; do
     fi
 done
 
+echo "Installing system (apt) Python dependencies..."
+sudo apt-get update -qq
+# Some packages (e.g. python3-lxml-html-clean) only exist as a separate apt package
+# on newer Ubuntu releases where lxml split html.clean out of python3-lxml itself;
+# on older releases the module already ships inside python3-lxml, so skip silently.
+APT_PACKAGES=""
+for pkg in $(grep -v '^#' "$MODULES_DIR/ems/apt-requirements.txt"); do
+    if ! apt-cache policy "$pkg" 2>/dev/null | grep -q 'Candidate: (none)'; then
+        APT_PACKAGES="$APT_PACKAGES $pkg"
+    else
+        echo "Skipping $pkg: no installation candidate on this OS release."
+    fi
+done
+sudo apt-get install -y $APT_PACKAGES
+
 sudo service odoo stop || true
 sudo -u odoo bash -c 'odoo -d ems --stop-after-init -i ems -c /etc/odoo/odoo.conf --without-demo=WITHOUT_DEMO'
 EXIT_CODE=$?

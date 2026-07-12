@@ -22,7 +22,8 @@ class ems_applicant_import_wizard(models.TransientModel):
     log_file = fields.Binary(string="Import log (CSV)", readonly=True)
     log_file_name = fields.Char()
     # Separate report for rows matching a still-active student (internal continuers):
-    # they are left untouched, listed apart and offered as their own CSV.
+    # their own data is left intact, but the destination GEDAC grants them is recorded,
+    # so the enrollment proposal can reach it. Listed apart and offered as their own CSV.
     students_file = fields.Binary(string="Active students report (CSV)", readonly=True)
     students_file_name = fields.Char()
 
@@ -215,9 +216,9 @@ class ems_applicant_import_wizard(models.TransientModel):
         existing = self.env['res.partner'].search([('student_id', '=', ralc)], limit=1)
         if existing and existing.contact_type == 'student':
             # Internal continuer still enrolled (e.g. CFGM -> CFGS before the course
-            # transition): leave the student untouched, report it apart and capture its
-            # GEDAC data. Re-running the import after the transition (once it is alumni)
-            # will convert it to an applicant for the new cycle.
+            # transition): keep the student's own data, record the destination it is
+            # granted, and report it apart. Re-running the import after the transition
+            # (once it is alumni) will convert it to an applicant for the new cycle.
             self._record_active_student(get, existing, study, shift, course, stats)
             return
 
@@ -302,11 +303,22 @@ class ems_applicant_import_wizard(models.TransientModel):
         return applicant
 
     def _record_active_student(self, get, student, study, shift, course, stats):
-        """Register (without modifying) an already-active student found in the file,
-        capturing both its current situation and the GEDAC assignment for the report."""
+        """Record the GEDAC assignment of an already-active student found in the file,
+        capturing both its current situation and the granted destination for the report.
+
+        The student's own data (identity, group, contact details) is never overwritten:
+        only the destination it is granted for next course is stored, so the enrollment
+        proposal can reach it. Written as a whole, since study, shift and course are a
+        single coherent assignment that each import restates.
+        """
         gedac_name = ' '.join(filter(None, [
             get('Nom'), get('Primer cognom'), get('Segon cognom')]))
         shift_label = dict(self.env['res.partner']._fields['preinscription_shift'].selection).get(shift, '')
+        student.write({
+            'preinscription_study_id': study.id,
+            'preinscription_shift': shift,
+            'preinscription_course': course,
+        })
         stats['students'] += 1
         stats['student_rows'].append({
             'ralc': self._norm_code(get('Ident. RALC')),
@@ -324,7 +336,7 @@ class ems_applicant_import_wizard(models.TransientModel):
             'accio': 'Alumne actiu', 'ralc': self._norm_code(get('Ident. RALC')),
             'name': student.name, 'partner_id': student.id,
             'motiu': _("Already an active student (internal continuer, pending course "
-                       "transition): left untouched"),
+                       "transition): granted destination recorded"),
             'ts': datetime.now(),
         })
 
@@ -435,11 +447,12 @@ class ems_applicant_import_wizard(models.TransientModel):
                 '<p style="color:#666;">%s</p>'
                 '<ul>%s</ul>'
             ) % (
-                _("Already active students (left untouched):"), stats['students'],
+                _("Already active students (destination recorded):"), stats['students'],
                 _("Internal continuers still enrolled (e.g. CFGM to CFGS before the "
-                  "course transition). Re-run this import after their transition to set "
-                  "them up as applicants for the new cycle. Their data is in the "
-                  "'active students' CSV below."),
+                  "course transition). Their own data is kept, and the granted study, "
+                  "shift and course are recorded on them: enroll them from the 'With "
+                  "GEDAC assignment' filter of the enrollment proposals. Their data is "
+                  "also in the 'active students' CSV below."),
                 items,
             )
         return (

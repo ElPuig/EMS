@@ -1,0 +1,8 @@
+id,name,is_framework,full_time_required_hours,level_id/id
+__import__.schedule_framework_eso,"ESO Schedule Framework",True,24,"ems.level_eso"
+__import__.schedule_framework_btx,"BTX Schedule Framework",True,24,"ems.level_btx"
+__import__.schedule_framework_cfgm,"CFGM Schedule Framework",True,24,"ems.level_cfgm"
+__import__.schedule_framework_cfgs,"CFGS Schedule Framework",True,24,"ems.level_cfgs"
+__import__.schedule_framework_cfgb,"CFGB Schedule Framework",True,24,"ems.level_cfgb"
+__import__.schedule_framework_efps,"EFPS Schedule Framework",True,24,"ems.level_efps"
+__import__.schedule_framework_pfi,"PFI Schedule Framework",True,24,"ems.level_pfi"

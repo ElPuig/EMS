@@ -11,14 +11,14 @@
     """,
 
     'author': "El Puig",
-    'website': "https://github.com/custom/EMS",
+    'website': "https://github.com/ElPuig/EMS",
     #icon authory: thanks to Memed_Nurrohmad (https://pixabay.com/es/vectors/sombrero-graduaci%C3%B3n-gorra-educaci%C3%B3n-1674894/)
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.19.4',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.20.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -56,6 +56,7 @@
    'data': [
         'security/groups.xml',
         'security/rules/attendance.xml',
+        'security/rules/coexistence.xml',
         'security/rules/communications.xml',
         'security/rules/contacts.xml',
         'security/rules/grading.xml',
@@ -124,6 +125,8 @@
             'views/community/employmenttypes/menu.xml',        
             
             'views/community/working_schedules/list.xml',
+            'views/community/working_schedules/form.xml',
+            'views/community/working_schedules/attendance_form.xml',
             'views/community/working_schedules/import_wizard.xml',
             'views/community/working_schedules/menu.xml',
 
@@ -222,6 +225,13 @@
             'views/communications/notice/list.xml',
             'views/communications/notice/form.xml',
 
+        'views/coexistence/strike/list.xml',
+        'views/coexistence/strike/form.xml',
+        'views/coexistence/strike/menu.xml',
+        'views/coexistence/strike_reason/list.xml',
+        'views/coexistence/strike_reason/form.xml',
+        'views/coexistence/strike_reason/menu.xml',
+
         'views/academic_management/menu.xml',
             'views/academic_management/enrollment/enrollment_form.xml',
             'views/academic_management/enrollment/enrollment_list.xml',
@@ -242,6 +252,7 @@
             'data/mail_template_google_welcome.xml',
             'reports/employees/report_google_credentials_employee.xml',
             'data/mail_template_google_welcome_employee.xml',
+            'reports/employees/report_working_schedule.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
@@ -276,6 +287,8 @@
         'mails/attendance/attendance_issue_status.xml',
         'mails/attendance/attendance_issue_rectification.xml',
         'mails/attendance/attendance_issue_tutor.xml',
+        'mails/coexistence/strike_notification.xml',
+        'mails/coexistence/strike_escalation.xml',
         'mails/enrollment/enrollment_send.xml',
 
         ### Reports templates ###
@@ -296,6 +309,8 @@
         'data/main/ems.contact.relation.type.xml',
         'data/main/ems.mail_activity_type.xml',
         'data/main/product.category.csv',
+        'data/main/ems.strike.reason.csv',
+        'data/main/ems.schedule_framework_default.xml',
 
         'data/cat/attachments/asix/ir.attachment.csv',
         'data/cat/attachments/dam/ir.attachment.csv',
@@ -353,6 +368,8 @@
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',
         'data/custom/hr.department.csv',
+        'data/custom/resource.calendar.csv',
+        'data/custom/resource.calendar.attendance.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',
         'data/custom/ems.course.xml',
@@ -373,6 +390,7 @@
     'license': 'AGPL-3',
     'installable': True,
     'application': True,
+    'post_init_hook': 'post_init_hook',
     
     # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [

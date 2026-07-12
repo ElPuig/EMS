@@ -9,6 +9,13 @@
                     <attribute name="js_class">studentpopup_expand_button</attribute>
                 </xpath>
 
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="action_view_strikes" type="object" class="oe_stat_button" icon="fa-exclamation-triangle"
+                            invisible="contact_type != 'student' or strike_count == 0">
+                        <field name="strike_count" widget="statinfo" string="Strikes"/>
+                    </button>
+                </xpath>
+
                 <xpath expr="//sheet" position="before">
                     <header>
                         <field name="google_ws_suspended" invisible="1"/>

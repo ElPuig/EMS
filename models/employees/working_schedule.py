@@ -47,26 +47,51 @@ class ems_working_schedule(models.Model):
 			self.env['ems.teaching'].sync_from_schedule(teacher, entries)
 			self.env['ems.attendance_template'].sync_from_schedule(teacher, entries, start_date=fields.Date.today())
 
+	# NOTE: assigned in first-seen (day, then hour) order to the distinct items on a calendar, so two
+	# unrelated items only ever share a color once the palette itself runs out — see
+	# 'get_schedule_report_lines'/'_report_color_key'.
+	REPORT_COLOR_PALETTE = [
+		'#5b8def', '#f4a261', '#2a9d8f', '#e76f51', '#8ecae6', '#ffb703',
+		'#c77dff', '#06d6a0', '#ef476f', '#118ab2', '#bc6c25', '#9d4edd',
+	]
+
 	def get_schedule_report_lines(self):
 		"""Weekly schedule rows (one per distinct Mon-Fri period, one column per weekday) for the
 		working schedule PDF report. Unassigned slots are never stored (see apply_schedule_changes),
-		so every attendance row here is a real subject or non-teaching commitment."""
+		so every attendance row here is a real subject or non-teaching commitment. Each cell carries
+		the matching attendance record (or False) plus a 'color': the same subject/non-teaching reason
+		always gets the same color, even across different days, to make the printed grid easier to
+		scan at a glance."""
 		self.ensure_one()
 		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
 		periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in weekday_entries})
+
+		color_by_key = {}
+		for attendance in weekday_entries.sorted(key=lambda attendance: (attendance.dayofweek, attendance.hour_from)):
+			key = self._report_color_key(attendance)
+			if key not in color_by_key:
+				color_by_key[key] = self.REPORT_COLOR_PALETTE[len(color_by_key) % len(self.REPORT_COLOR_PALETTE)]
+
 		lines = []
 		for hour_from, hour_to in periods:
+			cells = []
+			for dayofweek in ('0', '1', '2', '3', '4'):
+				entry = weekday_entries.filtered(
+					lambda attendance, dayofweek=dayofweek, hour_from=hour_from, hour_to=hour_to:
+						attendance.dayofweek == dayofweek and attendance.hour_from == hour_from and attendance.hour_to == hour_to
+				)
+				cells.append({
+					'entry': entry,
+					'color': color_by_key.get(self._report_color_key(entry)) if entry else False,
+				})
 			lines.append({
 				'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
-				'cells': [
-					weekday_entries.filtered(
-						lambda attendance, dayofweek=dayofweek, hour_from=hour_from, hour_to=hour_to:
-							attendance.dayofweek == dayofweek and attendance.hour_from == hour_from and attendance.hour_to == hour_to
-					)
-					for dayofweek in ('0', '1', '2', '3', '4')
-				],
+				'cells': cells,
 			})
 		return lines
+
+	def _report_color_key(self, attendance):
+		return ('non_teaching', attendance.non_teaching) if attendance.non_teaching else ('subject', attendance.subject_id.id)
 
 	def _format_report_time(self, value):
 		hour, minutes = divmod(round(value * 60), 60)

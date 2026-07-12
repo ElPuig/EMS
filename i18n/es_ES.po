@@ -12121,5 +12121,5 @@ msgstr "No se ha cargado ningún archivo XML. Por favor, proporciona al menos un
 
 #. module: ems
 #: model:ir.actions.report,print_report_name:ems.action_report_working_schedule
-msgid "'Working Schedule - %s' % (object.name)"
-msgstr "'Horario - %s' % (object.name)"
+msgid "'Working Schedule - %s - %s' % (object.name, object.company_id.current_course_id.name)"
+msgstr "'Horario - %s - %s' % (object.name, object.company_id.current_course_id.name)"

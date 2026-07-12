@@ -7,7 +7,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.report_working_schedule</field>
             <field name="report_file">ems.report_working_schedule</field>
-            <field name="print_report_name">'Working Schedule - %s' % (object.name)</field>
+            <field name="print_report_name">'Working Schedule - %s - %s' % (object.name, object.company_id.current_course_id.name)</field>
             <field name="binding_model_id" ref="model_hr_employee"/>
             <field name="binding_type">report</field>
         </record>
@@ -19,14 +19,15 @@
                         <div class="page">
                             <style>
                                 .ws-title { font-size: 20px; margin-bottom: 4px; }
-                                .ws-table { font-size: 10px; }
-                                .ws-table th, .ws-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; }
+                                .ws-table { font-size: 10px; table-layout: fixed; }
+                                .ws-table th, .ws-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; height: 38px; }
                                 .ws-table td.ws-time { white-space: nowrap; font-weight: bold; }
-                                .ws-cell-room { display: block; font-size: 9px; color: #666; }
+                                .ws-cell-room { display: block; font-size: 9px; opacity: 0.85; }
+                                .ws-cell-content { display: block; border-radius: 3px; padding: 3px 4px; color: #fff; }
                             </style>
 
                             <h1 class="ws-title">Working Schedule</h1>
-                            <p><span t-field="employee.name"/></p>
+                            <p><span t-field="employee.name"/> — <span t-field="employee.company_id.current_course_id.name"/></p>
 
                             <table t-if="employee.resource_calendar_id" class="table table-bordered ws-table">
                                 <thead>
@@ -45,9 +46,11 @@
                                             <td class="ws-time" t-esc="line['time_label']"/>
                                             <t t-foreach="line['cells']" t-as="cell">
                                                 <td>
-                                                    <t t-if="cell">
-                                                        <span t-esc="cell.get_report_label()"/>
-                                                        <span t-if="cell.space_id" class="ws-cell-room" t-field="cell.space_id.display_name"/>
+                                                    <t t-if="cell['entry']">
+                                                        <span class="ws-cell-content" t-att-style="'background-color:' + cell['color']">
+                                                            <t t-esc="cell['entry'].get_report_label()"/>
+                                                            <span t-if="cell['entry'].space_id" class="ws-cell-room" t-field="cell['entry'].space_id.display_name"/>
+                                                        </span>
                                                     </t>
                                                 </td>
                                             </t>

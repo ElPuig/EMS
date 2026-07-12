@@ -161,8 +161,33 @@ class TestWorkingSchedule(TransactionCase):
         self.assertEqual(len(lines), 1)
         self.assertEqual(lines[0]['time_label'], '09:00-10:00')
         monday, tuesday = lines[0]['cells'][0], lines[0]['cells'][1]
-        self.assertEqual(monday.subject_id, self.subject)
-        self.assertFalse(tuesday)
+        self.assertEqual(monday['entry'].subject_id, self.subject)
+        self.assertTrue(monday['color'])
+        self.assertFalse(tuesday['entry'])
+        self.assertFalse(tuesday['color'])
+
+    def test_get_schedule_report_lines_same_item_gets_same_color_across_days(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Report Colors (Working Schedule)'})
+        schedule.apply_schedule_changes([
+            {
+                'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            },
+            {
+                'dayofweek': '2', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            },
+            {
+                'dayofweek': '1', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'non_teaching': 'BR', 'name': 'BR: Break',
+            },
+        ])
+
+        lines = schedule.get_schedule_report_lines()
+
+        monday, tuesday, wednesday = lines[0]['cells'][0], lines[0]['cells'][1], lines[0]['cells'][2]
+        self.assertEqual(monday['color'], wednesday['color'])
+        self.assertNotEqual(monday['color'], tuesday['color'])
 
     def test_report_working_schedule_renders(self):
         self.teacher.resource_calendar_id = self.framework

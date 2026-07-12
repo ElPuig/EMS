@@ -11,6 +11,23 @@ class ems_working_schedule(models.Model):
 		('unique_name', 'unique (name)', 'duplicated calendar!')
     ]
 
+	is_framework = fields.Boolean(string="Schedule framework", help="A reusable blank period template for a level of studies, instead of a real teacher's schedule.")
+	level_id = fields.Many2one(string="Level", comodel_name="ems.level")
+
+	def seed_from_framework(self, framework):
+		"""Replace this calendar's weekday (Mon-Fri) attendances with blank copies of 'framework's
+		periods (same dayofweek/hour_from/hour_to/day_period, no subject/group/non_teaching), so a new
+		or reset schedule keeps the level's exact period times instead of falling back to generic hours."""
+		self.ensure_one()
+		self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4')).unlink()
+		self.write({'attendance_ids': [(0, 0, {
+			'name': "Free",
+			'dayofweek': period.dayofweek,
+			'hour_from': period.hour_from,
+			'hour_to': period.hour_to,
+			'day_period': period.day_period,
+		}) for period in framework.attendance_ids]})
+
 	def apply_schedule_changes(self, cells):
 		"""Replace this calendar's weekday (Mon-Fri) attendances with 'cells' (called from the
 		'Schedule' tab's grid widget, whose buffer already represents the full weekly state), then
@@ -61,9 +78,12 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	_inherit = ['ems.datetime_utils']
 
 	attachment_id = fields.Many2one(string="Attachment", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.working_schedules_import_wizard')]")
-	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")	
+	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")
 	is_overriding = fields.Boolean(store=False)
 	overrided_teachers = fields.Char(default="")
+	# NOTE: set via context (default_teacher_id) when opened from an employee's 'Schedule' tab "Import"
+	# button — the file is then assumed to describe that single teacher, skipping the email lookup below.
+	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
 
 	@api.onchange("file")
 	def _onchange_file(self):
@@ -71,15 +91,21 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			if rec.file:
 				xml_content = base64.b64decode(rec.file)
 				tree = ET.ElementTree(ET.fromstring(xml_content))
-					
+
 				root = tree.getroot()
-				for teacherNode in root:					
+				if rec.teacher_id:
+					if rec.teacher_id.resource_calendar_id.id:
+						rec.is_overriding = True
+						rec.overrided_teachers = rec.teacher_id.display_name
+					continue
+
+				for teacherNode in root:
 					email = teacherNode.attrib['name'].split(' ')[0]
 					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
 
 					if teacher and teacher.resource_calendar_id.id:
 						rec.is_overriding = True
-						rec.overrided_teachers = teacher.display_name if not rec.overrided_teachers else "%s, %s" % (rec.overrided_teachers, teacher.display_name)						
+						rec.overrided_teachers = teacher.display_name if not rec.overrided_teachers else "%s, %s" % (rec.overrided_teachers, teacher.display_name)
 	
 	def import_planner_data(self):
 		return {
@@ -102,11 +128,17 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				tree = ET.ElementTree(ET.fromstring(xml_content))
 				
 				root = tree.getroot()
-				for node in root:	
-					email = node.attrib['name'].split(' ')[0]
-					teacher = self.env["hr.employee"].search([("work_email", "=", email)])	
-					if not teacher.id: raise ValidationError("Teacher with email '%s' not found." % email)
+				if item.get('teacher_id'):
+					nodes = [(root[0], self.env['hr.employee'].browse(item['teacher_id']))]
+				else:
+					nodes = []
+					for node in root:
+						email = node.attrib['name'].split(' ')[0]
+						teacher = self.env["hr.employee"].search([("work_email", "=", email)])
+						if not teacher.id: raise ValidationError("Teacher with email '%s' not found." % email)
+						nodes.append((node, teacher))
 
+				for node, teacher in nodes:
 					entries = self._create_schedule(node, teacher, course_id)
 					entries = [e for e in entries if not e["non_teaching"]]
 					self.env['ems.teaching'].sync_from_schedule(teacher, entries)

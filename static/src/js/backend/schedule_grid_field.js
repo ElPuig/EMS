@@ -17,20 +17,31 @@ function dayLabels() {
 
 // Visual weekly grid (day columns x hourly rows) for a resource.calendar's weekly attendance slots
 // (dayofweek/hour_from/hour_to — a recurring pattern, not real dates, so the native <calendar> view
-// does not apply). Read-only by default; "Edit" turns every hourly cell into two dropdowns (subject and
-// group, or a non-teaching reason) backed by a LOCAL BUFFER, mirroring the grade matrix widget: nothing
-// is written until "Save" is pressed. Saving replaces the whole weekday schedule in one server call
-// (which also re-derives 'teaching_ids' from it — see 'ems.teaching.sync_from_schedule'), so the buffer
-// (seeded from every existing entry) is always the single source of truth for what gets written.
+// does not apply). Read-only by default; three actions turn it into an editable buffer (mirroring the
+// grade matrix widget: nothing is written until "Save" is pressed, "Cancel" discards):
+//   - "Edit": edit the teacher's current schedule in place (two dropdowns per hour: subject+group, or a
+//     non-teaching reason).
+//   - "Import": opens the XML planner importer already scoped to this teacher (no email lookup needed).
+//   - "New": seed the buffer from either a blank schedule framework (a level's period times, still
+//     unassigned) or another teacher's current schedule (handy for substitutions) — replacing the whole
+//     buffer, but only written to the server on "Save".
+// Saving replaces the whole weekday schedule in one server call (which also re-derives 'teaching_ids'
+// and 'ems.attendance_template' from it), so the buffer is always the single source of truth for what
+// gets written. A cell with no subject/non-teaching but backed by a real source row ('blank') is still
+// written as a placeholder period (kept exact, non-hour-aligned times included) instead of being dropped
+// like a truly empty cell.
 export class ScheduleGridField extends Component {
     static template = "ems.ScheduleGridField";
     static props = { ...standardFieldProps };
 
     setup() {
         this.orm = useService("orm");
+        this.actionService = useService("action");
         this.editing = useState({ value: false });
         this.buffer = useState({});
         this.dirty = useState({ value: false });
+        this.range = useState({ start: DEFAULT_START, end: DEFAULT_END });
+        this.newPanel = useState({ open: false, value: "", frameworks: [], teachers: [] });
         this.catalog = useState({ subjects: [], groups: [], nonTeaching: [] });
         onWillStart(async () => {
             const [subjects, groups, attendanceFields] = await Promise.all([
@@ -68,7 +79,7 @@ export class ScheduleGridField extends Component {
     }
 
     get hours() {
-        const { start, end } = this.bounds;
+        const { start, end } = this.editing.value ? this.range : this.bounds;
         const hours = [];
         for (let h = start; h < end; h++) {
             hours.push(h);
@@ -77,7 +88,7 @@ export class ScheduleGridField extends Component {
     }
 
     columnStyle() {
-        const { start, end } = this.bounds;
+        const { start, end } = this.editing.value ? this.range : this.bounds;
         return `height:${(end - start) * PX_PER_HOUR}px`;
     }
 
@@ -96,6 +107,10 @@ export class ScheduleGridField extends Component {
         const top = (entry.data.hour_from - start) * PX_PER_HOUR;
         const height = Math.max(34, (entry.data.hour_to - entry.data.hour_from) * PX_PER_HOUR);
         return `top:${top}px;height:${height}px`;
+    }
+
+    entryIsBlank(entry) {
+        return !entry.data.subject_id && !entry.data.non_teaching;
     }
 
     entryLabel(entry) {
@@ -127,10 +142,6 @@ export class ScheduleGridField extends Component {
         ];
     }
 
-    get groupOptions() {
-        return [{ key: "", label: "—" }, ...this.catalog.groups.map((group) => ({ key: String(group.id), label: group.display_name }))];
-    }
-
     _cellKey(dayIndex, hour) {
         return `${dayIndex}_${hour}`;
     }
@@ -139,39 +150,66 @@ export class ScheduleGridField extends Component {
         return { kind: "empty", subjectId: false, groupId: false, nonTeaching: false };
     }
 
-    _cellStateForEntry(entry) {
-        if (entry.data.non_teaching) {
-            return { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: entry.data.non_teaching };
-        }
-        const subjectId = entry.data.subject_id ? entry.data.subject_id[0] : false;
-        const groupIds = entry.data.group_ids ? entry.data.group_ids.currentIds : [];
-        if (subjectId) {
-            return { kind: "subject", subjectId, groupId: groupIds.length ? groupIds[0] : false, nonTeaching: false };
-        }
-        return this._emptyCell();
+    // Normalizes either an Odoo record (has '.data', many2one as [id, label], x2many as a StaticList) or
+    // a plain search_read dict (many2one as [id, label] too, many2many as a plain array of ids) into a
+    // common shape.
+    _normalizeEntry(raw) {
+        const data = raw.data || raw;
+        const groupIds = data.group_ids && data.group_ids.currentIds ? data.group_ids.currentIds : (data.group_ids || []);
+        return {
+            dayofweek: Number(data.dayofweek),
+            hour_from: data.hour_from,
+            hour_to: data.hour_to,
+            non_teaching: data.non_teaching || false,
+            subjectId: data.subject_id ? data.subject_id[0] : false,
+            groupId: groupIds.length ? groupIds[0] : false,
+        };
     }
 
-    startEdit() {
+    // A real attendance row with no subject/non-teaching is a 'blank' (still-unassigned) period, not an
+    // 'empty' cell — it must stay written on save so its exact (possibly non-hour-aligned) time survives.
+    _stateFromNormalized(norm) {
+        if (norm.non_teaching) {
+            return { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: norm.non_teaching };
+        }
+        if (norm.subjectId) {
+            return { kind: "subject", subjectId: norm.subjectId, groupId: norm.groupId, nonTeaching: false };
+        }
+        return { kind: "blank", subjectId: false, groupId: false, nonTeaching: false };
+    }
+
+    // Rebuilds the whole buffer from a list of raw entries (own current entries, a framework's blank
+    // periods, or another teacher's schedule), and the day/hour range they span.
+    _seedBufferFromEntries(rawEntries) {
+        const normalized = rawEntries.map((raw) => this._normalizeEntry(raw)).filter((n) => WEEKDAYS.includes(n.dayofweek));
+        let start = DEFAULT_START;
+        let end = DEFAULT_END;
+        for (const n of normalized) {
+            start = Math.min(start, Math.floor(n.hour_from));
+            end = Math.max(end, Math.ceil(n.hour_to));
+        }
         const buffer = {};
         for (const dayIndex of WEEKDAYS) {
-            for (const hour of this.hours) {
+            for (let hour = start; hour < end; hour++) {
                 buffer[this._cellKey(dayIndex, hour)] = this._emptyCell();
             }
         }
-        for (const entry of this.entries) {
-            const dayIndex = Number(entry.data.dayofweek);
-            if (!WEEKDAYS.includes(dayIndex)) {
-                continue;
-            }
-            const state = this._cellStateForEntry(entry);
-            for (let hour = Math.floor(entry.data.hour_from); hour < Math.ceil(entry.data.hour_to); hour++) {
-                buffer[this._cellKey(dayIndex, hour)] = state;
+        for (const n of normalized) {
+            const state = this._stateFromNormalized(n);
+            for (let hour = Math.floor(n.hour_from); hour < Math.ceil(n.hour_to); hour++) {
+                buffer[this._cellKey(n.dayofweek, hour)] = state;
             }
         }
         for (const key of Object.keys(this.buffer)) {
             delete this.buffer[key];
         }
         Object.assign(this.buffer, buffer);
+        this.range.start = start;
+        this.range.end = end;
+    }
+
+    startEdit() {
+        this._seedBufferFromEntries(this.entries);
         this.dirty.value = false;
         this.editing.value = true;
     }
@@ -179,6 +217,7 @@ export class ScheduleGridField extends Component {
     cancelEdit() {
         this.editing.value = false;
         this.dirty.value = false;
+        this.newPanel.open = false;
     }
 
     cellState(dayIndex, hour) {
@@ -213,8 +252,75 @@ export class ScheduleGridField extends Component {
         if (state.kind === "subject") {
             return `s_${state.subjectId}`;
         }
-        return "";
+        return ""; // 'empty' and 'blank' both show as "—" until the admin picks something
     }
+
+    // ── Import (opens the XML importer already scoped to this teacher) ───────
+
+    async onImportClick() {
+        await this.actionService.doAction(
+            {
+                type: "ir.actions.act_window",
+                res_model: "ems.working_schedules_import_wizard",
+                views: [[false, "form"]],
+                target: "new",
+                context: { default_teacher_id: this.props.record.resId },
+            },
+            { onClose: () => this.props.record.load() }
+        );
+    }
+
+    // ── New (blank framework or copy from another teacher) ───────────────────
+
+    async openNewPanel() {
+        if (!this.newPanel.frameworks.length && !this.newPanel.teachers.length) {
+            const [frameworks, teachers] = await Promise.all([
+                this.orm.searchRead("resource.calendar", [["is_framework", "=", true]], ["id", "display_name"]),
+                this.orm.searchRead(
+                    "hr.employee",
+                    [
+                        ["id", "!=", this.props.record.resId],
+                        ["employee_type", "=", "teacher"],
+                        ["resource_calendar_id", "!=", false],
+                    ],
+                    ["id", "display_name", "resource_calendar_id"]
+                ),
+            ]);
+            this.newPanel.frameworks = frameworks;
+            this.newPanel.teachers = teachers;
+        }
+        this.newPanel.value = "";
+        this.newPanel.open = true;
+    }
+
+    onNewSourceChange(ev) {
+        this.newPanel.value = ev.target.value;
+    }
+
+    cancelNewPanel() {
+        this.newPanel.open = false;
+    }
+
+    async loadNewSource() {
+        if (!this.newPanel.value) {
+            return;
+        }
+        const kind = this.newPanel.value[0];
+        const calendarId = Number(this.newPanel.value.slice(2));
+        this.newPanel.open = false;
+        const rawEntries = await this.orm.searchRead(
+            "resource.calendar.attendance",
+            [["calendar_id", "=", calendarId]],
+            ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids"]
+        );
+        // Copying a framework's periods only makes sense blank: a framework never carries a real
+        // subject/group, but be defensive in case one was set by mistake on the template record.
+        this._seedBufferFromEntries(kind === "f" ? rawEntries.map((e) => ({ ...e, subject_id: false, non_teaching: false })) : rawEntries);
+        this.dirty.value = true;
+        this.editing.value = true;
+    }
+
+    // ── Apply (buffer -> records -> save) ─────────────────────────────────────
 
     async save() {
         if (!this.dirty.value) {
@@ -224,9 +330,10 @@ export class ScheduleGridField extends Component {
         const subjectById = new Map(this.catalog.subjects.map((s) => [s.id, s.display_name]));
         const groupById = new Map(this.catalog.groups.map((g) => [g.id, g.display_name]));
         const nonTeachingByCode = new Map(this.catalog.nonTeaching);
+        const { start, end } = this.range;
         const cells = [];
         for (const dayIndex of WEEKDAYS) {
-            for (const hour of this.hours) {
+            for (let hour = start; hour < end; hour++) {
                 const state = this.buffer[this._cellKey(dayIndex, hour)];
                 if (!state || state.kind === "empty") {
                     continue;
@@ -244,6 +351,8 @@ export class ScheduleGridField extends Component {
                 } else if (state.kind === "non_teaching") {
                     cell.non_teaching = state.nonTeaching;
                     cell.name = nonTeachingByCode.get(state.nonTeaching) || state.nonTeaching;
+                } else if (state.kind === "blank") {
+                    cell.name = "Free";
                 } else {
                     continue; // a subject was picked but no group yet: skip until both are set
                 }

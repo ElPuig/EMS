@@ -115,3 +115,19 @@
 .o_schedule_grid_entry_nonteaching {
     background-color: #8d99ae;
 }
+
+.o_schedule_grid_entry_blank {
+    background-color: transparent;
+    border: 1px dashed #adb5bd;
+    color: #6c757d;
+}
+
+.o_schedule_grid_new_panel {
+    display: flex;
+    align-items: center;
+}
+
+.o_schedule_grid_select_new {
+    font-size: 12px;
+    max-width: 260px;
+}

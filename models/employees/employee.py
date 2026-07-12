@@ -140,6 +140,21 @@ class ems_employee(models.AbstractModel):
     activity_type_id = fields.Many2one(groups="hr.group_hr_user,ems.group_teacher")
     activity_type_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        employees = super().create(vals_list)
+        framework = self.env.company.default_schedule_framework_id
+        if framework:
+            for employee, vals in zip(employees, vals_list):
+                if employee.employee_type == 'teacher' and not vals.get('resource_calendar_id'):
+                    course = self.env.company.current_course_id
+                    schedule = self.env['resource.calendar'].create({
+                        'name': "%s (%s)" % (employee.name, course.name) if course else employee.name,
+                    })
+                    schedule.seed_from_framework(framework)
+                    employee.resource_calendar_id = schedule
+        return employees
+
     def find_head_of_studies(self):
         # NOTE: role_hos/role_dhos both map to the same global group_head_of_studies
         # (no per-employee hierarchy field), so this walks parent_id looking for the

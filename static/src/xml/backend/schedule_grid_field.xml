@@ -7,10 +7,39 @@
             </div>
             <t t-else="">
                 <div class="o_schedule_grid_toolbar">
-                    <button t-if="!editing.value" type="button" class="btn btn-sm btn-secondary"
-                            t-on-click="() => this.startEdit()">
-                        <i class="fa fa-pencil me-1"/>Edit
-                    </button>
+                    <t t-if="!editing.value">
+                        <button type="button" class="btn btn-sm btn-secondary" t-on-click="() => this.startEdit()">
+                            <i class="fa fa-pencil me-1"/>Edit
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.onImportClick()">
+                            <i class="fa fa-upload me-1"/>Import
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.openNewPanel()">
+                            <i class="fa fa-plus me-1"/>New
+                        </button>
+                        <div t-if="newPanel.open" class="o_schedule_grid_new_panel mt-2">
+                            <select class="o_schedule_grid_select_new" t-on-change="(ev) => this.onNewSourceChange(ev)">
+                                <option value="">—</option>
+                                <optgroup label="Schedule frameworks">
+                                    <t t-foreach="newPanel.frameworks" t-as="framework" t-key="framework.id">
+                                        <option t-att-value="'f_' + framework.id" t-esc="framework.display_name"/>
+                                    </t>
+                                </optgroup>
+                                <optgroup label="Copy from teacher">
+                                    <t t-foreach="newPanel.teachers" t-as="colleague" t-key="colleague.id">
+                                        <option t-att-value="'c_' + colleague.resource_calendar_id[0]" t-esc="colleague.display_name"/>
+                                    </t>
+                                </optgroup>
+                            </select>
+                            <button type="button" class="btn btn-sm btn-primary ms-2" t-att-disabled="!newPanel.value"
+                                    t-on-click="() => this.loadNewSource()">
+                                Load
+                            </button>
+                            <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.cancelNewPanel()">
+                                Cancel
+                            </button>
+                        </div>
+                    </t>
                     <t t-else="">
                         <button type="button" class="btn btn-sm btn-primary" t-on-click="() => this.save()">
                             <i class="fa fa-check me-1"/>Save
@@ -37,7 +66,10 @@
                         <div t-if="!editing.value" class="o_schedule_grid_column" t-att-style="columnStyle()">
                             <t t-foreach="entriesForDay(day.index)" t-as="entry" t-key="entry.id">
                                 <div class="o_schedule_grid_entry"
-                                     t-att-class="entry.data.non_teaching ? 'o_schedule_grid_entry_nonteaching' : ''"
+                                     t-att-class="{
+                                        'o_schedule_grid_entry_nonteaching': entry.data.non_teaching,
+                                        'o_schedule_grid_entry_blank': entryIsBlank(entry),
+                                     }"
                                      t-att-style="entryStyle(entry)"
                                      t-att-title="entryTime(entry) + ' ' + entryLabel(entry)">
                                     <span class="o_schedule_grid_entry_time" t-esc="entryTime(entry)"/>

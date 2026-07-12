@@ -45,7 +45,7 @@
                                             <t t-foreach="line['cells']" t-as="cell">
                                                 <td>
                                                     <t t-if="cell">
-                                                        <span t-field="cell.name"/>
+                                                        <span t-esc="cell.get_report_label()"/>
                                                         <span t-if="cell.space_id" class="ws-cell-room" t-field="cell.space_id.display_name"/>
                                                     </t>
                                                 </td>

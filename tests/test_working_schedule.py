@@ -177,6 +177,30 @@ class TestWorkingSchedule(TransactionCase):
         self.assertIn(content_type, ('pdf', 'html'))
         self.assertIn(b'TWSL', content)
 
+    def test_get_report_label_translates_non_teaching_reason(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Report Label (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': 'G', 'name': 'G: Guard',
+        }])
+        attendance = schedule.attendance_ids
+
+        self.assertEqual(attendance.with_context(lang='en_US').get_report_label(), 'Guard')
+        self.assertEqual(attendance.with_context(lang='ca_ES').get_report_label(), 'Guàrdia')
+
+    def test_report_working_schedule_translates_non_teaching_reason(self):
+        self.teacher.resource_calendar_id = self.framework
+        self.teacher.resource_calendar_id.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': 'G', 'name': 'G: Guard',
+        }])
+
+        content, _content_type = self.env['ir.actions.report'].with_context(lang='ca_ES')._render_qweb_pdf(
+            'ems.report_working_schedule', [self.teacher.id]
+        )
+
+        self.assertIn('Guàrdia'.encode(), content)
+
     def test_teacher_cannot_write_schedule_attendance(self):
         calendar = self.env['resource.calendar'].create({'name': 'Test ACL Teacher (Working Schedule)'})
         with self.assertRaises(AccessError):

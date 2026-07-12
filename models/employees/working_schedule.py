@@ -103,6 +103,18 @@ class ems_working_schedule_assignation(models.Model):
 		for attendance in self:
 			attendance.space_id = attendance.group_ids[:1].space_id
 
+	def get_report_label(self):
+		"""Display label for the working schedule PDF report. NOT 'self.name': that Char is frozen in
+		whatever language was active when the row was saved (Edit/Import always write it in English —
+		see 'non_teaching_items'/'nonTeachingByCode' in this file and in schedule_grid_field.js), so a
+		non-teaching row would otherwise always show "Guard" even when printing in Catalan/Spanish. The
+		Selection field's own option label, resolved for the report's current language, is used instead."""
+		self.ensure_one()
+		if self.non_teaching:
+			labels = dict(self._fields['non_teaching']._description_selection(self.env))
+			return labels.get(self.non_teaching, self.non_teaching)
+		return self.name
+
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
 	_description = "Working schedules: import wizard."

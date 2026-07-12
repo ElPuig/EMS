@@ -1703,6 +1703,89 @@ msgid "Break"
 msgstr "Pati"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Add period"
+msgstr "Afegeix franja"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_employees_ems
+msgid "Blank schedule template automatically assigned to every new teacher."
+msgstr "Plantilla d'horari en blanc assignada automàticament a cada nou docent."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Copy from teacher"
+msgstr "Copia d'un altre docent"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__default_schedule_framework_id
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__schedule_framework_id
+msgid "Default Schedule Framework"
+msgstr "Marc horari predeterminat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_employees_ems
+msgid "Default schedule framework"
+msgstr "Marc horari predeterminat"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Edit"
+msgstr "Edita"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Load"
+msgstr "Carrega"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "New"
+msgstr "Nou"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Remove period"
+msgstr "Elimina la franja"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_schedule_frameworks_tree
+msgid "Schedule Frameworks"
+msgstr "Marcs horaris"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar__is_framework
+msgid "Schedule framework"
+msgstr "Marc horari"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_resource_calendar__is_framework
+msgid ""
+"A reusable blank period template for a level of studies, instead of a real "
+"teacher's schedule."
+msgstr ""
+"Una plantilla de franges en blanc reutilitzable per a un nivell "
+"d'estudis, en lloc de l'horari real d'un docent."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model:ir.ui.menu,name:ems.menu_schedule_frameworks
+msgid "Schedule frameworks"
+msgstr "Marcs horaris"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar__source_framework_id
+msgid "Source framework"
+msgstr "Marc d'origen"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Answer"
 msgstr "Resposta"
@@ -2383,6 +2466,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2528,6 +2612,7 @@ msgstr "Ciutat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__space_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id
 msgid "Classroom"
 msgstr "Aula"
 
@@ -4177,6 +4262,8 @@ msgid "Free per-student remark for this subject grade."
 msgstr "Comentari per l'alumne de l'assignatura"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__4
 msgid "Friday"
@@ -4972,6 +5059,8 @@ msgid "Image Rights"
 msgstr "Drets d'imatge"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model_terms:ir.ui.view,arch_db:ems.report_enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "Import"
@@ -5430,6 +5519,7 @@ msgstr "Text legal (renderitzat)"
 #: model:ir.model.fields,field_description:ems.field_ems_study__level_id
 #: model:ir.model.fields,field_description:ems.field_res_partner__level_id
 #: model:ir.model.fields,field_description:ems.field_res_users__level_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar__level_id
 #: model:ir.model.fields,field_description:ems.field_sale_order__ems_level_id
 #: model_terms:ir.ui.view,arch_db:ems.level_view_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
@@ -5904,6 +5994,8 @@ msgid "Mode"
 msgstr "Modo"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__0
 msgid "Monday"
@@ -6171,6 +6263,9 @@ msgid "Non-fee Amount"
 msgstr "Import d'altres conceptes"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__non_teaching
 msgid "Non-teaching"
 msgstr "No lectiva"
@@ -7528,11 +7623,16 @@ msgstr "Dissabte"
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "Save"
 msgstr "Desar"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 msgid "Schedule"
 msgstr "Horari"
@@ -8495,6 +8595,9 @@ msgid "Subject: The main item for a student's subject."
 msgstr "Assignatura: L'element principal de l'assignatura d'un estudiant."
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model:ir.actions.act_window,name:ems.action_subject_tree
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__allowed_subject_ids
 #: model:ir.model.fields,field_description:ems.field_ems_planning__allowed_subject_ids
@@ -8647,6 +8750,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_strike__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__teacher_id
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__teacher_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__teacher
 #: model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__teacher
 #: model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__teacher
@@ -9038,6 +9142,8 @@ msgstr ""
 "l'alumne i no es pot eliminar. Si us plau, arxiva-la en el seu lloc."
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__3
 msgid "Thursday"
@@ -9128,6 +9234,8 @@ msgstr ""
 "Cert quan el compte de Google Workspace de l'alumne està suspès (exalumne)."
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__1
 msgid "Tuesday"
@@ -9598,6 +9706,8 @@ msgid "Website communication history"
 msgstr "Històric de comunicacions del lloc web"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__2
 msgid "Wednesday"

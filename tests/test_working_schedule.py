@@ -291,6 +291,25 @@ class TestWorkingSchedule(TransactionCase):
         self.assertIn(content_type, ('pdf', 'html'))
         self.assertIn(b'TWSL', content)
 
+    def test_report_working_schedule_includes_hours_summary(self):
+        self.teacher.resource_calendar_id = self.framework
+        self.teacher.resource_calendar_id.apply_schedule_changes([
+            {
+                'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            },
+            {
+                'dayofweek': '0', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
+                'non_teaching': 'G', 'name': 'G: Guard',
+            },
+        ])
+
+        content, _content_type = self.env['ir.actions.report']._render_qweb_pdf('ems.report_working_schedule', [self.teacher.id])
+
+        self.assertIn(b'Weekly teaching hours', content)
+        self.assertIn(b'Other fixed-schedule hours', content)
+        self.assertIn(b'Overall total', content)
+
     def test_get_report_label_translates_non_teaching_reason(self):
         schedule = self.env['resource.calendar'].create({'name': 'Test Report Label (Working Schedule)'})
         schedule.apply_schedule_changes([{

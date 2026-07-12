@@ -9210,6 +9210,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Total"
 msgstr "Total"
 
@@ -12129,12 +12130,14 @@ msgstr "'Horario - %s - %s' % (object.name, object.company_id.current_course_id.
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Weekly teaching hours"
 msgstr "Horas lectivas semanales"
 
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Other fixed-schedule hours"
 msgstr "Otras horas en horario fijo"
 
@@ -12143,3 +12146,8 @@ msgstr "Otras horas en horario fijo"
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "Overall total:"
 msgstr "Total general:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+msgid "<span>Overall total:</span>"
+msgstr "<span>Total general:</span>"

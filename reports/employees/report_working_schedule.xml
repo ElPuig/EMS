@@ -20,44 +20,100 @@
                             <style>
                                 .ws-title { font-size: 20px; margin-bottom: 4px; }
                                 .ws-table { font-size: 10px; table-layout: fixed; }
-                                .ws-table th, .ws-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; height: 38px; }
+                                .ws-table th, .ws-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; height: 38px; overflow: hidden; }
                                 .ws-table td.ws-time { white-space: nowrap; font-weight: bold; }
-                                .ws-cell-room { display: block; font-size: 9px; opacity: 0.85; }
-                                .ws-cell-content { display: block; border-radius: 3px; padding: 3px 4px; color: #fff; }
+                                .ws-cell-content { display: block; height: 30px; overflow: hidden; border-radius: 3px; padding: 3px 4px; color: #fff; }
+                                .ws-cell-label { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+                                .ws-cell-room { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9px; color: #fff; }
+                                .ws-summary-table { width: 100%; margin-top: 16px; font-size: 10px; border: none; border-top: 1px solid #dee2e6; border-collapse: collapse; }
+                                .ws-summary-table th, .ws-summary-table td { border: none; }
+                                .ws-summary-table th { text-align: left; padding: 8px 12px; }
+                                .ws-summary-table > tbody > tr > td { padding: 10px 14px; vertical-align: top; }
+                                .ws-summary-inner { width: 100%; }
+                                .ws-summary-inner td { padding: 2px 8px 2px 4px; border-bottom: 1px solid #eee; }
+                                .ws-summary-inner td:last-child { text-align: right; font-weight: 600; }
+                                .ws-summary-total td { border-bottom: none; border-top: 1px solid #adb5bd; font-weight: 600; }
+                                .ws-grand-total { margin-top: 6px; padding: 0 6px; font-size: 11px; font-weight: 600; }
                             </style>
 
                             <h1 class="ws-title">Working Schedule</h1>
                             <p><span t-field="employee.name"/> — <span t-field="employee.company_id.current_course_id.name"/></p>
 
-                            <table t-if="employee.resource_calendar_id" class="table table-bordered ws-table">
-                                <thead>
-                                    <tr>
-                                        <th/>
-                                        <th>Monday</th>
-                                        <th>Tuesday</th>
-                                        <th>Wednesday</th>
-                                        <th>Thursday</th>
-                                        <th>Friday</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="employee.resource_calendar_id.get_schedule_report_lines()" t-as="line">
+                            <t t-if="employee.resource_calendar_id">
+                                <t t-set="summary" t-value="employee.resource_calendar_id.get_schedule_hours_summary()"/>
+
+                                <table class="table table-bordered ws-table">
+                                    <thead>
                                         <tr>
-                                            <td class="ws-time" t-esc="line['time_label']"/>
-                                            <t t-foreach="line['cells']" t-as="cell">
-                                                <td>
-                                                    <t t-if="cell['entry']">
-                                                        <span class="ws-cell-content" t-att-style="'background-color:' + cell['color']">
-                                                            <t t-esc="cell['entry'].get_report_label()"/>
-                                                            <span t-if="cell['entry'].space_id" class="ws-cell-room" t-field="cell['entry'].space_id.display_name"/>
-                                                        </span>
-                                                    </t>
-                                                </td>
-                                            </t>
+                                            <th/>
+                                            <th>Monday</th>
+                                            <th>Tuesday</th>
+                                            <th>Wednesday</th>
+                                            <th>Thursday</th>
+                                            <th>Friday</th>
                                         </tr>
-                                    </t>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="employee.resource_calendar_id.get_schedule_report_lines()" t-as="line">
+                                            <tr>
+                                                <td class="ws-time" t-esc="line['time_label']"/>
+                                                <t t-foreach="line['cells']" t-as="cell">
+                                                    <td>
+                                                        <t t-if="cell['entry']">
+                                                            <span class="ws-cell-content" t-att-style="'background-color:' + cell['color']">
+                                                                <span class="ws-cell-label" t-esc="cell['entry'].get_report_label()"/>
+                                                                <span t-if="cell['entry'].space_id" class="ws-cell-room" t-esc="cell['entry'].space_id.display_name"/>
+                                                            </span>
+                                                        </t>
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+
+                                <table class="ws-summary-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:50%;">Weekly teaching hours</th>
+                                            <th style="width:50%;">Other fixed-schedule hours</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <table class="ws-summary-inner">
+                                                    <t t-foreach="summary['teaching']['rows']" t-as="row">
+                                                        <tr>
+                                                            <td t-esc="row['label']"/>
+                                                            <td t-esc="str(row['hours']) + ' h'"/>
+                                                        </tr>
+                                                    </t>
+                                                    <tr class="ws-summary-total">
+                                                        <td>Total</td>
+                                                        <td t-esc="str(summary['teaching']['total']) + ' h'"/>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <td>
+                                                <table class="ws-summary-inner">
+                                                    <t t-foreach="summary['fixed']['rows']" t-as="row">
+                                                        <tr>
+                                                            <td t-esc="row['label']"/>
+                                                            <td t-esc="str(row['hours']) + ' h'"/>
+                                                        </tr>
+                                                    </t>
+                                                    <tr class="ws-summary-total">
+                                                        <td>Total</td>
+                                                        <td t-esc="str(summary['fixed']['total']) + ' h'"/>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p class="ws-grand-total"><span>Overall total:</span> <span t-esc="str(summary['total']) + ' h'"/></p>
+                            </t>
                             <p t-else="">No working schedule assigned to this employee.</p>
                         </div>
                     </t>

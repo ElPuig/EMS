@@ -12,6 +12,15 @@
                     <field name="main_group_id" string="Group"/>
                     <field name="tutor_id" string="Tutor"/>
                     <field name="study_id" string="Study"/>
+                    <!-- The internal continuers GEDAC reassigned to another study. Opt-in:
+                         it does not alter the default view, and it is the only handle that
+                         gathers them all so they can be enrolled right here. -->
+                    <filter name="gedac_assignment" string="With GEDAC assignment"
+                            domain="[('preinscription_study_id', '!=', False)]"/>
+                    <group expand="0" string="Group by">
+                        <filter name="groupby_preinscription_study" string="Assigned study"
+                                context="{'group_by': 'preinscription_study_id'}"/>
+                    </group>
                     <searchpanel>
                         <field name="main_group_id" string="Student group" icon="fa-users" enable_counters="1"/>
                     </searchpanel>
@@ -40,6 +49,9 @@
                     <field name="main_group_id" optional="show"/>
                     <field name="tutor_id" optional="hide"/>
                     <field name="study_id" optional="hide"/>
+                    <field name="preinscription_study_id" string="Assigned study" optional="hide"/>
+                    <field name="preinscription_course" string="Assigned course" optional="hide"/>
+                    <field name="preinscription_shift" string="Assigned shift" optional="hide"/>
                     <field name="level_id" optional="hide"/>
                     <field name="student_email" optional="hide"/>
                     <field name="phone" optional="show"/>

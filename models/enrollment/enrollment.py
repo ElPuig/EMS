@@ -524,16 +524,28 @@ class ems_SaleOrder(models.Model):
     def _ems_admit_student(self):
         """Formal admission act on enrollment confirmation.
 
-        Always converts an applicant into a student. Placement (group + subject
-        enrollments) only runs for latecomers whose destination study has already
-        been transitioned; in the normal case (study still active) the transition
-        wizard places everyone in bulk later. The `transition_state` field lands in
-        the transition phase, so until then this branch stays dormant.
+        Always converts an applicant into a student, and consumes the GEDAC assignment
+        of an internal continuer once the granted study is the one being confirmed.
+        Placement (group + subject enrollments) only runs for latecomers whose
+        destination study has already been transitioned; in the normal case (study still
+        active) the transition wizard places everyone in bulk later. The
+        `transition_state` field lands in the transition phase, so until then this
+        branch stays dormant.
         """
         self.ensure_one()
         partner = self.partner_id
         if partner.contact_type == 'applicant':
             partner._ems_convert_to_student()
+        # Spent assignment: clearing it keeps the "With GEDAC assignment" filter showing
+        # only the continuers still pending enrollment. A different study being confirmed
+        # (the manual escape hatch) leaves the assignment standing.
+        if partner.preinscription_study_id \
+                and partner.preinscription_study_id == self.ems_study_id:
+            partner.write({
+                'preinscription_study_id': False,
+                'preinscription_shift': False,
+                'preinscription_course': False,
+            })
         if getattr(self.ems_study_id, 'transition_state', False) == 'transitioned':
             self._ems_apply_destination_placement()
 

@@ -11350,18 +11350,18 @@ msgstr "Informe d'alumnes actius (CSV)"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/applicant_import_wizard.py:0
-msgid "Already active students (left untouched):"
-msgstr "Alumnes ja actius (no modificats):"
+msgid "Already active students (destination recorded):"
+msgstr "Alumnes ja actius (destí registrat):"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/applicant_import_wizard.py:0
 msgid ""
 "Already an active student (internal continuer, pending course transition): "
-"left untouched"
+"granted destination recorded"
 msgstr ""
-"Ja és alumne actiu (continuista intern, pendent de transició de curs): no "
-"modificat"
+"Ja és alumne actiu (continuista intern, pendent de transició de curs): destí "
+"assignat registrat"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_applicant_import_wizard_form
@@ -11373,14 +11373,16 @@ msgstr "Descarregar alumnes actius (CSV)"
 #: code:addons/ems/models/contacts/applicant_import_wizard.py:0
 msgid ""
 "Internal continuers still enrolled (e.g. CFGM to CFGS before the course "
-"transition). Re-run this import after their transition to set them up as "
-"applicants for the new cycle. Their data is in the 'active students' CSV "
+"transition). Their own data is kept, and the granted study, shift and course "
+"are recorded on them: enroll them from the 'With GEDAC assignment' filter of "
+"the enrollment proposals. Their data is also in the 'active students' CSV "
 "below."
 msgstr ""
 "Continuistes interns encara matriculats (p. ex. de CFGM a CFGS abans de la "
-"transició de curs). Torneu a llançar aquesta importació després de la seva "
-"transició per donar-los d'alta com a aspirants del nou cicle. Les seves "
-"dades són al CSV d'\"alumnes actius\" de sota."
+"transició de curs). Es conserven les seves dades pròpies i s'hi registren "
+"l'estudi, el torn i el curs assignats: matricula'ls des del filtre \"Amb "
+"assignació GEDAC\" de les propostes de matrícula. Les seves dades també són "
+"al CSV d'\"alumnes actius\" de sota."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
@@ -11483,3 +11485,40 @@ msgid ""
 msgstr ""
 "Es mostren les plantilles de tots els estudis. Comprova l'estudi i el grup "
 "de destí abans de crear les matrícules."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__preinscription_study_id
+msgid "Preinscription study"
+msgstr "Estudi de preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__preinscription_study_id
+msgid ""
+"Study granted by the preinscription (GEDAC) for the next course. Only set on "
+"students already enrolled in another study; an applicant keeps its granted "
+"study in the study field."
+msgstr ""
+"Estudi assignat per la preinscripció (GEDAC) per al curs vinent. Només "
+"s'estableix en alumnes ja matriculats en un altre estudi; un aspirant manté "
+"el seu estudi assignat al camp d'estudi."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+msgid "With GEDAC assignment"
+msgstr "Amb assignació GEDAC"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+msgid "Assigned study"
+msgstr "Estudi assignat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+msgid "Assigned course"
+msgstr "Curs assignat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+msgid "Assigned shift"
+msgstr "Torn assignat"

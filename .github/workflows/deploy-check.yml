@@ -77,7 +77,14 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ steps.pr.outputs.sha }}
-          path: pr-checkout
+          # This repo IS the 'ems' module (__manifest__.py at its root), so it must land in a
+          # subdirectory named 'ems' - addons_path below points at the parent, exactly like
+          # production's odoo.conf (addons_path = ..., /root/myModules, ...) resolves the module
+          # via /root/myModules/ems/__manifest__.py. Checking out straight into 'pr-checkout' and
+          # pointing addons_path at that folder made Odoo unable to find a module named 'ems' at
+          # all, so '-u ems' silently no-opped instead of failing - see the 2026-07-12 incident
+          # where this let a broken pre-migrate.py through as a false green.
+          path: pr-checkout/ems
 
       - name: Write isolated odoo config
         run: |
@@ -92,15 +99,40 @@ jobs:
           sudo -u odoo createdb ems_pr_check
           sudo -u odoo bash -c "pg_dump --no-owner -d ems | psql -q -d ems_pr_check"
 
+          # Odoo resolves attachment content from filestore/<dbname>/..., keyed off the *database*
+          # name, not the module - ir_attachment rows copied above still point at hashes that only
+          # exist under filestore/ems/. Without this, reading any attachment (e.g. the company logo,
+          # touched during the very first module-list refresh) raises FileNotFoundError, which Odoo
+          # swallows by marking 'ems' as "not installable, skipped" instead of failing the run - a
+          # false green that never actually loads the module under test (2026-07-12 incident).
+          sudo -u odoo rm -rf /var/lib/odoo/.local/share/Odoo/filestore/ems_pr_check
+          sudo -u odoo cp -r /var/lib/odoo/.local/share/Odoo/filestore/ems /var/lib/odoo/.local/share/Odoo/filestore/ems_pr_check
+
       - name: Dry-run the EMS upgrade
         id: dryrun
         run: |
           set -o pipefail
           sudo -u odoo bash -c "odoo -d ems_pr_check -u ems --stop-after-init -c /tmp/odoo-deploy-check.conf" 2>&1 | tee /tmp/odoo-deploy-check.log
 
+          # Odoo's own exit code is not a reliable pass/fail signal: a module that fails while
+          # loading (missing attachment, dependency graph issue, ...) can end up silently marked
+          # "not installable, skipped" while the rest of the stock modules still load fine - the
+          # process then still exits 0 for --stop-after-init. That let two different real bugs
+          # through as false greens on 2026-07-12. Verify what actually happened in the DB instead
+          # of trusting the exit code.
+          expected_version=$(grep -oP "'version':\s*'\K[^']+" pr-checkout/ems/__manifest__.py)
+          actual_state=$(sudo -u odoo psql -d ems_pr_check -t -c "SELECT state || ' ' || latest_version FROM ir_module_module WHERE name='ems';" | xargs)
+          echo "Expected: installed ${expected_version} | Actual: ${actual_state}"
+          if [ "$actual_state" != "installed ${expected_version}" ]; then
+            echo "::error::EMS module did not end up 'installed ${expected_version}' in the dry-run (got: '${actual_state}') - see the uploaded log."
+            exit 1
+          fi
+
       - name: Cleanup
         if: always()
-        run: sudo -u odoo dropdb --if-exists ems_pr_check
+        run: |
+          sudo -u odoo dropdb --if-exists ems_pr_check
+          sudo -u odoo rm -rf /var/lib/odoo/.local/share/Odoo/filestore/ems_pr_check
 
       - name: Upload log
         if: always()

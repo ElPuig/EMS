@@ -6,6 +6,10 @@
             <field name="inherit_id" ref="hr.view_employee_form"/> 
             <field name="arch" type="xml">
 
+                <xpath expr="//header/button" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
                 <xpath expr="//sheet" position="before">
                     <header>
                         <field name="google_ws_suspended" invisible="1"/>

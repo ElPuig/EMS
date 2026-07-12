@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_resource_calendar_attendance_form">
+            <field name="name">ems.resource_calendar_attendance.form</field>
+            <field name="model">resource.calendar.attendance</field>
+            <field name="inherit_id" ref="resource.view_resource_calendar_attendance_form"/>
+            <field name="arch" type="xml">
+                <field name="dayofweek" position="after">
+                    <field name="non_teaching"/>
+                    <field name="subject_id" invisible="non_teaching != False"/>
+                    <field name="group_ids" widget="many2many_tags" invisible="non_teaching != False"/>
+                </field>
+
+                <field name="date_from" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </field>
+
+                <field name="date_to" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </field>
+
+                <field name="duration_days" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

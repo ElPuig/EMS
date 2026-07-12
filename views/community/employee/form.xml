@@ -132,12 +132,28 @@
                                 <list editable="bottom" default_order="subject_id asc, group_id asc">
                                     <field name="subject_id" />
                                     <field name="group_id" domain="[('id','not in', inuse_group_ids)]"/>
-                                    <field name="inuse_group_ids" column_invisible="True"/>                             
+                                    <field name="inuse_group_ids" column_invisible="True"/>
                                 </list>
                             </field>
                         </group>
-                    </page>                     
-                </xpath>                
+                    </page>
+
+                    <page string="Schedule" name="schedule" invisible="employee_type == 'asp'">
+                        <field name="resource_calendar_id" invisible="1"/>
+                        <field name="schedule_attendance_ids" widget="schedule_grid" nolabel="1">
+                            <list limit="200">
+                                <field name="name"/>
+                                <field name="dayofweek"/>
+                                <field name="hour_from"/>
+                                <field name="hour_to"/>
+                                <field name="day_period"/>
+                                <field name="subject_id"/>
+                                <field name="group_ids"/>
+                                <field name="non_teaching"/>
+                            </list>
+                        </field>
+                    </page>
+                </xpath>
             </field>		      
         </record>  
 

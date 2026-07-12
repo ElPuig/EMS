@@ -1,0 +1,71 @@
+.o_schedule_grid_grid {
+    display: flex;
+    align-items: flex-start;
+    overflow-x: auto;
+}
+
+.o_schedule_grid_axis {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 60px;
+    text-align: right;
+    padding-right: 6px;
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.o_schedule_grid_hour {
+    height: 48px;
+    box-sizing: border-box;
+    transform: translateY(-6px);
+}
+
+.o_schedule_grid_day {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 130px;
+    border-left: 1px solid #dee2e6;
+}
+
+.o_schedule_grid_day_header {
+    height: 24px;
+    font-weight: 600;
+    text-align: center;
+    padding-bottom: 4px;
+}
+
+.o_schedule_grid_column {
+    position: relative;
+    cursor: pointer;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        #eee,
+        #eee 1px,
+        transparent 1px,
+        transparent 48px
+    );
+}
+
+.o_schedule_grid_entry {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    overflow: hidden;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-size: 12px;
+    line-height: 1.2;
+    color: #fff;
+    background-color: #5b8def;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.o_schedule_grid_entry:hover {
+    filter: brightness(1.1);
+}
+
+.o_schedule_grid_entry_nonteaching {
+    background-color: #8d99ae;
+}

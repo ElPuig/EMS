@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.ScheduleGridField">
+        <div class="o_schedule_grid">
+            <div t-if="!calendarId" class="alert alert-info mb-0" role="alert">
+                No working schedule assigned to this employee yet. Assign one in the "Work Information" tab first.
+            </div>
+            <div t-else="" class="o_schedule_grid_grid">
+                <div class="o_schedule_grid_axis">
+                    <div class="o_schedule_grid_day_header"/>
+                    <t t-foreach="hours" t-as="hour" t-key="hour">
+                        <div class="o_schedule_grid_hour" t-esc="formatHour(hour)"/>
+                    </t>
+                </div>
+                <t t-foreach="days" t-as="day" t-key="day.index">
+                    <div class="o_schedule_grid_day">
+                        <div class="o_schedule_grid_day_header" t-esc="day.label"/>
+                        <div class="o_schedule_grid_column" t-att-style="columnStyle()"
+                             t-on-click="(ev) => this.onColumnClick(day.index, ev)">
+                            <t t-foreach="entriesForDay(day.index)" t-as="entry" t-key="entry.id">
+                                <div class="o_schedule_grid_entry"
+                                     t-att-class="entry.data.non_teaching ? 'o_schedule_grid_entry_nonteaching' : ''"
+                                     t-att-style="entryStyle(entry)"
+                                     t-on-click="(ev) => this.onEntryClick(entry, ev)">
+                                    <span t-esc="entryLabel(entry)"/>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>

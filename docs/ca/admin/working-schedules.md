@@ -6,7 +6,7 @@
 
 Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat, i configura les plantilles d'horari ("marcs horaris") amb què comencen els docents nous.
 
-**Rol necessari:** Administrador (avui dia és l'únic rol que pot editar horaris — la resta només pot veure el seu propi horari, en mode lectura)
+**Rol necessari:** Cap de departament o superior (Cap de departament, Cap d'estudis, Director, Administrador) pot editar horaris i utilitzar l'assistent d'importació; la resta de rols només poden veure el seu propi horari, en mode lectura, però tothom pot exportar un horari a PDF.
 
 ---
 
@@ -90,6 +90,18 @@ Si el teu centre ja exporta horaris des d'una eina externa de planificació (XML
 
 ---
 
+## Importar l'horari de diversos docents alhora
+
+Si tens diversos fitxers d'exportació de la planificació per importar d'una vegada (cada fitxer ja pot descriure més d'un docent, aparellat per correu electrònic), fes servir l'importador general en lloc del botó per docent:
+
+1. Vés a **Configuració → Professorat → Horaris de treball**.
+2. Obre el menú ⚙️ (engranatge) de sobre la llista i tria **Import: planner data**.
+3. Adjunta tants fitxers XML com necessitis.
+4. Si algun dels docents trobats en aquests fitxers ja té un horari, veuràs un avís que els llista — els horaris s'actualitzen, no es reemplacen des de zero.
+5. Fes clic a **Importa**.
+
+---
+
 ## Començar l'horari d'un docent a partir d'un marc o d'un altre docent
 
 Fes servir això per reiniciar un docent amb un marc diferent (p. ex. ara imparteix un altre nivell), o per configurar un **substitut** amb el mateix horari que el docent que està cobrint:
@@ -100,6 +112,15 @@ Fes servir això per reiniciar un docent amb un marc diferent (p. ex. ara impart
 4. Ajusta el que calgui i fes clic a **Desa** per aplicar-ho, o a **Cancel·la** per descartar-ho i mantenir l'horari anterior del docent intacte.
 
 > **Nou** substitueix tot l'horari — res de l'anterior es conserva llevat que també aparegui en el que acabes de carregar. Cancel·lar abans de desar deixa tot exactament com estava.
+
+---
+
+## Exportar l'horari d'un docent a PDF
+
+1. Obre la pestanya **Horari** del docent i fes clic a **PDF**.
+2. Es genera i es descarrega un horari setmanal imprimible — una fila per franja, una columna per dia, i cada cel·la mostra l'assignatura/grup o el motiu no lectiu i l'aula.
+
+Aquesta opció també està disponible des del menú **Imprimeix** de la pròpia fitxa de l'empleat, per si necessites exportar l'horari de diversos docents des d'una vista de llista.
 
 ---
 

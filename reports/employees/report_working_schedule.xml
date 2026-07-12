@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="action_report_working_schedule" model="ir.actions.report">
+            <field name="name">Working Schedule</field>
+            <field name="model">hr.employee</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_working_schedule</field>
+            <field name="report_file">ems.report_working_schedule</field>
+            <field name="binding_model_id" ref="model_hr_employee"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_working_schedule">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="employee">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <style>
+                                .ws-title { font-size: 20px; margin-bottom: 4px; }
+                                .ws-table { font-size: 10px; }
+                                .ws-table th, .ws-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; }
+                                .ws-table td.ws-time { white-space: nowrap; font-weight: bold; }
+                                .ws-cell-room { display: block; font-size: 9px; color: #666; }
+                            </style>
+
+                            <h1 class="ws-title">Working Schedule</h1>
+                            <p><span t-field="employee.name"/></p>
+
+                            <table t-if="employee.resource_calendar_id" class="table table-bordered ws-table">
+                                <thead>
+                                    <tr>
+                                        <th/>
+                                        <th>Monday</th>
+                                        <th>Tuesday</th>
+                                        <th>Wednesday</th>
+                                        <th>Thursday</th>
+                                        <th>Friday</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="employee.resource_calendar_id.get_schedule_report_lines()" t-as="line">
+                                        <tr>
+                                            <td class="ws-time" t-esc="line['time_label']"/>
+                                            <t t-foreach="line['cells']" t-as="cell">
+                                                <td>
+                                                    <t t-if="cell">
+                                                        <span t-field="cell.name"/>
+                                                        <span t-if="cell.space_id" class="ws-cell-room" t-field="cell.space_id.display_name"/>
+                                                    </t>
+                                                </td>
+                                            </t>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <p t-else="">No working schedule assigned to this employee.</p>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

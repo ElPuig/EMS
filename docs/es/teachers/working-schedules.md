@@ -6,7 +6,7 @@
 
 Consulta tu propio horario semanal — asignaturas, grupos, aulas, patios y reuniones de coordinación — desde tu propia ficha de empleado.
 
-**Rol necesario:** Docente (solo puedes ver tu propio horario; la edición la realiza un administrador)
+**Rol necesario:** Docente (solo puedes ver y exportar tu propio horario; la edición la realiza un Jefe de departamento o superior)
 
 ---
 
@@ -24,6 +24,12 @@ Cada bloque de la cuadrícula semanal muestra:
 - el aula, cuando el grupo tiene una asignada.
 
 Una franja que todavía no tiene ningún bloque simplemente no tiene nada asignado — contacta con un administrador si crees que falta algo o hay algún error en tu horario.
+
+---
+
+## Exportar tu horario a PDF
+
+Haz clic en **PDF** en la barra de herramientas de la pestaña Horario para descargar una versión imprimible de tu horario semanal.
 
 ---
 

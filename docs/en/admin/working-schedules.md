@@ -6,7 +6,7 @@
 
 Manage each teacher's weekly timetable from their own employee record, and set up the bell-schedule templates ("schedule frameworks") new teachers start from.
 
-**Required role:** Administrator (this is currently the only role that can edit schedules — everyone else can only view their own, read-only)
+**Required role:** Head of Department or above (Head of Department, Head of Studies, Director, Administrator) can edit schedules and use the import wizard; every other role can only view their own schedule, read-only, but everyone can export a schedule to PDF.
 
 ---
 
@@ -90,6 +90,18 @@ If your centre already exports schedules from an external planning tool (XML), y
 
 ---
 
+## Import Several Teachers' Schedules at Once
+
+If you have several planner export files to import in one go (each file can already describe more than one teacher, matched by e-mail), use the general importer instead of the per-teacher button:
+
+1. Go to **Configuration → Teachers → Working schedules**.
+2. Open the ⚙️ (cog) menu above the list and choose **Import: planner data**.
+3. Attach as many XML files as you need.
+4. If any of the teachers found across those files already has a schedule, you'll see a warning listing them — schedules are updated, not replaced from scratch.
+5. Click **Import**.
+
+---
+
 ## Start a Teacher's Schedule From a Framework or From Another Teacher
 
 Use this to reset a teacher onto a different framework (e.g. they now teach a different level), or to set up a **substitute** with the same schedule as the teacher they're covering for:
@@ -100,6 +112,15 @@ Use this to reset a teacher onto a different framework (e.g. they now teach a di
 4. Adjust anything needed, then click **Save** to apply, or **Cancel** to discard and keep the teacher's previous schedule untouched.
 
 > **New** replaces the whole schedule — nothing from before is kept unless it also appears in what you just loaded. Cancelling before Save leaves everything exactly as it was.
+
+---
+
+## Export a Teacher's Schedule to PDF
+
+1. Open the teacher's **Schedule** tab and click **PDF**.
+2. A printable weekly timetable is generated and downloaded — one row per period, one column per weekday, each cell showing the subject/group or non-teaching reason and the classroom.
+
+This is also available from the employee form's own **Print** menu, in case you need to export several teachers' schedules from a list view.
 
 ---
 

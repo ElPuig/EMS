@@ -1,5 +1,6 @@
 from datetime import date
 
+from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
 
@@ -8,6 +9,16 @@ class TestWorkingSchedule(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Teacher User (Working Schedule)',
+            'login': 'test_teacher_for_working_schedule',
+            'groups_id': [(4, cls.env.ref('ems.group_teacher').id)],
+        })
+        cls.head_of_department_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Head of Department User (Working Schedule)',
+            'login': 'test_hod_for_working_schedule',
+            'groups_id': [(4, cls.env.ref('ems.group_head_of_department').id)],
+        })
         cls.level = cls.env['ems.level'].create({'acronym': 'TWSL', 'name': 'Test Level (Working Schedule)'})
         cls.study = cls.env['ems.study'].create({
             'code': 'TWSL001',
@@ -137,3 +148,56 @@ class TestWorkingSchedule(TransactionCase):
         ])
         self.assertTrue(template)
         self.assertIn(self.group, template.group_ids)
+
+    def test_get_schedule_report_lines_only_covers_real_entries(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test Report Lines (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        lines = schedule.get_schedule_report_lines()
+
+        self.assertEqual(len(lines), 1)
+        self.assertEqual(lines[0]['time_label'], '09:00-10:00')
+        monday, tuesday = lines[0]['cells'][0], lines[0]['cells'][1]
+        self.assertEqual(monday.subject_id, self.subject)
+        self.assertFalse(tuesday)
+
+    def test_report_working_schedule_renders(self):
+        self.teacher.resource_calendar_id = self.framework
+        self.teacher.resource_calendar_id.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        content, content_type = self.env['ir.actions.report']._render_qweb_pdf('ems.report_working_schedule', [self.teacher.id])
+
+        self.assertTrue(content)
+        self.assertIn(content_type, ('pdf', 'html'))
+        self.assertIn(b'TWSL', content)
+
+    def test_teacher_cannot_write_schedule_attendance(self):
+        calendar = self.env['resource.calendar'].create({'name': 'Test ACL Teacher (Working Schedule)'})
+        with self.assertRaises(AccessError):
+            self.env['resource.calendar.attendance'].with_user(self.teacher_user).create({
+                'calendar_id': calendar.id, 'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            })
+
+    def test_head_of_department_can_write_schedule_attendance(self):
+        calendar = self.env['resource.calendar'].create({'name': 'Test ACL HoD (Working Schedule)'})
+        attendance = self.env['resource.calendar.attendance'].with_user(self.head_of_department_user).create({
+            'calendar_id': calendar.id, 'name': 'Test', 'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+        })
+        self.assertTrue(attendance.id)
+
+    def test_can_edit_schedule_reflects_role(self):
+        # NOTE: 'can_edit_schedule' is a non-stored compute — the transaction-level cache keys by
+        # (field, record), not by the acting user, so switching user on the same record within one
+        # test needs an explicit invalidation or the second read returns the first user's cached value.
+        teacher_view = self.teacher.with_user(self.teacher_user)
+        self.assertFalse(teacher_view.can_edit_schedule)
+
+        self.teacher.invalidate_recordset(['can_edit_schedule'])
+        hod_view = self.teacher.with_user(self.head_of_department_user)
+        self.assertTrue(hod_view.can_edit_schedule)

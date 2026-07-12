@@ -11,7 +11,7 @@
     """,
 
     'author': "El Puig",
-    'website': "https://github.com/custom/EMS",
+    'website': "https://github.com/ElPuig/EMS",
     #icon authory: thanks to Memed_Nurrohmad (https://pixabay.com/es/vectors/sombrero-graduaci%C3%B3n-gorra-educaci%C3%B3n-1674894/)
 
     # Categories can be used to filter modules in modules listing
@@ -252,6 +252,7 @@
             'data/mail_template_google_welcome.xml',
             'reports/employees/report_google_credentials_employee.xml',
             'data/mail_template_google_welcome_employee.xml',
+            'reports/employees/report_working_schedule.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',

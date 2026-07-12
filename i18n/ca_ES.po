@@ -4266,6 +4266,7 @@ msgstr "Comentari per l'alumne de l'assignatura"
 #: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__4
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Friday"
 msgstr "Divendres"
 
@@ -5998,6 +5999,7 @@ msgstr "Modo"
 #: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__0
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Monday"
 msgstr "Dilluns"
 
@@ -9146,6 +9148,7 @@ msgstr ""
 #: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__3
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Thursday"
 msgstr "Dijous"
 
@@ -9238,6 +9241,7 @@ msgstr ""
 #: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__1
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Tuesday"
 msgstr "Dimarts"
 
@@ -9710,6 +9714,7 @@ msgstr "Històric de comunicacions del lloc web"
 #: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__2
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Wednesday"
 msgstr "Dimecres"
 
@@ -12058,3 +12063,37 @@ msgstr "%s strike(s) posat(s) en aquesta sessió — clica per afegir-ne un altr
 #: model:ir.model.fields,field_description:ems.field_ems_strike__attendance_session_line_id
 msgid "Session line"
 msgstr "Línia de sessió"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_working_schedule
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+msgid "Working Schedule"
+msgstr "Horari"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+msgid "No working schedule assigned to this employee."
+msgstr "Aquest docent no té cap horari assignat."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "PDF"
+msgstr "PDF"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__can_edit_schedule
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__can_edit_schedule
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__can_edit_schedule
+msgid "Can edit schedule"
+msgstr "Pot editar l'horari"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__attachment_ids
+msgid "Planner files (XML)"
+msgstr "Fitxers de planificació (XML)"
+
+#. module: ems
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "No XML file has been loaded. Please, provide at least one XML file and try again."
+msgstr "No s'ha carregat cap fitxer XML. Si us plau, proporciona almenys un fitxer XML i torna-ho a provar."

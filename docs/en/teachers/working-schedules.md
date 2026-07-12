@@ -6,7 +6,7 @@
 
 See your own weekly timetable — subjects, groups, classrooms, breaks and coordination meetings — from your own employee record.
 
-**Required role:** Teacher (you can only view your own schedule; editing is done by an Administrator)
+**Required role:** Teacher (you can only view and export your own schedule; editing is done by a Head of Department or above)
 
 ---
 
@@ -24,6 +24,12 @@ Each block on the weekly grid shows:
 - the classroom, when the group has one assigned.
 
 A period that has no block yet is simply not assigned — contact an Administrator if you believe something is missing or incorrect on your schedule.
+
+---
+
+## Exporting Your Schedule to PDF
+
+Click **PDF** in the Schedule tab's toolbar to download a printable version of your weekly timetable.
 
 ---
 

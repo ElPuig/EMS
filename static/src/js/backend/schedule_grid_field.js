@@ -66,6 +66,14 @@ export class ScheduleGridField extends Component {
         return value ? value[0] : false;
     }
 
+    // Edit/Import/New require 'ems.group_head_of_department' or above (see hr.employee's
+    // 'can_edit_schedule' compute) — enforced server-side via ir.model.access.csv, this getter only
+    // drives the toolbar's own visibility. 'PDF' is deliberately NOT gated by it: every role that
+    // can already read a schedule may also export it.
+    get canEdit() {
+        return !!this.props.record.data.can_edit_schedule;
+    }
+
     get entries() {
         return this.props.record.data[this.props.name].records;
     }
@@ -359,6 +367,14 @@ export class ScheduleGridField extends Component {
             return `s_${state.subjectId}`;
         }
         return ""; // 'empty' and 'blank' both show as "—" until the admin picks something
+    }
+
+    // ── PDF (downloads the printable weekly schedule for this employee) ──────
+
+    async onPdfClick() {
+        await this.actionService.doAction("ems.action_report_working_schedule", {
+            additionalContext: { active_ids: [this.props.record.resId] },
+        });
     }
 
     // ── Import (opens the XML importer already scoped to this teacher) ───────

@@ -30,9 +30,20 @@ class ems_employee_base(models.AbstractModel):
     # This field is used to set the entire form as read-only; compute_sudo needed to compute on read-only.
     read_only = fields.Boolean(string="Read only", compute="_compute_read_only", compute_sudo=True, store=False)
 
-    def _compute_read_only(self):        
+    # NOTE: gates the Schedule tab's Edit/Import/New buttons (schedule_grid_field.js reads this
+    # field from the record, since ir.model.access.csv alone can't drive an OWL widget's own
+    # button visibility). 'PDF' export is intentionally NOT gated by this field — every role that
+    # can already read a schedule may also export it.
+    can_edit_schedule = fields.Boolean(string="Can edit schedule", compute="_compute_can_edit_schedule", compute_sudo=True, store=False)
+
+    def _compute_read_only(self):
         for rec in self:
             rec.read_only = self.check_access_rights('write', raise_exception=False)
+
+    def _compute_can_edit_schedule(self):
+        can_edit = self.env.user.has_group('ems.group_head_of_department')
+        for rec in self:
+            rec.can_edit_schedule = can_edit
 
     def _get_new_employee_type(self):
         return employee_types

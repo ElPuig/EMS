@@ -89,20 +89,34 @@ A **framework** is just a `resource.calendar` with `is_framework=True` and an op
 - **Edit mode** (`Edit`, or after `New`): rows are the **distinct real periods** found in the merged baseline+real buffer (see "The empty-slot rule"), not a fixed hourly grid — each row shows its own exact `HH:MM–HH:MM`, editable via two `<input type="time">` (moving the start shifts the end too, preserving duration, so a block can't accidentally balloon across the day), plus a subject+group dropdown pair (or a non-teaching reason) per (day, period) cell. `Add period`/the trash icon let an admin introduce or remove a period the loaded source didn't have — this is how a teacher who genuinely mixes two levels' bell schedules (e.g. an English teacher covering both ESO and CFGS classes) gets a slot at a time neither framework defines.
 - **Import**: opens `ems.working_schedules_import_wizard` as a dialog, pre-scoped to the current employee (`context: {default_teacher_id}`) — the wizard then skips its usual by-email matching and takes the file's first (only) teacher node directly.
 - **New**: choose a schedule framework (blank baseline) or another teacher (their real schedule as the overlay, plus *their* reference framework as the baseline too — a substitute inherits the same future gaps) — entirely replaces the buffer, but nothing is written until `Save`.
+- **PDF**: calls `this.actionService.doAction("ems.action_report_working_schedule", { additionalContext: { active_ids: [this.props.record.resId] } })` — downloads the printable weekly schedule for the currently open employee (see "PDF report" below). No buffer/dirty-state interaction; available in both view and edit mode.
+
+## PDF report (`ems.report_working_schedule`)
+
+`reports/employees/report_working_schedule.xml` — a `qweb-pdf` `ir.actions.report` on `hr.employee`, bound (`binding_type="report"`) so it also appears in the employee form's native Print menu, not just the Schedule tab's own `PDF` button.
+
+- `resource.calendar.get_schedule_report_lines()` (`models/employees/working_schedule.py`) builds the printable rows server-side: one row per **distinct** `(hour_from, hour_to)` pair found across the calendar's Mon–Fri `attendance_ids`, each with a 5-slot `cells` list (Monday→Friday) holding either the matching `resource.calendar.attendance` record or an empty recordset. Since unassigned slots are never stored (see "The empty-slot rule"), every non-empty cell is already a real subject or non-teaching entry — the template does no filtering of its own.
+- The template just iterates `employee.resource_calendar_id.get_schedule_report_lines()`, keeping all business logic in Python per the project's coding standards.
 
 ## Import wizard (`ems.working_schedules_import_wizard`)
 
 Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children — tag names are literal, not arbitrary) via `_create_schedule()`, then calls the same `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule` used by the widget's save path. A `teacher_id` field (set via context from the widget's "Import" button) makes the by-email loop in both `_onchange_file` and `create()` a no-op — the file's single node is used directly for that employee.
 
-**Backlog:** batch-importing several files at once (today: one file per call, though a single file can already describe several teachers by email) is a known follow-up, not yet built.
+Two upload modes, switched by whether `teacher_id` is set (the form shows one or the other via `invisible="teacher_id"`/`invisible="not teacher_id"`):
+- **Scoped** (per-employee "Import" button, `default_teacher_id` in context): single `file` (`Many2one` `attachment_id` + related `Binary`), the file's one node maps directly to that employee.
+- **General** (the "Working Schedules" list's cog menu, `import_planner_cog_menu.js` — no `teacher_id`): `attachment_ids`, a `Many2many` to `ir.attachment` rendered with the native `many2many_binary` widget, so **several files can be attached at once**, each one still free to describe **several teachers** by e-mail (unchanged from before). `create()`'s `_collect_xml_contents()` decodes every source given (`file` and/or each `attachment_ids` record) and processes all of them through the same per-node import loop; `_onchange_attachment_ids` mirrors `_onchange_file`'s already-has-a-schedule warning, checking every node in every attached file.
 
 ## Access control
 
-| Action | `base.group_user` (default) | `ems.group_academic_admin` |
+| Action | `base.group_user` (default) | `ems.group_head_of_department` and above (`ems.group_head_of_studies`, `ems.group_director`, `ems.group_academic_admin`) |
 |--------|------------------------------|------------------------------|
 | Read a `resource.calendar`/`resource.calendar.attendance` | ✅ (base Odoo ACL) | ✅ |
+| Export a schedule to PDF (`PDF` button / native Print menu) | ✅ | ✅ |
 | Write/create/unlink `resource.calendar.attendance` (Edit/New/Add period, all writes through `apply_schedule_changes`) | ❌ | ✅ (`security/ir.model.access.csv`, `access_resource_calendar_attendance_admin`) |
+| Write `resource.calendar` (needed for `source_framework_id`, set by Edit/New) | ❌ | ✅ (`access_resource_calendar_write_head_of_department`) |
 | Manage schedule frameworks | inherited from the above | ✅ |
-| Import wizard | ❌ (no ACL row) | ✅ |
+| Import wizard | ❌ (no ACL row) | ✅ (`access_ems_working_schedules_import_wizard_admin`) |
 
-Any other role currently only sees a teacher's schedule read-only (their own, via the employee record they can already open) — nobody else can edit it yet.
+`hr.employee.can_edit_schedule` (a non-stored `compute_sudo` boolean, `self.env.user.has_group('ems.group_head_of_department')`) is what the Schedule tab's toolbar itself reads to show/hide `Edit`/`Import`/`New` (`schedule_grid_field.js`'s `canEdit` getter) — the ACL rows above are the actual enforcement, this field only drives the widget's own visibility so a lower role never sees buttons it can't use. `PDF` is deliberately **not** gated by it: every role that can already read a schedule (i.e. everyone, per the table above) can also export it, including from the employee form's native Print menu.
+
+Any other role currently only sees a teacher's schedule read-only (their own, via the employee record they can already open) — nobody below Head of Department can edit it.

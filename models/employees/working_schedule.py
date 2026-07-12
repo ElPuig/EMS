@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 import xml.etree.ElementTree as ET
 import base64
@@ -47,6 +47,31 @@ class ems_working_schedule(models.Model):
 			self.env['ems.teaching'].sync_from_schedule(teacher, entries)
 			self.env['ems.attendance_template'].sync_from_schedule(teacher, entries, start_date=fields.Date.today())
 
+	def get_schedule_report_lines(self):
+		"""Weekly schedule rows (one per distinct Mon-Fri period, one column per weekday) for the
+		working schedule PDF report. Unassigned slots are never stored (see apply_schedule_changes),
+		so every attendance row here is a real subject or non-teaching commitment."""
+		self.ensure_one()
+		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
+		periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in weekday_entries})
+		lines = []
+		for hour_from, hour_to in periods:
+			lines.append({
+				'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
+				'cells': [
+					weekday_entries.filtered(
+						lambda attendance, dayofweek=dayofweek, hour_from=hour_from, hour_to=hour_to:
+							attendance.dayofweek == dayofweek and attendance.hour_from == hour_from and attendance.hour_to == hour_to
+					)
+					for dayofweek in ('0', '1', '2', '3', '4')
+				],
+			})
+		return lines
+
+	def _format_report_time(self, value):
+		hour, minutes = divmod(round(value * 60), 60)
+		return "%02d:%02d" % (hour, minutes)
+
 class ems_working_schedule_assignation(models.Model):
 	_inherit = 'resource.calendar.attendance'
 	# NOTE: no need to constraint, the main model avoids overlapping. 
@@ -85,6 +110,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	attachment_id = fields.Many2one(string="Attachment", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.working_schedules_import_wizard')]")
 	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")
+	# NOTE: only used when 'teacher_id' is NOT set (i.e. the general importer, opened from the
+	# "Working Schedules" list's cog menu, not the per-employee 'Import' button) — lets several planner
+	# files be imported in one go, each one possibly describing several teachers (see create()).
+	attachment_ids = fields.Many2many(string="Planner files (XML)", comodel_name="ir.attachment")
 	is_overriding = fields.Boolean(store=False)
 	overrided_teachers = fields.Char(default="")
 	# NOTE: set via context (default_teacher_id) when opened from an employee's 'Schedule' tab "Import"
@@ -112,7 +141,24 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					if teacher and teacher.resource_calendar_id.id:
 						rec.is_overriding = True
 						rec.overrided_teachers = teacher.display_name if not rec.overrided_teachers else "%s, %s" % (rec.overrided_teachers, teacher.display_name)
-	
+
+	@api.onchange("attachment_ids")
+	def _onchange_attachment_ids(self):
+		for rec in self:
+			rec.is_overriding = False
+			rec.overrided_teachers = ""
+			for attachment in rec.attachment_ids:
+				xml_content = base64.b64decode(attachment.datas)
+				tree = ET.ElementTree(ET.fromstring(xml_content))
+
+				for teacherNode in tree.getroot():
+					email = teacherNode.attrib['name'].split(' ')[0]
+					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
+
+					if teacher and teacher.resource_calendar_id.id:
+						rec.is_overriding = True
+						rec.overrided_teachers = teacher.display_name if not rec.overrided_teachers else "%s, %s" % (rec.overrided_teachers, teacher.display_name)
+
 	def import_planner_data(self):
 		return {
 			'type': 'ir.actions.client',
@@ -126,14 +172,14 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			raise ValidationError("No 'current course' has been setup. Please, select or create the current course within the EMS settings section.")
 		
 		for item in values:
-			if 'file' not in item or not item.get('file'):
-				raise ValidationError("No XML file has been loaded. Please, provide an XML file and try again.")
-			else:	
-				file = item.get('file')
-				xml_content = base64.b64decode(file)
+			xml_contents = self._collect_xml_contents(item)
+			if not xml_contents:
+				raise ValidationError(_("No XML file has been loaded. Please, provide at least one XML file and try again."))
+
+			for xml_content in xml_contents:
 				tree = ET.ElementTree(ET.fromstring(xml_content))
-				
 				root = tree.getroot()
+
 				if item.get('teacher_id'):
 					nodes = [(root[0], self.env['hr.employee'].browse(item['teacher_id']))]
 				else:
@@ -150,7 +196,28 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					self.env['ems.teaching'].sync_from_schedule(teacher, entries)
 					self.env['ems.attendance_template'].sync_from_schedule(teacher, entries)
 
-		return super(models.Model, self).create(values)			
+		return super(models.Model, self).create(values)
+
+	def _collect_xml_contents(self, item):
+		"""Every XML source given for this wizard's 'create()' vals, decoded — 'file' (the per-employee
+		single-file flow) and/or 'attachment_ids' (the general importer's multi-file flow), so a single
+		call can process any combination of both."""
+		contents = []
+		if item.get('file'):
+			contents.append(base64.b64decode(item['file']))
+		attachment_ids = self._m2m_command_ids(item.get('attachment_ids'))
+		for attachment in self.env['ir.attachment'].browse(attachment_ids):
+			contents.append(base64.b64decode(attachment.datas))
+		return contents
+
+	def _m2m_command_ids(self, commands):
+		ids = []
+		for command in commands or []:
+			if command[0] in (4, 1):
+				ids.append(command[1])
+			elif command[0] == 6:
+				ids.extend(command[2])
+		return ids
 
 	def _create_schedule(self, xml_node, teacher, course_id):			
 		name = "%s (%s)" % (teacher.name, course_id.name)

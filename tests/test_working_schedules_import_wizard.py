@@ -49,3 +49,29 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             self.env['ems.working_schedules_import_wizard'].create({
                 'file': self._xml_file('unknown.import.wizard@example.com Someone'),
             })
+
+    def test_import_with_no_file_raises(self):
+        with self.assertRaises(ValidationError):
+            self.env['ems.working_schedules_import_wizard'].create({})
+
+    def test_import_with_multiple_attachment_ids_processes_every_file(self):
+        second_teacher = self.env['hr.employee'].create({
+            'name': 'Test Wizard Teacher 2 (Import Wizard)',
+            'employee_type': 'teacher',
+            'work_email': 'test.wizard.teacher2.import.wizard@example.com',
+        })
+        attachment_1 = self.env['ir.attachment'].create({
+            'name': 'planner1.xml',
+            'datas': self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+        })
+        attachment_2 = self.env['ir.attachment'].create({
+            'name': 'planner2.xml',
+            'datas': self._xml_file('test.wizard.teacher2.import.wizard@example.com Someone Else'),
+        })
+
+        self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': [(6, 0, [attachment_1.id, attachment_2.id])],
+        })
+
+        self.assertTrue(self.teacher.resource_calendar_id.attendance_ids)
+        self.assertTrue(second_teacher.resource_calendar_id.attendance_ids)

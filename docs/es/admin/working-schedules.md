@@ -6,7 +6,7 @@
 
 Gestiona el horario semanal de cada docente desde su propia ficha de empleado, y configura las plantillas de horario ("marcos horarios") con los que empiezan los docentes nuevos.
 
-**Rol necesario:** Administrador (hoy por hoy es el único rol que puede editar horarios — el resto solo puede ver el suyo propio, en modo lectura)
+**Rol necesario:** Jefe de departamento o superior (Jefe de departamento, Jefe de estudios, Director, Administrador) puede editar horarios y usar el asistente de importación; el resto de roles solo pueden ver su propio horario, en modo lectura, pero cualquiera puede exportar un horario a PDF.
 
 ---
 
@@ -90,6 +90,18 @@ Si tu centro ya exporta horarios desde una herramienta externa de planificación
 
 ---
 
+## Importar el horario de varios docentes a la vez
+
+Si tienes varios archivos de exportación de la planificación para importar de una vez (cada archivo ya puede describir más de un docente, emparejado por correo electrónico), usa el importador general en lugar del botón por docente:
+
+1. Ve a **Configuración → Profesorado → Horarios de trabajo**.
+2. Abre el menú ⚙️ (engranaje) sobre la lista y elige **Import: planner data**.
+3. Adjunta tantos archivos XML como necesites.
+4. Si alguno de los docentes encontrados en esos archivos ya tiene un horario, verás un aviso que los lista — los horarios se actualizan, no se reemplazan desde cero.
+5. Haz clic en **Importar**.
+
+---
+
 ## Empezar el horario de un docente a partir de un marco o de otro docente
 
 Usa esto para reiniciar a un docente con un marco distinto (p. ej. ahora imparte otro nivel), o para configurar un **sustituto** con el mismo horario que el docente al que está cubriendo:
@@ -100,6 +112,15 @@ Usa esto para reiniciar a un docente con un marco distinto (p. ej. ahora imparte
 4. Ajusta lo que haga falta y haz clic en **Guardar** para aplicarlo, o en **Cancelar** para descartarlo y mantener el horario anterior del docente intacto.
 
 > **Nuevo** sustituye todo el horario — nada de lo anterior se conserva salvo que también aparezca en lo que acabas de cargar. Cancelar antes de guardar deja todo exactamente como estaba.
+
+---
+
+## Exportar el horario de un docente a PDF
+
+1. Abre la pestaña **Horario** del docente y haz clic en **PDF**.
+2. Se genera y descarga un horario semanal imprimible — una fila por franja, una columna por día, y cada celda muestra la asignatura/grupo o el motivo no lectivo y el aula.
+
+Esta opción también está disponible desde el menú **Imprimir** de la propia ficha del empleado, por si necesitas exportar el horario de varios docentes desde una vista de lista.
 
 ---
 

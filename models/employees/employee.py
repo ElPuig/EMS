@@ -15,8 +15,9 @@ class ems_employee_base(models.AbstractModel):
     employee_type = fields.Selection(string="Employee Type", selection="_get_new_employee_type")
     contract_type_id = fields.Many2one(string="Contract Type", comodel_name="hr.contract.type")
     job_id = fields.Many2one(string="Job Position", comodel_name="hr.job", domain="[('employee_type', '=', employee_type)]")
-    teaching_ids = fields.One2many(string="Teaching", comodel_name="ems.teaching", inverse_name="teacher_id")	
+    teaching_ids = fields.One2many(string="Teaching", comodel_name="ems.teaching", inverse_name="teacher_id")
     attendance_template_ids = fields.One2many(string="Attendance templates", comodel_name="ems.attendance_template", inverse_name="teacher_id")
+    schedule_attendance_ids = fields.One2many(string="Schedule", comodel_name="resource.calendar.attendance", related="resource_calendar_id.attendance_ids")
    
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
     role_ids = fields.Many2many(string="Roles", comodel_name="ems.role", relation="hr_employee_public_ems_role_rel", column1="hr_employee_public_id", column2="ems_role_id", domain="[('employee_type', '=', employee_type)]") 
@@ -29,9 +30,20 @@ class ems_employee_base(models.AbstractModel):
     # This field is used to set the entire form as read-only; compute_sudo needed to compute on read-only.
     read_only = fields.Boolean(string="Read only", compute="_compute_read_only", compute_sudo=True, store=False)
 
-    def _compute_read_only(self):        
+    # NOTE: gates the Schedule tab's Edit/Import/New buttons (schedule_grid_field.js reads this
+    # field from the record, since ir.model.access.csv alone can't drive an OWL widget's own
+    # button visibility). 'PDF' export is intentionally NOT gated by this field — every role that
+    # can already read a schedule may also export it.
+    can_edit_schedule = fields.Boolean(string="Can edit schedule", compute="_compute_can_edit_schedule", compute_sudo=True, store=False)
+
+    def _compute_read_only(self):
         for rec in self:
             rec.read_only = self.check_access_rights('write', raise_exception=False)
+
+    def _compute_can_edit_schedule(self):
+        can_edit = self.env.user.has_group('ems.group_head_of_department')
+        for rec in self:
+            rec.can_edit_schedule = can_edit
 
     def _get_new_employee_type(self):
         return employee_types
@@ -138,6 +150,50 @@ class ems_employee(models.AbstractModel):
     activity_summary = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
     activity_type_id = fields.Many2one(groups="hr.group_hr_user,ems.group_teacher")
     activity_type_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
+
+    def _personal_calendar_name(self):
+        self.ensure_one()
+        course = self.company_id.current_course_id
+        return "%s (%s)" % (self.name, course.name) if course else self.name
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        employees = super().create(vals_list)
+        for employee in employees:
+            if employee.employee_type != 'teacher':
+                continue
+            # NOTE: every teacher gets their OWN calendar, always — 'resource_calendar_id' arrives
+            # already pre-filled by resource.mixin's client-side default (the company's shared
+            # calendar), so it can never be used to detect "nothing was set yet". Sharing a calendar
+            # between teachers would break the 1:1 assumption 'apply_schedule_changes' relies on.
+            schedule = self.env['resource.calendar'].create({'name': employee._personal_calendar_name()})
+            schedule.seed_from_framework(employee.company_id.default_schedule_framework_id)
+            employee.resource_calendar_id = schedule
+        return employees
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'name' in vals:
+            for employee in self:
+                if employee.resource_calendar_id and not employee.resource_calendar_id.is_framework:
+                    employee.resource_calendar_id.name = employee._personal_calendar_name()
+        return result
+
+    def unlink(self):
+        # NOTE: every teacher has their OWN personal calendar (never a shared or framework one — see
+        # create() above), so it has no purpose once the employee is gone. Deleting it also cascades to
+        # its attendance lines. Re-check after unlink in case two employees ever ended up pointing at
+        # the same calendar, and never touch a framework or a company's own base calendar.
+        calendars = self.resource_calendar_id.filtered(lambda calendar: not calendar.is_framework)
+        result = super().unlink()
+        if calendars:
+            company_calendar_ids = self.env['res.company'].sudo().search([]).resource_calendar_id.ids
+            still_used = self.env['hr.employee'].with_context(active_test=False).search(
+                [('resource_calendar_id', 'in', calendars.ids)]
+            ).resource_calendar_id
+            orphaned = (calendars - still_used).filtered(lambda calendar: calendar.id not in company_calendar_ids)
+            orphaned.unlink()
+        return result
 
     def find_head_of_studies(self):
         # NOTE: role_hos/role_dhos both map to the same global group_head_of_studies

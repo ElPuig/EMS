@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+from datetime import datetime
 
 class ems_attendance_template(models.Model):
 	_name = "ems.attendance_template"
@@ -78,7 +79,69 @@ class ems_attendance_template(models.Model):
 			sch.action_archive()
 
 	def unlink(self):
-		for sch in self.attendance_schedule_ids:			
+		for sch in self.attendance_schedule_ids:
 			if len(sch.attendance_session_ids) > 0:
 				raise ValidationError(_("This template have been already used to check the student's attendances and cannot be deleted. Please, archive it instead."))
 		return super().unlink()
+
+	def sync_from_schedule(self, teacher, entries, start_date=None):
+		"""Replace 'teacher.attendance_template_ids' (and their per-weekday 'attendance_schedule_ids')
+		so they match the (subject_id, group_ids, hour_from, hour_to, dayofweek) slots found in
+		'entries' — one template per distinct (subject, group-set) combination. Templates no longer
+		present are archived (attendance history is kept); newly created ones are auto-filled with the
+		group's currently enrolled students. Shared by the working schedule's XML importer (a fresh
+		full-course import, so 'start_date' defaults to the course's start) and the employee 'Schedule'
+		tab's grid widget (a live mid-course edit, which passes today's date instead)."""
+		now = datetime.now()
+		start_date = start_date or datetime(now.year, 9, 1)
+		end_date = datetime(now.year + 1, 7, 1)
+
+		old_items = dict()
+		for template in teacher.attendance_template_ids.filtered('active'):
+			old_items["%s.%s" % (template.subject_id.id, ",".join(str(g) for g in sorted(template.group_ids.ids)))] = template
+
+		templates = dict()
+		new_items = dict()
+		for entry in entries:
+			key = "%s.%s" % (entry["subject_id"], ",".join(str(g) for g in sorted(entry["group_ids"])))
+
+			if key not in new_items:
+				new_items[key] = entry
+
+			if key not in old_items:
+				if key in templates:
+					template_vals = templates[key]
+				else:
+					# TODO: define default start and end date for subjects within settings.
+					first_group = self.env['ems.group'].browse(entry["group_ids"][0])
+					template_vals = {
+						'start_date': start_date,
+						'end_date': end_date,
+						'color': len(templates) + 1,
+						'teacher_id': teacher.id,
+						'subject_id': entry["subject_id"],
+						'group_ids': [(6, 0, entry["group_ids"])],
+						'level_id': first_group.level_id.id,
+						'study_id': first_group.study_id.id,
+						'space_id': first_group.space_id.id,
+						'attendance_schedule_ids': [],
+					}
+					templates[key] = template_vals
+
+				template_vals["attendance_schedule_ids"].append(
+					[0, 0, {
+						'start_time': entry["hour_from"],
+						'end_time': entry["hour_to"],
+						'weekday': entry["dayofweek"],
+						'space_id': template_vals["space_id"],
+					}]
+				)
+
+		for key, template in old_items.items():
+			if key not in new_items:
+				# NOTE: archive (not unlink) so past attendance-taking history is preserved.
+				template.action_archive()
+
+		new_templates = self.env['ems.attendance_template'].create(list(templates.values()))
+		for template in new_templates:
+			template.fill_students()

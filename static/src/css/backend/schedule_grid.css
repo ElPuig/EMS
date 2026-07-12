@@ -1,0 +1,206 @@
+.o_schedule_grid_toolbar {
+    margin-bottom: 8px;
+}
+
+.o_schedule_grid_edit_column {
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #dee2e6;
+}
+
+.o_schedule_grid_edit_cell {
+    display: flex;
+    height: 48px;
+}
+
+.o_schedule_grid_select {
+    height: 48px;
+    box-sizing: border-box;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    font-size: 11px;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.o_schedule_grid_select:disabled {
+    background-color: #f5f5f5;
+    color: #adb5bd;
+}
+
+.o_schedule_grid_grid {
+    display: grid;
+    grid-template-columns: 60px repeat(5, minmax(190px, 1fr));
+    width: 100%;
+    overflow-x: auto;
+}
+
+.o_schedule_grid_grid_edit {
+    grid-template-columns: 190px repeat(5, minmax(190px, 1fr));
+}
+
+.o_schedule_grid_header {
+    height: 24px;
+    font-weight: 600;
+    text-align: center;
+    padding-bottom: 4px;
+}
+
+.o_schedule_grid_axis {
+    text-align: right;
+    padding-right: 6px;
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.o_schedule_grid_hour {
+    height: 48px;
+    box-sizing: border-box;
+    transform: translateY(-6px);
+}
+
+.o_schedule_grid_period_label {
+    height: 48px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 11px;
+    gap: 2px;
+}
+
+.o_schedule_grid_period_time {
+    width: 72px;
+    font-size: 11px;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+}
+
+.o_schedule_grid_period_remove {
+    padding: 0 4px;
+    color: #adb5bd;
+}
+
+.o_schedule_grid_period_remove:hover {
+    color: #dc3545;
+}
+
+.o_schedule_grid_add_period {
+    font-size: 11px;
+    padding: 4px 0;
+}
+
+.o_schedule_grid_column {
+    position: relative;
+    cursor: pointer;
+    border-left: 1px solid #dee2e6;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        #eee,
+        #eee 1px,
+        transparent 1px,
+        transparent 48px
+    );
+}
+
+.o_schedule_grid_entry {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    overflow: hidden;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-size: 12px;
+    line-height: 1.2;
+    color: #fff;
+    background-color: #5b8def;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.o_schedule_grid_entry:hover {
+    filter: brightness(1.1);
+}
+
+.o_schedule_grid_entry_time {
+    display: block;
+    font-size: 10px;
+    opacity: 0.9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.o_schedule_grid_entry_label {
+    display: block;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.o_schedule_grid_entry_room {
+    display: block;
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.o_schedule_grid_entry_nonteaching {
+    background-color: #8d99ae;
+}
+
+.o_schedule_grid_new_panel {
+    display: flex;
+    align-items: center;
+}
+
+.o_schedule_grid_select_new {
+    font-size: 12px;
+    max-width: 260px;
+}
+
+.o_schedule_grid_summary_columns {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.o_schedule_grid_summary_column {
+    min-width: 220px;
+}
+
+.o_schedule_grid_summary_header {
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.o_schedule_grid_summary_table {
+    font-size: 12px;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.o_schedule_grid_summary_table td {
+    padding: 2px 10px 2px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.o_schedule_grid_summary_table td:last-child {
+    text-align: right;
+    font-weight: 600;
+}
+
+.o_schedule_grid_summary_total td {
+    border-bottom: none;
+    border-top: 1px solid #adb5bd;
+    font-weight: 600;
+}
+
+.o_schedule_grid_summary_grand_total {
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}

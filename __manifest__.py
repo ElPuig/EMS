@@ -11,7 +11,7 @@
     """,
 
     'author': "El Puig",
-    'website': "https://github.com/custom/EMS",
+    'website': "https://github.com/ElPuig/EMS",
     #icon authory: thanks to Memed_Nurrohmad (https://pixabay.com/es/vectors/sombrero-graduaci%C3%B3n-gorra-educaci%C3%B3n-1674894/)
 
     # Categories can be used to filter modules in modules listing
@@ -125,6 +125,8 @@
             'views/community/employmenttypes/menu.xml',        
             
             'views/community/working_schedules/list.xml',
+            'views/community/working_schedules/form.xml',
+            'views/community/working_schedules/attendance_form.xml',
             'views/community/working_schedules/import_wizard.xml',
             'views/community/working_schedules/menu.xml',
 
@@ -250,6 +252,7 @@
             'data/mail_template_google_welcome.xml',
             'reports/employees/report_google_credentials_employee.xml',
             'data/mail_template_google_welcome_employee.xml',
+            'reports/employees/report_working_schedule.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
@@ -307,6 +310,7 @@
         'data/main/ems.mail_activity_type.xml',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
+        'data/main/ems.schedule_framework_default.xml',
 
         'data/cat/attachments/asix/ir.attachment.csv',
         'data/cat/attachments/dam/ir.attachment.csv',
@@ -364,6 +368,8 @@
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',
         'data/custom/hr.department.csv',
+        'data/custom/resource.calendar.csv',
+        'data/custom/resource.calendar.attendance.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',
         'data/custom/ems.course.xml',
@@ -384,6 +390,7 @@
     'license': 'AGPL-3',
     'installable': True,
     'application': True,
+    'post_init_hook': 'post_init_hook',
     
     # only loaded in demonstration mode (only loaded when installed, ignored when updated)
     'demo': [

@@ -18,3 +18,7 @@ from . import test_grade_session_tour
 from . import test_employee_google_workspace
 from . import test_strike
 from . import test_strike_tour
+from . import test_working_schedule
+from . import test_ems_teaching_sync
+from . import test_employee_schedule_lifecycle
+from . import test_working_schedules_import_wizard

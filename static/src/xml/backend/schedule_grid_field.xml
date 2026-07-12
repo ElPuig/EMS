@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.ScheduleGridField">
+        <div class="o_schedule_grid">
+            <div t-if="!calendarId" class="alert alert-info mb-0" role="alert">
+                No working schedule assigned to this employee yet. Assign one in the "Work Information" tab first.
+            </div>
+            <t t-else="">
+                <div class="o_schedule_grid_toolbar">
+                    <t t-if="!editing.value">
+                        <t t-if="canEdit">
+                            <button type="button" class="btn btn-sm btn-secondary" t-on-click="() => this.startEdit()">
+                                <i class="fa fa-pencil me-1"/>Edit
+                            </button>
+                            <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.onImportClick()">
+                                <i class="fa fa-upload me-1"/>Import
+                            </button>
+                            <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.openNewPanel()">
+                                <i class="fa fa-plus me-1"/>New
+                            </button>
+                        </t>
+                        <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.onPdfClick()">
+                            <i class="fa fa-file-pdf-o me-1"/>PDF
+                        </button>
+                        <div t-if="canEdit and newPanel.open" class="o_schedule_grid_new_panel mt-2">
+                            <select class="o_schedule_grid_select_new" t-on-change="(ev) => this.onNewSourceChange(ev)">
+                                <option value="">—</option>
+                                <optgroup label="Schedule frameworks">
+                                    <t t-foreach="newPanel.frameworks" t-as="framework" t-key="framework.id">
+                                        <option t-att-value="'f_' + framework.id" t-esc="framework.display_name"/>
+                                    </t>
+                                </optgroup>
+                                <optgroup label="Copy from teacher">
+                                    <t t-foreach="newPanel.teachers" t-as="colleague" t-key="colleague.id">
+                                        <option t-att-value="'c_' + colleague.resource_calendar_id[0]" t-esc="colleague.display_name"/>
+                                    </t>
+                                </optgroup>
+                            </select>
+                            <button type="button" class="btn btn-sm btn-primary ms-2" t-att-disabled="!newPanel.value"
+                                    t-on-click="() => this.loadNewSource()">
+                                Load
+                            </button>
+                            <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.cancelNewPanel()">
+                                Cancel
+                            </button>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <button type="button" class="btn btn-sm btn-primary" t-on-click="() => this.save()">
+                            <i class="fa fa-check me-1"/>Save
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.cancelEdit()">
+                            Cancel
+                        </button>
+                    </t>
+                </div>
+
+                <div t-if="!editing.value" class="o_schedule_grid_grid">
+                    <div class="o_schedule_grid_header"/>
+                    <t t-foreach="days" t-as="day" t-key="day.index">
+                        <div class="o_schedule_grid_header" t-esc="day.label"/>
+                    </t>
+
+                    <div class="o_schedule_grid_axis" t-att-style="columnStyle()">
+                        <t t-foreach="hours" t-as="hour" t-key="hour">
+                            <div class="o_schedule_grid_hour" t-esc="formatHour(hour)"/>
+                        </t>
+                    </div>
+
+                    <t t-foreach="days" t-as="day" t-key="day.index">
+                        <div class="o_schedule_grid_column" t-att-style="columnStyle()">
+                            <t t-foreach="entriesForDay(day.index)" t-as="entry" t-key="entry.id">
+                                <div class="o_schedule_grid_entry"
+                                     t-att-class="entry.data.non_teaching ? 'o_schedule_grid_entry_nonteaching' : ''"
+                                     t-att-style="entryStyle(entry)"
+                                     t-att-title="entryTime(entry) + ' ' + entryLabel(entry)">
+                                    <span class="o_schedule_grid_entry_time" t-esc="entryTime(entry)"/>
+                                    <span class="o_schedule_grid_entry_label" t-esc="entryLabel(entry)"/>
+                                    <span t-if="entryRoom(entry)" class="o_schedule_grid_entry_room" t-esc="entryRoom(entry)"/>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+
+                <div t-else="" class="o_schedule_grid_grid o_schedule_grid_grid_edit">
+                    <div class="o_schedule_grid_header"/>
+                    <t t-foreach="days" t-as="day" t-key="day.index">
+                        <div class="o_schedule_grid_header" t-esc="day.label"/>
+                    </t>
+
+                    <div class="o_schedule_grid_axis">
+                        <t t-foreach="sortedPeriods" t-as="period" t-key="period.id">
+                            <div class="o_schedule_grid_period_label">
+                                <input type="time" class="o_schedule_grid_period_time"
+                                       t-att-value="hourToTimeInput(period.hour_from)"
+                                       t-on-change="(ev) => this.onPeriodTimeChange(period.id, 'hour_from', ev)"/>
+                                <span class="mx-1">–</span>
+                                <input type="time" class="o_schedule_grid_period_time"
+                                       t-att-value="hourToTimeInput(period.hour_to)"
+                                       t-on-change="(ev) => this.onPeriodTimeChange(period.id, 'hour_to', ev)"/>
+                                <button type="button" class="btn btn-sm o_schedule_grid_period_remove"
+                                        title="Remove period" t-on-click="() => this.removePeriod(period.id)">
+                                    <i class="fa fa-trash-o"/>
+                                </button>
+                            </div>
+                        </t>
+                        <button type="button" class="btn btn-sm btn-link o_schedule_grid_add_period"
+                                t-on-click="() => this.addPeriod()">
+                            <i class="fa fa-plus me-1"/>Add period
+                        </button>
+                    </div>
+
+                    <t t-foreach="days" t-as="day" t-key="day.index">
+                        <div class="o_schedule_grid_edit_column">
+                            <t t-foreach="sortedPeriods" t-as="period" t-key="period.id">
+                                <t t-set="state" t-value="cellState(day.index, period.id)"/>
+                                <div class="o_schedule_grid_edit_cell">
+                                    <select class="o_schedule_grid_select o_schedule_grid_select_subject"
+                                            t-on-change="(ev) => this.onSubjectChange(day.index, period.id, ev)">
+                                        <option value="" t-att-selected="subjectSelectValue(state) === ''">—</option>
+                                        <optgroup label="Non-teaching">
+                                            <t t-foreach="catalog.nonTeaching" t-as="item" t-key="item[0]">
+                                                <option t-att-value="'n_' + item[0]" t-esc="item[1]"
+                                                        t-att-selected="subjectSelectValue(state) === 'n_' + item[0]"/>
+                                            </t>
+                                        </optgroup>
+                                        <optgroup label="Subjects">
+                                            <t t-foreach="catalog.subjects" t-as="subject" t-key="subject.id">
+                                                <option t-att-value="'s_' + subject.id" t-esc="subject.display_name"
+                                                        t-att-selected="subjectSelectValue(state) === 's_' + subject.id"/>
+                                            </t>
+                                        </optgroup>
+                                    </select>
+                                    <select class="o_schedule_grid_select o_schedule_grid_select_group"
+                                            t-att-disabled="state.kind !== 'subject'"
+                                            t-on-change="(ev) => this.onGroupChange(day.index, period.id, ev)">
+                                        <option value="" t-att-selected="!state.groupId">—</option>
+                                        <t t-foreach="catalog.groups" t-as="group" t-key="group.id">
+                                            <option t-att-value="group.id" t-esc="group.display_name"
+                                                    t-att-selected="state.groupId === group.id"/>
+                                        </t>
+                                    </select>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+
+                <div t-if="!editing.value and (summary.teaching.rows.length or summary.fixed.rows.length)" class="o_schedule_grid_summary mt-3">
+                    <div class="o_schedule_grid_summary_columns">
+                        <div class="o_schedule_grid_summary_column">
+                            <div class="o_schedule_grid_summary_header">Weekly teaching hours</div>
+                            <table class="o_schedule_grid_summary_table">
+                                <tbody>
+                                    <t t-foreach="summary.teaching.rows" t-as="row" t-key="row.label">
+                                        <tr>
+                                            <td t-esc="row.label"/>
+                                            <td t-esc="row.hours + ' h'"/>
+                                        </tr>
+                                    </t>
+                                    <tr class="o_schedule_grid_summary_total">
+                                        <td>Total</td>
+                                        <td t-esc="summary.teaching.total + ' h'"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="o_schedule_grid_summary_column">
+                            <div class="o_schedule_grid_summary_header">Other fixed-schedule hours</div>
+                            <table class="o_schedule_grid_summary_table">
+                                <tbody>
+                                    <t t-foreach="summary.fixed.rows" t-as="row" t-key="row.label">
+                                        <tr>
+                                            <td t-esc="row.label"/>
+                                            <td t-esc="row.hours + ' h'"/>
+                                        </tr>
+                                    </t>
+                                    <tr class="o_schedule_grid_summary_total">
+                                        <td>Total</td>
+                                        <td t-esc="summary.fixed.total + ' h'"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="o_schedule_grid_summary_grand_total">
+                        <span>Overall total:</span> <t t-esc="summary.total + ' h'"/>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

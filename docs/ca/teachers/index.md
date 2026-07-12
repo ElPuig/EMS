@@ -15,6 +15,7 @@ Aquesta secció conté els manuals per als **professors**.
 | [Fitxatges: revisar les teves entrades/sortides i sol·licitar correccions](attendance-corrections.md) | Revisar les teves entrades/sortides i sol·licitar correccions |
 | [Avaluació: Introduir qualificacions per RAs](qualificacions.md) | Introduir les qualificacions de cada avaluació per preparar la junta d'avaluació |
 | [Strikes: notificar una incidència disciplinària](strike.md) | Posar un strike des de la vista de passar llista quan cal deixar constància del comportament d'un alumne |
+| [El teu horari setmanal](working-schedules.md) | Consultar les teves assignatures, grups, aules, patis i reunions al teu horari setmanal |
 
 ## Temes previstos
 

@@ -16,6 +16,11 @@
                              id="schedule_import_last_entry_time">
                         <field name="schedule_import_last_entry_time" widget="float_time"/>
                     </setting>
+                    <setting string="Default schedule framework"
+                             help="Blank schedule template automatically assigned to every new teacher."
+                             id="schedule_framework_id">
+                        <field name="schedule_framework_id"/>
+                    </setting>
                 </xpath>
             </field>
         </record>

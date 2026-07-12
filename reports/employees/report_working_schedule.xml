@@ -22,18 +22,15 @@
                                 .ws-table { font-size: 10px; table-layout: fixed; }
                                 .ws-table th, .ws-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; height: 38px; overflow: hidden; }
                                 .ws-table td.ws-time { white-space: nowrap; font-weight: bold; }
-                                .ws-cell-content { display: block; height: 30px; overflow: hidden; border-radius: 3px; padding: 3px 4px; color: #fff; }
-                                .ws-cell-label { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
-                                .ws-cell-room { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9px; color: #fff; }
-                                .ws-summary-table { width: 100%; margin-top: 16px; font-size: 10px; border: none; border-top: 1px solid #dee2e6; border-collapse: collapse; }
-                                .ws-summary-table th, .ws-summary-table td { border: none; }
-                                .ws-summary-table th { text-align: left; padding: 8px 12px; }
-                                .ws-summary-table > tbody > tr > td { padding: 10px 14px; vertical-align: top; }
-                                .ws-summary-inner { width: 100%; }
-                                .ws-summary-inner td { padding: 2px 8px 2px 4px; border-bottom: 1px solid #eee; }
-                                .ws-summary-inner td:last-child { text-align: right; font-weight: 600; }
+                                .ws-cell-content { display: block; border-radius: 3px; padding: 3px 4px; color: #fff; }
+                                .ws-cell-label { display: block; font-weight: 600; }
+                                .ws-cell-room { display: block; font-size: 9px; color: #fff; }
+                                .ws-summary-table { width: 100%; margin-top: 16px; font-size: 10px; border-collapse: collapse; }
+                                .ws-summary-table th { text-align: left; padding: 6px 10px; }
+                                .ws-summary-table td { padding: 3px 10px; border-bottom: 1px solid #eee; }
+                                .ws-summary-table td:nth-child(2), .ws-summary-table td:nth-child(4) { text-align: right; font-weight: 600; }
                                 .ws-summary-total td { border-bottom: none; border-top: 1px solid #adb5bd; font-weight: 600; }
-                                .ws-grand-total { margin-top: 6px; padding: 0 6px; font-size: 11px; font-weight: 600; }
+                                .ws-summary-grand-total td { border-top: 2px solid #333; font-weight: 700; padding-top: 8px; }
                             </style>
 
                             <h1 class="ws-title">Working Schedule</h1>
@@ -72,47 +69,35 @@
                                     </tbody>
                                 </table>
 
+                                <t t-set="teaching_rows" t-value="summary['teaching']['rows']"/>
+                                <t t-set="fixed_rows" t-value="summary['fixed']['rows']"/>
                                 <table class="ws-summary-table">
                                     <thead>
                                         <tr>
-                                            <th style="width:50%;">Weekly teaching hours</th>
-                                            <th style="width:50%;">Other fixed-schedule hours</th>
+                                            <th colspan="2" style="width:50%;">Weekly teaching hours</th>
+                                            <th colspan="2" style="width:50%;">Other fixed-schedule hours</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>
-                                                <table class="ws-summary-inner">
-                                                    <t t-foreach="summary['teaching']['rows']" t-as="row">
-                                                        <tr>
-                                                            <td t-esc="row['label']"/>
-                                                            <td t-esc="str(row['hours']) + ' h'"/>
-                                                        </tr>
-                                                    </t>
-                                                    <tr class="ws-summary-total">
-                                                        <td>Total</td>
-                                                        <td t-esc="str(summary['teaching']['total']) + ' h'"/>
-                                                    </tr>
-                                                </table>
-                                            </td>
-                                            <td>
-                                                <table class="ws-summary-inner">
-                                                    <t t-foreach="summary['fixed']['rows']" t-as="row">
-                                                        <tr>
-                                                            <td t-esc="row['label']"/>
-                                                            <td t-esc="str(row['hours']) + ' h'"/>
-                                                        </tr>
-                                                    </t>
-                                                    <tr class="ws-summary-total">
-                                                        <td>Total</td>
-                                                        <td t-esc="str(summary['fixed']['total']) + ' h'"/>
-                                                    </tr>
-                                                </table>
-                                            </td>
+                                        <t t-foreach="range(max(len(teaching_rows), len(fixed_rows)))" t-as="i">
+                                            <tr>
+                                                <td t-esc="teaching_rows[i]['label'] if i &lt; len(teaching_rows) else ''"/>
+                                                <td t-esc="(str(teaching_rows[i]['hours']) + ' h') if i &lt; len(teaching_rows) else ''"/>
+                                                <td t-esc="fixed_rows[i]['label'] if i &lt; len(fixed_rows) else ''"/>
+                                                <td t-esc="(str(fixed_rows[i]['hours']) + ' h') if i &lt; len(fixed_rows) else ''"/>
+                                            </tr>
+                                        </t>
+                                        <tr class="ws-summary-total">
+                                            <td>Total</td>
+                                            <td t-esc="str(summary['teaching']['total']) + ' h'"/>
+                                            <td>Total</td>
+                                            <td t-esc="str(summary['fixed']['total']) + ' h'"/>
+                                        </tr>
+                                        <tr class="ws-summary-grand-total">
+                                            <td colspan="4"><span>Overall total:</span> <span t-esc="str(summary['total']) + ' h'"/></td>
                                         </tr>
                                     </tbody>
                                 </table>
-                                <p class="ws-grand-total"><span>Overall total:</span> <span t-esc="str(summary['total']) + ' h'"/></p>
                             </t>
                             <p t-else="">No working schedule assigned to this employee.</p>
                         </div>

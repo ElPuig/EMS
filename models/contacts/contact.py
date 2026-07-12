@@ -73,6 +73,15 @@ class ems_contact(models.Model):
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
     strike_ids = fields.One2many(string='Strikes', comodel_name='ems.strike', inverse_name='student_id')
     strike_count = fields.Integer(string='Strike count', compute='_compute_strike_count')
+    # Study granted at pre-enrollment (GEDAC), for a student the centre already has:
+    # the internal continuer changing studies next course (ESO4 -> SMX1). Only active
+    # students use it -- an applicant's destination already lives in study_id, which is
+    # free because it has no current study. Always read it via _ems_destination_study().
+    preinscription_study_id = fields.Many2one(
+        comodel_name='ems.study', string='Preinscription study',
+        help="Study granted by the preinscription (GEDAC) for the next course. Only set "
+             "on students already enrolled in another study; an applicant keeps its "
+             "granted study in the study field.")
     # Shift granted at pre-enrollment (GEDAC/preinscription), stored on the applicant
     # who still has no group to derive it from. Consumed by the enrollment proposal to
     # pre-fill the enrollment shift and pick the destination group.
@@ -542,6 +551,17 @@ class ems_contact(models.Model):
                 subtype_xmlid='mail.mt_comment',
                 partner_ids=student.ids,
             )
+
+    def _ems_destination_study(self):
+        """Study these contacts are heading to next course.
+
+        Hides the storage asymmetry between the two ways in: the internal continuer
+        keeps its current study in study_id, so its GEDAC destination needs a field of
+        its own, while an applicant has no current study and already holds the granted
+        one in study_id. Everything reasoning about "where is this contact going" must
+        go through here instead of reading either field directly.
+        """
+        return self.mapped(lambda partner: partner.preinscription_study_id or partner.study_id)
 
     def _ems_convert_to_student(self):
         """Convert applicants or ex-students back into active students.

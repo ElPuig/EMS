@@ -340,3 +340,89 @@ class TestEnrollmentPlacement(TransactionCase):
         wizard.template_id = self.template_s2
         with self.assertRaises(UserError):
             wizard.action_create_enrollments()
+
+    # --- GEDAC destination on the active student -----------------------------
+
+    def _continuer(self, name='GEDAC Cont', shift='afternoon', course='1'):
+        """An active student of `study` that GEDAC reassigned to `study2`.
+
+        Its current group is B/morning and the destination has no B letter, so it
+        reproduces both traps: the letter cannot be kept, and the old group's shift
+        is not the granted one.
+        """
+        return self.env['res.partner'].create({
+            'name': name, 'contact_type': 'student',
+            'study_id': self.study.id, 'main_group_id': self.g1b.id,
+            'preinscription_study_id': self.study2.id,
+            'preinscription_shift': shift, 'preinscription_course': course,
+        })
+
+    def test_destination_study_prefers_the_gedac_assignment(self):
+        self.assertEqual(self._continuer()._ems_destination_study(), self.study2)
+
+    def test_destination_study_falls_back_to_the_own_study(self):
+        # An applicant's destination already lives in study_id, and a continuer with
+        # no assignment simply renews its own study.
+        applicant = self.env['res.partner'].create({
+            'name': 'Dest App', 'contact_type': 'applicant', 'study_id': self.study2.id})
+        self.assertEqual(applicant._ems_destination_study(), self.study2)
+        renewing = self._student('Dest Cont', self.study, self.g1a)
+        self.assertEqual(renewing._ems_destination_study(), self.study)
+
+    def test_templates_offer_the_destination_to_the_secretary(self):
+        # The destination's 1st-course template must show up even though the student
+        # sits in another study: the study_year floor cannot hide it.
+        templates = self.Wizard.with_user(self.secretary)._ems_templates_for(
+            self._continuer(), allow_other_study=False)
+        self.assertIn(self.template_s2, templates)
+        self.assertNotIn(self.template1, templates)
+
+    def test_templates_keep_the_own_study_for_the_tutor(self):
+        # The tutor cannot cross studies, so it must not be offered a destination
+        # template the server guard would reject on create.
+        templates = self.Wizard.with_user(self.tutor)._ems_templates_for(
+            self._continuer(), allow_other_study=False)
+        self.assertNotIn(self.template_s2, templates)
+        self.assertIn(self.template1, templates)
+
+    def test_proposal_preselects_the_granted_template(self):
+        # No checkbox needed: the assignment drives both study and course.
+        wizard = self._wizard_as(self.secretary, self._continuer())
+        self.assertEqual(wizard.template_id, self.template_s2)
+
+    def test_suggested_group_crossing_uses_the_granted_shift(self):
+        # Trap 1: keeping the current letter (B) finds nothing in the destination.
+        # The granted shift must pick the lowest-letter group instead.
+        group = self.Wizard._ems_suggested_group(self._continuer(), self.template_s2)
+        self.assertEqual(group, self.s2_g1a_aft)
+
+    def test_crossing_enrollment_uses_the_granted_shift(self):
+        # Trap 2: the shift comes from the assignment, never from the old group.
+        student = self._continuer()
+        self._wizard_as(self.secretary, student).action_create_enrollments()
+        order = self.env['sale.order'].search([('partner_id', '=', student.id)], limit=1)
+        self.assertEqual(order.ems_study_id, self.study2)
+        self.assertEqual(order.ems_group_id, self.s2_g1a_aft)
+        self.assertEqual(order.shift, 'afternoon')
+
+    def test_admit_clears_the_consumed_assignment(self):
+        # Once enrolled into the granted study the assignment is spent: the "GEDAC
+        # assignment" filter must only list students still pending enrollment.
+        student = self._continuer()
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study2.id,
+            'ems_course_id': self.course.id, 'shift': 'afternoon'})
+        order._ems_admit_student()
+        self.assertFalse(student.preinscription_study_id)
+        self.assertFalse(student.preinscription_shift)
+        self.assertFalse(student.preinscription_course)
+
+    def test_admit_keeps_an_unconsumed_assignment(self):
+        # Another study was confirmed (the manual escape hatch): the GEDAC assignment
+        # is still pending and must survive.
+        student = self._continuer()
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id, 'shift': 'morning'})
+        order._ems_admit_student()
+        self.assertEqual(student.preinscription_study_id, self.study2)

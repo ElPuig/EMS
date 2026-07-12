@@ -52,10 +52,11 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
             raise UserError(_("Select at least one student or applicant."))
         res['student_ids'] = [fields.Command.set(students.ids)]
 
-        # Two situations the students' own study cannot serve: a mixed selection,
-        # and a study with no template (the GEDAC internal continuer). Both open in
-        # free mode for the secretary, and still block anyone who cannot cross studies.
-        multi_study = len(students.mapped('study_id')) > 1
+        # Two situations the offered studies cannot serve: a mixed selection, and a
+        # study with no template. Both open in free mode for the secretary, and still
+        # block anyone who cannot cross studies. Destinations are what count here: two
+        # students of the same study heading to different ones are a mixed selection.
+        multi_study = len(self._ems_studies_for(students)) > 1
         templates = self.env['sale.order.template'] if multi_study \
             else self._ems_templates_for(students, allow_other_study=False)
         if multi_study or not templates:
@@ -69,20 +70,19 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
             res['allow_other_study'] = True
             return res
 
-        # Applicant intake: preselect the template matching the granted course
-        # (preinscription_course) so the secretary only reviews. When the selected
-        # applicants share no single course, fall back to the lowest-course
-        # template. The destination group is filled by _onchange_suggest_group.
-        if all(p.contact_type == 'applicant' for p in students):
-            courses = set(students.mapped('preinscription_course')) - {False}
-            target = self.env['sale.order.template']
-            if len(courses) == 1:
-                target = templates.filtered(
-                    lambda t: t.study_year == int(next(iter(courses))))[:1]
-            if not target:
-                target = templates.sorted('study_year')[:1]
-            if target:
-                res['template_id'] = target.id
+        # Preselect the template matching the granted course (preinscription_course) so
+        # the secretary only reviews: both the applicant intake and the internal continuer
+        # GEDAC moved to another study. Applicants sharing no single granted course fall
+        # back to the lowest one. The destination group is filled by _onchange_suggest_group.
+        courses = set(students.mapped('preinscription_course')) - {False}
+        target = self.env['sale.order.template']
+        if len(courses) == 1:
+            target = templates.filtered(
+                lambda t: t.study_year == int(next(iter(courses))))[:1]
+        if not target and all(p.contact_type == 'applicant' for p in students):
+            target = templates.sorted('study_year')[:1]
+        if target:
+            res['template_id'] = target.id
         return res
 
     @api.onchange('template_id', 'student_ids')
@@ -104,6 +104,17 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
             self.ems_group_id = self._ems_suggested_group(
                 self.student_ids[0], self.template_id)
 
+    def _ems_studies_for(self, students):
+        """Studies whose templates are offered for `students`.
+
+        The GEDAC destination for a user who may cross studies, the students' current
+        study otherwise: a tutor must not be offered a destination the server guard
+        would reject on create.
+        """
+        if self._ems_can_enroll_other_study():
+            return students._ems_destination_study()
+        return students.mapped('study_id')
+
     def _ems_templates_for(self, students, allow_other_study):
         """Enrollment templates offered for `students`.
 
@@ -116,11 +127,15 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
             return Template.search([('ems_study_id', '!=', False)])
         if not students:
             return Template
-        courses = students.mapped('main_group_id.course')
-        return Template.search([
-            ('ems_study_id', 'in', students.mapped('study_id').ids),
-            ('study_year', '>=', min(courses) if courses else 1),
-        ])
+        studies = self._ems_studies_for(students)
+        domain = [('ems_study_id', 'in', studies.ids)]
+        # The current course is a floor only while renewing the same study. On a GEDAC
+        # move it would hide the destination's 1st-course template from a 4th-course
+        # student, the very reason free mode drops it too.
+        if studies == students.mapped('study_id'):
+            courses = students.mapped('main_group_id.course')
+            domain.append(('study_year', '>=', min(courses) if courses else 1))
+        return Template.search(domain)
 
     def _ems_can_enroll_other_study(self):
         """Only the secretary and the academic admin may cross studies. Tutors keep
@@ -134,18 +149,21 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
     def _ems_suggested_group(self, partner, template):
         """Suggest a destination group for a proposed enrollment.
 
-        - Continuing student: keep the same letter and shift in the destination
+        - Renewal in the same study: keep the same letter and shift in the destination
           course (SMX1A -> SMX2A); empty if there is no single match.
-        - Applicant (new intake): the lowest-letter group of the destination course
-          matching the pre-enrollment shift (the 'A' group always exists; tutors
-          redistribute the extra groups in September).
+        - New entry -- an applicant, or a student GEDAC moves to another study: the
+          lowest-letter group of the destination course matching the granted shift (the
+          'A' group always exists; tutors redistribute the extra groups in September).
+          Across studies the current letter means nothing (an ESO4E has no SMX1E to land
+          in) and neither does the current shift, which is not the one GEDAC granted.
         """
         Group = self.env['ems.group']
         study = template.ems_study_id
         course = template.study_year
         if not (study and course):
             return Group
-        if partner.contact_type == 'applicant':
+        crossing = partner.study_id and study != partner.study_id
+        if partner.contact_type == 'applicant' or crossing:
             domain = [('study_id', '=', study.id), ('course', '=', course)]
             if partner.preinscription_shift:
                 domain.append(('shift', '=', partner.preinscription_shift))
@@ -202,8 +220,15 @@ class EmsEnrollmentProposalWizard(models.TransientModel):
 
             group = self.ems_group_id or self._ems_suggested_group(student, self.template_id)
             # The destination group carries the shift of the study the student is
-            # moving into, which is the one that must reach the enrollment.
-            shift = group.shift or student.main_group_id.shift or student.preinscription_shift
+            # moving into, which is the one that must reach the enrollment. Without a
+            # group, a cross-study move falls back to the granted shift: the current
+            # group's one belongs to the study being left behind.
+            if group.shift:
+                shift = group.shift
+            elif student.study_id and dest_study != student.study_id:
+                shift = student.preinscription_shift or student.main_group_id.shift
+            else:
+                shift = student.main_group_id.shift or student.preinscription_shift
             order = self.env['sale.order'].create({
                 'partner_id': student.id,
                 'ems_study_id': dest_study.id,

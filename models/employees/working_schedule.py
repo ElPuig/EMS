@@ -2,7 +2,6 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
-from datetime import datetime
 import xml.etree.ElementTree as ET
 import base64
 
@@ -24,6 +23,7 @@ class ems_working_schedule(models.Model):
 		if teacher:
 			entries = [cell for cell in cells if cell.get('subject_id')]
 			self.env['ems.teaching'].sync_from_schedule(teacher, entries)
+			self.env['ems.attendance_template'].sync_from_schedule(teacher, entries, start_date=fields.Date.today())
 
 class ems_working_schedule_assignation(models.Model):
 	_inherit = 'resource.calendar.attendance'
@@ -110,7 +110,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					entries = self._create_schedule(node, teacher, course_id)
 					entries = [e for e in entries if not e["non_teaching"]]
 					self.env['ems.teaching'].sync_from_schedule(teacher, entries)
-					self._create_assitance_templates(entries, teacher, course_id)
+					self.env['ems.attendance_template'].sync_from_schedule(teacher, entries)
 
 		return super(models.Model, self).create(values)			
 
@@ -186,68 +186,4 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		schedule.write({ 'attendance_ids': attendance_ids })
 		teacher.write({ "resource_calendar_id": schedule })
 		return entries
-	
-	def _create_assitance_templates(self, entries, teacher, course_id):
-		# TODO: It's necessary to know if a template has been created automatically or manually? 
-		# 		Should we keep the manually created? If so, additional checks are needed in order to create
-		#		the entries avoiding duped templates... 
-		color = 1		
-		now = datetime.now()		
 
-		old_items = dict()
-		for t in teacher.attendance_template_ids.filtered('active'):
-			# TODO: what happens with the space, if two templates for the same subject and group exists but for diferent space?
-			old_items["%s.%s" % (t.subject_id.id, ",".join(str(g) for g in sorted(t.group_ids.ids)))] = t
-
-		templates = dict()
-		new_items = dict()
-		for e in entries:
-			key = "%s.%s" % (e["subject_id"], ",".join(str(g) for g in sorted(e["group_ids"])))
-
-			if not key in new_items:
-				new_items[key] = e
-
-			if not key in old_items:
-				# Create only if new
-				if key in templates:
-					t = templates[key]
-				else:
-					# TODO: define default start and end date for subjects within settings.
-					first_group = self.env['ems.group'].browse(e["group_ids"][0])
-					t = {
-						'start_date': datetime(now.year, 9, 1),
-						'end_date': datetime(now.year+1, 7, 1),
-						'color': color,
-						'teacher_id': teacher.id,
-						'subject_id': e["subject_id"],
-						'group_ids': [(6, 0, e["group_ids"])],
-						'level_id': first_group.level_id.id,
-						'study_id': first_group.study_id.id,
-						'space_id': first_group.space_id.id,
-						'attendance_schedule_ids': [],
-						# TODO: add also the current course
-					}
-					color += 1
-					templates[key] = t
-				
-				t["attendance_schedule_ids"].append(
-					[0, 0, {
-						'start_time': e["hour_from"],
-						'end_time': e["hour_to"],
-						'weekday': e["dayofweek"],
-						'space_id': t["space_id"]
-					}]
-				)				
-
-		for old in old_items:
-			if old not in new_items:
-				# NOTE: do not remove link because tracking could be lost, just archive it!
-				old_items[old].action_archive()				
-		
-		# NOTE: Templates must be created directly into its table, in order to be able to run its 'fill_students' method.
-		new_templates = self.env['ems.attendance_template'].create(list(templates.values()))
-		for t in new_templates:
-			t.fill_students()		
-
-		# TODO: should existing ones reload its students? All of them or only automatically added? Keep manually modified untouched?
-	

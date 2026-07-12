@@ -18,6 +18,10 @@ for repo_url in "${OCA_REPOS[@]}"; do
     fi
 done
 
+echo "Installing system (apt) Python dependencies..."
+sudo apt-get update -qq
+sudo apt-get install -y $(grep -v '^#' "$MODULES_DIR/ems/apt-requirements.txt")
+
 sudo service odoo stop || true
 sudo -u odoo bash -c 'odoo -d ems --stop-after-init -i ems -c /etc/odoo/odoo.conf --without-demo=WITHOUT_DEMO'
 EXIT_CODE=$?

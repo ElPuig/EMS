@@ -1,0 +1,9 @@
+# System (apt) Python dependencies for EMS.
+# Installed automatically by install.sh and upgrade.sh - do not use pip
+# (see requirements.txt, which exists only for GitHub's dependabot alerts).
+python3-lxml
+python3-lxml-html-clean
+python3-phonenumbers
+python3-openpyxl
+python3-google-auth
+python3-googleapi

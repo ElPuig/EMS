@@ -195,6 +195,24 @@ class ems_employee(models.AbstractModel):
             orphaned.unlink()
         return result
 
+    def get_report_role_lines(self):
+        """One display line per role_ids entry for the working-schedule PDF header, appending
+        context for the two roles that need it: a tutor's own tutored group(s) ('ems.role_tutor'),
+        or a department head's own department ('ems.role_dchieff') — there's no per-department link
+        for that role today, so the employee's own department_id is reused, per product decision."""
+        self.ensure_one()
+        role_tutor = self.env.ref('ems.role_tutor', raise_if_not_found=False)
+        role_dchieff = self.env.ref('ems.role_dchieff', raise_if_not_found=False)
+        lines = []
+        for role in self.role_ids:
+            label = role.name
+            if role_tutor and role == role_tutor and self.tutorship_ids:
+                label = "%s: %s" % (label, ", ".join(self.tutorship_ids.mapped('name')))
+            elif role_dchieff and role == role_dchieff and self.department_id:
+                label = "%s: %s" % (label, self.department_id.name)
+            lines.append(label)
+        return lines
+
     def find_head_of_studies(self):
         # NOTE: role_hos/role_dhos both map to the same global group_head_of_studies
         # (no per-employee hierarchy field), so this walks parent_id looking for the

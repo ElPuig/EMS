@@ -18,7 +18,9 @@
                     <t t-call="web.external_layout">
                         <div class="page">
                             <style>
-                                .ws-title { font-size: 20px; margin-bottom: 4px; }
+                                .ws-employee-title { font-size: 22px; margin-bottom: 2px; }
+                                .ws-department-title { font-size: 14px; font-weight: 500; color: #444; margin: 0 0 4px 0; }
+                                .ws-role-title { font-size: 11px; font-weight: normal; color: #666; margin: 0 0 14px 0; line-height: 1.5; }
                                 .ws-table { font-size: 10px; table-layout: fixed; }
                                 .ws-table th, .ws-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; height: 38px; overflow: hidden; }
                                 .ws-table td.ws-time { white-space: nowrap; font-weight: bold; }
@@ -33,8 +35,14 @@
                                 .ws-summary-grand-total td { border-top: 2px solid #333; font-weight: 700; padding-top: 8px; }
                             </style>
 
-                            <h1 class="ws-title">Working Schedule</h1>
-                            <p><span t-field="employee.name"/> — <span t-field="employee.company_id.current_course_id.name"/></p>
+                            <t t-set="role_lines" t-value="employee.get_report_role_lines()"/>
+                            <h1 class="ws-employee-title"><span t-field="employee.name"/> (<span t-field="employee.company_id.current_course_id.name"/>)</h1>
+                            <h2 t-if="employee.department_id" class="ws-department-title"><span t-field="employee.department_id.name"/></h2>
+                            <h3 t-if="role_lines" class="ws-role-title">
+                                <t t-foreach="role_lines" t-as="role_line">
+                                    <span t-esc="role_line"/><t t-if="not role_line_last"><br/></t>
+                                </t>
+                            </h3>
 
                             <t t-if="employee.resource_calendar_id">
                                 <t t-set="summary" t-value="employee.resource_calendar_id.get_schedule_hours_summary()"/>

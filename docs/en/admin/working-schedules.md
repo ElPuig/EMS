@@ -126,6 +126,8 @@ Use this to reset a teacher onto a different framework (e.g. they now teach a di
 1. Open the teacher's **Schedule** tab and click **PDF**.
 2. A printable weekly timetable is generated and downloaded — one row per period, one column per weekday, each cell showing the subject/group or non-teaching reason and the classroom.
 
+The document opens with the teacher's name and the current course, followed by their department (if assigned) and their role(s) — a tutor's line also shows which group they tutor, and a department head's line shows which department.
+
 This is also available from the employee form's own **Print** menu, in case you need to export several teachers' schedules from a list view.
 
 ---

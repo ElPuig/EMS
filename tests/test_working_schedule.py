@@ -310,6 +310,57 @@ class TestWorkingSchedule(TransactionCase):
         self.assertIn(b'Other fixed-schedule hours', content)
         self.assertIn(b'Overall total', content)
 
+    def test_get_report_role_lines_tutor_shows_tutored_group(self):
+        role_tutor = self.env.ref('ems.role_tutor')
+        self.teacher.write({'role_ids': [(4, role_tutor.id)], 'tutorship_ids': [(4, self.group.id)]})
+
+        lines = self.teacher.get_report_role_lines()
+
+        self.assertEqual(len(lines), 1)
+        self.assertIn(self.group.name, lines[0])
+
+    def test_get_report_role_lines_dchieff_shows_department(self):
+        role_dchieff = self.env.ref('ems.role_dchieff')
+        department = self.env['hr.department'].create({'name': 'Test Department (Working Schedule)'})
+        self.teacher.write({'role_ids': [(4, role_dchieff.id)], 'department_id': department.id})
+
+        lines = self.teacher.get_report_role_lines()
+
+        self.assertEqual(len(lines), 1)
+        self.assertIn(department.name, lines[0])
+
+    def test_get_report_role_lines_plain_role_has_no_suffix(self):
+        role_secretary = self.env.ref('ems.role_secretary')
+        self.teacher.write({'role_ids': [(4, role_secretary.id)]})
+
+        lines = self.teacher.get_report_role_lines()
+
+        self.assertEqual(lines, [role_secretary.name])
+
+    def test_get_report_role_lines_no_roles_returns_empty(self):
+        self.assertEqual(self.teacher.get_report_role_lines(), [])
+
+    def test_report_working_schedule_header_shows_department_and_roles(self):
+        role_tutor = self.env.ref('ems.role_tutor')
+        department = self.env['hr.department'].create({'name': 'Test Department Header (Working Schedule)'})
+        self.teacher.write({
+            'role_ids': [(4, role_tutor.id)], 'tutorship_ids': [(4, self.group.id)], 'department_id': department.id,
+        })
+        self.teacher.resource_calendar_id = self.framework
+        # NOTE: create() without inline attendance_ids auto-fills from the company's own calendar
+        # (see working_schedule.py's module docstring) — apply_schedule_changes() always unlinks
+        # weekday rows first, which is what clears that contamination before we render.
+        self.teacher.resource_calendar_id.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        content, _content_type = self.env['ir.actions.report']._render_qweb_pdf('ems.report_working_schedule', [self.teacher.id])
+
+        self.assertIn(department.name.encode(), content)
+        self.assertIn(self.group.name.encode(), content)
+        self.assertNotIn(b'ws-employee-title">Working Schedule', content)
+
     def test_get_report_label_translates_non_teaching_reason(self):
         schedule = self.env['resource.calendar'].create({'name': 'Test Report Label (Working Schedule)'})
         schedule.apply_schedule_changes([{

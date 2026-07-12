@@ -126,6 +126,8 @@ Fes servir això per reiniciar un docent amb un marc diferent (p. ex. ara impart
 1. Obre la pestanya **Horari** del docent i fes clic a **PDF**.
 2. Es genera i es descarrega un horari setmanal imprimible — una fila per franja, una columna per dia, i cada cel·la mostra l'assignatura/grup o el motiu no lectiu i l'aula.
 
+El document comença amb el nom del docent i el curs actual, seguit del seu departament (si en té assignat) i el seu/s rol/s — la línia d'un tutor també mostra quin grup tutoritza, i la d'un cap de departament mostra de quin departament.
+
 Aquesta opció també està disponible des del menú **Imprimeix** de la pròpia fitxa de l'empleat, per si necessites exportar l'horari de diversos docents des d'una vista de llista.
 
 ---

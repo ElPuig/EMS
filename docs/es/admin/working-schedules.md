@@ -126,6 +126,8 @@ Usa esto para reiniciar a un docente con un marco distinto (p. ej. ahora imparte
 1. Abre la pestaña **Horario** del docente y haz clic en **PDF**.
 2. Se genera y descarga un horario semanal imprimible — una fila por franja, una columna por día, y cada celda muestra la asignatura/grupo o el motivo no lectivo y el aula.
 
+El documento empieza con el nombre del docente y el curso actual, seguido de su departamento (si tiene uno asignado) y su(s) rol(es) — la línea de un tutor también muestra qué grupo tutoriza, y la de un jefe de departamento muestra de qué departamento.
+
 Esta opción también está disponible desde el menú **Imprimir** de la propia ficha del empleado, por si necesitas exportar el horario de varios docentes desde una vista de lista.
 
 ---

@@ -77,7 +77,14 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ steps.pr.outputs.sha }}
-          path: pr-checkout
+          # This repo IS the 'ems' module (__manifest__.py at its root), so it must land in a
+          # subdirectory named 'ems' - addons_path below points at the parent, exactly like
+          # production's odoo.conf (addons_path = ..., /root/myModules, ...) resolves the module
+          # via /root/myModules/ems/__manifest__.py. Checking out straight into 'pr-checkout' and
+          # pointing addons_path at that folder made Odoo unable to find a module named 'ems' at
+          # all, so '-u ems' silently no-opped instead of failing - see the 2026-07-12 incident
+          # where this let a broken pre-migrate.py through as a false green.
+          path: pr-checkout/ems
 
       - name: Write isolated odoo config
         run: |

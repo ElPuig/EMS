@@ -12,11 +12,24 @@
 # covered by the automatic rollback below instead.
 set -e
 
+# The GitHub Actions runner already runs this whole script as 'odoo', but deploy.sh is also run
+# by hand for manual recovery (typically as root) - re-exec as 'odoo' so every operation below
+# (git checkout/pull included, via ./update.sh) is always owned by the same user that odoo.service
+# runs as, regardless of who invoked deploy.sh. A root-owned git checkout/pull is exactly what left
+# several docs/ directories unwritable by 'odoo' in the 2026-07-12 incident.
+if [ "$(whoami)" != "odoo" ]; then
+    exec sudo -u odoo "$0" "$@"
+fi
+
 BACKUP_DIR="/root/backups"
 BACKUP_RETENTION_DAYS=30
 FILESTORE_PATH="/var/lib/odoo/.local/share/Odoo/filestore/ems"
 
 WORK_DIR=$(mktemp -d)
+# Owned by 'odoo' regardless of who invokes this script (the CI runner already runs as 'odoo';
+# a manual root recovery run does not), so the 'sudo -u odoo cp/dropdb/psql' calls below can
+# always read/write it.
+chown odoo:odoo "$WORK_DIR"
 trap 'rm -rf "$WORK_DIR"' EXIT
 
 backup_database() {
@@ -28,7 +41,11 @@ backup_database() {
     BACKUP_FILE="$BACKUP_DIR/ems_v${VERSION}_${TIMESTAMP}.zip"
 
     sudo -u odoo pg_dump --no-owner -d ems > "$WORK_DIR/dump.sql"
-    cp -r "$FILESTORE_PATH" "$WORK_DIR/filestore"
+    # Always as the 'odoo' user, even though the GitHub Actions runner already runs this whole
+    # script as 'odoo' - deploy.sh is also run by hand (as root) for manual recovery, and a plain
+    # 'cp' then would leave the filestore root-owned, which the real odoo.service (User=odoo)
+    # can't write into on its next module data load (2026-07-12 incident).
+    sudo -u odoo cp -r "$FILESTORE_PATH" "$WORK_DIR/filestore"
     (cd "$WORK_DIR" && zip -r "$BACKUP_FILE" dump.sql filestore/)
 
     echo ">> Backup saved: $BACKUP_FILE"
@@ -51,13 +68,21 @@ restore_backup() {
     sudo -u odoo dropdb --if-exists ems
     sudo -u odoo createdb ems
     sudo -u odoo psql -d ems -q < "$WORK_DIR/dump.sql"
-    rm -rf "$FILESTORE_PATH"
-    cp -r "$WORK_DIR/filestore" "$FILESTORE_PATH"
+    # As 'odoo', not root - see the WORK_DIR/backup_database comment above; the same 'cp -r' as
+    # root here is exactly what broke the filestore permissions in the 2026-07-12 incident.
+    sudo -u odoo rm -rf "$FILESTORE_PATH"
+    sudo -u odoo cp -r "$WORK_DIR/filestore" "$FILESTORE_PATH"
 
-    # Reconcile schema with the reverted code - should be a fast no-op
-    # since both now match, but confirms consistency before real traffic
-    # hits it instead of just hoping it's fine.
-    sudo -u odoo bash -c "odoo -d ems -u ems --stop-after-init -c /etc/odoo/odoo.conf"
+    # Reconcile schema with the reverted code - should be a fast no-op since both now match, but
+    # confirms consistency before real traffic hits it instead of just hoping it's fine. Not
+    # allowed to abort the function on failure (unlike the rest of restore_backup, which relies on
+    # 'set -e'): odoo.service must still get restarted and HEAD must still return to 'main' even if
+    # this reconciliation itself fails, otherwise production is left down AND undeployable (2026-07-12
+    # incident: this step failed, 'set -e' killed the function here, and both the service restart and
+    # the 'git checkout main' below never ran).
+    if ! sudo -u odoo bash -c "odoo -d ems -u ems --stop-after-init -c /etc/odoo/odoo.conf"; then
+        echo ">> WARNING: post-restore reconciliation failed - investigate before the next deploy, but restarting the service on the restored data first." >&2
+    fi
 
     sudo service odoo start || true
 

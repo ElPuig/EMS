@@ -99,6 +99,15 @@ jobs:
           sudo -u odoo createdb ems_pr_check
           sudo -u odoo bash -c "pg_dump --no-owner -d ems | psql -q -d ems_pr_check"
 
+          # Odoo resolves attachment content from filestore/<dbname>/..., keyed off the *database*
+          # name, not the module - ir_attachment rows copied above still point at hashes that only
+          # exist under filestore/ems/. Without this, reading any attachment (e.g. the company logo,
+          # touched during the very first module-list refresh) raises FileNotFoundError, which Odoo
+          # swallows by marking 'ems' as "not installable, skipped" instead of failing the run - a
+          # false green that never actually loads the module under test (2026-07-12 incident).
+          sudo -u odoo rm -rf /var/lib/odoo/.local/share/Odoo/filestore/ems_pr_check
+          sudo -u odoo cp -r /var/lib/odoo/.local/share/Odoo/filestore/ems /var/lib/odoo/.local/share/Odoo/filestore/ems_pr_check
+
       - name: Dry-run the EMS upgrade
         id: dryrun
         run: |
@@ -107,7 +116,9 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: sudo -u odoo dropdb --if-exists ems_pr_check
+        run: |
+          sudo -u odoo dropdb --if-exists ems_pr_check
+          sudo -u odoo rm -rf /var/lib/odoo/.local/share/Odoo/filestore/ems_pr_check
 
       - name: Upload log
         if: always()

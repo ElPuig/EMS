@@ -5,30 +5,82 @@
             <div t-if="!calendarId" class="alert alert-info mb-0" role="alert">
                 No working schedule assigned to this employee yet. Assign one in the "Work Information" tab first.
             </div>
-            <div t-else="" class="o_schedule_grid_grid">
-                <div class="o_schedule_grid_axis">
-                    <div class="o_schedule_grid_day_header"/>
-                    <t t-foreach="hours" t-as="hour" t-key="hour">
-                        <div class="o_schedule_grid_hour" t-esc="formatHour(hour)"/>
+            <t t-else="">
+                <div class="o_schedule_grid_toolbar">
+                    <button t-if="!editing.value" type="button" class="btn btn-sm btn-secondary"
+                            t-on-click="() => this.startEdit()">
+                        <i class="fa fa-pencil me-1"/>Edit
+                    </button>
+                    <t t-else="">
+                        <button type="button" class="btn btn-sm btn-primary" t-on-click="() => this.save()">
+                            <i class="fa fa-check me-1"/>Save
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.cancelEdit()">
+                            Cancel
+                        </button>
                     </t>
                 </div>
-                <t t-foreach="days" t-as="day" t-key="day.index">
-                    <div class="o_schedule_grid_day">
-                        <div class="o_schedule_grid_day_header" t-esc="day.label"/>
-                        <div class="o_schedule_grid_column" t-att-style="columnStyle()"
-                             t-on-click="(ev) => this.onColumnClick(day.index, ev)">
+
+                <div class="o_schedule_grid_grid">
+                    <div class="o_schedule_grid_header"/>
+                    <t t-foreach="days" t-as="day" t-key="day.index">
+                        <div class="o_schedule_grid_header" t-esc="day.label"/>
+                    </t>
+
+                    <div class="o_schedule_grid_axis" t-att-style="columnStyle()">
+                        <t t-foreach="hours" t-as="hour" t-key="hour">
+                            <div class="o_schedule_grid_hour" t-esc="formatHour(hour)"/>
+                        </t>
+                    </div>
+
+                    <t t-foreach="days" t-as="day" t-key="day.index">
+                        <div t-if="!editing.value" class="o_schedule_grid_column" t-att-style="columnStyle()">
                             <t t-foreach="entriesForDay(day.index)" t-as="entry" t-key="entry.id">
                                 <div class="o_schedule_grid_entry"
                                      t-att-class="entry.data.non_teaching ? 'o_schedule_grid_entry_nonteaching' : ''"
                                      t-att-style="entryStyle(entry)"
-                                     t-on-click="(ev) => this.onEntryClick(entry, ev)">
-                                    <span t-esc="entryLabel(entry)"/>
+                                     t-att-title="entryTime(entry) + ' ' + entryLabel(entry)">
+                                    <span class="o_schedule_grid_entry_time" t-esc="entryTime(entry)"/>
+                                    <span class="o_schedule_grid_entry_label" t-esc="entryLabel(entry)"/>
+                                    <span t-if="entryRoom(entry)" class="o_schedule_grid_entry_room" t-esc="entryRoom(entry)"/>
                                 </div>
                             </t>
                         </div>
-                    </div>
-                </t>
-            </div>
+                        <div t-else="" class="o_schedule_grid_edit_column">
+                            <t t-foreach="hours" t-as="hour" t-key="hour">
+                                <t t-set="state" t-value="cellState(day.index, hour)"/>
+                                <div class="o_schedule_grid_edit_cell">
+                                    <select class="o_schedule_grid_select o_schedule_grid_select_subject"
+                                            t-on-change="(ev) => this.onSubjectChange(day.index, hour, ev)">
+                                        <option value="" t-att-selected="subjectSelectValue(state) === ''">—</option>
+                                        <optgroup label="Non-teaching">
+                                            <t t-foreach="catalog.nonTeaching" t-as="item" t-key="item[0]">
+                                                <option t-att-value="'n_' + item[0]" t-esc="item[1]"
+                                                        t-att-selected="subjectSelectValue(state) === 'n_' + item[0]"/>
+                                            </t>
+                                        </optgroup>
+                                        <optgroup label="Subjects">
+                                            <t t-foreach="catalog.subjects" t-as="subject" t-key="subject.id">
+                                                <option t-att-value="'s_' + subject.id" t-esc="subject.display_name"
+                                                        t-att-selected="subjectSelectValue(state) === 's_' + subject.id"/>
+                                            </t>
+                                        </optgroup>
+                                    </select>
+                                    <select class="o_schedule_grid_select o_schedule_grid_select_group"
+                                            t-att-disabled="state.kind !== 'subject'"
+                                            t-on-change="(ev) => this.onGroupChange(day.index, hour, ev)">
+                                        <option value="" t-att-selected="!state.groupId">—</option>
+                                        <t t-foreach="catalog.groups" t-as="group" t-key="group.id">
+                                            <option t-att-value="group.id" t-esc="group.display_name"
+                                                    t-att-selected="state.groupId === group.id"/>
+                                        </t>
+                                    </select>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+            </t>
         </div>
     </t>
 </templates>

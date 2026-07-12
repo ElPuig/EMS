@@ -121,23 +121,7 @@
                     <attribute name="invisible">True</attribute>
                 </xpath>
                 
-                <xpath expr="//notebook" position="inside">
-                    <page string="Teaching" invisible="employee_type == 'asp'">
-                        <group string="Tutorships">
-                            <field name="tutorship_ids" widget="many2many_tags" nolabel="1" />
-                        </group>
-
-                        <group string="Subjects">
-                            <field name="teaching_ids" nolabel="1">
-                                <list editable="bottom" default_order="subject_id asc, group_id asc">
-                                    <field name="subject_id" />
-                                    <field name="group_id" domain="[('id','not in', inuse_group_ids)]"/>
-                                    <field name="inuse_group_ids" column_invisible="True"/>
-                                </list>
-                            </field>
-                        </group>
-                    </page>
-
+                <xpath expr="//notebook" position="inside">                    
                     <page string="Schedule" name="schedule" invisible="employee_type == 'asp'">
                         <field name="resource_calendar_id" invisible="1"/>
                         <field name="schedule_attendance_ids" widget="schedule_grid" nolabel="1">
@@ -150,8 +134,24 @@
                                 <field name="subject_id"/>
                                 <field name="group_ids"/>
                                 <field name="non_teaching"/>
+                                <field name="space_id"/>
                             </list>
                         </field>
+                    </page>
+
+                    <page string="Teaching" invisible="employee_type == 'asp'">
+                        <group string="Tutorships">
+                            <field name="tutorship_ids" widget="many2many_tags" nolabel="1" />
+                        </group>
+
+                        <group string="Subjects">
+                            <field name="teaching_ids" nolabel="1" readonly="1">
+                                <list default_order="subject_id asc, group_id asc">
+                                    <field name="subject_id" />
+                                    <field name="group_id" />
+                                </list>
+                            </field>
+                        </group>
                     </page>
                 </xpath>
             </field>		      

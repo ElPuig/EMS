@@ -12,6 +12,19 @@ class ems_working_schedule(models.Model):
 		('unique_name', 'unique (name)', 'duplicated calendar!')
     ]
 
+	def apply_schedule_changes(self, cells):
+		"""Replace this calendar's weekday (Mon-Fri) attendances with 'cells' (called from the
+		'Schedule' tab's grid widget, whose buffer already represents the full weekly state), then
+		re-derive the teacher's 'teaching_ids' from the same cells so both stay in sync."""
+		self.ensure_one()
+		self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4')).unlink()
+		self.write({'attendance_ids': [(0, 0, cell) for cell in cells]})
+
+		teacher = self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
+		if teacher:
+			entries = [cell for cell in cells if cell.get('subject_id')]
+			self.env['ems.teaching'].sync_from_schedule(teacher, entries)
+
 class ems_working_schedule_assignation(models.Model):
 	_inherit = 'resource.calendar.attendance'
 	# NOTE: no need to constraint, the main model avoids overlapping. 
@@ -33,6 +46,14 @@ class ems_working_schedule_assignation(models.Model):
 	non_teaching = fields.Selection(string="Non-teaching", selection=non_teaching_selection)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
+	# NOTE: the classroom is a property of the group (ems.group.space_id), same simplification already
+	# used by 'ems.attendance_template' (first selected group wins when several are assigned).
+	space_id = fields.Many2one(string="Classroom", comodel_name="ems.space", compute="_compute_space_id", store=True)
+
+	@api.depends("group_ids", "group_ids.space_id")
+	def _compute_space_id(self):
+		for attendance in self:
+			attendance.space_id = attendance.group_ids[:1].space_id
 
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
@@ -88,7 +109,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 					entries = self._create_schedule(node, teacher, course_id)
 					entries = [e for e in entries if not e["non_teaching"]]
-					self._create_teaching(entries, teacher, course_id)
+					self.env['ems.teaching'].sync_from_schedule(teacher, entries)
 					self._create_assitance_templates(entries, teacher, course_id)
 
 		return super(models.Model, self).create(values)			
@@ -166,42 +187,6 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		teacher.write({ "resource_calendar_id": schedule })
 		return entries
 	
-	def _create_teaching(self, entries, teacher, course_id):
-		old_items = dict()
-		for t in teacher.teaching_ids.filtered('active'):
-			old_items["%s.%s" % (t.subject_id.id, t.group_id.id)] = t
-		
-		teaching = []
-		new_items = dict()
-		for e in entries:
-			for gid in e["group_ids"]:
-				key = "%s.%s" % (e["subject_id"], gid)
-				value = {
-					'group_id': gid,
-					'subject_id': e["subject_id"],
-					# TODO: add the course (the course should be able to be selected from the form, in order to prepare future courses)
-				}
-
-				if not key in new_items:
-					new_items[key] = value
-
-				if key not in old_items:
-					# Create only if new
-					item = [0, 0, value]
-					if item not in teaching:
-						teaching.append(item)
-
-		for old in old_items:
-			if old not in new_items:
-				# NOTE: Using the teacher's form, entries are removed, so the same is performed from here.
-				#		If tracking needed, archive from both sides, the model code is ready to do so. 
-				old_items[old].unlink()
-				#old_items[old].action_archive()				
-
-		teacher.write({
-			'teaching_ids': teaching
-		})	
-
 	def _create_assitance_templates(self, entries, teacher, course_id):
 		# TODO: It's necessary to know if a template has been created automatically or manually? 
 		# 		Should we keep the manually created? If so, additional checks are needed in order to create

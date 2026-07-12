@@ -7649,10 +7649,14 @@ msgstr "Guardar"
 #: model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
-#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 msgid "Schedule"
 msgstr "Cronograma"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Schedule"
+msgstr "Horario"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__schedule_import_first_entry_time
@@ -12114,3 +12118,8 @@ msgstr "Archivos de planificación (XML)"
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "No XML file has been loaded. Please, provide at least one XML file and try again."
 msgstr "No se ha cargado ningún archivo XML. Por favor, proporciona al menos un archivo XML e inténtalo de nuevo."
+
+#. module: ems
+#: model:ir.actions.report,print_report_name:ems.action_report_working_schedule
+msgid "'Working Schedule - %s' % (object.name)"
+msgstr "'Horario - %s' % (object.name)"

@@ -7,6 +7,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.report_working_schedule</field>
             <field name="report_file">ems.report_working_schedule</field>
+            <field name="print_report_name">'Working Schedule - %s' % (object.name)</field>
             <field name="binding_model_id" ref="model_hr_employee"/>
             <field name="binding_type">report</field>
         </record>

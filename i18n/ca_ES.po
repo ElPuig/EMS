@@ -12097,3 +12097,8 @@ msgstr "Fitxers de planificació (XML)"
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "No XML file has been loaded. Please, provide at least one XML file and try again."
 msgstr "No s'ha carregat cap fitxer XML. Si us plau, proporciona almenys un fitxer XML i torna-ho a provar."
+
+#. module: ems
+#: model:ir.actions.report,print_report_name:ems.action_report_working_schedule
+msgid "'Working Schedule - %s' % (object.name)"
+msgstr "'Horari - %s' % (object.name)"

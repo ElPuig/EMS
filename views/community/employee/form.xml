@@ -120,8 +120,16 @@
                 <xpath expr="//div[hasclass('oe_title')]/h2" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>
-                
-                <xpath expr="//notebook" position="inside">                    
+
+                <field name="work_location_id" position="after">
+                    <field name="tz" position="move"/>
+                </field>
+
+                <xpath expr="//group[field[@name='resource_calendar_id']]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//notebook" position="inside">
                     <page string="Schedule" name="schedule" invisible="employee_type == 'asp'">
                         <field name="resource_calendar_id" invisible="1"/>
                         <field name="schedule_attendance_ids" widget="schedule_grid" nolabel="1">

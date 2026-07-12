@@ -39,7 +39,9 @@ class ems_company(models.Model):
     schedule_import_last_entry_time  = fields.Float(default=21.0)
 
     current_course_id = fields.Many2one(comodel_name="ems.course")
-    default_schedule_framework_id = fields.Many2one(comodel_name="resource.calendar", domain="[('is_framework', '=', True)]")
+    default_schedule_framework_id = fields.Many2one(
+        comodel_name="resource.calendar", domain="[('is_framework', '=', True)]", required=True,
+        default=lambda self: self.env.ref('ems.schedule_framework_default', raise_if_not_found=False))
 
     secretariat_email = fields.Char()
 

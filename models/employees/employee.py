@@ -143,16 +143,19 @@ class ems_employee(models.AbstractModel):
     @api.model_create_multi
     def create(self, vals_list):
         employees = super().create(vals_list)
-        framework = self.env.company.default_schedule_framework_id
-        if framework:
-            for employee, vals in zip(employees, vals_list):
-                if employee.employee_type == 'teacher' and not vals.get('resource_calendar_id'):
-                    course = self.env.company.current_course_id
-                    schedule = self.env['resource.calendar'].create({
-                        'name': "%s (%s)" % (employee.name, course.name) if course else employee.name,
-                    })
-                    schedule.seed_from_framework(framework)
-                    employee.resource_calendar_id = schedule
+        for employee in employees:
+            if employee.employee_type != 'teacher':
+                continue
+            # NOTE: every teacher gets their OWN calendar, always — 'resource_calendar_id' arrives
+            # already pre-filled by resource.mixin's client-side default (the company's shared
+            # calendar), so it can never be used to detect "nothing was set yet". Sharing a calendar
+            # between teachers would break the 1:1 assumption 'apply_schedule_changes' relies on.
+            course = employee.company_id.current_course_id
+            schedule = self.env['resource.calendar'].create({
+                'name': "%s (%s)" % (employee.name, course.name) if course else employee.name,
+            })
+            schedule.seed_from_framework(employee.company_id.default_schedule_framework_id)
+            employee.resource_calendar_id = schedule
         return employees
 
     def find_head_of_studies(self):

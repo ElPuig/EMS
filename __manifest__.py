@@ -309,6 +309,7 @@
         'data/main/ems.mail_activity_type.xml',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
+        'data/main/ems.schedule_framework_default.xml',
 
         'data/cat/attachments/asix/ir.attachment.csv',
         'data/cat/attachments/dam/ir.attachment.csv',

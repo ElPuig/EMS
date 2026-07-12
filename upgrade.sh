@@ -1,9 +1,14 @@
 #!/bin/bash
 echo "Upgrading the EMS..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 sudo service odoo stop || true
 
 echo "Upgrading odoo package..."
 sudo apt-get install --only-upgrade -y odoo
+
+echo "Installing system (apt) Python dependencies..."
+sudo apt-get update -qq
+sudo apt-get install -y $(grep -v '^#' "$SCRIPT_DIR/apt-requirements.txt")
 
 # The odoo .deb package's postinst restarts the odoo.service unit on its
 # own once the package is set up, regardless of it having been stopped

@@ -55,6 +55,15 @@
     transform: translateY(-6px);
 }
 
+.o_schedule_grid_period_label {
+    height: 48px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 11px;
+}
+
 .o_schedule_grid_column {
     position: relative;
     cursor: pointer;

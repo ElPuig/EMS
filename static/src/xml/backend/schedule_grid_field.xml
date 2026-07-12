@@ -50,7 +50,7 @@
                     </t>
                 </div>
 
-                <div class="o_schedule_grid_grid">
+                <div t-if="!editing.value" class="o_schedule_grid_grid">
                     <div class="o_schedule_grid_header"/>
                     <t t-foreach="days" t-as="day" t-key="day.index">
                         <div class="o_schedule_grid_header" t-esc="day.label"/>
@@ -63,7 +63,7 @@
                     </div>
 
                     <t t-foreach="days" t-as="day" t-key="day.index">
-                        <div t-if="!editing.value" class="o_schedule_grid_column" t-att-style="columnStyle()">
+                        <div class="o_schedule_grid_column" t-att-style="columnStyle()">
                             <t t-foreach="entriesForDay(day.index)" t-as="entry" t-key="entry.id">
                                 <div class="o_schedule_grid_entry"
                                      t-att-class="{
@@ -78,12 +78,28 @@
                                 </div>
                             </t>
                         </div>
-                        <div t-else="" class="o_schedule_grid_edit_column">
-                            <t t-foreach="hours" t-as="hour" t-key="hour">
-                                <t t-set="state" t-value="cellState(day.index, hour)"/>
+                    </t>
+                </div>
+
+                <div t-else="" class="o_schedule_grid_grid o_schedule_grid_grid_edit">
+                    <div class="o_schedule_grid_header"/>
+                    <t t-foreach="days" t-as="day" t-key="day.index">
+                        <div class="o_schedule_grid_header" t-esc="day.label"/>
+                    </t>
+
+                    <div class="o_schedule_grid_axis">
+                        <t t-foreach="periods.list" t-as="period" t-key="period_index">
+                            <div class="o_schedule_grid_period_label" t-esc="periodLabel(period)"/>
+                        </t>
+                    </div>
+
+                    <t t-foreach="days" t-as="day" t-key="day.index">
+                        <div class="o_schedule_grid_edit_column">
+                            <t t-foreach="periods.list" t-as="period" t-key="period_index">
+                                <t t-set="state" t-value="cellState(day.index, period_index)"/>
                                 <div class="o_schedule_grid_edit_cell">
                                     <select class="o_schedule_grid_select o_schedule_grid_select_subject"
-                                            t-on-change="(ev) => this.onSubjectChange(day.index, hour, ev)">
+                                            t-on-change="(ev) => this.onSubjectChange(day.index, period_index, ev)">
                                         <option value="" t-att-selected="subjectSelectValue(state) === ''">—</option>
                                         <optgroup label="Non-teaching">
                                             <t t-foreach="catalog.nonTeaching" t-as="item" t-key="item[0]">
@@ -100,7 +116,7 @@
                                     </select>
                                     <select class="o_schedule_grid_select o_schedule_grid_select_group"
                                             t-att-disabled="state.kind !== 'subject'"
-                                            t-on-change="(ev) => this.onGroupChange(day.index, hour, ev)">
+                                            t-on-change="(ev) => this.onGroupChange(day.index, period_index, ev)">
                                         <option value="" t-att-selected="!state.groupId">—</option>
                                         <t t-foreach="catalog.groups" t-as="group" t-key="group.id">
                                             <option t-att-value="group.id" t-esc="group.display_name"

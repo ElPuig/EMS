@@ -19,17 +19,19 @@ function dayLabels() {
 // (dayofweek/hour_from/hour_to — a recurring pattern, not real dates, so the native <calendar> view
 // does not apply). Read-only by default; three actions turn it into an editable buffer (mirroring the
 // grade matrix widget: nothing is written until "Save" is pressed, "Cancel" discards):
-//   - "Edit": edit the teacher's current schedule in place (two dropdowns per hour: subject+group, or a
-//     non-teaching reason).
+//   - "Edit": edit the teacher's current schedule in place (two dropdowns per period: subject+group, or
+//     a non-teaching reason).
 //   - "Import": opens the XML planner importer already scoped to this teacher (no email lookup needed).
 //   - "New": seed the buffer from either a blank schedule framework (a level's period times, still
 //     unassigned) or another teacher's current schedule (handy for substitutions) — replacing the whole
 //     buffer, but only written to the server on "Save".
 // Saving replaces the whole weekday schedule in one server call (which also re-derives 'teaching_ids'
 // and 'ems.attendance_template' from it), so the buffer is always the single source of truth for what
-// gets written. A cell with no subject/non-teaching but backed by a real source row ('blank') is still
-// written as a placeholder period (kept exact, non-hour-aligned times included) instead of being dropped
-// like a truly empty cell.
+// gets written. Edit mode's rows are the DISTINCT real periods found in whatever was loaded (own
+// schedule, a framework, a colleague's schedule) — not fixed hourly slots — so saving always writes the
+// exact (possibly non-hour-aligned) hour_from/hour_to of that period, never a rounded one. A cell with
+// no subject/non-teaching but backed by a real source row ('blank') is still written as a placeholder
+// period instead of being dropped like a truly empty cell.
 export class ScheduleGridField extends Component {
     static template = "ems.ScheduleGridField";
     static props = { ...standardFieldProps };
@@ -40,7 +42,7 @@ export class ScheduleGridField extends Component {
         this.editing = useState({ value: false });
         this.buffer = useState({});
         this.dirty = useState({ value: false });
-        this.range = useState({ start: DEFAULT_START, end: DEFAULT_END });
+        this.periods = useState({ list: [] });
         this.newPanel = useState({ open: false, value: "", frameworks: [], teachers: [] });
         this.catalog = useState({ subjects: [], groups: [], nonTeaching: [] });
         onWillStart(async () => {
@@ -79,7 +81,7 @@ export class ScheduleGridField extends Component {
     }
 
     get hours() {
-        const { start, end } = this.editing.value ? this.range : this.bounds;
+        const { start, end } = this.bounds;
         const hours = [];
         for (let h = start; h < end; h++) {
             hours.push(h);
@@ -88,7 +90,7 @@ export class ScheduleGridField extends Component {
     }
 
     columnStyle() {
-        const { start, end } = this.editing.value ? this.range : this.bounds;
+        const { start, end } = this.bounds;
         return `height:${(end - start) * PX_PER_HOUR}px`;
     }
 
@@ -132,7 +134,7 @@ export class ScheduleGridField extends Component {
         return `${String(hour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
     }
 
-    // ── Edit mode (two dropdowns per hour, buffered) ─────────────────────────
+    // ── Edit mode (two dropdowns per real period, buffered) ──────────────────
 
     get subjectOptions() {
         return [
@@ -142,8 +144,12 @@ export class ScheduleGridField extends Component {
         ];
     }
 
-    _cellKey(dayIndex, hour) {
-        return `${dayIndex}_${hour}`;
+    periodLabel(period) {
+        return `${this.formatHourMinutes(period.hour_from)}-${this.formatHourMinutes(period.hour_to)}`;
+    }
+
+    _cellKey(dayIndex, periodIndex) {
+        return `${dayIndex}_${periodIndex}`;
     }
 
     _emptyCell() {
@@ -178,34 +184,41 @@ export class ScheduleGridField extends Component {
         return { kind: "blank", subjectId: false, groupId: false, nonTeaching: false };
     }
 
-    // Rebuilds the whole buffer from a list of raw entries (own current entries, a framework's blank
-    // periods, or another teacher's schedule), and the day/hour range they span.
+    // Rebuilds the whole buffer from a list of raw entries (own current entries, a framework's periods,
+    // or another teacher's schedule). The edit grid's rows are the DISTINCT (hour_from, hour_to) pairs
+    // found across every entry (any weekday) — a school's bell schedule is one fixed set of periods
+    // repeated each day, with some days skipping or adding one (e.g. a Wednesday-only meeting) — so this
+    // naturally reproduces the real timetable instead of an hour-rounded approximation.
     _seedBufferFromEntries(rawEntries) {
         const normalized = rawEntries.map((raw) => this._normalizeEntry(raw)).filter((n) => WEEKDAYS.includes(n.dayofweek));
-        let start = DEFAULT_START;
-        let end = DEFAULT_END;
+
+        const periodKey = (n) => `${n.hour_from}_${n.hour_to}`;
+        const periodsByKey = new Map();
         for (const n of normalized) {
-            start = Math.min(start, Math.floor(n.hour_from));
-            end = Math.max(end, Math.ceil(n.hour_to));
+            const key = periodKey(n);
+            if (!periodsByKey.has(key)) {
+                periodsByKey.set(key, { hour_from: n.hour_from, hour_to: n.hour_to });
+            }
         }
+        const periods = [...periodsByKey.values()].sort((a, b) => a.hour_from - b.hour_from);
+        const periodIndexByKey = new Map(periods.map((period, index) => [periodKey(period), index]));
+
         const buffer = {};
         for (const dayIndex of WEEKDAYS) {
-            for (let hour = start; hour < end; hour++) {
-                buffer[this._cellKey(dayIndex, hour)] = this._emptyCell();
+            for (let periodIndex = 0; periodIndex < periods.length; periodIndex++) {
+                buffer[this._cellKey(dayIndex, periodIndex)] = this._emptyCell();
             }
         }
         for (const n of normalized) {
-            const state = this._stateFromNormalized(n);
-            for (let hour = Math.floor(n.hour_from); hour < Math.ceil(n.hour_to); hour++) {
-                buffer[this._cellKey(n.dayofweek, hour)] = state;
-            }
+            const periodIndex = periodIndexByKey.get(periodKey(n));
+            buffer[this._cellKey(n.dayofweek, periodIndex)] = this._stateFromNormalized(n);
         }
+
         for (const key of Object.keys(this.buffer)) {
             delete this.buffer[key];
         }
         Object.assign(this.buffer, buffer);
-        this.range.start = start;
-        this.range.end = end;
+        this.periods.list = periods;
     }
 
     startEdit() {
@@ -220,17 +233,17 @@ export class ScheduleGridField extends Component {
         this.newPanel.open = false;
     }
 
-    cellState(dayIndex, hour) {
-        return this.buffer[this._cellKey(dayIndex, hour)] || this._emptyCell();
+    cellState(dayIndex, periodIndex) {
+        return this.buffer[this._cellKey(dayIndex, periodIndex)] || this._emptyCell();
     }
 
-    onSubjectChange(dayIndex, hour, ev) {
-        const key = this._cellKey(dayIndex, hour);
+    onSubjectChange(dayIndex, periodIndex, ev) {
+        const key = this._cellKey(dayIndex, periodIndex);
         const value = ev.target.value;
         if (value.startsWith("n_")) {
             this.buffer[key] = { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: value.slice(2) };
         } else if (value.startsWith("s_")) {
-            const previous = this.cellState(dayIndex, hour);
+            const previous = this.cellState(dayIndex, periodIndex);
             this.buffer[key] = { kind: "subject", subjectId: Number(value.slice(2)), groupId: previous.groupId, nonTeaching: false };
         } else {
             this.buffer[key] = this._emptyCell();
@@ -238,9 +251,9 @@ export class ScheduleGridField extends Component {
         this.dirty.value = true;
     }
 
-    onGroupChange(dayIndex, hour, ev) {
-        const key = this._cellKey(dayIndex, hour);
-        const previous = this.cellState(dayIndex, hour);
+    onGroupChange(dayIndex, periodIndex, ev) {
+        const key = this._cellKey(dayIndex, periodIndex);
+        const previous = this.cellState(dayIndex, periodIndex);
         this.buffer[key] = { ...previous, groupId: ev.target.value ? Number(ev.target.value) : false };
         this.dirty.value = true;
     }
@@ -305,7 +318,6 @@ export class ScheduleGridField extends Component {
         if (!this.newPanel.value) {
             return;
         }
-        const kind = this.newPanel.value[0];
         const calendarId = Number(this.newPanel.value.slice(2));
         this.newPanel.open = false;
         const rawEntries = await this.orm.searchRead(
@@ -313,9 +325,7 @@ export class ScheduleGridField extends Component {
             [["calendar_id", "=", calendarId]],
             ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids"]
         );
-        // Copying a framework's periods only makes sense blank: a framework never carries a real
-        // subject/group, but be defensive in case one was set by mistake on the template record.
-        this._seedBufferFromEntries(kind === "f" ? rawEntries.map((e) => ({ ...e, subject_id: false, non_teaching: false })) : rawEntries);
+        this._seedBufferFromEntries(rawEntries);
         this.dirty.value = true;
         this.editing.value = true;
     }
@@ -330,19 +340,19 @@ export class ScheduleGridField extends Component {
         const subjectById = new Map(this.catalog.subjects.map((s) => [s.id, s.display_name]));
         const groupById = new Map(this.catalog.groups.map((g) => [g.id, g.display_name]));
         const nonTeachingByCode = new Map(this.catalog.nonTeaching);
-        const { start, end } = this.range;
         const cells = [];
         for (const dayIndex of WEEKDAYS) {
-            for (let hour = start; hour < end; hour++) {
-                const state = this.buffer[this._cellKey(dayIndex, hour)];
+            for (let periodIndex = 0; periodIndex < this.periods.list.length; periodIndex++) {
+                const state = this.buffer[this._cellKey(dayIndex, periodIndex)];
                 if (!state || state.kind === "empty") {
                     continue;
                 }
+                const period = this.periods.list[periodIndex];
                 const cell = {
                     dayofweek: String(dayIndex),
-                    hour_from: hour,
-                    hour_to: hour + 1,
-                    day_period: hour < 13 ? "morning" : "afternoon",
+                    hour_from: period.hour_from,
+                    hour_to: period.hour_to,
+                    day_period: period.hour_from < 13 ? "morning" : "afternoon",
                 };
                 if (state.kind === "subject" && state.subjectId && state.groupId) {
                     cell.subject_id = state.subjectId;

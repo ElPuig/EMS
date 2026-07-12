@@ -114,6 +114,20 @@ jobs:
           set -o pipefail
           sudo -u odoo bash -c "odoo -d ems_pr_check -u ems --stop-after-init -c /tmp/odoo-deploy-check.conf" 2>&1 | tee /tmp/odoo-deploy-check.log
 
+          # Odoo's own exit code is not a reliable pass/fail signal: a module that fails while
+          # loading (missing attachment, dependency graph issue, ...) can end up silently marked
+          # "not installable, skipped" while the rest of the stock modules still load fine - the
+          # process then still exits 0 for --stop-after-init. That let two different real bugs
+          # through as false greens on 2026-07-12. Verify what actually happened in the DB instead
+          # of trusting the exit code.
+          expected_version=$(grep -oP "'version':\s*'\K[^']+" pr-checkout/ems/__manifest__.py)
+          actual_state=$(sudo -u odoo psql -d ems_pr_check -t -c "SELECT state || ' ' || latest_version FROM ir_module_module WHERE name='ems';" | xargs)
+          echo "Expected: installed ${expected_version} | Actual: ${actual_state}"
+          if [ "$actual_state" != "installed ${expected_version}" ]; then
+            echo "::error::EMS module did not end up 'installed ${expected_version}' in the dry-run (got: '${actual_state}') - see the uploaded log."
+            exit 1
+          fi
+
       - name: Cleanup
         if: always()
         run: |

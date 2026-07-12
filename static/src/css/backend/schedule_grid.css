@@ -35,6 +35,10 @@
     overflow-x: auto;
 }
 
+.o_schedule_grid_grid_edit {
+    grid-template-columns: 190px repeat(5, minmax(190px, 1fr));
+}
+
 .o_schedule_grid_header {
     height: 24px;
     font-weight: 600;
@@ -62,6 +66,28 @@
     align-items: center;
     justify-content: flex-end;
     font-size: 11px;
+    gap: 2px;
+}
+
+.o_schedule_grid_period_time {
+    width: 72px;
+    font-size: 11px;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+}
+
+.o_schedule_grid_period_remove {
+    padding: 0 4px;
+    color: #adb5bd;
+}
+
+.o_schedule_grid_period_remove:hover {
+    color: #dc3545;
+}
+
+.o_schedule_grid_add_period {
+    font-size: 11px;
+    padding: 4px 0;
 }
 
 .o_schedule_grid_column {
@@ -123,12 +149,6 @@
 
 .o_schedule_grid_entry_nonteaching {
     background-color: #8d99ae;
-}
-
-.o_schedule_grid_entry_blank {
-    background-color: transparent;
-    border: 1px dashed #adb5bd;
-    color: #6c757d;
 }
 
 .o_schedule_grid_new_panel {

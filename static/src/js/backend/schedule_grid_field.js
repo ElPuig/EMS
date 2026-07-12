@@ -43,6 +43,7 @@ export class ScheduleGridField extends Component {
         this.buffer = useState({});
         this.dirty = useState({ value: false });
         this.periods = useState({ list: [] });
+        this._nextPeriodId = 1;
         this.newPanel = useState({ open: false, value: "", frameworks: [], teachers: [] });
         this.catalog = useState({ subjects: [], groups: [], nonTeaching: [] });
         onWillStart(async () => {
@@ -100,8 +101,11 @@ export class ScheduleGridField extends Component {
 
     // ── View mode (read-only visual blocks) ──────────────────────────────────
 
+    // Blank/unassigned periods (patio, still-unassigned template slots...) are kept as real rows so
+    // the exact times survive for the next edit, but are not worth a visible "Free" block here — the
+    // row/gap structure already makes it clear something is expected there.
     entriesForDay(dayIndex) {
-        return this.entries.filter((entry) => Number(entry.data.dayofweek) === dayIndex);
+        return this.entries.filter((entry) => Number(entry.data.dayofweek) === dayIndex && !this.entryIsBlank(entry));
     }
 
     entryStyle(entry) {
@@ -144,12 +148,29 @@ export class ScheduleGridField extends Component {
         ];
     }
 
+    get sortedPeriods() {
+        return [...this.periods.list].sort((a, b) => a.hour_from - b.hour_from);
+    }
+
     periodLabel(period) {
         return `${this.formatHourMinutes(period.hour_from)}-${this.formatHourMinutes(period.hour_to)}`;
     }
 
-    _cellKey(dayIndex, periodIndex) {
-        return `${dayIndex}_${periodIndex}`;
+    _timeToHour(value) {
+        const [h, m] = value.split(":").map(Number);
+        return h + m / 60;
+    }
+
+    hourToTimeInput(value) {
+        const hour = Math.floor(value);
+        const minutes = Math.round((value - hour) * 60);
+        return `${String(hour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+    }
+
+    // Periods are identified by a stable id, never by their (sorted) display position — editing a
+    // period's time, or inserting a new one, must never shift what the buffer's existing cells point to.
+    _cellKey(dayIndex, periodId) {
+        return `${dayIndex}_${periodId}`;
     }
 
     _emptyCell() {
@@ -192,26 +213,28 @@ export class ScheduleGridField extends Component {
     _seedBufferFromEntries(rawEntries) {
         const normalized = rawEntries.map((raw) => this._normalizeEntry(raw)).filter((n) => WEEKDAYS.includes(n.dayofweek));
 
+        this._nextPeriodId = 1;
         const periodKey = (n) => `${n.hour_from}_${n.hour_to}`;
-        const periodsByKey = new Map();
+        const periodIdByKey = new Map();
+        const periods = [];
         for (const n of normalized) {
             const key = periodKey(n);
-            if (!periodsByKey.has(key)) {
-                periodsByKey.set(key, { hour_from: n.hour_from, hour_to: n.hour_to });
+            if (!periodIdByKey.has(key)) {
+                const id = this._nextPeriodId++;
+                periodIdByKey.set(key, id);
+                periods.push({ id, hour_from: n.hour_from, hour_to: n.hour_to });
             }
         }
-        const periods = [...periodsByKey.values()].sort((a, b) => a.hour_from - b.hour_from);
-        const periodIndexByKey = new Map(periods.map((period, index) => [periodKey(period), index]));
 
         const buffer = {};
         for (const dayIndex of WEEKDAYS) {
-            for (let periodIndex = 0; periodIndex < periods.length; periodIndex++) {
-                buffer[this._cellKey(dayIndex, periodIndex)] = this._emptyCell();
+            for (const period of periods) {
+                buffer[this._cellKey(dayIndex, period.id)] = this._emptyCell();
             }
         }
         for (const n of normalized) {
-            const periodIndex = periodIndexByKey.get(periodKey(n));
-            buffer[this._cellKey(n.dayofweek, periodIndex)] = this._stateFromNormalized(n);
+            const periodId = periodIdByKey.get(periodKey(n));
+            buffer[this._cellKey(n.dayofweek, periodId)] = this._stateFromNormalized(n);
         }
 
         for (const key of Object.keys(this.buffer)) {
@@ -219,6 +242,76 @@ export class ScheduleGridField extends Component {
         }
         Object.assign(this.buffer, buffer);
         this.periods.list = periods;
+    }
+
+    // Lets the admin build a period the loaded source didn't have (e.g. a teacher mixing two levels'
+    // bell schedules by hand) instead of being limited to whatever was already there.
+    addPeriod() {
+        const last = this.sortedPeriods[this.sortedPeriods.length - 1];
+        const hour_from = last ? last.hour_to : DEFAULT_START;
+        const id = this._nextPeriodId++;
+        this.periods.list.push({ id, hour_from, hour_to: hour_from + 1 });
+        for (const dayIndex of WEEKDAYS) {
+            this.buffer[this._cellKey(dayIndex, id)] = this._emptyCell();
+        }
+        this.dirty.value = true;
+    }
+
+    removePeriod(periodId) {
+        const index = this.periods.list.findIndex((period) => period.id === periodId);
+        if (index !== -1) {
+            this.periods.list.splice(index, 1);
+        }
+        for (const dayIndex of WEEKDAYS) {
+            delete this.buffer[this._cellKey(dayIndex, periodId)];
+        }
+        this.dirty.value = true;
+    }
+
+    onPeriodTimeChange(periodId, field, ev) {
+        const period = this.periods.list.find((p) => p.id === periodId);
+        if (!period) {
+            return;
+        }
+        const value = this._timeToHour(ev.target.value);
+        if (field === "hour_from") {
+            // Moving the start moves the whole block, keeping its original duration — otherwise
+            // dragging the start later/earlier while the end stays put can silently balloon the
+            // block into one spanning most of the day, overlapping (and auto-clearing) everything.
+            const duration = period.hour_to - period.hour_from;
+            period.hour_from = value;
+            period.hour_to = value + duration;
+        } else {
+            period.hour_to = value;
+        }
+        for (const dayIndex of WEEKDAYS) {
+            this._clearOverlappingCells(dayIndex, periodId);
+        }
+        this.dirty.value = true;
+    }
+
+    // A period that looks empty in the grid can still be a real row inherited from whatever was
+    // loaded (a framework's own hourly blocks, a colleague's schedule...) — assigning a genuinely
+    // different time elsewhere on the same day must not silently leave that old row in place, or
+    // saving fails server-side with "Attendances can't overlap" for a conflict the admin never saw.
+    _periodsOverlap(a, b) {
+        return a.hour_from < b.hour_to && b.hour_from < a.hour_to;
+    }
+
+    _clearOverlappingCells(dayIndex, periodId) {
+        const period = this.periods.list.find((p) => p.id === periodId);
+        if (!period) {
+            return;
+        }
+        for (const other of this.periods.list) {
+            if (other.id === periodId || !this._periodsOverlap(period, other)) {
+                continue;
+            }
+            const key = this._cellKey(dayIndex, other.id);
+            if (this.buffer[key] && this.buffer[key].kind !== "empty") {
+                this.buffer[key] = this._emptyCell();
+            }
+        }
     }
 
     startEdit() {
@@ -233,27 +326,29 @@ export class ScheduleGridField extends Component {
         this.newPanel.open = false;
     }
 
-    cellState(dayIndex, periodIndex) {
-        return this.buffer[this._cellKey(dayIndex, periodIndex)] || this._emptyCell();
+    cellState(dayIndex, periodId) {
+        return this.buffer[this._cellKey(dayIndex, periodId)] || this._emptyCell();
     }
 
-    onSubjectChange(dayIndex, periodIndex, ev) {
-        const key = this._cellKey(dayIndex, periodIndex);
+    onSubjectChange(dayIndex, periodId, ev) {
+        const key = this._cellKey(dayIndex, periodId);
         const value = ev.target.value;
         if (value.startsWith("n_")) {
             this.buffer[key] = { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: value.slice(2) };
+            this._clearOverlappingCells(dayIndex, periodId);
         } else if (value.startsWith("s_")) {
-            const previous = this.cellState(dayIndex, periodIndex);
+            const previous = this.cellState(dayIndex, periodId);
             this.buffer[key] = { kind: "subject", subjectId: Number(value.slice(2)), groupId: previous.groupId, nonTeaching: false };
+            this._clearOverlappingCells(dayIndex, periodId);
         } else {
             this.buffer[key] = this._emptyCell();
         }
         this.dirty.value = true;
     }
 
-    onGroupChange(dayIndex, periodIndex, ev) {
-        const key = this._cellKey(dayIndex, periodIndex);
-        const previous = this.cellState(dayIndex, periodIndex);
+    onGroupChange(dayIndex, periodId, ev) {
+        const key = this._cellKey(dayIndex, periodId);
+        const previous = this.cellState(dayIndex, periodId);
         this.buffer[key] = { ...previous, groupId: ev.target.value ? Number(ev.target.value) : false };
         this.dirty.value = true;
     }
@@ -342,12 +437,11 @@ export class ScheduleGridField extends Component {
         const nonTeachingByCode = new Map(this.catalog.nonTeaching);
         const cells = [];
         for (const dayIndex of WEEKDAYS) {
-            for (let periodIndex = 0; periodIndex < this.periods.list.length; periodIndex++) {
-                const state = this.buffer[this._cellKey(dayIndex, periodIndex)];
+            for (const period of this.periods.list) {
+                const state = this.buffer[this._cellKey(dayIndex, period.id)];
                 if (!state || state.kind === "empty") {
                     continue;
                 }
-                const period = this.periods.list[periodIndex];
                 const cell = {
                     dayofweek: String(dayIndex),
                     hour_from: period.hour_from,

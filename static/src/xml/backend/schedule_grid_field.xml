@@ -66,10 +66,7 @@
                         <div class="o_schedule_grid_column" t-att-style="columnStyle()">
                             <t t-foreach="entriesForDay(day.index)" t-as="entry" t-key="entry.id">
                                 <div class="o_schedule_grid_entry"
-                                     t-att-class="{
-                                        'o_schedule_grid_entry_nonteaching': entry.data.non_teaching,
-                                        'o_schedule_grid_entry_blank': entryIsBlank(entry),
-                                     }"
+                                     t-att-class="entry.data.non_teaching ? 'o_schedule_grid_entry_nonteaching' : ''"
                                      t-att-style="entryStyle(entry)"
                                      t-att-title="entryTime(entry) + ' ' + entryLabel(entry)">
                                     <span class="o_schedule_grid_entry_time" t-esc="entryTime(entry)"/>
@@ -88,18 +85,34 @@
                     </t>
 
                     <div class="o_schedule_grid_axis">
-                        <t t-foreach="periods.list" t-as="period" t-key="period_index">
-                            <div class="o_schedule_grid_period_label" t-esc="periodLabel(period)"/>
+                        <t t-foreach="sortedPeriods" t-as="period" t-key="period.id">
+                            <div class="o_schedule_grid_period_label">
+                                <input type="time" class="o_schedule_grid_period_time"
+                                       t-att-value="hourToTimeInput(period.hour_from)"
+                                       t-on-change="(ev) => this.onPeriodTimeChange(period.id, 'hour_from', ev)"/>
+                                <span class="mx-1">–</span>
+                                <input type="time" class="o_schedule_grid_period_time"
+                                       t-att-value="hourToTimeInput(period.hour_to)"
+                                       t-on-change="(ev) => this.onPeriodTimeChange(period.id, 'hour_to', ev)"/>
+                                <button type="button" class="btn btn-sm o_schedule_grid_period_remove"
+                                        title="Remove period" t-on-click="() => this.removePeriod(period.id)">
+                                    <i class="fa fa-trash-o"/>
+                                </button>
+                            </div>
                         </t>
+                        <button type="button" class="btn btn-sm btn-link o_schedule_grid_add_period"
+                                t-on-click="() => this.addPeriod()">
+                            <i class="fa fa-plus me-1"/>Add period
+                        </button>
                     </div>
 
                     <t t-foreach="days" t-as="day" t-key="day.index">
                         <div class="o_schedule_grid_edit_column">
-                            <t t-foreach="periods.list" t-as="period" t-key="period_index">
-                                <t t-set="state" t-value="cellState(day.index, period_index)"/>
+                            <t t-foreach="sortedPeriods" t-as="period" t-key="period.id">
+                                <t t-set="state" t-value="cellState(day.index, period.id)"/>
                                 <div class="o_schedule_grid_edit_cell">
                                     <select class="o_schedule_grid_select o_schedule_grid_select_subject"
-                                            t-on-change="(ev) => this.onSubjectChange(day.index, period_index, ev)">
+                                            t-on-change="(ev) => this.onSubjectChange(day.index, period.id, ev)">
                                         <option value="" t-att-selected="subjectSelectValue(state) === ''">—</option>
                                         <optgroup label="Non-teaching">
                                             <t t-foreach="catalog.nonTeaching" t-as="item" t-key="item[0]">
@@ -116,7 +129,7 @@
                                     </select>
                                     <select class="o_schedule_grid_select o_schedule_grid_select_group"
                                             t-att-disabled="state.kind !== 'subject'"
-                                            t-on-change="(ev) => this.onGroupChange(day.index, period_index, ev)">
+                                            t-on-change="(ev) => this.onGroupChange(day.index, period.id, ev)">
                                         <option value="" t-att-selected="!state.groupId">—</option>
                                         <t t-foreach="catalog.groups" t-as="group" t-key="group.id">
                                             <option t-att-value="group.id" t-esc="group.display_name"

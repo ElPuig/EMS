@@ -13,28 +13,33 @@ class ems_working_schedule(models.Model):
 
 	is_framework = fields.Boolean(string="Schedule framework", help="A reusable blank period template for a level of studies, instead of a real teacher's schedule.")
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level")
+	# NOTE: the calendar this teacher's schedule was originally built from. Unassigned periods are
+	# never stored as real attendance rows (see apply_schedule_changes) — this reference is what lets
+	# the 'Schedule' tab's grid widget keep showing the framework's blank slots (and its own patio/
+	# meeting periods) as editable/inherited on every future "Edit", without persisting them.
+	source_framework_id = fields.Many2one(string="Source framework", comodel_name="resource.calendar", domain="[('is_framework', '=', True)]")
 
 	def seed_from_framework(self, framework):
-		"""Replace this calendar's weekday (Mon-Fri) attendances with blank copies of 'framework's
-		periods (same dayofweek/hour_from/hour_to/day_period, no subject/group/non_teaching), so a new
-		or reset schedule keeps the level's exact period times instead of falling back to generic hours."""
+		"""Point this calendar at 'framework' as its reference bell schedule and clear any existing
+		weekday (Mon-Fri) attendances. The framework's own periods (including patio/meeting slots)
+		only become real rows the first time the 'Schedule' tab actually saves them — nothing is
+		written here, matching the rule that unassigned slots are never stored."""
 		self.ensure_one()
 		self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4')).unlink()
-		self.write({'attendance_ids': [(0, 0, {
-			'name': "Free",
-			'dayofweek': period.dayofweek,
-			'hour_from': period.hour_from,
-			'hour_to': period.hour_to,
-			'day_period': period.day_period,
-		}) for period in framework.attendance_ids]})
+		self.source_framework_id = framework.id
 
-	def apply_schedule_changes(self, cells):
+	def apply_schedule_changes(self, cells, source_framework_id=None):
 		"""Replace this calendar's weekday (Mon-Fri) attendances with 'cells' (called from the
-		'Schedule' tab's grid widget, whose buffer already represents the full weekly state), then
-		re-derive the teacher's 'teaching_ids' from the same cells so both stay in sync."""
+		'Schedule' tab's grid widget, whose buffer already represents the full weekly state — unassigned
+		slots are never included, only real subject/non-teaching entries), then re-derive the teacher's
+		'teaching_ids' from the same cells so both stay in sync. 'source_framework_id' is only passed
+		when "New" picked a different reference framework (directly, or inherited by copying a
+		colleague), so future edits keep showing the right blank slots."""
 		self.ensure_one()
 		self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4')).unlink()
 		self.write({'attendance_ids': [(0, 0, cell) for cell in cells]})
+		if source_framework_id:
+			self.source_framework_id = source_framework_id
 
 		teacher = self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
 		if teacher:

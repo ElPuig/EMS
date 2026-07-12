@@ -10,6 +10,7 @@ const PX_PER_HOUR = 48;
 const DEFAULT_START = 8;
 const DEFAULT_END = 20;
 const WEEKDAYS = [0, 1, 2, 3, 4];
+const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids"];
 
 function dayLabels() {
     return [_t("Monday"), _t("Tuesday"), _t("Wednesday"), _t("Thursday"), _t("Friday")];
@@ -25,13 +26,14 @@ function dayLabels() {
 //   - "New": seed the buffer from either a blank schedule framework (a level's period times, still
 //     unassigned) or another teacher's current schedule (handy for substitutions) — replacing the whole
 //     buffer, but only written to the server on "Save".
-// Saving replaces the whole weekday schedule in one server call (which also re-derives 'teaching_ids'
-// and 'ems.attendance_template' from it), so the buffer is always the single source of truth for what
-// gets written. Edit mode's rows are the DISTINCT real periods found in whatever was loaded (own
-// schedule, a framework, a colleague's schedule) — not fixed hourly slots — so saving always writes the
-// exact (possibly non-hour-aligned) hour_from/hour_to of that period, never a rounded one. A cell with
-// no subject/non-teaching but backed by a real source row ('blank') is still written as a placeholder
-// period instead of being dropped like a truly empty cell.
+// Unassigned slots are NEVER stored as real attendance rows — only what the teacher actually teaches
+// (or a real non-teaching commitment, e.g. patio/meeting) gets written. So the blank/gap structure the
+// grid shows while editing comes from TWO merged sources: the calendar's reference framework
+// ('source_framework_id', fetched live every time — its periods, including its own patio/meeting rows,
+// seed the buffer as a baseline) and the teacher's own real saved entries (which always win over that
+// baseline for the same day+period, and can add entirely new periods the framework never had). Saving
+// always writes the exact (possibly non-hour-aligned) hour_from/hour_to of each real period, never a
+// rounded one, and records which framework was used so the next "Edit" keeps showing the right gaps.
 export class ScheduleGridField extends Component {
     static template = "ems.ScheduleGridField";
     static props = { ...standardFieldProps };
@@ -44,6 +46,7 @@ export class ScheduleGridField extends Component {
         this.dirty = useState({ value: false });
         this.periods = useState({ list: [] });
         this._nextPeriodId = 1;
+        this._pendingSourceFrameworkId = false;
         this.newPanel = useState({ open: false, value: "", frameworks: [], teachers: [] });
         this.catalog = useState({ subjects: [], groups: [], nonTeaching: [] });
         onWillStart(async () => {
@@ -101,9 +104,8 @@ export class ScheduleGridField extends Component {
 
     // ── View mode (read-only visual blocks) ──────────────────────────────────
 
-    // Blank/unassigned periods (patio, still-unassigned template slots...) are kept as real rows so
-    // the exact times survive for the next edit, but are not worth a visible "Free" block here — the
-    // row/gap structure already makes it clear something is expected there.
+    // Blank/unassigned periods are never saved (see the class comment), so in practice every real
+    // entry here already has a subject or a non-teaching reason — this filter is just a safety net.
     entriesForDay(dayIndex) {
         return this.entries.filter((entry) => Number(entry.data.dayofweek) === dayIndex && !this.entryIsBlank(entry));
     }
@@ -193,8 +195,8 @@ export class ScheduleGridField extends Component {
         };
     }
 
-    // A real attendance row with no subject/non-teaching is a 'blank' (still-unassigned) period, not an
-    // 'empty' cell — it must stay written on save so its exact (possibly non-hour-aligned) time survives.
+    // A framework/baseline row with no subject/non-teaching is a 'blank' (still-unassigned) period —
+    // shown so the admin can fill it in, but never written on save (see the class comment).
     _stateFromNormalized(norm) {
         if (norm.non_teaching) {
             return { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: norm.non_teaching };
@@ -205,36 +207,46 @@ export class ScheduleGridField extends Component {
         return { kind: "blank", subjectId: false, groupId: false, nonTeaching: false };
     }
 
-    // Rebuilds the whole buffer from a list of raw entries (own current entries, a framework's periods,
-    // or another teacher's schedule). The edit grid's rows are the DISTINCT (hour_from, hour_to) pairs
-    // found across every entry (any weekday) — a school's bell schedule is one fixed set of periods
-    // repeated each day, with some days skipping or adding one (e.g. a Wednesday-only meeting) — so this
-    // naturally reproduces the real timetable instead of an hour-rounded approximation.
-    _seedBufferFromEntries(rawEntries) {
-        const normalized = rawEntries.map((raw) => this._normalizeEntry(raw)).filter((n) => WEEKDAYS.includes(n.dayofweek));
+    // Rebuilds the whole buffer by merging a baseline (a reference framework's own periods — some
+    // blank, some real non-teaching commitments like patio/meetings) with the teacher's real saved
+    // entries, which always win for the same day+period and can introduce entirely new periods the
+    // baseline never had (e.g. a custom "Add period" block from a previous save). The edit grid's rows
+    // are the DISTINCT (hour_from, hour_to) pairs found across everything (any weekday) — a school's
+    // bell schedule is one fixed set of periods repeated each day, with some days skipping or adding
+    // one (e.g. a Wednesday-only meeting) — so this naturally reproduces the real timetable instead of
+    // an hour-rounded approximation.
+    _seedBufferFromEntries(baselineEntries, realEntries = []) {
+        const baseline = baselineEntries.map((raw) => this._normalizeEntry(raw)).filter((n) => WEEKDAYS.includes(n.dayofweek));
+        const real = realEntries.map((raw) => this._normalizeEntry(raw)).filter((n) => WEEKDAYS.includes(n.dayofweek));
 
         this._nextPeriodId = 1;
         const periodKey = (n) => `${n.hour_from}_${n.hour_to}`;
         const periodIdByKey = new Map();
         const periods = [];
-        for (const n of normalized) {
+        const ensurePeriod = (n) => {
             const key = periodKey(n);
             if (!periodIdByKey.has(key)) {
                 const id = this._nextPeriodId++;
                 periodIdByKey.set(key, id);
                 periods.push({ id, hour_from: n.hour_from, hour_to: n.hour_to });
             }
-        }
+            return periodIdByKey.get(key);
+        };
 
         const buffer = {};
+        for (const n of baseline) {
+            buffer[this._cellKey(n.dayofweek, ensurePeriod(n))] = this._stateFromNormalized(n);
+        }
+        for (const n of real) {
+            buffer[this._cellKey(n.dayofweek, ensurePeriod(n))] = this._stateFromNormalized(n);
+        }
         for (const dayIndex of WEEKDAYS) {
             for (const period of periods) {
-                buffer[this._cellKey(dayIndex, period.id)] = this._emptyCell();
+                const key = this._cellKey(dayIndex, period.id);
+                if (!(key in buffer)) {
+                    buffer[key] = this._emptyCell();
+                }
             }
-        }
-        for (const n of normalized) {
-            const periodId = periodIdByKey.get(periodKey(n));
-            buffer[this._cellKey(n.dayofweek, periodId)] = this._stateFromNormalized(n);
         }
 
         for (const key of Object.keys(this.buffer)) {
@@ -242,6 +254,18 @@ export class ScheduleGridField extends Component {
         }
         Object.assign(this.buffer, buffer);
         this.periods.list = periods;
+    }
+
+    async _fetchFrameworkAttendances(frameworkId) {
+        if (!frameworkId) {
+            return [];
+        }
+        return this.orm.searchRead("resource.calendar.attendance", [["calendar_id", "=", frameworkId]], ATTENDANCE_FIELDS);
+    }
+
+    async _readSourceFrameworkId(calendarId) {
+        const [record] = await this.orm.read("resource.calendar", [calendarId], ["source_framework_id"]);
+        return record.source_framework_id ? record.source_framework_id[0] : false;
     }
 
     // Lets the admin build a period the loaded source didn't have (e.g. a teacher mixing two levels'
@@ -276,46 +300,22 @@ export class ScheduleGridField extends Component {
         const value = this._timeToHour(ev.target.value);
         if (field === "hour_from") {
             // Moving the start moves the whole block, keeping its original duration — otherwise
-            // dragging the start later/earlier while the end stays put can silently balloon the
-            // block into one spanning most of the day, overlapping (and auto-clearing) everything.
+            // dragging the start later/earlier while the end stays put can silently balloon the block
+            // into one spanning most of the day.
             const duration = period.hour_to - period.hour_from;
             period.hour_from = value;
             period.hour_to = value + duration;
         } else {
             period.hour_to = value;
         }
-        for (const dayIndex of WEEKDAYS) {
-            this._clearOverlappingCells(dayIndex, periodId);
-        }
         this.dirty.value = true;
     }
 
-    // A period that looks empty in the grid can still be a real row inherited from whatever was
-    // loaded (a framework's own hourly blocks, a colleague's schedule...) — assigning a genuinely
-    // different time elsewhere on the same day must not silently leave that old row in place, or
-    // saving fails server-side with "Attendances can't overlap" for a conflict the admin never saw.
-    _periodsOverlap(a, b) {
-        return a.hour_from < b.hour_to && b.hour_from < a.hour_to;
-    }
-
-    _clearOverlappingCells(dayIndex, periodId) {
-        const period = this.periods.list.find((p) => p.id === periodId);
-        if (!period) {
-            return;
-        }
-        for (const other of this.periods.list) {
-            if (other.id === periodId || !this._periodsOverlap(period, other)) {
-                continue;
-            }
-            const key = this._cellKey(dayIndex, other.id);
-            if (this.buffer[key] && this.buffer[key].kind !== "empty") {
-                this.buffer[key] = this._emptyCell();
-            }
-        }
-    }
-
-    startEdit() {
-        this._seedBufferFromEntries(this.entries);
+    async startEdit() {
+        const frameworkId = this.calendarId ? await this._readSourceFrameworkId(this.calendarId) : false;
+        const baseline = await this._fetchFrameworkAttendances(frameworkId);
+        this._seedBufferFromEntries(baseline, this.entries);
+        this._pendingSourceFrameworkId = frameworkId;
         this.dirty.value = false;
         this.editing.value = true;
     }
@@ -335,11 +335,9 @@ export class ScheduleGridField extends Component {
         const value = ev.target.value;
         if (value.startsWith("n_")) {
             this.buffer[key] = { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: value.slice(2) };
-            this._clearOverlappingCells(dayIndex, periodId);
         } else if (value.startsWith("s_")) {
             const previous = this.cellState(dayIndex, periodId);
             this.buffer[key] = { kind: "subject", subjectId: Number(value.slice(2)), groupId: previous.groupId, nonTeaching: false };
-            this._clearOverlappingCells(dayIndex, periodId);
         } else {
             this.buffer[key] = this._emptyCell();
         }
@@ -413,14 +411,19 @@ export class ScheduleGridField extends Component {
         if (!this.newPanel.value) {
             return;
         }
+        const kind = this.newPanel.value[0];
         const calendarId = Number(this.newPanel.value.slice(2));
         this.newPanel.open = false;
-        const rawEntries = await this.orm.searchRead(
-            "resource.calendar.attendance",
-            [["calendar_id", "=", calendarId]],
-            ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids"]
-        );
-        this._seedBufferFromEntries(rawEntries);
+
+        // A framework IS the reference (its own periods become the baseline, nothing pre-assigned
+        // yet); copying a colleague uses THEIR reference framework as the baseline and their real
+        // schedule as the overlay, so the substitute inherits the same future blank slots too.
+        let frameworkId = kind === "f" ? calendarId : await this._readSourceFrameworkId(calendarId);
+        const realEntries = kind === "c" ? await this._fetchFrameworkAttendances(calendarId) : [];
+        const baseline = await this._fetchFrameworkAttendances(frameworkId);
+
+        this._seedBufferFromEntries(baseline, realEntries);
+        this._pendingSourceFrameworkId = frameworkId;
         this.dirty.value = true;
         this.editing.value = true;
     }
@@ -439,7 +442,9 @@ export class ScheduleGridField extends Component {
         for (const dayIndex of WEEKDAYS) {
             for (const period of this.periods.list) {
                 const state = this.buffer[this._cellKey(dayIndex, period.id)];
-                if (!state || state.kind === "empty") {
+                // Blank/unassigned slots are never written — only a real subject or non-teaching
+                // commitment is (see the class comment).
+                if (!state || state.kind === "empty" || state.kind === "blank") {
                     continue;
                 }
                 const cell = {
@@ -455,15 +460,13 @@ export class ScheduleGridField extends Component {
                 } else if (state.kind === "non_teaching") {
                     cell.non_teaching = state.nonTeaching;
                     cell.name = nonTeachingByCode.get(state.nonTeaching) || state.nonTeaching;
-                } else if (state.kind === "blank") {
-                    cell.name = "Free";
                 } else {
                     continue; // a subject was picked but no group yet: skip until both are set
                 }
                 cells.push(cell);
             }
         }
-        await this.orm.call("resource.calendar", "apply_schedule_changes", [[this.calendarId], cells]);
+        await this.orm.call("resource.calendar", "apply_schedule_changes", [[this.calendarId], cells, this._pendingSourceFrameworkId || false]);
         await this.props.record.load();
         this.editing.value = false;
         this.dirty.value = false;

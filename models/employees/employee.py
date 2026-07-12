@@ -158,6 +158,22 @@ class ems_employee(models.AbstractModel):
             employee.resource_calendar_id = schedule
         return employees
 
+    def unlink(self):
+        # NOTE: every teacher has their OWN personal calendar (never a shared or framework one — see
+        # create() above), so it has no purpose once the employee is gone. Deleting it also cascades to
+        # its attendance lines. Re-check after unlink in case two employees ever ended up pointing at
+        # the same calendar, and never touch a framework or a company's own base calendar.
+        calendars = self.resource_calendar_id.filtered(lambda calendar: not calendar.is_framework)
+        result = super().unlink()
+        if calendars:
+            company_calendar_ids = self.env['res.company'].sudo().search([]).resource_calendar_id.ids
+            still_used = self.env['hr.employee'].with_context(active_test=False).search(
+                [('resource_calendar_id', 'in', calendars.ids)]
+            ).resource_calendar_id
+            orphaned = (calendars - still_used).filtered(lambda calendar: calendar.id not in company_calendar_ids)
+            orphaned.unlink()
+        return result
+
     def find_head_of_studies(self):
         # NOTE: role_hos/role_dhos both map to the same global group_head_of_studies
         # (no per-employee hierarchy field), so this walks parent_id looking for the

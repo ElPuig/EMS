@@ -9,6 +9,9 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # The wizard requires a "current course" (company.current_course_id) to be set.
+        if not cls.env.company.current_course_id:
+            cls.env.company.current_course_id = cls.env['ems.course'].create({'start': 2098, 'end': 2099})
         cls.teacher = cls.env['hr.employee'].create({
             'name': 'Test Wizard Teacher (Import Wizard)',
             'employee_type': 'teacher',

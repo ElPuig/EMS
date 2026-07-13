@@ -25,6 +25,9 @@
                     <p style="color:#b00;"><strong>Important:</strong> for security reasons, you will be
                        required to change the password on your first login.</p>
                     <p>You can sign in at <a href="https://mail.google.com/a/elpuig.xeill.net/">mail.google.com</a>.</p>
+                    <p>You can also access the school management platform (EMS) at
+                       <a t-att-href="object.get_base_url()"><t t-out="object.get_base_url()"/></a>:
+                       use the <strong>Sign in with Google</strong> button with this same corporate account.</p>
                     <p>Best regards,<br/>School Secretariat</p>
                 </div>
             </field>

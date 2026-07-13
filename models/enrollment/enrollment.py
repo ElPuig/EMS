@@ -255,33 +255,37 @@ class ems_SaleOrder(models.Model):
                 order.message_unsubscribe(partner_ids=teacher_partner_ids)
 
     def _ems_schedule_comment_review_activities(self):
-        """Schedule a review to-do for each secretary when a student/family
+        """Schedule a review to-do for each configured reviewer when a student/family
         comments from the portal. The activity shows up in their systray and in
         "view all activities". Skips orders that already have a pending one so
         repeated comments don't pile up tasks.
 
-        No email is sent to the secretaries: the systray task is their only
+        Recipients come from Academic Management > Configuration > Task Assignment,
+        not from a security group: who handles enrollments is a matter of
+        organisation, not of access rights.
+
+        No email is sent to the reviewers: the systray task is their only
         notice. We use ``mail_activity_quick_update`` to skip the assignment
         email, and unsubscribe them afterwards because scheduling an activity
         auto-subscribes the assignee (which would forward them the comments)."""
         comment_type = self.env.ref('ems.mail_activity_enrollment_comment')
-        secretaries = self.env.ref('ems.group_secretary').users
-        secretary_partner_ids = secretaries.mapped('partner_id').ids
+        reviewers = comment_type._ems_task_users()
+        reviewer_partner_ids = reviewers.mapped('partner_id').ids
         for order in self:
             pending = order.activity_ids.filtered(
                 lambda a: a.activity_type_id == comment_type
             )
             if not pending:
-                for user in secretaries:
+                for user in reviewers:
                     order.with_context(mail_activity_quick_update=True).activity_schedule(
                         act_type_xmlid='ems.mail_activity_enrollment_comment',
                         summary='Review enrollment comment: %s' % order.name,
                         user_id=user.id,
                     )
-            # Always keep secretaries out of the followers (activity creation
+            # Always keep reviewers out of the followers (activity creation
             # auto-subscribes the assignee), so the comment doesn't email them.
-            if secretary_partner_ids:
-                order.message_unsubscribe(partner_ids=secretary_partner_ids)
+            if reviewer_partner_ids:
+                order.message_unsubscribe(partner_ids=reviewer_partner_ids)
 
     def _thread_to_store(self, store, /, *, fields=None, request_list=None):
         """In the chatter, show each user only their OWN enrollment-comment

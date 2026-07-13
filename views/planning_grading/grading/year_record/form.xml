@@ -1,0 +1,101 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_year_record_form">
+            <field name="name">ems.student.year_record.form</field>
+            <field name="model">ems.student.year_record</field>
+            <field name="arch" type="xml">
+                <form create="0">
+                    <sheet>
+                        <group cols="2">
+                            <group>
+                                <field name="student_id" readonly="1"/>
+                                <field name="course_id" readonly="1"/>
+                                <field name="study_name" readonly="1"/>
+                                <field name="level_name" readonly="1"/>
+                                <field name="group_name" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="tutor_name" readonly="1"/>
+                                <field name="shift" readonly="1"/>
+                                <field name="attendance_rate" readonly="1"/>
+                                <field name="attendance_issue_count" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="academic_result"/>
+                                <field name="title_obtained"/>
+                            </group>
+                            <group>
+                                <field name="exit_type" readonly="1"/>
+                                <field name="exit_date" readonly="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="subjects" string="Subjects">
+                                <field name="subject_record_ids" readonly="1">
+                                    <list decoration-danger="state == 'failed'">
+                                        <field name="subject_name"/>
+                                        <field name="state" widget="badge"
+                                               decoration-success="state == 'passed'"
+                                               decoration-danger="state == 'failed'"/>
+                                        <field name="internal_grade"/>
+                                        <field name="external_grade" optional="show"/>
+                                        <field name="final_grade"/>
+                                        <field name="final_pending" optional="show"/>
+                                        <field name="internal_weight" optional="hide"/>
+                                        <field name="external_weight" optional="hide"/>
+                                        <field name="attendance_rate" optional="hide"/>
+                                        <field name="is_overridden" optional="hide"/>
+                                        <field name="notes" optional="hide"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_year_record_subject_form">
+            <field name="name">ems.student.year_record.subject.form</field>
+            <field name="model">ems.student.year_record.subject</field>
+            <field name="arch" type="xml">
+                <form create="0">
+                    <sheet>
+                        <group cols="2">
+                            <group>
+                                <field name="subject_name" readonly="1"/>
+                                <field name="state" readonly="1"/>
+                                <field name="final_pending" readonly="1"/>
+                                <field name="attendance_rate" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="internal_grade" readonly="1"/>
+                                <field name="internal_weight" readonly="1"/>
+                                <field name="external_grade" readonly="1"/>
+                                <field name="external_weight" readonly="1"/>
+                                <field name="external_is_scored" readonly="1"/>
+                                <field name="final_grade" readonly="1"/>
+                                <field name="has_final" readonly="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="notes" readonly="1"/>
+                        </group>
+                        <field name="outcome_record_ids" readonly="1">
+                            <list>
+                                <field name="outcome_name"/>
+                                <field name="weight"/>
+                                <field name="round1_score"/>
+                                <field name="round2_score"/>
+                                <field name="round3_score" optional="show"/>
+                                <field name="round4_score" optional="hide"/>
+                                <field name="final_score"/>
+                                <field name="final_is_scored" optional="hide"/>
+                            </list>
+                        </field>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

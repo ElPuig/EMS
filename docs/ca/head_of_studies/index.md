@@ -10,6 +10,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 
 ## Manuals disponibles
 
+- [Històric acadèmic: consultes de cohort](academic-history.md)
 - [Decidir sobre sol·licituds de correcció de fitxatges](attendance-corrections.md)
 - [Strikes: menú Convivència i correus d'escalat](strike.md)
 

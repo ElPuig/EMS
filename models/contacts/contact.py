@@ -132,6 +132,10 @@ class ems_contact(models.Model):
     exit_course_id = fields.Many2one('ems.course', string="Exit course")
     exit_date = fields.Date(string="Exit date")
     exit_reason = fields.Text(string="Exit reason")
+    # Academic history: one frozen record per course (see models/grades/year_record.py).
+    year_record_ids = fields.One2many(string="Academic history",
+                                      comodel_name='ems.student.year_record',
+                                      inverse_name='student_id')
     # Derived transition state (not stored). Consumed by the "no destination" report.
     transition_status = fields.Selection([
         ('enrolled', 'Enrolled next course'),

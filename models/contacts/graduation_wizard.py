@@ -199,6 +199,13 @@ class EmsWithdrawalWizard(models.TransientModel):
                 ('state', 'in', ['draft', 'sent'])])
             if orders:
                 orders.sudo()._action_cancel()
+            # Freeze the academic history NOW, while the student still has its
+            # group: the transition wizard captures by main_group_id, so without
+            # this a mid-course withdrawal would never get a year record. Sudo:
+            # the generator reads grade/attendance models the secretary cannot.
+            if course:
+                self.env['ems.student.year_record'].sudo().generate_for_students(
+                    student, course)
             # Convert to alumni/withdrawal (clears group/level/study).
             student._ems_convert_to_ex_student()
             # Revoke portal access (student + families without other enrolled child).

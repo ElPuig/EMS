@@ -168,6 +168,10 @@
             'views/planning_grading/grading/menu.xml',
             'views/planning_grading/grading/wizard.xml',
             'views/planning_grading/grading/import_wizard.xml',
+            'views/planning_grading/grading/year_record/list.xml',
+            'views/planning_grading/grading/year_record/form.xml',
+            'views/planning_grading/grading/year_record/search.xml',
+            'views/planning_grading/grading/year_record/menu.xml',
 
             'views/communications/menu.xml',
 

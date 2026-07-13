@@ -12,6 +12,7 @@ Aquesta secció conté els manuals per als **tutors de grup**.
 
 | Manual | Descripció |
 |--------|------------|
+| [Històric acadèmic del vostre alumnat](academic-history.md) | Consultar el registre permanent per curs dels vostres tutoritzats: mòduls, notes per RA i assistència |
 | [Junta d'avaluació: revisar les qualificacions per alumne](junta-avaluacio.md) | Revisar i ajustar les qualificacions de cada alumne del grup, assignatura per assignatura, per a la junta d'avaluació |
 | [Com generar propostes de matrícula](propostes-matricula.md) | Proposar la matrícula del curs següent per als alumnes aprovats, incloses les matrícules especials |
 | [Com gestionar l'accés al portal](acces-portal.md) | Donar d'alta, donar de baixa o reenviar les invitacions d'accés al portal per a alumnes i famílies |

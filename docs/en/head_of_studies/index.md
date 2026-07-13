@@ -10,6 +10,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 
 ## Available Manuals
 
+- [Academic history: cohort queries](academic-history.md)
 - [Deciding on Attendance Correction Requests](attendance-corrections.md)
 - [Strikes: Convivencia Menu and Escalation Emails](strike.md)
 

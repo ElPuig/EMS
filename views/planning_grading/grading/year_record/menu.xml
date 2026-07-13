@@ -1,0 +1,16 @@
+<odoo>
+    <data>
+        <!-- Standalone cohort queries for secretary / management. Tutors reach the
+             history through the student form tab instead. -->
+        <record model="ir.actions.act_window" id="action_year_record_list">
+            <field name="name">Academic history</field>
+            <field name="res_model">ems.student.year_record</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_group_by_course': 1}</field>
+        </record>
+
+        <menuitem name="Academic history" sequence="4" id="menu_year_record"
+                  parent="menu_grades" action="action_year_record_list"
+                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
+    </data>
+</odoo>

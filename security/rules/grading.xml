@@ -102,4 +102,107 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/>
     </record>
+
+    <!-- ems.student.year_record (and its subject/outcome children): the academic
+         history is readable by the tutor of the student's current group, by Head of
+         Studies / Director (read all) and fully manageable by the admin. Secretary
+         has no rule (unrestricted at ACL level: read/write/create, no unlink). -->
+    <record id="rule_year_record_admin" model="ir.rule">
+        <field name="name">Year record: all data</field>
+        <field name="model_id" ref="ems.model_ems_student_year_record"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_year_record_head_of_studies" model="ir.rule">
+        <field name="name">Year record: all data (read)</field>
+        <field name="model_id" ref="ems.model_ems_student_year_record"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_year_record_tutor" model="ir.rule">
+        <field name="name">Year record: tutored students</field>
+        <field name="model_id" ref="ems.model_ems_student_year_record"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('student_id.main_group_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_year_record_subject_admin" model="ir.rule">
+        <field name="name">Year record subject: all data</field>
+        <field name="model_id" ref="ems.model_ems_student_year_record_subject"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_year_record_subject_head_of_studies" model="ir.rule">
+        <field name="name">Year record subject: all data (read)</field>
+        <field name="model_id" ref="ems.model_ems_student_year_record_subject"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_year_record_subject_tutor" model="ir.rule">
+        <field name="name">Year record subject: tutored students</field>
+        <field name="model_id" ref="ems.model_ems_student_year_record_subject"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('record_id.student_id.main_group_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_year_record_outcome_admin" model="ir.rule">
+        <field name="name">Year record outcome: all data</field>
+        <field name="model_id" ref="ems.model_ems_student_year_record_outcome"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_year_record_outcome_head_of_studies" model="ir.rule">
+        <field name="name">Year record outcome: all data (read)</field>
+        <field name="model_id" ref="ems.model_ems_student_year_record_outcome"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_year_record_outcome_tutor" model="ir.rule">
+        <field name="name">Year record outcome: tutored students</field>
+        <field name="model_id" ref="ems.model_ems_student_year_record_outcome"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('subject_record_id.record_id.student_id.main_group_id.tutor_id.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
 </odoo>

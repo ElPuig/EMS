@@ -255,8 +255,15 @@ class EmsStudentDocument(models.Model):
             ('partner_id', '=', student.id),
             ('acc_number', '=', iban),
         ], limit=1)
+        # allow_out_payment: the secretary has just validated the IBAN, so mark
+        # the account as trusted — otherwise posting a direct-debit invoice
+        # that references it is blocked (or the bank data silently dropped).
         if existing:
-            existing.write({'active': True, 'acc_holder_name': holder})
+            existing.write({
+                'active': True,
+                'acc_holder_name': holder,
+                'allow_out_payment': True,
+            })
             BankAccount.search([
                 ('partner_id', '=', student.id),
                 ('id', '!=', existing.id),
@@ -267,4 +274,5 @@ class EmsStudentDocument(models.Model):
                 'acc_number': iban,
                 'partner_id': student.id,
                 'acc_holder_name': holder,
+                'allow_out_payment': True,
             })

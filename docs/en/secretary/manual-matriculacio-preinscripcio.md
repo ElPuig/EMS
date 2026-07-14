@@ -164,8 +164,15 @@ When a student's fee **bonification or exemption** document is approved, the dis
 If the student was entitled to the benefit but uploaded it and it was approved **after** confirming the enrollment, it must be applied explicitly:
 
 1. Open the student's confirmed enrollment.
-2. Click the **Re-apply Benefits** button in the header and confirm the warning.
-3. The system cancels the issued invoice, recomputes the fee lines with the student's current benefit status and generates and posts a new invoice. The operation is logged in the enrollment chatter.
+2. Click the **Re-apply Benefits** button **(1)** in the header.
+
+![Re-apply Benefits button on the confirmed enrollment](../../assets/secretary/preinscrpcio-Secretaria-10.png)
+
+3. Confirm the warning by clicking **Ok**.
+
+![Re-apply benefits confirmation dialog](../../assets/secretary/preinscrpcio-Secretaria-11.png)
+
+4. The system cancels the issued invoice, recomputes the fee lines with the student's current benefit status and generates and posts a new invoice. The operation is logged in the enrollment chatter.
 
 > If the invoice already has **payments registered**, the button is blocked with an error: in that case a **credit note** must be issued manually from Accounting.
 

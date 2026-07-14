@@ -736,6 +736,12 @@ class ems_SaleOrder(models.Model):
         if order.ems_payment_method == 'direct_debit':
             bank = order.partner_id.bank_ids[:1]
             if bank:
+                # Accounts predating the document-approval flow (e.g. CSV
+                # imports) may not be trusted yet: without allow_out_payment,
+                # posting raises for regular users and silently drops the
+                # bank data for the superuser (portal confirmation).
+                if not bank.allow_out_payment:
+                    bank.sudo().allow_out_payment = True
                 vals['partner_bank_id'] = bank.id
 
         inv.write(vals)

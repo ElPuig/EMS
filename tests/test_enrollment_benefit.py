@@ -173,6 +173,22 @@ class TestEnrollmentBenefit(TransactionCase):
         self.assertEqual(fee.discount, 100.0)
         self.assertEqual(fee.price_subtotal, 0.0)
 
+    def test_direct_debit_invoice_trusts_bank_account(self):
+        # An untrusted debtor account must not block posting (regular user)
+        # nor be silently dropped from the invoice (superuser).
+        bank = self.env['res.partner.bank'].create({
+            'acc_number': 'ES9121000418450200051332',
+            'partner_id': self.student.id,
+        })
+        self.assertFalse(bank.allow_out_payment)
+        order = self._order()
+        order.write({'state': 'sale', 'ems_payment_method': 'direct_debit'})
+        self.env.flush_all()
+
+        invoice = order._ems_generate_enrollment_invoice()
+        self.assertEqual(invoice.partner_bank_id, bank)
+        self.assertTrue(bank.allow_out_payment)
+
     def test_reapply_requires_confirmed_order(self):
         order = self._order()
         with self.assertRaises(ValidationError):

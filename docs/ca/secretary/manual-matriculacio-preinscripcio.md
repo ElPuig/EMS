@@ -164,8 +164,15 @@ Quan s'aprova un document de **bonificació o exempció** de taxes d'un alumne, 
 Si l'alumne tenia dret al benefici però l'ha pujat i s'ha aprovat **després** de confirmar la matrícula, cal aplicar-lo explícitament:
 
 1. Obriu la matrícula confirmada de l'alumne.
-2. Premeu el botó **Reaplicar beneficis** de la capçalera i confirmeu l'avís.
-3. El sistema cancel·la la factura emesa, recalcula les línies de taxes amb l'estat de beneficis actual de l'alumne i genera i publica una factura nova. L'operació queda registrada al xat de la matrícula.
+2. Premeu el botó **Reaplicar beneficis** **(1)** de la capçalera.
+
+![Botó Reaplicar beneficis a la matrícula confirmada](../../assets/secretary/preinscrpcio-Secretaria-10.png)
+
+3. Confirmeu l'avís prement **Ok**.
+
+![Diàleg de confirmació de reaplicar beneficis](../../assets/secretary/preinscrpcio-Secretaria-11.png)
+
+4. El sistema cancel·la la factura emesa, recalcula les línies de taxes amb l'estat de beneficis actual de l'alumne i genera i publica una factura nova. L'operació queda registrada al xat de la matrícula.
 
 > Si la factura ja té **pagaments registrats**, el botó es bloqueja amb un error: en aquest cas cal emetre una **factura rectificativa** manualment des de Comptabilitat.
 

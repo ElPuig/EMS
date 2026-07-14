@@ -164,8 +164,15 @@ Cuando se aprueba un documento de **bonificación o exención** de tasas de un a
 Si el alumno tenía derecho al beneficio pero lo ha subido y se ha aprobado **después** de confirmar la matrícula, hay que aplicarlo explícitamente:
 
 1. Abrid la matrícula confirmada del alumno.
-2. Pulsad el botón **Reaplicar beneficios** de la cabecera y confirmad el aviso.
-3. El sistema cancela la factura emitida, recalcula las líneas de tasas con el estado de beneficios actual del alumno y genera y publica una factura nueva. La operación queda registrada en el chat de la matrícula.
+2. Pulsad el botón **Reaplicar beneficios** **(1)** de la cabecera.
+
+![Botón Reaplicar beneficios en la matrícula confirmada](../../assets/secretary/preinscrpcio-Secretaria-10.png)
+
+3. Confirmad el aviso pulsando **Ok**.
+
+![Diálogo de confirmación de reaplicar beneficios](../../assets/secretary/preinscrpcio-Secretaria-11.png)
+
+4. El sistema cancela la factura emitida, recalcula las líneas de tasas con el estado de beneficios actual del alumno y genera y publica una factura nueva. La operación queda registrada en el chat de la matrícula.
 
 > Si la factura ya tiene **pagos registrados**, el botón se bloquea con un error: en ese caso hay que emitir una **factura rectificativa** manualmente desde Contabilidad.
 

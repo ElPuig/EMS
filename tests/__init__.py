@@ -23,3 +23,4 @@ from . import test_ems_teaching_sync
 from . import test_employee_schedule_lifecycle
 from . import test_working_schedules_import_wizard
 from . import test_non_teaching_type
+from . import test_group

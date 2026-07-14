@@ -81,7 +81,7 @@ export class ScheduleGridField extends Component {
         return value ? value[0] : false;
     }
 
-    // Edit/Import/New require 'ems.group_head_of_department' or above (see hr.employee's
+    // Edit/Import/New require 'ems.group_department_chief' or above (see hr.employee's
     // 'can_edit_schedule' compute) — enforced server-side via ir.model.access.csv, this getter only
     // drives the toolbar's own visibility. 'PDF' is deliberately NOT gated by it: every role that
     // can already read a schedule may also export it.

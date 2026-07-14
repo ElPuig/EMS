@@ -34,3 +34,14 @@ def migrate(cr, _version):
     if cr.fetchone():
         cr.execute("ALTER TABLE ems_attendance_template RENAME COLUMN teacher_id TO teacher_id_legacy")
         _logger.info("Migration 18.0.0.21.0: renamed 'ems_attendance_template.teacher_id' to 'teacher_id_legacy' ahead of its Many2many conversion.")
+
+    # The 'group_head_of_department' res.groups XML ID is renamed to 'group_department_chief', to
+    # better reflect the role and because it now also grants write access to 'ems.group'. Renamed
+    # here, before the module's data files reload, so the data loader resolves the new XML ID against
+    # the existing record (same res.groups row, same users already assigned) instead of creating a
+    # disconnected new one.
+    cr.execute(
+        "UPDATE ir_model_data SET name = %s WHERE module = 'ems' AND name = %s",
+        ('group_department_chief', 'group_head_of_department'),
+    )
+    _logger.info("Migration 18.0.0.21.0: renamed XML ID 'group_head_of_department' → 'group_department_chief'.")

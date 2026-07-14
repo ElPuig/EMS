@@ -6,7 +6,7 @@
 
 Manage each teacher's weekly timetable from their own employee record, and set up the bell-schedule templates ("schedule frameworks") new teachers start from.
 
-**Required role:** Head of Department or above (Head of Department, Head of Studies, Director, Administrator) can edit schedules and use the import wizard; every other role can only view their own schedule, read-only, but everyone can export a schedule to PDF.
+**Required role:** Department Chief or above (Department Chief, Head of Studies, Director, Administrator) can edit schedules and use the import wizard; every other role can only view their own schedule, read-only, but everyone can export a schedule to PDF.
 
 ---
 
@@ -15,6 +15,7 @@ Manage each teacher's weekly timetable from their own employee record, and set u
 - **Schedule framework**: a reusable weekly bell-schedule template (periods, breaks, coordination meetings) for a level of studies — e.g. one framework for ESO, one for BTX, one shared by the vocational-training levels. Frameworks never carry real subject assignments.
 - **A teacher's schedule**: their own personal calendar, built from a framework and then filled in with their actual subjects/groups. It is never shared between two teachers.
 - **Default schedule framework**: the one framework automatically used to start every new teacher's schedule.
+- **Reinforcement group**: a class group that mixes students from different regular groups (and even different studies) for a specific reinforcement class — it has no tutor or delegate, but still appears in a teacher's schedule like any other group. See "Reinforcement Groups" below.
 
 ---
 
@@ -88,7 +89,7 @@ Nothing needs to be assigned yet — open their **Schedule** tab and use **Edit*
 Each block shows its exact start–end time, the subject/group or the non-teaching reason, and the classroom (taken from the group's own default classroom). Periods that are still unassigned simply show no block — the framework's structure (breaks, meetings) is what tells you a slot is expected there.
 
 Below the grid, a small summary table shows the teacher's total weekly hours in two columns:
-- **Weekly teaching hours**: one row per level of studies (e.g. CFGS, CFGM, ESO), plus any non-teaching activity not listed in the other column.
+- **Weekly teaching hours**: one row per level of studies (e.g. CFGS, CFGM, ESO), one row per reinforcement group taught (these don't belong to a single level), plus any non-teaching activity not listed in the other column.
 - **Other fixed-schedule hours**: guard duties (any day) and coordination meetings specifically on Wednesday.
 
 The break is never counted in either column. A period that only partially overlaps an hour still counts as a full hour. Each column shows its own total, followed by the overall total (24 hours for a full-time teacher). This summary always reflects the saved schedule, so it disappears while you're editing and reappears (updated) once you save.
@@ -141,6 +142,20 @@ Use this to reset a teacher onto a different framework (e.g. they now teach a di
 4. Adjust anything needed, then click **Save** to apply, or **Cancel** to discard and keep the teacher's previous schedule untouched.
 
 > **New** replaces the whole schedule — nothing from before is kept unless it also appears in what you just loaded. Cancelling before Save leaves everything exactly as it was.
+
+---
+
+## Reinforcement Groups
+
+A reinforcement group is a class **group** (the same "Groups" record a regular class group is) used for a support/reinforcement class that mixes students from different regular groups, and even different studies — e.g. a small maths reinforcement group with students pulled from three different first-year groups.
+
+1. Go to **Configuration → Students → Groups** and create a new one.
+2. Set its **Group type** to **Reinforcement**. This hides the Level/Study/Course/Acronym/Tutor/Delegate fields (a reinforcement group has none of these) and lets you type the group's **Name** directly — set it to exactly match whatever your external planner exports for this group, since the schedule importer matches by exact name.
+3. Set its **Classroom**, same as any other group — it's still required for the schedule to import correctly.
+4. On the **Students** tab, add the students who attend this reinforcement class, regardless of which regular group or study they belong to. This does **not** change each student's own main group.
+5. Save.
+
+Once created, a reinforcement group is used in a teacher's schedule exactly like any other group — assign it manually in the Schedule tab, or let the file importer resolve it by name.
 
 ---
 

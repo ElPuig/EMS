@@ -14,8 +14,10 @@ class ems_attendance_template(models.Model):
 	color = fields.Integer(string="Color", help="Field to store the color that will be used for calendar view")   
 
 	teacher_ids = fields.Many2many(string="Teachers", comodel_name="hr.employee", relation="ems_attendance_template_teacher_rel", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_ids())
-	level_id = fields.Many2one(string="Level", comodel_name="ems.level", required=True)
-	study_id = fields.Many2one(string="Study", comodel_name="ems.study", domain="[('level_id', '=', level_id)]", required=True)
+	# NOTE: not required — a reinforcement ems.group (group_type == 'reinforcement') has no level/study
+	# of its own, so a template built from one (see '_write_schedule_sync') leaves both False.
+	level_id = fields.Many2one(string="Level", comodel_name="ems.level")
+	study_id = fields.Many2one(string="Study", comodel_name="ems.study", domain="[('level_id', '=', level_id)]")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", domain="[('study_id', '=', study_id)]")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", domain="[('study_ids', 'in', study_id)]", required=True)
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)

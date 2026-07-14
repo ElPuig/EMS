@@ -15,6 +15,7 @@ Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat
 - **Marc horari**: una plantilla setmanal reutilitzable (franges, patis, reunions de coordinació) per a un nivell d'estudis — per exemple, un marc per a l'ESO, un altre per a BTX, un altre compartit pels cicles formatius. Els marcs mai porten assignatures reals assignades.
 - **Horari d'un docent**: el seu propi calendari personal, creat a partir d'un marc i després emplenat amb les seves assignatures/grups reals. Mai el comparteix amb un altre docent.
 - **Marc horari predeterminat**: el marc que s'utilitza automàticament per començar l'horari de qualsevol docent nou.
+- **Grup de reforç**: un grup d'alumnes que barreja estudiants de diferents grups habituals (i fins i tot de diferents estudis) per a una classe de reforç concreta — no té ni tutor ni delegat, però apareix a l'horari d'un docent com qualsevol altre grup. Vegeu "Grups de reforç" més avall.
 
 ---
 
@@ -88,7 +89,7 @@ Encara no cal assignar res — obre la seva pestanya **Horari** i fes servir **E
 Cada bloc mostra la seva hora exacta d'inici i fi, l'assignatura/grup o el motiu no lectiu, i l'aula (segons l'aula per defecte del grup). Les franges encara sense assignar simplement no mostren cap bloc — l'estructura del marc (patis, reunions) ja indica que s'hi espera alguna cosa.
 
 Sota la graella, una petita taula resum mostra el total d'hores setmanals del docent en dues columnes:
-- **Hores lectives setmanals**: una fila per nivell d'estudis (p. ex. CFGS, CFGM, ESO), més qualsevol activitat no lectiva que no aparegui a l'altra columna.
+- **Hores lectives setmanals**: una fila per nivell d'estudis (p. ex. CFGS, CFGM, ESO), una fila per cada grup de reforç impartit (aquests no pertanyen a un únic nivell), més qualsevol activitat no lectiva que no aparegui a l'altra columna.
 - **Altres hores en horari fix**: guàrdies (qualsevol dia) i reunions de coordinació específicament els dimecres.
 
 El pati mai es compta a cap de les dues columnes. Una franja que només se solapa parcialment amb una hora igualment compta com una hora completa. Cada columna mostra el seu propi total, seguit del total general (24 hores per a un docent a temps complet). Aquest resum sempre reflecteix l'horari desat, per la qual cosa desapareix mentre l'estàs editant i torna a aparèixer (actualitzat) un cop el desis.
@@ -141,6 +142,20 @@ Fes servir això per reiniciar un docent amb un marc diferent (p. ex. ara impart
 4. Ajusta el que calgui i fes clic a **Desa** per aplicar-ho, o a **Cancel·la** per descartar-ho i mantenir l'horari anterior del docent intacte.
 
 > **Nou** substitueix tot l'horari — res de l'anterior es conserva llevat que també aparegui en el que acabes de carregar. Cancel·lar abans de desar deixa tot exactament com estava.
+
+---
+
+## Grups de reforç
+
+Un grup de reforç és un **grup** d'alumnes (el mateix registre de "Grups" que un grup habitual) utilitzat per a una classe de reforç/suport que barreja alumnes de diferents grups habituals, i fins i tot de diferents estudis — p. ex. un petit grup de reforç de matemàtiques amb alumnes de tres grups de primer curs diferents.
+
+1. Vés a **Configuració → Alumnat → Grups** i crea'n un de nou.
+2. Estableix el seu **Tipus de grup** com a **Reforç**. Això amaga els camps Nivell/Estudi/Curs/Acrònim/Tutor/Delegat (un grup de reforç no en té cap) i et permet escriure directament el **Nom** del grup — fes que coincideixi exactament amb el que exporta el teu planificador extern per a aquest grup, ja que l'importador d'horaris el localitza per nom exacte.
+3. Estableix la seva **Aula**, igual que qualsevol altre grup — encara és necessària perquè l'horari s'importi correctament.
+4. A la pestanya **Alumnes**, afegeix els alumnes que assisteixen a aquesta classe de reforç, independentment del grup habitual o l'estudi al qual pertanyin. Això **no** canvia el grup principal de cap alumne.
+5. Desa.
+
+Un cop creat, un grup de reforç s'utilitza a l'horari d'un docent exactament igual que qualsevol altre grup — assigna'l manualment a la pestanya Horari, o deixa que l'importador de fitxers el localitzi pel nom.
 
 ---
 

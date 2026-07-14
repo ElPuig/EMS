@@ -69,6 +69,24 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'level_id': cls.level.id,
             'study_id': cls.study.id,
         })
+        # Reinforcement groups have no level/study/course of their own — the name is set manually to
+        # match whatever the external planner exports, since '_compute_name' only derives it for 'main'.
+        cls.reinforcement_group = cls.env['ems.group'].create({
+            'group_type': 'reinforcement',
+            'name': 'Reforç TWIW',
+            'space_id': cls.space.id,
+        })
+        # A study with a single course AND a single group: the planner exports just the bare study
+        # acronym ("TDEV"), omitting BOTH the course number and the trailing letter EMS always stores
+        # ("TDEV1A") — unlike 'single_group' above (course present, only the letter missing).
+        cls.bare_acronym_study = cls.env['ems.study'].create({
+            'code': 'TDEV001', 'acronym': 'TDEV', 'name': 'Test Bare Acronym Study (Import Wizard)',
+            'date': fields.Date.today(), 'deprecated': False, 'level_id': cls.level.id,
+        })
+        cls.bare_acronym_group = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.bare_acronym_study.id,
+            'space_id': cls.space.id,
+        })
 
     def _xml_file(self, teacher_name_attr):
         # Minimal file the parser accepts: one teacher node -> one day -> one hour -> a NonTeaching
@@ -192,6 +210,23 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(attendance.subject_id, self.subject)
         self.assertEqual(attendance.group_ids, self.group)
 
+    def test_import_reinforcement_group_resolved_by_exact_name(self):
+        # A reinforcement group's name is free-form and can contain spaces (e.g. "Reforç Programació"),
+        # and the real planner export never appends anything to it (unlike 'main' groups' " Group"
+        # suffix convention used elsewhere in this file) — it must resolve by matching the full
+        # '<Students name="...">' value exactly as-is.
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.reinforcement_group.name}"/>',
+            ),
+        })
+
+        attendance = self.teacher.resource_calendar_id.attendance_ids
+        self.assertTrue(attendance)
+        self.assertEqual(attendance.group_ids, self.reinforcement_group)
+
     def test_import_single_group_without_trailing_a_falls_back(self):
         # The external planner names a level's only group "TWIW2" (no trailing letter), while EMS
         # always stores it as "TWIW2A" even when it's the only group of that level/course.
@@ -207,6 +242,39 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         attendance = self.teacher.resource_calendar_id.attendance_ids
         self.assertEqual(attendance.group_ids, self.single_group)
+
+    def test_import_bare_study_acronym_resolves_single_course_single_group(self):
+        # The external planner names a study with only one course and one group by its bare acronym
+        # ("TDEV"), with neither the course number nor the trailing letter EMS always stores ("TDEV1A").
+        self.assertEqual(self.bare_acronym_group.name, 'TDEV1A')
+
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                '<Students name="TDEV Group"/>',
+            ),
+        })
+
+        attendance = self.teacher.resource_calendar_id.attendance_ids
+        self.assertEqual(attendance.group_ids, self.bare_acronym_group)
+
+    def test_import_bare_study_acronym_with_several_groups_raises(self):
+        # If the study actually has more than one group, a bare acronym is genuinely ambiguous — the
+        # importer must not guess which one the planner meant, and should raise like any other mismatch.
+        self.env['ems.group'].create({
+            'course': 1, 'acronym': 'B', 'level_id': self.level.id, 'study_id': self.bare_acronym_study.id,
+            'space_id': self.space.id,
+        })
+
+        with self.assertRaises(ValidationError):
+            self.env['ems.working_schedules_import_wizard'].create({
+                'file': self._xml_file_with_hour_node(
+                    'test.wizard.teacher.import.wizard@example.com Someone',
+                    f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                    '<Students name="TDEV Group"/>',
+                ),
+            })
 
     def test_import_group_still_not_found_after_fallback_raises(self):
         with self.assertRaises(ValidationError):

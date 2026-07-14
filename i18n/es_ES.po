@@ -1361,7 +1361,7 @@ msgstr ""
 "grupo)."
 
 #. module: ems
-#: model:res.groups,comment:ems.group_head_of_department
+#: model:res.groups,comment:ems.group_department_chief
 msgid "Access rights for department heads. Currently identical to Tutor."
 msgstr ""
 "Permisos de acceso para los jefes de departamento. Actualmente idénticos a "
@@ -9243,8 +9243,8 @@ msgid "Tutor"
 msgstr "Tutor/a"
 
 #. module: ems
-#: model:res.groups,name:ems.group_head_of_department
-msgid "Head of Department"
+#: model:res.groups,name:ems.group_department_chief
+msgid "Department Chief"
 msgstr "Jefe de Departamento"
 
 #. module: ems
@@ -12212,3 +12212,60 @@ msgstr "Siempre es un compromiso de horario fijo"
 msgid "Non-teaching types"
 msgstr "Tipos de hora no lectiva"
 
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__group_type
+msgid "Group Type"
+msgstr "Tipo de grupo"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__group_type__main
+msgid "Main"
+msgstr "Principal"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__group_type__reinforcement
+msgid "Reinforcement"
+msgstr "Refuerzo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__reinforcement_student_ids
+msgid "Reinforcement Students"
+msgstr "Alumnos de refuerzo"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__group_type
+msgid ""
+"Main: the group a student is enrolled in (main_group_id), with a tutor, a "
+"delegate and a single study/level. Reinforcement: appears in the teaching "
+"schedule like any other group, but has no tutor/delegate and can mix "
+"students from different main groups and studies."
+msgstr ""
+"Principal: el grupo en el que está matriculado un alumno (main_group_id), "
+"con tutor/a, delegado/a y un único estudio/nivel. Refuerzo: aparece en el "
+"horario docente como cualquier otro grupo, pero no tiene tutor/a ni "
+"delegado/a y puede mezclar alumnos de diferentes grupos principales y "
+"estudios."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "A main group requires a level, a study, a course and an acronym."
+msgstr "Un grupo principal requiere un nivel, un estudio, un curso y un acrónimo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"A reinforcement group cannot have a level, a study, a tutor or a delegate: "
+"it is meant to mix students from different main groups and studies."
+msgstr ""
+"Un grupo de refuerzo no puede tener nivel, estudio, tutor/a ni delegado/a: "
+"está pensado para mezclar alumnos de diferentes grupos principales y "
+"estudios."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "New Reinforcement Group"
+msgstr "Grupo de refuerzo nuevo"

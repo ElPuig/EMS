@@ -25,6 +25,8 @@ Cada bloque de la cuadrícula semanal muestra:
 
 Una franja que todavía no tiene ningún bloque simplemente no tiene nada asignado — contacta con un administrador si crees que falta algo o hay algún error en tu horario.
 
+Un "grupo" también puede ser un **grupo de refuerzo** — una clase formada por alumnos de diferentes grupos habituales (o incluso de diferentes estudios) para una asignatura de refuerzo/apoyo concreta. Aparece en tu horario exactamente igual que cualquier otro grupo.
+
 ---
 
 ## Co-docencia

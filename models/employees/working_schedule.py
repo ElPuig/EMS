@@ -6,6 +6,7 @@ from odoo.exceptions import ValidationError
 import xml.etree.ElementTree as ET
 import base64
 import math
+import re
 
 class ems_working_schedule(models.Model):
 	_inherit = 'resource.calendar'
@@ -105,9 +106,10 @@ class ems_working_schedule(models.Model):
 	def get_schedule_hours_summary(self):
 		"""Weekly hours totals for the Schedule tab's summary table, split into two columns exactly
 		like the real external schedules this data is modelled on:
-		- 'teaching': weekly teaching hours grouped by level (ems.group.level_id), plus every
-		  non-teaching activity that ISN'T a guard duty or a Wednesday coordination meeting (the
-		  break, 'BR', is dropped entirely from both columns).
+		- 'teaching': weekly teaching hours grouped by level (ems.group.level_id) — or, for reinforcement
+		  groups (no single level), grouped per group instead — plus every non-teaching activity that
+		  ISN'T a guard duty or a Wednesday coordination meeting (the break, 'BR', is dropped entirely
+		  from both columns).
 		- 'fixed': guard duties (any day) and coordination meetings ('CM') specifically on Wednesday —
 		  the centre's fixed non-teaching commitments.
 		Each period's duration is rounded UP to the nearest whole hour (a period that only partially
@@ -122,10 +124,14 @@ class ems_working_schedule(models.Model):
 		for attendance in weekday_entries:
 			duration = math.ceil(attendance.hour_to - attendance.hour_from)
 			if attendance.subject_id:
-				level = attendance.group_ids[:1].level_id
-				key = ('level', level.id)
+				group = attendance.group_ids[:1]
 				bucket = teaching_rows
-				label = level.display_name
+				if group.group_type == 'reinforcement':
+					key = ('reinforcement', group.id)
+					label = group.display_name
+				else:
+					key = ('level', group.level_id.id)
+					label = group.level_id.display_name
 			elif attendance.non_teaching.is_break:
 				continue
 			elif attendance.non_teaching:
@@ -483,19 +489,38 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 							new_entry["non_teaching"] = False
 
 					elif content.tag == 'Students':
-						acronyms.append(content.attrib['name'].split(' ')[0])
-					
+						acronyms.append(content.attrib['name'])
+
 				if len(acronyms) > 0:
 					groups = self.env["ems.group"]
-					for acro in acronyms:
-						# NOTE: the external planner names a level's only group "DAM1", while EMS always
-						# names groups with a trailing letter ("DAM1A" even when there's just one) — retry
-						# with an appended "A" before giving up; still not found means a genuine mismatch
-						# that needs manual review.
-						group = self.env["ems.group"].search([("name", "=", acro)], limit=1) \
-							or self.env["ems.group"].search([("name", "=", acro + "A")], limit=1)
+					for full_name in acronyms:
+						# NOTE: try the FULL attribute value first — a reinforcement group's name is
+						# free-form and can contain spaces (e.g. "Reforç Programació"), so it must match
+						# exactly as-is; the real planner export never appends anything to it. Only fall
+						# back to the legacy "first word (+ trailing 'A')" heuristic below for the 'main'
+						# groups' naming convention, where the planner names a level's only group "DAM1"
+						# while EMS always stores it with a trailing letter ("DAM1A") — still not found
+						# after both attempts means a genuine mismatch that needs manual review.
+						group = self.env["ems.group"].search([("name", "=", full_name)], limit=1)
 						if not group:
-							raise ValidationError("Group with acronym '%s' not found." % acro)
+							acro = full_name.split(' ')[0]
+							group = self.env["ems.group"].search([("name", "=", acro)], limit=1) \
+								or self.env["ems.group"].search([("name", "=", acro + "A")], limit=1)
+						if not group:
+							# NOTE: for a study with a single course AND a single group, the planner
+							# sometimes exports just the bare study acronym ("DEV", "AO"), omitting BOTH
+							# the course number and the trailing group letter EMS always stores ("DEV1A",
+							# "AO1A") — unlike the "DAM1" case above (course present, only the letter
+							# missing), here neither is known upfront, so search by prefix and accept it
+							# only if exactly one group matches (an ambiguous prefix is a genuine mismatch,
+							# not a guess this heuristic should make).
+							candidates = self.env["ems.group"].search([("name", "=like", acro + "%")])
+							pattern = re.compile(r"^%s\d+[A-Za-z]$" % re.escape(acro))
+							matches = candidates.filtered(lambda g: pattern.match(g.name or ""))
+							if len(matches) == 1:
+								group = matches
+						if not group:
+							raise ValidationError("Group with acronym '%s' not found." % full_name)
 						groups |= group
 					new_entry["group_ids"] = [(6, 0, groups.ids)]
 					new_entry["name"] += " (%s)" % (", ".join(g.name for g in groups))

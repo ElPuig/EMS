@@ -41,7 +41,7 @@ class ems_employee_base(models.AbstractModel):
             rec.read_only = self.check_access_rights('write', raise_exception=False)
 
     def _compute_can_edit_schedule(self):
-        can_edit = self.env.user.has_group('ems.group_head_of_department')
+        can_edit = self.env.user.has_group('ems.group_department_chief')
         for rec in self:
             rec.can_edit_schedule = can_edit
 

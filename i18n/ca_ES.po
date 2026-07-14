@@ -1356,7 +1356,7 @@ msgid "Access rights for tutors (teachers in charge of a group)."
 msgstr "Drets d'accés per als tutors (professors responsables d'un grup)."
 
 #. module: ems
-#: model:res.groups,comment:ems.group_head_of_department
+#: model:res.groups,comment:ems.group_department_chief
 msgid "Access rights for department heads. Currently identical to Tutor."
 msgstr ""
 "Drets d'accés per als caps de departament. Actualment idèntics als del "
@@ -9230,8 +9230,8 @@ msgid "Tutor"
 msgstr "Tutor/a"
 
 #. module: ems
-#: model:res.groups,name:ems.group_head_of_department
-msgid "Head of Department"
+#: model:res.groups,name:ems.group_department_chief
+msgid "Department Chief"
 msgstr "Cap de Departament"
 
 #. module: ems
@@ -12195,3 +12195,58 @@ msgstr "Sempre és un compromís d'horari fix"
 msgid "Non-teaching types"
 msgstr "Tipus d'hora no lectiva"
 
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__group_type
+msgid "Group Type"
+msgstr "Tipus de grup"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__group_type__main
+msgid "Main"
+msgstr "Principal"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__group_type__reinforcement
+msgid "Reinforcement"
+msgstr "Reforç"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__reinforcement_student_ids
+msgid "Reinforcement Students"
+msgstr "Alumnes de reforç"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__group_type
+msgid ""
+"Main: the group a student is enrolled in (main_group_id), with a tutor, a "
+"delegate and a single study/level. Reinforcement: appears in the teaching "
+"schedule like any other group, but has no tutor/delegate and can mix "
+"students from different main groups and studies."
+msgstr ""
+"Principal: el grup en què està matriculat un alumne (main_group_id), amb "
+"tutor/a, delegat/da i un únic estudi/nivell. Reforç: apareix a l'horari "
+"docent com qualsevol altre grup, però no té tutor/a ni delegat/da i pot "
+"barrejar alumnes de diferents grups principals i estudis."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "A main group requires a level, a study, a course and an acronym."
+msgstr "Un grup principal requereix un nivell, un estudi, un curs i un acrònim."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"A reinforcement group cannot have a level, a study, a tutor or a delegate: "
+"it is meant to mix students from different main groups and studies."
+msgstr ""
+"Un grup de reforç no pot tenir nivell, estudi, tutor/a ni delegat/da: està "
+"pensat per barrejar alumnes de diferents grups principals i estudis."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "New Reinforcement Group"
+msgstr "Grup de reforç nou"

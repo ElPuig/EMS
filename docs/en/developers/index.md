@@ -16,7 +16,7 @@ Technical reference for developers working on the EMS module.
 
 | Topic | Description |
 |-------|-------------|
-| [Academic role hierarchy](employees/role_hierarchy.md) | Teacher → Tutor → Head of Department → Head of Studies → Director → Administrator group chain and how roles sync to `res.users.groups_id` |
+| [Academic role hierarchy](employees/role_hierarchy.md) | Teacher → Tutor → Department Chief → Head of Studies → Director → Administrator group chain and how roles sync to `res.users.groups_id` |
 | [Teacher working schedules & schedule frameworks](employees/working_schedule.md) | The "Schedule" tab widget, schedule frameworks, the empty-slot rule, employee lifecycle hooks, the XML import wizard |
 
 ---

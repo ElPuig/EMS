@@ -17,7 +17,7 @@ class TestWorkingSchedule(TransactionCase):
         cls.head_of_department_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Test Head of Department User (Working Schedule)',
             'login': 'test_hod_for_working_schedule',
-            'groups_id': [(4, cls.env.ref('ems.group_head_of_department').id)],
+            'groups_id': [(4, cls.env.ref('ems.group_department_chief').id)],
         })
         cls.level = cls.env['ems.level'].create({'acronym': 'TWSL', 'name': 'Test Level (Working Schedule)'})
         cls.study = cls.env['ems.study'].create({
@@ -223,6 +223,22 @@ class TestWorkingSchedule(TransactionCase):
         self.assertEqual(teaching[self.level.display_name], 2)
         self.assertEqual(teaching[other_level.display_name], 1)
         self.assertEqual(summary['teaching']['total'], 3)
+
+    def test_get_schedule_hours_summary_groups_reinforcement_group_separately(self):
+        reinforcement_group = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'REF-TWS', 'space_id': self.space.id,
+        })
+        schedule = self.env['resource.calendar'].create({'name': 'Test Hours Summary Reinforcement (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [reinforcement_group.id], 'name': 'TWSL: REF-TWS',
+        }])
+
+        summary = schedule.get_schedule_hours_summary()
+
+        teaching = {row['label']: row['hours'] for row in summary['teaching']['rows']}
+        self.assertEqual(teaching[reinforcement_group.display_name], 1)
+        self.assertEqual(summary['teaching']['total'], 1)
 
     def test_get_schedule_hours_summary_excludes_break(self):
         schedule = self.env['resource.calendar'].create({'name': 'Test Hours Summary Break (Working Schedule)'})

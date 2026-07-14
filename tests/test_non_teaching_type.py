@@ -10,7 +10,7 @@ class TestNonTeachingType(TransactionCase):
         cls.head_of_department_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Test Head of Department (Non-teaching Type)',
             'login': 'test_hod_for_non_teaching_type',
-            'groups_id': [(4, cls.env.ref('ems.group_head_of_department').id)],
+            'groups_id': [(4, cls.env.ref('ems.group_department_chief').id)],
         })
         cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Test Teacher (Non-teaching Type)',

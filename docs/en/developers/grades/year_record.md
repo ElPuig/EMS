@@ -80,7 +80,7 @@ flowchart LR
 | Group | Read | Write | Create | Unlink | Record rule |
 |-------|------|-------|--------|--------|-------------|
 | `group_academic_admin` | ✔ | ✔ | ✔ | ✔ | all data |
-| `group_secretary` | ✔ | ✔ | ✔ | ✘ | none (unrestricted) |
+| `group_secretary` | ✔ | ✔ | ✔ | ✘ | all data — needs its own rule: a secretary who is also a teacher would otherwise be restricted by the tutor rule |
 | `group_head_of_studies` (and Director) | ✔ | ✘ | ✘ | ✘ | all data (read) |
 | `group_teacher` (tutors) | students of tutored groups only | ✘ | ✘ | ✘ | `student_id.main_group_id.tutor_id.user_id = user` |
 | Portal / families | ✘ | ✘ | ✘ | ✘ | — |

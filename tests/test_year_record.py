@@ -33,10 +33,13 @@ class TestYearRecord(TransactionCase):
             'login': 'test_other_teacher_for_year_record',
             'groups_id': [(4, cls.env.ref('base.group_user').id), (4, cls.env.ref('ems.group_teacher').id)],
         })
+        # Also a teacher: like real secretariat staff, and the regression case for
+        # the tutor rule shadowing the secretary's all-data access.
         cls.secretary_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Test Secretary (Year Record)',
             'login': 'test_secretary_for_year_record',
-            'groups_id': [(4, cls.env.ref('base.group_user').id), (4, cls.env.ref('ems.group_secretary').id)],
+            'groups_id': [(4, cls.env.ref('base.group_user').id), (4, cls.env.ref('ems.group_secretary').id),
+                          (4, cls.env.ref('ems.group_teacher').id)],
         })
 
         # Curriculum: one study with two subjects. Subject 1 has a work placement
@@ -414,8 +417,13 @@ class TestYearRecord(TransactionCase):
             record.with_user(self.other_teacher_user).read(['student_id'])
 
     def test_access_secretary_can_adjust_result(self):
-        student = self._student('Secretary Access Student')
+        student = self._graded_student('Secretary Access Student')
         record = self._generate(student)
+        # Reads all records even without tutoring anyone (secretary rule beats the
+        # tutor restriction that would otherwise apply to a secretary-teacher).
+        self.assertIn(record, self.env['ems.student.year_record'].with_user(
+            self.secretary_user).search([]))
+        self.assertTrue(record.subject_record_ids.with_user(self.secretary_user).read(['state']))
         record.with_user(self.secretary_user).write({'academic_result': 'partial'})
         self.assertEqual(record.academic_result, 'partial')
         with self.assertRaises(AccessError):

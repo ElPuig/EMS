@@ -443,6 +443,16 @@
 
                                     </div>
                                 </div>
+                                <t t-if="enrollment.ems_has_fees">
+                                    <div class="alert alert-warning mt-4 mb-0">
+                                        <i class="fa fa-exclamation-triangle me-1"/>
+                                        <strong>Bonifications and exemptions:</strong>
+                                        if you are entitled to a fee bonification or exemption that is not yet reflected in the amounts above,
+                                        <a href="/my/documentacion">upload the supporting document</a>
+                                        and wait until it is approved <strong>before confirming your enrollment</strong>.
+                                        Benefits approved after confirmation will not be applied automatically.
+                                    </div>
+                                </t>
                                 <div class="mt-4 text-center">
                                     <t t-set="pending_required" t-value="enrollment.ems_authorization_ids.filtered(lambda a: a.template_id.is_required and a.status == 'pending')"/>
                                     <t t-set="missing_payment_term" t-value="not enrollment.payment_term_id"/>

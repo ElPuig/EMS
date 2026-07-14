@@ -12186,3 +12186,71 @@ msgstr "Total general:"
 #: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "<span>Overall total:</span>"
 msgstr "<span>Total general:</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Re-apply Benefits"
+msgstr "Reaplicar beneficios"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid ""
+"This will cancel the current invoice, recompute the enrollment amounts with "
+"the student's current benefit status and regenerate the invoice. Continue?"
+msgstr ""
+"Esto cancelará la factura actual, recalculará los importes de la matrícula "
+"con el estado de beneficios actual del estudiante y regenerará la factura. "
+"¿Continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>\n"
+"                                        <strong>Bonifications and exemptions:</strong>\n"
+"                                        if you are entitled to a fee bonification or exemption that is not yet reflected in the amounts above,"
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>\n"
+"<strong>Bonificaciones y exenciones:</strong>\n"
+"si tienes derecho a una bonificación o exención de tasas que todavía no se "
+"ve reflejada en los importes anteriores,"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "upload the supporting document"
+msgstr "sube el documento justificativo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid ""
+"and wait until it is approved <strong>before confirming your enrollment</strong>.\n"
+"                                        Benefits approved after confirmation will not be applied automatically."
+msgstr ""
+"y espera a que se apruebe <strong>antes de confirmar tu matrícula</strong>. "
+"Las bonificaciones o exenciones aprobadas después de la confirmación no se "
+"aplicarán."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Benefits can only be re-applied on a confirmed enrollment."
+msgstr "Los beneficios solo se pueden reaplicar en una matrícula confirmada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid ""
+"Invoice %s already has payments registered. Issue a credit note manually "
+"instead."
+msgstr ""
+"La factura %s ya tiene pagos registrados. Emite una factura rectificativa "
+"manualmente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid ""
+"Benefits re-applied by %s: the invoice has been regenerated with the "
+"student's current benefit status."
+msgstr ""
+"Beneficios reaplicados por %s: la factura se ha regenerado con el estado de "
+"beneficios actual del estudiante."

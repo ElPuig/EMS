@@ -146,6 +146,8 @@ Back in **Enrollment**, check that everything is correct:
 
 ![Payment section with the bank account already registered](../../assets/families/Matricula-confirmacio-07-PagamentOK.png)
 
+> **Bonifications and exemptions (enrollments with Fees, CFGS):** if you are entitled to a **bonification** (general large or single-parent family, scholarship) or an **exemption** (special large or single-parent family, disability...) that is **not yet reflected in the amounts**, upload the supporting document in the **Documentation** section and wait until the Secretary's office approves it **before confirming your enrollment**. Bonifications or exemptions approved **after** confirmation are **not applied automatically**: you will need to contact the school Secretary's office so they apply them and regenerate the invoice.
+
 The **Confirm Enrollment** button **(3)** stays disabled (light colour) until **all** of these conditions are met:
 
 * All mandatory authorizations are **accepted**.

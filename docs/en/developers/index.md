@@ -34,6 +34,7 @@ Technical reference for developers working on the EMS module.
 | Model | Description |
 |-------|-------------|
 | [ems.enrollment_proposal_wizard](enrollment/enrollment_proposal_wizard.md) | Bulk draft enrollments from a student selection, and the secretary-only `allow_other_study` flag that enrolls a current student into a different study |
+| [Enrollment benefits](enrollment/enrollment_benefits.md) | Fee bonifications/exemptions: draft-order recompute, freeze after confirmation and the secretary re-apply action that regenerates the invoice |
 
 ---
 

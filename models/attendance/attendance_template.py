@@ -13,7 +13,7 @@ class ems_attendance_template(models.Model):
 	end_date = fields.Date(string="End date", required=True)
 	color = fields.Integer(string="Color", help="Field to store the color that will be used for calendar view")   
 
-	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True, ondelete='cascade')
+	teacher_ids = fields.Many2many(string="Teachers", comodel_name="hr.employee", relation="ems_attendance_template_teacher_rel", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_ids())
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level", required=True)
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study", domain="[('level_id', '=', level_id)]", required=True)
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", domain="[('study_id', '=', study_id)]")
@@ -27,10 +27,11 @@ class ems_attendance_template(models.Model):
 	read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
 	
 	def _get_read_only_user(self):
-		return not (self.id == False or self.get_user_is_admin() or self.teacher_id.user_id.id == self.env.uid or self.create_uid == self.env.uid)
+		return not (self.id == False or self.get_user_is_admin() or bool(self.teacher_ids.filtered(lambda teacher: teacher.user_id.id == self.env.uid)) or self.create_uid == self.env.uid)
 
-	def _default_teacher_id(self):
-		return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
+	def _default_teacher_ids(self):
+		teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")])
+		return [(6, 0, teacher.ids)]
 
 	@api.constrains('group_ids')
 	def _check_group_ids(self):
@@ -38,7 +39,13 @@ class ems_attendance_template(models.Model):
 			if not rec.group_ids:
 				raise ValidationError(_("At least one group must be selected."))
 
-	@api.constrains('teacher_id', 'start_date', 'end_date', 'active')
+	@api.constrains('teacher_ids')
+	def _check_teacher_ids(self):
+		for rec in self:
+			if not rec.teacher_ids:
+				raise ValidationError(_("At least one teacher must be selected."))
+
+	@api.constrains('teacher_ids', 'start_date', 'end_date', 'active')
 	def _check_schedule_overlap(self):
 		# NOTE: @api.constrains does not support dotted paths through relations, so changes to
 		# these template fields must re-trigger the check owned by ems.attendance_schedule.
@@ -85,48 +92,143 @@ class ems_attendance_template(models.Model):
 		return super().unlink()
 
 	def sync_from_schedule(self, teacher, entries, start_date=None):
-		"""Replace 'teacher.attendance_template_ids' (and their per-weekday 'attendance_schedule_ids')
-		so they match the (subject_id, group_ids, hour_from, hour_to, dayofweek) slots found in
-		'entries' — one template per distinct (subject, group-set) combination. Templates no longer
-		present are archived (attendance history is kept); templates whose combination persists have
-		their (possibly stale) schedule lines and space_id refreshed from 'entries' instead of being
-		left frozen at whatever they were the first time that combination was imported — otherwise a
-		since-changed bell schedule for a subject/group that's still taught can silently collide with a
-		genuinely new one at check_overlap() time. Newly created templates are auto-filled with the
-		group's currently enrolled students. Shared by the employee 'Schedule' tab's grid widget (a
-		live mid-course edit for a single teacher — see sync_from_schedule_batch() for the XML
-		importer's own multi-teacher case)."""
-		plan = self._plan_schedule_sync(teacher, entries, start_date=start_date)
-		self._archive_stale_schedule_sync(plan)
-		self._write_schedule_sync(plan)
+		"""Sync a single teacher's schedule — the employee 'Schedule' tab's grid widget (a live
+		mid-course edit). Internally delegates to sync_from_schedule_batch() wrapping its single
+		(teacher, entries) pair, so a solo edit goes through the exact same co-teaching reconciliation
+		as the XML importer's multi-teacher batch (see '_reconcile_teacher_groups')."""
+		self.sync_from_schedule_batch([(teacher, entries)], start_date=start_date)
 
 	def sync_from_schedule_batch(self, teacher_entries, start_date=None):
-		"""Same as sync_from_schedule(), but for several teachers at once — the XML importer's normal
-		case, since one planner file typically describes many teachers. 'teacher_entries' is a list of
-		(teacher, entries) pairs, one per teacher, same shape as sync_from_schedule()'s own arguments.
+		"""Sync one or several teachers at once — the XML importer's normal case (one planner file
+		typically describes many teachers), and also used by sync_from_schedule() for a single live
+		edit. 'teacher_entries' is a list of (teacher, entries) pairs.
 
-		Archives every teacher's stale schedule lines FIRST, across the WHOLE batch, before writing ANY
-		teacher's fresh ones — doing this one teacher at a time (i.e. just calling sync_from_schedule()
-		per teacher) can raise a false check_overlap() collision when two teachers share a classroom:
-		the first teacher's fresh line would be checked against the second teacher's still-active STALE
-		line, since that second teacher hasn't been re-synced yet at that point."""
-		plans = [self._plan_schedule_sync(teacher, entries, start_date=start_date) for teacher, entries in teacher_entries]
+		First reconciles co-teaching: '_reconcile_teacher_groups' merges the freshly submitted entries
+		against whatever ALREADY exists in the DB for the same (subject, group-set) combinations, at
+		the exact (weekday, hour_from, hour_to) slot level, producing one (teachers, entries) group per
+		distinct combination of subject+groups+exact-teacher-set — see that method's docstring for the
+		full reasoning, including how a solo edit by one teacher can retroactively split another
+		teacher's existing template.
+
+		Then archives every resulting group's stale schedule lines FIRST, across the WHOLE batch,
+		before writing ANY group's fresh ones — doing this one group at a time can raise a false
+		check_overlap() collision when two groups share a classroom: the first group's fresh line would
+		be checked against the second group's still-active STALE line, since that second group hasn't
+		been re-synced yet at that point."""
+		merged_groups, vacated = self._reconcile_teacher_groups(teacher_entries)
+		vacated.action_archive()
+		plans = [self._plan_schedule_sync(teachers, entries, start_date=start_date) for teachers, entries in merged_groups]
 		for plan in plans:
 			self._archive_stale_schedule_sync(plan)
 		for plan in plans:
 			self._write_schedule_sync(plan)
 
+	def _reconcile_teacher_groups(self, teacher_entries):
+		"""teacher_entries: [(teacher, entries), ...] — teachers submitting fresh data RIGHT NOW (just
+		one for the 'Schedule' tab's live editor, several for the XML importer). For every (subject,
+		group-set) combination they touch, reconciles against the FULL current state in the DB —
+		including the slots already held by OTHER teachers for that same combination who are NOT
+		submitting data in this call — at the exact (weekday, hour_from, hour_to) slot level, so that:
+		- a slot only ever held by teachers submitting data now ends up solo-owned by them,
+		- a slot that now matches EXACTLY (day+time) with a non-submitting teacher's existing slot gets
+		  merged into a shared group with both,
+		- a slot belonging to a non-submitting teacher that nobody submitting now touches is left alone.
+
+		This is what lets a single teacher's live edit correctly SPLIT another teacher's template: if
+		teacher A already has Monday+Wednesday and teacher B (submitting alone) now also teaches that
+		exact Wednesday slot, Wednesday becomes a new shared (A, B) group while Monday stays a solo A
+		group — without needing separate logic for the live-editor vs. the batch importer. It also
+		covers a submitting teacher simply DROPPING a subject+group combo they used to teach (submitting
+		zero entries for it): the combo is still reconciled (against a search below, not just the
+		submitted entries), so a template belonging solely to that teacher ends up in 'vacated' instead
+		of silently surviving untouched.
+
+		Returns (merged, vacated): 'merged' is a list of (teachers_recordset, entries) pairs, same shape
+		'_plan_schedule_sync' already consumes; 'vacated' is a recordset of templates whose every slot
+		was superseded by this call with no surviving teacher left for that (subject, group) combination
+		— to be archived outright, since nothing replaces them."""
+		submitting_teacher_ids = {teacher.id for teacher, _entries in teacher_entries}
+		by_key_submitted = dict()
+		for teacher, entries in teacher_entries:
+			for entry in entries:
+				if not entry.get('group_ids'):
+					continue  # non-teaching entries carry no group, hence no co-teaching to reconcile
+				key = (entry['subject_id'], tuple(sorted(entry['group_ids'])))
+				by_key_submitted.setdefault(key, []).append((teacher, entry))
+
+		# NOTE: also reconcile (subject, group) combos a submitting teacher used to teach but is not
+		# submitting anything for anymore in this call — otherwise a dropped combo belonging solely to
+		# that teacher would never be reconsidered at all (see 'vacated' above).
+		touched_templates = self.env['ems.attendance_template'].search([
+			('teacher_ids', 'in', list(submitting_teacher_ids)), ('active', '=', True),
+		])
+		for template in touched_templates:
+			key = (template.subject_id.id, tuple(sorted(template.group_ids.ids)))
+			by_key_submitted.setdefault(key, [])
+
+		merged = []
+		vacated = self.env['ems.attendance_template']
+		for (subject_id, group_ids), submitted in by_key_submitted.items():
+			existing_templates = self.env['ems.attendance_template'].search([
+				('subject_id', '=', subject_id),
+				('group_ids', 'in', list(group_ids)),
+				('active', '=', True),
+			]).filtered(lambda template, group_ids=group_ids: set(template.group_ids.ids) == set(group_ids))
+
+			by_slot = dict()
+			for template in existing_templates:
+				# Teachers of this template NOT submitting data now: their slots are preserved as-is,
+				# unless a submitting teacher lands on the exact same slot (merged below).
+				untouched = template.teacher_ids.filtered(lambda teacher: teacher.id not in submitting_teacher_ids)
+				if not untouched:
+					continue  # every teacher of this template is submitting now: fully superseded
+				for line in template.attendance_schedule_ids:
+					slot_key = (line.weekday, line.start_time, line.end_time)
+					by_slot.setdefault(slot_key, {'teacher_ids': set(), 'entry': {
+						'subject_id': subject_id,
+						'group_ids': list(group_ids),
+						'dayofweek': line.weekday,
+						'hour_from': line.start_time,
+						'hour_to': line.end_time,
+					}})
+					by_slot[slot_key]['teacher_ids'].update(untouched.ids)
+
+			for teacher, entry in submitted:
+				slot_key = (entry['dayofweek'], entry['hour_from'], entry['hour_to'])
+				by_slot.setdefault(slot_key, {'teacher_ids': set(), 'entry': entry})
+				by_slot[slot_key]['teacher_ids'].add(teacher.id)
+
+			by_teacher_set = dict()
+			for slot in by_slot.values():
+				by_teacher_set.setdefault(frozenset(slot['teacher_ids']), []).append(slot['entry'])
+
+			# NOTE: an existing template survives, as-is, only if some resulting group's teacher-set
+			# matches it EXACTLY (picked up later by '_plan_schedule_sync's own exact-match lookup, which
+			# refreshes its schedule lines from 'slot_entries'). Any existing template whose teacher-set
+			# split into different group(s) above — whether it shrank (a co-teacher dropped out, as
+			# above) or vanished entirely (by_teacher_set is empty for this key) — has no such match and
+			# must be archived outright here, since nothing else will ever catch it: '_plan_schedule_sync'
+			# only ever looks for an EXACT teacher-set match to update, never a partial/superset one.
+			result_teacher_sets = set(by_teacher_set.keys())
+			for template in existing_templates:
+				if frozenset(template.teacher_ids.ids) not in result_teacher_sets:
+					vacated |= template
+
+			for teacher_ids, slot_entries in by_teacher_set.items():
+				merged.append((self.env['hr.employee'].browse(teacher_ids), slot_entries))
+		return merged, vacated
+
 	def find_external_conflicts(self, teacher_entries):
 		"""Given [(teacher, entries), ...] (same shape as sync_from_schedule_batch), find every
-		currently active ems.attendance_schedule belonging to a DIFFERENT teacher — one NOT part of
-		this batch — that would collide (same space, weekday, overlapping time) with one of the new
-		entries. A batch only ever cleans up its own teachers' stale data (see
-		'_archive_stale_schedule_sync'); a teacher who simply isn't in this particular file can still be
-		left with an old schedule line in a classroom the new import now also wants at an overlapping
-		time. Used both to preview what the import wizard is about to archive (before the user
-		confirms) and, at actual import time, to archive those lines so the fresh ones can be written
-		without a false check_overlap() — the returned lines, not their whole templates, since the rest
-		of that external teacher's schedule is presumably still correct."""
+		currently active ems.attendance_schedule belonging ONLY to teachers NOT part of this batch —
+		that would collide (same space, weekday, overlapping time) with one of the new entries. A batch
+		only ever cleans up its own teachers' stale data (see '_archive_stale_schedule_sync'); a
+		teacher who simply isn't in this particular file can still be left with an old schedule line in
+		a classroom the new import now also wants at an overlapping time. Used both to preview what the
+		import wizard is about to archive (before the user confirms) and, at actual import time, to
+		archive those lines so the fresh ones can be written without a false check_overlap() — the
+		returned lines, not their whole templates, since the rest of that external teacher's schedule is
+		presumably still correct."""
 		teacher_ids = {teacher.id for teacher, _entries in teacher_entries}
 		conflicts = self.env['ems.attendance_schedule']
 		for _teacher, entries in teacher_entries:
@@ -137,7 +239,7 @@ class ems_attendance_template(models.Model):
 				candidates = self.env['ems.attendance_schedule'].search([
 					('weekday', '=', entry['dayofweek']),
 					('space_id', '=', space_id),
-					('attendance_template_id.teacher_id', 'not in', list(teacher_ids)),
+					('attendance_template_id.teacher_ids', 'not in', list(teacher_ids)),
 				])
 				conflicts |= candidates.filtered(
 					lambda candidate, entry=entry: (
@@ -153,24 +255,31 @@ class ems_attendance_template(models.Model):
 				)
 		return conflicts
 
-	def _plan_schedule_sync(self, teacher, entries, start_date=None):
-		"""Compute what a sync belongs to a single teacher without writing anything yet: which of the
-		teacher's current templates are stale (gone, or persisting with different lines) and what the
-		freshly imported entries, grouped by (subject, group-set) key, look like. Consumed by
+	def _plan_schedule_sync(self, teachers, entries, start_date=None):
+		"""Compute what a sync means for a single (teachers, entries) reconciled group without writing
+		anything yet: which currently active templates sharing this exact (subject, group-set,
+		teacher-set) combination are stale (gone, or persisting with different lines) and what the
+		freshly reconciled entries, grouped by (subject, group-set) key, look like. Consumed by
 		'_archive_stale_schedule_sync'/'_write_schedule_sync' — split out so 'sync_from_schedule_batch'
-		can run the archive phase for every teacher before the write phase for any of them."""
+		can run the archive phase for every group before the write phase for any of them."""
 		now = datetime.now()
 		start_date = start_date or datetime(now.year, 9, 1)
 		end_date = datetime(now.year + 1, 7, 1)
 
-		# NOTE: maps to a RECORDSET, not a single template — a teacher can have more than one active
-		# template for the same (subject, group-set) combo (a pre-existing data-quality issue: repeated
-		# past imports created a new template instead of matching the existing one). Keying by a single
-		# template here would silently drop every duplicate but the last one seen, leaving them forever
-		# un-synced — see '_archive_stale_schedule_sync'/'_write_schedule_sync' for how duplicates get
-		# consolidated into a single survivor.
+		# NOTE: maps to a RECORDSET, not a single template — the same (subject, group-set, teacher-set)
+		# combination can have more than one active template (a pre-existing data-quality issue:
+		# repeated past imports created a new template instead of matching the existing one). Keying by
+		# a single template here would silently drop every duplicate but the last one seen, leaving them
+		# forever un-synced — see '_archive_stale_schedule_sync'/'_write_schedule_sync' for how
+		# duplicates get consolidated into a single survivor.
 		old_items = dict()
-		for template in teacher.attendance_template_ids.filtered('active'):
+		candidates = self.env['ems.attendance_template'].search([
+			('subject_id', 'in', list({entry["subject_id"] for entry in entries})),
+			('active', '=', True),
+		])
+		for template in candidates:
+			if set(template.teacher_ids.ids) != set(teachers.ids):
+				continue
 			key = "%s.%s" % (template.subject_id.id, ",".join(str(g) for g in sorted(template.group_ids.ids)))
 			old_items[key] = old_items.get(key, self.env['ems.attendance_template']) | template
 
@@ -180,7 +289,7 @@ class ems_attendance_template(models.Model):
 			grouped_entries.setdefault(key, []).append(entry)
 
 		return {
-			'teacher': teacher,
+			'teachers': teachers,
 			'old_items': old_items,
 			'grouped_entries': grouped_entries,
 			'start_date': start_date,
@@ -247,7 +356,7 @@ class ems_attendance_template(models.Model):
 				'start_date': plan['start_date'],
 				'end_date': plan['end_date'],
 				'color': len(templates) + 1,
-				'teacher_id': plan['teacher'].id,
+				'teacher_ids': [(6, 0, plan['teachers'].ids)],
 				'subject_id': group_entries[0]["subject_id"],
 				'group_ids': [(6, 0, group_entries[0]["group_ids"])],
 				'level_id': first_group.level_id.id,

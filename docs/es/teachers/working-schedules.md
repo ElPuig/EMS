@@ -27,6 +27,12 @@ Una franja que todavía no tiene ningún bloque simplemente no tiene nada asigna
 
 ---
 
+## Co-docencia
+
+Si una clase la imparten realmente dos docentes a la vez (misma asignatura, mismo grupo, misma aula, misma hora), esa franja aparece como una clase compartida en el horario de **ambos** docentes. La asistencia también es compartida: sea cual sea el co-docente que la marque, ambos veis el mismo registro de asistencia para esa sesión — no hace falta que cada uno pase lista por separado.
+
+---
+
 ## Exportar tu horario a PDF
 
 Haz clic en **PDF** en la barra de herramientas de la pestaña Horario para descargar una versión imprimible de tu horario semanal.

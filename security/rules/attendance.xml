@@ -16,7 +16,7 @@
         <field name="name">Attendance template: own data</field>
         <field name="model_id" ref="ems.model_ems_attendance_template"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">['|', ('create_uid', '=', user.id), ('teacher_id.user_id.id', '=', user.id)]</field>
+        <field name="domain_force">['|', ('create_uid', '=', user.id), ('teacher_ids.user_id.id', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
@@ -39,7 +39,7 @@
         <field name="name">Attendance schedule: own data</field>
         <field name="model_id" ref="ems.model_ems_attendance_schedule"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">['|', ('create_uid', '=', user.id), ('teacher_id.user_id.id', '=', user.id)]</field>
+        <field name="domain_force">['|', ('create_uid', '=', user.id), ('teacher_ids.user_id.id', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
@@ -67,7 +67,7 @@
                 '|', 
                 '|',                  
                 ('create_uid', '=', user.id),                 
-                ('template_teacher_id.user_id.id', '=', user.id), 
+                ('template_teacher_ids.user_id.id', '=', user.id), 
                 ('session_teacher_id.user_id.id', '=', user.id)
             ]
         </field>
@@ -98,7 +98,7 @@
                 '|', 
                 '|',                  
                 ('create_uid', '=', user.id),                 
-                ('template_teacher_id.user_id.id', '=', user.id), 
+                ('template_teacher_ids.user_id.id', '=', user.id), 
                 ('session_teacher_id.user_id.id', '=', user.id)
             ]
         </field>

@@ -59,7 +59,7 @@ class TestAttendanceTemplate(TransactionCase):
 
     def _create_template(self, teacher, space, start_date=date(2026, 1, 1), end_date=date(2026, 6, 30), subject=None):
         return self.env['ems.attendance_template'].create({
-            'teacher_id': teacher.id,
+            'teacher_ids': [(6, 0, [teacher.id])],
             'level_id': self.level.id,
             'study_id': self.study.id,
             'subject_id': (subject or self.subject).id,
@@ -165,7 +165,43 @@ class TestAttendanceTemplate(TransactionCase):
         self._create_schedule(template2, self.space_b, weekday='0', start_time=9.5, end_time=10.5)
 
         with self.assertRaises(ValidationError):
-            template2.write({'teacher_id': self.teacher_a.id})
+            template2.write({'teacher_ids': [(6, 0, [self.teacher_a.id])]})
+
+    def test_create_with_several_teachers(self):
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.teacher_a.id, self.teacher_b.id])],
+            'level_id': self.level.id,
+            'study_id': self.study.id,
+            'subject_id': self.subject.id,
+            'group_ids': [(6, 0, [self.group.id])],
+            'space_id': self.space_a.id,
+            'start_date': date(2026, 1, 1),
+            'end_date': date(2026, 6, 30),
+        })
+        self.assertEqual(set(template.teacher_ids.ids), {self.teacher_a.id, self.teacher_b.id})
+
+    def test_empty_teacher_ids_raises(self):
+        with self.assertRaises(ValidationError):
+            self.env['ems.attendance_template'].create({
+                'teacher_ids': [(6, 0, [])],
+                'level_id': self.level.id,
+                'study_id': self.study.id,
+                'subject_id': self.subject.id,
+                'group_ids': [(6, 0, [self.group.id])],
+                'space_id': self.space_a.id,
+                'start_date': date(2026, 1, 1),
+                'end_date': date(2026, 6, 30),
+            })
+
+    def test_read_only_user_false_for_either_co_teacher(self):
+        template = self._create_template(self.teacher_a, self.space_a)
+        template.teacher_ids = [(4, self.teacher_b.id)]
+        self.teacher_b.user_id = self.env['res.users'].create({
+            'name': 'Test User B (Attendance Template)',
+            'login': 'test_user_b_attendance_template@example.com',
+        })
+        template = template.with_user(self.teacher_b.user_id)
+        self.assertFalse(template._get_read_only_user())
 
 
 class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
@@ -242,7 +278,7 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry()], start_date=date(2026, 2, 1))
 
         template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id),
+            ('teacher_ids', 'in', self.teacher.id),
             ('subject_id', '=', self.subject.id),
         ])
         self.assertTrue(template)
@@ -253,13 +289,13 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
     def test_default_start_date_is_september_first(self):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry()])
 
-        template = self.env['ems.attendance_template'].search([('teacher_id', '=', self.teacher.id)])
+        template = self.env['ems.attendance_template'].search([('teacher_ids', 'in', self.teacher.id)])
         self.assertEqual(template.start_date.month, 9)
         self.assertEqual(template.start_date.day, 1)
 
     def test_archives_template_no_longer_in_entries(self):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry()])
-        template = self.env['ems.attendance_template'].search([('teacher_id', '=', self.teacher.id)])
+        template = self.env['ems.attendance_template'].search([('teacher_ids', 'in', self.teacher.id)])
 
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [])
 
@@ -272,7 +308,7 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, entries)
 
         templates = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id),
+            ('teacher_ids', 'in', self.teacher.id),
             ('subject_id', '=', self.subject.id),
         ])
         self.assertEqual(len(templates), 1)
@@ -282,7 +318,7 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         # Real-world bug: a subject+group combo that persists across re-imports kept its FIRST
         # import's schedule lines forever, even after the actual bell schedule changed.
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
-        template = self.env['ems.attendance_template'].search([('teacher_id', '=', self.teacher.id)])
+        template = self.env['ems.attendance_template'].search([('teacher_ids', 'in', self.teacher.id)])
 
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(17, 18, '0')])
 
@@ -291,7 +327,7 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
 
     def test_resync_same_key_updates_space_from_group(self):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
-        template = self.env['ems.attendance_template'].search([('teacher_id', '=', self.teacher.id)])
+        template = self.env['ems.attendance_template'].search([('teacher_ids', 'in', self.teacher.id)])
         self.assertEqual(template.space_id, self.space)
 
         # Same subject+group, but its default classroom changed since the last import.
@@ -318,10 +354,10 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, entries)
 
         template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.subject.id),
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
         ])
         other_template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.other_subject.id),
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.other_subject.id),
         ])
         self.assertEqual(template.attendance_schedule_ids.mapped('start_time'), [17])
         self.assertEqual(other_template.attendance_schedule_ids.mapped('start_time'), [9])
@@ -345,10 +381,10 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.env['ems.attendance_template'].sync_from_schedule_batch(teacher_entries)
 
         template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.subject.id),
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
         ])
         other_template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.other_teacher.id), ('subject_id', '=', self.other_subject.id),
+            ('teacher_ids', 'in', self.other_teacher.id), ('subject_id', '=', self.other_subject.id),
         ])
         self.assertEqual(template.attendance_schedule_ids.mapped('start_time'), [17])
         self.assertEqual(other_template.attendance_schedule_ids.mapped('start_time'), [9])
@@ -361,13 +397,13 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         # schedule line is never refreshed and can falsely collide with a later import.
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
         primary = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.subject.id),
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
         ])
 
         # A pre-existing duplicate for the SAME subject+group, with its own stale line at 17-18 — the
         # slot the next import will want to reuse for this same subject.
         duplicate = self.env['ems.attendance_template'].create({
-            'teacher_id': self.teacher.id,
+            'teacher_ids': [(6, 0, [self.teacher.id])],
             'level_id': self.level.id,
             'study_id': self.study.id,
             'subject_id': self.subject.id,
@@ -384,7 +420,7 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(17, 18, '0')])
 
         active_templates = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.subject.id),
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
         ])
         self.assertEqual(len(active_templates), 1)
         self.assertEqual(active_templates.attendance_schedule_ids.mapped('start_time'), [17])
@@ -403,7 +439,7 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         ])
 
         self.assertEqual(len(conflicts), 1)
-        self.assertEqual(conflicts.attendance_template_id.teacher_id, self.other_teacher)
+        self.assertEqual(conflicts.attendance_template_id.teacher_ids, self.other_teacher)
 
     def test_find_external_conflicts_ignores_non_overlapping_time(self):
         self.env['ems.attendance_template'].sync_from_schedule(
@@ -458,10 +494,82 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, entries)
 
         template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.subject.id),
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
         ])
         other_template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.other_subject.id),
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.other_subject.id),
         ])
         self.assertEqual(template.attendance_schedule_ids.mapped('start_time'), [9])
         self.assertEqual(other_template.attendance_schedule_ids.mapped('start_time'), [17])
+
+    def test_batch_merges_exact_shared_slot_into_one_template(self):
+        # Two teachers in the same import batch, same subject+group, one slot in common (Wednesday)
+        # and one held only by teacher A (Monday): must produce a shared A+B template for Wednesday and
+        # a solo A template for Monday — not two fully separate per-teacher templates.
+        teacher_entries = [
+            (self.teacher, [self._entry(9, 10, '0'), self._entry(9, 10, '2')]),  # Monday + Wednesday
+            (self.other_teacher, [self._entry(9, 10, '2')]),  # Wednesday only, exact same slot
+        ]
+        self.env['ems.attendance_template'].sync_from_schedule_batch(teacher_entries)
+
+        templates = self.env['ems.attendance_template'].search([('subject_id', '=', self.subject.id)])
+        self.assertEqual(len(templates), 2)
+
+        shared = templates.filtered(lambda t: len(t.teacher_ids) == 2)
+        solo = templates.filtered(lambda t: len(t.teacher_ids) == 1)
+        self.assertEqual(len(shared), 1)
+        self.assertEqual(len(solo), 1)
+        self.assertEqual(set(shared.teacher_ids.ids), {self.teacher.id, self.other_teacher.id})
+        self.assertEqual(shared.attendance_schedule_ids.mapped('weekday'), ['2'])
+        self.assertEqual(solo.teacher_ids, self.teacher)
+        self.assertEqual(solo.attendance_schedule_ids.mapped('weekday'), ['0'])
+
+    def test_live_edit_by_second_teacher_splits_first_teachers_template(self):
+        # Teacher A already has a template with Monday+Wednesday. Teacher B then edits their OWN
+        # schedule alone (simulating the 'Schedule' tab's live editor) and lands on the exact same
+        # Wednesday slot: A's template must shrink to Monday-only, and a new shared A+B template must
+        # appear for Wednesday — even though A never resubmitted anything in this call.
+        self.env['ems.attendance_template'].sync_from_schedule(
+            self.teacher, [self._entry(9, 10, '0'), self._entry(9, 10, '2')]
+        )
+
+        self.env['ems.attendance_template'].sync_from_schedule(self.other_teacher, [self._entry(9, 10, '2')])
+
+        templates = self.env['ems.attendance_template'].search([('subject_id', '=', self.subject.id)])
+        self.assertEqual(len(templates), 2)
+
+        shared = templates.filtered(lambda t: len(t.teacher_ids) == 2)
+        solo = templates.filtered(lambda t: len(t.teacher_ids) == 1)
+        self.assertEqual(len(shared), 1)
+        self.assertEqual(len(solo), 1)
+        self.assertEqual(set(shared.teacher_ids.ids), {self.teacher.id, self.other_teacher.id})
+        self.assertEqual(shared.attendance_schedule_ids.mapped('weekday'), ['2'])
+        self.assertEqual(solo.teacher_ids, self.teacher)
+        self.assertEqual(solo.attendance_schedule_ids.mapped('weekday'), ['0'])
+
+    def test_live_edit_removing_shared_slot_leaves_co_teachers_solo_template_intact(self):
+        # Symmetric case: A and B share a Wednesday slot; A then edits their own schedule to drop it.
+        # B's Wednesday must survive solo, untouched.
+        teacher_entries = [
+            (self.teacher, [self._entry(9, 10, '2')]),
+            (self.other_teacher, [self._entry(9, 10, '2')]),
+        ]
+        self.env['ems.attendance_template'].sync_from_schedule_batch(teacher_entries)
+
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [])
+
+        templates = self.env['ems.attendance_template'].search([('subject_id', '=', self.subject.id)])
+        self.assertEqual(len(templates), 1)
+        self.assertEqual(templates.teacher_ids, self.other_teacher)
+        self.assertEqual(templates.attendance_schedule_ids.mapped('weekday'), ['2'])
+
+    def test_live_edit_dropping_solo_combo_archives_template(self):
+        # A drops a subject+group combo nobody else teaches: the template must be archived outright.
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [])
+
+        self.assertFalse(template.active)

@@ -146,7 +146,7 @@ class TestWorkingSchedule(TransactionCase):
         self.assertTrue(teaching)
 
         template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id),
+            ('teacher_ids', 'in', self.teacher.id),
             ('subject_id', '=', self.subject.id),
         ])
         self.assertTrue(template)

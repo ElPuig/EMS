@@ -371,10 +371,10 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
 
         template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.subject.id),
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
         ])
         other_template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', second_teacher.id), ('subject_id', '=', self.other_subject.id),
+            ('teacher_ids', 'in', second_teacher.id), ('subject_id', '=', self.other_subject.id),
         ])
         self.assertEqual(template.attendance_schedule_ids.mapped('start_time'), [17])
         self.assertEqual(other_template.attendance_schedule_ids.mapped('start_time'), [9])
@@ -392,7 +392,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'teacher_id': self.teacher.id,
         })
         old_line = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.subject.id),
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
         ]).attendance_schedule_ids
 
         second_teacher = self.env['hr.employee'].create({
@@ -412,7 +412,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         self.assertFalse(old_line.active)
         new_template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', second_teacher.id), ('subject_id', '=', self.other_subject.id),
+            ('teacher_ids', 'in', second_teacher.id), ('subject_id', '=', self.other_subject.id),
         ])
         self.assertTrue(new_template.attendance_schedule_ids)
 
@@ -474,6 +474,39 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         wizard._onchange_file()
 
         self.assertFalse(wizard.external_conflicts_html)
+
+    def test_import_co_teaching_merges_into_one_shared_template(self):
+        # Real-world case (Gabriel Manrubia / David Tomás): two teachers importing the exact same
+        # subject+group+time+room must end up sharing a SINGLE ems.attendance_template (and therefore a
+        # single, jointly-visible attendance session) rather than one template each.
+        second_teacher = self.env['hr.employee'].create({
+            'name': 'Test Wizard Teacher 7 (Import Wizard)',
+            'employee_type': 'teacher',
+            'work_email': 'test.wizard.teacher7.import.wizard@example.com',
+        })
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher7.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+            'teacher_id': second_teacher.id,
+        })
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+            'teacher_id': self.teacher.id,
+        })
+
+        templates = self.env['ems.attendance_template'].search([
+            ('subject_id', '=', self.subject.id),
+            ('group_ids', 'in', self.group.id),
+        ])
+        self.assertEqual(len(templates), 1)
+        self.assertEqual(set(templates.teacher_ids.ids), {self.teacher.id, second_teacher.id})
 
     def test_onchange_file_overrided_teachers_html_lists_teacher(self):
         self.env['ems.working_schedules_import_wizard'].create({

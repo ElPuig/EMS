@@ -16,7 +16,7 @@ class ems_employee_base(models.AbstractModel):
     contract_type_id = fields.Many2one(string="Contract Type", comodel_name="hr.contract.type")
     job_id = fields.Many2one(string="Job Position", comodel_name="hr.job", domain="[('employee_type', '=', employee_type)]")
     teaching_ids = fields.One2many(string="Teaching", comodel_name="ems.teaching", inverse_name="teacher_id")
-    attendance_template_ids = fields.One2many(string="Attendance templates", comodel_name="ems.attendance_template", inverse_name="teacher_id")
+    attendance_template_ids = fields.Many2many(string="Attendance templates", comodel_name="ems.attendance_template", relation="ems_attendance_template_teacher_rel")
     schedule_attendance_ids = fields.One2many(string="Schedule", comodel_name="resource.calendar.attendance", related="resource_calendar_id.attendance_ids")
    
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 

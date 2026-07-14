@@ -27,6 +27,12 @@ A period that has no block yet is simply not assigned — contact an Administrat
 
 ---
 
+## Co-teaching
+
+If a class is genuinely taught by more than one teacher at the same time (same subject, same group, same room, same hour), that period shows up as a shared class on **both** teachers' schedules. Attendance is also shared: whichever co-teacher marks it, both of you see the same, single attendance record for that session — there's no need for each of you to take attendance separately.
+
+---
+
 ## Exporting Your Schedule to PDF
 
 Click **PDF** in the Schedule tab's toolbar to download a printable version of your weekly timetable.

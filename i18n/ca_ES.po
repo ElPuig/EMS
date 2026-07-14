@@ -1889,6 +1889,12 @@ msgid "At least one group must be selected."
 msgstr "Cal seleccionar almenys un grup."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_template.py:0
+msgid "At least one teacher must be selected."
+msgstr "Cal seleccionar almenys un docent."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids
 #: model:ir.model.fields,field_description:ems.field_ems_study__attachment_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
@@ -8701,8 +8707,6 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__teacher_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__teacher_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__teacher_id
@@ -8744,6 +8748,8 @@ msgstr "Drets d'accés del professorat."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_employee_kanban
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__teacher_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__teacher_ids
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__teachers
 #: model:ir.ui.menu,name:ems.menu_community_config_teachers
 #: model:ir.ui.menu,name:ems.menu_teachers
@@ -8782,10 +8788,10 @@ msgid "Template URL"
 msgstr "URL de plantilla"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__template_teacher_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__template_teacher_id
-msgid "Template's teacher"
-msgstr "Docent de la plantilla"
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__template_teacher_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__template_teacher_ids
+msgid "Template's teachers"
+msgstr "Docents de la plantilla"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_template

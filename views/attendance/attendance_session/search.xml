@@ -5,7 +5,7 @@
             <field name="model">ems.attendance_session_header</field>            
             <field name="arch" type="xml">                  
                 <search string="Only mine">                                                                             
-                    <filter string="Show only mine" name="only_mine" domain="['|', ('template_teacher_id.user_id.id', '=', uid), ('session_teacher_id.user_id.id', '=', uid)]"/>
+                    <filter string="Show only mine" name="only_mine" domain="['|', ('template_teacher_ids.user_id.id', '=', uid), ('session_teacher_id.user_id.id', '=', uid)]"/>
                 </search>           
             </field>		      
         </record>   

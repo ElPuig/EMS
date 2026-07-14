@@ -37,6 +37,18 @@ Manage each teacher's weekly timetable from their own employee record, and set u
 
 ---
 
+## Co-teaching
+
+If two teachers genuinely teach the same class together (same subject, same group, same room, same hour), EMS treats it as a **single** shared class rather than two independent ones: both teachers are listed as holders of that period, and there is only **one** attendance session for it — either teacher can mark it, and both see the same result.
+
+This is detected automatically, whether the schedule was built by hand or imported:
+- **Editing a schedule by hand**: if you assign a teacher to a period that exactly matches (same subject, group, room, day and time) a period already assigned to another teacher, EMS merges them into a shared period instead of raising a room-conflict error. If a teacher is later removed from that period while their co-teacher keeps it, the shared period simply reverts to being that co-teacher's own.
+- **Importing schedules**: if a planner file assigns the exact same class to two teachers, importing it produces one shared period, the same as if you'd set it up by hand.
+
+A shared period is otherwise not any different to look at: it just shows up, identically, on each holder's own **Schedule** tab.
+
+---
+
 ## Set the Default Schedule Framework
 
 1. Go to **Settings → Employees**.

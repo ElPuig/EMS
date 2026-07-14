@@ -37,6 +37,18 @@ Gestiona el horario semanal de cada docente desde su propia ficha de empleado, y
 
 ---
 
+## Co-docencia
+
+Si dos docentes imparten realmente la misma clase juntos (misma asignatura, mismo grupo, misma aula, misma hora), EMS lo trata como una **única** clase compartida en lugar de dos independientes: ambos docentes aparecen como titulares de esa franja, y solo hay **una** sesión de asistencia para ella — cualquiera de los dos puede marcarla, y ambos ven el mismo resultado.
+
+Esto se detecta automáticamente, tanto si el horario se ha construido a mano como si se ha importado:
+- **Edición manual de un horario**: si asignas un docente a una franja que coincide exactamente (misma asignatura, grupo, aula, día y hora) con una franja ya asignada a otro docente, EMS las fusiona en una franja compartida en lugar de mostrar un error de conflicto de aula. Si más adelante se retira un docente de esa franja mientras su co-docente la mantiene, la franja compartida simplemente vuelve a ser solo de ese co-docente.
+- **Importación de horarios**: si un archivo del planificador asigna exactamente la misma clase a dos docentes, importarlo produce una única franja compartida, igual que si la hubierais configurado a mano.
+
+Una franja compartida no se ve diferente por lo demás: simplemente aparece, de forma idéntica, en la pestaña **Horario** de cada uno de sus titulares.
+
+---
+
 ## Establecer el marco horario predeterminado
 
 1. Ve a **Configuración → Empleados**.

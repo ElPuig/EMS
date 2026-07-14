@@ -31,7 +31,7 @@ class ems_attendance_justification(models.Model):
 	@api.depends('attendance_session_line_ids')
 	def _compute_session_teacher_ids(self):
 		for record in self:			
-			tt_id = record.attendance_session_line_ids.mapped('attendance_session_id.template_teacher_id.id')
+			tt_id = record.attendance_session_line_ids.mapped('attendance_session_id.template_teacher_ids.id')
 			st_id = record.attendance_session_line_ids.mapped('attendance_session_id.session_teacher_id.id')
 			regs = list(set(tt_id + st_id))
 			

@@ -19,3 +19,18 @@ def migrate(cr, _version):
     if cr.fetchone():
         cr.execute("ALTER TABLE resource_calendar_attendance RENAME COLUMN non_teaching TO non_teaching_legacy")
         _logger.info("Migration 18.0.0.21.0: renamed 'resource_calendar_attendance.non_teaching' to 'non_teaching_legacy' ahead of its Many2one conversion.")
+
+    # 'ems.attendance_template.teacher_id' (Many2one) becomes 'teacher_ids' (Many2many), to support
+    # real co-teaching. Odoo's schema sync DROPS a removed field's column outright as soon as it
+    # notices the field is gone (ir.model.fields.unlink() -> _drop_column()) — this happens before
+    # post-migrate.py ever runs, so the old teacher_id values must be saved off here first, ahead of
+    # that drop, exactly like 'non_teaching' above. The backfill into the new
+    # 'ems_attendance_template_teacher_rel' relation table happens in post-migrate.py, once that table
+    # actually exists.
+    cr.execute("""
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = 'ems_attendance_template' AND column_name = 'teacher_id'
+    """)
+    if cr.fetchone():
+        cr.execute("ALTER TABLE ems_attendance_template RENAME COLUMN teacher_id TO teacher_id_legacy")
+        _logger.info("Migration 18.0.0.21.0: renamed 'ems_attendance_template.teacher_id' to 'teacher_id_legacy' ahead of its Many2many conversion.")

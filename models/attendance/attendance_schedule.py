@@ -34,8 +34,8 @@ class ems_attendance_schedule(models.Model):
 	attendance_template_id = fields.Many2one(string="Template", comodel_name="ems.attendance_template", ondelete='cascade', required=True)	
 	attendance_session_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_session_header", inverse_name="attendance_schedule_id")	
 	
-	# The teacher_id is used just for permission filtering pruposes.
-	teacher_id = fields.Many2one(string='Teacher', related="attendance_template_id.teacher_id", store=False) 
+	# The teacher_ids is used just for permission filtering pruposes.
+	teacher_ids = fields.Many2many(string='Teachers', related="attendance_template_id.teacher_ids", store=False)
 	
 	time_range = fields.Char(compute="_compute_time_range", store=True)
 	notes = fields.Text(string="Notes")
@@ -83,7 +83,7 @@ class ems_attendance_schedule(models.Model):
 				('attendance_template_id.start_date', '<=', template.end_date),
 				('attendance_template_id.end_date', '>=', template.start_date),
 				'|',
-					('teacher_id', '=', template.teacher_id.id),
+					('teacher_ids', 'in', template.teacher_ids.ids),
 					('space_id', '=', rec.space_id.id),
 			])
 
@@ -91,7 +91,7 @@ class ems_attendance_schedule(models.Model):
 				if not rec.ranges_overlap(rec.start_time, rec.end_time, other.start_time, other.end_time):
 					continue
 
-				same_teacher = other.teacher_id == template.teacher_id
+				same_teacher = bool(set(other.teacher_ids.ids) & set(template.teacher_ids.ids))
 				if not same_teacher and rec.is_co_teaching_with(other):
 					# NOTE: same subject, sharing at least one group, different teacher, same room/time
 					# — this is the SAME class session co-taught by more than one teacher, a legitimate
@@ -104,11 +104,11 @@ class ems_attendance_schedule(models.Model):
 					"another one (%(other)s — %(other_teacher)s, %(other_space)s, %(other_time)s): both fall on "
 					"%(weekday)s with overlapping times for %(reason)s.",
 					this=template.display_name,
-					this_teacher=rec.teacher_id.display_name,
+					this_teacher=", ".join(rec.teacher_ids.mapped('display_name')),
 					this_space=rec.space_id.display_name,
 					this_time=rec.time_range,
 					other=other.attendance_template_id.display_name,
-					other_teacher=other.teacher_id.display_name,
+					other_teacher=", ".join(other.teacher_ids.mapped('display_name')),
 					other_space=other.space_id.display_name,
 					other_time=other.time_range,
 					weekday=dict(rec.weekdays_selection).get(rec.weekday),

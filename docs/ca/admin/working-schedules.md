@@ -37,6 +37,18 @@ Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat
 
 ---
 
+## Co-docència
+
+Si dos docents imparteixen realment la mateixa classe junts (mateixa assignatura, mateix grup, mateixa aula, mateixa hora), EMS ho tracta com una **única** classe compartida en lloc de dues d'independents: tots dos docents apareixen com a titulars d'aquesta franja, i només hi ha **una** sessió d'assistència per a ella — qualsevol dels dos la pot marcar, i tots dos veuen el mateix resultat.
+
+Això es detecta automàticament, tant si l'horari s'ha construït a mà com si s'ha importat:
+- **Edició manual d'un horari**: si assignes un docent a una franja que coincideix exactament (mateixa assignatura, grup, aula, dia i hora) amb una franja ja assignada a un altre docent, EMS les fusiona en una franja compartida en lloc de mostrar un error de conflicte d'aula. Si més endavant es retira un docent d'aquesta franja mentre el seu co-docent la manté, la franja compartida simplement torna a ser només d'aquell co-docent.
+- **Importació d'horaris**: si un fitxer del planificador assigna exactament la mateixa classe a dos docents, importar-lo produeix una única franja compartida, igual que si l'haguéssiu configurat a mà.
+
+Una franja compartida no es veu diferent per la resta: simplement apareix, de manera idèntica, a la pestanya **Horari** de cadascun dels seus titulars.
+
+---
+
 ## Establir el marc horari predeterminat
 
 1. Vés a **Configuració → Empleats**.

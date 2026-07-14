@@ -4,7 +4,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-def migrate(cr, _version):
+def _migrate_non_teaching_type(cr):
     # By this point Odoo has already created the new 'non_teaching' integer/FK column (from the
     # Many2one field definition) and loaded 'ems.non_teaching_type''s seed data
     # (data/main/ems.non_teaching_type.csv). Backfill every real attendance row by joining the old
@@ -38,3 +38,33 @@ def migrate(cr, _version):
 
     cr.execute("ALTER TABLE resource_calendar_attendance DROP COLUMN non_teaching_legacy")
     _logger.info("Migration 18.0.0.21.0: dropped 'resource_calendar_attendance.non_teaching_legacy'.")
+
+
+def _migrate_attendance_template_teacher_ids(cr):
+    # 'ems.attendance_template.teacher_id' (Many2one) becomes 'teacher_ids' (Many2many), to support
+    # real co-teaching (several teachers sharing one template/session). By this point Odoo has already
+    # created the new 'ems_attendance_template_teacher_rel' relation table from the Many2many field
+    # definition, and pre-migrate.py has saved the old values off as 'teacher_id_legacy' (ahead of
+    # Odoo's own schema sync dropping the original 'teacher_id' column) — copy them into the new
+    # relation table, then drop the legacy column.
+    cr.execute("""
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = 'ems_attendance_template' AND column_name = 'teacher_id_legacy'
+    """)
+    if not cr.fetchone():
+        return
+
+    cr.execute("""
+        INSERT INTO ems_attendance_template_teacher_rel (ems_attendance_template_id, hr_employee_id)
+        SELECT id, teacher_id_legacy FROM ems_attendance_template WHERE teacher_id_legacy IS NOT NULL
+        ON CONFLICT DO NOTHING
+    """)
+    _logger.info("Migration 18.0.0.21.0: migrated %d 'ems.attendance_template.teacher_id' value(s) to 'teacher_ids'.", cr.rowcount)
+
+    cr.execute("ALTER TABLE ems_attendance_template DROP COLUMN teacher_id_legacy")
+    _logger.info("Migration 18.0.0.21.0: dropped 'ems_attendance_template.teacher_id_legacy'.")
+
+
+def migrate(cr, _version):
+    _migrate_non_teaching_type(cr)
+    _migrate_attendance_template_teacher_ids(cr)

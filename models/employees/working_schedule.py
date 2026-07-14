@@ -219,7 +219,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			template = conflict.attendance_template_id
 			weekday = dict(conflict.weekdays_selection).get(conflict.weekday)
 			lines.append(_("%(teacher)s — %(subject)s (%(weekday)s %(time)s)") % {
-				'teacher': template.teacher_id.display_name,
+				'teacher': ", ".join(template.teacher_ids.mapped('display_name')),
 				'subject': template.display_name,
 				'weekday': weekday,
 				'time': conflict.time_range,

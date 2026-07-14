@@ -185,6 +185,41 @@ class TestExitManagement(TransactionCase):
         self.assertEqual(student.contact_type, 'withdrawal')
         self.assertNotIn(student, template.student_ids)
 
+    def test_withdrawal_clears_operational_records(self):
+        """Once the history is frozen, the withdrawal must leave nothing operational
+        behind: an ex-student enrolled in the group's subjects keeps showing up in the
+        evaluation matrix, in the attendance sessions and in the EM grading wizard."""
+        subject = self.env['ems.subject'].create({
+            'code': 'SUBW', 'acronym': 'SBW', 'name': 'Subject W',
+            'study_ids': [(6, 0, [self.study.id])]})
+        student = self._student('Cleanup Withdrawal')
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': self.group.id, 'subject_id': subject.id})
+        session = self.env['ems.grade_session'].create({
+            'group_id': self.group.id, 'subject_id': subject.id, 'round': '1'})
+        session.fill_students()
+        self.assertTrue(session.grade_subject_line_ids.filtered(
+            lambda line: line.student_id == student))
+        self.group.delegate_id = student
+
+        wizard = self.env['ems.withdrawal_wizard'].with_context(
+            active_ids=student.ids).create({})
+        wizard.action_apply()
+
+        self.assertEqual(student.contact_type, 'withdrawal')
+        # The history keeps what the operational records said.
+        self.assertTrue(student.year_record_ids)
+        self.assertFalse(self.env['ems.enrollment'].search(
+            [('student_id', '=', student.id)]))
+        self.assertFalse(self.env['ems.grade_subject_line'].search(
+            [('student_id', '=', student.id)]))
+        self.assertFalse(self.env['ems.grade_outcome_line'].search(
+            [('student_id', '=', student.id)]))
+        self.assertFalse(self.env['ems.attendance_session_line'].search(
+            [('student_id', '=', student.id)]))
+        self.assertNotIn(student, self.group.enrolled_student_ids)
+        self.assertFalse(self.group.delegate_id)
+
     def test_gw_suspend_on_ex_student_conversion(self):
         # With Google Workspace enabled, converting a student to ex-student must be
         # able to suspend the account (the worker no longer requires contact_type=='student').

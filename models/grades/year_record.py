@@ -292,6 +292,27 @@ class EmsStudentYearRecordSubject(models.Model):
         for subject_record in self:
             subject_record.display_name = subject_record.subject_name or ""
 
+    def apply_external_grade(self, score):
+        """Write the work placement (EM) grade on an archived subject (called by the EM
+        grading wizard), completing its final grade with the weights frozen in the record.
+
+        A grade below 5 means the placement is repeated, never the subject: the grade is
+        kept for the record but not marked as scored, so the subject stays passed with its
+        final pending until the student takes the placement again."""
+        for subject_record in self:
+            is_scored = score >= 5
+            # The internal part of an archived subject is always informed (the record is a
+            # copy of the last round). The formula is the grades model's own, not a rewrite.
+            final_grade, has_final = self.env['ems.grade_subject_line']._final_from_parts(
+                subject_record.internal_grade, True, score, is_scored,
+                subject_record.internal_weight, subject_record.external_weight)
+            subject_record.write({
+                'external_grade': score,
+                'external_is_scored': is_scored,
+                'final_grade': final_grade,
+                'has_final': has_final,
+            })
+
 
 class EmsStudentYearRecordOutcome(models.Model):
     _name = 'ems.student.year_record.outcome'

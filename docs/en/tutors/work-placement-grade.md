@@ -14,12 +14,22 @@ The grade you enter is applied to **every module of that student carrying a plac
 
 **Planning and Grading → Grades → Work placement evaluation (EM)**.
 
+![The work placement evaluation menu](../../assets/tutors/Posar-Nota-EM-01.png)
+
 ## How to enter the grade
 
-1. Pick the **Group** (optionally filtering by **Study** first). If you are a tutor you can only pick the group you tutor.
+1. Pick the **Group**. As a **tutor** you pick it straight away: only the groups you tutor are offered.
+
+   ![Picking the group as a tutor](../../assets/tutors/Posar-Nota-EM-02-Tutor.png)
+
+   The **secretariat** and the **administrators** reach any group of the centre, so they should first pick the **Study** to narrow the group list down:
+
+   ![Picking the study as secretary or administrator](../../assets/tutors/Posar-Nota-EM-03-AdminoSecretaria.png)
 2. The matrix shows one row per student, with their photo, first name and last name — like the evaluation screen you already know.
 3. Type the grade in the **EM grade** cell of the students who have finished their placement. That single grade goes to **every module of theirs** carrying a placement weight.
 4. Press **Apply changes**.
+
+![The grading matrix of a group](../../assets/tutors/Posar-Nota-EM-04.png)
 
 The grid works like a spreadsheet: the arrows and Enter move from cell to cell, Tab jumps to the next one, and you can **paste a column of grades straight from a spreadsheet** (click the first cell and paste). An empty cell is never written — remember a 0 is a real grade, so blank means "no placement grade yet".
 
@@ -27,7 +37,7 @@ The grid works like a spreadsheet: the arrows and Enter move from cell to cell, 
 
 Tick **Grade per module** on that student's row: the single EM grade is switched off and one cell per module turns on, so you can grade each module on its own. The module columns are headed by the module code, with its name underneath.
 
-Each line tells you where it goes:
+The header of each module column tells you where its grade goes:
 
 - **Current course:** a module of the course in progress. The final grade of the module is recalculated on the spot with the centre grade already registered.
 - **Previous course:** a module of an earlier course, already in the student's academic history, that was waiting for the placement to close its final grade. The final is completed with the weights that module had at the time.
@@ -40,8 +50,15 @@ A failed placement never fails the module. The module stays **passed** (it is th
 
 ## Notes
 
-- A module that has already been graded appears greyed out, with **Already graded** ticked. You can still correct it: enter the new grade and apply again.
+- A module that has already been graded can still be corrected: enter the new grade and apply again.
 - Entering the placement grade works even after the evaluation session has been finalised — that is the normal case, since the placement usually ends after the board.
+- Ex-students (withdrawals and alumni) are never listed: they have left the centre and their history is closed.
+
+## For the secretariat: closing the finals pending from previous courses
+
+The secretariat and the administrators use this same screen, with no restriction of group. It is the way to close the finals still pending from previous courses — a student who passed all the learning outcomes of a module but whose final grade could not be computed because the placement had not been done yet.
+
+To find them: **Planning and Grading → Grades → Academic history**, filter **Finals pending placement**. Every line there is a module of a past course waiting for its placement grade — exactly the cells the matrix offers under a **Previous course** heading, whose final it completes with the weights frozen in the history record.
 
 ---
 

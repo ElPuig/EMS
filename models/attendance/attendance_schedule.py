@@ -92,14 +92,41 @@ class ems_attendance_schedule(models.Model):
 					continue
 
 				same_teacher = other.teacher_id == template.teacher_id
+				if not same_teacher and rec.is_co_teaching_with(other):
+					# NOTE: same subject, sharing at least one group, different teacher, same room/time
+					# — this is the SAME class session co-taught by more than one teacher, a legitimate
+					# setup, not a genuine double-booking of the room by two unrelated sessions.
+					continue
+
 				reason = _("the same teacher") if same_teacher else _("the same space")
 				raise ValidationError(_(
-					"This session overlaps with another one (%(other)s): both fall on %(weekday)s "
-					"with overlapping times for %(reason)s.",
+					"This session (%(this)s — %(this_teacher)s, %(this_space)s, %(this_time)s) overlaps with "
+					"another one (%(other)s — %(other_teacher)s, %(other_space)s, %(other_time)s): both fall on "
+					"%(weekday)s with overlapping times for %(reason)s.",
+					this=template.display_name,
+					this_teacher=rec.teacher_id.display_name,
+					this_space=rec.space_id.display_name,
+					this_time=rec.time_range,
 					other=other.attendance_template_id.display_name,
+					other_teacher=other.teacher_id.display_name,
+					other_space=other.space_id.display_name,
+					other_time=other.time_range,
 					weekday=dict(rec.weekdays_selection).get(rec.weekday),
 					reason=reason,
 				))
+
+	def is_co_teaching_with(self, other):
+		"""True if 'self' and 'other' represent the SAME class session co-taught by more than one
+		teacher — same subject, sharing at least one group — rather than two unrelated sessions that
+		happen to double-book the same room. Used by 'check_overlap' (here) and
+		'ems.attendance_template.find_external_conflicts' (which mirrors this same logic against a
+		not-yet-created entry dict, since one side isn't a record yet)."""
+		self.ensure_one()
+		other.ensure_one()
+		template, other_template = self.attendance_template_id, other.attendance_template_id
+		return template.subject_id == other_template.subject_id and bool(
+			set(template.group_ids.ids) & set(other_template.group_ids.ids)
+		)
 
 	def unlink(self):
 		if len(self.attendance_session_ids) > 0:

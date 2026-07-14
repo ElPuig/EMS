@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from markupsafe import Markup, escape
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 import xml.etree.ElementTree as ET
@@ -186,39 +187,127 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# "Working Schedules" list's cog menu, not the per-employee 'Import' button) — lets several planner
 	# files be imported in one go, each one possibly describing several teachers (see create()).
 	attachment_ids = fields.Many2many(string="Planner files (XML)", comodel_name="ir.attachment")
-	is_overriding = fields.Boolean(store=False)
-	overrided_teachers = fields.Char(default="")
+	# Non-blocking yellow banner: bullet list of teachers who already have a schedule that will be
+	# updated. Html (not Char) so many teachers render as a real list instead of one long comma sentence.
+	overrided_teachers_html = fields.Html(readonly=True, store=False)
+	# Non-blocking yellow banner: bullet list of OTHER teachers (not part of this file) whose stale
+	# schedule line collides with the import and will be archived — see
+	# ems.attendance_template.find_external_conflicts.
+	external_conflicts_html = fields.Html(readonly=True, store=False)
+	# Blocking (red banner, hides the 'Import' button): too many teachers in a scoped file, or an
+	# unknown teacher e-mail in the general importer's files.
+	blocking_error_message = fields.Char(store=False)
+	# Non-blocking (extra yellow banner, alongside 'overrided_teachers_html'): the scoped file's single
+	# teacher node has a different e-mail than the employee this wizard was opened for — the import
+	# still goes ahead against 'teacher_id', the e-mail in the file is only ever used for the general importer.
+	email_mismatch_warning = fields.Char(store=False)
 	# NOTE: set via context (default_teacher_id) when opened from an employee's 'Schedule' tab "Import"
 	# button — the file is then assumed to describe that single teacher, skipping the email lookup below.
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
 
+	def _bullet_html(self, lines):
+		"""A readonly <ul><li> list from plain-text lines (escaped), or False for none — used to
+		render the wizard's warning banners as a real list instead of one long comma sentence."""
+		if not lines:
+			return False
+		items = Markup("").join(Markup("<li>%s</li>") % escape(line) for line in lines)
+		return Markup("<ul>%s</ul>") % items
+
+	def _external_conflict_lines(self, conflicts):
+		lines = []
+		for conflict in conflicts:
+			template = conflict.attendance_template_id
+			weekday = dict(conflict.weekdays_selection).get(conflict.weekday)
+			lines.append(_("%(teacher)s — %(subject)s (%(weekday)s %(time)s)") % {
+				'teacher': template.teacher_id.display_name,
+				'subject': template.display_name,
+				'weekday': weekday,
+				'time': conflict.time_range,
+			})
+		return lines
+
+	def _groups_without_space(self, teacher_entries):
+		"""Every distinct ems.group referenced by a teaching entry (group_ids present — non-teaching
+		entries carry none) that has no classroom (space_id) assigned. ems.group.space_id is optional,
+		but the room on ems.attendance_template it feeds is required — importing a subject taught to
+		such a group fails with Odoo's generic "mandatory field is not set" error instead of naming the
+		actual problem, so this is checked upfront to raise/warn with the group(s) at fault instead."""
+		group_ids = set()
+		for _teacher, entries in teacher_entries:
+			for entry in entries:
+				group_ids.update(entry.get('group_ids') or [])
+		if not group_ids:
+			return self.env['ems.group']
+		return self.env['ems.group'].browse(group_ids).filtered(lambda group: not group.space_id)
+
 	@api.onchange("file")
 	def _onchange_file(self):
 		for rec in self:
+			rec.blocking_error_message = False
+			rec.email_mismatch_warning = False
+			rec.overrided_teachers_html = False
+			rec.external_conflicts_html = False
 			if rec.file:
 				xml_content = base64.b64decode(rec.file)
 				tree = ET.ElementTree(ET.fromstring(xml_content))
 
 				root = tree.getroot()
 				if rec.teacher_id:
+					if len(root) != 1:
+						rec.blocking_error_message = _(
+							"This file describes %d teachers; the per-employee importer only accepts a file with exactly one."
+						) % len(root)
+						continue
+
+					email = root[0].attrib['name'].split(' ')[0]
+					if email.lower() != (rec.teacher_id.work_email or '').lower():
+						rec.email_mismatch_warning = _(
+							"This file's teacher e-mail (%s) doesn't match %s — it will still be imported for this employee."
+						) % (email, rec.teacher_id.display_name)
+
 					if rec.teacher_id.resource_calendar_id.id:
-						rec.is_overriding = True
-						rec.overrided_teachers = rec.teacher_id.display_name
+						rec.overrided_teachers_html = rec._bullet_html([rec.teacher_id.display_name])
+
+					entries = [e for e in rec._parse_schedule_entries(root[0])[0] if not e["non_teaching"]]
+					missing_space = rec._groups_without_space([(rec.teacher_id, entries)])
+					if missing_space:
+						rec.blocking_error_message = _(
+							"These groups have no classroom assigned, so their schedule cannot be imported: %s"
+						) % ", ".join(missing_space.mapped('name'))
+						continue
+
+					conflicts = self.env['ems.attendance_template'].find_external_conflicts([(rec.teacher_id, entries)])
+					rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
 					continue
 
+				overrided, teacher_entries = [], []
 				for teacherNode in root:
 					email = teacherNode.attrib['name'].split(' ')[0]
 					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
+					if not teacher:
+						continue
 
-					if teacher and teacher.resource_calendar_id.id:
-						rec.is_overriding = True
-						rec.overrided_teachers = teacher.display_name if not rec.overrided_teachers else "%s, %s" % (rec.overrided_teachers, teacher.display_name)
+					if teacher.resource_calendar_id.id:
+						overrided.append(teacher.display_name)
+					entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
+					teacher_entries.append((teacher, entries))
+
+				missing_space = rec._groups_without_space(teacher_entries)
+				if missing_space:
+					rec.blocking_error_message = _(
+						"These groups have no classroom assigned, so their schedule cannot be imported: %s"
+					) % ", ".join(missing_space.mapped('name'))
+					continue
+
+				rec.overrided_teachers_html = rec._bullet_html(overrided)
+				conflicts = self.env['ems.attendance_template'].find_external_conflicts(teacher_entries)
+				rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
 
 	@api.onchange("attachment_ids")
 	def _onchange_attachment_ids(self):
 		for rec in self:
-			rec.is_overriding = False
-			rec.overrided_teachers = ""
+			rec.blocking_error_message = False
+			overrided, unknown_emails, teacher_entries = [], [], []
 			for attachment in rec.attachment_ids:
 				xml_content = base64.b64decode(attachment.datas)
 				tree = ET.ElementTree(ET.fromstring(xml_content))
@@ -227,9 +316,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					email = teacherNode.attrib['name'].split(' ')[0]
 					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
 
-					if teacher and teacher.resource_calendar_id.id:
-						rec.is_overriding = True
-						rec.overrided_teachers = teacher.display_name if not rec.overrided_teachers else "%s, %s" % (rec.overrided_teachers, teacher.display_name)
+					if not teacher:
+						unknown_emails.append(_("unknown e-mail '%s' in '%s'") % (email, attachment.name))
+						continue
+
+					if teacher.resource_calendar_id.id:
+						overrided.append(teacher.display_name)
+					entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
+					teacher_entries.append((teacher, entries))
+
+			missing_space = rec._groups_without_space(teacher_entries)
+			if missing_space:
+				unknown_emails.append(_(
+					"These groups have no classroom assigned, so their schedule cannot be imported: %s"
+				) % ", ".join(missing_space.mapped('name')))
+
+			rec.blocking_error_message = ", ".join(unknown_emails) if unknown_emails else False
+			rec.overrided_teachers_html = rec._bullet_html(overrided)
+			conflicts = self.env['ems.attendance_template'].find_external_conflicts(teacher_entries) if not missing_space else self.env['ems.attendance_schedule']
+			rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
 
 	def import_planner_data(self):
 		return {
@@ -248,11 +353,20 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			if not xml_contents:
 				raise ValidationError(_("No XML file has been loaded. Please, provide at least one XML file and try again."))
 
+			# NOTE: attendance_template sync is deferred and batched across every teacher in this item
+			# (see sync_from_schedule_batch) — syncing one teacher at a time here would let an early
+			# teacher's fresh schedule line falsely collide with a later teacher's still-stale one
+			# whenever they share a classroom, since the later teacher hasn't been re-synced yet.
+			teacher_entries = []
 			for xml_content in xml_contents:
 				tree = ET.ElementTree(ET.fromstring(xml_content))
 				root = tree.getroot()
 
 				if item.get('teacher_id'):
+					if len(root) != 1:
+						raise ValidationError(_(
+							"This file describes %d teachers; the per-employee importer only accepts a file with exactly one."
+						) % len(root))
 					nodes = [(root[0], self.env['hr.employee'].browse(item['teacher_id']))]
 				else:
 					nodes = []
@@ -266,7 +380,22 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					entries = self._create_schedule(node, teacher, course_id)
 					entries = [e for e in entries if not e["non_teaching"]]
 					self.env['ems.teaching'].sync_from_schedule(teacher, entries)
-					self.env['ems.attendance_template'].sync_from_schedule(teacher, entries)
+					teacher_entries.append((teacher, entries))
+
+			# NOTE: ems.attendance_template.space_id is required, but ems.group.space_id (where it's
+			# taken from) is not — a group missing a classroom would otherwise fail with Odoo's generic
+			# "mandatory field is not set" error instead of naming the actual problem.
+			missing_space = self._groups_without_space(teacher_entries)
+			if missing_space:
+				raise ValidationError(_(
+					"These groups have no classroom assigned, so their schedule cannot be imported: %s"
+				) % ", ".join(missing_space.mapped('name')))
+
+			# NOTE: also archive any OTHER teacher's (not part of this file) conflicting schedule line
+			# before the batch sync writes anything new — a teacher simply absent from this file can
+			# still hold a stale line in a classroom the new import now wants at an overlapping time.
+			self.env['ems.attendance_template'].find_external_conflicts(teacher_entries).action_archive()
+			self.env['ems.attendance_template'].sync_from_schedule_batch(teacher_entries)
 
 		return super(models.Model, self).create(values)
 
@@ -291,18 +420,30 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				ids.extend(command[2])
 		return ids
 
-	def _create_schedule(self, xml_node, teacher, course_id):			
+	def _create_schedule(self, xml_node, teacher, course_id):
+		entries, attendance_ids = self._parse_schedule_entries(xml_node)
+
 		name = "%s (%s)" % (teacher.name, course_id.name)
 		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
-		non_teaching_items = {t.code: t for t in self.env['ems.non_teaching_type'].search([])}
-
 		if not schedule:
 			# TODO: add a relation to current_course
 			schedule = self.env['resource.calendar'].create({
 				'name': "%s (%s)" % (teacher.name, course_id.name),
 				'full_time_required_hours': 24
 			})
-		
+
+		schedule.write({ 'attendance_ids': attendance_ids })
+		teacher.write({ "resource_calendar_id": schedule })
+		return entries
+
+	def _parse_schedule_entries(self, xml_node):
+		"""Parse a <Teacher> XML node into (entries, attendance_ids) — the flattened list of real
+		(subject/non-teaching) slots plus the (0,0,{...})-command list ready for a resource.calendar's
+		'attendance_ids', without writing anything. Pure parsing, split out of '_create_schedule' so it
+		can be reused for a preview (e.g. the import wizard's onchange handlers, or conflict detection)
+		without any side effect."""
+		non_teaching_items = {t.code: t for t in self.env['ems.non_teaching_type'].search([])}
+
 		entries = []
 		attendance_ids = [[5]]
 		for dayNode in xml_node:
@@ -380,7 +521,5 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				entries.append(meta)
 				attendance_ids.append([0, 0, e])
 
-		schedule.write({ 'attendance_ids': attendance_ids })
-		teacher.write({ "resource_calendar_id": schedule })
-		return entries
+		return entries, attendance_ids
 

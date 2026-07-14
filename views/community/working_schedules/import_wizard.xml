@@ -6,14 +6,23 @@
             <field name="arch" type="xml">
                 <form string="Session">
                     <field name="teacher_id" invisible="1"/>
-                    <field name="is_overriding" invisible="1"/>
-                    <div class="alert alert-warning" role="alert" name="alert-warning" invisible="not is_overriding">
-                        Attention please: some teachers (<field name="overrided_teachers" readonly="1" class="oe_inline fw-bold" options="{'no_open': True}"/>) already have a schedule defined for the current course. If you continue with the process: <br/>
-                        <ul>
-                            <li>The current working schedules will be updated according to the provided ones (none will be removed).</li>
-                            <li>The current subject assignations will be updated to match the new schedules.</li>
-                            <li>The current assistance templates will be updated to match the new schedules.</li>
-                        </ul>
+                    <field name="blocking_error_message" invisible="1"/>
+                    <field name="email_mismatch_warning" invisible="1"/>
+                    <field name="overrided_teachers_html" invisible="1"/>
+                    <field name="external_conflicts_html" invisible="1"/>
+                    <div class="alert alert-danger" role="alert" name="alert-danger" invisible="not blocking_error_message">
+                        <field name="blocking_error_message" readonly="1" class="oe_inline"/>
+                    </div>
+                    <div class="alert alert-warning" role="alert" name="alert-warning-email-mismatch" invisible="not email_mismatch_warning">
+                        <field name="email_mismatch_warning" readonly="1" class="oe_inline"/>
+                    </div>
+                    <div class="alert alert-warning" role="alert" name="alert-warning" invisible="not overrided_teachers_html">
+                        Attention please: the following teachers already have a schedule defined for the current course. If you continue with the process, their working schedules, subject assignations and assistance templates will be updated to match the provided ones (none will be removed):
+                        <field name="overrided_teachers_html" readonly="1"/>
+                    </div>
+                    <div class="alert alert-warning" role="alert" name="alert-warning-external-conflicts" invisible="not external_conflicts_html">
+                        Attention please: the following existing sessions belong to teachers NOT included in this file, but overlap in classroom and time with what you're importing. If you continue with the process, these sessions will be archived (their attendance history is kept, but they will no longer appear on the schedule):
+                        <field name="external_conflicts_html" readonly="1"/>
                     </div>
 
                     <group invisible="not teacher_id">
@@ -24,7 +33,7 @@
                     </group>
 
                     <footer>
-                        <button name="import_planner_data" string="Import" type="object" class="btn-primary" icon="fa-calendar-plus-o" invisible="file == False and not attachment_ids" />
+                        <button name="import_planner_data" string="Import" type="object" class="btn-primary" icon="fa-calendar-plus-o" invisible="(file == False and not attachment_ids) or blocking_error_message" />
                         <button name="cancel" string="Cancel" special="cancel"/>
                     </footer>
                 </form>              

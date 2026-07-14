@@ -55,6 +55,20 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'study_id': cls.study.id,
             'space_id': cls.space.id,
         })
+        cls.other_subject = cls.env['ems.subject'].create({
+            'code': 'TWIW002',
+            'acronym': 'TWIW2',
+            'name': 'Test Subject 2 (Import Wizard)',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        # No 'space_id' — ems.group.space_id is optional, but ems.attendance_template.space_id (taken
+        # from the group) is required; see test_import_group_without_space_raises_clear_error.
+        cls.spaceless_group = cls.env['ems.group'].create({
+            'course': 3,
+            'acronym': 'NOSPACE',
+            'level_id': cls.level.id,
+            'study_id': cls.study.id,
+        })
 
     def _xml_file(self, teacher_name_attr):
         # Minimal file the parser accepts: one teacher node -> one day -> one hour -> a NonTeaching
@@ -79,6 +93,13 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             '</D></T></root>'
         )
         return base64.b64encode(xml.encode())
+
+    def _xml_file_multiple_teachers(self, *teacher_name_attrs):
+        teachers = "".join(
+            f'<T name="{attr}"><D name="1 Monday"><H name="1 09:00"><NonTeaching name="G Guard"/></H></D></T>'
+            for attr in teacher_name_attrs
+        )
+        return base64.b64encode(f'<root>{teachers}</root>'.encode())
 
     def _xml_file_with_hours(self, teacher_name_attr, start_times):
         # One 'NonTeaching' hour node per start time (same day), so hour_from/hour_to inference can
@@ -225,3 +246,296 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         attendance = self.teacher.resource_calendar_id.attendance_ids
         self.assertEqual(attendance.hour_to, self.env.company.schedule_import_last_entry_time)
+
+    def test_import_scoped_multiple_teachers_raises(self):
+        with self.assertRaises(ValidationError):
+            self.env['ems.working_schedules_import_wizard'].create({
+                'file': self._xml_file_multiple_teachers(
+                    'test.wizard.teacher.import.wizard@example.com Someone',
+                    'test.wizard.teacher2.import.wizard@example.com Someone Else',
+                ),
+                'teacher_id': self.teacher.id,
+            })
+
+    def test_onchange_file_scoped_multiple_teachers_sets_blocking_error(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'teacher_id': self.teacher.id,
+            'file': self._xml_file_multiple_teachers(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                'test.wizard.teacher2.import.wizard@example.com Someone Else',
+            ),
+        })
+
+        wizard._onchange_file()
+
+        self.assertTrue(wizard.blocking_error_message)
+        self.assertFalse(wizard.email_mismatch_warning)
+
+    def test_onchange_file_scoped_email_mismatch_sets_warning_not_blocking(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'teacher_id': self.teacher.id,
+            'file': self._xml_file('nonexistent@example.com Nobody'),
+        })
+
+        wizard._onchange_file()
+
+        self.assertTrue(wizard.email_mismatch_warning)
+        self.assertFalse(wizard.blocking_error_message)
+
+    def test_onchange_file_scoped_matching_email_no_warning(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'teacher_id': self.teacher.id,
+            'file': self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+        })
+
+        wizard._onchange_file()
+
+        self.assertFalse(wizard.email_mismatch_warning)
+        self.assertFalse(wizard.blocking_error_message)
+
+    def test_onchange_attachment_ids_unknown_email_sets_blocking_error(self):
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_unknown.xml',
+            'datas': self._xml_file('unknown.import.wizard@example.com Someone'),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+
+        wizard._onchange_attachment_ids()
+
+        self.assertTrue(wizard.blocking_error_message)
+        self.assertIn('unknown.import.wizard@example.com', wizard.blocking_error_message)
+        self.assertIn('planner_unknown.xml', wizard.blocking_error_message)
+
+    def test_onchange_attachment_ids_known_email_no_blocking_error(self):
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_known.xml',
+            'datas': self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+
+        wizard._onchange_attachment_ids()
+
+        self.assertFalse(wizard.blocking_error_message)
+
+    def _xml_teacher_subject_then_gap(self, email_and_name, hour1, subject, group, hour2):
+        return (
+            f'<T name="{email_and_name}">'
+            '<D name="1 Monday">'
+            f'<H name="1 {hour1}">'
+            f'<Subject name="{subject.code} {subject.name}"/>'
+            f'<Students name="{group.name} Group"/>'
+            '</H>'
+            f'<H name="2 {hour2}"><NonTeaching name="CT Coordination Time"/></H>'
+            '</D></T>'
+        )
+
+    def test_batch_swapped_times_across_two_teachers_sharing_a_room_does_not_raise(self):
+        # Real-world bug: importing several teachers from one file synced each teacher's
+        # ems.attendance_template fully (archive + write) before moving to the next one, so an early
+        # teacher's fresh line could falsely collide with a later teacher's still-stale line when they
+        # share a classroom (same group's default space). The whole import must not raise.
+        second_teacher = self.env['hr.employee'].create({
+            'name': 'Test Wizard Teacher 3 (Import Wizard)',
+            'employee_type': 'teacher',
+            'work_email': 'test.wizard.teacher3.import.wizard@example.com',
+        })
+        xml = '<root>' + (
+            self._xml_teacher_subject_then_gap(
+                'test.wizard.teacher.import.wizard@example.com Someone', '09:00', self.subject, self.group, '10:00',
+            ) + self._xml_teacher_subject_then_gap(
+                'test.wizard.teacher3.import.wizard@example.com Someone Else', '17:00', self.other_subject, self.group, '18:00',
+            )
+        ) + '</root>'
+        self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': [(6, 0, [self.env['ir.attachment'].create({
+                'name': 'planner_shared_room.xml', 'datas': base64.b64encode(xml.encode()),
+            }).id])],
+        })
+
+        # Swap: 'self.teacher' takes over what used to be 'second_teacher's slot in the SAME room.
+        xml_swapped = '<root>' + (
+            self._xml_teacher_subject_then_gap(
+                'test.wizard.teacher.import.wizard@example.com Someone', '17:00', self.subject, self.group, '18:00',
+            ) + self._xml_teacher_subject_then_gap(
+                'test.wizard.teacher3.import.wizard@example.com Someone Else', '09:00', self.other_subject, self.group, '10:00',
+            )
+        ) + '</root>'
+        self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': [(6, 0, [self.env['ir.attachment'].create({
+                'name': 'planner_shared_room_swapped.xml', 'datas': base64.b64encode(xml_swapped.encode()),
+            }).id])],
+        })
+
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        other_template = self.env['ems.attendance_template'].search([
+            ('teacher_id', '=', second_teacher.id), ('subject_id', '=', self.other_subject.id),
+        ])
+        self.assertEqual(template.attendance_schedule_ids.mapped('start_time'), [17])
+        self.assertEqual(other_template.attendance_schedule_ids.mapped('start_time'), [9])
+
+    def test_import_archives_external_conflict_from_teacher_not_in_this_file(self):
+        # Real-world bug: a teacher simply absent from the file being (re)imported can still hold a
+        # stale schedule line in a room the new import now also wants at an overlapping time. The
+        # import must not raise — that stale, colliding line gets archived (not the whole template).
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+            'teacher_id': self.teacher.id,
+        })
+        old_line = self.env['ems.attendance_template'].search([
+            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ]).attendance_schedule_ids
+
+        second_teacher = self.env['hr.employee'].create({
+            'name': 'Test Wizard Teacher 4 (Import Wizard)',
+            'employee_type': 'teacher',
+            'work_email': 'test.wizard.teacher4.import.wizard@example.com',
+        })
+        # 'self.teacher' is NOT part of this second import — only 'second_teacher' is.
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher4.import.wizard@example.com Someone Else',
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+            'teacher_id': second_teacher.id,
+        })
+
+        self.assertFalse(old_line.active)
+        new_template = self.env['ems.attendance_template'].search([
+            ('teacher_id', '=', second_teacher.id), ('subject_id', '=', self.other_subject.id),
+        ])
+        self.assertTrue(new_template.attendance_schedule_ids)
+
+    def test_onchange_file_scoped_sets_external_conflicts_html(self):
+        # Different subject (not co-teaching — same subject+group by different teachers is a legitimate
+        # setup, see ems.attendance_schedule.is_co_teaching_with): a genuine, unrelated room conflict.
+        second_teacher = self.env['hr.employee'].create({
+            'name': 'Test Wizard Teacher 5 (Import Wizard)',
+            'employee_type': 'teacher',
+            'work_email': 'test.wizard.teacher5.import.wizard@example.com',
+        })
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher5.import.wizard@example.com Someone',
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+            'teacher_id': second_teacher.id,
+        })
+
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'teacher_id': self.teacher.id,
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+        })
+        wizard._onchange_file()
+
+        self.assertTrue(wizard.external_conflicts_html)
+        self.assertIn('Test Wizard Teacher 5', wizard.external_conflicts_html)
+
+    def test_onchange_file_scoped_co_teaching_not_flagged_as_conflict(self):
+        # Same subject+group as an existing external teacher's schedule — a legitimate co-teaching
+        # setup, must NOT be flagged as something that would get archived.
+        second_teacher = self.env['hr.employee'].create({
+            'name': 'Test Wizard Teacher 6 (Import Wizard)',
+            'employee_type': 'teacher',
+            'work_email': 'test.wizard.teacher6.import.wizard@example.com',
+        })
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher6.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+            'teacher_id': second_teacher.id,
+        })
+
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'teacher_id': self.teacher.id,
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+        })
+        wizard._onchange_file()
+
+        self.assertFalse(wizard.external_conflicts_html)
+
+    def test_onchange_file_overrided_teachers_html_lists_teacher(self):
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+            'teacher_id': self.teacher.id,
+        })
+
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'teacher_id': self.teacher.id,
+            'file': self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+        })
+        wizard._onchange_file()
+
+        self.assertTrue(wizard.overrided_teachers_html)
+        self.assertIn('<li>', wizard.overrided_teachers_html)
+        self.assertIn(self.teacher.display_name, wizard.overrided_teachers_html)
+
+    def test_import_group_without_space_raises_clear_error(self):
+        # ems.group.space_id is optional, but ems.attendance_template.space_id (taken from the
+        # group) is required — without this check, Odoo's generic "mandatory field is not set" error
+        # would surface instead of naming which group is missing a classroom.
+        with self.assertRaises(ValidationError) as capture:
+            self.env['ems.working_schedules_import_wizard'].create({
+                'file': self._xml_file_with_hour_node(
+                    'test.wizard.teacher.import.wizard@example.com Someone',
+                    f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                    f'<Students name="{self.spaceless_group.name} Group"/>',
+                ),
+                'teacher_id': self.teacher.id,
+            })
+
+        self.assertIn(self.spaceless_group.name, str(capture.exception))
+
+    def test_onchange_file_scoped_sets_blocking_error_for_group_without_space(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'teacher_id': self.teacher.id,
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.spaceless_group.name} Group"/>',
+            ),
+        })
+
+        wizard._onchange_file()
+
+        self.assertTrue(wizard.blocking_error_message)
+        self.assertIn(self.spaceless_group.name, wizard.blocking_error_message)
+
+    def test_onchange_attachment_ids_sets_blocking_error_for_group_without_space(self):
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_no_space.xml',
+            'datas': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.spaceless_group.name} Group"/>',
+            ),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+
+        wizard._onchange_attachment_ids()
+
+        self.assertTrue(wizard.blocking_error_message)
+        self.assertIn(self.spaceless_group.name, wizard.blocking_error_message)

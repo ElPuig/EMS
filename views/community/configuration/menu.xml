@@ -7,6 +7,7 @@
         <menuitem name="ASP" sequence="3" id="menu_community_config_asp" parent="menu_community_config"/>        
         <menuitem name="Curriculum" sequence="4" id="menu_community_config_curriculum" parent="menu_community_config" />
         <menuitem name="Spaces" sequence="5" id="menu_community_config_spaces" parent="menu_community_config"/>
-        <menuitem name="Human resources" sequence="6" id="menu_community_config_hhrr" parent="menu_community_config"/>
+        <menuitem name="Schedules" sequence="6" id="menu_community_config_schedules" parent="menu_community_config"/>
+        <menuitem name="Human resources" sequence="7" id="menu_community_config_hhrr" parent="menu_community_config"/>
     </data>
 </odoo>

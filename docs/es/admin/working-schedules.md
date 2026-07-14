@@ -47,6 +47,17 @@ Este campo es obligatorio — el módulo trae un marco predeterminado genérico 
 
 ---
 
+## Gestionar los tipos de hora no lectiva
+
+La lista de motivos no lectivos (Patio, Guardia, Reunión de coordinación...) que se muestra allí donde una franja no es una asignatura es configurable, así que puedes añadir uno nuevo tú mismo si el planificador externo de tu centro empieza a enviar un código que EMS todavía no conoce — sin necesidad de ningún desarrollador.
+
+1. Ve a **Configuración → Profesorado → Tipos de hora no lectiva**.
+2. Haz clic en **Nuevo**, establece un **Código** corto (debe coincidir exactamente con el que usa el planificador externo para esa actividad) y un **Nombre** (lo que verán los docentes y los informes).
+3. Opcionalmente, márcalo como **Es un descanso** (se descarta por completo del resumen de horas semanales, igual que el patio) o **Siempre es un compromiso de horario fijo** (siempre se cuenta en la columna "Otras horas en horario fijo", como una guardia).
+4. Guarda. El nuevo tipo queda disponible de inmediato en el desplegable "no lectiva" al editar un horario, y se reconoce la próxima vez que importes un fichero del planificador que use su código.
+
+---
+
 ## El horario de un docente nuevo
 
 Al crear un empleado nuevo de tipo **Profesor**, EMS automáticamente:

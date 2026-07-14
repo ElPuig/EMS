@@ -47,6 +47,17 @@ Aquest camp és obligatori — el mòdul ja porta un marc predeterminat genèric
 
 ---
 
+## Gestionar els tipus d'hora no lectiva
+
+La llista de motius no lectius (Pati, Guàrdia, Reunió de coordinació...) que es mostra allà on una franja no és una assignatura és configurable, així que pots afegir-ne un de nou tu mateix si el planificador extern del teu centre comença a enviar un codi que l'EMS encara no coneix — sense necessitat de cap desenvolupador.
+
+1. Vés a **Configuració → Professorat → Tipus d'hora no lectiva**.
+2. Fes clic a **Nou**, estableix un **Codi** curt (ha de coincidir exactament amb el que utilitza el planificador extern per a aquesta activitat) i un **Nom** (el que veuran els docents i els informes).
+3. Opcionalment, marca'l com **És un pati** (es descarta completament del resum d'hores setmanals, igual que el pati) o **Sempre és un compromís d'horari fix** (sempre es compta a la columna "Altres hores en horari fix", com una guàrdia).
+4. Desa. El nou tipus queda disponible immediatament al desplegable "no lectiva" en editar un horari, i es reconeix la propera vegada que importis un fitxer del planificador que faci servir el seu codi.
+
+---
+
 ## L'horari d'un docent nou
 
 En crear un empleat nou de tipus **Professor**, l'EMS automàticament:

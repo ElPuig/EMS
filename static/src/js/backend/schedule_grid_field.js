@@ -51,15 +51,15 @@ export class ScheduleGridField extends Component {
         this.catalog = useState({ subjects: [], groups: [], nonTeaching: [] });
         this.summary = useState({ teaching: { rows: [], total: 0 }, fixed: { rows: [], total: 0 }, total: 0 });
         onWillStart(async () => {
-            const [subjects, groups, attendanceFields] = await Promise.all([
+            const [subjects, groups, nonTeachingTypes] = await Promise.all([
                 this.orm.searchRead("ems.subject", [], ["id", "display_name"]),
                 this.orm.searchRead("ems.group", [], ["id", "display_name"]),
-                this.orm.call("resource.calendar.attendance", "fields_get", [["non_teaching"], ["selection"]]),
+                this.orm.searchRead("ems.non_teaching_type", [], ["id", "name"]),
                 this._loadSummary(),
             ]);
             this.catalog.subjects = subjects;
             this.catalog.groups = groups;
-            this.catalog.nonTeaching = attendanceFields.non_teaching.selection.filter((item) => item[0]);
+            this.catalog.nonTeaching = nonTeachingTypes.map((item) => [item.id, item.name]);
         });
     }
 
@@ -212,7 +212,7 @@ export class ScheduleGridField extends Component {
             dayofweek: Number(data.dayofweek),
             hour_from: data.hour_from,
             hour_to: data.hour_to,
-            non_teaching: data.non_teaching || false,
+            non_teaching: data.non_teaching ? data.non_teaching[0] : false,
             subjectId: data.subject_id ? data.subject_id[0] : false,
             groupId: groupIds.length ? groupIds[0] : false,
         };
@@ -357,7 +357,7 @@ export class ScheduleGridField extends Component {
         const key = this._cellKey(dayIndex, periodId);
         const value = ev.target.value;
         if (value.startsWith("n_")) {
-            this.buffer[key] = { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: value.slice(2) };
+            this.buffer[key] = { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: Number(value.slice(2)) };
         } else if (value.startsWith("s_")) {
             const previous = this.cellState(dayIndex, periodId);
             this.buffer[key] = { kind: "subject", subjectId: Number(value.slice(2)), groupId: previous.groupId, nonTeaching: false };
@@ -468,7 +468,7 @@ export class ScheduleGridField extends Component {
         }
         const subjectById = new Map(this.catalog.subjects.map((s) => [s.id, s.display_name]));
         const groupById = new Map(this.catalog.groups.map((g) => [g.id, g.display_name]));
-        const nonTeachingByCode = new Map(this.catalog.nonTeaching);
+        const nonTeachingById = new Map(this.catalog.nonTeaching);
         const cells = [];
         for (const dayIndex of WEEKDAYS) {
             for (const period of this.periods.list) {
@@ -490,7 +490,7 @@ export class ScheduleGridField extends Component {
                     cell.name = `${subjectById.get(state.subjectId)}: ${groupById.get(state.groupId)}`;
                 } else if (state.kind === "non_teaching") {
                     cell.non_teaching = state.nonTeaching;
-                    cell.name = nonTeachingByCode.get(state.nonTeaching) || state.nonTeaching;
+                    cell.name = nonTeachingById.get(state.nonTeaching) || state.nonTeaching;
                 } else {
                     continue; // a subject was picked but no group yet: skip until both are set
                 }

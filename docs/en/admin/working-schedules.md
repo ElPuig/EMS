@@ -47,6 +47,17 @@ This field is required — the module ships with a generic default framework so 
 
 ---
 
+## Manage Non-teaching Types
+
+The list of non-teaching reasons (Break, Guard, Coordination Meeting...) shown wherever a period isn't a subject is configurable, so you can add a new one yourself if your centre's external planner starts sending a code EMS doesn't recognise yet — no developer needed.
+
+1. Go to **Configuration → Teachers → Non-teaching types**.
+2. Click **New**, set a short **Code** (must match exactly what the external planner uses for that activity) and a **Name** (what teachers and reports will show).
+3. Optionally mark it **Is a break** (dropped from the weekly hours summary entirely, like the patio break) or **Always a fixed-schedule commitment** (always counted in the "Other fixed-schedule hours" column, like a guard duty).
+4. Save. The new type is immediately available in the "non-teaching" dropdown when editing a schedule, and recognised the next time you import a planner file that uses its code.
+
+---
+
 ## A New Teacher's Schedule
 
 When you create a new employee of type **Teacher**, EMS automatically:

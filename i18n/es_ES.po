@@ -1436,6 +1436,7 @@ msgstr "Acción Necesária"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__active
 #: model:ir.model.fields,field_description:ems.field_ems_strike_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__active
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active
 msgid "Active"
 msgstr "Activo"
 
@@ -1696,16 +1697,6 @@ msgstr "Asignatura permitida"
 #: code:addons/ems/models/shared/base.py:0
 msgid "An error occurred during the process"
 msgstr ""
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ac
-msgid "Another Coordinations"
-msgstr "Otras Coordinaciones"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__br
-msgid "Break"
-msgstr "Patio"
 
 #. module: ems
 #. odoo-javascript
@@ -2650,6 +2641,7 @@ msgstr "Cerrando encuestas"
 #: model:ir.model.fields,field_description:ems.field_ems_space__code
 #: model:ir.model.fields,field_description:ems.field_ems_study__code
 #: model:ir.model.fields,field_description:ems.field_ems_subject__code
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__code
 msgid "Code"
 msgstr "Código"
 
@@ -2847,16 +2839,6 @@ msgstr ""
 #: model:hr.job,name:ems.job_conversation
 msgid "Conversational Auxiliary"
 msgstr "Auxiliar de conversa"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__cm
-msgid "Coordination Meeting"
-msgstr "Reunión de Coordinación"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ct
-msgid "Coordination Time"
-msgstr "Cargo de Coordinación"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
@@ -4623,7 +4605,7 @@ msgstr "Grupos: Lugares a los que se asignan los estudiantes."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__guard
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__g
+#: model:ems.non_teaching_type,name:ems.non_teaching_g
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Guard"
@@ -5840,16 +5822,6 @@ msgid "Manage your personal and security data"
 msgstr "Gestiona tus datos personales y de seguridad"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__mm
-msgid "Management Meeting"
-msgstr "Reunión de gestión"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__mt
-msgid "Management Time"
-msgstr "Cargo de Dirección"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_template__is_required
 msgid "Mandatory to Respond"
 msgstr "Obligatorio responder"
@@ -6091,6 +6063,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__name
 msgid "Name"
 msgstr "Nombre"
 
@@ -7271,11 +7244,6 @@ msgid "Rectified by"
 msgstr "Rectificado per"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__r
-msgid "Reduction"
-msgstr "Reducción de jornada"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
@@ -7693,11 +7661,6 @@ msgid "Scholar Trips"
 msgstr "Viajes de estudios"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__sc
-msgid "School Council"
-msgstr "Consejo Escolar"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "School Secretary"
 msgstr "la Secretaría del centro"
@@ -7913,6 +7876,7 @@ msgstr "Enviado el"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__sequence
 msgid "Sequence"
 msgstr "Secuencia"
 
@@ -8286,11 +8250,6 @@ msgstr "Estados"
 #: code:addons/ems/static/src/js/backend/grade_matrix_field.js:0
 msgid "Stay"
 msgstr "Permanecer"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__s
-msgid "Staying at the center"
-msgstr "Permanencia en el centro"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__street
@@ -9313,11 +9272,6 @@ msgid "Tutorship"
 msgstr "Tutoría"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__tt
-msgid "Tutorship Time"
-msgstr "Tutoria"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__tutorships
 #: model:ir.model.fields,field_description:ems.field_hr_employee_base__tutorships
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__tutorships
@@ -9865,11 +9819,6 @@ msgstr "Horarios de trabajo"
 #: model:ir.model,name:ems.model_ems_working_schedules_import_wizard
 msgid "Working schedules: import wizard."
 msgstr "Horarios de trabajo: asistente de importación."
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__wic
-msgid "Workplace Intership Coordination"
-msgstr "Coordinación FCT"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -12186,3 +12135,74 @@ msgstr "Total general:"
 #: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "<span>Overall total:</span>"
 msgstr "<span>Total general:</span>"
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_ac
+msgid "Another Coordinations"
+msgstr "Otras Coordinaciones"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_br
+msgid "Break"
+msgstr "Patio"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_cm
+msgid "Coordination Meeting"
+msgstr "Reunión de Coordinación"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_ct
+msgid "Coordination Time"
+msgstr "Cargo de Coordinación"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_mm
+msgid "Management Meeting"
+msgstr "Reunión de gestión"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_mt
+msgid "Management Time"
+msgstr "Cargo de Dirección"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_r
+msgid "Reduction"
+msgstr "Reducción de jornada"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_s
+msgid "Staying at the center"
+msgstr "Permanencia en el centro"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_sc
+msgid "School Council"
+msgstr "Consejo Escolar"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_tt
+msgid "Tutorship Time"
+msgstr "Tutoria"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_wic
+msgid "Workplace Intership Coordination"
+msgstr "Coordinación FCT"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_break
+msgid "Is a break"
+msgstr "Es un descanso"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_fixed
+msgid "Always a fixed-schedule commitment"
+msgstr "Siempre es un compromiso de horario fijo"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_non_teaching_type_list
+#: model:ir.ui.menu,name:ems.menu_non_teaching_types
+msgid "Non-teaching types"
+msgstr "Tipos de hora no lectiva"
+

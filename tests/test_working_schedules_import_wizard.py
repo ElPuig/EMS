@@ -58,7 +58,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
     def _xml_file(self, teacher_name_attr):
         # Minimal file the parser accepts: one teacher node -> one day -> one hour -> a NonTeaching
-        # entry ('G'/Guard already exists in non_teaching_selection, so no subject/group lookup needed).
+        # entry ('G'/Guard already exists as an ems.non_teaching_type seed record, so no subject/group lookup needed).
         # 'file' (not 'attachment_id') is what create() reads — it's a non-stored related field
         # ('attachment_id.datas'), only populated by the UI's own onchange, not by ORM create() vals.
         xml = (
@@ -142,7 +142,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
     def test_import_non_teaching_hour_sent_as_subject_node_without_students(self):
         # The external planner app now sends non-teaching hours as a 'Subject' node too, whose only
         # observable difference from a real subject is the missing 'Students' sibling. The code ('G')
-        # must still be recognized as non-teaching (via non_teaching_selection), not looked up as a
+        # must still be recognized as non-teaching (via ems.non_teaching_type), not looked up as a
         # real ems.subject.
         self.env['ems.working_schedules_import_wizard'].create({
             'file': self._xml_file_with_hour_node(
@@ -153,7 +153,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         attendance = self.teacher.resource_calendar_id.attendance_ids
         self.assertTrue(attendance)
-        self.assertEqual(attendance.non_teaching, 'G')
+        self.assertEqual(attendance.non_teaching, self.env.ref('ems.non_teaching_g'))
         self.assertFalse(attendance.subject_id)
 
     def test_import_real_subject_sent_as_subject_node_with_students(self):

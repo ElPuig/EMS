@@ -92,7 +92,7 @@ class ems_working_schedule(models.Model):
 		return lines
 
 	def _report_color_key(self, attendance):
-		return ('non_teaching', attendance.non_teaching) if attendance.non_teaching else ('subject', attendance.subject_id.id)
+		return ('non_teaching', attendance.non_teaching.id) if attendance.non_teaching else ('subject', attendance.subject_id.id)
 
 	def _format_report_time(self, value):
 		hour, minutes = divmod(round(value * 60), 60)
@@ -125,12 +125,12 @@ class ems_working_schedule(models.Model):
 				key = ('level', level.id)
 				bucket = teaching_rows
 				label = level.display_name
-			elif attendance.non_teaching == 'BR':
+			elif attendance.non_teaching.is_break:
 				continue
 			elif attendance.non_teaching:
-				is_fixed = attendance.non_teaching == 'G' or (attendance.non_teaching == 'CM' and attendance.dayofweek == self.FIXED_HOURS_WEDNESDAY)
+				is_fixed = attendance.non_teaching.is_fixed or (attendance.non_teaching.code == 'CM' and attendance.dayofweek == self.FIXED_HOURS_WEDNESDAY)
 				bucket = fixed_rows if is_fixed else teaching_rows
-				key = ('activity', attendance.non_teaching)
+				key = ('activity', attendance.non_teaching.id)
 				label = attendance.get_report_label()
 			else:
 				continue
@@ -154,22 +154,7 @@ class ems_working_schedule_assignation(models.Model):
 	_inherit = 'resource.calendar.attendance'
 	# NOTE: no need to constraint, the main model avoids overlapping. 
 
-	non_teaching_selection=[
-		("AC", "Another Coordinations"),
-		("BR", "Break"),
-		("CM", "Coordination Meeting"),
-		("CT", "Coordination Time"),
-        ("G", "Guard"),
-		("MM", "Management Meeting"),
-        ("MT", "Management Time"),
-        ("R", "Reduction"),
-		("S", "Staying at the center"),
-		("SC", "School Council"),
-        ("TT", "Tutorship Time"),
-		("WIC", "Workplace Intership Coordination"),
-    ]
-
-	non_teaching = fields.Selection(string="Non-teaching", selection=non_teaching_selection)
+	non_teaching = fields.Many2one(string="Non-teaching", comodel_name="ems.non_teaching_type")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
 	# NOTE: the classroom is a property of the group (ems.group.space_id), same simplification already
@@ -184,14 +169,11 @@ class ems_working_schedule_assignation(models.Model):
 	def get_report_label(self):
 		"""Display label for the working schedule PDF report. NOT 'self.name': that Char is frozen in
 		whatever language was active when the row was saved (Edit/Import always write it in English —
-		see 'non_teaching_items'/'nonTeachingByCode' in this file and in schedule_grid_field.js), so a
-		non-teaching row would otherwise always show "Guard" even when printing in Catalan/Spanish. The
-		Selection field's own option label, resolved for the report's current language, is used instead."""
+		see 'non_teaching_items' in this file and 'catalog.nonTeaching' in schedule_grid_field.js), so a
+		non-teaching row would otherwise always show "Guard" even when printing in Catalan/Spanish.
+		'non_teaching.name' is translatable, so it resolves to the report's current language for free."""
 		self.ensure_one()
-		if self.non_teaching:
-			labels = dict(self._fields['non_teaching']._description_selection(self.env))
-			return labels.get(self.non_teaching, self.non_teaching)
-		return self.name
+		return self.non_teaching.name if self.non_teaching else self.name
 
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
@@ -312,7 +294,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	def _create_schedule(self, xml_node, teacher, course_id):			
 		name = "%s (%s)" % (teacher.name, course_id.name)
 		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
-		non_teaching_items = dict(ems_working_schedule_assignation.non_teaching_selection)
+		non_teaching_items = {t.code: t for t in self.env['ems.non_teaching_type'].search([])}
 
 		if not schedule:
 			# TODO: add a relation to current_course
@@ -346,10 +328,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					if content.tag in ('Subject', 'NonTeaching'):
 						code = content.attrib['name'].split(' ')[0]
 						if code in non_teaching_items:
-							new_entry["name"] = "%s: %s" % (code, non_teaching_items[code])
+							non_teaching_type = non_teaching_items[code]
+							new_entry["name"] = "%s: %s" % (code, non_teaching_type.name)
 							new_entry["subject_id"] = False
 							new_entry["group_ids"] = [(6, 0, [])]
-							new_entry["non_teaching"] = code
+							new_entry["non_teaching"] = non_teaching_type.id
 						else:
 							subject = self.env["ems.subject"].search([("code", "=", code)])
 							if not subject.id: raise ValidationError("Subject with code '%s' not found." % code)

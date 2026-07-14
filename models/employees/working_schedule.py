@@ -339,30 +339,40 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				}
 
 				for content in hourNode:
-					if content.tag == 'NonTeaching':
-						id = content.attrib['name'].split(' ')[0]						
-						new_entry["name"] = "%s: %s" % (id, non_teaching_items[id])
-						new_entry["subject_id"] = False
-						new_entry["group_ids"] = [(6, 0, [])]
-						new_entry["non_teaching"] = id	
-						
-					elif content.tag == 'Subject':
+					# NOTE: 'NonTeaching' is only kept for backward compatibility with older planner
+					# exports — the current external app sends non-teaching hours as a 'Subject' node
+					# too (its only observable difference is the missing 'Students' sibling), so the
+					# real distinction is made by code membership in 'non_teaching_items', not by tag.
+					if content.tag in ('Subject', 'NonTeaching'):
 						code = content.attrib['name'].split(' ')[0]
-						subject = self.env["ems.subject"].search([("code", "=", code)])
-						if not subject.id: raise ValidationError("Subject with code '%s' not found." % code)
+						if code in non_teaching_items:
+							new_entry["name"] = "%s: %s" % (code, non_teaching_items[code])
+							new_entry["subject_id"] = False
+							new_entry["group_ids"] = [(6, 0, [])]
+							new_entry["non_teaching"] = code
+						else:
+							subject = self.env["ems.subject"].search([("code", "=", code)])
+							if not subject.id: raise ValidationError("Subject with code '%s' not found." % code)
 
-						new_entry["name"] = "%s: %s" % (subject.acronym, subject.name)
-						new_entry["subject_id"] = subject.id
-						new_entry["non_teaching"] = False
-						
+							new_entry["name"] = "%s: %s" % (subject.acronym, subject.name)
+							new_entry["subject_id"] = subject.id
+							new_entry["non_teaching"] = False
+
 					elif content.tag == 'Students':
 						acronyms.append(content.attrib['name'].split(' ')[0])
 					
 				if len(acronyms) > 0:
-					groups = self.env["ems.group"].search([("name", "in", acronyms)])
+					groups = self.env["ems.group"]
 					for acro in acronyms:
-						if acro not in groups.mapped('name'):
+						# NOTE: the external planner names a level's only group "DAM1", while EMS always
+						# names groups with a trailing letter ("DAM1A" even when there's just one) — retry
+						# with an appended "A" before giving up; still not found means a genuine mismatch
+						# that needs manual review.
+						group = self.env["ems.group"].search([("name", "=", acro)], limit=1) \
+							or self.env["ems.group"].search([("name", "=", acro + "A")], limit=1)
+						if not group:
 							raise ValidationError("Group with acronym '%s' not found." % acro)
+						groups |= group
 					new_entry["group_ids"] = [(6, 0, groups.ids)]
 					new_entry["name"] += " (%s)" % (", ".join(g.name for g in groups))
 				dwe.append(new_entry)
@@ -370,7 +380,16 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			dwe = sorted(dwe, key=lambda e: e["hour_from"])
 			for i in range(len(dwe)-1):
 				dwe[i]["hour_to"] = dwe[i+1]["hour_from"]
-			dwe[len(dwe)-1]["hour_to"] = self.env.company.schedule_import_last_entry_time
+
+			# NOTE: the planner XML never carries an end time, only each period's start — the day's
+			# last period has no "next" one to borrow hour_to from, so it inherits the immediately
+			# preceding period's own duration instead. Only a single-period day (nothing to infer
+			# duration from) falls back to the fixed company setting.
+			if len(dwe) > 1:
+				last_period_duration = dwe[-2]["hour_to"] - dwe[-2]["hour_from"]
+				dwe[-1]["hour_to"] = dwe[-1]["hour_from"] + last_period_duration
+			else:
+				dwe[-1]["hour_to"] = self.env.company.schedule_import_last_entry_time
 
 			for e in (x for x in dwe if x.get("name", False)):
 				meta = dict(e)

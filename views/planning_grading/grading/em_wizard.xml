@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_em_grading_wizard_form">
+            <field name="name">ems.em_grading_wizard.form</field>
+            <field name="model">ems.em_grading_wizard</field>
+            <field name="arch" type="xml">
+                <!-- Full page (not a dialog): the matrix is the working screen of the tutor. -->
+                <form string="Work placement evaluation (EM)">
+                    <header>
+                        <button name="action_apply" type="object" string="Apply changes"
+                                class="btn-primary" invisible="not group_id"/>
+                    </header>
+                    <sheet>
+                        <div class="alert alert-info" role="alert">
+                            Pick the group and grade the students who have finished their work
+                            placement: the EM grade of a student goes to every module of theirs
+                            carrying a placement weight — the modules of the course in progress and
+                            the finals of previous courses still pending. Tick "Grade per module"
+                            only for the exceptions: it turns on one cell per module, so that
+                            student can get a different grade in each. Empty cells are never
+                            written. A grade below 5 means the placement is repeated, not the
+                            module: the grade is kept, but the final stays pending until the
+                            placement is taken again.
+                        </div>
+                        <group>
+                            <field name="group_domain" invisible="1"/>
+                            <field name="study_id" options="{'no_create': True}"/>
+                            <field name="group_id" domain="group_domain" required="1"
+                                   options="{'no_create': True}"/>
+                        </group>
+
+                        <!-- The matrix cells: loaded, not displayed (the widget renders them
+                             as the module columns of each student's row). -->
+                        <field name="line_ids" class="d-none">
+                            <list limit="1000">
+                                <field name="student_id"/>
+                                <field name="subject_id"/>
+                                <field name="subject_name"/>
+                                <field name="subject_acronym"/>
+                                <field name="course_name"/>
+                                <field name="source"/>
+                                <!-- The write target of each cell. The client only sends back the
+                                     fields present here, so leaving them out strips the line of its
+                                     destination and the apply rejects it. -->
+                                <field name="subject_line_id"/>
+                                <field name="subject_record_id"/>
+                                <field name="already_scored"/>
+                                <field name="score"/>
+                                <field name="to_apply"/>
+                            </list>
+                        </field>
+
+                        <field name="student_line_ids" widget="em_matrix" nolabel="1">
+                            <list limit="1000">
+                                <field name="student_id"/>
+                                <field name="student_name"/>
+                                <field name="student_firstname"/>
+                                <field name="student_lastname"/>
+                                <field name="module_count"/>
+                                <field name="score"/>
+                                <field name="to_apply"/>
+                                <field name="per_module"/>
+                            </list>
+                        </field>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_em_grading_wizard">
+            <field name="name">Work placement evaluation (EM)</field>
+            <field name="res_model">ems.em_grading_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">current</field>
+        </record>
+
+        <menuitem name="Work placement evaluation (EM)" sequence="3" id="menu_em_grading_wizard"
+                  parent="menu_grades" action="action_em_grading_wizard"
+                  groups="ems.group_tutor,ems.group_academic_admin,ems.group_secretary"/>
+    </data>
+</odoo>

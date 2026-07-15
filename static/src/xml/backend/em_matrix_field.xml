@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.EmMatrixField">
+        <div class="o_grade_matrix o_em_matrix" t-ref="root">
+            <table class="table table-sm table-bordered mb-0">
+                <!-- Fixed widths: the grade cells only ever hold one digit, so the space
+                     belongs to the names and the module columns. -->
+                <colgroup>
+                    <col style="width: 150px;"/>
+                    <col style="width: 190px;"/>
+                    <col style="width: 70px;"/>
+                    <col style="width: 60px;"/>
+                    <t t-foreach="columns" t-as="col" t-key="col.id">
+                        <col style="width: 95px;"/>
+                    </t>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="o_grade_matrix_c_first" t-esc="labels.firstname"/>
+                        <th class="o_grade_matrix_c_last" t-esc="labels.lastname"/>
+                        <th class="text-center" t-esc="labels.score"/>
+                        <th class="text-center o_grade_matrix_sep" t-esc="labels.perModule"/>
+                        <t t-foreach="columns" t-as="col" t-key="col.id">
+                            <th class="text-center o_em_matrix_module" t-att-title="col.title">
+                                <t t-esc="col.code"/>
+                                <div t-if="col.name" class="text-muted" t-esc="col.name"/>
+                                <div t-if="col.course" class="text-muted" t-esc="col.course"/>
+                            </th>
+                        </t>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="rows" t-as="row" t-key="row.id">
+                        <!-- data-row / data-column drive the keyboard navigation: column 0 is
+                             the single EM grade, the module cells follow. -->
+                        <td class="o_grade_matrix_c_first">
+                            <img class="o_grade_matrix_avatar" t-att-src="avatarUrl(row)" alt=""/>
+                            <span t-esc="row.data.student_firstname"/>
+                        </td>
+                        <td class="o_grade_matrix_c_last" t-esc="row.data.student_lastname"/>
+                        <td class="text-center">
+                            <input type="text" class="o_input text-center"
+                                   t-att-data-row="row_index" data-column="0"
+                                   t-att-disabled="row.data.per_module"
+                                   t-att-value="studentValue(row)"
+                                   t-on-focus="onCellFocus"
+                                   t-on-keydown="onCellKeydown"
+                                   t-on-change="(ev) => this.onStudentScore(row, ev)"/>
+                        </td>
+                        <td class="text-center o_grade_matrix_sep">
+                            <input type="checkbox"
+                                   t-att-checked="row.data.per_module"
+                                   t-on-change="(ev) => this.onPerModule(row, ev)"/>
+                        </td>
+                        <t t-foreach="columns" t-as="col" t-key="col.id">
+                            <t t-set="line" t-value="moduleLine(row, col)"/>
+                            <td class="text-center">
+                                <input t-if="line" type="text" class="o_input text-center"
+                                       t-att-data-row="row_index" t-att-data-column="col_index + 1"
+                                       t-att-disabled="!row.data.per_module"
+                                       t-att-value="cellValue(line)"
+                                       t-on-focus="onCellFocus"
+                                       t-on-keydown="onCellKeydown"
+                                       t-on-change="(ev) => this.onModuleScore(row, col, ev)"/>
+                                <span t-else="" class="text-muted">—</span>
+                            </td>
+                        </t>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </t>
+</templates>

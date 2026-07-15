@@ -9,7 +9,7 @@
             <field name="context">{'search_default_group_by_course': 1}</field>
         </record>
 
-        <menuitem name="Academic history" sequence="4" id="menu_year_record"
+        <menuitem name="Academic history" sequence="5" id="menu_year_record"
                   parent="menu_grades" action="action_year_record_list"
                   groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
     </data>

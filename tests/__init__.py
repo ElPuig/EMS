@@ -27,3 +27,4 @@ from . import test_task_assignment
 from . import test_year_record
 from . import test_non_teaching_type
 from . import test_group
+from . import test_em_grading_wizard

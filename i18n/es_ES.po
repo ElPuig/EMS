@@ -1802,12 +1802,15 @@ msgstr "Aplica a los estudios"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__to_apply
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__to_apply
 msgid "Apply"
 msgstr "Aplicar"
 
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
 msgid "Apply changes"
 msgstr "Aplicar cambios"
 
@@ -2475,6 +2478,7 @@ msgstr "Puede editar"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2901,6 +2905,7 @@ msgstr "País"
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__course_id
 #: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__course_name
 msgid "Course"
 msgstr "Curso"
 
@@ -3142,6 +3147,7 @@ msgstr "Acceso actual"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_em_grading_wizard_line__source__live
 msgid "Current course"
 msgstr "Curso actual"
 
@@ -4187,6 +4193,7 @@ msgstr "Primer pago"
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__firstname
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_firstname
+#: code:addons/ems/static/src/js/backend/em_matrix_field.js:0
 msgid "First name"
 msgstr "Nombre"
 
@@ -4567,6 +4574,7 @@ msgstr "Otorgar acceso"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_id
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_id
 msgid "Group"
 msgstr "Grupo"
 
@@ -5482,6 +5490,7 @@ msgstr "Última actualización:"
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__lastname
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_lastname
+#: code:addons/ems/static/src/js/backend/em_matrix_field.js:0
 msgid "Last name"
 msgstr "Apellido"
 
@@ -8339,6 +8348,8 @@ msgstr "Calle 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__student_id
 #: model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__student_id
 msgid "Student"
 msgstr "Alumno"
 
@@ -8475,6 +8486,7 @@ msgstr "Asistencia de los estudiantes"
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__student_line_ids
 msgid "Students"
 msgstr "Estudiantes"
 
@@ -8526,6 +8538,7 @@ msgstr "Estudios para matriculación"
 #: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__study_id
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__study_id
 msgid "Study"
 msgstr "Estudio"
 
@@ -8571,6 +8584,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_id
 msgid "Subject"
 msgstr "Asignatura"
 
@@ -11532,6 +11546,7 @@ msgstr "Estudio no encontrado: %s / %s"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_name
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_name
 msgid "Subject name"
 msgstr "Nombre de la asignatura"
 
@@ -12392,6 +12407,7 @@ msgstr "Nombre del grupo"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__internal_grade
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__internal_grade
 msgid "Internal grade"
 msgstr "Nota del centro"
 
@@ -12677,3 +12693,172 @@ msgstr ""
 #: code:addons/ems/models/contacts/group.py:0
 msgid "New Reinforcement Group"
 msgstr "Grupo de refuerzo nuevo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__score
+#: code:addons/ems/static/src/js/backend/em_matrix_field.js:0
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__score
+msgid "EM grade"
+msgstr "Nota de las prácticas de empresa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__module_count
+msgid "Modules"
+msgstr "Módulos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__student_name
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__student_name
+msgid "Student name"
+msgstr "Nombre del estudiante"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__source
+msgid "Source"
+msgstr "Origen"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_line_id
+msgid "Grade line"
+msgstr "Línea de notas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_record_id
+msgid "History line"
+msgstr "Línea del histórico"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__external_weight
+msgid "EM weight (%)"
+msgstr "Peso de las prácticas (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__already_scored
+msgid "Already graded"
+msgstr "Ya calificada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_em_grading_wizard_line__source__history
+msgid "Previous course"
+msgstr "Curso anterior"
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "Work placement (EM)"
+msgstr "Prácticas de empresa (EM)"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_em_grading_wizard
+msgid "Work placement (EM) grading wizard: EM grade of a student, per module."
+msgstr ""
+"Asistente de nota de prácticas de empresa (EM): nota de EM de un estudiante,"
+" por módulo."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_em_grading_wizard_line
+msgid "Work placement (EM) grading wizard line: one module of a student."
+msgstr "Línea del asistente de nota de EM: un módulo de un estudiante."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
+msgid "Work placement grade"
+msgstr "Nota de las prácticas de empresa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
+msgid "Apply EM grade"
+msgstr "Aplicar la nota de EM"
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "The work placement grade must be within the range [0, 10]."
+msgstr "La nota de las prácticas debe estar en el intervalo [0, 10]."
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "Select at least one student with a module to grade."
+msgstr "Selecciona al menos un estudiante con algún módulo por calificar."
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "%s module(s) graded."
+msgstr "Módulos calificados: %s"
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "%s placement(s) below 5: to be repeated (final still pending)."
+msgstr ""
+"Prácticas por debajo de 5 (se deben repetir; la nota final sigue pendiente):"
+" %s"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_em_grading_wizard
+#: model:ir.ui.menu,name:ems.menu_em_grading_wizard
+msgid "Work placement evaluation (EM)"
+msgstr "Evaluación prácticas de empresa (EM)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_domain
+msgid "Group domain"
+msgstr "Dominio del grupo"
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "You can only grade the work placement of a group you tutor."
+msgstr ""
+"Solo puedes calificar las prácticas de empresa de un grupo que tutorizas."
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "Invalid module line: it does not belong to the selected group."
+msgstr "Línea de módulo no válida: no pertenece al grupo seleccionado."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__per_module
+#: code:addons/ems/static/src/js/backend/em_matrix_field.js:0
+msgid "Grade per module"
+msgstr "Nota por materia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__line_ids
+msgid "Module grades"
+msgstr "Notas por módulo"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_em_grading_wizard_student
+msgid "Work placement (EM) grading wizard: one student of the group."
+msgstr "Asistente de nota de EM: un estudiante del grupo."
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "Enter the work placement grade of at least one student."
+msgstr "Introduce la nota de las prácticas de al menos un estudiante."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_acronym
+msgid "Subject code"
+msgstr "Código de la asignatura"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
+msgid ""
+"Pick the group and grade the students who have finished their work\n"
+"                            placement: the EM grade of a student goes to every module of theirs\n"
+"                            carrying a placement weight — the modules of the course in progress and\n"
+"                            the finals of previous courses still pending. Tick \"Grade per module\"\n"
+"                            only for the exceptions: it turns on one cell per module, so that\n"
+"                            student can get a different grade in each. Empty cells are never\n"
+"                            written. A grade below 5 means the placement is repeated, not the\n"
+"                            module: the grade is kept, but the final stays pending until the\n"
+"                            placement is taken again."
+msgstr ""
+"Elige el grupo y califica a los estudiantes que han terminado las prácticas "
+"de empresa: la nota EM de un estudiante va a todos sus módulos con peso de "
+"prácticas — los del curso en marcha y las finales de cursos anteriores aún "
+"pendientes. Marca \"Nota por materia\" solo para las excepciones: activa una"
+" casilla por módulo, de forma que ese estudiante puede tener una nota "
+"distinta en cada uno. Las casillas vacías nunca se escriben. Una nota "
+"inferior a 5 significa que se repiten las prácticas, no el módulo: la nota "
+"se guarda, pero la final sigue pendiente hasta que se vuelvan a hacer las "
+"prácticas."

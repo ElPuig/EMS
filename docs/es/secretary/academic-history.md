@@ -32,7 +32,7 @@ El estado de un módulo depende **solo de los RA**: un alumno con todos los RA a
 
 ## Cuándo se crean los registros
 
-- **En una baja:** el asistente de baja congela el histórico del alumno/a **en ese momento**, antes de desvincularlo de su grupo. Quien deja el centro a mitad de curso conserva el registro de todo lo que hizo hasta ese día (módulos, notas, asistencia), con el resultado **Baja**.
+- **En una baja:** el asistente de baja congela el histórico del alumno/a **en ese momento**, antes de desvincularlo de su grupo. Quien deja el centro a mitad de curso conserva el registro de todo lo que hizo hasta ese día (módulos, notas, asistencia), con el resultado **Baja**. Una vez congelado el histórico, la baja **saca al alumno/a de todo lo operativo**: sus inscripciones a módulos, las líneas de notas de las sesiones vivas, las líneas y plantillas de asistencia, y el delegado del grupo si lo era. A partir de ese momento ya no aparece en el grupo, ni en la matriz de evaluación, ni en las sesiones de asistencia, ni en la calificación de las prácticas — solo en su histórico académico.
 - **En la transición de curso:** el asistente de transición (ejecutado por el administrador al final del curso) genera los registros de todo el alumnado activo antes de limpiar los datos operativos.
 
 Volver a ejecutar la generación nunca duplica un registro: el que ya existe se actualiza.

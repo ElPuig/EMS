@@ -21,7 +21,7 @@
             <field name="visible">True</field>
         </record>
 
-        <!-- Holds the Teacher/Tutor/Head of Department/Head of Studies/Director/Administrator role hierarchy. -->
+        <!-- Holds the Teacher/Tutor/Department Chief/Head of Studies/Director/Administrator role hierarchy. -->
         <record model="ir.module.category" id="category_roles">
             <field name="name">Academic</field>
             <field name="description">Educational Management System - Academic roles</field>
@@ -90,8 +90,8 @@
             <field name="implied_ids" eval="[(4, ref('ems.group_teacher'))]"/>
         </record>
 
-        <record model="res.groups" id="group_head_of_department">
-            <field name="name">Head of Department</field>
+        <record model="res.groups" id="group_department_chief">
+            <field name="name">Department Chief</field>
             <field name="comment">Access rights for department heads. Currently identical to Tutor.</field>
             <field name="category_id" ref="ems.category_roles"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_tutor'))]"/>
@@ -101,7 +101,7 @@
             <field name="name">Head of Studies</field>
             <field name="comment">Access rights for Head of Studies / Deputy Head of Studies. Grants full read/write access to all employees' attendance records.</field>
             <field name="category_id" ref="ems.category_roles"/>
-            <field name="implied_ids" eval="[(4, ref('ems.group_head_of_department')), (4, ref('hr_attendance.group_hr_attendance_manager'))]"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_department_chief')), (4, ref('hr_attendance.group_hr_attendance_manager'))]"/>
         </record>
 
         <!-- Same privileges as Head of Studies for now; kept as its own group so it can be

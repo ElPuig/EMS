@@ -25,6 +25,14 @@ Cada bloc de la graella setmanal mostra:
 
 Una franja que encara no té cap bloc simplement no té res assignat — contacta amb un administrador si creus que falta o hi ha algun error al teu horari.
 
+Un "grup" també pot ser un **grup de reforç** — una classe formada per alumnes de diferents grups habituals (o fins i tot de diferents estudis) per a una assignatura de reforç/suport concreta. Apareix al teu horari exactament igual que qualsevol altre grup.
+
+---
+
+## Co-docència
+
+Si una classe la imparteixen realment dos docents alhora (mateixa assignatura, mateix grup, mateixa aula, mateixa hora), aquesta franja apareix com una classe compartida en l'horari de **tots dos** docents. L'assistència també és compartida: sigui quin sigui el co-docent que la marqui, tots dos veieu el mateix registre d'assistència per a aquesta sessió — no cal que cadascú passi llista per separat.
+
 ---
 
 ## Exportar el teu horari a PDF

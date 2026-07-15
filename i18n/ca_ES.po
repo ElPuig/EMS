@@ -1356,7 +1356,7 @@ msgid "Access rights for tutors (teachers in charge of a group)."
 msgstr "Drets d'accés per als tutors (professors responsables d'un grup)."
 
 #. module: ems
-#: model:res.groups,comment:ems.group_head_of_department
+#: model:res.groups,comment:ems.group_department_chief
 msgid "Access rights for department heads. Currently identical to Tutor."
 msgstr ""
 "Drets d'accés per als caps de departament. Actualment idèntics als del "
@@ -1431,6 +1431,7 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__active
 #: model:ir.model.fields,field_description:ems.field_ems_strike_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__active
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1696,16 +1697,6 @@ msgid "An error occurred during the process"
 msgstr ""
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ac
-msgid "Another Coordinations"
-msgstr "Altres Coordinacions"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__br
-msgid "Break"
-msgstr "Pati"
-
-#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "Add period"
@@ -1902,6 +1893,12 @@ msgstr "Estudis associats"
 #: code:addons/ems/models/attendance/attendance_template.py:0
 msgid "At least one group must be selected."
 msgstr "Cal seleccionar almenys un grup."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_template.py:0
+msgid "At least one teacher must be selected."
+msgstr "Cal seleccionar almenys un docent."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids
@@ -2651,6 +2648,7 @@ msgstr "Tancant enquestes"
 #: model:ir.model.fields,field_description:ems.field_ems_space__code
 #: model:ir.model.fields,field_description:ems.field_ems_study__code
 #: model:ir.model.fields,field_description:ems.field_ems_subject__code
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__code
 msgid "Code"
 msgstr "Codi"
 
@@ -2849,16 +2847,6 @@ msgstr ""
 #: model:hr.job,name:ems.job_conversation
 msgid "Conversational Auxiliary"
 msgstr "Auxiliar de conversa"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__cm
-msgid "Coordination Meeting"
-msgstr "Reunió de Coordinació"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ct
-msgid "Coordination Time"
-msgstr "Càrrec de Coordinació"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
@@ -4627,7 +4615,7 @@ msgstr "Grups: On s'assignen els estudiants."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__guard
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__g
+#: model:ems.non_teaching_type,name:ems.non_teaching_g
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Guard"
@@ -5843,16 +5831,6 @@ msgid "Manage your personal and security data"
 msgstr "Gestiona les teves dades personals i de seguretat"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__mm
-msgid "Management Meeting"
-msgstr "Reunió de gestió"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__mt
-msgid "Management Time"
-msgstr "Càrrec de Direcció"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_template__is_required
 msgid "Mandatory to Respond"
 msgstr "Obligatori respondre"
@@ -6097,6 +6075,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__name
 msgid "Name"
 msgstr "Nom"
 
@@ -7279,11 +7258,6 @@ msgid "Rectified by"
 msgstr "Rectificat per"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__r
-msgid "Reduction"
-msgstr "Reducció de jornada"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
@@ -7699,11 +7673,6 @@ msgid "Scholar Trips"
 msgstr "Viatges acadèmics"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__sc
-msgid "School Council"
-msgstr "Consell Escolar"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "School Secretary"
 msgstr "la Secretaria del centre"
@@ -7919,6 +7888,7 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -8295,11 +8265,6 @@ msgstr "Estats"
 #: code:addons/ems/static/src/js/backend/grade_matrix_field.js:0
 msgid "Stay"
 msgstr "Queda't"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__s
-msgid "Staying at the center"
-msgstr "Permanència al centre"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__street
@@ -8776,8 +8741,6 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__teacher_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__teacher_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__teacher_id
@@ -8819,6 +8782,8 @@ msgstr "Drets d'accés del professorat."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_employee_kanban
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__teacher_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__teacher_ids
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__teachers
 #: model:ir.ui.menu,name:ems.menu_community_config_teachers
 #: model:ir.ui.menu,name:ems.menu_teachers
@@ -8857,10 +8822,10 @@ msgid "Template URL"
 msgstr "URL de plantilla"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__template_teacher_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__template_teacher_id
-msgid "Template's teacher"
-msgstr "Docent de la plantilla"
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__template_teacher_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__template_teacher_ids
+msgid "Template's teachers"
+msgstr "Docents de la plantilla"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_template
@@ -9300,8 +9265,8 @@ msgid "Tutor"
 msgstr "Tutor/a"
 
 #. module: ems
-#: model:res.groups,name:ems.group_head_of_department
-msgid "Head of Department"
+#: model:res.groups,name:ems.group_department_chief
+msgid "Department Chief"
 msgstr "Cap de Departament"
 
 #. module: ems
@@ -9329,11 +9294,6 @@ msgstr "Tutor/a:"
 #: model:ir.model.fields,field_description:ems.field_ems_subject__is_tutorship
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "Tutorship"
-msgstr "Tutoria"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__tt
-msgid "Tutorship Time"
 msgstr "Tutoria"
 
 #. module: ems
@@ -9885,11 +9845,6 @@ msgstr "Horaris de treball"
 #: model:ir.model,name:ems.model_ems_working_schedules_import_wizard
 msgid "Working schedules: import wizard."
 msgstr "Horaris de treball: assistent d'importació."
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__wic
-msgid "Workplace Intership Coordination"
-msgstr "Coordinació FCT"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -12576,3 +12531,130 @@ msgstr "4a avaluació informada"
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__final_is_scored
 msgid "Resolved scored"
 msgstr "Nota resolta informada"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_ac
+msgid "Another Coordinations"
+msgstr "Altres Coordinacions"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_br
+msgid "Break"
+msgstr "Pati"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_cm
+msgid "Coordination Meeting"
+msgstr "Reunió de Coordinació"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_ct
+msgid "Coordination Time"
+msgstr "Càrrec de Coordinació"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_mm
+msgid "Management Meeting"
+msgstr "Reunió de gestió"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_mt
+msgid "Management Time"
+msgstr "Càrrec de Direcció"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_r
+msgid "Reduction"
+msgstr "Reducció de jornada"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_s
+msgid "Staying at the center"
+msgstr "Permanència al centre"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_sc
+msgid "School Council"
+msgstr "Consell Escolar"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_tt
+msgid "Tutorship Time"
+msgstr "Tutoria"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_wic
+msgid "Workplace Intership Coordination"
+msgstr "Coordinació FCT"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_break
+msgid "Is a break"
+msgstr "És un pati"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_fixed
+msgid "Always a fixed-schedule commitment"
+msgstr "Sempre és un compromís d'horari fix"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_non_teaching_type_list
+#: model:ir.ui.menu,name:ems.menu_non_teaching_types
+msgid "Non-teaching types"
+msgstr "Tipus d'hora no lectiva"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__group_type
+msgid "Group Type"
+msgstr "Tipus de grup"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__group_type__main
+msgid "Main"
+msgstr "Principal"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__group_type__reinforcement
+msgid "Reinforcement"
+msgstr "Reforç"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__reinforcement_student_ids
+msgid "Reinforcement Students"
+msgstr "Alumnes de reforç"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__group_type
+msgid ""
+"Main: the group a student is enrolled in (main_group_id), with a tutor, a "
+"delegate and a single study/level. Reinforcement: appears in the teaching "
+"schedule like any other group, but has no tutor/delegate and can mix "
+"students from different main groups and studies."
+msgstr ""
+"Principal: el grup en què està matriculat un alumne (main_group_id), amb "
+"tutor/a, delegat/da i un únic estudi/nivell. Reforç: apareix a l'horari "
+"docent com qualsevol altre grup, però no té tutor/a ni delegat/da i pot "
+"barrejar alumnes de diferents grups principals i estudis."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "A main group requires a level, a study, a course and an acronym."
+msgstr "Un grup principal requereix un nivell, un estudi, un curs i un acrònim."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"A reinforcement group cannot have a level, a study, a tutor or a delegate: "
+"it is meant to mix students from different main groups and studies."
+msgstr ""
+"Un grup de reforç no pot tenir nivell, estudi, tutor/a ni delegat/da: està "
+"pensat per barrejar alumnes de diferents grups principals i estudis."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "New Reinforcement Group"
+msgstr "Grup de reforç nou"

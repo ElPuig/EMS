@@ -17,7 +17,7 @@ class TestWorkingSchedule(TransactionCase):
         cls.head_of_department_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Test Head of Department User (Working Schedule)',
             'login': 'test_hod_for_working_schedule',
-            'groups_id': [(4, cls.env.ref('ems.group_head_of_department').id)],
+            'groups_id': [(4, cls.env.ref('ems.group_department_chief').id)],
         })
         cls.level = cls.env['ems.level'].create({'acronym': 'TWSL', 'name': 'Test Level (Working Schedule)'})
         cls.study = cls.env['ems.study'].create({
@@ -60,6 +60,10 @@ class TestWorkingSchedule(TransactionCase):
             'hour_to': 9,
             'day_period': 'morning',
         })
+        cls.non_teaching_br = cls.env.ref('ems.non_teaching_br')
+        cls.non_teaching_g = cls.env.ref('ems.non_teaching_g')
+        cls.non_teaching_cm = cls.env.ref('ems.non_teaching_cm')
+        cls.non_teaching_sc = cls.env.ref('ems.non_teaching_sc')
         cls.env['resource.calendar.attendance'].create({
             'calendar_id': cls.framework.id,
             'name': 'BR: Break',
@@ -67,16 +71,15 @@ class TestWorkingSchedule(TransactionCase):
             'hour_from': 9,
             'hour_to': 9.5,
             'day_period': 'morning',
-            'non_teaching': 'BR',
+            'non_teaching': cls.non_teaching_br.id,
         })
         cls.teacher = cls.env['hr.employee'].create({
             'name': 'Test Teacher (Working Schedule)',
             'employee_type': 'teacher',
         })
 
-    def test_non_teaching_selection_includes_break(self):
-        selection = dict(self.env['resource.calendar.attendance']._fields['non_teaching'].selection)
-        self.assertIn('BR', selection)
+    def test_non_teaching_type_includes_break(self):
+        self.assertTrue(self.env['ems.non_teaching_type'].search([('code', '=', 'BR')]))
 
     def test_seed_from_framework_sets_source_and_writes_nothing(self):
         # NOTE: 'attendance_ids' is a stored compute field that auto-fills from the company's own
@@ -119,7 +122,7 @@ class TestWorkingSchedule(TransactionCase):
         })
 
         calendar.apply_schedule_changes([{
-            'dayofweek': '2', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning', 'non_teaching': 'BR', 'name': 'BR: Break',
+            'dayofweek': '2', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id, 'name': 'BR: Break',
         }])
 
         self.assertEqual(len(calendar.attendance_ids), 1)
@@ -143,7 +146,7 @@ class TestWorkingSchedule(TransactionCase):
         self.assertTrue(teaching)
 
         template = self.env['ems.attendance_template'].search([
-            ('teacher_id', '=', self.teacher.id),
+            ('teacher_ids', 'in', self.teacher.id),
             ('subject_id', '=', self.subject.id),
         ])
         self.assertTrue(template)
@@ -179,7 +182,7 @@ class TestWorkingSchedule(TransactionCase):
             },
             {
                 'dayofweek': '1', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
-                'non_teaching': 'BR', 'name': 'BR: Break',
+                'non_teaching': self.non_teaching_br.id, 'name': 'BR: Break',
             },
         ])
 
@@ -221,11 +224,27 @@ class TestWorkingSchedule(TransactionCase):
         self.assertEqual(teaching[other_level.display_name], 1)
         self.assertEqual(summary['teaching']['total'], 3)
 
+    def test_get_schedule_hours_summary_groups_reinforcement_group_separately(self):
+        reinforcement_group = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'REF-TWS', 'space_id': self.space.id,
+        })
+        schedule = self.env['resource.calendar'].create({'name': 'Test Hours Summary Reinforcement (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [reinforcement_group.id], 'name': 'TWSL: REF-TWS',
+        }])
+
+        summary = schedule.get_schedule_hours_summary()
+
+        teaching = {row['label']: row['hours'] for row in summary['teaching']['rows']}
+        self.assertEqual(teaching[reinforcement_group.display_name], 1)
+        self.assertEqual(summary['teaching']['total'], 1)
+
     def test_get_schedule_hours_summary_excludes_break(self):
         schedule = self.env['resource.calendar'].create({'name': 'Test Hours Summary Break (Working Schedule)'})
         schedule.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 9.5, 'day_period': 'morning',
-            'non_teaching': 'BR', 'name': 'BR: Break',
+            'non_teaching': self.non_teaching_br.id, 'name': 'BR: Break',
         }])
 
         summary = schedule.get_schedule_hours_summary()
@@ -239,19 +258,19 @@ class TestWorkingSchedule(TransactionCase):
         schedule.apply_schedule_changes([
             {
                 'dayofweek': '0', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
-                'non_teaching': 'G', 'name': 'G: Guard',
+                'non_teaching': self.non_teaching_g.id, 'name': 'G: Guard',
             },
             {
                 'dayofweek': '2', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
-                'non_teaching': 'CM', 'name': 'CM: Coordination Meeting',
+                'non_teaching': self.non_teaching_cm.id, 'name': 'CM: Coordination Meeting',
             },
             {
                 'dayofweek': '1', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
-                'non_teaching': 'CM', 'name': 'CM: Coordination Meeting',
+                'non_teaching': self.non_teaching_cm.id, 'name': 'CM: Coordination Meeting',
             },
             {
                 'dayofweek': '3', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
-                'non_teaching': 'SC', 'name': 'SC: School Council',
+                'non_teaching': self.non_teaching_sc.id, 'name': 'SC: School Council',
             },
         ])
 
@@ -300,7 +319,7 @@ class TestWorkingSchedule(TransactionCase):
             },
             {
                 'dayofweek': '0', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
-                'non_teaching': 'G', 'name': 'G: Guard',
+                'non_teaching': self.non_teaching_g.id, 'name': 'G: Guard',
             },
         ])
 
@@ -365,7 +384,7 @@ class TestWorkingSchedule(TransactionCase):
         schedule = self.env['resource.calendar'].create({'name': 'Test Report Label (Working Schedule)'})
         schedule.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
-            'non_teaching': 'G', 'name': 'G: Guard',
+            'non_teaching': self.non_teaching_g.id, 'name': 'G: Guard',
         }])
         attendance = schedule.attendance_ids
 
@@ -376,7 +395,7 @@ class TestWorkingSchedule(TransactionCase):
         self.teacher.resource_calendar_id = self.framework
         self.teacher.resource_calendar_id.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
-            'non_teaching': 'G', 'name': 'G: Guard',
+            'non_teaching': self.non_teaching_g.id, 'name': 'G: Guard',
         }])
 
         content, _content_type = self.env['ir.actions.report'].with_context(lang='ca_ES')._render_qweb_pdf(

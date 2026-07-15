@@ -25,6 +25,14 @@ Cada bloque de la cuadrícula semanal muestra:
 
 Una franja que todavía no tiene ningún bloque simplemente no tiene nada asignado — contacta con un administrador si crees que falta algo o hay algún error en tu horario.
 
+Un "grupo" también puede ser un **grupo de refuerzo** — una clase formada por alumnos de diferentes grupos habituales (o incluso de diferentes estudios) para una asignatura de refuerzo/apoyo concreta. Aparece en tu horario exactamente igual que cualquier otro grupo.
+
+---
+
+## Co-docencia
+
+Si una clase la imparten realmente dos docentes a la vez (misma asignatura, mismo grupo, misma aula, misma hora), esa franja aparece como una clase compartida en el horario de **ambos** docentes. La asistencia también es compartida: sea cual sea el co-docente que la marque, ambos veis el mismo registro de asistencia para esa sesión — no hace falta que cada uno pase lista por separado.
+
 ---
 
 ## Exportar tu horario a PDF

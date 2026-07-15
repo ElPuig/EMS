@@ -15,6 +15,7 @@ Gestiona el horario semanal de cada docente desde su propia ficha de empleado, y
 - **Marco horario**: una plantilla semanal reutilizable (franjas, patios, reuniones de coordinación) para un nivel de estudios — por ejemplo, un marco para la ESO, otro para BTX, otro compartido por los ciclos formativos. Los marcos nunca llevan asignaturas reales asignadas.
 - **Horario de un docente**: su propio calendario personal, creado a partir de un marco y luego rellenado con sus asignaturas/grupos reales. Nunca se comparte con otro docente.
 - **Marco horario predeterminado**: el marco que se utiliza automáticamente para empezar el horario de cualquier docente nuevo.
+- **Grupo de refuerzo**: un grupo de alumnos que mezcla estudiantes de diferentes grupos habituales (e incluso de diferentes estudios) para una clase de refuerzo concreta — no tiene tutor ni delegado, pero aparece en el horario de un docente como cualquier otro grupo. Ver "Grupos de refuerzo" más abajo.
 
 ---
 
@@ -37,6 +38,18 @@ Gestiona el horario semanal de cada docente desde su propia ficha de empleado, y
 
 ---
 
+## Co-docencia
+
+Si dos docentes imparten realmente la misma clase juntos (misma asignatura, mismo grupo, misma aula, misma hora), EMS lo trata como una **única** clase compartida en lugar de dos independientes: ambos docentes aparecen como titulares de esa franja, y solo hay **una** sesión de asistencia para ella — cualquiera de los dos puede marcarla, y ambos ven el mismo resultado.
+
+Esto se detecta automáticamente, tanto si el horario se ha construido a mano como si se ha importado:
+- **Edición manual de un horario**: si asignas un docente a una franja que coincide exactamente (misma asignatura, grupo, aula, día y hora) con una franja ya asignada a otro docente, EMS las fusiona en una franja compartida en lugar de mostrar un error de conflicto de aula. Si más adelante se retira un docente de esa franja mientras su co-docente la mantiene, la franja compartida simplemente vuelve a ser solo de ese co-docente.
+- **Importación de horarios**: si un archivo del planificador asigna exactamente la misma clase a dos docentes, importarlo produce una única franja compartida, igual que si la hubierais configurado a mano.
+
+Una franja compartida no se ve diferente por lo demás: simplemente aparece, de forma idéntica, en la pestaña **Horario** de cada uno de sus titulares.
+
+---
+
 ## Establecer el marco horario predeterminado
 
 1. Ve a **Configuración → Empleados**.
@@ -44,6 +57,17 @@ Gestiona el horario semanal de cada docente desde su propia ficha de empleado, y
 3. Guarda.
 
 Este campo es obligatorio — el módulo trae un marco predeterminado genérico para que nunca quede vacío, pero es recomendable apuntarlo al marco que corresponda al nivel más habitual de tu centro.
+
+---
+
+## Gestionar los tipos de hora no lectiva
+
+La lista de motivos no lectivos (Patio, Guardia, Reunión de coordinación...) que se muestra allí donde una franja no es una asignatura es configurable, así que puedes añadir uno nuevo tú mismo si el planificador externo de tu centro empieza a enviar un código que EMS todavía no conoce — sin necesidad de ningún desarrollador.
+
+1. Ve a **Configuración → Profesorado → Tipos de hora no lectiva**.
+2. Haz clic en **Nuevo**, establece un **Código** corto (debe coincidir exactamente con el que usa el planificador externo para esa actividad) y un **Nombre** (lo que verán los docentes y los informes).
+3. Opcionalmente, márcalo como **Es un descanso** (se descarta por completo del resumen de horas semanales, igual que el patio) o **Siempre es un compromiso de horario fijo** (siempre se cuenta en la columna "Otras horas en horario fijo", como una guardia).
+4. Guarda. El nuevo tipo queda disponible de inmediato en el desplegable "no lectiva" al editar un horario, y se reconoce la próxima vez que importes un fichero del planificador que use su código.
 
 ---
 
@@ -65,7 +89,7 @@ Todavía no hace falta asignar nada — abre su pestaña **Horario** y usa **Edi
 Cada bloque muestra su hora exacta de inicio y fin, la asignatura/grupo o el motivo no lectivo, y el aula (según el aula por defecto del grupo). Las franjas todavía sin asignar simplemente no muestran ningún bloque — la estructura del marco (patios, reuniones) ya indica que se espera algo ahí.
 
 Debajo de la cuadrícula, una pequeña tabla resumen muestra el total de horas semanales del docente en dos columnas:
-- **Horas lectivas semanales**: una fila por nivel de estudios (p. ej. CFGS, CFGM, ESO), más cualquier actividad no lectiva que no aparezca en la otra columna.
+- **Horas lectivas semanales**: una fila por nivel de estudios (p. ej. CFGS, CFGM, ESO), una fila por cada grupo de refuerzo impartido (estos no pertenecen a un único nivel), más cualquier actividad no lectiva que no aparezca en la otra columna.
 - **Otras horas en horario fijo**: guardias (cualquier día) y reuniones de coordinación específicamente los miércoles.
 
 El patio nunca se cuenta en ninguna de las dos columnas. Una franja que solo se solapa parcialmente con una hora igualmente cuenta como una hora completa. Cada columna muestra su propio total, seguido del total general (24 horas para un docente a tiempo completo). Este resumen siempre refleja el horario guardado, por lo que desaparece mientras lo estás editando y vuelve a aparecer (actualizado) al guardarlo.
@@ -118,6 +142,20 @@ Usa esto para reiniciar a un docente con un marco distinto (p. ej. ahora imparte
 4. Ajusta lo que haga falta y haz clic en **Guardar** para aplicarlo, o en **Cancelar** para descartarlo y mantener el horario anterior del docente intacto.
 
 > **Nuevo** sustituye todo el horario — nada de lo anterior se conserva salvo que también aparezca en lo que acabas de cargar. Cancelar antes de guardar deja todo exactamente como estaba.
+
+---
+
+## Grupos de refuerzo
+
+Un grupo de refuerzo es un **grupo** de alumnos (el mismo registro de "Grupos" que un grupo habitual) utilizado para una clase de refuerzo/apoyo que mezcla alumnos de diferentes grupos habituales, e incluso de diferentes estudios — p. ej. un pequeño grupo de refuerzo de matemáticas con alumnos de tres grupos de primer curso distintos.
+
+1. Ve a **Configuración → Alumnado → Grupos** y crea uno nuevo.
+2. Establece su **Tipo de grupo** como **Refuerzo**. Esto oculta los campos Nivel/Estudio/Curso/Acrónimo/Tutor/Delegado (un grupo de refuerzo no tiene ninguno de ellos) y te permite escribir directamente el **Nombre** del grupo — haz que coincida exactamente con lo que exporta tu planificador externo para ese grupo, ya que el importador de horarios lo localiza por nombre exacto.
+3. Establece su **Aula**, igual que cualquier otro grupo — sigue siendo necesaria para que el horario se importe correctamente.
+4. En la pestaña **Alumnos**, añade los alumnos que asisten a esta clase de refuerzo, independientemente del grupo habitual o el estudio al que pertenezcan. Esto **no** cambia el grupo principal de ningún alumno.
+5. Guarda.
+
+Una vez creado, un grupo de refuerzo se utiliza en el horario de un docente exactamente igual que cualquier otro grupo — asígnalo manualmente en la pestaña Horario, o deja que el importador de ficheros lo localice por el nombre.
 
 ---
 

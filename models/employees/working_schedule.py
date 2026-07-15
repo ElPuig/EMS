@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from markupsafe import Markup, escape
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 import xml.etree.ElementTree as ET
 import base64
 import math
+import re
 
 class ems_working_schedule(models.Model):
 	_inherit = 'resource.calendar'
@@ -92,7 +94,7 @@ class ems_working_schedule(models.Model):
 		return lines
 
 	def _report_color_key(self, attendance):
-		return ('non_teaching', attendance.non_teaching) if attendance.non_teaching else ('subject', attendance.subject_id.id)
+		return ('non_teaching', attendance.non_teaching.id) if attendance.non_teaching else ('subject', attendance.subject_id.id)
 
 	def _format_report_time(self, value):
 		hour, minutes = divmod(round(value * 60), 60)
@@ -104,9 +106,10 @@ class ems_working_schedule(models.Model):
 	def get_schedule_hours_summary(self):
 		"""Weekly hours totals for the Schedule tab's summary table, split into two columns exactly
 		like the real external schedules this data is modelled on:
-		- 'teaching': weekly teaching hours grouped by level (ems.group.level_id), plus every
-		  non-teaching activity that ISN'T a guard duty or a Wednesday coordination meeting (the
-		  break, 'BR', is dropped entirely from both columns).
+		- 'teaching': weekly teaching hours grouped by level (ems.group.level_id) — or, for reinforcement
+		  groups (no single level), grouped per group instead — plus every non-teaching activity that
+		  ISN'T a guard duty or a Wednesday coordination meeting (the break, 'BR', is dropped entirely
+		  from both columns).
 		- 'fixed': guard duties (any day) and coordination meetings ('CM') specifically on Wednesday —
 		  the centre's fixed non-teaching commitments.
 		Each period's duration is rounded UP to the nearest whole hour (a period that only partially
@@ -121,16 +124,20 @@ class ems_working_schedule(models.Model):
 		for attendance in weekday_entries:
 			duration = math.ceil(attendance.hour_to - attendance.hour_from)
 			if attendance.subject_id:
-				level = attendance.group_ids[:1].level_id
-				key = ('level', level.id)
+				group = attendance.group_ids[:1]
 				bucket = teaching_rows
-				label = level.display_name
-			elif attendance.non_teaching == 'BR':
+				if group.group_type == 'reinforcement':
+					key = ('reinforcement', group.id)
+					label = group.display_name
+				else:
+					key = ('level', group.level_id.id)
+					label = group.level_id.display_name
+			elif attendance.non_teaching.is_break:
 				continue
 			elif attendance.non_teaching:
-				is_fixed = attendance.non_teaching == 'G' or (attendance.non_teaching == 'CM' and attendance.dayofweek == self.FIXED_HOURS_WEDNESDAY)
+				is_fixed = attendance.non_teaching.is_fixed or (attendance.non_teaching.code == 'CM' and attendance.dayofweek == self.FIXED_HOURS_WEDNESDAY)
 				bucket = fixed_rows if is_fixed else teaching_rows
-				key = ('activity', attendance.non_teaching)
+				key = ('activity', attendance.non_teaching.id)
 				label = attendance.get_report_label()
 			else:
 				continue
@@ -154,22 +161,7 @@ class ems_working_schedule_assignation(models.Model):
 	_inherit = 'resource.calendar.attendance'
 	# NOTE: no need to constraint, the main model avoids overlapping. 
 
-	non_teaching_selection=[
-		("AC", "Another Coordinations"),
-		("BR", "Break"),
-		("CM", "Coordination Meeting"),
-		("CT", "Coordination Time"),
-        ("G", "Guard"),
-		("MM", "Management Meeting"),
-        ("MT", "Management Time"),
-        ("R", "Reduction"),
-		("S", "Staying at the center"),
-		("SC", "School Council"),
-        ("TT", "Tutorship Time"),
-		("WIC", "Workplace Intership Coordination"),
-    ]
-
-	non_teaching = fields.Selection(string="Non-teaching", selection=non_teaching_selection)
+	non_teaching = fields.Many2one(string="Non-teaching", comodel_name="ems.non_teaching_type")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
 	# NOTE: the classroom is a property of the group (ems.group.space_id), same simplification already
@@ -184,14 +176,11 @@ class ems_working_schedule_assignation(models.Model):
 	def get_report_label(self):
 		"""Display label for the working schedule PDF report. NOT 'self.name': that Char is frozen in
 		whatever language was active when the row was saved (Edit/Import always write it in English —
-		see 'non_teaching_items'/'nonTeachingByCode' in this file and in schedule_grid_field.js), so a
-		non-teaching row would otherwise always show "Guard" even when printing in Catalan/Spanish. The
-		Selection field's own option label, resolved for the report's current language, is used instead."""
+		see 'non_teaching_items' in this file and 'catalog.nonTeaching' in schedule_grid_field.js), so a
+		non-teaching row would otherwise always show "Guard" even when printing in Catalan/Spanish.
+		'non_teaching.name' is translatable, so it resolves to the report's current language for free."""
 		self.ensure_one()
-		if self.non_teaching:
-			labels = dict(self._fields['non_teaching']._description_selection(self.env))
-			return labels.get(self.non_teaching, self.non_teaching)
-		return self.name
+		return self.non_teaching.name if self.non_teaching else self.name
 
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
@@ -204,39 +193,127 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# "Working Schedules" list's cog menu, not the per-employee 'Import' button) — lets several planner
 	# files be imported in one go, each one possibly describing several teachers (see create()).
 	attachment_ids = fields.Many2many(string="Planner files (XML)", comodel_name="ir.attachment")
-	is_overriding = fields.Boolean(store=False)
-	overrided_teachers = fields.Char(default="")
+	# Non-blocking yellow banner: bullet list of teachers who already have a schedule that will be
+	# updated. Html (not Char) so many teachers render as a real list instead of one long comma sentence.
+	overrided_teachers_html = fields.Html(readonly=True, store=False)
+	# Non-blocking yellow banner: bullet list of OTHER teachers (not part of this file) whose stale
+	# schedule line collides with the import and will be archived — see
+	# ems.attendance_template.find_external_conflicts.
+	external_conflicts_html = fields.Html(readonly=True, store=False)
+	# Blocking (red banner, hides the 'Import' button): too many teachers in a scoped file, or an
+	# unknown teacher e-mail in the general importer's files.
+	blocking_error_message = fields.Char(store=False)
+	# Non-blocking (extra yellow banner, alongside 'overrided_teachers_html'): the scoped file's single
+	# teacher node has a different e-mail than the employee this wizard was opened for — the import
+	# still goes ahead against 'teacher_id', the e-mail in the file is only ever used for the general importer.
+	email_mismatch_warning = fields.Char(store=False)
 	# NOTE: set via context (default_teacher_id) when opened from an employee's 'Schedule' tab "Import"
 	# button — the file is then assumed to describe that single teacher, skipping the email lookup below.
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
 
+	def _bullet_html(self, lines):
+		"""A readonly <ul><li> list from plain-text lines (escaped), or False for none — used to
+		render the wizard's warning banners as a real list instead of one long comma sentence."""
+		if not lines:
+			return False
+		items = Markup("").join(Markup("<li>%s</li>") % escape(line) for line in lines)
+		return Markup("<ul>%s</ul>") % items
+
+	def _external_conflict_lines(self, conflicts):
+		lines = []
+		for conflict in conflicts:
+			template = conflict.attendance_template_id
+			weekday = dict(conflict.weekdays_selection).get(conflict.weekday)
+			lines.append(_("%(teacher)s — %(subject)s (%(weekday)s %(time)s)") % {
+				'teacher': ", ".join(template.teacher_ids.mapped('display_name')),
+				'subject': template.display_name,
+				'weekday': weekday,
+				'time': conflict.time_range,
+			})
+		return lines
+
+	def _groups_without_space(self, teacher_entries):
+		"""Every distinct ems.group referenced by a teaching entry (group_ids present — non-teaching
+		entries carry none) that has no classroom (space_id) assigned. ems.group.space_id is optional,
+		but the room on ems.attendance_template it feeds is required — importing a subject taught to
+		such a group fails with Odoo's generic "mandatory field is not set" error instead of naming the
+		actual problem, so this is checked upfront to raise/warn with the group(s) at fault instead."""
+		group_ids = set()
+		for _teacher, entries in teacher_entries:
+			for entry in entries:
+				group_ids.update(entry.get('group_ids') or [])
+		if not group_ids:
+			return self.env['ems.group']
+		return self.env['ems.group'].browse(group_ids).filtered(lambda group: not group.space_id)
+
 	@api.onchange("file")
 	def _onchange_file(self):
 		for rec in self:
+			rec.blocking_error_message = False
+			rec.email_mismatch_warning = False
+			rec.overrided_teachers_html = False
+			rec.external_conflicts_html = False
 			if rec.file:
 				xml_content = base64.b64decode(rec.file)
 				tree = ET.ElementTree(ET.fromstring(xml_content))
 
 				root = tree.getroot()
 				if rec.teacher_id:
+					if len(root) != 1:
+						rec.blocking_error_message = _(
+							"This file describes %d teachers; the per-employee importer only accepts a file with exactly one."
+						) % len(root)
+						continue
+
+					email = root[0].attrib['name'].split(' ')[0]
+					if email.lower() != (rec.teacher_id.work_email or '').lower():
+						rec.email_mismatch_warning = _(
+							"This file's teacher e-mail (%s) doesn't match %s — it will still be imported for this employee."
+						) % (email, rec.teacher_id.display_name)
+
 					if rec.teacher_id.resource_calendar_id.id:
-						rec.is_overriding = True
-						rec.overrided_teachers = rec.teacher_id.display_name
+						rec.overrided_teachers_html = rec._bullet_html([rec.teacher_id.display_name])
+
+					entries = [e for e in rec._parse_schedule_entries(root[0])[0] if not e["non_teaching"]]
+					missing_space = rec._groups_without_space([(rec.teacher_id, entries)])
+					if missing_space:
+						rec.blocking_error_message = _(
+							"These groups have no classroom assigned, so their schedule cannot be imported: %s"
+						) % ", ".join(missing_space.mapped('name'))
+						continue
+
+					conflicts = self.env['ems.attendance_template'].find_external_conflicts([(rec.teacher_id, entries)])
+					rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
 					continue
 
+				overrided, teacher_entries = [], []
 				for teacherNode in root:
 					email = teacherNode.attrib['name'].split(' ')[0]
 					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
+					if not teacher:
+						continue
 
-					if teacher and teacher.resource_calendar_id.id:
-						rec.is_overriding = True
-						rec.overrided_teachers = teacher.display_name if not rec.overrided_teachers else "%s, %s" % (rec.overrided_teachers, teacher.display_name)
+					if teacher.resource_calendar_id.id:
+						overrided.append(teacher.display_name)
+					entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
+					teacher_entries.append((teacher, entries))
+
+				missing_space = rec._groups_without_space(teacher_entries)
+				if missing_space:
+					rec.blocking_error_message = _(
+						"These groups have no classroom assigned, so their schedule cannot be imported: %s"
+					) % ", ".join(missing_space.mapped('name'))
+					continue
+
+				rec.overrided_teachers_html = rec._bullet_html(overrided)
+				conflicts = self.env['ems.attendance_template'].find_external_conflicts(teacher_entries)
+				rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
 
 	@api.onchange("attachment_ids")
 	def _onchange_attachment_ids(self):
 		for rec in self:
-			rec.is_overriding = False
-			rec.overrided_teachers = ""
+			rec.blocking_error_message = False
+			overrided, unknown_emails, teacher_entries = [], [], []
 			for attachment in rec.attachment_ids:
 				xml_content = base64.b64decode(attachment.datas)
 				tree = ET.ElementTree(ET.fromstring(xml_content))
@@ -245,9 +322,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					email = teacherNode.attrib['name'].split(' ')[0]
 					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
 
-					if teacher and teacher.resource_calendar_id.id:
-						rec.is_overriding = True
-						rec.overrided_teachers = teacher.display_name if not rec.overrided_teachers else "%s, %s" % (rec.overrided_teachers, teacher.display_name)
+					if not teacher:
+						unknown_emails.append(_("unknown e-mail '%s' in '%s'") % (email, attachment.name))
+						continue
+
+					if teacher.resource_calendar_id.id:
+						overrided.append(teacher.display_name)
+					entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
+					teacher_entries.append((teacher, entries))
+
+			missing_space = rec._groups_without_space(teacher_entries)
+			if missing_space:
+				unknown_emails.append(_(
+					"These groups have no classroom assigned, so their schedule cannot be imported: %s"
+				) % ", ".join(missing_space.mapped('name')))
+
+			rec.blocking_error_message = ", ".join(unknown_emails) if unknown_emails else False
+			rec.overrided_teachers_html = rec._bullet_html(overrided)
+			conflicts = self.env['ems.attendance_template'].find_external_conflicts(teacher_entries) if not missing_space else self.env['ems.attendance_schedule']
+			rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
 
 	def import_planner_data(self):
 		return {
@@ -266,11 +359,20 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			if not xml_contents:
 				raise ValidationError(_("No XML file has been loaded. Please, provide at least one XML file and try again."))
 
+			# NOTE: attendance_template sync is deferred and batched across every teacher in this item
+			# (see sync_from_schedule_batch) — syncing one teacher at a time here would let an early
+			# teacher's fresh schedule line falsely collide with a later teacher's still-stale one
+			# whenever they share a classroom, since the later teacher hasn't been re-synced yet.
+			teacher_entries = []
 			for xml_content in xml_contents:
 				tree = ET.ElementTree(ET.fromstring(xml_content))
 				root = tree.getroot()
 
 				if item.get('teacher_id'):
+					if len(root) != 1:
+						raise ValidationError(_(
+							"This file describes %d teachers; the per-employee importer only accepts a file with exactly one."
+						) % len(root))
 					nodes = [(root[0], self.env['hr.employee'].browse(item['teacher_id']))]
 				else:
 					nodes = []
@@ -284,7 +386,22 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					entries = self._create_schedule(node, teacher, course_id)
 					entries = [e for e in entries if not e["non_teaching"]]
 					self.env['ems.teaching'].sync_from_schedule(teacher, entries)
-					self.env['ems.attendance_template'].sync_from_schedule(teacher, entries)
+					teacher_entries.append((teacher, entries))
+
+			# NOTE: ems.attendance_template.space_id is required, but ems.group.space_id (where it's
+			# taken from) is not — a group missing a classroom would otherwise fail with Odoo's generic
+			# "mandatory field is not set" error instead of naming the actual problem.
+			missing_space = self._groups_without_space(teacher_entries)
+			if missing_space:
+				raise ValidationError(_(
+					"These groups have no classroom assigned, so their schedule cannot be imported: %s"
+				) % ", ".join(missing_space.mapped('name')))
+
+			# NOTE: also archive any OTHER teacher's (not part of this file) conflicting schedule line
+			# before the batch sync writes anything new — a teacher simply absent from this file can
+			# still hold a stale line in a classroom the new import now wants at an overlapping time.
+			self.env['ems.attendance_template'].find_external_conflicts(teacher_entries).action_archive()
+			self.env['ems.attendance_template'].sync_from_schedule_batch(teacher_entries)
 
 		return super(models.Model, self).create(values)
 
@@ -309,18 +426,30 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				ids.extend(command[2])
 		return ids
 
-	def _create_schedule(self, xml_node, teacher, course_id):			
+	def _create_schedule(self, xml_node, teacher, course_id):
+		entries, attendance_ids = self._parse_schedule_entries(xml_node)
+
 		name = "%s (%s)" % (teacher.name, course_id.name)
 		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
-		non_teaching_items = dict(ems_working_schedule_assignation.non_teaching_selection)
-
 		if not schedule:
 			# TODO: add a relation to current_course
 			schedule = self.env['resource.calendar'].create({
 				'name': "%s (%s)" % (teacher.name, course_id.name),
 				'full_time_required_hours': 24
 			})
-		
+
+		schedule.write({ 'attendance_ids': attendance_ids })
+		teacher.write({ "resource_calendar_id": schedule })
+		return entries
+
+	def _parse_schedule_entries(self, xml_node):
+		"""Parse a <Teacher> XML node into (entries, attendance_ids) — the flattened list of real
+		(subject/non-teaching) slots plus the (0,0,{...})-command list ready for a resource.calendar's
+		'attendance_ids', without writing anything. Pure parsing, split out of '_create_schedule' so it
+		can be reused for a preview (e.g. the import wizard's onchange handlers, or conflict detection)
+		without any side effect."""
+		non_teaching_items = {t.code: t for t in self.env['ems.non_teaching_type'].search([])}
+
 		entries = []
 		attendance_ids = [[5]]
 		for dayNode in xml_node:
@@ -339,30 +468,60 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				}
 
 				for content in hourNode:
-					if content.tag == 'NonTeaching':
-						id = content.attrib['name'].split(' ')[0]						
-						new_entry["name"] = "%s: %s" % (id, non_teaching_items[id])
-						new_entry["subject_id"] = False
-						new_entry["group_ids"] = [(6, 0, [])]
-						new_entry["non_teaching"] = id	
-						
-					elif content.tag == 'Subject':
+					# NOTE: 'NonTeaching' is only kept for backward compatibility with older planner
+					# exports — the current external app sends non-teaching hours as a 'Subject' node
+					# too (its only observable difference is the missing 'Students' sibling), so the
+					# real distinction is made by code membership in 'non_teaching_items', not by tag.
+					if content.tag in ('Subject', 'NonTeaching'):
 						code = content.attrib['name'].split(' ')[0]
-						subject = self.env["ems.subject"].search([("code", "=", code)])
-						if not subject.id: raise ValidationError("Subject with code '%s' not found." % code)
+						if code in non_teaching_items:
+							non_teaching_type = non_teaching_items[code]
+							new_entry["name"] = "%s: %s" % (code, non_teaching_type.name)
+							new_entry["subject_id"] = False
+							new_entry["group_ids"] = [(6, 0, [])]
+							new_entry["non_teaching"] = non_teaching_type.id
+						else:
+							subject = self.env["ems.subject"].search([("code", "=", code)])
+							if not subject.id: raise ValidationError("Subject with code '%s' not found." % code)
 
-						new_entry["name"] = "%s: %s" % (subject.acronym, subject.name)
-						new_entry["subject_id"] = subject.id
-						new_entry["non_teaching"] = False
-						
+							new_entry["name"] = "%s: %s" % (subject.acronym, subject.name)
+							new_entry["subject_id"] = subject.id
+							new_entry["non_teaching"] = False
+
 					elif content.tag == 'Students':
-						acronyms.append(content.attrib['name'].split(' ')[0])
-					
+						acronyms.append(content.attrib['name'])
+
 				if len(acronyms) > 0:
-					groups = self.env["ems.group"].search([("name", "in", acronyms)])
-					for acro in acronyms:
-						if acro not in groups.mapped('name'):
-							raise ValidationError("Group with acronym '%s' not found." % acro)
+					groups = self.env["ems.group"]
+					for full_name in acronyms:
+						# NOTE: try the FULL attribute value first — a reinforcement group's name is
+						# free-form and can contain spaces (e.g. "Reforç Programació"), so it must match
+						# exactly as-is; the real planner export never appends anything to it. Only fall
+						# back to the legacy "first word (+ trailing 'A')" heuristic below for the 'main'
+						# groups' naming convention, where the planner names a level's only group "DAM1"
+						# while EMS always stores it with a trailing letter ("DAM1A") — still not found
+						# after both attempts means a genuine mismatch that needs manual review.
+						group = self.env["ems.group"].search([("name", "=", full_name)], limit=1)
+						if not group:
+							acro = full_name.split(' ')[0]
+							group = self.env["ems.group"].search([("name", "=", acro)], limit=1) \
+								or self.env["ems.group"].search([("name", "=", acro + "A")], limit=1)
+						if not group:
+							# NOTE: for a study with a single course AND a single group, the planner
+							# sometimes exports just the bare study acronym ("DEV", "AO"), omitting BOTH
+							# the course number and the trailing group letter EMS always stores ("DEV1A",
+							# "AO1A") — unlike the "DAM1" case above (course present, only the letter
+							# missing), here neither is known upfront, so search by prefix and accept it
+							# only if exactly one group matches (an ambiguous prefix is a genuine mismatch,
+							# not a guess this heuristic should make).
+							candidates = self.env["ems.group"].search([("name", "=like", acro + "%")])
+							pattern = re.compile(r"^%s\d+[A-Za-z]$" % re.escape(acro))
+							matches = candidates.filtered(lambda g: pattern.match(g.name or ""))
+							if len(matches) == 1:
+								group = matches
+						if not group:
+							raise ValidationError("Group with acronym '%s' not found." % full_name)
+						groups |= group
 					new_entry["group_ids"] = [(6, 0, groups.ids)]
 					new_entry["name"] += " (%s)" % (", ".join(g.name for g in groups))
 				dwe.append(new_entry)
@@ -370,7 +529,16 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			dwe = sorted(dwe, key=lambda e: e["hour_from"])
 			for i in range(len(dwe)-1):
 				dwe[i]["hour_to"] = dwe[i+1]["hour_from"]
-			dwe[len(dwe)-1]["hour_to"] = self.env.company.schedule_import_last_entry_time
+
+			# NOTE: the planner XML never carries an end time, only each period's start — the day's
+			# last period has no "next" one to borrow hour_to from, so it inherits the immediately
+			# preceding period's own duration instead. Only a single-period day (nothing to infer
+			# duration from) falls back to the fixed company setting.
+			if len(dwe) > 1:
+				last_period_duration = dwe[-2]["hour_to"] - dwe[-2]["hour_from"]
+				dwe[-1]["hour_to"] = dwe[-1]["hour_from"] + last_period_duration
+			else:
+				dwe[-1]["hour_to"] = self.env.company.schedule_import_last_entry_time
 
 			for e in (x for x in dwe if x.get("name", False)):
 				meta = dict(e)
@@ -378,7 +546,5 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				entries.append(meta)
 				attendance_ids.append([0, 0, e])
 
-		schedule.write({ 'attendance_ids': attendance_ids })
-		teacher.write({ "resource_calendar_id": schedule })
-		return entries
+		return entries, attendance_ids
 

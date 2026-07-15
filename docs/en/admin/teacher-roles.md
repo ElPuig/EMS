@@ -14,17 +14,17 @@ Teachers gain elevated access by being assigned a **role**. Each role that carri
 
 Permission levels form a hierarchy — each level includes all the permissions of the ones before it:
 
-**Teacher → Tutor → Head of Department → Head of Studies → Director → Administrator**
+**Teacher → Tutor → Department Chief → Head of Studies → Director → Administrator**
 
 | Role | Permission level granted | How it is assigned |
 |------|---------------------------|---------------------|
 | *(none)* | Teacher | Default for every teacher |
 | Tutor | Tutor | Automatic — set when the teacher is assigned as the tutor of a Class Group |
-| Department chieff | Head of Department | Manual — added to the teacher's roles |
+| Department chieff | Department Chief | Manual — added to the teacher's roles |
 | Head of studies / Deputy head of studies | Head of Studies | Manual — added to the teacher's roles |
 | Director | Director | Manual — added to the teacher's roles |
 
-> Head of Department currently grants exactly the same permissions as Tutor. It exists as its own level so it can be extended independently in the future.
+> Department Chief currently grants the same permissions as Tutor, plus the ability to create, edit and delete Class Groups (Contacts → Groups). It exists as its own level so it can be extended independently in the future.
 
 ---
 

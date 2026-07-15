@@ -5,9 +5,9 @@
             <field name="model">ems.attendance_template</field>            
             <field name="arch" type="xml">                  
                 <search string="Only mine">
-                    <field name="teacher_id"/>
+                    <field name="teacher_ids"/>
                     <field name="subject_id"/>
-                    <filter string="Show only mine" name="only_mine" domain="[('teacher_id.user_id.id', '=', uid)]"/>
+                    <filter string="Show only mine" name="only_mine" domain="[('teacher_ids.user_id.id', '=', uid)]"/>
                 </search>
             </field>		      
         </record>   

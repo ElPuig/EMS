@@ -5,7 +5,7 @@
             <field name="model">ems.attendance_template</field>
             <field name="arch" type="xml">
                  <list expand="True">
-                    <field name="teacher_id" widget="many2one_avatar_employee"/>
+                    <field name="teacher_ids" widget="many2many_avatar_employee"/>
                     <field name="level_id"/>
                     <field name="study_id"/>                    
                     <field name="subject_id"/>

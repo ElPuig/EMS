@@ -131,6 +131,10 @@
             'views/community/working_schedules/import_wizard.xml',
             'views/community/working_schedules/menu.xml',
 
+            'views/employees/non_teaching_type/list.xml',
+            'views/employees/non_teaching_type/form.xml',
+            'views/employees/non_teaching_type/menu.xml',
+
             'views/community/subject/list.xml',
             'views/community/subject/search.xml',
             'views/community/subject/form.xml',
@@ -317,6 +321,7 @@
         'data/main/ems.mail_activity_type.xml',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
+        'data/main/ems.non_teaching_type.csv',
         'data/main/ems.schedule_framework_default.xml',
 
         'data/cat/attachments/asix/ir.attachment.csv',

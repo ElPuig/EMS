@@ -18,6 +18,6 @@
             <field name="context">{'default_is_framework': True}</field>
         </record>
 
-        <menuitem name="Schedule frameworks" sequence="5" id="menu_schedule_frameworks" parent="menu_community_config_teachers" action="action_schedule_frameworks_tree"/>
+        <menuitem name="Schedule frameworks" sequence="1" id="menu_schedule_frameworks" parent="menu_community_config_schedules" action="action_schedule_frameworks_tree"/>
     </data>
 </odoo>

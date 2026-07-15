@@ -17,6 +17,7 @@ This section contains the manuals for **teachers**.
 | [Evaluation: Record grades by learning outcome](qualificacions.md) | Record the grades for each evaluation to prepare the evaluation board |
 | [Strikes: Flagging a Disciplinary Incident](strike.md) | Issue a strike from the roll-call view when a student's behaviour needs to be flagged |
 | [Your Weekly Schedule](working-schedules.md) | View your subjects, groups, classrooms, breaks and meetings on your weekly timetable |
+| [Choosing Who Can See Your Photo](photo-visibility.md) | Control your profile photo's visibility: everyone, only teachers, or only directive staff |
 
 ## Planned Topics
 

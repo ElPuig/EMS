@@ -19,6 +19,7 @@ Technical reference for developers working on the EMS module.
 | [Academic role hierarchy](employees/role_hierarchy.md) | Teacher → Tutor → Department Chief → Head of Studies → Director → Administrator group chain and how roles sync to `res.users.groups_id` |
 | [Teacher working schedules & schedule frameworks](employees/working_schedule.md) | The "Schedule" tab widget, schedule frameworks, the empty-slot rule, employee lifecycle hooks, the XML import wizard |
 | [Google Workspace staff integration & EMS user auto-creation](employees/google_workspace_staff.md) | Corporate Google account creation (Directory API), automatic `res.users` with OAuth pre-link, lifecycle sync (archive ↔ suspend), required-fields chain |
+| [Photo visibility](employees/photo_visibility.md) | Teacher-controlled photo visibility (all / teachers / directive staff), the `res.users`/`hr.employee` field split and why `image_1920` becomes derived |
 
 ---
 

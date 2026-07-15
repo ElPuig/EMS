@@ -17,6 +17,7 @@ Esta sección contiene los manuales para los **profesores**.
 | [Evaluación: Introducir calificaciones por RAs](qualificacions.md) | Introducir las calificaciones de cada evaluación para preparar la junta de evaluación |
 | [Strikes: notificar una incidencia disciplinaria](strike.md) | Poner un strike desde la vista de pasar lista cuando hay que dejar constancia del comportamiento de un alumno |
 | [Tu horario semanal](working-schedules.md) | Consultar tus asignaturas, grupos, aulas, patios y reuniones en tu horario semanal |
+| [Elegir quién puede ver tu foto](photo-visibility.md) | Controlar la visibilidad de tu foto de perfil: todos, solo profesorado, o solo equipo directivo |
 
 ## Temas previstos
 

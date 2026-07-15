@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <!-- "My Profile" (base.action_res_users_my): where a teacher sets who can see their photo.
+             image_private replaces the native image_1920 here so the upload flows into
+             hr.employee.image_private (the real photo, see models/employees/employee.py) instead of
+             only updating the account avatar - res.users._inverse_image_private (models/employees/
+             user.py) keeps the account avatar in sync from there, so editing here still updates both. -->
+        <record model="ir.ui.view" id="view_users_form_simple_modif_photo_visibility">
+            <field name="name">ems.res.users.preferences.form.photo.visibility</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='image_1920']" position="attributes">
+                    <attribute name="name">image_private</attribute>
+                </xpath>
+                <xpath expr="//field[@name='image_private']" position="after">
+                    <field name="image_visibility" widget="radio"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

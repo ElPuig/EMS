@@ -21,23 +21,37 @@
             <field name="name">ems.employee.kanban</field>
             <field name="model">hr.employee</field>           
             <field name="inherit_id" ref="hr.hr_kanban_view_employees"/> 
-            <field name="arch" type="xml">  
+            <field name="arch" type="xml">
                 <xpath expr="//kanban" position="inside">
                     <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
                     <field name="tutorships"/>
-                </xpath>                
+                    <field name="image_private"/>
+                    <field name="photo_visible_to_current_user"/>
+                </xpath>
 
                 <field name="job_title" position="after">
                     <span t-if="record.tutorships.value != ''">
                         <!-- TODO: this text should be translated, check how to do it -->
                         Tutorship: <t t-esc="record.tutorships.value"/>
-                    </span>                   
-                </field>                                 
+                    </span>
+                </field>
 
                 <field name="category_ids" position="attributes">
                     <attribute name="name">role_ids</attribute>
-                </field>                                                                
-            </field>		      
+                </field>
+
+                <!-- NOTE: image_1024/image_128/avatar_128 are already blank for whoever the current
+                     employee's image_visibility excludes (see hr.employee._compute_image_1920), so
+                     the native t-if/t-elif chain below already "just works" for unauthorized viewers.
+                     The only case it misses is an AUTHORIZED viewer (self/admin/matching group tier)
+                     looking at an employee whose visibility isn't 'all' - image_1024/image_128 are
+                     blank for everyone in that case, so this extra branch shows image_private instead. -->
+                <xpath expr="//t[@t-elif='record.image_128.raw_value']" position="before">
+                    <t t-if="!record.image_1024.raw_value and !record.image_128.raw_value and record.photo_visible_to_current_user.raw_value and record.image_private.raw_value">
+                        <field name="image_private" widget="background_image" options="{'zoom': true, 'zoom_delay': 1000}" class="d-block position-relative"/>
+                    </t>
+                </xpath>
+            </field>
         </record>
     </data>
 </odoo>

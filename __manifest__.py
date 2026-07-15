@@ -134,6 +134,7 @@
             'views/employees/non_teaching_type/list.xml',
             'views/employees/non_teaching_type/form.xml',
             'views/employees/non_teaching_type/menu.xml',
+            'views/employees/user_profile_form.xml',
 
             'views/community/subject/list.xml',
             'views/community/subject/search.xml',

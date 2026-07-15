@@ -1,12 +1,50 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models
+from odoo import fields, models
 
 EMS_SYNC_CONTEXT_KEY = 'ems_syncing_groups'
 
 
 class ems_users(models.Model):
     _inherit = "res.users"
+
+    # Photo visibility: this is the field the user actually sets, from "My Profile"
+    # (base.action_res_users_my). hr.employee.image_visibility mirrors it (see employee.py),
+    # with a fallback for employees who have no linked user at all.
+    image_visibility = fields.Selection(
+        [('all', 'All'), ('teachers', 'Only teachers'), ('directive', 'Only directive staff')],
+        string="Photo visibility", default='all')
+
+    # Mirror of employee_id.image_private (the real photo storage - see employee.py for why it
+    # lives there and not here). Kept as compute+inverse, not a plain related field: a related
+    # field's write would go through hr.employee's own ACL (write=0 for teachers), which is
+    # exactly what must NOT change for this feature - employee_id is always "my own employee",
+    # so the sudo() here doesn't open any access to someone else's record.
+    image_private = fields.Binary(string="Photo", compute='_compute_image_private', inverse='_inverse_image_private')
+
+    @property
+    def SELF_WRITEABLE_FIELDS(self):
+        return super().SELF_WRITEABLE_FIELDS + ['image_visibility', 'image_private']
+
+    @property
+    def SELF_READABLE_FIELDS(self):
+        return super().SELF_READABLE_FIELDS + ['image_visibility', 'image_private']
+
+    def _compute_image_private(self):
+        for user in self:
+            user.image_private = user.employee_id.image_private if user.employee_id else False
+
+    def _inverse_image_private(self):
+        for user in self:
+            if user.employee_id:
+                user.employee_id.sudo().image_private = user.image_private
+            # Keep the account picture (topbar/Discuss/chatter, which read res.partner.image_1920)
+            # equal to the *real*, unfiltered photo - the visibility restriction only governs
+            # hr.employee.image_1920 (see employee.py), not the account avatar used across core
+            # Odoo. Written straight to partner_id, not through res.users.image_1920, to avoid
+            # cascading back through the whole res.users write() MRO (gamification/mail/resource/
+            # base overrides) a second time within the same write().
+            user.partner_id.sudo().image_1920 = user.image_private
 
     def write(self, vals):
         trigger = any(

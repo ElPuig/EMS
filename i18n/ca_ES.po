@@ -1633,6 +1633,12 @@ msgid "Afternoon"
 msgstr "Tarda"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__all
+#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__all
+msgid "All"
+msgstr "Tothom"
+
+#. module: ems
 #: model:ir.model,name:ems.model_res_partner_relation_all
 msgid "All (non-inverse + inverse) relations between partners"
 msgstr "Totes les relacions (directes i inverses) entre contactes"
@@ -6595,6 +6601,18 @@ msgid "Only mine"
 msgstr "Tansols els meus"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__directive
+#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__directive
+msgid "Only directive staff"
+msgstr "Només l'equip directiu"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__teachers
+#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__teachers
+msgid "Only teachers"
+msgstr "Només el professorat"
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can justify its attendances."
@@ -6923,6 +6941,18 @@ msgstr "Correu personal"
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Phone"
 msgstr "Telèfon"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__image_private
+#: model:ir.model.fields,field_description:ems.field_res_users__image_private
+msgid "Photo"
+msgstr "Foto"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__image_visibility
+#: model:ir.model.fields,field_description:ems.field_res_users__image_visibility
+msgid "Photo visibility"
+msgstr "Visibilitat de la foto"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__placeholder

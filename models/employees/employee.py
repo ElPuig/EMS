@@ -151,6 +151,66 @@ class ems_employee(models.AbstractModel):
     activity_type_id = fields.Many2one(groups="hr.group_hr_user,ems.group_teacher")
     activity_type_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
 
+    # Real photo storage - kept here (not on res.users) so employees with no linked user
+    # (e.g. ASP/support staff) can still have a photo set by an admin from their own form.
+    image_private = fields.Binary(string="Photo", attachment=True)
+
+    # Derived, not directly editable here: mirrors user_id.image_visibility (see user.py, where
+    # it's actually set from "My Profile"), falling back to 'all' when there's no linked user.
+    image_visibility = fields.Selection(
+        [('all', 'All'), ('teachers', 'Only teachers'), ('directive', 'Only directive staff')],
+        string="Photo visibility", compute='_compute_image_visibility', store=True)
+
+    # image_1920 becomes derived too: it's what avatar.mixin's avatar_*/image_* fields and every
+    # many2one_avatar(_employee) widget in the app read from, so blanking it here is what makes
+    # the visibility restriction apply everywhere automatically, with no per-view changes needed
+    # except in the "Teachers" kanban, where image_private is shown instead for authorized viewers
+    # (see views/community/employee/kanban.xml).
+    image_1920 = fields.Binary(compute='_compute_image_1920', inverse='_inverse_image_1920', store=True)
+
+    # Drives the image_private swap in the employee kanban for viewers who are allowed to see
+    # the real photo even when image_visibility isn't 'all' (self, admin, or the matching group
+    # tier). NOTE: no compute_sudo - it must run as the actual requesting user (has_group() below
+    # needs the real self.env.user, not the superuser compute_sudo would elevate to), and teachers
+    # already have global read access to hr.employee so no extra privilege is needed to compute it.
+    photo_visible_to_current_user = fields.Boolean(compute='_compute_photo_visible_to_current_user')
+
+    @api.depends('user_id.image_visibility')
+    def _compute_image_visibility(self):
+        for employee in self:
+            employee.image_visibility = employee.user_id.image_visibility if employee.user_id else 'all'
+
+    @api.depends('image_private', 'image_visibility')
+    def _compute_image_1920(self):
+        for employee in self:
+            employee.image_1920 = employee.image_private if employee.image_visibility == 'all' else False
+
+    def _inverse_image_1920(self):
+        for employee in self:
+            if employee.image_1920:
+                employee.image_private = employee.image_1920
+
+    # depends_context('uid') is required, not just compute_sudo=False: without it, this
+    # non-stored field's cached value is keyed only by record id at the transaction level, so a
+    # second read by a *different* user would silently reuse the first user's cached result.
+    @api.depends_context('uid')
+    def _compute_photo_visible_to_current_user(self):
+        user = self.env.user
+        is_admin = user.has_group('ems.group_academic_admin')
+        is_teacher = user.has_group('ems.group_teacher')
+        is_directive = user.has_group('ems.group_head_of_studies')
+        for employee in self:
+            if is_admin or employee.user_id == user:
+                employee.photo_visible_to_current_user = True
+            elif employee.image_visibility == 'all':
+                employee.photo_visible_to_current_user = True
+            elif employee.image_visibility == 'teachers':
+                employee.photo_visible_to_current_user = is_teacher
+            elif employee.image_visibility == 'directive':
+                employee.photo_visible_to_current_user = is_directive
+            else:
+                employee.photo_visible_to_current_user = False
+
     def _personal_calendar_name(self):
         self.ensure_one()
         course = self.company_id.current_course_id

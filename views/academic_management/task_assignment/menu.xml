@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- group_academic_admin implies group_secretary_admin, so it sees the menu too. -->
         <menuitem id="menu_ems_task_assignment"
                   name="Task Assignment"
                   parent="menu_ems_configuration"

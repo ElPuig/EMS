@@ -17,10 +17,9 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
-        <!-- ems.group_academic_admin implies group_secretary_admin, so it would inherit the
-             rule above and lose the full write access it holds through base.group_system.
-             Record rules of the groups a user belongs to are OR-ed together, so this second
-             rule gives it back. -->
+        <!-- Grants full write access on any activity type to whoever holds base.group_system
+             (e.g. ems.group_settings_admin implies it) - unaffected by the rule above, since
+             record rules of the groups a user belongs to are OR-ed together. -->
         <record id="rule_mail_activity_type_system_all" model="ir.rule">
             <field name="name">Task Assignment: system administrators write any activity type</field>
             <field name="model_id" ref="mail.model_mail_activity_type"/>

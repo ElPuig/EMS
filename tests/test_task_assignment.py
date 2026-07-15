@@ -155,9 +155,11 @@ class TestTaskAssignment(TransactionCase):
         with self.assertRaises(AccessError):
             native_type.with_user(secretary_admin).name = 'Hijacked'
 
-    def test_academic_admin_keeps_full_access(self):
-        """group_academic_admin implies group_secretary_admin, so it must not lose the
-        write access it holds through base.group_system (the two rules are OR-ed)."""
+    def test_academic_admin_no_longer_inherits_system_access(self):
+        """group_academic_admin no longer implies group_secretary_admin/group_settings_admin
+        (permission blocks are independent - see security/groups.xml), so an Academic
+        Administrator without group_settings_admin has no base.group_system access and
+        can't touch activity types outside what group_academic_admin's own ACLs allow."""
         academic_admin = self.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Academic Administrator',
             'login': 'test_task_academic_admin',
@@ -165,9 +167,8 @@ class TestTaskAssignment(TransactionCase):
         })
         native_type = self.env.ref('mail.mail_activity_data_todo')
 
-        native_type.with_user(academic_admin).name = 'Renamed by the administrator'
-
-        self.assertEqual(native_type.name, 'Renamed by the administrator')
+        with self.assertRaises(AccessError):
+            native_type.with_user(academic_admin).name = 'Renamed by the administrator'
 
     def test_assignment_is_independent_from_security_groups(self):
         """The reviewer holds no EMS group, and a secretary who is not on the list

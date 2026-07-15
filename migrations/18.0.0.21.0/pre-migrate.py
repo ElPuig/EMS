@@ -4,7 +4,45 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
+def _revoke_implied_block_admin(cr):
+    # group_academic_admin used to imply group_secretary_admin/group_quality_admin/
+    # group_coexistence_admin/group_settings_admin (see security/groups.xml), so any user
+    # holding Academic Administrator also silently held Administrator in every other block.
+    # That implication is removed in this same version so the blocks stay independent -
+    # revoke the memberships that existed only because of it, for every user except
+    # root/admin (who keep full access to every block through explicit membership, added
+    # directly on each of those groups instead).
+    block_admin_groups = (
+        'group_secretary_admin',
+        'group_quality_admin',
+        'group_coexistence_admin',
+        'group_settings_admin',
+    )
+    for group_name in block_admin_groups:
+        cr.execute("""
+            DELETE FROM res_groups_users_rel
+            WHERE gid = (
+                SELECT res_id FROM ir_model_data WHERE module = 'ems' AND name = %s
+            )
+            AND uid IN (
+                SELECT uid FROM res_groups_users_rel
+                WHERE gid = (
+                    SELECT res_id FROM ir_model_data WHERE module = 'ems' AND name = 'group_academic_admin'
+                )
+            )
+            AND uid NOT IN (
+                SELECT res_id FROM ir_model_data WHERE module = 'base' AND name IN ('user_root', 'user_admin')
+            )
+        """, (group_name,))
+        _logger.info(
+            "Migration 18.0.0.21.0: revoked %d user(s) from 'ems.%s' that held it only "
+            "through the removed group_academic_admin implication.", cr.rowcount, group_name,
+        )
+
+
 def migrate(cr, _version):
+    _revoke_implied_block_admin(cr)
+
     # 'resource_calendar_attendance.non_teaching' changes from a Selection (varchar column) to a
     # Many2one (integer FK) to the new 'ems.non_teaching_type' model. Odoo's own schema sync cannot
     # convert existing varchar codes ('BR', 'G'...) into integer foreign keys, so the old column is

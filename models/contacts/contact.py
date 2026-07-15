@@ -620,7 +620,11 @@ class ems_contact(models.Model):
             group = partner.main_group_id
             # Subject enrollments: without this the student stays in group.enrolled_student_ids
             # and grade_session.fill_students() would put them back in every new round.
-            self.env['ems.enrollment'].sudo().search(
+            # ems_bypass_grade_guard: this withdrawal flow runs AFTER the academic history has
+            # already been frozen (see docstring above) and deliberately clears the live grade
+            # lines itself right below, so ems.enrollment.unlink()'s usual "has scored grades"
+            # guard must not block it here.
+            self.env['ems.enrollment'].sudo().with_context(ems_bypass_grade_guard=True).search(
                 [('student_id', '=', partner.id)]).unlink()
             # Grade lines of the live sessions (the grades are copied in the year record).
             self.env['ems.grade_outcome_line'].sudo().search(

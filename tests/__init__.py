@@ -1,4 +1,5 @@
 from . import test_contact
+from . import test_enrollment
 from . import test_enrollment_benefit
 from . import test_enrollment_placement
 from . import test_exit_management

@@ -95,48 +95,74 @@ class ems_grade_session(models.Model):
 				("group_id", "=", rec.group_id.id),
 				("subject_id", "=", rec.subject_id.id)
 			]).mapped("student_id")
-
-			# The outcomes to grade come from the planning; if there's no planning yet, fall back to the subject's outcomes.
-			outcomes = rec.planning_id.planning_outcome_ids.mapped("outcome_id") or rec.subject_id.outcome_ids
-
-			# Every evaluated outcome from an earlier round of the same group and subject is carried over:
-			# the new line starts from the score of the most recent earlier round. Passed outcomes stay
-			# locked (see grade_outcome_line.is_locked); failed ones are editable but keep their previous
-			# score as a starting point.
-			previous_scores = {}
-			if rec.group_id and rec.subject_id and rec.round:
-				best_round = {}
-				for line in self.env["ems.grade_outcome_line"].search([
-					("grade_session_id.group_id", "=", rec.group_id.id),
-					("grade_session_id.subject_id", "=", rec.subject_id.id),
-					("grade_session_id.round", "<", rec.round),
-					("is_scored", "=", True),
-				]):
-					key = (line.student_id.id, line.outcome_id.id)
-					line_round = line.grade_session_id.round
-					# round is a single-digit selection, so a string comparison is enough to keep the latest.
-					if key not in best_round or line_round > best_round[key]:
-						best_round[key] = line_round
-						previous_scores[key] = line.score
-
-			outcome_cmds = [(5, 0, 0)]
-			subject_cmds = [(5, 0, 0)]
+			rec.grade_outcome_line_ids = [(5, 0, 0)]
+			rec.grade_subject_line_ids = [(5, 0, 0)]
 			for student in students:
-				subject_cmds.append((0, 0, {"student_id": student.id}))
-				for outcome in outcomes:
-					vals = {
-						"student_id": student.id,
-						"outcome_id": outcome.id,
-						"is_auto_generated": True,
-					}
-					previous = previous_scores.get((student.id, outcome.id))
-					if previous is not None:
-						vals["score"] = previous
-						vals["is_scored"] = True
-					outcome_cmds.append((0, 0, vals))
+				rec._ems_add_student_lines(student)
 
-			rec.grade_outcome_line_ids = outcome_cmds
-			rec.grade_subject_line_ids = subject_cmds
+	def _ems_add_student_lines(self, student):
+		"""Add 'student's grade lines (subject + per-outcome) to this session, carrying over
+		passed-outcome scores from earlier rounds the same way 'fill_students' does. Idempotent
+		(a no-op if the student already has lines here) and leaves every other student's lines
+		untouched, so it is safe to call incrementally (e.g. when a new ems.enrollment is
+		created for this group+subject) without wiping grades other students already have."""
+		self.ensure_one()
+		if self.grade_subject_line_ids.filtered(lambda line: line.student_id == student):
+			return
+
+		# The outcomes to grade come from the planning; if there's no planning yet, fall back to the subject's outcomes.
+		outcomes = self.planning_id.planning_outcome_ids.mapped("outcome_id") or self.subject_id.outcome_ids
+
+		# Every evaluated outcome from an earlier round of the same group and subject is carried over:
+		# the new line starts from the score of the most recent earlier round. Passed outcomes stay
+		# locked (see grade_outcome_line.is_locked); failed ones are editable but keep their previous
+		# score as a starting point.
+		previous_scores = {}
+		if self.group_id and self.subject_id and self.round:
+			best_round = {}
+			for line in self.env["ems.grade_outcome_line"].search([
+				("student_id", "=", student.id),
+				("grade_session_id.group_id", "=", self.group_id.id),
+				("grade_session_id.subject_id", "=", self.subject_id.id),
+				("grade_session_id.round", "<", self.round),
+				("is_scored", "=", True),
+			]):
+				outcome_id = line.outcome_id.id
+				line_round = line.grade_session_id.round
+				# round is a single-digit selection, so a string comparison is enough to keep the latest.
+				if outcome_id not in best_round or line_round > best_round[outcome_id]:
+					best_round[outcome_id] = line_round
+					previous_scores[outcome_id] = line.score
+
+		outcome_cmds = []
+		for outcome in outcomes:
+			vals = {
+				"student_id": student.id,
+				"outcome_id": outcome.id,
+				"is_auto_generated": True,
+			}
+			previous = previous_scores.get(outcome.id)
+			if previous is not None:
+				vals["score"] = previous
+				vals["is_scored"] = True
+			outcome_cmds.append((0, 0, vals))
+
+		self.grade_subject_line_ids = [(0, 0, {"student_id": student.id})]
+		self.grade_outcome_line_ids = outcome_cmds
+
+	@api.model
+	def _ems_has_scored_grades(self, student_id, group_id, subject_id):
+		"""Whether 'student_id' already has any grade informed (a scored outcome, or an external
+		grade) in a grade session for 'group_id'+'subject_id', in any round or state. Used to
+		block deleting the underlying ems.enrollment once evaluation has actually started."""
+		domain = [
+			("student_id", "=", student_id),
+			("grade_session_id.group_id", "=", group_id),
+			("grade_session_id.subject_id", "=", subject_id),
+		]
+		if self.env["ems.grade_outcome_line"].search_count(domain + [("is_scored", "=", True)]):
+			return True
+		return bool(self.env["ems.grade_subject_line"].search_count(domain + [("external_is_scored", "=", True)]))
 
 	def reload_students(self):
 		self.fill_students()

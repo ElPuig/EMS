@@ -7320,6 +7320,11 @@ msgid "Reload recipients"
 msgstr "Recargar destinatarios"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+msgid "Reload students"
+msgstr "Recarregar alumnes"
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0
 msgid "Remind"
@@ -9050,6 +9055,17 @@ msgstr ""
 "Aquesta acció buidarà i recrearà els destinataris, esborrant qualsevol canvi"
 " manual  i guardant les dades al moment. Aquesta acció no es pot desfer. "
 "Encara vols continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+msgid ""
+"This action will remove any manual change to the student list and "
+"reassign the students according to their current enrollments. It cannot "
+"be undone. Do you wish to continue?"
+msgstr ""
+"Aquesta acció eliminarà qualsevol canvi manual a la llista d'alumnes i els "
+"reassignarà segons la seva matrícula actual. Aquesta acció no es pot "
+"desfer. Encara vols continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form

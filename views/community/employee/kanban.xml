@@ -25,7 +25,7 @@
                 <xpath expr="//kanban" position="inside">
                     <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
                     <field name="tutorships"/>
-                    <field name="image_private"/>
+                    <field name="effective_photo"/>
                     <field name="photo_visible_to_current_user"/>
                 </xpath>
 
@@ -45,10 +45,25 @@
                      the native t-if/t-elif chain below already "just works" for unauthorized viewers.
                      The only case it misses is an AUTHORIZED viewer (self/admin/matching group tier)
                      looking at an employee whose visibility isn't 'all' - image_1024/image_128 are
-                     blank for everyone in that case, so this extra branch shows image_private instead. -->
+                     blank for everyone in that case, so this extra branch shows effective_photo
+                     instead (image_private, or - if the employee never had their own photo - the
+                     linked user's photo, same fallback core Odoo's own avatar_* fields already do).
+
+                     MUST be t-elif, not a separate t-if: this node has to stay part of the SAME
+                     if/elif/elif/else chain as the surrounding t-if="image_1024.raw_value" and
+                     t-elif="image_128.raw_value"/t-else. QWeb (like plain HTML) resolves
+                     t-elif/t-else by walking back to the nearest preceding t-if/t-elif sibling -
+                     inserting an unrelated t-if here would split the chain in two, and the *next*
+                     node (t-elif="image_128.raw_value") would then anchor to THIS node instead of
+                     the original t-if. That previously caused a real, visible bug: whenever
+                     image_1024 was already true (an ordinary photo, visibility 'all'), the
+                     original t-if rendered it, and then - completely independently, because the
+                     chain had split - image_128 (also true in that same case) matched again in
+                     what had become its own new chain, rendering avatar_128 right below it: the
+                     same photo shown twice, stacked. -->
                 <xpath expr="//t[@t-elif='record.image_128.raw_value']" position="before">
-                    <t t-if="!record.image_1024.raw_value and !record.image_128.raw_value and record.photo_visible_to_current_user.raw_value and record.image_private.raw_value">
-                        <field name="image_private" widget="background_image" options="{'zoom': true, 'zoom_delay': 1000}" class="d-block position-relative"/>
+                    <t t-elif="record.photo_visible_to_current_user.raw_value and record.effective_photo.raw_value">
+                        <field name="effective_photo" widget="background_image" options="{'zoom': true, 'zoom_delay': 1000}" class="d-block position-relative"/>
                     </t>
                 </xpath>
             </field>

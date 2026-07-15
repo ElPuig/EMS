@@ -1,3 +1,6 @@
+import importlib.util
+import os
+
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
@@ -140,6 +143,76 @@ class TestEmployeePhotoVisibility(TransactionCase):
         self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'all'})
         self.teacher_a.invalidate_recordset()
         self.assertEqual(self.teacher_a.image_1920, self.photo)
+
+    def _load_post_migrate_module(self):
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'migrations', '18.0.0.21.0', 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_21_0', path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_migration_backfills_image_private_before_recomputing(self):
+        # Regression test for a real incident: an earlier version of
+        # migrations/18.0.0.21.0/post-migrate.py's _recompute_employee_image_1920 recomputed
+        # image_1920 without first backfilling image_private from each employee's legacy
+        # image_1920 value. For an employee with their own photo but no linked user (so no
+        # fallback either), that silently WIPED the photo (Binary field writes of a falsy value
+        # delete the underlying ir_attachment) - and it was unrecoverable, since Odoo's own
+        # filestore GC had already purged the orphaned file by the time it was noticed. This
+        # must never regress.
+        employee = self.env['hr.employee'].create({
+            'name': 'Legacy Photo Employee (Photo Visibility)',
+            'employee_type': 'asp',
+        })
+        employee.image_private = self.photo
+        employee.invalidate_recordset()
+        self.assertFalse(employee.user_id)
+        self.assertEqual(employee.image_1920, self.photo)
+
+        # Simulate the real pre-migration DB state: image_private didn't exist as a concept
+        # yet, only the legacy image_1920 attachment did. Done via raw SQL, not the ORM -
+        # writing image_private=False through the ORM would also recompute image_1920 via the
+        # model's own (already correct) dependency graph, masking exactly the gap this
+        # migration step exists to cover.
+        self.env.cr.execute(
+            "DELETE FROM ir_attachment WHERE res_model = 'hr.employee' "
+            "AND res_field = 'image_private' AND res_id = %s", (employee.id,))
+        employee.invalidate_recordset()
+        self.assertFalse(employee.image_private)
+        self.assertEqual(employee.image_1920, self.photo)
+
+        migration = self._load_post_migrate_module()
+        migration._recompute_employee_image_1920(self.env.cr)
+        employee.invalidate_recordset()
+
+        self.assertEqual(employee.image_private, self.photo)
+        self.assertEqual(employee.image_1920, self.photo)
+
+    def test_effective_photo_falls_back_to_linked_user_photo(self):
+        # Regression test: an employee can have a photo only on their linked res.users/
+        # res.partner record (e.g. set directly via Settings > Users, or from before this
+        # feature existed) and never have uploaded one to hr.employee.image_private - core
+        # Odoo's own avatar_* fields already fall back to the user's photo in that case
+        # (hr.employee._compute_avatar), and this feature must not regress that.
+        # image_private isn't empty out of the box here: hr.employee's own creation flow
+        # (_sync_user) generates an SVG initials placeholder and assigns it via image_1920,
+        # which our _inverse_image_1920 dutifully copies into image_private - clear it first
+        # to reproduce the real case this guards (an employee who predates this feature and
+        # never had their own hr.employee photo at all, e.g. imported via CSV).
+        self.teacher_b.sudo().image_private = False
+        self.teacher_b_user.partner_id.sudo().image_1920 = self.photo
+
+        self.teacher_b.invalidate_recordset()
+        self.assertEqual(self.teacher_b.effective_photo, self.photo)
+        self.assertEqual(self.teacher_b.image_1920, self.photo)
+
+        self.teacher_b_user.with_user(self.teacher_b_user).write({'image_visibility': 'teachers'})
+        self.teacher_b.invalidate_recordset()
+        self.assertFalse(self.teacher_b.image_1920)
+        self.assertEqual(self.teacher_b.effective_photo, self.photo)
+        self.assertTrue(self.teacher_b.with_user(self.teacher_a_user).photo_visible_to_current_user)
 
     def test_linked_user_receives_unfiltered_photo(self):
         self.teacher_a_user.with_user(self.teacher_a_user).write({

@@ -153,8 +153,54 @@ def _copy_teacher_photo_to_user(cr):
     )
 
 
+def _recompute_employee_image_1920(cr):
+    # New in this version: hr.employee.image_1920 becomes a compute+store field driven by
+    # image_private/image_visibility (see models/employees/employee.py, the teacher photo
+    # visibility feature), with a fallback to the linked user's photo (effective_photo) for
+    # employees who never had a photo of their own directly on hr.employee - common for anyone
+    # whose photo only ever lived on their res.users/res.partner record.
+    #
+    # Odoo does not retroactively recompute an already-populated store=True field just because
+    # its compute function changed - only genuinely new/NULL stored values get recomputed
+    # automatically during the schema sync that runs before this script. image_1920 already
+    # existed before this version, so every employee keeps whatever value it held pre-upgrade
+    # (often blank) until something explicitly recomputes it - do that here, once, for everyone.
+    #
+    # CRITICAL ORDERING - DO NOT SKIP THE BACKFILL BELOW: image_private is a brand new field,
+    # empty for every employee at this point. An employee who already has their own photo
+    # directly on hr.employee (attachment on image_1920) but has NO linked user (so no fallback
+    # either) would have that photo permanently DELETED by the recompute below if image_private
+    # isn't seeded from their legacy image_1920 value first (Binary field writes of a falsy
+    # value delete the underlying ir_attachment). This is not a hypothetical: an earlier version
+    # of this script skipped the backfill and destroyed real, irrecoverable employee photos in
+    # development before being caught - keep both steps, in this order, always.
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    cr.execute("""
+        SELECT DISTINCT res_id FROM ir_attachment
+        WHERE res_model = 'hr.employee' AND res_field = 'image_1920'
+    """)
+    employees_with_legacy_photo = env['hr.employee'].with_context(active_test=False).browse(
+        row[0] for row in cr.fetchall())
+    backfilled = 0
+    for employee in employees_with_legacy_photo:
+        if not employee.image_private:
+            # Read BEFORE anything below recomputes image_1920 - at this point it still holds
+            # each employee's legacy, pre-upgrade value.
+            employee.image_private = employee.image_1920
+            backfilled += 1
+
+    employees = env['hr.employee'].with_context(active_test=False).search([])
+    employees._compute_image_1920()
+    _logger.info(
+        "Migration 18.0.0.21.0: backfilled 'image_private' from the legacy 'image_1920' for %d "
+        "employee(s), then recomputed 'image_1920' (photo visibility fallback) for %d "
+        "employee(s) total.", backfilled, len(employees),
+    )
+
+
 def migrate(cr, _version):
     _migrate_non_teaching_type(cr)
     _migrate_attendance_template_teacher_ids(cr)
     _seed_task_assignment_recipients(cr)
     _copy_teacher_photo_to_user(cr)
+    _recompute_employee_image_1920(cr)

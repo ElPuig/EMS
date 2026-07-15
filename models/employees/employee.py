@@ -164,11 +164,19 @@ class ems_employee(models.AbstractModel):
     # image_1920 becomes derived too: it's what avatar.mixin's avatar_*/image_* fields and every
     # many2one_avatar(_employee) widget in the app read from, so blanking it here is what makes
     # the visibility restriction apply everywhere automatically, with no per-view changes needed
-    # except in the "Teachers" kanban, where image_private is shown instead for authorized viewers
-    # (see views/community/employee/kanban.xml).
+    # except in the "Teachers" kanban, where effective_photo is shown instead for authorized
+    # viewers (see views/community/employee/kanban.xml).
     image_1920 = fields.Binary(compute='_compute_image_1920', inverse='_inverse_image_1920', store=True)
 
-    # Drives the image_private swap in the employee kanban for viewers who are allowed to see
+    # Falls back to the linked user's own photo when the employee has no image_private of their
+    # own - matching core Odoo's own hr.employee._compute_avatar fallback (an employee with no
+    # photo of their own shows their user's avatar instead), which this feature must not regress:
+    # plenty of employees only ever had a photo on their res.users/res.partner record, never
+    # copied onto hr.employee. This is the single source both image_1920 and the kanban/form
+    # "show the real photo to an authorized viewer" swap read from - never image_private directly.
+    effective_photo = fields.Binary(compute='_compute_effective_photo', compute_sudo=True)
+
+    # Drives the effective_photo swap in the employee kanban for viewers who are allowed to see
     # the real photo even when image_visibility isn't 'all' (self, admin, or the matching group
     # tier). NOTE: no compute_sudo - it must run as the actual requesting user (has_group() below
     # needs the real self.env.user, not the superuser compute_sudo would elevate to), and teachers
@@ -180,10 +188,16 @@ class ems_employee(models.AbstractModel):
         for employee in self:
             employee.image_visibility = employee.user_id.image_visibility if employee.user_id else 'all'
 
-    @api.depends('image_private', 'image_visibility')
+    @api.depends('image_private', 'user_id.image_1920')
+    def _compute_effective_photo(self):
+        for employee in self:
+            employee.effective_photo = employee.image_private or (
+                employee.user_id.sudo().image_1920 if employee.user_id else False)
+
+    @api.depends('effective_photo', 'image_visibility')
     def _compute_image_1920(self):
         for employee in self:
-            employee.image_1920 = employee.image_private if employee.image_visibility == 'all' else False
+            employee.image_1920 = employee.effective_photo if employee.image_visibility == 'all' else False
 
     def _inverse_image_1920(self):
         for employee in self:

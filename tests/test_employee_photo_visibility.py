@@ -63,6 +63,18 @@ class TestEmployeePhotoVisibility(TransactionCase):
         self.assertEqual(self.teacher_a.image_visibility, 'all')
         self.assertEqual(self.teacher_a_user.image_visibility, 'all')
 
+    def test_profile_form_view_combines_in_every_inheriting_tree(self):
+        # Regression test: base.view_users_form_simple_modif is also the base of a SEPARATE
+        # mode="primary" view (hr.res_users_view_form_simple_modif, embedded in the employee
+        # form) which removes the native image_1920 field from its own combined tree. An
+        # ems view extending base.view_users_form_simple_modif gets applied to BOTH trees, so
+        # an xpath anchored on image_1920 breaks get_view() for res.users entirely as soon as
+        # it's requested through the employee-embedded tree, not just "My Profile" - exercise
+        # both to catch that class of bug.
+        self.env['res.users'].get_view(view_type='form')
+        self.env['res.users'].get_view(
+            view_id=self.env.ref('hr.res_users_view_form_simple_modif').id, view_type='form')
+
     def test_teacher_can_set_own_visibility_via_profile(self):
         self.teacher_a_user.with_user(self.teacher_a_user).write({
             'image_visibility': 'teachers',

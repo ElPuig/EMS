@@ -10,6 +10,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 
 ## Manuales disponibles
 
+- [Histórico académico: consultas de cohorte](academic-history.md)
 - [Decidir sobre solicitudes de corrección de fichajes](attendance-corrections.md)
 - [Strikes: menú Convivencia y correos de escalado](strike.md)
 

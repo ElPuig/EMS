@@ -5,6 +5,14 @@
             <field name="model">ems.attendance_template</field>
             <field name="arch" type="xml">
                 <form string="Template">
+                    <header>
+                        <button string="Reload students"
+                            name="reload_students"
+                            type="object"
+                            confirm="This action will remove any manual change to the student list and reassign the students according to their current enrollments. It cannot be undone. Do you wish to continue?"
+                            invisible="not id or read_only_user"
+                        />
+                    </header>
                     <sheet>
                         <group string="Main data" col="6">   
                             <!-- This is needed to automatically display the 'archive' option within the cogmenu. -->
@@ -15,7 +23,7 @@
                             </group>
                             
                             <group colspan="2">
-                                <field name="teacher_id" widget="many2one_avatar_employee" readonly="not user_is_admin"/>
+                                <field name="teacher_ids" widget="many2many_avatar_employee" readonly="not user_is_admin"/>
                             </group>
                             <group colspan="1">
                                 <!-- TODO: not working, check how its solven at justification form. -->

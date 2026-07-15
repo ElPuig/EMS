@@ -96,30 +96,53 @@ class EmsStudentDocument(models.Model):
                     raise ValidationError(_("There is already a pending IBAN submission for this student."))
 
     def _schedule_review_activities(self):
-        """Schedule a 'to-do' review activity for each secretary user."""
-        users = self.env.ref('ems.group_secretary').users
+        """Schedule a 'to-do' review activity for each configured reviewer.
+
+        Recipients come from Academic Management > Configuration > Task Assignment,
+        not from a security group: who reviews documents is a matter of
+        organisation, not of access rights.
+
+        ``mail_activity_quick_update`` suppresses the assignation email Odoo sends to
+        every assignee on mail.activity.create() ("X has assigned you the following
+        activity"). The task in the systray is the reviewer's notice — and the author
+        of that email would be whoever created the document, i.e. the family writing
+        from the portal, which reads as if a family were assigning work to the office.
+        """
+        users = self.env['mail.activity.type']._ems_get_task_users(
+            'ems.mail_activity_student_document_review')
         for rec in self:
             doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
             for user in users:
-                rec.activity_schedule(
+                rec.with_context(mail_activity_quick_update=True).activity_schedule(
                     act_type_xmlid='ems.mail_activity_student_document_review',
                     summary=_('Review document: %s') % doc_label,
                     user_id=user.id,
                 )
+        # Scheduling an activity auto-subscribes the assignee, which would email the
+        # reviewers every status change on top of their to-do. The task is their only
+        # notice (same rule as enrollment comments), so keep them out of the followers.
+        self._unsubscribe_reviewers(users)
+
+    def _unsubscribe_reviewers(self, users):
+        """Keep the task recipients out of the followers (their to-do is the notice)."""
+        partner_ids = users.mapped('partner_id').ids
+        if partner_ids:
+            for rec in self:
+                rec.message_unsubscribe(partner_ids=partner_ids)
 
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
-        users = self.env.ref('ems.group_secretary').users
-        secretary_partner_ids = users.mapped('partner_id').ids
         for rec in records:
             doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
 
-            # Subscribe student + secretary so all receive email on status changes
-            rec.message_subscribe(partner_ids=[rec.partner_id.id] + secretary_partner_ids)
+            # Only the student follows the document: they are the one who must hear
+            # back about it by email. Reviewers get a task instead (see
+            # _schedule_review_activities).
+            rec.message_subscribe(partner_ids=[rec.partner_id.id])
 
             if rec.status == 'pending':
-                # Internal log note — does NOT email followers (the secretary is
+                # Internal log note — does NOT email followers (the reviewer is
                 # notified via the review activity instead, avoiding a duplicate email)
                 rec.message_post(
                     body=Markup('<b>Document submitted for review:</b> %s<br/>Student: %s') % (
@@ -255,8 +278,15 @@ class EmsStudentDocument(models.Model):
             ('partner_id', '=', student.id),
             ('acc_number', '=', iban),
         ], limit=1)
+        # allow_out_payment: the secretary has just validated the IBAN, so mark
+        # the account as trusted — otherwise posting a direct-debit invoice
+        # that references it is blocked (or the bank data silently dropped).
         if existing:
-            existing.write({'active': True, 'acc_holder_name': holder})
+            existing.write({
+                'active': True,
+                'acc_holder_name': holder,
+                'allow_out_payment': True,
+            })
             BankAccount.search([
                 ('partner_id', '=', student.id),
                 ('id', '!=', existing.id),
@@ -267,4 +297,5 @@ class EmsStudentDocument(models.Model):
                 'acc_number': iban,
                 'partner_id': student.id,
                 'acc_holder_name': holder,
+                'allow_out_payment': True,
             })

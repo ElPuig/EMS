@@ -132,6 +132,10 @@ class ems_contact(models.Model):
     exit_course_id = fields.Many2one('ems.course', string="Exit course")
     exit_date = fields.Date(string="Exit date")
     exit_reason = fields.Text(string="Exit reason")
+    # Academic history: one frozen record per course (see models/grades/year_record.py).
+    year_record_ids = fields.One2many(string="Academic history",
+                                      comodel_name='ems.student.year_record',
+                                      inverse_name='student_id')
     # Derived transition state (not stored). Consumed by the "no destination" report.
     transition_status = fields.Selection([
         ('enrolled', 'Enrolled next course'),
@@ -597,6 +601,46 @@ class ems_contact(models.Model):
             # sudo: the secretary running the withdrawal has no rights over the queue
             # job / res.users. Guarded internally by google_ws_enabled and student_email.
             partner.sudo()._gw_enqueue_suspend()
+
+    def _ems_clear_operational_records(self):
+        """Delete the operational records of a student leaving the centre.
+
+        Called ONLY after the academic history has been frozen (ems.student.year_record):
+        the history keeps what the student studied, the grades per learning outcome and the
+        attendance rate, so the live records have nothing left to say. Leaving them behind is
+        what makes an ex-student keep showing up where they no longer belong: enrolled in the
+        group's subjects, in the evaluation matrix, in the attendance sessions still to be
+        taken, or as the group's delegate.
+
+        sudo: the secretary running the withdrawal has no write rights over grades or
+        attendance, but detaching a student who has left is a legitimate system cleanup.
+        Used by the withdrawal wizard (immediate) and, later, by the transition wizard.
+        """
+        for partner in self:
+            group = partner.main_group_id
+            # Subject enrollments: without this the student stays in group.enrolled_student_ids
+            # and grade_session.fill_students() would put them back in every new round.
+            # ems_bypass_grade_guard: this withdrawal flow runs AFTER the academic history has
+            # already been frozen (see docstring above) and deliberately clears the live grade
+            # lines itself right below, so ems.enrollment.unlink()'s usual "has scored grades"
+            # guard must not block it here.
+            self.env['ems.enrollment'].sudo().with_context(ems_bypass_grade_guard=True).search(
+                [('student_id', '=', partner.id)]).unlink()
+            # Grade lines of the live sessions (the grades are copied in the year record).
+            self.env['ems.grade_outcome_line'].sudo().search(
+                [('student_id', '=', partner.id)]).unlink()
+            self.env['ems.grade_subject_line'].sudo().search(
+                [('student_id', '=', partner.id)]).unlink()
+            # Attendance lines (the attendance rate is copied in the year record).
+            self.env['ems.attendance_session_line'].sudo().search(
+                [('student_id', '=', partner.id)]).unlink()
+            # Attendance templates: student_ids is a materialised M2m, never recomputed.
+            templates = self.env['ems.attendance_template'].sudo().search(
+                [('student_ids', 'in', partner.id)])
+            for template in templates:
+                template.student_ids = [(3, partner.id)]
+            if group.delegate_id == partner:
+                group.sudo().delegate_id = False
 
     def _sync_category(self):
         # The "student" category doubles as the shared student-lifecycle marker: the

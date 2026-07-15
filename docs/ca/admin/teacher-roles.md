@@ -24,7 +24,7 @@ Els nivells de permisos formen una jerarquia — cada nivell inclou tots els per
 | Cap d'estudis / Cap d'estudis adjunt | Cap d'estudis | Manual — s'afegeix als rols del professor |
 | Director | Director | Manual — s'afegeix als rols del professor |
 
-> El Cap de departament té actualment exactament els mateixos permisos que el Tutor. Existeix com a nivell propi perquè es pugui ampliar de manera independent en el futur.
+> El Cap de departament té actualment els mateixos permisos que el Tutor, a més de poder crear, editar i eliminar Grups d'alumnes (Contactes → Grups). Existeix com a nivell propi perquè es pugui ampliar de manera independent en el futur.
 
 ---
 

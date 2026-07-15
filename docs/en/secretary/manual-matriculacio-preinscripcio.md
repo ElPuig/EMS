@@ -25,7 +25,8 @@ From Step 3 on, the circuit is the same for both.
 6. [Step 5 — Review the generated enrollments](#step-5--review-the-generated-enrollments)
 7. [Step 6 — Send the enrollment proposals](#step-6--send-the-enrollment-proposals)
 8. [Study changes that do not come from GEDAC](#study-changes-that-do-not-come-from-gedac)
-9. [FAQ](#faq)
+9. [Bonifications and exemptions approved after confirmation](#bonifications-and-exemptions-approved-after-confirmation)
+10. [FAQ](#faq)
 
 ---
 
@@ -153,6 +154,27 @@ If a student changes study **outside the preinscription** (e.g. asking in Octobe
 In that case, tick the **Enroll in a different study** checkbox in the proposal wizard: the **Enrollment template** dropdown stops filtering and lists **every** template of the centre. Pick the template and the **Destination group** by hand, with the **right shift** (the enrollment's shift is taken from the group you pick).
 
 The checkbox is only visible to **secretary** and **academic administration**. Tutors keep proposing their students' renewals within the same study: a tutor spotting a student who must change study has to tell the secretary.
+
+---
+
+## Bonifications and exemptions approved after confirmation
+
+When a student's fee **bonification or exemption** document is approved, the discount is automatically applied **only to enrollments still in draft**. **Already confirmed** enrollments are frozen: neither the lines nor the total change, because the invoice has already been issued with the original amounts. This way, what the student sees on the portal always matches the invoice.
+
+If the student was entitled to the benefit but uploaded it and it was approved **after** confirming the enrollment, it must be applied explicitly:
+
+1. Open the student's confirmed enrollment.
+2. Click the **Re-apply Benefits** button **(1)** in the header.
+
+![Re-apply Benefits button on the confirmed enrollment](../../assets/secretary/preinscrpcio-Secretaria-10.png)
+
+3. Confirm the warning by clicking **Ok**.
+
+![Re-apply benefits confirmation dialog](../../assets/secretary/preinscrpcio-Secretaria-11.png)
+
+4. The system cancels the issued invoice, recomputes the fee lines with the student's current benefit status and generates and posts a new invoice. The operation is logged in the enrollment chatter.
+
+> If the invoice already has **payments registered**, the button is blocked with an error: in that case a **credit note** must be issued manually from Accounting.
 
 ---
 

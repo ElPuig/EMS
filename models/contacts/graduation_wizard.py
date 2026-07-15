@@ -186,19 +186,23 @@ class EmsWithdrawalWizard(models.TransientModel):
                 'exit_date': self.exit_date,
                 'exit_reason': self.exit_reason,
             })
-            # Remove from active attendance templates (materialised M2m). Uses sudo
-            # because the secretary has no write access to attendance templates, but
-            # detaching a withdrawn student from them is a legitimate system cleanup.
-            templates = self.env['ems.attendance_template'].sudo().search([
-                ('student_ids', 'in', student.id)])
-            for template in templates:
-                template.student_ids = [(3, student.id)]
             # Cancel pending (draft/sent) enrolments.
             orders = self.env['sale.order'].search([
                 ('partner_id', '=', student.id),
                 ('state', 'in', ['draft', 'sent'])])
             if orders:
                 orders.sudo()._action_cancel()
+            # Freeze the academic history NOW, while the student still has its
+            # group: the transition wizard captures by main_group_id, so without
+            # this a mid-course withdrawal would never get a year record. Sudo:
+            # the generator reads grade/attendance models the secretary cannot.
+            if course:
+                self.env['ems.student.year_record'].sudo().generate_for_students(
+                    student, course)
+            # The history is frozen: delete the operational records (subject enrollments,
+            # grade lines, attendance lines and templates, group delegate). Must run BEFORE
+            # the conversion, which detaches the student from its group.
+            student._ems_clear_operational_records()
             # Convert to alumni/withdrawal (clears group/level/study).
             student._ems_convert_to_ex_student()
             # Revoke portal access (student + families without other enrolled child).

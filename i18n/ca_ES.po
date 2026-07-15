@@ -1356,7 +1356,7 @@ msgid "Access rights for tutors (teachers in charge of a group)."
 msgstr "Drets d'accés per als tutors (professors responsables d'un grup)."
 
 #. module: ems
-#: model:res.groups,comment:ems.group_head_of_department
+#: model:res.groups,comment:ems.group_department_chief
 msgid "Access rights for department heads. Currently identical to Tutor."
 msgstr ""
 "Drets d'accés per als caps de departament. Actualment idèntics als del "
@@ -1431,6 +1431,7 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__active
 #: model:ir.model.fields,field_description:ems.field_ems_strike_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__active
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1625,6 +1626,9 @@ msgstr "Extraescolar"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_group__shift__afternoon
 #: model:ir.model.fields.selection,name:ems.selection__sale_order__shift__afternoon
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__shift__afternoon
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_shift__afternoon
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 msgid "Afternoon"
 msgstr "Tarda"
 
@@ -1691,16 +1695,6 @@ msgstr "Assignatures permeses"
 #: code:addons/ems/models/shared/base.py:0
 msgid "An error occurred during the process"
 msgstr ""
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ac
-msgid "Another Coordinations"
-msgstr "Altres Coordinacions"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__br
-msgid "Break"
-msgstr "Pati"
 
 #. module: ems
 #. odoo-javascript
@@ -1803,12 +1797,15 @@ msgstr "Aplica als estudis"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__to_apply
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__to_apply
 msgid "Apply"
 msgstr "Aplicar"
 
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
 msgid "Apply changes"
 msgstr "Aplica els canvis"
 
@@ -1874,8 +1871,11 @@ msgstr "Esteu segur que voleu eliminar aquest element?"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__employee_ids
+#: model:ir.model.fields,field_description:ems.field_mail_activity_type__ems_assignee_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_role_form
 #: model_terms:ir.ui.view,arch_db:ems.view_role_list
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_form
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_list
 #: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
 msgid "Assigned to"
 msgstr "Assignat a"
@@ -1896,6 +1896,12 @@ msgstr "Estudis associats"
 #: code:addons/ems/models/attendance/attendance_template.py:0
 msgid "At least one group must be selected."
 msgstr "Cal seleccionar almenys un grup."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_template.py:0
+msgid "At least one teacher must be selected."
+msgstr "Cal seleccionar almenys un docent."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids
@@ -2467,6 +2473,7 @@ msgstr "Pot editar"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2645,6 +2652,7 @@ msgstr "Tancant enquestes"
 #: model:ir.model.fields,field_description:ems.field_ems_space__code
 #: model:ir.model.fields,field_description:ems.field_ems_study__code
 #: model:ir.model.fields,field_description:ems.field_ems_subject__code
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__code
 msgid "Code"
 msgstr "Codi"
 
@@ -2688,6 +2696,7 @@ msgstr "Comentari"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__notes
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
 #: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__notes
 msgid "Comments"
 msgstr "Comentaris"
 
@@ -2844,16 +2853,6 @@ msgid "Conversational Auxiliary"
 msgstr "Auxiliar de conversa"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__cm
-msgid "Coordination Meeting"
-msgstr "Reunió de Coordinació"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__ct
-msgid "Coordination Time"
-msgstr "Càrrec de Coordinació"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
 msgid "Corporate account credentials"
 msgstr "Credencials del compte corporatiu"
@@ -2900,6 +2899,10 @@ msgstr "País"
 #: model:ir.model.fields,field_description:ems.field_ems_group__course
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_course_filter
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__course_id
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__course_name
 msgid "Course"
 msgstr "Curs"
 
@@ -3141,6 +3144,7 @@ msgstr "Accés actual"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_em_grading_wizard_line__source__live
 msgid "Current course"
 msgstr "Curs actual"
 
@@ -4047,6 +4051,7 @@ msgstr "Nota pràctiques empresa"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__external_is_scored
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__external_is_scored
 msgid "External scored"
 msgstr "Nota pràctiques empresa informada"
 
@@ -4148,6 +4153,7 @@ msgstr "Final"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__final_score
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__final_grade
 msgid "Final grade"
 msgstr "Nota final"
 
@@ -4181,6 +4187,7 @@ msgstr "Primer pagament"
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__firstname
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_firstname
+#: code:addons/ems/static/src/js/backend/em_matrix_field.js:0
 msgid "First name"
 msgstr "Nom"
 
@@ -4555,6 +4562,9 @@ msgstr "Atorgar accés"
 #: model_terms:ir.ui.view,arch_db:ems.view_group_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_id
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_id
 msgid "Group"
 msgstr "Grup"
 
@@ -4613,7 +4623,7 @@ msgstr "Grups: On s'assignen els estudiants."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__guard
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__g
+#: model:ems.non_teaching_type,name:ems.non_teaching_g
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Guard"
@@ -4653,6 +4663,7 @@ msgstr "Té missatge"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__has_final
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__has_final
 msgid "Has final"
 msgstr "Té nota final"
 
@@ -5466,6 +5477,7 @@ msgstr "Última actualització el"
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__lastname
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_lastname
+#: code:addons/ems/static/src/js/backend/em_matrix_field.js:0
 msgid "Last name"
 msgstr "Cognom"
 
@@ -5526,6 +5538,7 @@ msgstr "Text legal (renderitzat)"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
 #: model_terms:ir.ui.view,arch_db:ems.view_sale_order_template_search_inherit_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__level_id
 msgid "Level"
 msgstr "Nivell"
 
@@ -5827,16 +5840,6 @@ msgid "Manage your personal and security data"
 msgstr "Gestiona les teves dades personals i de seguretat"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__mm
-msgid "Management Meeting"
-msgstr "Reunió de gestió"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__mt
-msgid "Management Time"
-msgstr "Càrrec de Direcció"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_template__is_required
 msgid "Mandatory to Respond"
 msgstr "Obligatori respondre"
@@ -6006,6 +6009,9 @@ msgstr "Dilluns"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_group__shift__morning
 #: model:ir.model.fields.selection,name:ems.selection__sale_order__shift__morning
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__shift__morning
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_shift__morning
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 msgid "Morning"
 msgstr "Matí"
 
@@ -6078,6 +6084,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__name
 msgid "Name"
 msgstr "Nom"
 
@@ -6704,6 +6711,7 @@ msgstr "Altra exempció"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__outcome_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__outcome_id
 #: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__outcome_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__outcome_id
 msgid "Outcome"
 msgstr "Resultat d'Aprenentatge"
 
@@ -6727,6 +6735,7 @@ msgstr "En general"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__is_overridden
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__is_overridden
 msgid "Overridden"
 msgstr "Sobreescrita"
 
@@ -7258,11 +7267,6 @@ msgid "Rectified by"
 msgstr "Rectificat per"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__r
-msgid "Reduction"
-msgstr "Reducció de jornada"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_list
@@ -7314,6 +7318,11 @@ msgstr "Data de llançament"
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Reload recipients"
 msgstr "Recargar destinatarios"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+msgid "Reload students"
+msgstr "Recarregar alumnes"
 
 #. module: ems
 #. odoo-python
@@ -7678,11 +7687,6 @@ msgid "Scholar Trips"
 msgstr "Viatges acadèmics"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__sc
-msgid "School Council"
-msgstr "Consell Escolar"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "School Secretary"
 msgstr "la Secretaria del centre"
@@ -7898,6 +7902,7 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -7963,6 +7968,8 @@ msgstr "Compartir amb la familia"
 #: model:ir.model.fields,field_description:ems.field_ems_group__shift
 #: model:ir.model.fields,field_description:ems.field_sale_order__shift
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__shift
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 msgid "Shift"
 msgstr "Torn"
 
@@ -8203,6 +8210,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__state
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__state
 #: model:ir.model.fields,field_description:ems.field_ems_notice__state
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__state
 msgid "State"
 msgstr "Estat"
 
@@ -8273,11 +8281,6 @@ msgid "Stay"
 msgstr "Queda't"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__s
-msgid "Staying at the center"
-msgstr "Permanència al centre"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__street
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_street
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
@@ -8333,6 +8336,10 @@ msgstr "Carrer 2"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__student_id
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__student_id
+#: model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__student_id
 msgid "Student"
 msgstr "Estudiant"
 
@@ -8469,6 +8476,7 @@ msgstr "Assistència dels estudiants"
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__student_line_ids
 msgid "Students"
 msgstr "Estudiants"
 
@@ -8518,6 +8526,9 @@ msgstr "Estudis per a matrícula"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 #: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__study_id
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__study_id
 msgid "Study"
 msgstr "Estudi"
 
@@ -8562,6 +8573,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
+#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_id
 msgid "Subject"
 msgstr "Assignatura"
 
@@ -8608,6 +8624,8 @@ msgstr "Assignatura: L'element principal de l'assignatura d'un estudiant."
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_study_form
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__subject_record_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
 msgid "Subjects"
 msgstr "Assignatures"
 
@@ -8742,8 +8760,6 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__teacher_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__teacher_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__teacher_id
@@ -8785,6 +8801,8 @@ msgstr "Drets d'accés del professorat."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_employee_kanban
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__teacher_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__teacher_ids
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__teachers
 #: model:ir.ui.menu,name:ems.menu_community_config_teachers
 #: model:ir.ui.menu,name:ems.menu_teachers
@@ -8823,10 +8841,10 @@ msgid "Template URL"
 msgstr "URL de plantilla"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__template_teacher_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__template_teacher_id
-msgid "Template's teacher"
-msgstr "Docent de la plantilla"
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__template_teacher_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__template_teacher_ids
+msgid "Template's teachers"
+msgstr "Docents de la plantilla"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_template
@@ -9037,6 +9055,17 @@ msgstr ""
 "Aquesta acció buidarà i recrearà els destinataris, esborrant qualsevol canvi"
 " manual  i guardant les dades al moment. Aquesta acció no es pot desfer. "
 "Encara vols continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+msgid ""
+"This action will remove any manual change to the student list and "
+"reassign the students according to their current enrollments. It cannot "
+"be undone. Do you wish to continue?"
+msgstr ""
+"Aquesta acció eliminarà qualsevol canvi manual a la llista d'alumnes i els "
+"reassignarà segons la seva matrícula actual. Aquesta acció no es pot "
+"desfer. Encara vols continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
@@ -9261,12 +9290,13 @@ msgstr "Dimarts"
 #: model:res.groups,name:ems.group_tutor
 #: model:res.partner.relation.type,name:ems.relation_type_tutor
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__tutor_id
 msgid "Tutor"
 msgstr "Tutor/a"
 
 #. module: ems
-#: model:res.groups,name:ems.group_head_of_department
-msgid "Head of Department"
+#: model:res.groups,name:ems.group_department_chief
+msgid "Department Chief"
 msgstr "Cap de Departament"
 
 #. module: ems
@@ -9294,11 +9324,6 @@ msgstr "Tutor/a:"
 #: model:ir.model.fields,field_description:ems.field_ems_subject__is_tutorship
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
 msgid "Tutorship"
-msgstr "Tutoria"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__tt
-msgid "Tutorship Time"
 msgstr "Tutoria"
 
 #. module: ems
@@ -9852,11 +9877,6 @@ msgid "Working schedules: import wizard."
 msgstr "Horaris de treball: assistent d'importació."
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__non_teaching__wic
-msgid "Workplace Intership Coordination"
-msgstr "Coordinació FCT"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Workspace domain"
 msgstr "Domini de Workspace"
@@ -9902,6 +9922,7 @@ msgstr ""
 
 #. module: ems
 #: model:mail.template,subject:ems.mail_template_google_welcome
+#: model:mail.template,subject:ems.mail_template_google_welcome_employee
 msgid "Your corporate account @elpuig.xeill.net"
 msgstr "El teu compte corporatiu @elpuig.xeill.net"
 
@@ -10853,6 +10874,7 @@ msgstr "Graduats/des"
 #: model:res.partner.category,name:ems.partner_category_withdrawal
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__exit_type__withdrawal
 msgid "Withdrawal"
 msgstr "Baixa"
 
@@ -10868,6 +10890,7 @@ msgstr "Baixes"
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__exit_type__graduation
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 #: model_terms:ir.ui.view,arch_db:ems.view_graduation_wizard_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__exit_type__graduation
 msgid "Graduation"
 msgstr "Graduació"
 
@@ -10881,6 +10904,7 @@ msgstr "S'ha graduat"
 #: model:ir.model.fields,field_description:ems.field_res_partner__exit_type
 #: model:ir.model.fields,field_description:ems.field_res_users__exit_type
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__exit_type
 msgid "Exit type"
 msgstr "Tipus de sortida"
 
@@ -10894,6 +10918,8 @@ msgstr "Curs de sortida"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__exit_date
 #: model:ir.model.fields,field_description:ems.field_res_users__exit_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__exit_date
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__exit_date
 msgid "Exit date"
 msgstr "Data de sortida"
 
@@ -11519,6 +11545,8 @@ msgstr "Estudi no trobat: %s / %s"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_name
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_name
 msgid "Subject name"
 msgstr "Nom de l'assignatura"
 
@@ -12169,3 +12197,730 @@ msgstr "Total general:"
 #: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "<span>Overall total:</span>"
 msgstr "<span>Total general:</span>"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_task_assignment
+msgid ""
+"Here you choose who takes care of the tasks EMS creates on its own,\n"
+"                    such as reviewing the documents students upload from the portal."
+msgstr "Aquí trieu qui s'encarrega de les tasques que l'EMS crea pel seu compte, com ara revisar els documents que els alumnes pugen des del portal."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_mail_activity_type__ems_task_assignment
+msgid "Managed by EMS"
+msgstr "Gestionada per l'EMS"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_task_assignment
+msgid "No task type to configure yet"
+msgstr "Encara no hi ha cap tipus de tasca per configurar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_form
+msgid ""
+"No user is assigned to this task, so EMS will not create it\n"
+"                            for anyone. Add at least one recipient."
+msgstr "No hi ha cap usuari assignat a aquesta tasca, de manera que l'EMS no la crearà per a ningú. Afegeix-hi com a mínim un destinatari."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_form
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_list
+msgid "Nobody: this task will not be created"
+msgstr "Ningú: aquesta tasca no es crearà"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_mail_activity_type__ems_task_assignment
+msgid ""
+"Set on the activity types EMS schedules automatically, so that they show up "
+"under Academic Management > Configuration > Task Assignment."
+msgstr "Es marca als tipus d'activitat que l'EMS programa automàticament, perquè apareguin a Gestió acadèmica > Configuració > Assignació de tasques."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_task_assignment
+#: model:ir.ui.menu,name:ems.menu_ems_task_assignment
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_form
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_list
+msgid "Task Assignment"
+msgstr "Assignació de tasques"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_mail_activity_type__ems_assignee_ids
+msgid ""
+"Users who get the task when EMS schedules it. This list is independent from "
+"the security groups: holding an administrator role does not put anyone here,"
+" and being listed here grants no extra access rights."
+msgstr "Usuaris que reben la tasca quan l'EMS la programa. Aquesta llista és independent dels grups de seguretat: tenir un rol d'administrador no inclou ningú aquí, i ser a la llista no concedeix cap dret d'accés addicional."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "EMS user created: %s."
+msgstr "Usuari EMS creat: %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "EMS user re-linked: %s."
+msgstr "Usuari EMS revinculat: %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "EMS user not linked: %s already belongs to another employee."
+msgstr "Usuari EMS no vinculat: %s ja pertany a un altre empleat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Sign in with Google is pre-linked."
+msgstr "L'inici de sessió amb Google queda previnculat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Sign in with Google is not pre-linked (Google user id unavailable)."
+msgstr "L'inici de sessió amb Google no queda previnculat (ID d'usuari de Google no disponible)."
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_welcome_employee
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hello <t t-out=\"object.name or ''\"/>,</p>\n"
+"                    <p>Your school corporate account has been created to access Google Workspace\n"
+"                       (email, Drive, Classroom...) and the services that use this account.</p>\n"
+"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Username (email)</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\"/></td>\n"
+"                        </tr>\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Temporary password</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\"/></td>\n"
+"                        </tr>\n"
+"                    </table>\n"
+"                    <p style=\"color:#b00;\"><strong>Important:</strong> for security reasons, you will be\n"
+"                       required to change the password on your first login.</p>\n"
+"                    <p>You can sign in at <a href=\"https://mail.google.com/a/elpuig.xeill.net/\">mail.google.com</a>.</p>\n"
+"                    <p>You can also access the school management platform (EMS) at\n"
+"                       <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>:\n"
+"                       use the <strong>Sign in with Google</strong> button with this same corporate account.</p>\n"
+"                    <p>Best regards,<br/>School Secretariat</p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hola <t t-out=\"object.name or ''\"/>,</p>\n"
+"                    <p>El teu compte corporatiu del centre ha estat creat per accedir a Google Workspace\n"
+"                       (correu electrònic, Drive, Classroom...) i els serveis que utilitzen aquest compte.</p>\n"
+"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Usuari (email)</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\"/></td>\n"
+"                        </tr>\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Contrasenya temporal</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\"/></td>\n"
+"                        </tr>\n"
+"                    </table>\n"
+"                    <p style=\"color:#b00;\"><strong>Important:</strong> per motius de seguretat, hauràs\n"
+"                       de canviar la contrasenya en el primer inici de sessió.</p>\n"
+"                    <p>Pots iniciar sessió a <a href=\"https://mail.google.com/a/elpuig.xeill.net/\">mail.google.com</a>.</p>\n"
+"                    <p>També pots accedir a la plataforma de gestió del centre (EMS) a\n"
+"                       <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>:\n"
+"                       fes servir el botó <strong>Inicia la sessió amb Google</strong> amb aquest mateix compte corporatiu.</p>\n"
+"                    <p>Salutacions,<br/>Secretaria del centre</p>\n"
+"                </div>\n"
+"            "
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_student_year_record_unique_student_course
+msgid "A year record already exists for this student and course!"
+msgstr "Ja existeix un registre d'històric per a aquest/a alumne/a i aquest curs!"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_year_record_list
+#: model:ir.model.fields,field_description:ems.field_res_partner__year_record_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__year_record_ids
+#: model:ir.ui.menu,name:ems.menu_year_record
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Academic history"
+msgstr "Històric acadèmic"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__academic_result
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Academic result"
+msgstr "Resultat acadèmic"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__attendance_rate
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__attendance_rate
+msgid "Attendance (%)"
+msgstr "Assistència (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__attendance_issue_count
+msgid "Attendance notifications"
+msgstr "Notificacions d'assistència"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record__attendance_issue_count
+msgid "Attendance notifications sent to the family during the course."
+msgstr "Notificacions d'assistència enviades a la família durant el curs."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__external_grade
+msgid "External grade (EM)"
+msgstr "Nota pràctiques empresa (EM)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__external_weight
+msgid "External weight (%)"
+msgstr "Ponderació nota pràctiques empresa (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__final_pending
+msgid "Final pending"
+msgstr "Final pendent"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Finals pending placement"
+msgstr "Finals pendents d'estada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__full
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Fully passed"
+msgstr "Superat íntegrament"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record_outcome__final_score
+msgid "Grade of the last scored round."
+msgstr "Nota de l'última avaluació informada."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_name
+msgid "Group name"
+msgstr "Nom del grup"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__internal_grade
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__internal_grade
+msgid "Internal grade"
+msgstr "Nota del centre"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__internal_weight
+msgid "Internal weight (%)"
+msgstr "Ponderació nota del centre (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__level_name
+msgid "Level name"
+msgstr "Nom del nivell"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__outcome_name
+msgid "Outcome name"
+msgstr "Nom del resultat d'aprenentatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__outcome_record_ids
+msgid "Outcomes"
+msgstr "Resultats d'aprenentatge"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__partial
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Partially passed"
+msgstr "Superat parcialment"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record_subject__state__passed
+msgid "Passed"
+msgstr "Superat"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record_subject__final_pending
+msgid "Passed subject whose final grade is still empty, waiting for the work placement (EM) grade."
+msgstr "Assignatura superada amb la nota final encara buida, a l'espera de la nota de l'estada a l'empresa (EM)."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__repeating
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Repeating"
+msgstr "Repeteix curs"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__final_score
+msgid "Resolved grade"
+msgstr "Nota resolta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round1_score
+msgid "Round 1"
+msgstr "1a avaluació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round2_score
+msgid "Round 2"
+msgstr "2a avaluació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round3_score
+msgid "Round 3"
+msgstr "3a avaluació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round4_score
+msgid "Round 4"
+msgstr "4a avaluació"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_year_record
+msgid "Student academic year record: per-course summary of a student."
+msgstr "Històric acadèmic: resum per curs d'un alumne/a."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_year_record_subject
+msgid "Student academic year record: one subject taken that course."
+msgstr "Històric acadèmic: una assignatura cursada aquell curs."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_year_record_outcome
+msgid "Student academic year record: one learning outcome (RA) of a subject."
+msgstr "Històric acadèmic: un resultat d'aprenentatge (RA) d'una assignatura."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__study_name
+msgid "Study name"
+msgstr "Nom de l'estudi"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__subject_record_id
+msgid "Subject record"
+msgstr "Registre d'assignatura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__subject_count
+msgid "Subjects taken"
+msgstr "Assignatures cursades"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__title_obtained
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Title obtained"
+msgstr "Títol obtingut"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__tutor_name
+msgid "Tutor name"
+msgstr "Nom del tutor/a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__weight
+msgid "Weight (%)"
+msgstr "Ponderació (%)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__withdrawn
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Withdrawn"
+msgstr "Baixa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__record_id
+msgid "Year record"
+msgstr "Registre de curs"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record_subject__state__failed
+msgid "Not passed"
+msgstr "No superat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round1_is_scored
+msgid "Round 1 scored"
+msgstr "1a avaluació informada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round2_is_scored
+msgid "Round 2 scored"
+msgstr "2a avaluació informada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round3_is_scored
+msgid "Round 3 scored"
+msgstr "3a avaluació informada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round4_is_scored
+msgid "Round 4 scored"
+msgstr "4a avaluació informada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__final_is_scored
+msgid "Resolved scored"
+msgstr "Nota resolta informada"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_ac
+msgid "Another Coordinations"
+msgstr "Altres Coordinacions"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_br
+msgid "Break"
+msgstr "Pati"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_cm
+msgid "Coordination Meeting"
+msgstr "Reunió de Coordinació"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_ct
+msgid "Coordination Time"
+msgstr "Càrrec de Coordinació"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_mm
+msgid "Management Meeting"
+msgstr "Reunió de gestió"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_mt
+msgid "Management Time"
+msgstr "Càrrec de Direcció"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_r
+msgid "Reduction"
+msgstr "Reducció de jornada"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_s
+msgid "Staying at the center"
+msgstr "Permanència al centre"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_sc
+msgid "School Council"
+msgstr "Consell Escolar"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_tt
+msgid "Tutorship Time"
+msgstr "Tutoria"
+
+#. module: ems
+#: model:ems.non_teaching_type,name:ems.non_teaching_wic
+msgid "Workplace Intership Coordination"
+msgstr "Coordinació FCT"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_break
+msgid "Is a break"
+msgstr "És un pati"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_fixed
+msgid "Always a fixed-schedule commitment"
+msgstr "Sempre és un compromís d'horari fix"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_non_teaching_type_list
+#: model:ir.ui.menu,name:ems.menu_non_teaching_types
+msgid "Non-teaching types"
+msgstr "Tipus d'hora no lectiva"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__group_type
+msgid "Group Type"
+msgstr "Tipus de grup"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__group_type__main
+msgid "Main"
+msgstr "Principal"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__group_type__reinforcement
+msgid "Reinforcement"
+msgstr "Reforç"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__reinforcement_student_ids
+msgid "Reinforcement Students"
+msgstr "Alumnes de reforç"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__group_type
+msgid ""
+"Main: the group a student is enrolled in (main_group_id), with a tutor, a "
+"delegate and a single study/level. Reinforcement: appears in the teaching "
+"schedule like any other group, but has no tutor/delegate and can mix "
+"students from different main groups and studies."
+msgstr ""
+"Principal: el grup en què està matriculat un alumne (main_group_id), amb "
+"tutor/a, delegat/da i un únic estudi/nivell. Reforç: apareix a l'horari "
+"docent com qualsevol altre grup, però no té tutor/a ni delegat/da i pot "
+"barrejar alumnes de diferents grups principals i estudis."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "A main group requires a level, a study, a course and an acronym."
+msgstr "Un grup principal requereix un nivell, un estudi, un curs i un acrònim."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"A reinforcement group cannot have a level, a study, a tutor or a delegate: "
+"it is meant to mix students from different main groups and studies."
+msgstr ""
+"Un grup de reforç no pot tenir nivell, estudi, tutor/a ni delegat/da: està "
+"pensat per barrejar alumnes de diferents grups principals i estudis."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "New Reinforcement Group"
+msgstr "Grup de reforç nou"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__score
+#: code:addons/ems/static/src/js/backend/em_matrix_field.js:0
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__score
+msgid "EM grade"
+msgstr "Nota de l'estada a l'empresa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__module_count
+msgid "Modules"
+msgstr "Mòduls"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__student_name
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__student_name
+msgid "Student name"
+msgstr "Nom de l'estudiant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__source
+msgid "Source"
+msgstr "Origen"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_line_id
+msgid "Grade line"
+msgstr "Línia de notes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_record_id
+msgid "History line"
+msgstr "Línia de l'històric"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__external_weight
+msgid "EM weight (%)"
+msgstr "Pes de l'estada (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__already_scored
+msgid "Already graded"
+msgstr "Ja qualificada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_em_grading_wizard_line__source__history
+msgid "Previous course"
+msgstr "Curs anterior"
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "Work placement (EM)"
+msgstr "Estada a l'empresa (EM)"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_em_grading_wizard
+msgid "Work placement (EM) grading wizard: EM grade of a student, per module."
+msgstr ""
+"Assistent de nota d'estada a l'empresa (EM): nota d'EM d'un estudiant, per "
+"mòdul."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_em_grading_wizard_line
+msgid "Work placement (EM) grading wizard line: one module of a student."
+msgstr "Línia de l'assistent de nota d'EM: un mòdul d'un estudiant."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
+msgid "Work placement grade"
+msgstr "Nota de l'estada a l'empresa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
+msgid "Apply EM grade"
+msgstr "Aplica la nota d'EM"
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "The work placement grade must be within the range [0, 10]."
+msgstr "La nota de l'estada ha d'estar en l'interval [0, 10]."
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "Select at least one student with a module to grade."
+msgstr "Seleccioneu almenys un estudiant amb algun mòdul per qualificar."
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "%s module(s) graded."
+msgstr "Mòduls qualificats: %s"
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "%s placement(s) below 5: to be repeated (final still pending)."
+msgstr ""
+"Estades per sota de 5 (s'han de repetir; la nota final continua pendent): %s"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_em_grading_wizard
+#: model:ir.ui.menu,name:ems.menu_em_grading_wizard
+msgid "Work placement evaluation (EM)"
+msgstr "Avaluació estada a l'empresa (EM)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_domain
+msgid "Group domain"
+msgstr "Domini del grup"
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "You can only grade the work placement of a group you tutor."
+msgstr "Només podeu qualificar l'estada a l'empresa d'un grup que tutoritzeu."
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "Invalid module line: it does not belong to the selected group."
+msgstr "Línia de mòdul no vàlida: no pertany al grup seleccionat."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__per_module
+#: code:addons/ems/static/src/js/backend/em_matrix_field.js:0
+msgid "Grade per module"
+msgstr "Nota per matèria"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__line_ids
+msgid "Module grades"
+msgstr "Notes per mòdul"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_em_grading_wizard_student
+msgid "Work placement (EM) grading wizard: one student of the group."
+msgstr "Assistent de nota d'EM: un estudiant del grup."
+
+#. module: ems
+#: code:addons/ems/models/grades/em_grading_wizard.py:0
+msgid "Enter the work placement grade of at least one student."
+msgstr "Introduïu la nota de l'estada d'almenys un estudiant."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_acronym
+msgid "Subject code"
+msgstr "Codi de l'assignatura"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form
+msgid ""
+"Pick the group and grade the students who have finished their work\n"
+"                            placement: the EM grade of a student goes to every module of theirs\n"
+"                            carrying a placement weight — the modules of the course in progress and\n"
+"                            the finals of previous courses still pending. Tick \"Grade per module\"\n"
+"                            only for the exceptions: it turns on one cell per module, so that\n"
+"                            student can get a different grade in each. Empty cells are never\n"
+"                            written. A grade below 5 means the placement is repeated, not the\n"
+"                            module: the grade is kept, but the final stays pending until the\n"
+"                            placement is taken again."
+msgstr ""
+"Trieu el grup i qualifiqueu els estudiants que han acabat l'estada a "
+"l'empresa: la nota d'EM d'un estudiant va a tots els seus mòduls amb pes "
+"d'estada — els del curs en marxa i les finals de cursos anteriors encara "
+"pendents. Marqueu \"Nota per matèria\" només per a les excepcions: activa "
+"una casella per mòdul, de manera que aquell estudiant pot tenir una nota "
+"diferent a cadascun. Les caselles buides no s'escriuen mai. Una nota "
+"inferior a 5 vol dir que es repeteix l'estada, no el mòdul: la nota es desa,"
+" però la final continua pendent fins que es tornin a fer les pràctiques."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid "Re-apply Benefits"
+msgstr "Reaplicar beneficis"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+msgid ""
+"This will cancel the current invoice, recompute the enrollment amounts with "
+"the student's current benefit status and regenerate the invoice. Continue?"
+msgstr ""
+"Això cancel·larà la factura actual, recalcularà els imports de la matrícula "
+"amb l'estat de beneficis actual de l'estudiant i regenerarà la factura. "
+"Continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>\n"
+"                                        <strong>Bonifications and exemptions:</strong>\n"
+"                                        if you are entitled to a fee bonification or exemption that is not yet reflected in the amounts above,"
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>\n"
+"<strong>Bonificacions i exempcions:</strong>\n"
+"si tens dret a una bonificació o exempció de taxes que encara no es veu "
+"reflectida als imports anteriors,"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "upload the supporting document"
+msgstr "puja el document justificatiu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid ""
+"and wait until it is approved <strong>before confirming your enrollment</strong>.\n"
+"                                        Benefits approved after confirmation will not be applied automatically."
+msgstr ""
+"i espera que s'aprovi <strong>abans de confirmar la teva matrícula</strong>. "
+"Les bonificacions o exempcions aprovades després de la confirmació no "
+"s'aplicaran automàticament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Benefits can only be re-applied on a confirmed enrollment."
+msgstr "Els beneficis només es poden reaplicar en una matrícula confirmada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid ""
+"Invoice %s already has payments registered. Issue a credit note manually "
+"instead."
+msgstr ""
+"La factura %s ja té pagaments registrats. Emet una factura rectificativa "
+"manualment."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid ""
+"Benefits re-applied by %s: the invoice has been regenerated with the "
+"student's current benefit status."
+msgstr ""
+"Beneficis reaplicats per %s: la factura s'ha regenerat amb l'estat de "
+"beneficis actual de l'estudiant."

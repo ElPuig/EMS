@@ -26,7 +26,7 @@ class ems_grade_subject_line(models.Model):
 	external_is_scored = fields.Boolean(string="External scored", default=False, help="Whether the external grade has been informed (an empty external grade is excluded from the subject grade).")
 	computed_score = fields.Integer(string="Computed grade", compute="_compute_computed_score", store=True, help="Suggested subject grade applying the planning ponderations.")
 	computed_is_scored = fields.Boolean(string="Computed scored", compute="_compute_computed_score", store=True, help="Whether every weighted component (internal / external) required by the planning has been informed.")
-	final_score = fields.Integer(string="Final grade", compute="_compute_final_score", store=True, help="Final subject grade (equal to the computed grade).")
+	final_score = fields.Integer(string="Final grade", compute="_compute_computed_score", store=True, help="Final subject grade (equal to the computed grade).")
 	has_final = fields.Boolean(string="Has final", compute="_compute_has_final", store=True, help="Whether there is a final grade (the computed grade is available).")
 	notes = fields.Char(string="Comments", help="Free per-student remark for this subject grade.")
 
@@ -95,6 +95,30 @@ class ems_grade_subject_line(models.Model):
 			)
 			rec.internal_is_complete = bool(lines) and all(line.is_scored for line in lines)
 
+	@api.model
+	def _final_from_parts(self, internal_score, internal_is_scored, external_score, external_is_scored, internal_ponderation, external_ponderation):
+		# Weighted subject grade from its internal / external parts; returns (score, is_scored).
+		# Shared with the archived history (ems.student.year_record.subject.apply_external_grade),
+		# which completes a pending final with the weights frozen in the record: the formula must
+		# be the same one in both places.
+		internal_weight = internal_ponderation / 100.0
+		external_weight = external_ponderation / 100.0
+		# The computed grade needs every weighted component to be informed: a component only counts
+		# as required when its ponderation is greater than 0 (e.g. subjects with no work placement
+		# carry a 0% external weight and never need an external grade).
+		internal_ok = internal_is_scored or internal_weight == 0
+		external_ok = external_is_scored or external_weight == 0
+		if not (internal_ok and external_ok and (internal_is_scored or external_is_scored)):
+			return 0, False
+		# Round half up (int(x + 0.5)).
+		computed = int(internal_score * internal_weight + external_score * external_weight + 0.5)
+		# The subject can only be passed when every weighted part is passed (>= 5): if the
+		# internal or external part is failed, the computed grade is capped at 4.
+		failed_part = (internal_weight > 0 and internal_score < 5) or (external_weight > 0 and external_score < 5)
+		if failed_part and computed > 4:
+			computed = 4
+		return computed, True
+
 	@api.depends(
 		"internal_score",
 		"internal_is_scored",
@@ -106,33 +130,16 @@ class ems_grade_subject_line(models.Model):
 	def _compute_computed_score(self):
 		for rec in self:
 			planning = rec.grade_session_id.planning_id
-			if planning:
-				internal_weight = planning.internal_ponderation / 100.0
-				external_weight = planning.external_ponderation / 100.0
-			else:
-				internal_weight, external_weight = 1.0, 0.0
-
-			# The computed grade needs every weighted component to be informed: a component only counts
-			# as required when its ponderation is greater than 0 (e.g. subjects with no work placement
-			# carry a 0% external weight and never need an external grade).
-			internal_ok = rec.internal_is_scored or internal_weight == 0
-			external_ok = rec.external_is_scored or external_weight == 0
-			rec.computed_is_scored = internal_ok and external_ok and (rec.internal_is_scored or rec.external_is_scored)
-			if rec.computed_is_scored:
-				# Round half up (int(x + 0.5)).
-				computed = int(rec.internal_score * internal_weight + rec.external_score * external_weight + 0.5)
-				# The subject can only be passed when every weighted part is passed (>= 5): if the
-				# internal or external part is failed, the computed grade is capped at 4.
-				failed_part = (internal_weight > 0 and rec.internal_score < 5) or (external_weight > 0 and rec.external_score < 5)
-				if failed_part and computed > 4:
-					computed = 4
-				rec.computed_score = computed
-			else:
-				rec.computed_score = 0
-
-	@api.depends("computed_score")
-	def _compute_final_score(self):
-		for rec in self:
+			internal_ponderation = planning.internal_ponderation if planning else 100.0
+			external_ponderation = planning.external_ponderation if planning else 0.0
+			rec.computed_score, rec.computed_is_scored = self._final_from_parts(
+				rec.internal_score, rec.internal_is_scored,
+				rec.external_score, rec.external_is_scored,
+				internal_ponderation, external_ponderation)
+			# Assigned in the same compute (not aliased from a separate one): a stored
+			# compute that only reads another stored compute of the same model can flush
+			# stale when both are pending in the same transaction (the re-mark triggered
+			# by the dependency is suppressed while the field is protected).
 			rec.final_score = rec.computed_score
 
 	@api.depends("computed_is_scored", "internal_is_complete")
@@ -146,6 +153,13 @@ class ems_grade_subject_line(models.Model):
 
 	def write(self, vals):
 		# open: scoped teachers/tutors; board: only the group's tutor; final: only admin.
+		# Exception — the work placement (EM) grade: it arrives when each student finishes the
+		# internship, i.e. AFTER the rounds are closed, so the state guard would block the normal
+		# case. The EM grading wizard (which does its own ownership check: tutor of the group,
+		# secretary or admin) asks for the exception with this context key; it only lifts the guard
+		# for the external fields, so every other grade stays protected whatever the context says.
+		if self.env.context.get('ems_em_grading') and set(vals) <= {'external_score', 'external_is_scored'}:
+			return super().write(vals)
 		for rec in self:
 			if not rec.grade_session_id.can_edit:
 				if rec.grade_session_id.state == "final":

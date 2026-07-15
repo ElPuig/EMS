@@ -6,7 +6,7 @@
         </record>
 
         <record id="role_dchieff" model="ems.role">
-            <field name="group_id" ref="ems.group_head_of_department"/>
+            <field name="group_id" ref="ems.group_department_chief"/>
         </record>
 
         <record id="role_hos" model="ems.role">

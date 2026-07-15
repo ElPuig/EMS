@@ -25,7 +25,8 @@ A partir del Paso 3 el circuito es el mismo para ambos.
 6. [Paso 5 — Revisar las matrículas generadas](#paso-5--revisar-las-matrículas-generadas)
 7. [Paso 6 — Enviar las propuestas de matrícula](#paso-6--enviar-las-propuestas-de-matrícula)
 8. [Cambios de estudios que no vienen de GEDAC](#cambios-de-estudios-que-no-vienen-de-gedac)
-9. [Preguntas frecuentes](#preguntas-frecuentes)
+9. [Bonificaciones y exenciones aprobadas después de confirmar](#bonificaciones-y-exenciones-aprobadas-después-de-confirmar)
+10. [Preguntas frecuentes](#preguntas-frecuentes)
 
 ---
 
@@ -153,6 +154,27 @@ Si un alumno cambia de estudios **fuera de la preinscripción** (por ejemplo, en
 En ese caso, en el asistente de propuesta marcad la casilla **Matricular en otros estudios**: el desplegable **Plantilla de matrícula** deja de filtrar y muestra **todas** las plantillas del centro. Elegid la plantilla y el **Grupo destino** a mano, con el **turno correcto** (el turno de la matrícula se toma del grupo que elijáis).
 
 La casilla solo la ven **secretaría** y **administración académica**. Los tutores siguen proponiendo las renovaciones de sus alumnos dentro de los mismos estudios: si un tutor detecta un alumno que debe cambiar de estudios, tiene que avisar a secretaría.
+
+---
+
+## Bonificaciones y exenciones aprobadas después de confirmar
+
+Cuando se aprueba un documento de **bonificación o exención** de tasas de un alumno, el descuento se aplica automáticamente **solo a las matrículas todavía en borrador**. Las matrículas **ya confirmadas** quedan congeladas: ni las líneas ni el total cambian, porque la factura ya se ha emitido con los importes originales. Así, lo que ve el alumno en el portal coincide siempre con la factura.
+
+Si el alumno tenía derecho al beneficio pero lo ha subido y se ha aprobado **después** de confirmar la matrícula, hay que aplicarlo explícitamente:
+
+1. Abrid la matrícula confirmada del alumno.
+2. Pulsad el botón **Reaplicar beneficios** **(1)** de la cabecera.
+
+![Botón Reaplicar beneficios en la matrícula confirmada](../../assets/secretary/preinscrpcio-Secretaria-10.png)
+
+3. Confirmad el aviso pulsando **Ok**.
+
+![Diálogo de confirmación de reaplicar beneficios](../../assets/secretary/preinscrpcio-Secretaria-11.png)
+
+4. El sistema cancela la factura emitida, recalcula las líneas de tasas con el estado de beneficios actual del alumno y genera y publica una factura nueva. La operación queda registrada en el chat de la matrícula.
+
+> Si la factura ya tiene **pagos registrados**, el botón se bloquea con un error: en ese caso hay que emitir una **factura rectificativa** manualmente desde Contabilidad.
 
 ---
 

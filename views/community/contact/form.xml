@@ -330,6 +330,27 @@
                             <field name="exit_reason"/>
                         </group>
                     </page>
+                    <!-- Frozen per-course academic history (ems.student.year_record):
+                         unlike the operational pages above, it stays visible for
+                         alumni/withdrawals — it is their permanent record. -->
+                    <page name="academic_history" string="Academic history"
+                          invisible="contact_type not in ['student', 'alumni', 'withdrawal']">
+                        <field name="year_record_ids" readonly="1">
+                            <list default_order="study_name asc, course_id asc">
+                                <field name="course_id"/>
+                                <field name="study_name"/>
+                                <field name="group_name"/>
+                                <field name="tutor_name" optional="hide"/>
+                                <field name="academic_result" widget="badge"
+                                       decoration-success="academic_result == 'full'"
+                                       decoration-warning="academic_result in ['partial', 'repeating']"
+                                       decoration-danger="academic_result == 'withdrawn'"/>
+                                <field name="title_obtained"/>
+                                <field name="subject_count"/>
+                                <field name="attendance_rate" optional="show"/>
+                            </list>
+                        </field>
+                    </page>
                 </xpath>
 
                 <!-- Hiding or setting up fields when the "add contact" button is used (same form). -->

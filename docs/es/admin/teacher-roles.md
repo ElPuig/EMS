@@ -24,7 +24,7 @@ Los niveles de permisos forman una jerarquía — cada nivel incluye todos los p
 | Jefe de estudios / Jefe de estudios adjunto | Jefe de estudios | Manual — se añade a los roles del profesor |
 | Director | Director | Manual — se añade a los roles del profesor |
 
-> El Jefe de departamento tiene actualmente exactamente los mismos permisos que el Tutor. Existe como nivel propio para poder ampliarse de forma independiente en el futuro.
+> El Jefe de departamento tiene actualmente los mismos permisos que el Tutor, además de poder crear, editar y eliminar Grupos de alumnos (Contactos → Grupos). Existe como nivel propio para poder ampliarse de forma independiente en el futuro.
 
 ---
 

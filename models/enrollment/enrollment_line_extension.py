@@ -27,11 +27,23 @@ class ems_SaleOrderLine(models.Model):
                         'message': _("The item '%s' is already in the list. Please select a different one.") % name,
                     }
                 }
+    def _ems_benefit_frozen_lines(self):
+        """Lines of orders no longer editable by the student (confirmed,
+        locked or cancelled): their prices and discounts must stay exactly as
+        invoiced, so a benefit approved after confirmation never silently
+        alters them. The explicit secretary action
+        (sale.order.action_ems_reapply_benefits) lifts the freeze via context.
+        """
+        if self.env.context.get('ems_reapply_benefits'):
+            return self.browse()
+        return self.filtered(lambda l: l.order_id.state not in ('draft', 'sent'))
+
     @api.depends('product_id', 'order_id.order_line', 'order_id.partner_id.benefit_status')
     def _compute_price_unit(self):
+        lines = self - self._ems_benefit_frozen_lines()
         # Primero ejecutamos la lógica original de Odoo (tarifas, etc.)
-        super()._compute_price_unit()
-        for line in self:
+        super(ems_SaleOrderLine, lines)._compute_price_unit()
+        for line in lines:
             # Solo actuamos si el producto de esta línea está marcado como Tasa
             if line.product_template_id.ems_is_enrollment_fee:
                 # 1. Contamos asignaturas (no genéricos) en el pedido padre
@@ -60,9 +72,10 @@ class ems_SaleOrderLine(models.Model):
 
     @api.depends('product_id', 'order_id.partner_id.benefit_status')
     def _compute_discount(self):
+        lines = self - self._ems_benefit_frozen_lines()
         # Primero ejecutamos la lógica original
-        super()._compute_discount()
-        for line in self:
+        super(ems_SaleOrderLine, lines)._compute_discount()
+        for line in lines:
             if line.product_template_id.ems_is_enrollment_fee:
                 discount = 0.0
                 benefit_text = ""

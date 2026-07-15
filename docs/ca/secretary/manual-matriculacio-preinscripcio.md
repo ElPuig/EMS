@@ -25,7 +25,8 @@ A partir del Pas 3 el circuit és el mateix per a tots dos.
 6. [Pas 5 — Revisar les matrícules generades](#pas-5--revisar-les-matrícules-generades)
 7. [Pas 6 — Enviar les propostes de matrícula](#pas-6--enviar-les-propostes-de-matrícula)
 8. [Canvis d'estudis que no vénen de GEDAC](#canvis-destudis-que-no-vénen-de-gedac)
-9. [Preguntes freqüents](#preguntes-freqüents)
+9. [Bonificacions i exempcions aprovades després de confirmar](#bonificacions-i-exempcions-aprovades-després-de-confirmar)
+10. [Preguntes freqüents](#preguntes-freqüents)
 
 ---
 
@@ -153,6 +154,27 @@ Si un alumne canvia d'estudis **fora de la preinscripció** (per exemple, a l'oc
 En aquest cas, a l'auxiliar de proposta marqueu la casella **Matricular en altres estudis**: el desplegable **Plantilla de matrícula** deixa de filtrar i mostra **totes** les plantilles del centre. Trieu-hi la plantilla i el **Grup destí** a mà, amb el **torn correcte** (el torn de la matrícula es pren del grup que trieu).
 
 La casella només la veuen **secretaria** i **administració acadèmica**. Els tutors continuen proposant les renovacions dels seus alumnes dins dels mateixos estudis: si un tutor detecta un alumne que ha de canviar d'estudis, ha d'avisar secretaria.
+
+---
+
+## Bonificacions i exempcions aprovades després de confirmar
+
+Quan s'aprova un document de **bonificació o exempció** de taxes d'un alumne, el descompte s'aplica automàticament **només a les matrícules encara en esborrany**. Les matrícules **ja confirmades** queden congelades: ni les línies ni el total no canvien, perquè la factura ja s'ha emès amb els imports originals. Així, el que veu l'alumne al portal coincideix sempre amb la factura.
+
+Si l'alumne tenia dret al benefici però l'ha pujat i s'ha aprovat **després** de confirmar la matrícula, cal aplicar-lo explícitament:
+
+1. Obriu la matrícula confirmada de l'alumne.
+2. Premeu el botó **Reaplicar beneficis** **(1)** de la capçalera.
+
+![Botó Reaplicar beneficis a la matrícula confirmada](../../assets/secretary/preinscrpcio-Secretaria-10.png)
+
+3. Confirmeu l'avís prement **Ok**.
+
+![Diàleg de confirmació de reaplicar beneficis](../../assets/secretary/preinscrpcio-Secretaria-11.png)
+
+4. El sistema cancel·la la factura emesa, recalcula les línies de taxes amb l'estat de beneficis actual de l'alumne i genera i publica una factura nova. L'operació queda registrada al xat de la matrícula.
+
+> Si la factura ja té **pagaments registrats**, el botó es bloqueja amb un error: en aquest cas cal emetre una **factura rectificativa** manualment des de Comptabilitat.
 
 ---
 

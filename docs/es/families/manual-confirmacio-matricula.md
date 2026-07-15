@@ -146,6 +146,8 @@ De vuelta en **Matrícula**, comprobad que todo esté correcto:
 
 ![Sección de pago con la cuenta bancaria ya registrada](../../assets/families/Matricula-confirmacio-07-PagamentOK.png)
 
+> **Bonificaciones y exenciones (matrículas con Tasas, CFGS):** si tenéis derecho a una **bonificación** (familia numerosa o monoparental general, beca) o a una **exención** (familia numerosa o monoparental especial, discapacidad...) que todavía **no se ve reflejada en los importes**, subid el documento justificativo en el apartado **Documentación** y esperad a que Secretaría lo apruebe **antes de confirmar la matrícula**. Las bonificaciones o exenciones aprobadas **después** de la confirmación **no se aplican automáticamente**: tendréis que contactar con la Secretaría del centro para que las aplique y regenere la factura.
+
 El botón **Confirmar matrícula** **(3)** se mantiene desactivado (en color claro) hasta que se cumplen **todas** estas condiciones:
 
 * Todas las autorizaciones obligatorias están **aceptadas**.

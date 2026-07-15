@@ -642,6 +642,45 @@ class ems_SaleOrder(models.Model):
         year = self.ems_course_id.start or fields.Date.context_today(self).year
         return date(year, 7, 15), date(year, 9, 15)
 
+    def action_ems_reapply_benefits(self):
+        """Apply the student's current benefit status to an already confirmed
+        enrollment.
+
+        Confirmed orders are frozen against benefit changes (see
+        sale.order.line._ems_benefit_frozen_lines), so a bonification or
+        exemption approved after confirmation needs this explicit action:
+        cancel the posted (unpaid) invoice, recompute the fee lines with the
+        current benefit status and regenerate the invoice, so that order,
+        invoice and portal match again.
+        """
+        for order in self:
+            if order.state != 'sale':
+                raise ValidationError(_(
+                    "Benefits can only be re-applied on a confirmed enrollment."))
+            invoices = order.invoice_ids.filtered(
+                lambda m: m.move_type == 'out_invoice' and m.state != 'cancel')
+            paid = invoices.filtered(
+                lambda m: m.amount_total and m.payment_state != 'not_paid')
+            if paid:
+                raise ValidationError(_(
+                    "Invoice %s already has payments registered. "
+                    "Issue a credit note manually instead.") % ', '.join(paid.mapped('name')))
+            for inv in invoices.sudo():
+                if inv.state == 'posted':
+                    inv.button_draft()
+                inv.button_cancel()
+            lines = order.order_line.with_context(ems_reapply_benefits=True)
+            lines._compute_price_unit()
+            lines._compute_discount()
+            order._ems_generate_enrollment_invoice()
+            order.message_post(
+                body=_("Benefits re-applied by %s: the invoice has been "
+                       "regenerated with the student's current benefit status.")
+                % self.env.user.name,
+                message_type='comment',
+                subtype_xmlid='mail.mt_note',
+            )
+
     def _ems_generate_enrollment_invoice(self):
         """Create, date and post the enrollment invoice. Idempotent.
 
@@ -701,6 +740,12 @@ class ems_SaleOrder(models.Model):
         if order.ems_payment_method == 'direct_debit':
             bank = order.partner_id.bank_ids[:1]
             if bank:
+                # Accounts predating the document-approval flow (e.g. CSV
+                # imports) may not be trusted yet: without allow_out_payment,
+                # posting raises for regular users and silently drops the
+                # bank data for the superuser (portal confirmation).
+                if not bank.allow_out_payment:
+                    bank.sudo().allow_out_payment = True
                 vals['partner_bank_id'] = bank.id
 
         inv.write(vals)

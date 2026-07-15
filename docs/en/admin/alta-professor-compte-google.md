@@ -55,7 +55,7 @@ Go to the **Private Information** tab and fill in the **Private Email** field (1
 
 ![Private Information tab with the private email field](../../assets/admin/alta-professor-03-correu-privat.png)
 
-> **Important:** this **Private Email** field is **required** for the Google account to be created. If it is missing, the account will not be created automatically, and the reason will be recorded in the record's message log (chatter).
+> **Important:** this **Private Email** field is **required** for the Google account to be created — the form will not let you save a **new** teacher/ASP record without it. On records created before this rule, it may still be missing: in that case no account is created automatically and the reason is recorded in the record's message log (chatter).
 
 > **Other data:** it is important to **fill in as much data as possible**, such as the emergency contact, personal phone number, car license plate…
 
@@ -69,7 +69,8 @@ When the record is saved, if all the required data is present (name and private 
 
 - Assigns a corporate email `@elpuig.xeill.net` (the suggested username, or one generated from the name if none was given or it is already taken).
 - Generates a temporary password (which must be changed on first login).
-- Sends the credentials by email to the private address provided in step 3.
+- **Creates the teacher's EMS user automatically**, with the corporate email as login and **Sign in with Google already connected**: the teacher enters EMS with the Google button, no separate password is needed and no password email is sent. Teachers get the *Teacher* permissions; ASP staff get a basic internal user (their permissions arrive with their roles/job position).
+- Sends the credentials by email to the private address provided in step 3 (the message also explains how to enter EMS).
 - Attaches a PDF with the credentials to the teacher's record.
 
 The **Create Google account** button, at the top of the record, lets you force this process instantly without waiting for the background processing.
@@ -78,9 +79,10 @@ The **Create Google account** button, at the top of the record, lets you force t
 
 ## Special Cases
 
-- **The teacher already had a corporate email:** if the work email field already contained an `@elpuig.xeill.net` address, the system adopts it as-is and does not create a new one.
+- **The teacher already had a corporate email:** if the work email field already contained an `@elpuig.xeill.net` address, the system adopts it as-is and does not create a new one. If that teacher has no EMS user yet, the **Create Google account** button (still visible in this case) creates and links it.
 - **The teacher has a work email from another domain:** the system does not overwrite it automatically; a notice is posted in the record's message log for manual review.
-- **Manual email assignment:** the **Assign corporate email manually** checkbox, on the teacher's record, lets Human Resources enter the work email by hand, for exceptional cases. **When checked, the system does not generate any account automatically.**
+- **Manual email assignment:** the **Assign corporate email manually** checkbox, on the teacher's record, lets Human Resources enter the work email by hand, for exceptional cases. **When checked, the system does not generate any account automatically.** After typing a corporate address, the **Create Google account** button creates/links the EMS user for it.
+- **Departure (archiving the record):** besides suspending the Google account, archiving the employee **immediately deactivates their EMS user**, so they can no longer sign in. Unarchiving restores both.
 
 ---
 

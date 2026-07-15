@@ -9905,6 +9905,7 @@ msgstr ""
 
 #. module: ems
 #: model:mail.template,subject:ems.mail_template_google_welcome
+#: model:mail.template,subject:ems.mail_template_google_welcome_employee
 msgid "Your corporate account @elpuig.xeill.net"
 msgstr "El teu compte corporatiu @elpuig.xeill.net"
 
@@ -12225,3 +12226,84 @@ msgid ""
 "the security groups: holding an administrator role does not put anyone here,"
 " and being listed here grants no extra access rights."
 msgstr "Usuaris que reben la tasca quan l'EMS la programa. Aquesta llista és independent dels grups de seguretat: tenir un rol d'administrador no inclou ningú aquí, i ser a la llista no concedeix cap dret d'accés addicional."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "EMS user created: %s."
+msgstr "Usuari EMS creat: %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "EMS user re-linked: %s."
+msgstr "Usuari EMS revinculat: %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "EMS user not linked: %s already belongs to another employee."
+msgstr "Usuari EMS no vinculat: %s ja pertany a un altre empleat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Sign in with Google is pre-linked."
+msgstr "L'inici de sessió amb Google queda previnculat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Sign in with Google is not pre-linked (Google user id unavailable)."
+msgstr "L'inici de sessió amb Google no queda previnculat (ID d'usuari de Google no disponible)."
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_welcome_employee
+msgid ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hello <t t-out=\"object.name or ''\"/>,</p>\n"
+"                    <p>Your school corporate account has been created to access Google Workspace\n"
+"                       (email, Drive, Classroom...) and the services that use this account.</p>\n"
+"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Username (email)</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\"/></td>\n"
+"                        </tr>\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Temporary password</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\"/></td>\n"
+"                        </tr>\n"
+"                    </table>\n"
+"                    <p style=\"color:#b00;\"><strong>Important:</strong> for security reasons, you will be\n"
+"                       required to change the password on your first login.</p>\n"
+"                    <p>You can sign in at <a href=\"https://mail.google.com/a/elpuig.xeill.net/\">mail.google.com</a>.</p>\n"
+"                    <p>You can also access the school management platform (EMS) at\n"
+"                       <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>:\n"
+"                       use the <strong>Sign in with Google</strong> button with this same corporate account.</p>\n"
+"                    <p>Best regards,<br/>School Secretariat</p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
+"                    <p>Hola <t t-out=\"object.name or ''\"/>,</p>\n"
+"                    <p>El teu compte corporatiu del centre ha estat creat per accedir a Google Workspace\n"
+"                       (correu electrònic, Drive, Classroom...) i els serveis que utilitzen aquest compte.</p>\n"
+"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Usuari (email)</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\"/></td>\n"
+"                        </tr>\n"
+"                        <tr>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Contrasenya temporal</strong></td>\n"
+"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\"/></td>\n"
+"                        </tr>\n"
+"                    </table>\n"
+"                    <p style=\"color:#b00;\"><strong>Important:</strong> per motius de seguretat, hauràs\n"
+"                       de canviar la contrasenya en el primer inici de sessió.</p>\n"
+"                    <p>Pots iniciar sessió a <a href=\"https://mail.google.com/a/elpuig.xeill.net/\">mail.google.com</a>.</p>\n"
+"                    <p>També pots accedir a la plataforma de gestió del centre (EMS) a\n"
+"                       <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>:\n"
+"                       fes servir el botó <strong>Inicia la sessió amb Google</strong> amb aquest mateix compte corporatiu.</p>\n"
+"                    <p>Salutacions,<br/>Secretaria del centre</p>\n"
+"                </div>\n"
+"            "

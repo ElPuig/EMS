@@ -292,10 +292,14 @@ class TestYearRecord(TransactionCase):
         grade_session = self._session(self.subject1, round="1")
         grade_session.fill_students()
         self._score(grade_session, student, {self.outcome1: 6, self.outcome2: 6})
-        space = self.env['ems.space'].search([], limit=1) or self.env['ems.space'].create(
-            {'name': 'Year Record Space'})
+        space_type = self.env['ems.space_type'].create({'name': 'Year Record Space Type'})
+        work_location = self.env['hr.work.location'].create({
+            'name': 'Year Record Work Location', 'address_id': self.env.company.partner_id.id})
+        space = self.env['ems.space'].create({
+            'code': 'YRS-SPACE', 'name': 'Year Record Space',
+            'space_type_id': space_type.id, 'work_location_id': work_location.id})
         template = self.env['ems.attendance_template'].create({
-            'teacher_id': self.tutor_employee.id, 'level_id': self.level.id,
+            'teacher_ids': [(6, 0, [self.tutor_employee.id])], 'level_id': self.level.id,
             'study_id': self.study.id, 'subject_id': self.subject1.id,
             'group_ids': [(6, 0, [self.group.id])], 'space_id': space.id,
             'start_date': date(2020, 1, 1), 'end_date': date(2098, 12, 31),

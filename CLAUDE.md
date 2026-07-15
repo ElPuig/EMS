@@ -158,6 +158,14 @@ Any change that alters or renames something Odoo identifies by **XML ID** — re
 - Rule of thumb: if the migration script references a field/column/table that is *new* in this version's models, it goes in `post-migrate`. If it operates on something that already existed before this version (renames, data transforms on pre-existing columns), it goes in `pre-migrate`.
 - Test this locally with `./upgrade.sh` from the actual pre-upgrade DB state before shipping — a migration script that only gets exercised for the first time in production is exactly how this class of bug (`migrations/18.0.0.20.0/pre-migrate.py` initially referencing the new `default_schedule_framework_id` column) reached production undetected: the `/deploy-check` dry-run that should have caught it never actually loaded the `ems` module at all due to an unrelated bug in `deploy-check.yml`'s `addons_path` — don't rely on `/deploy-check` alone; a clean upgrade there is not proof the migration scripts ran.
 
+## Resolving merge conflicts
+
+When resolving a merge conflict, never pick a side (ours/theirs) blindly. Before resolving each conflicted hunk:
+
+- Inspect the commit tree around the conflict (`git log --graph --oneline` for both branches, `git log <branch>..<other-branch>`, `git diff`/`git show` on the relevant commits) to understand what each side actually changed and why.
+- Confirm the resolution keeps every change from both sides that is still relevant — don't silently drop a change just because it's on the losing side of a textual conflict.
+- If, after this review, it's still unclear which change should prevail or how to combine them, ask the user instead of guessing.
+
 ## DTON cleaning methodology
 
 A retroactive code quality process applied model by model:

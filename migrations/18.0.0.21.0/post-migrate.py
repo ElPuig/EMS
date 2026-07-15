@@ -113,7 +113,48 @@ def _seed_task_assignment_recipients(cr):
             type_xmlid, len(users), ', '.join(users.mapped('login')) or '-')
 
 
+def _copy_teacher_photo_to_user(cr):
+    # Before this version, creating/linking a teacher's/ASP's EMS user (via the
+    # "Create Google account" button, see google_workspace_integration.py) never
+    # copied the employee's photo onto the new res.users. Backfill it once here for
+    # whoever is already linked. Uses the ORM (not raw SQL) because image_1920 is an
+    # attachment-backed field (ir_attachment, not a plain column) on both hr.employee
+    # and res.partner - only Model.write() creates/dedupes that attachment correctly.
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    # image_1920 is attachment-backed (no column, see Binary/Image field's
+    # attachment=True), so it can't be searched with a normal ORM domain -
+    # find candidates straight from ir_attachment instead.
+    cr.execute("""
+        SELECT e.id FROM hr_employee e
+        JOIN ir_attachment a
+            ON a.res_model = 'hr.employee' AND a.res_field = 'image_1920' AND a.res_id = e.id
+        WHERE e.employee_type IN ('teacher', 'asp') AND e.user_id IS NOT NULL
+    """)
+    employees = env['hr.employee'].browse(row[0] for row in cr.fetchall())
+    copied = 0
+    for employee in employees:
+        user = employee.user_id
+        # Never overwrite a photo the user already has - except the SVG initials
+        # avatar Odoo auto-generates on res.users/res.partner when no image is set
+        # (see res.users.create()/avatar.mixin._avatar_generate_svg()): that one is
+        # a placeholder, not a real photo, and should still be replaced.
+        cr.execute("""
+            SELECT mimetype FROM ir_attachment
+            WHERE res_model = 'res.partner' AND res_field = 'image_1920' AND res_id = %s
+        """, (user.partner_id.id,))
+        row = cr.fetchone()
+        has_real_photo = bool(row) and row[0] != 'image/svg+xml'
+        if not has_real_photo:
+            user.image_1920 = employee.image_1920
+            copied += 1
+    _logger.info(
+        "Migration 18.0.0.21.0: copied photo from %d teacher/ASP employee(s) to their linked user.",
+        copied,
+    )
+
+
 def migrate(cr, _version):
     _migrate_non_teaching_type(cr)
     _migrate_attendance_template_teacher_ids(cr)
     _seed_task_assignment_recipients(cr)
+    _copy_teacher_photo_to_user(cr)

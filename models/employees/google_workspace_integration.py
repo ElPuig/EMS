@@ -492,6 +492,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 'company_id': emp.company_id.id,
                 'company_ids': [(4, emp.company_id.id)],
                 'groups_id': [(6, 0, self._ems_user_groups().ids)],
+                'image_1920': emp.image_1920,
             })
             created = True
 

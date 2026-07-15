@@ -59,6 +59,15 @@ class TestEmployeeEmsUser(TransactionCase):
         self.assertEqual(teacher.user_id.email, teacher.work_email)
         self.assertTrue(teacher.user_id.active)
 
+    def test_creation_copies_employee_photo(self):
+        image_1x1_png = (
+            b'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
+            b'+A8AAQUBAScY42YAAAAASUVORK5CYII='
+        )
+        teacher = self._new_employee(image_1920=image_1x1_png)
+        self._create_account(teacher)
+        self.assertEqual(teacher.user_id.image_1920, teacher.image_1920)
+
     def test_teacher_user_groups(self):
         teacher = self._new_employee()
         self._create_account(teacher)

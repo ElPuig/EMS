@@ -1625,6 +1625,9 @@ msgstr "Extraescolar"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_group__shift__afternoon
 #: model:ir.model.fields.selection,name:ems.selection__sale_order__shift__afternoon
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__shift__afternoon
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_shift__afternoon
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 msgid "Afternoon"
 msgstr "Tarda"
 
@@ -2691,6 +2694,7 @@ msgstr "Comentari"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__notes
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
 #: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__notes
 msgid "Comments"
 msgstr "Comentaris"
 
@@ -2903,6 +2907,9 @@ msgstr "País"
 #: model:ir.model.fields,field_description:ems.field_ems_group__course
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_course_filter
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__course_id
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 msgid "Course"
 msgstr "Curs"
 
@@ -4050,6 +4057,7 @@ msgstr "Nota pràctiques empresa"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__external_is_scored
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__external_is_scored
 msgid "External scored"
 msgstr "Nota pràctiques empresa informada"
 
@@ -4151,6 +4159,7 @@ msgstr "Final"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__final_score
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__final_grade
 msgid "Final grade"
 msgstr "Nota final"
 
@@ -4558,6 +4567,8 @@ msgstr "Atorgar accés"
 #: model_terms:ir.ui.view,arch_db:ems.view_group_list
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_id
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 msgid "Group"
 msgstr "Grup"
 
@@ -4656,6 +4667,7 @@ msgstr "Té missatge"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__has_final
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__has_final
 msgid "Has final"
 msgstr "Té nota final"
 
@@ -5529,6 +5541,7 @@ msgstr "Text legal (renderitzat)"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
 #: model_terms:ir.ui.view,arch_db:ems.view_sale_order_template_search_inherit_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__level_id
 msgid "Level"
 msgstr "Nivell"
 
@@ -6009,6 +6022,9 @@ msgstr "Dilluns"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_group__shift__morning
 #: model:ir.model.fields.selection,name:ems.selection__sale_order__shift__morning
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__shift__morning
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_shift__morning
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 msgid "Morning"
 msgstr "Matí"
 
@@ -6707,6 +6723,7 @@ msgstr "Altra exempció"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__outcome_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__outcome_id
 #: model:ir.model.fields,field_description:ems.field_ems_planning_outcome__outcome_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__outcome_id
 msgid "Outcome"
 msgstr "Resultat d'Aprenentatge"
 
@@ -6730,6 +6747,7 @@ msgstr "En general"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__is_overridden
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__is_overridden
 msgid "Overridden"
 msgstr "Sobreescrita"
 
@@ -7966,6 +7984,8 @@ msgstr "Compartir amb la familia"
 #: model:ir.model.fields,field_description:ems.field_ems_group__shift
 #: model:ir.model.fields,field_description:ems.field_sale_order__shift
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__shift
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 msgid "Shift"
 msgstr "Torn"
 
@@ -8206,6 +8226,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__state
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__state
 #: model:ir.model.fields,field_description:ems.field_ems_notice__state
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__state
 msgid "State"
 msgstr "Estat"
 
@@ -8336,6 +8357,8 @@ msgstr "Carrer 2"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__student_id
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__student_id
+#: model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination
 msgid "Student"
 msgstr "Estudiant"
 
@@ -8521,6 +8544,8 @@ msgstr "Estudis per a matrícula"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 #: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__study_id
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 msgid "Study"
 msgstr "Estudi"
 
@@ -8565,6 +8590,10 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
+#: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
+#: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_id
 msgid "Subject"
 msgstr "Assignatura"
 
@@ -8611,6 +8640,8 @@ msgstr "Assignatura: L'element principal de l'assignatura d'un estudiant."
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_study_form
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__subject_record_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
 msgid "Subjects"
 msgstr "Assignatures"
 
@@ -9264,6 +9295,7 @@ msgstr "Dimarts"
 #: model:res.groups,name:ems.group_tutor
 #: model:res.partner.relation.type,name:ems.relation_type_tutor
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__tutor_id
 msgid "Tutor"
 msgstr "Tutor/a"
 
@@ -10857,6 +10889,7 @@ msgstr "Graduats/des"
 #: model:res.partner.category,name:ems.partner_category_withdrawal
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__exit_type__withdrawal
 msgid "Withdrawal"
 msgstr "Baixa"
 
@@ -10872,6 +10905,7 @@ msgstr "Baixes"
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__exit_type__graduation
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 #: model_terms:ir.ui.view,arch_db:ems.view_graduation_wizard_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__exit_type__graduation
 msgid "Graduation"
 msgstr "Graduació"
 
@@ -10885,6 +10919,7 @@ msgstr "S'ha graduat"
 #: model:ir.model.fields,field_description:ems.field_res_partner__exit_type
 #: model:ir.model.fields,field_description:ems.field_res_users__exit_type
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__exit_type
 msgid "Exit type"
 msgstr "Tipus de sortida"
 
@@ -10898,6 +10933,8 @@ msgstr "Curs de sortida"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__exit_date
 #: model:ir.model.fields,field_description:ems.field_res_users__exit_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__exit_date
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__exit_date
 msgid "Exit date"
 msgstr "Data de sortida"
 
@@ -11523,6 +11560,7 @@ msgstr "Estudi no trobat: %s / %s"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_name
 msgid "Subject name"
 msgstr "Nom de l'assignatura"
 
@@ -12307,3 +12345,234 @@ msgstr ""
 "                    <p>Salutacions,<br/>Secretaria del centre</p>\n"
 "                </div>\n"
 "            "
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_student_year_record_unique_student_course
+msgid "A year record already exists for this student and course!"
+msgstr "Ja existeix un registre d'històric per a aquest/a alumne/a i aquest curs!"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_year_record_list
+#: model:ir.model.fields,field_description:ems.field_res_partner__year_record_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__year_record_ids
+#: model:ir.ui.menu,name:ems.menu_year_record
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Academic history"
+msgstr "Històric acadèmic"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__academic_result
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Academic result"
+msgstr "Resultat acadèmic"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__attendance_rate
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__attendance_rate
+msgid "Attendance (%)"
+msgstr "Assistència (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__attendance_issue_count
+msgid "Attendance notifications"
+msgstr "Notificacions d'assistència"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record__attendance_issue_count
+msgid "Attendance notifications sent to the family during the course."
+msgstr "Notificacions d'assistència enviades a la família durant el curs."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__external_grade
+msgid "External grade (EM)"
+msgstr "Nota pràctiques empresa (EM)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__external_weight
+msgid "External weight (%)"
+msgstr "Ponderació nota pràctiques empresa (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__final_pending
+msgid "Final pending"
+msgstr "Final pendent"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Finals pending placement"
+msgstr "Finals pendents d'estada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__full
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Fully passed"
+msgstr "Superat íntegrament"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record_outcome__final_score
+msgid "Grade of the last scored round."
+msgstr "Nota de l'última avaluació informada."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_name
+msgid "Group name"
+msgstr "Nom del grup"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__internal_grade
+msgid "Internal grade"
+msgstr "Nota del centre"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__internal_weight
+msgid "Internal weight (%)"
+msgstr "Ponderació nota del centre (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__level_name
+msgid "Level name"
+msgstr "Nom del nivell"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__outcome_name
+msgid "Outcome name"
+msgstr "Nom del resultat d'aprenentatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__outcome_record_ids
+msgid "Outcomes"
+msgstr "Resultats d'aprenentatge"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__partial
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Partially passed"
+msgstr "Superat parcialment"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record_subject__state__passed
+msgid "Passed"
+msgstr "Superat"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record_subject__final_pending
+msgid "Passed subject whose final grade is still empty, waiting for the work placement (EM) grade."
+msgstr "Assignatura superada amb la nota final encara buida, a l'espera de la nota de l'estada a l'empresa (EM)."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__repeating
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Repeating"
+msgstr "Repeteix curs"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__final_score
+msgid "Resolved grade"
+msgstr "Nota resolta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round1_score
+msgid "Round 1"
+msgstr "1a avaluació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round2_score
+msgid "Round 2"
+msgstr "2a avaluació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round3_score
+msgid "Round 3"
+msgstr "3a avaluació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round4_score
+msgid "Round 4"
+msgstr "4a avaluació"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_year_record
+msgid "Student academic year record: per-course summary of a student."
+msgstr "Històric acadèmic: resum per curs d'un alumne/a."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_year_record_subject
+msgid "Student academic year record: one subject taken that course."
+msgstr "Històric acadèmic: una assignatura cursada aquell curs."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_year_record_outcome
+msgid "Student academic year record: one learning outcome (RA) of a subject."
+msgstr "Històric acadèmic: un resultat d'aprenentatge (RA) d'una assignatura."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__study_name
+msgid "Study name"
+msgstr "Nom de l'estudi"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__subject_record_id
+msgid "Subject record"
+msgstr "Registre d'assignatura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__subject_count
+msgid "Subjects taken"
+msgstr "Assignatures cursades"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__title_obtained
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Title obtained"
+msgstr "Títol obtingut"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__tutor_name
+msgid "Tutor name"
+msgstr "Nom del tutor/a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__weight
+msgid "Weight (%)"
+msgstr "Ponderació (%)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__withdrawn
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Withdrawn"
+msgstr "Baixa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__record_id
+msgid "Year record"
+msgstr "Registre de curs"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record_subject__state__failed
+msgid "Not passed"
+msgstr "No superat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round1_is_scored
+msgid "Round 1 scored"
+msgstr "1a avaluació informada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round2_is_scored
+msgid "Round 2 scored"
+msgstr "2a avaluació informada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round3_is_scored
+msgid "Round 3 scored"
+msgstr "3a avaluació informada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__round4_is_scored
+msgid "Round 4 scored"
+msgstr "4a avaluació informada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__final_is_scored
+msgid "Resolved scored"
+msgstr "Nota resolta informada"

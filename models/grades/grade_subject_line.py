@@ -26,7 +26,7 @@ class ems_grade_subject_line(models.Model):
 	external_is_scored = fields.Boolean(string="External scored", default=False, help="Whether the external grade has been informed (an empty external grade is excluded from the subject grade).")
 	computed_score = fields.Integer(string="Computed grade", compute="_compute_computed_score", store=True, help="Suggested subject grade applying the planning ponderations.")
 	computed_is_scored = fields.Boolean(string="Computed scored", compute="_compute_computed_score", store=True, help="Whether every weighted component (internal / external) required by the planning has been informed.")
-	final_score = fields.Integer(string="Final grade", compute="_compute_final_score", store=True, help="Final subject grade (equal to the computed grade).")
+	final_score = fields.Integer(string="Final grade", compute="_compute_computed_score", store=True, help="Final subject grade (equal to the computed grade).")
 	has_final = fields.Boolean(string="Has final", compute="_compute_has_final", store=True, help="Whether there is a final grade (the computed grade is available).")
 	notes = fields.Char(string="Comments", help="Free per-student remark for this subject grade.")
 
@@ -129,10 +129,10 @@ class ems_grade_subject_line(models.Model):
 				rec.computed_score = computed
 			else:
 				rec.computed_score = 0
-
-	@api.depends("computed_score")
-	def _compute_final_score(self):
-		for rec in self:
+			# Assigned in the same compute (not aliased from a separate one): a stored
+			# compute that only reads another stored compute of the same model can flush
+			# stale when both are pending in the same transaction (the re-mark triggered
+			# by the dependency is suppressed while the field is protected).
 			rec.final_score = rec.computed_score
 
 	@api.depends("computed_is_scored", "internal_is_complete")

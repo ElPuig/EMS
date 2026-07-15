@@ -1,0 +1,36 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_year_record_search">
+            <field name="name">ems.student.year_record.search</field>
+            <field name="model">ems.student.year_record</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="student_id"/>
+                    <field name="course_id"/>
+                    <field name="study_id"/>
+                    <field name="group_id"/>
+                    <field name="study_name"/>
+                    <field name="group_name"/>
+                    <filter name="title_obtained" string="Title obtained"
+                            domain="[('title_obtained', '=', True)]"/>
+                    <filter name="final_pending" string="Finals pending placement"
+                            domain="[('subject_record_ids.final_pending', '=', True)]"/>
+                    <separator/>
+                    <filter name="result_full" string="Fully passed"
+                            domain="[('academic_result', '=', 'full')]"/>
+                    <filter name="result_partial" string="Partially passed"
+                            domain="[('academic_result', '=', 'partial')]"/>
+                    <filter name="result_repeating" string="Repeating"
+                            domain="[('academic_result', '=', 'repeating')]"/>
+                    <filter name="result_withdrawn" string="Withdrawn"
+                            domain="[('academic_result', '=', 'withdrawn')]"/>
+                    <filter name="group_by_course" string="Course" context="{'group_by': 'course_id'}"/>
+                    <filter name="group_by_study" string="Study" context="{'group_by': 'study_id'}"/>
+                    <filter name="group_by_group" string="Group" context="{'group_by': 'group_id'}"/>
+                    <filter name="group_by_result" string="Academic result"
+                            context="{'group_by': 'academic_result'}"/>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

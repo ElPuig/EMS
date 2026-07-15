@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_task_assignment_list" model="ir.ui.view">
+            <field name="name">ems.task.assignment.list</field>
+            <field name="model">mail.activity.type</field>
+            <field name="arch" type="xml">
+                <list string="Task Assignment" editable="bottom" create="false" delete="false"
+                      decoration-danger="not ems_assignee_ids">
+                    <field name="name" readonly="1"/>
+                    <field name="ems_assignee_ids" widget="many2many_tags"
+                           placeholder="Nobody: this task will not be created"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_task_assignment_form" model="ir.ui.view">
+            <field name="name">ems.task.assignment.form</field>
+            <field name="model">mail.activity.type</field>
+            <field name="arch" type="xml">
+                <form string="Task Assignment" create="false" delete="false">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <field name="ems_assignee_ids" widget="many2many_tags"
+                                   placeholder="Nobody: this task will not be created"/>
+                        </group>
+                        <div class="alert alert-warning" role="alert"
+                             invisible="ems_assignee_ids">
+                            No user is assigned to this task, so EMS will not create it
+                            for anyone. Add at least one recipient.
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_task_assignment" model="ir.actions.act_window">
+            <field name="name">Task Assignment</field>
+            <field name="res_model">mail.activity.type</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('ems_task_assignment', '=', True)]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No task type to configure yet
+                </p>
+                <p>
+                    Here you choose who takes care of the tasks EMS creates on its own,
+                    such as reviewing the documents students upload from the portal.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

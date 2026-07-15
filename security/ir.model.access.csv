@@ -280,3 +280,4 @@ ems.access_ems_strike_reason_teacher,ems.access_ems_strike_reason_teacher,ems.mo
 ems.access_ems_strike_admin,ems.access_ems_strike_admin,ems.model_ems_strike,ems.group_academic_admin,1,1,1,1
 ems.access_ems_strike_teacher,ems.access_ems_strike_teacher,ems.model_ems_strike,ems.group_teacher,1,0,1,0
 ems.access_ems_strike_coexistence,ems.access_ems_strike_coexistence,ems.model_ems_strike,ems.group_coexistence,1,0,0,0
+ems.access_mail_activity_type_secretary_admin,ems.access_mail_activity_type_secretary_admin,mail.model_mail_activity_type,ems.group_secretary_admin,1,1,0,0

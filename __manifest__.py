@@ -62,6 +62,7 @@
         'security/rules/grading.xml',
         'security/rules/planning.xml',
         'security/rules/portal.xml',
+        'security/rules/task_assignment.xml',
         'security/ir.model.access.csv',
 
 
@@ -258,7 +259,9 @@
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_view.xml',
             'views/academic_management/enrollment_configuration/menu.xml',
-      
+            'views/academic_management/task_assignment/view.xml',
+            'views/academic_management/task_assignment/menu.xml',
+
         'views/sales/product_view.xml',
         'views/accounting/payment_term_views.xml',
         'views/accounting/enrollment_collections.xml',

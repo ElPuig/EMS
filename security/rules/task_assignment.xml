@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- The Secretary Administrator manages who handles the tasks EMS schedules, so
+             they need write access on mail.activity.type (Odoo natively reserves it for
+             base.group_system). That access is confined to the types EMS manages: without
+             this rule, the ACL would also let them rename or reconfigure every other
+             activity type in the database (Meeting, Call, To Do...). -->
+        <record id="rule_mail_activity_type_ems_only" model="ir.rule">
+            <field name="name">Task Assignment: Secretary Administrator writes EMS task types only</field>
+            <field name="model_id" ref="mail.model_mail_activity_type"/>
+            <field name="groups" eval="[(4, ref('ems.group_secretary_admin'))]"/>
+            <field name="domain_force">[('ems_task_assignment', '=', True)]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- ems.group_academic_admin implies group_secretary_admin, so it would inherit the
+             rule above and lose the full write access it holds through base.group_system.
+             Record rules of the groups a user belongs to are OR-ed together, so this second
+             rule gives it back. -->
+        <record id="rule_mail_activity_type_system_all" model="ir.rule">
+            <field name="name">Task Assignment: system administrators write any activity type</field>
+            <field name="model_id" ref="mail.model_mail_activity_type"/>
+            <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+    </data>
+</odoo>

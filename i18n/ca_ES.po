@@ -1874,8 +1874,11 @@ msgstr "Esteu segur que voleu eliminar aquest element?"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__employee_ids
+#: model:ir.model.fields,field_description:ems.field_mail_activity_type__ems_assignee_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_role_form
 #: model_terms:ir.ui.view,arch_db:ems.view_role_list
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_form
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_list
 #: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
 msgid "Assigned to"
 msgstr "Assignat a"
@@ -12169,3 +12172,56 @@ msgstr "Total general:"
 #: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "<span>Overall total:</span>"
 msgstr "<span>Total general:</span>"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_task_assignment
+msgid ""
+"Here you choose who takes care of the tasks EMS creates on its own,\n"
+"                    such as reviewing the documents students upload from the portal."
+msgstr "Aquí trieu qui s'encarrega de les tasques que l'EMS crea pel seu compte, com ara revisar els documents que els alumnes pugen des del portal."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_mail_activity_type__ems_task_assignment
+msgid "Managed by EMS"
+msgstr "Gestionada per l'EMS"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_task_assignment
+msgid "No task type to configure yet"
+msgstr "Encara no hi ha cap tipus de tasca per configurar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_form
+msgid ""
+"No user is assigned to this task, so EMS will not create it\n"
+"                            for anyone. Add at least one recipient."
+msgstr "No hi ha cap usuari assignat a aquesta tasca, de manera que l'EMS no la crearà per a ningú. Afegeix-hi com a mínim un destinatari."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_form
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_list
+msgid "Nobody: this task will not be created"
+msgstr "Ningú: aquesta tasca no es crearà"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_mail_activity_type__ems_task_assignment
+msgid ""
+"Set on the activity types EMS schedules automatically, so that they show up "
+"under Academic Management > Configuration > Task Assignment."
+msgstr "Es marca als tipus d'activitat que l'EMS programa automàticament, perquè apareguin a Gestió acadèmica > Configuració > Assignació de tasques."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_task_assignment
+#: model:ir.ui.menu,name:ems.menu_ems_task_assignment
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_form
+#: model_terms:ir.ui.view,arch_db:ems.view_task_assignment_list
+msgid "Task Assignment"
+msgstr "Assignació de tasques"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_mail_activity_type__ems_assignee_ids
+msgid ""
+"Users who get the task when EMS schedules it. This list is independent from "
+"the security groups: holding an administrator role does not put anyone here,"
+" and being listed here grants no extra access rights."
+msgstr "Usuaris que reben la tasca quan l'EMS la programa. Aquesta llista és independent dels grups de seguretat: tenir un rol d'administrador no inclou ningú aquí, i ser a la llista no concedeix cap dret d'accés addicional."

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import base64
+
 from odoo import fields, models
+from .employee import EMS_PHOTO_SYNC_CONTEXT_KEY
 
 EMS_SYNC_CONTEXT_KEY = 'ems_syncing_groups'
 
@@ -12,19 +15,19 @@ class ems_users(models.Model):
     # (base.action_res_users_my). hr.employee.image_visibility mirrors it (see employee.py),
     # with a fallback for employees who have no linked user at all.
     image_visibility = fields.Selection(
-        [('all', 'All'), ('teachers', 'Only teachers'), ('directive', 'Only directive staff')],
-        string="Photo visibility", default='all')
+        [('public', 'Public'), ('private', 'Private (only directive staff)'),
+         ('no_photo', 'No photo (erase permanently)')],
+        string="Photo visibility", default='public')
 
     # Mirror of employee_id.image_private (the real photo storage - see employee.py for why it
-    # lives there and not here). Kept as compute+inverse, not a plain related field: a related
-    # field's write would go through hr.employee's own ACL (write=0 for teachers), which is
-    # exactly what must NOT change for this feature - employee_id is always "my own employee",
-    # so the sudo() here doesn't open any access to someone else's record.
+    # lives there and not here). Read-only from "My Profile" (see SELF_WRITEABLE_FIELDS below) -
+    # only directive staff and above may actually change a photo (hr.employee.can_edit_photo /
+    # write()'s sudo bypass); a plain employee only ever controls image_visibility here.
     image_private = fields.Binary(string="Photo", compute='_compute_image_private', inverse='_inverse_image_private')
 
     @property
     def SELF_WRITEABLE_FIELDS(self):
-        return super().SELF_WRITEABLE_FIELDS + ['image_visibility', 'image_private']
+        return super().SELF_WRITEABLE_FIELDS + ['image_visibility']
 
     @property
     def SELF_READABLE_FIELDS(self):
@@ -38,13 +41,6 @@ class ems_users(models.Model):
         for user in self:
             if user.employee_id:
                 user.employee_id.sudo().image_private = user.image_private
-            # Keep the account picture (topbar/Discuss/chatter, which read res.partner.image_1920)
-            # equal to the *real*, unfiltered photo - the visibility restriction only governs
-            # hr.employee.image_1920 (see employee.py), not the account avatar used across core
-            # Odoo. Written straight to partner_id, not through res.users.image_1920, to avoid
-            # cascading back through the whole res.users write() MRO (gamification/mail/resource/
-            # base overrides) a second time within the same write().
-            user.partner_id.sudo().image_1920 = user.image_private
 
     def write(self, vals):
         trigger = any(
@@ -57,7 +53,55 @@ class ems_users(models.Model):
         res = super().write(vals)
         if before:
             self._sync_ems_implied_groups(before)
+        if (vals.keys() & {'image_visibility', 'image_private'}
+                and not self.env.context.get(EMS_PHOTO_SYNC_CONTEXT_KEY)):
+            self._sync_partner_photo()
         return res
+
+    def _sync_partner_photo(self):
+        """Keep the linked contact's (res.partner) photo consistent with what "My Profile"
+        just set - this is what makes the visibility restriction truly global (Discuss, the
+        top bar, the org chart, ems.notice.sent_by, anywhere else that reads a user's own
+        avatar instead of hr.employee's), without needing to gate res.partner.image_1920 for
+        every contact in the database (students, families, companies...).
+
+        'no_photo' erases the real photo for good (GDPR) - everywhere it's stored, not just
+        hidden. Otherwise, back up the contact's current photo into its own image_private the
+        first time it goes through this sync (it may still hold the real, pre-feature photo),
+        then push whatever hr.employee.image_1920 currently resolves to (real photo, or the
+        initials placeholder - see employee.py's _compute_image_1920): this mirrors exactly
+        what the employee's own kanban/form already show to an unauthorized viewer.
+        """
+        for user in self:
+            if not user.employee_id:
+                continue
+            employee = user.employee_id.sudo().with_context(**{EMS_PHOTO_SYNC_CONTEXT_KEY: True})
+            partner = user.partner_id.sudo()
+            if user.image_visibility == 'no_photo':
+                employee.image_private = False
+                partner.image_private = False
+            elif not partner.image_private and self._partner_has_real_image_1920(partner):
+                partner.image_private = partner.image_1920
+            partner.image_1920 = employee.image_1920
+
+    def _partner_has_real_image_1920(self, partner):
+        # image_1920 always has SOME value on a res.users' partner - Odoo auto-generates an SVG
+        # initials placeholder on user creation (res.users.create()) when none is set, and this
+        # feature itself writes one whenever visibility isn't 'public' (see employee.py). That's
+        # not a real photo to back up: without this check, a sync would "back up" a placeholder
+        # as if it were the real photo, and every later sync would just keep re-serving it.
+        #
+        # Checks the decoded bytes directly (not ir_attachment.mimetype): overwriting an
+        # attachment's content in place does not necessarily re-detect its mimetype, so a
+        # placeholder written over a real photo's attachment can keep reporting the OLD, real
+        # mimetype - unreliable. The actual content is always authoritative.
+        if not partner.image_1920:
+            return False
+        try:
+            decoded = base64.b64decode(partner.image_1920)
+        except (ValueError, TypeError):
+            return True
+        return not decoded.lstrip().startswith(b'<?xml')
 
     def _sync_ems_implied_groups(self, before):
         """When a user loses an EMS group (Academic/Secretary/Quality/Settings

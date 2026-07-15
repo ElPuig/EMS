@@ -22,15 +22,19 @@ Aquesta guia explica com controlar qui pot veure la teva foto de perfil a l'EMS.
 
 Des del teu perfil pots establir la visibilitat de la teva foto en un d'aquests tres nivells:
 
-- **Tothom** — qualsevol pot veure la teva foto (opció per defecte).
-- **Només el professorat** — només el professorat i els rols jeràrquicament
-  superiors (tutors, caps de departament, Cap d'Estudis, direcció, administració)
-  poden veure-la.
-- **Només l'equip directiu** — només Cap d'Estudis i superiors (direcció,
-  administració) poden veure-la.
+- **Pública** — qualsevol pot veure la teva foto (opció per defecte).
+- **Privada (només equip directiu)** — només Cap d'Estudis i superiors (direcció,
+  administració) poden veure-la, i només a la teva fitxa d'empleat i al directori de
+  "Professors"; a la resta de llocs (Discuss, la barra superior, l'organigrama, els
+  avisos) es mostra un marcador genèric amb la teva inicial per a tothom, equip
+  directiu inclòs.
+- **Sense foto (esborrar permanentment)** — la teva foto s'**elimina de forma
+  permanent**, a tot arreu. Això no es pot desfer: tornar a triar "Pública" després
+  no la recuperarà, hauries de pujar-ne una de nova.
 
 Tu sempre veus la teva pròpia foto, independentment d'aquesta configuració, i
-l'administració també la pot veure sempre.
+l'administració també la pot veure sempre (excepte després de triar "Sense foto",
+ja que deixa d'existir).
 
 ---
 
@@ -45,17 +49,20 @@ l'administració també la pot veure sempre.
 > pàgina continua sent només de lectura per al professorat) — només està disponible
 > des de **El meu perfil**.
 
+> **Avís:** "Sense foto (esborrar permanentment)" elimina la teva foto per sempre.
+> Tria-ho només si n'estàs segur — no hi ha manera de recuperar-la després.
+
 ---
 
 ## On s'aplica
 
-La visibilitat que triïs regeix el directori de **Professors** (vista kanban) i la
-teva fitxa d'empleat: qui no estigui autoritzat a veure la teva foto allà
-simplement no veu cap foto, no la d'una altra persona. A la resta de llocs de l'EMS
-on la teva foto podria aparèixer al costat del teu nom (per exemple, sessions
-d'assistència, qualificacions, grups, avisos), només es mostra quan la visibilitat
-és **Tothom** — això manté les coses senzilles i evita mostrar mai la teva foto a
-algú que no hi hauria d'accedir.
+La visibilitat que triïs s'aplica a tot arreu on la teva foto pugui aparèixer a
+l'EMS: la teva fitxa d'empleat, el directori de "Professors", Discuss, la barra
+superior, l'organigrama i els avisos. Qui no estigui autoritzat a veure la teva foto
+simplement veu un marcador amb la teva inicial en lloc de la foto, mai la d'una altra
+persona. Cap d'Estudis i superiors continuen veient la teva foto real a la teva fitxa
+d'empleat i al directori de "Professors" quan la tries "Privada" — a la resta de
+llocs, fins i tot ells veuen el marcador.
 
 ---
 

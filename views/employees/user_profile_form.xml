@@ -1,10 +1,10 @@
 <odoo>
     <data>
-        <!-- "My Profile" (base.action_res_users_my): where a teacher sets who can see their photo.
-             image_private is the field the upload flows into - it's the real photo storage on
-             hr.employee (see models/employees/employee.py); res.users._inverse_image_private
-             (models/employees/user.py) keeps the account avatar in sync from there, so editing
-             here still updates both.
+        <!-- "My Profile" (base.action_res_users_my): where a teacher chooses who can see their
+             photo. Only image_visibility is editable here - the photo itself (image_private)
+             can no longer be uploaded/changed by the employee themselves, only by directive
+             staff and above, from the employee form (see employee.py's can_edit_photo /
+             write()'s sudo bypass and views/community/employee/form.xml).
 
              NOTE: anchored on the "signature" group, not on the native image_1920 field/its
              oe_avatar widget at the top of the form. The hr module has its own separate view
@@ -21,7 +21,6 @@
             <field name="arch" type="xml">
                 <group name="signature" position="after">
                     <group name="ems_photo_visibility" string="Photo visibility">
-                        <field name="image_private" widget="image" class="oe_avatar" options="{'preview_image': 'avatar_128'}" invisible="1"/>
                         <field name="image_visibility" widget="radio"/>
                     </group>
                 </group>

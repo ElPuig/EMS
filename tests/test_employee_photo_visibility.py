@@ -62,9 +62,9 @@ class TestEmployeePhotoVisibility(TransactionCase):
             'groups_id': [(4, cls.group_academic_admin.id), (4, cls.group_internal_user.id)],
         })
 
-    def test_default_visibility_is_all(self):
-        self.assertEqual(self.teacher_a.image_visibility, 'all')
-        self.assertEqual(self.teacher_a_user.image_visibility, 'all')
+    def test_default_visibility_is_public(self):
+        self.assertEqual(self.teacher_a.image_visibility, 'public')
+        self.assertEqual(self.teacher_a_user.image_visibility, 'public')
 
     def test_profile_form_view_combines_in_every_inheriting_tree(self):
         # Regression test: base.view_users_form_simple_modif is also the base of a SEPARATE
@@ -79,13 +79,54 @@ class TestEmployeePhotoVisibility(TransactionCase):
             view_id=self.env.ref('hr.res_users_view_form_simple_modif').id, view_type='form')
 
     def test_teacher_can_set_own_visibility_via_profile(self):
-        self.teacher_a_user.with_user(self.teacher_a_user).write({
-            'image_visibility': 'teachers',
-            'image_private': self.photo,
-        })
+        self.hos.with_user(self.hos_user).write({'image_private': self.photo})
+        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'private'})
         self.teacher_a.invalidate_recordset()
-        self.assertEqual(self.teacher_a.image_visibility, 'teachers')
+        self.assertEqual(self.teacher_a.image_visibility, 'private')
+
+    def test_teacher_cannot_set_own_photo(self):
+        # The employee only ever controls image_visibility from "My Profile" now - the photo
+        # itself can only be changed by directive staff and above (see
+        # test_directive_staff_can_set_any_employee_photo).
+        with self.assertRaises(AccessError):
+            self.teacher_a_user.with_user(self.teacher_a_user).write({'image_private': self.photo})
+
+    def test_directive_staff_can_set_any_employee_photo(self):
+        # hr.employee ACL still denies write to everyone but admin - this is a narrow,
+        # server-side bypass (employee.py's write()), not a broadened ACL: it only ever
+        # applies when the vals dict contains image_private and NOTHING else.
+        self.teacher_a.with_user(self.hos_user).write({'image_private': self.photo})
+        self.teacher_a.invalidate_recordset()
         self.assertEqual(self.teacher_a.image_private, self.photo)
+
+    def test_directive_staff_photo_bypass_does_not_extend_to_other_fields(self):
+        with self.assertRaises(AccessError):
+            self.teacher_a.with_user(self.hos_user).write({
+                'image_private': self.photo, 'name': 'Hacked by HoS',
+            })
+        with self.assertRaises(AccessError):
+            self.teacher_a.with_user(self.hos_user).write({'name': 'Hacked by HoS'})
+
+    def test_plain_teacher_cannot_use_the_directive_bypass(self):
+        with self.assertRaises(AccessError):
+            self.teacher_b.with_user(self.teacher_a_user).write({'image_private': self.photo})
+
+    def test_employee_photo_edit_syncs_to_linked_user(self):
+        # Regression test: editing an employee's photo directly (the only way now, since
+        # employees can't set their own) must still reach the linked res.users/res.partner -
+        # Discuss/the top bar/the org chart/ems.notice.sent_by read from there, not from
+        # hr.employee.
+        self.teacher_a.with_user(self.hos_user).write({'image_private': self.photo})
+        self.teacher_a.invalidate_recordset()
+        partner = self.teacher_a_user.partner_id
+        partner.invalidate_recordset()
+        self.assertEqual(partner.image_1920, self.photo)
+
+    def test_can_edit_photo(self):
+        self.assertFalse(self.teacher_a.with_user(self.teacher_a_user).can_edit_photo)  # not even self
+        self.assertFalse(self.teacher_a.with_user(self.teacher_b_user).can_edit_photo)
+        self.assertTrue(self.teacher_a.with_user(self.hos_user).can_edit_photo)
+        self.assertTrue(self.teacher_a.with_user(self.admin_user).can_edit_photo)
 
     def test_teacher_cannot_write_own_employee_record_directly(self):
         with self.assertRaises(AccessError):
@@ -97,7 +138,7 @@ class TestEmployeePhotoVisibility(TransactionCase):
 
     def test_teacher_cannot_write_visibility_of_other_user(self):
         with self.assertRaises(Exception):
-            self.teacher_b_user.with_user(self.teacher_a_user).write({'image_visibility': 'all'})
+            self.teacher_b_user.with_user(self.teacher_a_user).write({'image_visibility': 'public'})
 
     def test_admin_can_still_write_employee_record(self):
         # ACL check only (the point of this test) - written via sudo rather than with_user(admin)
@@ -108,41 +149,49 @@ class TestEmployeePhotoVisibility(TransactionCase):
         self.assertEqual(self.teacher_a.name, 'Renamed by admin')
         self.assertTrue(self.teacher_a.with_user(self.admin_user).has_access('write'))
 
-    def test_photo_visible_teachers_tier(self):
-        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'teachers'})
-        self.teacher_a.invalidate_recordset()
-        self.assertTrue(self.teacher_a.with_user(self.teacher_a_user).photo_visible_to_current_user)
+    def test_photo_visible_public_tier(self):
         self.assertTrue(self.teacher_a.with_user(self.teacher_b_user).photo_visible_to_current_user)
-        self.assertTrue(self.teacher_a.with_user(self.hos_user).photo_visible_to_current_user)
-        self.assertTrue(self.teacher_a.with_user(self.admin_user).photo_visible_to_current_user)
 
-    def test_photo_visible_directive_tier(self):
-        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'directive'})
+    def test_photo_visible_private_tier(self):
+        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'private'})
         self.teacher_a.invalidate_recordset()
         self.assertTrue(self.teacher_a.with_user(self.teacher_a_user).photo_visible_to_current_user)
         self.assertFalse(self.teacher_a.with_user(self.teacher_b_user).photo_visible_to_current_user)
         self.assertTrue(self.teacher_a.with_user(self.hos_user).photo_visible_to_current_user)
         self.assertTrue(self.teacher_a.with_user(self.admin_user).photo_visible_to_current_user)
 
-    def test_photo_visible_all_tier(self):
-        self.assertTrue(self.teacher_a.with_user(self.teacher_b_user).photo_visible_to_current_user)
-
-    def test_image_1920_blanked_and_restored_by_visibility(self):
-        self.teacher_a_user.with_user(self.teacher_a_user).write({
-            'image_visibility': 'all',
-            'image_private': self.photo,
-        })
+    def test_image_1920_becomes_placeholder_when_private_and_restores_when_public(self):
+        self.teacher_a.with_user(self.hos_user).write({'image_private': self.photo})
         self.teacher_a.invalidate_recordset()
         self.assertEqual(self.teacher_a.image_1920, self.photo)
 
-        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'teachers'})
+        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'private'})
+        self.teacher_a.invalidate_recordset()
+        self.assertTrue(self.teacher_a.image_1920)
+        self.assertNotEqual(self.teacher_a.image_1920, self.photo)  # initials placeholder, not blank
+        self.assertEqual(self.teacher_a.image_private, self.photo)  # real photo kept safe
+
+        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'public'})
+        self.teacher_a.invalidate_recordset()
+        self.assertEqual(self.teacher_a.image_1920, self.photo)
+
+    def test_no_photo_erases_permanently(self):
+        self.teacher_a.with_user(self.hos_user).write({'image_private': self.photo})
+        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'no_photo'})
+        self.teacher_a.invalidate_recordset()
+        self.teacher_a_user.invalidate_recordset()
+
+        self.assertFalse(self.teacher_a.image_private)
+        self.assertFalse(self.teacher_a_user.partner_id.image_private)
+        self.assertTrue(self.teacher_a.image_1920)  # placeholder, not blank
+        self.assertNotEqual(self.teacher_a.image_1920, self.photo)
+        # Even a directive-staff viewer sees nothing to restore - the real photo is gone.
+        self.assertFalse(self.teacher_a.effective_photo)
+
+        # Switching back to 'public' does NOT resurrect the erased photo.
+        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'public'})
         self.teacher_a.invalidate_recordset()
         self.assertFalse(self.teacher_a.image_1920)
-        self.assertEqual(self.teacher_a.image_private, self.photo)
-
-        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'all'})
-        self.teacher_a.invalidate_recordset()
-        self.assertEqual(self.teacher_a.image_1920, self.photo)
 
     def _load_post_migrate_module(self):
         path = os.path.join(
@@ -190,6 +239,22 @@ class TestEmployeePhotoVisibility(TransactionCase):
         self.assertEqual(employee.image_private, self.photo)
         self.assertEqual(employee.image_1920, self.photo)
 
+    def test_remap_image_visibility_values(self):
+        self.env.cr.execute(
+            "UPDATE res_users SET image_visibility = 'directive' WHERE id = %s",
+            (self.teacher_a_user.id,))
+        self.env.cr.execute(
+            "UPDATE res_users SET image_visibility = 'teachers' WHERE id = %s",
+            (self.teacher_b_user.id,))
+
+        migration = self._load_post_migrate_module()
+        migration._remap_image_visibility_values(self.env.cr)
+        self.teacher_a_user.invalidate_recordset()
+        self.teacher_b_user.invalidate_recordset()
+
+        self.assertEqual(self.teacher_a_user.image_visibility, 'private')
+        self.assertEqual(self.teacher_b_user.image_visibility, 'public')
+
     def test_effective_photo_falls_back_to_linked_user_photo(self):
         # Regression test: an employee can have a photo only on their linked res.users/
         # res.partner record (e.g. set directly via Settings > Users, or from before this
@@ -202,24 +267,55 @@ class TestEmployeePhotoVisibility(TransactionCase):
         # to reproduce the real case this guards (an employee who predates this feature and
         # never had their own hr.employee photo at all, e.g. imported via CSV).
         self.teacher_b.sudo().image_private = False
-        self.teacher_b_user.partner_id.sudo().image_1920 = self.photo
+        self.teacher_b_user.partner_id.sudo().image_private = self.photo
 
         self.teacher_b.invalidate_recordset()
         self.assertEqual(self.teacher_b.effective_photo, self.photo)
         self.assertEqual(self.teacher_b.image_1920, self.photo)
 
-        self.teacher_b_user.with_user(self.teacher_b_user).write({'image_visibility': 'teachers'})
+        self.teacher_b_user.with_user(self.teacher_b_user).write({'image_visibility': 'private'})
         self.teacher_b.invalidate_recordset()
-        self.assertFalse(self.teacher_b.image_1920)
+        self.assertNotEqual(self.teacher_b.image_1920, self.photo)
         self.assertEqual(self.teacher_b.effective_photo, self.photo)
-        self.assertTrue(self.teacher_b.with_user(self.teacher_a_user).photo_visible_to_current_user)
+        self.assertTrue(self.teacher_b.with_user(self.hos_user).photo_visible_to_current_user)
+        self.assertFalse(self.teacher_b.with_user(self.teacher_a_user).photo_visible_to_current_user)
 
-    def test_linked_user_receives_unfiltered_photo(self):
-        self.teacher_a_user.with_user(self.teacher_a_user).write({
-            'image_visibility': 'teachers',
-            'image_private': self.photo,
-        })
+    def test_linked_user_receives_gated_photo(self):
+        # The whole point of this iteration of the feature: the linked res.users/res.partner
+        # avatar (Discuss, the top bar, the org chart, ems.notice.sent_by...) must be gated
+        # exactly like hr.employee's own - never the real photo when not 'public'. The real
+        # photo's source of truth here is employee.image_private (set by directive staff), so
+        # it round-trips back correctly through employee.image_1920 once visibility returns to
+        # 'public' - no separate copy needs to live on the partner for that to work (see
+        # test_partner_backfill_preserves_preexisting_real_photo below for the case where the
+        # partner's copy does matter).
+        self.teacher_a.with_user(self.hos_user).write({'image_private': self.photo})
+        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'private'})
         self.teacher_a.invalidate_recordset()
         self.teacher_a_user.invalidate_recordset()
-        self.assertFalse(self.teacher_a.image_1920)
-        self.assertEqual(self.teacher_a_user.image_1920, self.photo)
+
+        partner = self.teacher_a_user.partner_id
+        self.assertEqual(partner.image_1920, self.teacher_a.image_1920)
+        self.assertNotEqual(partner.image_1920, self.photo)
+
+        self.teacher_a_user.with_user(self.teacher_a_user).write({'image_visibility': 'public'})
+        self.teacher_a.invalidate_recordset()
+        partner.invalidate_recordset()
+        self.assertEqual(partner.image_1920, self.photo)
+
+    def test_partner_backfill_preserves_preexisting_real_photo(self):
+        # teacher_b's partner already has an independent real photo (e.g. uploaded outside
+        # "My Profile", via Settings > Users) that hr.employee.image_private knows nothing
+        # about. Toggling visibility - without touching image_private in this same write -
+        # must still back it up into the partner's own image_private before image_1920 gets
+        # overwritten with the placeholder, guarding the exact backfill this sync relies on.
+        self.teacher_b.sudo().image_private = False
+        self.teacher_b_user.partner_id.sudo().image_1920 = self.photo
+        self.teacher_b_user.invalidate_recordset()
+
+        self.teacher_b_user.with_user(self.teacher_b_user).write({'image_visibility': 'private'})
+        partner = self.teacher_b_user.partner_id
+        partner.invalidate_recordset()
+
+        self.assertEqual(partner.image_private, self.photo)
+        self.assertNotEqual(partner.image_1920, self.photo)

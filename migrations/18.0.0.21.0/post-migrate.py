@@ -113,6 +113,28 @@ def _seed_task_assignment_recipients(cr):
             type_xmlid, len(users), ', '.join(users.mapped('login')) or '-')
 
 
+def _remap_image_visibility_values(cr):
+    # The photo-visibility feature's selection values changed mid-development, before ever
+    # shipping (all/teachers/directive -> public/private/no_photo, with the 'teachers' tier
+    # dropped entirely). Must run before anything below reads image_visibility - an old,
+    # unmapped value would just silently fail every `== 'public'`/`== 'private'` check.
+    # 'teachers' -> 'public': it's the tier being removed, and 'public' is the least
+    # surprising choice (doesn't hide a photo from anyone who could already see it).
+    cr.execute("""
+        UPDATE res_users SET image_visibility = CASE image_visibility
+            WHEN 'all' THEN 'public'
+            WHEN 'teachers' THEN 'public'
+            WHEN 'directive' THEN 'private'
+            ELSE image_visibility
+        END
+        WHERE image_visibility IN ('all', 'teachers', 'directive')
+    """)
+    _logger.info(
+        "Migration 18.0.0.21.0: remapped %d 'res.users.image_visibility' value(s) to the new "
+        "public/private/no_photo selection.", cr.rowcount,
+    )
+
+
 def _copy_teacher_photo_to_user(cr):
     # Before this version, creating/linking a teacher's/ASP's EMS user (via the
     # "Create Google account" button, see google_workspace_integration.py) never
@@ -190,6 +212,12 @@ def _recompute_employee_image_1920(cr):
             backfilled += 1
 
     employees = env['hr.employee'].with_context(active_test=False).search([])
+    # image_visibility is itself compute+store, mirroring user_id.image_visibility - a raw SQL
+    # UPDATE on res_users (see _remap_image_visibility_values) does not trigger the ORM's
+    # dependency-based recompute, so hr_employee.image_visibility can still hold a stale,
+    # no-longer-valid string (e.g. 'all'/'directive') at this point. Recompute it explicitly
+    # before image_1920, which depends on it.
+    employees._compute_image_visibility()
     employees._compute_image_1920()
     _logger.info(
         "Migration 18.0.0.21.0: backfilled 'image_private' from the legacy 'image_1920' for %d "
@@ -198,9 +226,39 @@ def _recompute_employee_image_1920(cr):
     )
 
 
+def _sync_partner_photo_from_employee(cr):
+    # Mirrors, once for existing data, what res.users.write()'s _sync_partner_photo
+    # (models/employees/user.py) will do from now on every time "My Profile" is saved: back up
+    # each employee-linked contact's current (real, pre-feature) photo into its own
+    # image_private before anything overwrites image_1920, then push whatever
+    # hr.employee.image_1920 now resolves to (real photo, or the initials placeholder - see
+    # _recompute_employee_image_1920 above, which must run before this). Only touches contacts
+    # actually linked to an employee - not every res.partner in the database.
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    cr.execute("""
+        SELECT DISTINCT u.id FROM res_users u
+        JOIN hr_employee e ON e.user_id = u.id
+    """)
+    users = env['res.users'].browse(row[0] for row in cr.fetchall())
+    backfilled = 0
+    for user in users:
+        partner = user.partner_id.sudo()
+        employee = user.employee_id.sudo()
+        if not partner.image_private:
+            partner.image_private = partner.image_1920
+            backfilled += 1
+        partner.image_1920 = employee.image_1920
+    _logger.info(
+        "Migration 18.0.0.21.0: backfilled res.partner.image_private for %d employee-linked "
+        "contact(s) and synced 'image_1920' for %d user(s) total.", backfilled, len(users),
+    )
+
+
 def migrate(cr, _version):
     _migrate_non_teaching_type(cr)
     _migrate_attendance_template_teacher_ids(cr)
     _seed_task_assignment_recipients(cr)
+    _remap_image_visibility_values(cr)
     _copy_teacher_photo_to_user(cr)
     _recompute_employee_image_1920(cr)
+    _sync_partner_photo_from_employee(cr)

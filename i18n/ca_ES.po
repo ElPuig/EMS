@@ -1633,12 +1633,6 @@ msgid "Afternoon"
 msgstr "Tarda"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__all
-#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__all
-msgid "All"
-msgstr "Tothom"
-
-#. module: ems
 #: model:ir.model,name:ems.model_res_partner_relation_all
 msgid "All (non-inverse + inverse) relations between partners"
 msgstr "Totes les relacions (directes i inverses) entre contactes"
@@ -6601,16 +6595,10 @@ msgid "Only mine"
 msgstr "Tansols els meus"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__directive
-#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__directive
-msgid "Only directive staff"
-msgstr "Només l'equip directiu"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__teachers
-#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__teachers
-msgid "Only teachers"
-msgstr "Només el professorat"
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__no_photo
+#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__no_photo
+msgid "No photo (erase permanently)"
+msgstr "Sense foto (esborrar permanentment)"
 
 #. module: ems
 #. odoo-python
@@ -6944,6 +6932,7 @@ msgstr "Telèfon"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__image_private
+#: model:ir.model.fields,field_description:ems.field_res_partner__image_private
 #: model:ir.model.fields,field_description:ems.field_res_users__image_private
 msgid "Photo"
 msgstr "Foto"
@@ -7121,6 +7110,18 @@ msgstr "Processant..."
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Profile"
 msgstr "Perfil"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__public
+#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__public
+msgid "Public"
+msgstr "Pública"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__private
+#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__private
+msgid "Private (only directive staff)"
+msgstr "Privada (només equip directiu)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate

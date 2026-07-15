@@ -22,14 +22,17 @@ This guide explains how to control who can see your profile photo in EMS.
 
 From your profile you can set your photo's visibility to one of three levels:
 
-- **All** — anyone can see your photo (the default).
-- **Only teachers** — only teachers and roles above them (tutors, department chiefs,
-  Head of Studies, directors, administrators) can see it.
-- **Only directive staff** — only Head of Studies and above (directors,
-  administrators) can see it.
+- **Public** — anyone can see your photo (the default).
+- **Private (only directive staff)** — only Head of Studies and above (directors,
+  administrators) can see it, and only on your employee record and the "Teachers"
+  directory; everywhere else (Discuss, the top bar, the org chart, notices) shows a
+  generic placeholder with your initial instead, for everyone, directive staff included.
+- **No photo (erase permanently)** — your photo is **permanently deleted**, everywhere.
+  This cannot be undone: choosing "Public" again afterwards will not bring it back, you
+  would need to upload a new one.
 
 You always see your own photo, regardless of this setting, and administrators can
-always see it too.
+always see it too (except after choosing "No photo", since it no longer exists).
 
 ---
 
@@ -43,16 +46,19 @@ always see it too.
 > **Note:** you cannot change this from your own employee record (that page stays
 > read-only for teachers) — it is only available from **My Profile**.
 
+> **Warning:** "No photo (erase permanently)" deletes your photo for good. Only choose
+> it if you're sure — there's no way to recover it afterwards.
+
 ---
 
 ## Where this applies
 
-Your chosen visibility governs the **Teachers** directory (kanban view) and your
-employee form: whoever is not authorized to see your photo there simply sees no
-photo, not somebody else's. In every other place in EMS where your photo might
-otherwise show up next to your name (e.g. attendance sessions, grading, groups,
-notices), it is shown only when visibility is set to **All** — this keeps things
-simple and avoids ever showing your photo to someone who shouldn't see it.
+Your chosen visibility applies everywhere your photo could show up in EMS: your
+employee record, the "Teachers" directory, Discuss, the top bar, the org chart, and
+notices. Whoever is not authorized to see your photo simply sees a placeholder with
+your initial instead of your photo, never somebody else's. Head of Studies and above
+can still see your real photo on your employee record and in the "Teachers" directory
+when set to "Private" — everywhere else, even they see the placeholder.
 
 ---
 

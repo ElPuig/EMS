@@ -4,9 +4,14 @@ from odoo import models, fields, api, Command, _
 from odoo.exceptions import UserError
 
 employee_types = [
-    ("asp", "Administrative and Services Personnel"), 
+    ("asp", "Administrative and Services Personnel"),
     ("teacher", "Teacher")
 ]
+
+# Reentrancy guard shared with models/employees/user.py's res.users._sync_partner_photo: the
+# employee->user and user->employee photo syncs below call into each other, and without this
+# flag a single photo edit could bounce back and forth indefinitely.
+EMS_PHOTO_SYNC_CONTEXT_KEY = 'ems_syncing_photo'
 
 class ems_employee_base(models.AbstractModel):
     _inherit = ["hr.employee.base"]
@@ -156,48 +161,67 @@ class ems_employee(models.AbstractModel):
     image_private = fields.Binary(string="Photo", attachment=True)
 
     # Derived, not directly editable here: mirrors user_id.image_visibility (see user.py, where
-    # it's actually set from "My Profile"), falling back to 'all' when there's no linked user.
+    # it's actually set from "My Profile"), falling back to 'public' when there's no linked user.
     image_visibility = fields.Selection(
-        [('all', 'All'), ('teachers', 'Only teachers'), ('directive', 'Only directive staff')],
+        [('public', 'Public'), ('private', 'Private (only directive staff)'),
+         ('no_photo', 'No photo (erase permanently)')],
         string="Photo visibility", compute='_compute_image_visibility', store=True)
 
     # image_1920 becomes derived too: it's what avatar.mixin's avatar_*/image_* fields and every
-    # many2one_avatar(_employee) widget in the app read from, so blanking it here is what makes
-    # the visibility restriction apply everywhere automatically, with no per-view changes needed
-    # except in the "Teachers" kanban, where effective_photo is shown instead for authorized
-    # viewers (see views/community/employee/kanban.xml).
+    # many2one_avatar(_employee) widget in the app read from, so setting it to the initials
+    # placeholder here (not blanking it) is what makes the restriction apply everywhere
+    # automatically - including res.users/res.partner (see user.py's write()), which have no
+    # further fallback of their own to rely on. Authorized viewers still see the real photo, but
+    # only in the "Teachers" kanban and the employee form, where effective_photo is swapped in
+    # (see views/community/employee/{kanban,form}.xml).
     image_1920 = fields.Binary(compute='_compute_image_1920', inverse='_inverse_image_1920', store=True)
 
     # Falls back to the linked user's own photo when the employee has no image_private of their
     # own - matching core Odoo's own hr.employee._compute_avatar fallback (an employee with no
     # photo of their own shows their user's avatar instead), which this feature must not regress:
     # plenty of employees only ever had a photo on their res.users/res.partner record, never
-    # copied onto hr.employee. This is the single source both image_1920 and the kanban/form
+    # copied onto hr.employee. Reads the partner's OWN image_private (the true, unfiltered photo -
+    # see contact.py), not its image_1920, which can itself hold the initials placeholder once
+    # this feature has touched it. This is the single source both image_1920 and the kanban/form
     # "show the real photo to an authorized viewer" swap read from - never image_private directly.
     effective_photo = fields.Binary(compute='_compute_effective_photo', compute_sudo=True)
 
-    # Drives the effective_photo swap in the employee kanban for viewers who are allowed to see
-    # the real photo even when image_visibility isn't 'all' (self, admin, or the matching group
-    # tier). NOTE: no compute_sudo - it must run as the actual requesting user (has_group() below
-    # needs the real self.env.user, not the superuser compute_sudo would elevate to), and teachers
+    # Drives the effective_photo swap in the employee kanban/form for viewers who are allowed to
+    # *see* the real photo even when image_visibility isn't 'public' (self, admin, or directive
+    # staff and above) - not the same as being allowed to *change* it, see can_edit_photo below.
+    # NOTE: no compute_sudo - it must run as the actual requesting user (has_group() below needs
+    # the real self.env.user, not the superuser compute_sudo would elevate to), and teachers
     # already have global read access to hr.employee so no extra privilege is needed to compute it.
     photo_visible_to_current_user = fields.Boolean(compute='_compute_photo_visible_to_current_user')
+
+    # Only directive staff and above (or admin) may upload/replace an employee's photo - NOT the
+    # employee themselves (unlike photo_visible_to_current_user, self is deliberately excluded
+    # here). See write()'s sudo bypass below, which is what actually enforces this at the ORM
+    # level; this field only drives which widget the employee form shows as editable.
+    can_edit_photo = fields.Boolean(compute='_compute_can_edit_photo')
 
     @api.depends('user_id.image_visibility')
     def _compute_image_visibility(self):
         for employee in self:
-            employee.image_visibility = employee.user_id.image_visibility if employee.user_id else 'all'
+            employee.image_visibility = employee.user_id.image_visibility if employee.user_id else 'public'
 
-    @api.depends('image_private', 'user_id.image_1920')
+    @api.depends('image_private', 'user_id.partner_id.image_private')
     def _compute_effective_photo(self):
         for employee in self:
             employee.effective_photo = employee.image_private or (
-                employee.user_id.sudo().image_1920 if employee.user_id else False)
+                employee.user_id.partner_id.sudo().image_private if employee.user_id else False)
 
-    @api.depends('effective_photo', 'image_visibility')
+    @api.depends('effective_photo', 'image_visibility', 'name')
     def _compute_image_1920(self):
         for employee in self:
-            employee.image_1920 = employee.effective_photo if employee.image_visibility == 'all' else False
+            if employee.image_visibility == 'public':
+                employee.image_1920 = employee.effective_photo
+            else:
+                # 'private' or 'no_photo': same visual result - the difference is that
+                # 'no_photo' has also erased image_private for real (see user.py's write()), so
+                # effective_photo naturally ends up empty there and the swap below has nothing
+                # to restore even for an authorized viewer.
+                employee.image_1920 = employee._avatar_generate_svg() if employee.name else False
 
     def _inverse_image_1920(self):
         for employee in self:
@@ -211,19 +235,18 @@ class ems_employee(models.AbstractModel):
     def _compute_photo_visible_to_current_user(self):
         user = self.env.user
         is_admin = user.has_group('ems.group_academic_admin')
-        is_teacher = user.has_group('ems.group_teacher')
         is_directive = user.has_group('ems.group_head_of_studies')
         for employee in self:
-            if is_admin or employee.user_id == user:
+            if is_admin or employee.user_id == user or employee.image_visibility == 'public':
                 employee.photo_visible_to_current_user = True
-            elif employee.image_visibility == 'all':
-                employee.photo_visible_to_current_user = True
-            elif employee.image_visibility == 'teachers':
-                employee.photo_visible_to_current_user = is_teacher
-            elif employee.image_visibility == 'directive':
-                employee.photo_visible_to_current_user = is_directive
             else:
-                employee.photo_visible_to_current_user = False
+                employee.photo_visible_to_current_user = is_directive
+
+    @api.depends_context('uid')
+    def _compute_can_edit_photo(self):
+        can_edit = self.env.user.has_group('ems.group_head_of_studies')  # implies director/admin
+        for employee in self:
+            employee.can_edit_photo = can_edit
 
     def _personal_calendar_name(self):
         self.ensure_one()
@@ -246,11 +269,33 @@ class ems_employee(models.AbstractModel):
         return employees
 
     def write(self, vals):
+        if (set(vals) == {'image_private'} and not self.env.su
+                and not self.env.context.get(EMS_PHOTO_SYNC_CONTEXT_KEY)
+                and self.env.user.has_group('ems.group_head_of_studies')):
+            # Directive staff (Head of Studies and above) may upload/replace any
+            # employee's photo even without general write access to hr.employee (still
+            # read-only otherwise, same as any teacher) - mirrors the same sudo-bypass
+            # pattern already used for "My Profile" (res.users._inverse_image_private),
+            # just for a different authorized group instead of "myself". Scoped to a vals
+            # dict containing ONLY image_private so this cannot be used to smuggle a
+            # write to any other field on hr.employee.
+            return self.sudo().write(vals)
+
         result = super().write(vals)
         if 'name' in vals:
             for employee in self:
                 if employee.resource_calendar_id and not employee.resource_calendar_id.is_framework:
                     employee.resource_calendar_id.name = employee._personal_calendar_name()
+        if 'image_private' in vals and not self.env.context.get(EMS_PHOTO_SYNC_CONTEXT_KEY):
+            # Keep the linked user's account photo in sync too - without this, editing an
+            # employee's photo directly (the only way for anyone but the employee
+            # themselves to set it - see above) never reached res.users/res.partner,
+            # which is what Discuss/the top bar/the org chart/ems.notice.sent_by actually
+            # read (see user.py's _sync_partner_photo for why).
+            for employee in self:
+                if employee.user_id:
+                    employee.user_id.with_context(
+                        **{EMS_PHOTO_SYNC_CONTEXT_KEY: True})._sync_partner_photo()
         return result
 
     def unlink(self):

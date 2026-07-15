@@ -22,15 +22,19 @@ Esta guía explica cómo controlar quién puede ver tu foto de perfil en el EMS.
 
 Desde tu perfil puedes establecer la visibilidad de tu foto en uno de estos tres niveles:
 
-- **Todos** — cualquiera puede ver tu foto (opción por defecto).
-- **Solo el profesorado** — solo el profesorado y los roles jerárquicamente
-  superiores (tutores, jefes de departamento, Jefatura de Estudios, dirección,
-  administración) pueden verla.
-- **Solo el equipo directivo** — solo Jefatura de Estudios y superiores (dirección,
-  administración) pueden verla.
+- **Pública** — cualquiera puede ver tu foto (opción por defecto).
+- **Privada (solo equipo directivo)** — solo Jefatura de Estudios y superiores
+  (dirección, administración) pueden verla, y solo en tu ficha de empleado y en el
+  directorio de "Profesores"; en el resto de sitios (Discuss, la barra superior, el
+  organigrama, los avisos) se muestra un marcador genérico con tu inicial para todo
+  el mundo, equipo directivo incluido.
+- **Sin foto (borrar permanentemente)** — tu foto se **elimina de forma
+  permanente**, en todos los sitios. Esto no se puede deshacer: volver a elegir
+  "Pública" después no la recuperará, tendrías que subir una nueva.
 
 Tú siempre ves tu propia foto, independientemente de esta configuración, y la
-administración también puede verla siempre.
+administración también puede verla siempre (excepto tras elegir "Sin foto", ya que
+deja de existir).
 
 ---
 
@@ -45,17 +49,20 @@ administración también puede verla siempre.
 > sigue siendo de solo lectura para el profesorado) — solo está disponible desde
 > **Mi perfil**.
 
+> **Aviso:** "Sin foto (borrar permanentemente)" elimina tu foto para siempre.
+> Elígelo solo si estás seguro — no hay forma de recuperarla después.
+
 ---
 
 ## Dónde se aplica
 
-La visibilidad que elijas rige el directorio de **Profesores** (vista kanban) y tu
-ficha de empleado: quien no esté autorizado a ver tu foto ahí simplemente no ve
-ninguna foto, no la de otra persona. En el resto de lugares del EMS donde tu foto
-podría aparecer junto a tu nombre (por ejemplo, sesiones de asistencia,
-calificaciones, grupos, avisos), solo se muestra cuando la visibilidad es
-**Todos** — esto mantiene las cosas simples y evita mostrar tu foto a alguien que
-no debería verla.
+La visibilidad que elijas se aplica en todos los sitios donde tu foto podría
+aparecer en el EMS: tu ficha de empleado, el directorio de "Profesores", Discuss, la
+barra superior, el organigrama y los avisos. Quien no esté autorizado a ver tu foto
+simplemente ve un marcador con tu inicial en vez de tu foto, nunca la de otra
+persona. Jefatura de Estudios y superiores siguen viendo tu foto real en tu ficha de
+empleado y en el directorio de "Profesores" cuando eliges "Privada" — en el resto de
+sitios, incluso ellos ven el marcador.
 
 ---
 

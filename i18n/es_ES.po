@@ -1638,12 +1638,6 @@ msgid "Afternoon"
 msgstr "Tarde"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__all
-#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__all
-msgid "All"
-msgstr "Todos"
-
-#. module: ems
 #: model:ir.model,name:ems.model_res_partner_relation_all
 msgid "All (non-inverse + inverse) relations between partners"
 msgstr "Todas (no-inversas + inversas) las relaciones entre empresas"
@@ -6614,16 +6608,10 @@ msgid "Only mine"
 msgstr "Solamente los míos"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__directive
-#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__directive
-msgid "Only directive staff"
-msgstr "Solo el equipo directivo"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__teachers
-#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__teachers
-msgid "Only teachers"
-msgstr "Solo el profesorado"
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__no_photo
+#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__no_photo
+msgid "No photo (erase permanently)"
+msgstr "Sin foto (borrar permanentemente)"
 
 #. module: ems
 #. odoo-python
@@ -6957,6 +6945,7 @@ msgstr "Teléfono"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__image_private
+#: model:ir.model.fields,field_description:ems.field_res_partner__image_private
 #: model:ir.model.fields,field_description:ems.field_res_users__image_private
 msgid "Photo"
 msgstr "Foto"
@@ -7134,6 +7123,18 @@ msgstr "Procesando..."
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Profile"
 msgstr "Perfil"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__public
+#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__public
+msgid "Public"
+msgstr "Pública"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__private
+#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__private
+msgid "Private (only directive staff)"
+msgstr "Privada (solo equipo directivo)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate

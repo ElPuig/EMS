@@ -24,7 +24,7 @@
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
                                 class="btn-secondary"
-                                invisible="employee_type not in ('teacher', 'asp') or not work_email or google_ws_suspended"
+                                invisible="employee_type not in ('teacher', 'asp') or not work_email or google_ws_suspended or not user_id"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_reactivate_google_account" type="object"
                                 string="Reactivate Google account"
@@ -32,6 +32,10 @@
                                 invisible="employee_type not in ('teacher', 'asp') or not work_email or not google_ws_suspended"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                     </header>
+                </xpath>
+
+                <xpath expr="//button[@name='action_create_user']" position="attributes">
+                    <attribute name="invisible">user_id or employee_type in ('teacher', 'asp')</attribute>
                 </xpath>
 
                 <field name="work_email" position="attributes">

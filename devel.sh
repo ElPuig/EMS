@@ -4,6 +4,12 @@ echo "Setting up the EMS for a developement environment:"
 echo "Stopping the Odoo service..."
 sudo service odoo stop
 
+echo ">> Checking debugpy availability:"
+if ! python3 -c "import debugpy" 2>/dev/null; then
+    echo "debugpy not found for /usr/bin/python3, installing via apt..."
+    sudo apt-get install -y python3-debugpy
+fi
+
 echo ">> Enabling the debugger on Odoo startup:"
 sudo sed -i 's@ExecStart=/usr/bin/odoo --config /etc/odoo/odoo.conf --logfile /var/log/odoo/odoo-server.log@ExecStart=/usr/bin/python3 -m debugpy --listen 0.0.0.0:5678 /usr/bin/odoo --config /etc/odoo/odoo.conf --logfile /var/log/odoo/odoo-server.log@' /lib/systemd/system/odoo.service
 sudo systemctl daemon-reload

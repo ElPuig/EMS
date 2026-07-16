@@ -22,7 +22,7 @@
                                 .ws-department-title { font-size: 14px; font-weight: 500; color: #444; margin: 0 0 4px 0; }
                                 .ws-role-title { font-size: 11px; font-weight: normal; color: #666; margin: 0 0 14px 0; line-height: 1.5; }
                                 .ws-table { font-size: 10px; table-layout: fixed; }
-                                .ws-table th, .ws-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; height: 38px; overflow: hidden; }
+                                .ws-table th, .ws-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; overflow: hidden; }
                                 .ws-table td.ws-time { white-space: nowrap; font-weight: bold; }
                                 .ws-cell-content { display: block; border-radius: 3px; padding: 3px 4px; color: #fff; }
                                 .ws-cell-label { display: block; font-weight: 600; }

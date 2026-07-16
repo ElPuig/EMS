@@ -21,8 +21,9 @@
                                 .gs-group-title { font-size: 22px; margin-bottom: 2px; }
                                 .gs-tutor-title { font-size: 14px; font-weight: 500; color: #444; margin: 0 0 14px 0; }
                                 .gs-table { font-size: 10px; table-layout: fixed; }
-                                .gs-table th, .gs-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; height: 38px; overflow: hidden; }
+                                .gs-table th, .gs-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; overflow: hidden; }
                                 .gs-table td.gs-time { white-space: nowrap; font-weight: bold; }
+                                .gs-summary-wrap { page-break-inside: avoid; }
                                 .gs-cell-content { display: block; border-radius: 3px; padding: 3px 4px; margin-bottom: 2px; color: #fff; }
                                 .gs-cell-content.gs-break {
                                     background-color: #8a6240 !important;
@@ -72,22 +73,24 @@
                                 </table>
 
                                 <t t-set="summary" t-value="group.get_subject_teachers_summary()"/>
-                                <table t-if="summary" class="gs-summary-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Subject</th>
-                                            <th>Teacher(s)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-foreach="summary" t-as="row">
+                                <div t-if="summary" class="gs-summary-wrap">
+                                    <table class="gs-summary-table">
+                                        <thead>
                                             <tr>
-                                                <td t-esc="row['subject']"/>
-                                                <td t-esc="row['teachers']"/>
+                                                <th>Subject</th>
+                                                <th>Teacher(s)</th>
                                             </tr>
-                                        </t>
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="summary" t-as="row">
+                                                <tr>
+                                                    <td t-esc="row['subject']"/>
+                                                    <td t-esc="row['teachers']"/>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </t>
                             <p t-else="">No schedule available for this group.</p>
                         </div>

@@ -141,6 +141,7 @@ class TestGroupSchedule(TransactionCase):
         self.assertEqual(len(monday_cell['blocks']), 1)
         self.assertFalse(monday_cell['blocks'][0]['entries'].subject_id)
         self.assertEqual(monday_cell['blocks'][0]['entries'].non_teaching, self.non_teaching_br)
+        self.assertTrue(monday_cell['blocks'][0]['entries'].non_teaching_is_break)
 
     def test_break_not_shown_without_level(self):
         reinforcement_group = self.env['ems.group'].create({

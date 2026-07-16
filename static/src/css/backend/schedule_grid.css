@@ -54,7 +54,7 @@
 }
 
 .o_schedule_grid_hour {
-    height: 48px;
+    height: 64px;
     box-sizing: border-box;
     transform: translateY(-6px);
 }
@@ -99,7 +99,7 @@
         #eee,
         #eee 1px,
         transparent 1px,
-        transparent 48px
+        transparent 64px
     );
 }
 
@@ -116,6 +116,9 @@
     background-color: #5b8def;
     cursor: pointer;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    /* Teaching entries always paint above non-teaching ones (see .o_schedule_grid_entry_nonteaching
+       below) so a break can never bury a subject it happens to overlap with on screen. */
+    z-index: 2;
 }
 
 .o_schedule_grid_entry:hover {
@@ -132,11 +135,13 @@
 }
 
 .o_schedule_grid_entry_label {
-    display: block;
-    font-weight: 600;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: break-word;
+    font-weight: 600;
+    line-height: 1.15;
 }
 
 .o_schedule_grid_entry_room {
@@ -147,8 +152,25 @@
     text-overflow: ellipsis;
 }
 
+/* Break/non-teaching blocks are often too short to fit a time line + a label line + a room line
+   (a 20min patio is ~21px tall) — time and label are shown together on a single, vertically
+   centred line instead (see 'entryIsBreak'/'blockIsBreak' in the JS components). There's never a
+   room to show for these (see ems_working_schedule_assignation.group_ids' own NOTE: a non-teaching
+   row never carries a group, so it never has a classroom either). */
+.o_schedule_grid_entry_compact {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .o_schedule_grid_entry_nonteaching {
     background-color: #8d99ae;
+    z-index: 1;
 }
 
 .o_schedule_grid_new_panel {

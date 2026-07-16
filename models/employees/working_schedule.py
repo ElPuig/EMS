@@ -167,6 +167,12 @@ class ems_working_schedule_assignation(models.Model):
 	# different teachers' calendars (see ems.group.get_subject_teachers_summary) — computing it on the
 	# fly for every row would mean one 'hr.employee' search per row instead of a plain read.
 	employee_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", compute="_compute_employee_id", store=True, compute_sudo=True)
+	# NOTE: a plain 'related' so the Schedule tab's grid widget (client-side, from prefetched record
+	# data) can single out a break from every OTHER non-teaching activity (guard duty, a coordination
+	# meeting...) without fetching 'ems.non_teaching_type' separately — only a break is short enough
+	# to need the grid's compact single-line rendering, see 'schedule_grid_field.js'/
+	# 'group_schedule_grid_field.js'.
+	non_teaching_is_break = fields.Boolean(related="non_teaching.is_break", store=True)
 
 	@api.depends("group_ids", "group_ids.space_id")
 	def _compute_space_id(self):

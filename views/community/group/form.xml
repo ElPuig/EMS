@@ -96,6 +96,7 @@
                                         <field name="day_period"/>
                                         <field name="subject_id"/>
                                         <field name="non_teaching"/>
+                                        <field name="non_teaching_is_break"/>
                                         <field name="employee_id"/>
                                         <field name="space_id"/>
                                     </list>

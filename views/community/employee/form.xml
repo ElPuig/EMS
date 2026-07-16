@@ -156,6 +156,7 @@
                                 <field name="subject_id"/>
                                 <field name="group_ids"/>
                                 <field name="non_teaching"/>
+                                <field name="non_teaching_is_break"/>
                                 <field name="space_id"/>
                             </list>
                         </field>

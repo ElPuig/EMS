@@ -5,7 +5,7 @@ import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
-import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, dayLabels, computeBounds, formatHour, formatHourMinutes } from "./schedule_grid_geometry";
+import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes } from "./schedule_grid_geometry";
 
 const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids"];
 
@@ -123,7 +123,12 @@ export class ScheduleGridField extends Component {
     entryStyle(entry) {
         const { start } = this.bounds;
         const top = (entry.data.hour_from - start) * PX_PER_HOUR;
-        const height = Math.max(34, (entry.data.hour_to - entry.data.hour_from) * PX_PER_HOUR);
+        const naturalHeight = (entry.data.hour_to - entry.data.hour_from) * PX_PER_HOUR;
+        // A break specifically (not every non-teaching activity — a 1h guard duty or meeting has
+        // plenty of room already) is kept at its true, exact duration — stretching it past that
+        // would visually bleed into whatever comes right after it and hide it (MIN_ENTRY_HEIGHT
+        // only helps a block that isn't sharing its vertical space with a neighbour).
+        const height = entry.data.non_teaching_is_break ? naturalHeight : Math.max(MIN_ENTRY_HEIGHT, naturalHeight);
         return `top:${top}px;height:${height}px`;
     }
 

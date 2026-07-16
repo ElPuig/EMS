@@ -27,9 +27,14 @@
                                  t-att-class="blockIsBreak(block) ? 'o_schedule_grid_entry_nonteaching' : ''"
                                  t-att-style="blockStyle(block)"
                                  t-att-title="blockTime(block) + ' ' + blockLabel(block)">
-                                <span class="o_schedule_grid_entry_time" t-esc="blockTime(block)"/>
-                                <span class="o_schedule_grid_entry_label" t-esc="blockLabel(block)"/>
-                                <span t-if="blockRoom(block)" class="o_schedule_grid_entry_room" t-esc="blockRoom(block)"/>
+                                <t t-if="blockIsBreak(block)">
+                                    <span class="o_schedule_grid_entry_compact" t-esc="blockCompactText(block)"/>
+                                </t>
+                                <t t-else="">
+                                    <span class="o_schedule_grid_entry_time" t-esc="blockTime(block)"/>
+                                    <span class="o_schedule_grid_entry_label" t-esc="blockLabel(block)"/>
+                                    <span t-if="blockRoom(block)" class="o_schedule_grid_entry_room" t-esc="blockRoom(block)"/>
+                                </t>
                             </div>
                         </t>
                     </div>

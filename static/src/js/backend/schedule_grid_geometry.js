@@ -8,10 +8,13 @@ import { _t } from "@web/core/l10n/translation";
 // widgets' interactive surface (an edit buffer vs. none) differs enough that forcing them through
 // one component would leave a lot of dead code active in the read-only case.
 
-export const PX_PER_HOUR = 48;
+export const PX_PER_HOUR = 64;
 export const DEFAULT_START = 8;
 export const DEFAULT_END = 20;
 export const WEEKDAYS = [0, 1, 2, 3, 4];
+// A short period (e.g. a 20-30min patio break) still needs room for a wrapped subject/reason
+// label plus its time and room lines without visually spilling into the next period below it.
+export const MIN_ENTRY_HEIGHT = 44;
 
 export function dayLabels() {
     return [_t("Monday"), _t("Tuesday"), _t("Wednesday"), _t("Thursday"), _t("Friday")];

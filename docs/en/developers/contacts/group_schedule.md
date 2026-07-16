@@ -85,6 +85,27 @@ shared component, since the two widgets' interactive surface (edit buffer vs. no
 different enough that forcing one component to cover both would leave a lot of dead code
 active in the read-only case.
 
+**Overlap handling:** unlike a single teacher's own calendar (which can't have two genuinely
+simultaneous entries), a group's aggregated schedule can — e.g. several elective subjects or
+co-teaching entries scheduled at the same time as the derived break. A break block is always
+rendered at its true, exact duration (never stretched to a minimum height like a short teaching
+block is) and always painted *behind* teaching blocks (`z-index: 1` vs `2` in
+`schedule_grid.css`), so it can visually sit underneath an overlapping subject without ever
+hiding it — real timetable data (e.g. a CFGS group with several evening electives right around
+its break) can and does produce this overlap.
+
+**Break-only compact rendering:** a break is also rendered as a single compact line (time +
+label together, `.o_schedule_grid_entry_compact`) instead of the normal time/label/room stack,
+since a short patio slot doesn't have room for three lines. This must key off
+`resource.calendar.attendance.non_teaching_is_break` (a `related="non_teaching.is_break"`,
+stored field added for exactly this) — **not** a plain `non_teaching` truthiness check, which
+would also catch a full-length (e.g. 1h) guard duty or coordination meeting and needlessly
+cram it into the compact layout too. The teacher's own tab needs this distinction (it has real
+non-break `non_teaching` entries); the group tab's own `schedule_attendance_ids` structurally
+never contains anything but breaks in its non-teaching slice (`_get_break_entries()` already
+filters on `is_break`), but reads the same field for consistency and to not rely on that
+invariant holding forever.
+
 Below the grid, a read-only "Subject → Teacher(s)" table, built the same client-side way.
 A single toolbar action, **PDF**, calling
 `actionService.doAction("ems.action_report_group_schedule", { additionalContext: { active_ids: [...] } })`

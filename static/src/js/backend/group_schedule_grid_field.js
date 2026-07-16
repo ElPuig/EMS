@@ -4,7 +4,7 @@ import { Component } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useService } from "@web/core/utils/hooks";
-import { PX_PER_HOUR, dayLabels, computeBounds, formatHour, formatHourMinutes } from "./schedule_grid_geometry";
+import { PX_PER_HOUR, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes } from "./schedule_grid_geometry";
 
 // Read-only weekly grid for a GROUP's schedule (day columns x hourly rows), built client-side from
 // this group's own 'schedule_attendance_ids' — an aggregation, across every teacher's calendar that
@@ -77,12 +77,24 @@ export class GroupScheduleGridField extends Component {
     blockStyle(block) {
         const { start } = this.bounds;
         const top = (block.hour_from - start) * PX_PER_HOUR;
-        const height = Math.max(34, (block.hour_to - block.hour_from) * PX_PER_HOUR);
+        const naturalHeight = (block.hour_to - block.hour_from) * PX_PER_HOUR;
+        // A break block is kept at its true, exact duration — stretching it past that would
+        // visually bleed into whatever comes right after it (a group's schedule, unlike a single
+        // teacher's, can genuinely have several simultaneous entries — electives, co-teaching —
+        // right around the break, so an oversized break block is especially likely to bury one of
+        // them; see also the CSS z-index rule that keeps teaching blocks on top regardless).
+        const height = this.blockIsBreak(block) ? naturalHeight : Math.max(MIN_ENTRY_HEIGHT, naturalHeight);
         return `top:${top}px;height:${height}px`;
     }
 
     blockIsBreak(block) {
-        return !!block.entries[0].data.non_teaching;
+        return !!block.entries[0].data.non_teaching_is_break;
+    }
+
+    // A break block is too short to fit a time line + a label line (see MIN_ENTRY_HEIGHT's own
+    // comment in blockStyle) — time and label are shown together on one compact line instead.
+    blockCompactText(block) {
+        return `${this.blockTime(block)} ${this.blockLabel(block)}`;
     }
 
     // Never 'entry.data.name': that Char is frozen in whatever language was active when the row was

@@ -9340,6 +9340,7 @@ msgid "Tutor's attendance report default send time"
 msgstr "Hora d'enviament predeterminada per al report d'assistència del tutor"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_kanban
 msgid "Tutor:"
 msgstr "Tutor/a:"

@@ -231,3 +231,16 @@ class TestGroupSchedule(TransactionCase):
         self.assertIn(content_type, ('pdf', 'html'))
         self.assertIn(self.teacher_a.name.encode(), content)
         self.assertIn(self.teacher_b.name.encode(), content)
+        self.assertNotIn(b'Tutor:', content)
+
+    def test_report_group_schedule_shows_tutor(self):
+        tutor = self.env['hr.employee'].create({'name': 'Test Tutor (Group Schedule)', 'employee_type': 'teacher'})
+        tutored_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TGSL5', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.space.id, 'tutor_id': tutor.id,
+        })
+
+        content, _content_type = self.env['ir.actions.report']._render_qweb_pdf('ems.report_group_schedule', [tutored_group.id])
+
+        self.assertIn(b'Tutor:', content)
+        self.assertIn(tutor.name.encode(), content)

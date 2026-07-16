@@ -16,6 +16,7 @@ This section contains the manuals for **administrators**.
 - [Strikes: Managing Reasons and Escalation Threshold](strike.md) — Configuring the strike reasons list and the coexistence escalation threshold.
 - [Teacher Working Schedules & Schedule Frameworks](working-schedules.md) — Setting up bell-schedule templates, the default framework, and editing/importing a teacher's weekly schedule.
 - [Task Assignment: Who Handles the Tasks EMS Creates](task-assignment.md) — Choosing who reviews the documents students upload and the comments families write, independently of roles and permissions.
+- [A Group's Weekly Schedule](group-schedule.md) — Viewing a group's aggregated timetable (subjects, teachers, classrooms, breaks) and exporting it to PDF.
 
 ---
 

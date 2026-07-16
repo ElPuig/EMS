@@ -264,6 +264,7 @@
             'reports/employees/report_google_credentials_employee.xml',
             'data/mail_template_google_welcome_employee.xml',
             'reports/employees/report_working_schedule.xml',
+            'reports/contacts/report_group_schedule.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',

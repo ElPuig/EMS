@@ -5,16 +5,9 @@ import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
+import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, dayLabels, computeBounds, formatHour, formatHourMinutes } from "./schedule_grid_geometry";
 
-const PX_PER_HOUR = 48;
-const DEFAULT_START = 8;
-const DEFAULT_END = 20;
-const WEEKDAYS = [0, 1, 2, 3, 4];
 const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids"];
-
-function dayLabels() {
-    return [_t("Monday"), _t("Tuesday"), _t("Wednesday"), _t("Thursday"), _t("Friday")];
-}
 
 // Visual weekly grid (day columns x hourly rows) for a resource.calendar's weekly attendance slots
 // (dayofweek/hour_from/hour_to — a recurring pattern, not real dates, so the native <calendar> view
@@ -98,13 +91,7 @@ export class ScheduleGridField extends Component {
     }
 
     get bounds() {
-        let start = DEFAULT_START;
-        let end = DEFAULT_END;
-        for (const entry of this.entries) {
-            start = Math.min(start, Math.floor(entry.data.hour_from));
-            end = Math.max(end, Math.ceil(entry.data.hour_to));
-        }
-        return { start, end };
+        return computeBounds(this.entries.map((entry) => ({ hour_from: entry.data.hour_from, hour_to: entry.data.hour_to })));
     }
 
     get hours() {
@@ -122,7 +109,7 @@ export class ScheduleGridField extends Component {
     }
 
     formatHour(hour) {
-        return `${String(hour).padStart(2, "0")}:00`;
+        return formatHour(hour);
     }
 
     // ── View mode (read-only visual blocks) ──────────────────────────────────
@@ -158,9 +145,7 @@ export class ScheduleGridField extends Component {
     }
 
     formatHourMinutes(value) {
-        const hour = Math.floor(value);
-        const minutes = Math.round((value - hour) * 60);
-        return `${String(hour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+        return formatHourMinutes(value);
     }
 
     // ── Edit mode (two dropdowns per real period, buffered) ──────────────────

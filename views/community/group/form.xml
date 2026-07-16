@@ -87,6 +87,21 @@
                                 </field>
                             </page>
 
+                            <page string="Schedule" name="schedule">
+                                <field name="schedule_attendance_ids" widget="group_schedule_grid" nolabel="1">
+                                    <list>
+                                        <field name="dayofweek"/>
+                                        <field name="hour_from"/>
+                                        <field name="hour_to"/>
+                                        <field name="day_period"/>
+                                        <field name="subject_id"/>
+                                        <field name="non_teaching"/>
+                                        <field name="employee_id"/>
+                                        <field name="space_id"/>
+                                    </list>
+                                </field>
+                            </page>
+
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>
                             </page>

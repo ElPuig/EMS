@@ -9,7 +9,12 @@ import math
 import re
 
 class ems_working_schedule(models.Model):
-	_inherit = 'resource.calendar'
+	# NOTE: 'ems.schedule_report_mixin' is only mixed in alongside 'resource.calendar' — a 2-item
+	# '_inherit' list without an explicit '_name' would make Odoo's metaclass define a brand-new model
+	# named after this Python class instead of extending 'resource.calendar' in place (see MetaModel
+	# in odoo/models.py: '_name' defaults to the class name whenever len(_inherit) != 1).
+	_name = 'resource.calendar'
+	_inherit = ['resource.calendar', 'ems.schedule_report_mixin']
 	_sql_constraints = [
 		('unique_name', 'unique (name)', 'duplicated calendar!')
     ]
@@ -44,19 +49,17 @@ class ems_working_schedule(models.Model):
 		if source_framework_id:
 			self.source_framework_id = source_framework_id
 
-		teacher = self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
+		teacher = self.get_employee()
 		if teacher:
 			entries = [cell for cell in cells if cell.get('subject_id')]
 			self.env['ems.teaching'].sync_from_schedule(teacher, entries)
 			self.env['ems.attendance_template'].sync_from_schedule(teacher, entries, start_date=fields.Date.today())
 
-	# NOTE: assigned in first-seen (day, then hour) order to the distinct items on a calendar, so two
-	# unrelated items only ever share a color once the palette itself runs out — see
-	# 'get_schedule_report_lines'/'_report_color_key'.
-	REPORT_COLOR_PALETTE = [
-		'#5b8def', '#f4a261', '#2a9d8f', '#e76f51', '#8ecae6', '#ffb703',
-		'#c77dff', '#06d6a0', '#ef476f', '#118ab2', '#bc6c25', '#9d4edd',
-	]
+	def get_employee(self):
+		"""The teacher this calendar belongs to (a documented 1:1 assumption: one personal calendar
+		per teacher). Also matches a 'framework'/other non-personal calendar with an empty recordset."""
+		self.ensure_one()
+		return self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
 
 	def get_schedule_report_lines(self):
 		"""Weekly schedule rows (one per distinct Mon-Fri period, one column per weekday) for the
@@ -92,13 +95,6 @@ class ems_working_schedule(models.Model):
 				'cells': cells,
 			})
 		return lines
-
-	def _report_color_key(self, attendance):
-		return ('non_teaching', attendance.non_teaching.id) if attendance.non_teaching else ('subject', attendance.subject_id.id)
-
-	def _format_report_time(self, value):
-		hour, minutes = divmod(round(value * 60), 60)
-		return "%02d:%02d" % (hour, minutes)
 
 	# Wednesday is dayofweek '2' (dayofweek follows date.weekday(): '0'=Monday).
 	FIXED_HOURS_WEDNESDAY = '2'
@@ -167,11 +163,20 @@ class ems_working_schedule_assignation(models.Model):
 	# NOTE: the classroom is a property of the group (ems.group.space_id), same simplification already
 	# used by 'ems.attendance_template' (first selected group wins when several are assigned).
 	space_id = fields.Many2one(string="Classroom", comodel_name="ems.space", compute="_compute_space_id", store=True)
+	# NOTE: stored because it's read in bulk whenever a group's schedule is aggregated across many
+	# different teachers' calendars (see ems.group.get_subject_teachers_summary) — computing it on the
+	# fly for every row would mean one 'hr.employee' search per row instead of a plain read.
+	employee_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", compute="_compute_employee_id", store=True, compute_sudo=True)
 
 	@api.depends("group_ids", "group_ids.space_id")
 	def _compute_space_id(self):
 		for attendance in self:
 			attendance.space_id = attendance.group_ids[:1].space_id
+
+	@api.depends("calendar_id")
+	def _compute_employee_id(self):
+		for attendance in self:
+			attendance.employee_id = attendance.calendar_id.get_employee()
 
 	def get_report_label(self):
 		"""Display label for the working schedule PDF report. NOT 'self.name': that Char is frozen in

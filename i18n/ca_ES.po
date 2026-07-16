@@ -4275,9 +4275,10 @@ msgstr "Comentari per l'alumne de l'assignatura"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__4
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
 #: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Friday"
 msgstr "Divendres"
@@ -6004,9 +6005,10 @@ msgstr "Modo"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__0
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
 #: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Monday"
 msgstr "Dilluns"
@@ -7649,11 +7651,13 @@ msgid "Save"
 msgstr "Desar"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids
 #: model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids
 #: model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 msgid "Schedule"
 msgstr "Horari"
@@ -8582,6 +8586,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__subject_id
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
 #: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__subject_id
@@ -8779,6 +8784,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__teacher_id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__teacher_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__employee_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__teacher
 #: model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__teacher
 #: model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__teacher
@@ -9191,9 +9197,10 @@ msgstr ""
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__3
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
 #: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Thursday"
 msgstr "Dijous"
@@ -9287,9 +9294,10 @@ msgstr ""
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__1
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
 #: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Tuesday"
 msgstr "Dimarts"
@@ -9756,9 +9764,10 @@ msgstr "Històric de comunicacions del lloc web"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__2
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
 #: model_terms:ir.ui.view,arch_db:ems.report_working_schedule
 msgid "Wednesday"
 msgstr "Dimecres"
@@ -12163,7 +12172,29 @@ msgid "No working schedule assigned to this employee."
 msgstr "Aquest docent no té cap horari assignat."
 
 #. module: ems
+#: model:ir.actions.report,name:ems.action_report_group_schedule
+msgid "Group Schedule"
+msgstr "Horari del grup"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
+msgid "No schedule available for this group."
+msgstr "Aquest grup no té cap horari disponible."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
+msgid "Teacher(s)"
+msgstr "Docent(s)"
+
+#. module: ems
 #. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/group_schedule_grid_field.xml:0
+msgid "Subject → Teacher(s)"
+msgstr "Assignatura → Docent(s)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/group_schedule_grid_field.xml:0
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "PDF"
 msgstr "PDF"

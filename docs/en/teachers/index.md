@@ -18,6 +18,7 @@ This section contains the manuals for **teachers**.
 | [Strikes: Flagging a Disciplinary Incident](strike.md) | Issue a strike from the roll-call view when a student's behaviour needs to be flagged |
 | [Your Weekly Schedule](working-schedules.md) | View your subjects, groups, classrooms, breaks and meetings on your weekly timetable |
 | [Disabling Your Profile Picture](photo-visibility.md) | Turn your profile picture on or off |
+| [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |
 
 ## Planned Topics
 

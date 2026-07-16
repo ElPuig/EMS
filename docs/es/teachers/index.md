@@ -18,6 +18,7 @@ Esta sección contiene los manuales para los **profesores**.
 | [Strikes: notificar una incidencia disciplinaria](strike.md) | Poner un strike desde la vista de pasar lista cuando hay que dejar constancia del comportamiento de un alumno |
 | [Tu horario semanal](working-schedules.md) | Consultar tus asignaturas, grupos, aulas, patios y reuniones en tu horario semanal |
 | [Desactivar tu foto de perfil](photo-visibility.md) | Activar o desactivar tu foto de perfil |
+| [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |
 
 ## Temas previstos
 

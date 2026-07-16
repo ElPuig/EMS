@@ -12,6 +12,14 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Contacts
+
+| Model | Description |
+|-------|-------------|
+| [Group schedule (read-only aggregation)](contacts/group_schedule.md) | The group form's "Schedule" tab: aggregating teachers' `resource.calendar.attendance` rows by `group_ids`, deriving the break period from the level's schedule framework, the "Subject → Teacher(s)" co-teaching summary, and the PDF export |
+
+---
+
 ## Employees
 
 | Topic | Description |

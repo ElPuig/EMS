@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="action_report_group_schedule" model="ir.actions.report">
+            <field name="name">Group Schedule</field>
+            <field name="model">ems.group</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_group_schedule</field>
+            <field name="report_file">ems.report_group_schedule</field>
+            <field name="print_report_name">'Group Schedule - %s - %s' % (object.name, object.env.company.current_course_id.name)</field>
+            <field name="binding_model_id" ref="model_ems_group"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_group_schedule">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="group">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <style>
+                                .gs-group-title { font-size: 22px; margin-bottom: 14px; }
+                                .gs-table { font-size: 10px; table-layout: fixed; }
+                                .gs-table th, .gs-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; height: 38px; overflow: hidden; }
+                                .gs-table td.gs-time { white-space: nowrap; font-weight: bold; }
+                                .gs-cell-content { display: block; border-radius: 3px; padding: 3px 4px; margin-bottom: 2px; color: #fff; }
+                                .gs-cell-content.gs-break { background-color: #8d99ae !important; }
+                                .gs-cell-label { display: block; font-weight: 600; }
+                                .gs-cell-room { display: block; font-size: 9px; color: #fff; }
+                                .gs-summary-table { width: 100%; margin-top: 16px; font-size: 10px; border-collapse: collapse; }
+                                .gs-summary-table th { text-align: left; padding: 6px 10px; }
+                                .gs-summary-table td { padding: 3px 10px; border-bottom: 1px solid #eee; }
+                            </style>
+
+                            <h1 class="gs-group-title"><span t-field="group.name"/> (<span t-field="group.env.company.current_course_id.name"/>)</h1>
+
+                            <t t-set="lines" t-value="group.get_schedule_report_lines()"/>
+                            <t t-if="lines">
+                                <table class="table table-bordered gs-table">
+                                    <thead>
+                                        <tr>
+                                            <th/>
+                                            <th>Monday</th>
+                                            <th>Tuesday</th>
+                                            <th>Wednesday</th>
+                                            <th>Thursday</th>
+                                            <th>Friday</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="lines" t-as="line">
+                                            <tr>
+                                                <td class="gs-time" t-esc="line['time_label']"/>
+                                                <t t-foreach="line['cells']" t-as="cell">
+                                                    <td>
+                                                        <t t-foreach="cell['blocks']" t-as="block">
+                                                            <span t-attf-class="gs-cell-content #{'gs-break' if not block['entries'][:1].subject_id else ''}"
+                                                                  t-att-style="'background-color:' + block['color'] if block['color'] else ''">
+                                                                <span class="gs-cell-label" t-esc="block['entries'][:1].non_teaching.name or block['entries'][:1].subject_id.display_name"/>
+                                                                <span t-if="block['entries'][:1].space_id" class="gs-cell-room" t-esc="block['entries'][:1].space_id.display_name"/>
+                                                            </span>
+                                                        </t>
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+
+                                <t t-set="summary" t-value="group.get_subject_teachers_summary()"/>
+                                <table t-if="summary" class="gs-summary-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Subject</th>
+                                            <th>Teacher(s)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="summary" t-as="row">
+                                            <tr>
+                                                <td t-esc="row['subject']"/>
+                                                <td t-esc="row['teachers']"/>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </t>
+                            <p t-else="">No schedule available for this group.</p>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

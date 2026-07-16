@@ -14,6 +14,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [Nota de l'estada a l'empresa (EM)](../tutors/work-placement-grade.md) — Posar o corregir la nota d'estada de qualsevol estudiant i tancar les finals que queden pendents de cursos anteriors (manual compartit amb els tutors).
 - [Matriculació per l'alumnat de preinscripció](manual-matriculacio-preinscripcio.md) — Com importar els aspirants de GEDAC, crear les propostes de matrícula (tant dels alumnes nous com dels del centre que canvien d'estudis), donar accés al portal i enviar la proposta.
 - [Alta d'un professor i creació del compte de correu corporatiu (Google Workspace)](../admin/alta-professor-compte-google.md) — Com donar d'alta un professor o membre del PAS i com es genera el seu compte corporatiu.
+- [L'horari setmanal d'un grup](../admin/group-schedule.md) — Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF.
 
 ## Temes previstos
 

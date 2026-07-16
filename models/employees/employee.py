@@ -72,14 +72,6 @@ class ems_employee_base(models.AbstractModel):
     teaching_ids = fields.One2many(string="Teaching", comodel_name="ems.teaching", inverse_name="teacher_id")
     attendance_template_ids = fields.Many2many(string="Attendance templates", comodel_name="ems.attendance_template", relation="ems_attendance_template_teacher_rel")
     schedule_attendance_ids = fields.One2many(string="Schedule", comodel_name="resource.calendar.attendance", related="resource_calendar_id.attendance_ids")
-    # NOTE: deliberately kept SEPARATE from 'schedule_attendance_ids' (never merged into it) — the
-    # Schedule tab's Edit mode treats every record in that field as "real, already-saved" data (see
-    # 'schedule_grid_field.js' _seedBufferFromEntries, which uses it as the overlay that always wins
-    # over the framework baseline); mixing derived, not-actually-this-teacher's-own rows into it
-    # would let Edit silently "adopt" them as real on the next Save. Read-only view mode merges this
-    # in separately instead (see 'entriesForDay' in the widget) — see '_get_derived_break_entries'.
-    derived_break_attendance_ids = fields.Many2many(string="Derived breaks", comodel_name="resource.calendar.attendance",
-        compute="_compute_derived_break_attendance_ids")
    
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
     role_ids = fields.Many2many(string="Roles", comodel_name="ems.role", relation="hr_employee_public_ems_role_rel", column1="hr_employee_public_id", column2="ems_role_id", domain="[('employee_type', '=', employee_type)]") 
@@ -107,36 +99,64 @@ class ems_employee_base(models.AbstractModel):
         for rec in self:
             rec.can_edit_schedule = can_edit
 
-    def _compute_derived_break_attendance_ids(self):
-        for employee in self:
-            employee.derived_break_attendance_ids = employee._get_derived_break_entries()
+    def get_derived_break_attendance_data(self):
+        """RPC-friendly version of '_get_derived_break_entries()', meant to be fetched
+        explicitly by the Schedule tab's widget (orm.call in onWillStart/save, the same
+        pattern already used there for 'catalog.subjects'/'get_schedule_hours_summary') —
+        deliberately NOT exposed as a form field. An earlier version did exactly that (a
+        computed Many2many, hidden, with its own embedded <list> sub-view) and the derived
+        break silently never rendered in the widget despite computing correctly server-side
+        (proven by the PDF report, which calls the same underlying method directly in
+        Python) — an invisible x2many field with its own embedded list doesn't reliably load
+        its sub-fields client-side the way a plain Many2one/Boolean field does. Returns
+        plain '.read()' dicts (Many2one as a (id, name) tuple, matching the array shape
+        'entry.data.non_teaching[1]'/'entry.data.space_id[1]' already expect elsewhere in
+        the widget), not 'web_read()' dicts."""
+        self.ensure_one()
+        return self._get_derived_break_entries().read(
+            ['dayofweek', 'hour_from', 'hour_to', 'name', 'non_teaching', 'non_teaching_is_break'])
 
     def _get_derived_break_entries(self):
-        """This teacher's break/patio period(s), derived from the level(s) of the groups they
-        actually teach — one per shift (morning/afternoon) they work, mirroring
-        'ems.group._get_break_entries()' but keyed by the teacher's own real teaching entries
-        instead of a single group's level_id (a teacher, unlike a group, has no level of their
-        own). For a shift where the teacher teaches groups from more than one level, the first
-        real entry of that shift (day/hour order) decides which level's break applies — a
-        genuine tie with no single right answer, but a deterministic one. Returns an empty
-        recordset, without error, for a shift the teacher doesn't work, or when the level in
-        question has no framework."""
+        """Fills genuine empty gaps in this teacher's own weekly schedule with a break/patio
+        period taken from ANY level's schedule framework — deliberately never tries to guess
+        "the" level a teacher belongs to, since a teacher can plausibly teach several levels
+        (even within the same day), each with its own break time. For each weekday the
+        teacher has at least one real entry (a class, a guard duty, a meeting... anything),
+        every candidate break from every framework is checked against that day's own known
+        span (earliest hour_from to latest hour_to among the teacher's real entries that
+        day) and against every real entry for overlap — a candidate outside that span, or
+        overlapping any real entry, is skipped. A gap that doesn't line up with any known
+        break simply stays empty; there is no fallback guess. A day with no real entries at
+        all has nothing to fill. Two frameworks defining the exact same break (same day and
+        hours) collapse into one result, not a visually-duplicated stack."""
         self.ensure_one()
-        real_entries = self.resource_calendar_id.attendance_ids.filtered(
-            lambda attendance: attendance.dayofweek in WEEKDAYS and attendance.subject_id and attendance.group_ids
-        ).sorted(key=lambda attendance: (attendance.dayofweek, attendance.hour_from))
+        weekday_entries = self.resource_calendar_id.attendance_ids.filtered(lambda attendance: attendance.dayofweek in WEEKDAYS)
+        candidate_breaks = self.env['resource.calendar.attendance'].search([
+            ('calendar_id.is_framework', '=', True),
+            ('dayofweek', 'in', list(WEEKDAYS)),
+            ('non_teaching.is_break', '=', True),
+        ])
 
         breaks = self.env['resource.calendar.attendance']
-        for shift in ('morning', 'afternoon'):
-            shift_entries = real_entries.filtered(lambda attendance, shift=shift: attendance.day_period == shift)
-            level = shift_entries[:1].group_ids[:1].level_id
-            if not level:
+        seen_slots = set()
+        for day in WEEKDAYS:
+            day_entries = weekday_entries.filtered(lambda attendance, day=day: attendance.dayofweek == day)
+            if not day_entries:
                 continue
-            framework = self.env['resource.calendar'].search(
-                [('is_framework', '=', True), ('level_id', '=', level.id)], limit=1)
-            breaks |= framework.attendance_ids.filtered(
-                lambda attendance, shift=shift: attendance.dayofweek in WEEKDAYS
-                    and attendance.non_teaching.is_break and attendance.day_period == shift)
+            day_start = min(day_entries.mapped('hour_from'))
+            day_end = max(day_entries.mapped('hour_to'))
+            for candidate in candidate_breaks.filtered(lambda attendance, day=day: attendance.dayofweek == day):
+                if candidate.hour_from < day_start or candidate.hour_to > day_end:
+                    continue
+                overlaps_real_entry = any(
+                    entry.hour_from < candidate.hour_to and candidate.hour_from < entry.hour_to for entry in day_entries)
+                if overlaps_real_entry:
+                    continue
+                slot = (day, candidate.hour_from, candidate.hour_to)
+                if slot in seen_slots:
+                    continue
+                seen_slots.add(slot)
+                breaks |= candidate
         return breaks
 
     def _get_new_employee_type(self):

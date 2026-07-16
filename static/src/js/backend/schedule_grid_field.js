@@ -43,12 +43,14 @@ export class ScheduleGridField extends Component {
         this.newPanel = useState({ open: false, value: "", frameworks: [], teachers: [] });
         this.catalog = useState({ subjects: [], groups: [], nonTeaching: [] });
         this.summary = useState({ teaching: { rows: [], total: 0 }, fixed: { rows: [], total: 0 }, total: 0 });
+        this.derivedBreaks = useState({ list: [] });
         onWillStart(async () => {
             const [subjects, groups, nonTeachingTypes] = await Promise.all([
                 this.orm.searchRead("ems.subject", [], ["id", "display_name"]),
                 this.orm.searchRead("ems.group", [], ["id", "display_name"]),
                 this.orm.searchRead("ems.non_teaching_type", [], ["id", "name"]),
                 this._loadSummary(),
+                this._loadDerivedBreaks(),
             ]);
             this.catalog.subjects = subjects;
             this.catalog.groups = groups;
@@ -74,6 +76,20 @@ export class ScheduleGridField extends Component {
         return value ? value[0] : false;
     }
 
+    // Fetched explicitly (orm.call), not read off the record as a form field — see
+    // hr.employee.get_derived_break_attendance_data()'s own docstring for why a hidden Many2many
+    // field with its own embedded <list> turned out not to reliably load its sub-fields
+    // client-side, despite computing correctly server-side (the PDF report proved that). '.read()'
+    // returns Many2one fields as a (id, name) array, matching what entryLabel/entryRoom already
+    // expect from a real x2many record's own data.
+    async _loadDerivedBreaks() {
+        if (!this.props.record.resId) {
+            return;
+        }
+        const rows = await this.orm.call("hr.employee", "get_derived_break_attendance_data", [[this.props.record.resId]]);
+        this.derivedBreaks.list = rows.map((row) => ({ id: row.id, data: row }));
+    }
+
     // Edit/Import/New require 'ems.group_department_chief' or above (see hr.employee's
     // 'can_edit_schedule' compute) — enforced server-side via ir.model.access.csv, this getter only
     // drives the toolbar's own visibility. 'PDF' is deliberately NOT gated by it: every role that
@@ -86,12 +102,13 @@ export class ScheduleGridField extends Component {
         return this.props.record.data[this.props.name].records;
     }
 
-    // Level-framework-derived break(s) this teacher has no real saved row for yet (see
-    // hr.employee._get_derived_break_entries()) — deliberately a SEPARATE record set from
-    // 'entries', merged in only by 'entriesForDay' (view mode) below, never by anything the Edit
-    // buffer reads, so a derived break can never get silently "adopted" as real on Save.
+    // Gap-filled break(s) this teacher has no real saved row for yet (see
+    // hr.employee._get_derived_break_entries(), fetched via _loadDerivedBreaks()) —
+    // deliberately a SEPARATE list from 'entries', merged in only by 'entriesForDay' (view mode)
+    // below, never by anything the Edit buffer reads, so a derived break can never get silently
+    // "adopted" as real on Save.
     get derivedBreakEntries() {
-        return this.props.record.data.derived_break_attendance_ids.records;
+        return this.derivedBreaks.list;
     }
 
     get days() {
@@ -516,6 +533,8 @@ export class ScheduleGridField extends Component {
         await this.orm.call("resource.calendar", "apply_schedule_changes", [[this.calendarId], cells, this._pendingSourceFrameworkId || false]);
         await this.props.record.load();
         await this._loadSummary();
+        // A saved schedule change can open or close gaps, so the derived breaks may have changed too.
+        await this._loadDerivedBreaks();
         this.editing.value = false;
         this.dirty.value = false;
     }

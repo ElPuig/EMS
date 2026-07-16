@@ -32,8 +32,8 @@
         </record>
 
         <menuitem name="Students"            sequence="1"  id="menu_students"          parent="menu_community" action="action_student_kanban"/>
-        <menuitem name="Families"            sequence="2"  id="menu_families"          parent="menu_community" action="action_family_list"/>
-        <menuitem name="Providers"           sequence="4"  id="menu_providers"         parent="menu_community" action="action_provider_kanban"/>
+        <menuitem name="Families"            sequence="3"  id="menu_families"          parent="menu_community" action="action_family_list"/>
+        <menuitem name="Providers"           sequence="5"  id="menu_providers"         parent="menu_community" action="action_provider_kanban"/>
 
     </data>
 </odoo>

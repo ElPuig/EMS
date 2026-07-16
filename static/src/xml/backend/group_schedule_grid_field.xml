@@ -24,7 +24,7 @@
                     <div class="o_schedule_grid_column" t-att-style="columnStyle()">
                         <t t-foreach="blocksForDay(day.index)" t-as="block" t-key="block.hour_from + '_' + block.hour_to + '_' + blockLabel(block)">
                             <div class="o_schedule_grid_entry"
-                                 t-att-class="blockIsBreak(block) ? 'o_schedule_grid_entry_nonteaching' : ''"
+                                 t-att-class="blockIsBreak(block) ? 'o_schedule_grid_entry_break' : ''"
                                  t-att-style="blockStyle(block)"
                                  t-att-title="blockTime(block) + ' ' + blockLabel(block)">
                                 <t t-if="blockIsBreak(block)">

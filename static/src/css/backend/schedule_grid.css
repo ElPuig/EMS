@@ -173,6 +173,22 @@
     z-index: 1;
 }
 
+/* A break specifically — never any other non-teaching activity (a meeting, a guard duty...),
+   which keeps the plain grey above — gets its own distinctive look: a diagonal brown stripe
+   instead of a flat colour, so it reads as "patio" at a glance instead of blending in with a
+   meeting block. */
+.o_schedule_grid_entry_break {
+    background-color: #8a6240;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.2),
+        rgba(255, 255, 255, 0.2) 6px,
+        transparent 6px,
+        transparent 12px
+    );
+    z-index: 1;
+}
+
 .o_schedule_grid_new_panel {
     display: flex;
     align-items: center;

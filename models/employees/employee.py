@@ -9,6 +9,14 @@ employee_types = [
 ]
 
 WEEKDAYS = ('0', '1', '2', '3', '4')
+# Two hour_from/hour_to values meant to represent the exact same moment can differ by a tiny
+# float remainder depending on how each was computed/entered (e.g. a framework's break stored as
+# the literal '11.416667' vs a real period's own hour_from computed as '11 + 25/60' ==
+# 11.416666666666666) — a strict '<' comparison would misread that hair's-width gap as a real
+# overlap. Used by '_get_derived_break_entries' for both the day-span containment check and the
+# overlap check; 1/120 hour (30s) safely absorbs that noise without being large enough to treat
+# two genuinely distinct, minutes-apart periods as touching.
+HOUR_EPSILON = 1 / 120
 
 # Marks write_photo()'s own internal write so hr.employee.write() below skips its own
 # guard/push logic for it - otherwise write_photo(employee, ...) writing employee.image_1920
@@ -146,10 +154,11 @@ class ems_employee_base(models.AbstractModel):
             day_start = min(day_entries.mapped('hour_from'))
             day_end = max(day_entries.mapped('hour_to'))
             for candidate in candidate_breaks.filtered(lambda attendance, day=day: attendance.dayofweek == day):
-                if candidate.hour_from < day_start or candidate.hour_to > day_end:
+                if candidate.hour_from < day_start - HOUR_EPSILON or candidate.hour_to > day_end + HOUR_EPSILON:
                     continue
                 overlaps_real_entry = any(
-                    entry.hour_from < candidate.hour_to and candidate.hour_from < entry.hour_to for entry in day_entries)
+                    min(entry.hour_to, candidate.hour_to) - max(entry.hour_from, candidate.hour_from) > HOUR_EPSILON
+                    for entry in day_entries)
                 if overlaps_real_entry:
                     continue
                 slot = (day, candidate.hour_from, candidate.hour_to)

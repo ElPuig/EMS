@@ -169,6 +169,46 @@ class TestWorkingSchedule(TransactionCase):
         self.assertFalse(tuesday['entry'])
         self.assertFalse(tuesday['color'])
 
+    def test_get_derived_break_entries_tolerates_float_rounding_at_the_boundary(self):
+        # Regression test: a framework break stored as the literal '11.416667' (25 minutes past
+        # 11, as typically entered/imported) and a real period computed as '11 + 25/60' ==
+        # 11.416666666666666 represent the exact same moment (11:25) but differ by a hair — a
+        # strict '<' overlap check used to treat that as a genuine overlap and silently drop the
+        # break, exactly as it did in production for a teacher whose first afternoon/morning
+        # period started immediately after a framework break.
+        level_framework = self.env['resource.calendar'].create({
+            'name': 'Test Level Framework (Float Rounding)', 'is_framework': True, 'level_id': self.level.id, 'full_time_required_hours': 24,
+        })
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': level_framework.id, 'name': 'BR: Break', 'dayofweek': '0',
+            'hour_from': 11, 'hour_to': 11.416667, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id,
+        })
+        schedule = self.env['resource.calendar'].create({'name': 'Test Float Rounding (Working Schedule)'})
+        self.teacher.resource_calendar_id = schedule
+        schedule.apply_schedule_changes([
+            {
+                'dayofweek': '0', 'hour_from': 9, 'hour_to': 11, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            },
+            {
+                # Starts at 11 + 25/60, the float-computed equivalent of the break's own hour_to.
+                'dayofweek': '0', 'hour_from': 11 + 25 / 60, 'hour_to': 13, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            },
+        ])
+
+        breaks = self.teacher._get_derived_break_entries()
+
+        # Not 'assertIn(our_break, breaks)': the real 'ems' database happens to already ship a
+        # production CFGS framework break at this exact (day, hour_from, hour_to) — the dedup step
+        # (by design) keeps only one of the two identical-slot records, and which one depends on
+        # search order, not on which is "ours". What this regression test actually cares about is
+        # that a break at ~11:00-11:25 survives at all despite the float-rounded boundary, not
+        # which specific record represents it.
+        matching = breaks.filtered(lambda attendance: attendance.dayofweek == '0' and abs(attendance.hour_from - 11) < 0.01)
+        self.assertTrue(matching)
+        self.assertAlmostEqual(matching[:1].hour_to, 11.416667, places=3)
+
     def test_get_derived_break_entries_fills_exact_gap(self):
         # NOTE: these tests run against the real 'ems' database, which already ships real,
         # seeded schedule frameworks (ESO, CFGS...) with their own real break rows — since the

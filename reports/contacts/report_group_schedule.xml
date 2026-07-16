@@ -24,7 +24,10 @@
                                 .gs-table th, .gs-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; height: 38px; overflow: hidden; }
                                 .gs-table td.gs-time { white-space: nowrap; font-weight: bold; }
                                 .gs-cell-content { display: block; border-radius: 3px; padding: 3px 4px; margin-bottom: 2px; color: #fff; }
-                                .gs-cell-content.gs-break { background-color: #8d99ae !important; }
+                                .gs-cell-content.gs-break {
+                                    background-color: #8a6240 !important;
+                                    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0.2) 6px, transparent 6px, transparent 12px) !important;
+                                }
                                 .gs-cell-label { display: block; font-weight: 600; }
                                 .gs-cell-room { display: block; font-size: 9px; color: #fff; }
                                 .gs-summary-table { width: 100%; margin-top: 16px; font-size: 10px; border-collapse: collapse; }

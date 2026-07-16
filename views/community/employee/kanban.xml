@@ -21,52 +21,23 @@
             <field name="name">ems.employee.kanban</field>
             <field name="model">hr.employee</field>           
             <field name="inherit_id" ref="hr.hr_kanban_view_employees"/> 
-            <field name="arch" type="xml">
+            <field name="arch" type="xml">  
                 <xpath expr="//kanban" position="inside">
                     <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
                     <field name="tutorships"/>
-                    <field name="effective_photo"/>
-                    <field name="photo_visible_to_current_user"/>
-                    <field name="image_visibility"/>
-                </xpath>
+                </xpath>                
 
                 <field name="job_title" position="after">
                     <span t-if="record.tutorships.value != ''">
                         <!-- TODO: this text should be translated, check how to do it -->
                         Tutorship: <t t-esc="record.tutorships.value"/>
-                    </span>
-                </field>
+                    </span>                   
+                </field>                                 
 
                 <field name="category_ids" position="attributes">
                     <attribute name="name">role_ids</attribute>
-                </field>
-
-                <!-- image_1024/image_128/avatar_128 always have SOME image now: either the real
-                     photo (visibility 'public') or the initials placeholder hr.employee generates
-                     itself otherwise (see hr.employee._compute_image_1920) - so the native
-                     t-if/t-elif chain below already "just works" for everyone by default, no
-                     "blank" case to special-case any more. The only thing still needed is a swap
-                     for an AUTHORIZED viewer (self/admin/directive staff) looking at an employee
-                     whose visibility isn't 'public': show the real photo (effective_photo) instead
-                     of the placeholder they'd otherwise see too.
-
-                     MUST be t-elif, not a separate t-if: this node has to stay part of the SAME
-                     if/elif/elif/else chain as the surrounding t-if="image_1024.raw_value" and
-                     t-elif="image_128.raw_value"/t-else. QWeb (like plain HTML) resolves
-                     t-elif/t-else by walking back to the nearest preceding t-if/t-elif sibling -
-                     inserting an unrelated t-if here would split the chain in two, and the *next*
-                     node (t-elif="image_128.raw_value") would then anchor to THIS node instead of
-                     the original t-if. That previously caused a real, visible bug: whenever
-                     image_1024 was already true, the original t-if rendered it, and then -
-                     completely independently, because the chain had split - image_128 (also true
-                     in that same case) matched again in what had become its own new chain,
-                     rendering avatar_128 right below it: the same photo shown twice, stacked. -->
-                <xpath expr="//t[@t-elif='record.image_128.raw_value']" position="before">
-                    <t t-elif="record.image_visibility.raw_value != 'public' and record.photo_visible_to_current_user.raw_value">
-                        <field name="effective_photo" widget="background_image" options="{'zoom': true, 'zoom_delay': 1000}" class="d-block position-relative"/>
-                    </t>
-                </xpath>
-            </field>
+                </field>                                                                
+            </field>		      
         </record>
     </data>
 </odoo>

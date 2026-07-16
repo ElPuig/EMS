@@ -3346,6 +3346,11 @@ msgid "Disability (>33%)"
 msgstr "Discapacitat (>33%)"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_users__image_disabled
+msgid "Disable profile picture"
+msgstr "Desactivar la foto de perfil"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__auto_checkin_mode__disabled
 msgid "Disabled"
 msgstr "Desactivat"
@@ -6595,12 +6600,6 @@ msgid "Only mine"
 msgstr "Tansols els meus"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__no_photo
-#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__no_photo
-msgid "No photo (erase permanently)"
-msgstr "Sense foto (esborrar permanentment)"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Only the student's tutor can justify its attendances."
@@ -6931,17 +6930,9 @@ msgid "Phone"
 msgstr "Telèfon"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_hr_employee__image_private
-#: model:ir.model.fields,field_description:ems.field_res_partner__image_private
-#: model:ir.model.fields,field_description:ems.field_res_users__image_private
+#: model_terms:ir.ui.view,arch_db:ems.view_users_form_simple_modif_photo_visibility
 msgid "Photo"
 msgstr "Foto"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_hr_employee__image_visibility
-#: model:ir.model.fields,field_description:ems.field_res_users__image_visibility
-msgid "Photo visibility"
-msgstr "Visibilitat de la foto"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__placeholder
@@ -7110,18 +7101,6 @@ msgstr "Processant..."
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Profile"
 msgstr "Perfil"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__public
-#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__public
-msgid "Public"
-msgstr "Pública"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_employee__image_visibility__private
-#: model:ir.model.fields.selection,name:ems.selection__res_users__image_visibility__private
-msgid "Private (only directive staff)"
-msgstr "Privada (només equip directiu)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate

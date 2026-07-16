@@ -62,16 +62,9 @@ class ems_student_benefit(models.Model):
 class ems_contact(models.Model):
     _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.base, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
             
-    # Real photo storage for the contact behind an employee-linked user (see
-    # models/employees/user.py's _sync_partner_photo): keeps the true, unfiltered photo safe
-    # while image_1920 may hold the initials placeholder instead, per the employee's chosen
-    # visibility. Left empty and unused for every other kind of contact (students, families,
-    # companies) - it's only ever populated by that one sync path.
-    image_private = fields.Binary(string="Photo", attachment=True)
-
     # view-oriented fields:
     # level_id and study_id are used for form view purposes (linked dropdowns: level > study > group) and will be computed on save.
-    level_id = fields.Many2one(string='Level', comodel_name='ems.level')
+    level_id = fields.Many2one(string='Level', comodel_name='ems.level')    
     study_id = fields.Many2one(string='Studies', comodel_name='ems.study') 
     tutor_id = fields.Many2one(string='Tutor', related="main_group_id.tutor_id") # Related field: auto-computed and auto-refreshed within the form.
     

@@ -2,9 +2,9 @@
 
 ---
 
-# Choosing Who Can See Your Photo
+# Disabling Your Profile Picture
 
-This guide explains how to control who can see your profile photo in EMS.
+This guide explains how to disable (or re-enable) your profile picture in EMS.
 
 **Required role:** Teacher (or any employee with an EMS user account)
 
@@ -12,53 +12,41 @@ This guide explains how to control who can see your profile photo in EMS.
 
 ## Index
 
-1. [What you can choose](#what-you-can-choose)
+1. [What this does](#what-this-does)
 2. [How to change it](#how-to-change-it)
-3. [Where this applies](#where-this-applies)
+3. [Re-enabling](#re-enabling)
 
 ---
 
-## What you can choose
+## What this does
 
-From your profile you can set your photo's visibility to one of three levels:
+From your profile you can turn **Disable profile picture** on or off:
 
-- **Public** — anyone can see your photo (the default).
-- **Private (only directive staff)** — only Head of Studies and above (directors,
-  administrators) can see it, and only on your employee record and the "Teachers"
-  directory; everywhere else (Discuss, the top bar, the org chart, notices) shows a
-  generic placeholder with your initial instead, for everyone, directive staff included.
-- **No photo (erase permanently)** — your photo is **permanently deleted**, everywhere.
-  This cannot be undone: choosing "Public" again afterwards will not bring it back, you
-  would need to upload a new one.
-
-You always see your own photo, regardless of this setting, and administrators can
-always see it too (except after choosing "No photo", since it no longer exists).
+- **Off (the default)** — your photo can be uploaded/changed as usual, from your
+  profile or by someone with permission to edit your employee record. Your employee
+  record and your user account always show the exact same photo.
+- **On** — your photo is immediately replaced everywhere with a generic placeholder
+  showing your initial, and it is **locked**: nobody, including an administrator, can
+  upload a new photo for you while this is on.
 
 ---
 
 ## How to change it
 
 1. Click your avatar in the top-right corner of EMS and choose **My Profile**.
-2. Upload or change your photo as usual.
-3. Under **Photo visibility**, pick the level you want.
-4. Close the window — the change is saved automatically.
+2. Under **Photo**, toggle **Disable profile picture**.
+3. Close the window — the change is saved automatically.
 
-> **Note:** you cannot change this from your own employee record (that page stays
-> read-only for teachers) — it is only available from **My Profile**.
-
-> **Warning:** "No photo (erase permanently)" deletes your photo for good. Only choose
-> it if you're sure — there's no way to recover it afterwards.
+> **Note:** while disabled, no photo can be uploaded for you from anywhere — not your
+> profile, not your employee record — until you turn the switch back off.
 
 ---
 
-## Where this applies
+## Re-enabling
 
-Your chosen visibility applies everywhere your photo could show up in EMS: your
-employee record, the "Teachers" directory, Discuss, the top bar, the org chart, and
-notices. Whoever is not authorized to see your photo simply sees a placeholder with
-your initial instead of your photo, never somebody else's. Head of Studies and above
-can still see your real photo on your employee record and in the "Teachers" directory
-when set to "Private" — everywhere else, even they see the placeholder.
+Turning **Disable profile picture** back off does **not** bring back your previous
+photo — it stays as the initials placeholder until you (or someone with permission)
+upload a new one.
 
 ---
 

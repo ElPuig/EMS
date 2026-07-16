@@ -2,9 +2,9 @@
 
 ---
 
-# Elegir quién puede ver tu foto
+# Desactivar tu foto de perfil
 
-Esta guía explica cómo controlar quién puede ver tu foto de perfil en el EMS.
+Esta guía explica cómo desactivar (o volver a activar) tu foto de perfil en el EMS.
 
 **Rol necesario:** Profesorado (o cualquier empleado con cuenta de usuario EMS)
 
@@ -12,57 +12,43 @@ Esta guía explica cómo controlar quién puede ver tu foto de perfil en el EMS.
 
 ## Índice
 
-1. [Qué puedes elegir](#qué-puedes-elegir)
+1. [Qué hace esto](#qué-hace-esto)
 2. [Cómo cambiarlo](#cómo-cambiarlo)
-3. [Dónde se aplica](#dónde-se-aplica)
+3. [Volver a activarla](#volver-a-activarla)
 
 ---
 
-## Qué puedes elegir
+## Qué hace esto
 
-Desde tu perfil puedes establecer la visibilidad de tu foto en uno de estos tres niveles:
+Desde tu perfil puedes activar o desactivar la opción **Desactivar la foto de perfil**:
 
-- **Pública** — cualquiera puede ver tu foto (opción por defecto).
-- **Privada (solo equipo directivo)** — solo Jefatura de Estudios y superiores
-  (dirección, administración) pueden verla, y solo en tu ficha de empleado y en el
-  directorio de "Profesores"; en el resto de sitios (Discuss, la barra superior, el
-  organigrama, los avisos) se muestra un marcador genérico con tu inicial para todo
-  el mundo, equipo directivo incluido.
-- **Sin foto (borrar permanentemente)** — tu foto se **elimina de forma
-  permanente**, en todos los sitios. Esto no se puede deshacer: volver a elegir
-  "Pública" después no la recuperará, tendrías que subir una nueva.
-
-Tú siempre ves tu propia foto, independientemente de esta configuración, y la
-administración también puede verla siempre (excepto tras elegir "Sin foto", ya que
-deja de existir).
+- **Desactivada (por defecto)** — tu foto se puede subir/cambiar con normalidad,
+  desde tu perfil o por quien tenga permiso para editar tu ficha de empleado. Tu
+  ficha de empleado y tu cuenta de usuario siempre muestran exactamente la misma
+  foto.
+- **Activada** — tu foto se sustituye de inmediato, en todos los sitios, por un
+  marcador genérico con tu inicial, y queda **bloqueada**: nadie, ni siquiera la
+  administración, puede subirte una foto nueva mientras esté activada.
 
 ---
 
 ## Cómo cambiarlo
 
 1. Haz clic en tu avatar, en la esquina superior derecha del EMS, y elige **Mi perfil**.
-2. Sube o cambia tu foto como siempre.
-3. En **Visibilidad de la foto**, elige el nivel que quieras.
-4. Cierra la ventana — el cambio se guarda automáticamente.
+2. En **Foto**, activa o desactiva **Desactivar la foto de perfil**.
+3. Cierra la ventana — el cambio se guarda automáticamente.
 
-> **Nota:** no puedes cambiar esto desde tu propia ficha de empleado (esa página
-> sigue siendo de solo lectura para el profesorado) — solo está disponible desde
-> **Mi perfil**.
-
-> **Aviso:** "Sin foto (borrar permanentemente)" elimina tu foto para siempre.
-> Elígelo solo si estás seguro — no hay forma de recuperarla después.
+> **Nota:** mientras esté activada, no se puede subir ninguna foto para ti desde
+> ningún sitio — ni tu perfil, ni tu ficha de empleado — hasta que vuelvas a
+> desactivar la opción.
 
 ---
 
-## Dónde se aplica
+## Volver a activarla
 
-La visibilidad que elijas se aplica en todos los sitios donde tu foto podría
-aparecer en el EMS: tu ficha de empleado, el directorio de "Profesores", Discuss, la
-barra superior, el organigrama y los avisos. Quien no esté autorizado a ver tu foto
-simplemente ve un marcador con tu inicial en vez de tu foto, nunca la de otra
-persona. Jefatura de Estudios y superiores siguen viendo tu foto real en tu ficha de
-empleado y en el directorio de "Profesores" cuando eliges "Privada" — en el resto de
-sitios, incluso ellos ven el marcador.
+Volver a desactivar **Desactivar la foto de perfil** **no** recupera tu foto
+anterior — se mantiene como el marcador con la inicial hasta que tú (o alguien con
+permiso) subáis una nueva.
 
 ---
 

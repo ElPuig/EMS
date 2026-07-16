@@ -2,9 +2,9 @@
 
 ---
 
-# Escollir qui pot veure la teva foto
+# Desactivar la teva foto de perfil
 
-Aquesta guia explica com controlar qui pot veure la teva foto de perfil a l'EMS.
+Aquesta guia explica com desactivar (o tornar a activar) la teva foto de perfil a l'EMS.
 
 **Rol necessari:** Professorat (o qualsevol empleat amb compte d'usuari EMS)
 
@@ -12,57 +12,43 @@ Aquesta guia explica com controlar qui pot veure la teva foto de perfil a l'EMS.
 
 ## Índex
 
-1. [Què pots escollir](#què-pots-escollir)
+1. [Què fa això](#què-fa-això)
 2. [Com canviar-ho](#com-canviar-ho)
-3. [On s'aplica](#on-saplica)
+3. [Tornar a activar-la](#tornar-a-activar-la)
 
 ---
 
-## Què pots escollir
+## Què fa això
 
-Des del teu perfil pots establir la visibilitat de la teva foto en un d'aquests tres nivells:
+Des del teu perfil pots activar o desactivar l'opció **Desactivar la foto de perfil**:
 
-- **Pública** — qualsevol pot veure la teva foto (opció per defecte).
-- **Privada (només equip directiu)** — només Cap d'Estudis i superiors (direcció,
-  administració) poden veure-la, i només a la teva fitxa d'empleat i al directori de
-  "Professors"; a la resta de llocs (Discuss, la barra superior, l'organigrama, els
-  avisos) es mostra un marcador genèric amb la teva inicial per a tothom, equip
-  directiu inclòs.
-- **Sense foto (esborrar permanentment)** — la teva foto s'**elimina de forma
-  permanent**, a tot arreu. Això no es pot desfer: tornar a triar "Pública" després
-  no la recuperarà, hauries de pujar-ne una de nova.
-
-Tu sempre veus la teva pròpia foto, independentment d'aquesta configuració, i
-l'administració també la pot veure sempre (excepte després de triar "Sense foto",
-ja que deixa d'existir).
+- **Desactivada (per defecte)** — la teva foto es pot pujar/canviar amb normalitat,
+  des del teu perfil o per qui tingui permís per editar la teva fitxa d'empleat. La
+  teva fitxa d'empleat i el teu compte d'usuari sempre mostren exactament la mateixa
+  foto.
+- **Activada** — la teva foto es substitueix immediatament, a tot arreu, per un
+  marcador genèric amb la teva inicial, i queda **bloquejada**: ningú, ni tan sols
+  l'administració, pot pujar-te una foto nova mentre estigui activada.
 
 ---
 
 ## Com canviar-ho
 
 1. Fes clic al teu avatar, a la cantonada superior dreta de l'EMS, i tria **El meu perfil**.
-2. Puja o canvia la teva foto com sempre.
-3. A **Visibilitat de la foto**, tria el nivell que vulguis.
-4. Tanca la finestra — el canvi es desa automàticament.
+2. A **Foto**, activa o desactiva **Desactivar la foto de perfil**.
+3. Tanca la finestra — el canvi es desa automàticament.
 
-> **Nota:** no pots canviar això des de la teva pròpia fitxa d'empleat (aquesta
-> pàgina continua sent només de lectura per al professorat) — només està disponible
-> des de **El meu perfil**.
-
-> **Avís:** "Sense foto (esborrar permanentment)" elimina la teva foto per sempre.
-> Tria-ho només si n'estàs segur — no hi ha manera de recuperar-la després.
+> **Nota:** mentre estigui activada, no es pot pujar cap foto per a tu des d'enlloc
+> — ni el teu perfil, ni la teva fitxa d'empleat — fins que tornis a desactivar
+> l'opció.
 
 ---
 
-## On s'aplica
+## Tornar a activar-la
 
-La visibilitat que triïs s'aplica a tot arreu on la teva foto pugui aparèixer a
-l'EMS: la teva fitxa d'empleat, el directori de "Professors", Discuss, la barra
-superior, l'organigrama i els avisos. Qui no estigui autoritzat a veure la teva foto
-simplement veu un marcador amb la teva inicial en lloc de la foto, mai la d'una altra
-persona. Cap d'Estudis i superiors continuen veient la teva foto real a la teva fitxa
-d'empleat i al directori de "Professors" quan la tries "Privada" — a la resta de
-llocs, fins i tot ells veuen el marcador.
+Tornar a desactivar **Desactivar la foto de perfil** **no** recupera la teva foto
+anterior — es manté com el marcador amb la inicial fins que tu (o algú amb permís)
+en pugeu una de nova.
 
 ---
 

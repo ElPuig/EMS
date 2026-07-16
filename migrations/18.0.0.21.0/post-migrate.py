@@ -113,28 +113,6 @@ def _seed_task_assignment_recipients(cr):
             type_xmlid, len(users), ', '.join(users.mapped('login')) or '-')
 
 
-def _remap_image_visibility_values(cr):
-    # The photo-visibility feature's selection values changed mid-development, before ever
-    # shipping (all/teachers/directive -> public/private/no_photo, with the 'teachers' tier
-    # dropped entirely). Must run before anything below reads image_visibility - an old,
-    # unmapped value would just silently fail every `== 'public'`/`== 'private'` check.
-    # 'teachers' -> 'public': it's the tier being removed, and 'public' is the least
-    # surprising choice (doesn't hide a photo from anyone who could already see it).
-    cr.execute("""
-        UPDATE res_users SET image_visibility = CASE image_visibility
-            WHEN 'all' THEN 'public'
-            WHEN 'teachers' THEN 'public'
-            WHEN 'directive' THEN 'private'
-            ELSE image_visibility
-        END
-        WHERE image_visibility IN ('all', 'teachers', 'directive')
-    """)
-    _logger.info(
-        "Migration 18.0.0.21.0: remapped %d 'res.users.image_visibility' value(s) to the new "
-        "public/private/no_photo selection.", cr.rowcount,
-    )
-
-
 def _copy_teacher_photo_to_user(cr):
     # Before this version, creating/linking a teacher's/ASP's EMS user (via the
     # "Create Google account" button, see google_workspace_integration.py) never
@@ -175,82 +153,24 @@ def _copy_teacher_photo_to_user(cr):
     )
 
 
-def _recompute_employee_image_1920(cr):
-    # New in this version: hr.employee.image_1920 becomes a compute+store field driven by
-    # image_private/image_visibility (see models/employees/employee.py, the teacher photo
-    # visibility feature), with a fallback to the linked user's photo (effective_photo) for
-    # employees who never had a photo of their own directly on hr.employee - common for anyone
-    # whose photo only ever lived on their res.users/res.partner record.
-    #
-    # Odoo does not retroactively recompute an already-populated store=True field just because
-    # its compute function changed - only genuinely new/NULL stored values get recomputed
-    # automatically during the schema sync that runs before this script. image_1920 already
-    # existed before this version, so every employee keeps whatever value it held pre-upgrade
-    # (often blank) until something explicitly recomputes it - do that here, once, for everyone.
-    #
-    # CRITICAL ORDERING - DO NOT SKIP THE BACKFILL BELOW: image_private is a brand new field,
-    # empty for every employee at this point. An employee who already has their own photo
-    # directly on hr.employee (attachment on image_1920) but has NO linked user (so no fallback
-    # either) would have that photo permanently DELETED by the recompute below if image_private
-    # isn't seeded from their legacy image_1920 value first (Binary field writes of a falsy
-    # value delete the underlying ir_attachment). This is not a hypothetical: an earlier version
-    # of this script skipped the backfill and destroyed real, irrecoverable employee photos in
-    # development before being caught - keep both steps, in this order, always.
+def _sync_employee_photo_to_user(cr):
+    # New in this version: hr.employee.image_1920 and the linked user's photo are always kept
+    # equal from now on (see models/employees/employee.py and user.py write() overrides). This
+    # feature has never been deployed before, in any form - no image_visibility/image_private
+    # data exists to migrate - so the only thing needed here is a one-time copy from each
+    # employee's current photo to their linked user, matching what write() will maintain
+    # automatically from now on.
     env = api.Environment(cr, SUPERUSER_ID, {})
     cr.execute("""
-        SELECT DISTINCT res_id FROM ir_attachment
-        WHERE res_model = 'hr.employee' AND res_field = 'image_1920'
+        SELECT id FROM hr_employee WHERE user_id IS NOT NULL
     """)
-    employees_with_legacy_photo = env['hr.employee'].with_context(active_test=False).browse(
+    employees = env['hr.employee'].with_context(active_test=False).browse(
         row[0] for row in cr.fetchall())
-    backfilled = 0
-    for employee in employees_with_legacy_photo:
-        if not employee.image_private:
-            # Read BEFORE anything below recomputes image_1920 - at this point it still holds
-            # each employee's legacy, pre-upgrade value.
-            employee.image_private = employee.image_1920
-            backfilled += 1
-
-    employees = env['hr.employee'].with_context(active_test=False).search([])
-    # image_visibility is itself compute+store, mirroring user_id.image_visibility - a raw SQL
-    # UPDATE on res_users (see _remap_image_visibility_values) does not trigger the ORM's
-    # dependency-based recompute, so hr_employee.image_visibility can still hold a stale,
-    # no-longer-valid string (e.g. 'all'/'directive') at this point. Recompute it explicitly
-    # before image_1920, which depends on it.
-    employees._compute_image_visibility()
-    employees._compute_image_1920()
+    for employee in employees:
+        employee.user_id.partner_id.image_1920 = employee.image_1920
     _logger.info(
-        "Migration 18.0.0.21.0: backfilled 'image_private' from the legacy 'image_1920' for %d "
-        "employee(s), then recomputed 'image_1920' (photo visibility fallback) for %d "
-        "employee(s) total.", backfilled, len(employees),
-    )
-
-
-def _sync_partner_photo_from_employee(cr):
-    # Mirrors, once for existing data, what res.users.write()'s _sync_partner_photo
-    # (models/employees/user.py) will do from now on every time "My Profile" is saved: back up
-    # each employee-linked contact's current (real, pre-feature) photo into its own
-    # image_private before anything overwrites image_1920, then push whatever
-    # hr.employee.image_1920 now resolves to (real photo, or the initials placeholder - see
-    # _recompute_employee_image_1920 above, which must run before this). Only touches contacts
-    # actually linked to an employee - not every res.partner in the database.
-    env = api.Environment(cr, SUPERUSER_ID, {})
-    cr.execute("""
-        SELECT DISTINCT u.id FROM res_users u
-        JOIN hr_employee e ON e.user_id = u.id
-    """)
-    users = env['res.users'].browse(row[0] for row in cr.fetchall())
-    backfilled = 0
-    for user in users:
-        partner = user.partner_id.sudo()
-        employee = user.employee_id.sudo()
-        if not partner.image_private:
-            partner.image_private = partner.image_1920
-            backfilled += 1
-        partner.image_1920 = employee.image_1920
-    _logger.info(
-        "Migration 18.0.0.21.0: backfilled res.partner.image_private for %d employee-linked "
-        "contact(s) and synced 'image_1920' for %d user(s) total.", backfilled, len(users),
+        "Migration 18.0.0.21.0: synced 'image_1920' from %d employee(s) to their linked user.",
+        len(employees),
     )
 
 
@@ -258,7 +178,5 @@ def migrate(cr, _version):
     _migrate_non_teaching_type(cr)
     _migrate_attendance_template_teacher_ids(cr)
     _seed_task_assignment_recipients(cr)
-    _remap_image_visibility_values(cr)
     _copy_teacher_photo_to_user(cr)
-    _recompute_employee_image_1920(cr)
-    _sync_partner_photo_from_employee(cr)
+    _sync_employee_photo_to_user(cr)

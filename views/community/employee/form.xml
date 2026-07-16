@@ -24,7 +24,7 @@
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
                                 class="btn-secondary"
-                                invisible="employee_type not in ('teacher', 'asp') or not work_email or google_ws_suspended or not user_id"
+                                invisible="employee_type not in ('teacher', 'asp') or not work_email or google_ws_suspended"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_reactivate_google_account" type="object"
                                 string="Reactivate Google account"
@@ -33,39 +33,6 @@
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                     </header>
                 </xpath>
-
-                <xpath expr="//button[@name='action_create_user']" position="attributes">
-                    <attribute name="invisible">user_id or employee_type in ('teacher', 'asp')</attribute>
-                </xpath>
-
-                <!-- Three mutually exclusive ways to render the photo widget, depending on the
-                     viewer:
-                     1. can_edit_photo (directive staff and above, or admin): always an EDITABLE
-                        image_private, regardless of visibility - this is the only way anyone
-                        (including the employee themselves) can upload/replace a photo, see
-                        can_edit_photo / write()'s sudo bypass in employee.py.
-                     2. Otherwise, someone allowed to *see* the real photo but not change it
-                        (i.e. the employee viewing their own non-public photo - self is included
-                        in photo_visible_to_current_user but excluded from can_edit_photo): a
-                        read-only effective_photo.
-                     3. Everyone else: the default image_1920, which already "just works" without
-                        further changes - it holds the real photo when visibility is 'public',
-                        and the initials placeholder Odoo generates itself otherwise (see
-                        hr.employee._compute_image_1920). -->
-                <field name="image_1920" position="attributes">
-                    <attribute name="invisible">can_edit_photo or (image_visibility != 'public' and photo_visible_to_current_user)</attribute>
-                </field>
-                <field name="image_1920" position="after">
-                    <field name="effective_photo" widget="image" class="oe_avatar m-0"
-                           options="{'zoom': true}"
-                           invisible="can_edit_photo or image_visibility == 'public' or not photo_visible_to_current_user"/>
-                    <field name="image_private" widget="image" class="oe_avatar m-0"
-                           options="{'zoom': true}"
-                           invisible="not can_edit_photo"/>
-                    <field name="image_visibility" invisible="1"/>
-                    <field name="photo_visible_to_current_user" invisible="1"/>
-                    <field name="can_edit_photo" invisible="1"/>
-                </field>
 
                 <field name="work_email" position="attributes">
                     <attribute name="readonly">employee_type in ('teacher', 'asp') and not google_ws_manual_email</attribute>

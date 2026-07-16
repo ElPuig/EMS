@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import base64
-
-from odoo import fields, models
-from .employee import EMS_PHOTO_SYNC_CONTEXT_KEY
+from odoo import _, fields, models, SUPERUSER_ID
+from odoo.exceptions import UserError
+from .employee import _UNSET, EMS_PHOTO_SYNC_CONTEXT_KEY, write_photo
 
 EMS_SYNC_CONTEXT_KEY = 'ems_syncing_groups'
 
@@ -11,36 +10,20 @@ EMS_SYNC_CONTEXT_KEY = 'ems_syncing_groups'
 class ems_users(models.Model):
     _inherit = "res.users"
 
-    # Photo visibility: this is the field the user actually sets, from "My Profile"
-    # (base.action_res_users_my). hr.employee.image_visibility mirrors it (see employee.py),
-    # with a fallback for employees who have no linked user at all.
-    image_visibility = fields.Selection(
-        [('public', 'Public'), ('private', 'Private (only directive staff)'),
-         ('no_photo', 'No photo (erase permanently)')],
-        string="Photo visibility", default='public')
-
-    # Mirror of employee_id.image_private (the real photo storage - see employee.py for why it
-    # lives there and not here). Read-only from "My Profile" (see SELF_WRITEABLE_FIELDS below) -
-    # only directive staff and above may actually change a photo (hr.employee.can_edit_photo /
-    # write()'s sudo bypass); a plain employee only ever controls image_visibility here.
-    image_private = fields.Binary(string="Photo", compute='_compute_image_private', inverse='_inverse_image_private')
+    # Single switch, set from "My Profile" (base.action_res_users_my). While True, nobody -
+    # not even an admin, from any form - may change image_1920 on this user's partner or on
+    # the linked hr.employee (see write() here and in employee.py); the photo becomes Odoo's
+    # own initials placeholder. There is no automatic restore on re-enable: re-enabling just
+    # allows a fresh upload again.
+    image_disabled = fields.Boolean(string="Disable profile picture", default=False)
 
     @property
     def SELF_WRITEABLE_FIELDS(self):
-        return super().SELF_WRITEABLE_FIELDS + ['image_visibility']
+        return super().SELF_WRITEABLE_FIELDS + ['image_disabled']
 
     @property
     def SELF_READABLE_FIELDS(self):
-        return super().SELF_READABLE_FIELDS + ['image_visibility', 'image_private']
-
-    def _compute_image_private(self):
-        for user in self:
-            user.image_private = user.employee_id.image_private if user.employee_id else False
-
-    def _inverse_image_private(self):
-        for user in self:
-            if user.employee_id:
-                user.employee_id.sudo().image_private = user.image_private
+        return super().SELF_READABLE_FIELDS + ['image_disabled']
 
     def write(self, vals):
         trigger = any(
@@ -50,58 +33,57 @@ class ems_users(models.Model):
         before = {}
         if trigger and not self.env.context.get(EMS_SYNC_CONTEXT_KEY):
             before = {user: user.groups_id for user in self}
+
+        syncing_photo = self.env.context.get(EMS_PHOTO_SYNC_CONTEXT_KEY)
+        disabling = vals.get('image_disabled') is True
+        photo = vals.pop('image_1920', _UNSET)
+        if photo is not _UNSET and not syncing_photo:
+            for user in self:
+                # Use the state image_disabled WILL have after this write (vals, if
+                # present, wins over the current DB value) - not just the current DB
+                # value - so re-enabling and uploading a new photo in the same save (e.g.
+                # "My Profile": untick "Disable profile picture" and pick a file, then
+                # Save once) works in one step instead of needing two separate saves.
+                will_be_disabled = vals.get('image_disabled', user.image_disabled)
+                if will_be_disabled:
+                    raise UserError(_("The profile picture is disabled; it cannot be changed."))
+
         res = super().write(vals)
+
+        if photo is not _UNSET:
+            for user in self:
+                write_photo(user.partner_id.sudo(), photo)
+
         if before:
             self._sync_ems_implied_groups(before)
-        if (vals.keys() & {'image_visibility', 'image_private'}
-                and not self.env.context.get(EMS_PHOTO_SYNC_CONTEXT_KEY)):
-            self._sync_partner_photo()
+
+        if disabling:
+            for user in self:
+                # res.users has no avatar.mixin method of its own (only its delegated FIELDS
+                # are auto-generated via _inherits) - generate the placeholder from the
+                # partner, which does inherit avatar.mixin directly.
+                placeholder = user.partner_id._avatar_generate_svg()
+                # ir_attachment._check_contents forces any XML-like mimetype (SVG included)
+                # down to 'text/plain' unless the acting user can write ir.ui.view - checked
+                # with sudo(False), so a plain .sudo() wrapper does NOT bypass it (by design,
+                # to stop a non-admin sneaking a script-bearing SVG through a sudo'd write).
+                # with_user(SUPERUSER_ID) genuinely changes the acting user for this
+                # placeholder write, which is what actually clears that check - without it,
+                # a teacher disabling their own photo gets a mislabeled attachment that
+                # browsers refuse to render as an image ("Binary file" instead of the
+                # placeholder).
+                synced = user.with_user(SUPERUSER_ID).with_context(**{EMS_PHOTO_SYNC_CONTEXT_KEY: True})
+                write_photo(synced.partner_id, placeholder)
+                if user.employee_id:
+                    write_photo(synced.employee_id, placeholder)
+        elif photo is not _UNSET and not syncing_photo:
+            for user in self:
+                if user.employee_id:
+                    write_photo(
+                        user.employee_id.sudo().with_context(**{EMS_PHOTO_SYNC_CONTEXT_KEY: True}),
+                        user.image_1920)
+
         return res
-
-    def _sync_partner_photo(self):
-        """Keep the linked contact's (res.partner) photo consistent with what "My Profile"
-        just set - this is what makes the visibility restriction truly global (Discuss, the
-        top bar, the org chart, ems.notice.sent_by, anywhere else that reads a user's own
-        avatar instead of hr.employee's), without needing to gate res.partner.image_1920 for
-        every contact in the database (students, families, companies...).
-
-        'no_photo' erases the real photo for good (GDPR) - everywhere it's stored, not just
-        hidden. Otherwise, back up the contact's current photo into its own image_private the
-        first time it goes through this sync (it may still hold the real, pre-feature photo),
-        then push whatever hr.employee.image_1920 currently resolves to (real photo, or the
-        initials placeholder - see employee.py's _compute_image_1920): this mirrors exactly
-        what the employee's own kanban/form already show to an unauthorized viewer.
-        """
-        for user in self:
-            if not user.employee_id:
-                continue
-            employee = user.employee_id.sudo().with_context(**{EMS_PHOTO_SYNC_CONTEXT_KEY: True})
-            partner = user.partner_id.sudo()
-            if user.image_visibility == 'no_photo':
-                employee.image_private = False
-                partner.image_private = False
-            elif not partner.image_private and self._partner_has_real_image_1920(partner):
-                partner.image_private = partner.image_1920
-            partner.image_1920 = employee.image_1920
-
-    def _partner_has_real_image_1920(self, partner):
-        # image_1920 always has SOME value on a res.users' partner - Odoo auto-generates an SVG
-        # initials placeholder on user creation (res.users.create()) when none is set, and this
-        # feature itself writes one whenever visibility isn't 'public' (see employee.py). That's
-        # not a real photo to back up: without this check, a sync would "back up" a placeholder
-        # as if it were the real photo, and every later sync would just keep re-serving it.
-        #
-        # Checks the decoded bytes directly (not ir_attachment.mimetype): overwriting an
-        # attachment's content in place does not necessarily re-detect its mimetype, so a
-        # placeholder written over a real photo's attachment can keep reporting the OLD, real
-        # mimetype - unreliable. The actual content is always authoritative.
-        if not partner.image_1920:
-            return False
-        try:
-            decoded = base64.b64decode(partner.image_1920)
-        except (ValueError, TypeError):
-            return True
-        return not decoded.lstrip().startswith(b'<?xml')
 
     def _sync_ems_implied_groups(self, before):
         """When a user loses an EMS group (Academic/Secretary/Quality/Settings

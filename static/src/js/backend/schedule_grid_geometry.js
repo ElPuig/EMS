@@ -44,3 +44,29 @@ export function formatHourMinutes(value) {
     const minutes = Math.round((value - hour) * 60);
     return `${String(hour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 }
+
+// Mirrors ems.schedule_report_mixin.REPORT_COLOR_PALETTE on the Python side (kept in sync by
+// hand — different languages can't literally share one constant) — so a subject/activity tends
+// to land on the same colour in the widget as it does in the PDF.
+export const REPORT_COLOR_PALETTE = [
+    "#5b8def", "#f4a261", "#2a9d8f", "#e76f51", "#8ecae6", "#ffb703",
+    "#c77dff", "#06d6a0", "#ef476f", "#118ab2", "#bc6c25", "#9d4edd",
+];
+
+// Assigns each distinct 'key' its own colour, reused every time that key reappears, in
+// first-seen (day, hour) order — the same "same subject/activity always gets the same colour"
+// rule the PDF's own REPORT_COLOR_PALETTE/_report_color_key already follows. Only distinguishes
+// colours *within* the entries actually passed in (a schedule's own subjects/activities), not
+// across every subject that exists — there's no reason to reserve a colour for one this
+// particular schedule never uses. 'items' is [{key, dayofweek, hour_from}, ...]; returns a
+// Map<key, hexColor>.
+export function buildColorMap(items) {
+    const sorted = [...items].sort((a, b) => a.dayofweek - b.dayofweek || a.hour_from - b.hour_from);
+    const colorByKey = new Map();
+    for (const item of sorted) {
+        if (!colorByKey.has(item.key)) {
+            colorByKey.set(item.key, REPORT_COLOR_PALETTE[colorByKey.size % REPORT_COLOR_PALETTE.length]);
+        }
+    }
+    return colorByKey;
+}

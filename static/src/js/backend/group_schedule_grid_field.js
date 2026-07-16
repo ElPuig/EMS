@@ -4,7 +4,7 @@ import { Component } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useService } from "@web/core/utils/hooks";
-import { PX_PER_HOUR, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes } from "./schedule_grid_geometry";
+import { PX_PER_HOUR, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes, buildColorMap } from "./schedule_grid_geometry";
 
 // A group's own shift already tells us the realistic hour window for its schedule — unlike the
 // teacher's grid (which has no single shift and must auto-fit whatever hours its entries span),
@@ -108,11 +108,40 @@ export class GroupScheduleGridField extends Component {
         // right around the break, so an oversized break block is especially likely to bury one of
         // them; see also the CSS z-index rule that keeps teaching blocks on top regardless).
         const height = this.blockIsBreak(block) ? naturalHeight : Math.max(MIN_ENTRY_HEIGHT, naturalHeight);
-        return `top:${top}px;height:${height}px`;
+        const color = this.blockColor(block);
+        return `top:${top}px;height:${height}px${color ? `;background-color:${color}` : ""}`;
     }
 
     blockIsBreak(block) {
         return !!block.entries[0].data.non_teaching_is_break;
+    }
+
+    // A subject gets its own colour, distinct from every other subject taught to this group — but
+    // not a break, which already has its own fixed, distinctive look (see the equivalent note in
+    // schedule_grid_field.js's own _colorKey).
+    _colorKey(block) {
+        if (this.blockIsBreak(block)) {
+            return null;
+        }
+        return `s_${block.entries[0].data.subject_id[0]}`;
+    }
+
+    get colorByKey() {
+        const items = [];
+        for (const day of WEEKDAYS) {
+            for (const block of this.blocksForDay(day)) {
+                const key = this._colorKey(block);
+                if (key) {
+                    items.push({ key, dayofweek: day, hour_from: block.hour_from });
+                }
+            }
+        }
+        return buildColorMap(items);
+    }
+
+    blockColor(block) {
+        const key = this._colorKey(block);
+        return key ? this.colorByKey.get(key) : null;
     }
 
     // A break block is too short to fit a time line + a label line (see MIN_ENTRY_HEIGHT's own

@@ -5,7 +5,7 @@ import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
-import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes } from "./schedule_grid_geometry";
+import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes, buildColorMap } from "./schedule_grid_geometry";
 
 const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids"];
 
@@ -172,11 +172,50 @@ export class ScheduleGridField extends Component {
         // would visually bleed into whatever comes right after it and hide it (MIN_ENTRY_HEIGHT
         // only helps a block that isn't sharing its vertical space with a neighbour).
         const height = entry.data.non_teaching_is_break ? naturalHeight : Math.max(MIN_ENTRY_HEIGHT, naturalHeight);
-        return `top:${top}px;height:${height}px`;
+        const color = this.entryColor(entry);
+        return `top:${top}px;height:${height}px${color ? `;background-color:${color}` : ""}`;
     }
 
     entryIsBlank(entry) {
         return !entry.data.subject_id && !entry.data.non_teaching;
+    }
+
+    // A subject or non-teaching *reason* (a meeting, a guard duty...) gets its own colour, distinct
+    // from every other one appearing in this same schedule — but not a break specifically, which
+    // already has its own fixed, distinctive look (a brown stripe, see .o_schedule_grid_entry_break
+    // in schedule_grid.css) precisely so it never blends in as "just another activity".
+    _colorKey(entry) {
+        if (entry.data.non_teaching_is_break) {
+            return null;
+        }
+        if (entry.data.non_teaching) {
+            return `n_${entry.data.non_teaching[0]}`;
+        }
+        if (entry.data.subject_id) {
+            return `s_${entry.data.subject_id[0]}`;
+        }
+        return null;
+    }
+
+    // Colours are assigned across every entry currently shown (real + derived breaks, though
+    // breaks opt out via _colorKey), not the whole subject/activity catalogue — see buildColorMap.
+    get colorByKey() {
+        const items = [];
+        for (const entry of [...this.entries, ...this.derivedBreakEntries]) {
+            if (!this._hasValidDuration(entry)) {
+                continue;
+            }
+            const key = this._colorKey(entry);
+            if (key) {
+                items.push({ key, dayofweek: Number(entry.data.dayofweek), hour_from: entry.data.hour_from });
+            }
+        }
+        return buildColorMap(items);
+    }
+
+    entryColor(entry) {
+        const key = this._colorKey(entry);
+        return key ? this.colorByKey.get(key) : null;
     }
 
     entryLabel(entry) {

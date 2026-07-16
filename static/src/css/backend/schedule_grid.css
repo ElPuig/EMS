@@ -168,8 +168,10 @@
     text-overflow: ellipsis;
 }
 
+/* Non-teaching activities OTHER than a break (a meeting, a guard duty...) now get their own
+   colour per activity type, same as a subject — see 'entryColor'/'blockColor' — this class only
+   still carries the z-index rule (see below). */
 .o_schedule_grid_entry_nonteaching {
-    background-color: #8d99ae;
     z-index: 1;
 }
 

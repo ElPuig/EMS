@@ -6,6 +6,16 @@ import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useService } from "@web/core/utils/hooks";
 import { PX_PER_HOUR, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes } from "./schedule_grid_geometry";
 
+// A group's own shift already tells us the realistic hour window for its schedule — unlike the
+// teacher's grid (which has no single shift and must auto-fit whatever hours its entries span),
+// the group grid uses this fixed window instead, so it doesn't render a tall, mostly-empty axis
+// for a group that's only ever scheduled in half of it. Kept in sync by hand with the equivalent
+// SHIFT_HOURS in models/contacts/group_schedule.py (get_schedule_report_lines' PDF version).
+const SHIFT_HOURS = {
+    morning: { start: 8, end: 15 },
+    afternoon: { start: 15, end: 22 },
+};
+
 // Read-only weekly grid for a GROUP's schedule (day columns x hourly rows), built client-side from
 // this group's own 'schedule_attendance_ids' — an aggregation, across every teacher's calendar that
 // includes this group, of real teaching slots plus (when derivable) the group's break period — see
@@ -30,6 +40,12 @@ export class GroupScheduleGridField extends Component {
     }
 
     get bounds() {
+        const shift = this.props.record.data.shift;
+        if (shift && SHIFT_HOURS[shift]) {
+            return SHIFT_HOURS[shift];
+        }
+        // No shift set (e.g. a reinforcement group) — fall back to auto-fitting the entries
+        // themselves, same as before, rather than guessing a window that might hide real data.
         return computeBounds(this.entries.map((entry) => ({ hour_from: entry.data.hour_from, hour_to: entry.data.hour_to })));
     }
 

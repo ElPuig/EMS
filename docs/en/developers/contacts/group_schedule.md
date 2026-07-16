@@ -49,7 +49,12 @@ flowchart LR
   weekday. Within a cell, teaching entries are grouped by `subject_id` (several teachers
   co-teaching the same subject at the same time collapse into **one** visual block, never
   one per teacher); a break entry (no `subject_id`) renders as its own, differently-styled
-  block.
+  block. Entries outside the group's own shift window (`SHIFT_HOURS`: morning 8-15, afternoon
+  15-22) are dropped before building rows — a group only ever needs its own shift's slice of
+  the day shown/printed, not the other shift's. No filtering happens when `shift` isn't set.
+  The same window is applied client-side by the OWL widget (its own `SHIFT_HOURS` constant in
+  `group_schedule_grid_field.js`, kept in sync by hand) to size the grid's axis, so a group's
+  tab doesn't render a tall, half-empty grid spanning hours it's never scheduled in.
 - `get_subject_teachers_summary()` — one row per distinct subject taught to this group, with
   the sorted, de-duplicated list of `employee_id.display_name` teaching it. This is where
   co-teaching becomes visible (more than one name in the row), instead of in the grid.

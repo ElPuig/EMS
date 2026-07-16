@@ -143,6 +143,29 @@ class TestGroupSchedule(TransactionCase):
         self.assertEqual(monday_cell['blocks'][0]['entries'].non_teaching, self.non_teaching_br)
         self.assertTrue(monday_cell['blocks'][0]['entries'].non_teaching_is_break)
 
+    def test_get_schedule_report_lines_excludes_entries_outside_shift_window(self):
+        afternoon_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TGSL4', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.space.id, 'shift': 'afternoon',
+        })
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Shift Window)')
+        calendar_a.apply_schedule_changes([
+            {
+                'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [afternoon_group.id], 'name': 'TGSL: TGSL4 (morning, out of window)',
+            },
+            {
+                'dayofweek': '0', 'hour_from': 16, 'hour_to': 17, 'day_period': 'afternoon',
+                'subject_id': self.subject.id, 'group_ids': [afternoon_group.id], 'name': 'TGSL: TGSL4 (afternoon, in window)',
+            },
+        ])
+
+        lines = afternoon_group.get_schedule_report_lines()
+
+        time_labels = {line['time_label'] for line in lines}
+        self.assertNotIn('09:00-10:00', time_labels)
+        self.assertIn('16:00-17:00', time_labels)
+
     def test_break_not_shown_without_level(self):
         reinforcement_group = self.env['ems.group'].create({
             'group_type': 'reinforcement', 'name': 'REF-TGSL', 'space_id': self.space.id, 'shift': 'morning',

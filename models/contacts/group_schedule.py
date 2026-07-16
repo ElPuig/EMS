@@ -3,6 +3,13 @@
 from odoo import fields, models
 
 WEEKDAYS = ('0', '1', '2', '3', '4')
+# A group's own shift already tells us the realistic hour window for its schedule, so the report
+# doesn't need to show/print a wider range than that. Kept in sync by hand with the JS copy
+# (SHIFT_HOURS in static/src/js/backend/group_schedule_grid_field.js).
+SHIFT_HOURS = {
+    'morning': (8, 15),
+    'afternoon': (15, 22),
+}
 
 
 class ems_group_schedule(models.Model):
@@ -50,6 +57,11 @@ class ems_group_schedule(models.Model):
         surfaced in 'get_subject_teachers_summary' instead, not by repeating the block."""
         self.ensure_one()
         weekday_entries = self.schedule_attendance_ids.filtered(lambda attendance: attendance.dayofweek in WEEKDAYS)
+        shift_hours = SHIFT_HOURS.get(self.shift)
+        if shift_hours:
+            shift_start, shift_end = shift_hours
+            weekday_entries = weekday_entries.filtered(
+                lambda attendance: attendance.hour_from >= shift_start and attendance.hour_to <= shift_end)
         periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in weekday_entries})
 
         color_by_key = {}

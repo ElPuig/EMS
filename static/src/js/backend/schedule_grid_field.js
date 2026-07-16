@@ -86,12 +86,30 @@ export class ScheduleGridField extends Component {
         return this.props.record.data[this.props.name].records;
     }
 
+    // Level-framework-derived break(s) this teacher has no real saved row for yet (see
+    // hr.employee._get_derived_break_entries()) — deliberately a SEPARATE record set from
+    // 'entries', merged in only by 'entriesForDay' (view mode) below, never by anything the Edit
+    // buffer reads, so a derived break can never get silently "adopted" as real on Save.
+    get derivedBreakEntries() {
+        return this.props.record.data.derived_break_attendance_ids.records;
+    }
+
     get days() {
         return dayLabels().map((label, index) => ({ index, label }));
     }
 
+    // Guards against a zero/invalid-duration entry (hour_to <= hour_from, or a missing value)
+    // ever widening the axis or rendering as a degenerate block — never legitimate schedule data.
+    _hasValidDuration(entry) {
+        return Number.isFinite(entry.data.hour_from) && Number.isFinite(entry.data.hour_to) && entry.data.hour_to > entry.data.hour_from;
+    }
+
     get bounds() {
-        return computeBounds(this.entries.map((entry) => ({ hour_from: entry.data.hour_from, hour_to: entry.data.hour_to })));
+        return computeBounds(
+            [...this.entries, ...this.derivedBreakEntries]
+                .filter((entry) => this._hasValidDuration(entry))
+                .map((entry) => ({ hour_from: entry.data.hour_from, hour_to: entry.data.hour_to }))
+        );
     }
 
     get hours() {
@@ -116,8 +134,16 @@ export class ScheduleGridField extends Component {
 
     // Blank/unassigned periods are never saved (see the class comment), so in practice every real
     // entry here already has a subject or a non-teaching reason — this filter is just a safety net.
+    // A derived break only fills in a slot no real entry already occupies (a real, explicitly
+    // saved break always wins).
     entriesForDay(dayIndex) {
-        return this.entries.filter((entry) => Number(entry.data.dayofweek) === dayIndex && !this.entryIsBlank(entry));
+        const real = this.entries.filter(
+            (entry) => Number(entry.data.dayofweek) === dayIndex && !this.entryIsBlank(entry) && this._hasValidDuration(entry)
+        );
+        const occupied = new Set(real.map((entry) => `${entry.data.hour_from}_${entry.data.hour_to}`));
+        const derived = this.derivedBreakEntries.filter((entry) =>
+            Number(entry.data.dayofweek) === dayIndex && this._hasValidDuration(entry) && !occupied.has(`${entry.data.hour_from}_${entry.data.hour_to}`));
+        return [...real, ...derived];
     }
 
     entryStyle(entry) {

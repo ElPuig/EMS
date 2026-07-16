@@ -67,9 +67,17 @@ class ems_working_schedule(models.Model):
 		so every attendance row here is a real subject or non-teaching commitment. Each cell carries
 		the matching attendance record (or False) plus a 'color': the same subject/non-teaching reason
 		always gets the same color, even across different days, to make the printed grid easier to
-		scan at a glance."""
+		scan at a glance. A break the teacher's own calendar has no real saved row for yet is filled
+		in from 'hr.employee._get_derived_break_entries()' (level-framework-derived, see that
+		method), skipped for any slot a real entry already occupies."""
 		self.ensure_one()
 		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
+		employee = self.get_employee()
+		if employee:
+			occupied = {(attendance.dayofweek, attendance.hour_from, attendance.hour_to) for attendance in weekday_entries}
+			derived_breaks = employee._get_derived_break_entries().filtered(
+				lambda attendance: (attendance.dayofweek, attendance.hour_from, attendance.hour_to) not in occupied)
+			weekday_entries = weekday_entries | derived_breaks
 		periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in weekday_entries})
 
 		color_by_key = {}

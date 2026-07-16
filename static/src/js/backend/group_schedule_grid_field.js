@@ -39,6 +39,12 @@ export class GroupScheduleGridField extends Component {
         return dayLabels().map((label, index) => ({ index, label }));
     }
 
+    // Guards against a zero/invalid-duration entry (hour_to <= hour_from, or a missing value)
+    // ever widening the axis or rendering as a degenerate block — never legitimate schedule data.
+    _hasValidDuration(entry) {
+        return Number.isFinite(entry.data.hour_from) && Number.isFinite(entry.data.hour_to) && entry.data.hour_to > entry.data.hour_from;
+    }
+
     get bounds() {
         const shift = this.props.record.data.shift;
         if (shift && SHIFT_HOURS[shift]) {
@@ -46,7 +52,9 @@ export class GroupScheduleGridField extends Component {
         }
         // No shift set (e.g. a reinforcement group) — fall back to auto-fitting the entries
         // themselves, same as before, rather than guessing a window that might hide real data.
-        return computeBounds(this.entries.map((entry) => ({ hour_from: entry.data.hour_from, hour_to: entry.data.hour_to })));
+        return computeBounds(
+            this.entries.filter((entry) => this._hasValidDuration(entry)).map((entry) => ({ hour_from: entry.data.hour_from, hour_to: entry.data.hour_to }))
+        );
     }
 
     get hours() {
@@ -68,7 +76,7 @@ export class GroupScheduleGridField extends Component {
     }
 
     entriesForDay(dayIndex) {
-        return this.entries.filter((entry) => Number(entry.data.dayofweek) === dayIndex);
+        return this.entries.filter((entry) => Number(entry.data.dayofweek) === dayIndex && this._hasValidDuration(entry));
     }
 
     // Groups a day's entries into visual blocks: entries sharing the same (hour_from, hour_to) AND
@@ -161,7 +169,7 @@ export class GroupScheduleGridField extends Component {
 
 export const groupScheduleGridField = {
     component: GroupScheduleGridField,
-    supportedTypes: ["one2many"],
+    supportedTypes: ["many2many"],
 };
 
 registry.category("fields").add("group_schedule_grid", groupScheduleGridField);

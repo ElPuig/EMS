@@ -169,6 +169,68 @@ class TestWorkingSchedule(TransactionCase):
         self.assertFalse(tuesday['entry'])
         self.assertFalse(tuesday['color'])
 
+    def test_get_derived_break_entries_returns_break_per_shift_worked(self):
+        level_framework = self.env['resource.calendar'].create({
+            'name': 'Test Level Framework (Derived Break)', 'is_framework': True, 'level_id': self.level.id, 'full_time_required_hours': 24,
+        })
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': level_framework.id, 'name': 'BR: Break', 'dayofweek': '0',
+            'hour_from': 11, 'hour_to': 11.5, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id,
+        })
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': level_framework.id, 'name': 'BR: Break', 'dayofweek': '0',
+            'hour_from': 18, 'hour_to': 18.33, 'day_period': 'afternoon', 'non_teaching': self.non_teaching_br.id,
+        })
+        schedule = self.env['resource.calendar'].create({'name': 'Test Derived Break (Working Schedule)'})
+        self.teacher.resource_calendar_id = schedule
+        schedule.apply_schedule_changes([
+            {
+                'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            },
+            {
+                'dayofweek': '0', 'hour_from': 16, 'hour_to': 17, 'day_period': 'afternoon',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            },
+        ])
+
+        breaks = self.teacher._get_derived_break_entries()
+
+        self.assertEqual(len(breaks), 2)
+        self.assertEqual(set(breaks.mapped('day_period')), {'morning', 'afternoon'})
+
+    def test_get_derived_break_entries_empty_without_matching_framework(self):
+        schedule = self.env['resource.calendar'].create({'name': 'Test No Derived Break (Working Schedule)'})
+        self.teacher.resource_calendar_id = schedule
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        # No framework tied to 'self.level' exists in this test (only the level-less 'cls.framework').
+        self.assertFalse(self.teacher._get_derived_break_entries())
+
+    def test_report_working_schedule_includes_derived_break(self):
+        level_framework = self.env['resource.calendar'].create({
+            'name': 'Test Level Framework (Derived Break Report)', 'is_framework': True, 'level_id': self.level.id, 'full_time_required_hours': 24,
+        })
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': level_framework.id, 'name': 'BR: Break', 'dayofweek': '0',
+            'hour_from': 11, 'hour_to': 11.5, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id,
+        })
+        schedule = self.env['resource.calendar'].create({'name': 'Test Derived Break Report (Working Schedule)'})
+        self.teacher.resource_calendar_id = schedule
+        schedule.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+        }])
+
+        lines = schedule.get_schedule_report_lines()
+
+        matching = [line for line in lines if line['time_label'] == '11:00-11:30']
+        self.assertEqual(len(matching), 1)
+        self.assertTrue(matching[0]['cells'][0]['entry'])
+
     def test_get_schedule_report_lines_same_item_gets_same_color_across_days(self):
         schedule = self.env['resource.calendar'].create({'name': 'Test Report Colors (Working Schedule)'})
         schedule.apply_schedule_changes([

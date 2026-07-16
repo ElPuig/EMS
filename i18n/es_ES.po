@@ -7678,6 +7678,13 @@ msgid "Schedule"
 msgstr "Horario"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__derived_break_attendance_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__derived_break_attendance_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__derived_break_attendance_ids
+msgid "Derived breaks"
+msgstr "Patios derivados"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__schedule_import_first_entry_time
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__schedule_import_first_entry_time
 msgid "Schedule Import First Entry Time"

@@ -22,14 +22,17 @@ export function dayLabels() {
 
 // 'hourPairs' is any iterable of {hour_from, hour_to} — callers pass their own entries so this
 // stays free of any dependency on how those entries are stored (plain records, grouped blocks...).
+// Fits tightly to whatever hours are actually present (an afternoon-only teacher, 14h-22h, sees
+// exactly that — not a wider range padded out to a generic default) — DEFAULT_START/DEFAULT_END
+// only apply as a fallback canvas when there's nothing to fit yet (an empty/new schedule).
 export function computeBounds(hourPairs) {
-    let start = DEFAULT_START;
-    let end = DEFAULT_END;
+    let start = null;
+    let end = null;
     for (const { hour_from, hour_to } of hourPairs) {
-        start = Math.min(start, Math.floor(hour_from));
-        end = Math.max(end, Math.ceil(hour_to));
+        start = start === null ? Math.floor(hour_from) : Math.min(start, Math.floor(hour_from));
+        end = end === null ? Math.ceil(hour_to) : Math.max(end, Math.ceil(hour_to));
     }
-    return { start, end };
+    return { start: start ?? DEFAULT_START, end: end ?? DEFAULT_END };
 }
 
 export function formatHour(hour) {

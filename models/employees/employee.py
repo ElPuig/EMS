@@ -8,6 +8,8 @@ employee_types = [
     ("teacher", "Teacher")
 ]
 
+WEEKDAYS = ('0', '1', '2', '3', '4')
+
 # Marks write_photo()'s own internal write so hr.employee.write() below skips its own
 # guard/push logic for it - otherwise write_photo(employee, ...) writing employee.image_1920
 # would re-enter hr.employee.write() with 'image_1920' in vals again, calling write_photo()
@@ -70,6 +72,14 @@ class ems_employee_base(models.AbstractModel):
     teaching_ids = fields.One2many(string="Teaching", comodel_name="ems.teaching", inverse_name="teacher_id")
     attendance_template_ids = fields.Many2many(string="Attendance templates", comodel_name="ems.attendance_template", relation="ems_attendance_template_teacher_rel")
     schedule_attendance_ids = fields.One2many(string="Schedule", comodel_name="resource.calendar.attendance", related="resource_calendar_id.attendance_ids")
+    # NOTE: deliberately kept SEPARATE from 'schedule_attendance_ids' (never merged into it) — the
+    # Schedule tab's Edit mode treats every record in that field as "real, already-saved" data (see
+    # 'schedule_grid_field.js' _seedBufferFromEntries, which uses it as the overlay that always wins
+    # over the framework baseline); mixing derived, not-actually-this-teacher's-own rows into it
+    # would let Edit silently "adopt" them as real on the next Save. Read-only view mode merges this
+    # in separately instead (see 'entriesForDay' in the widget) — see '_get_derived_break_entries'.
+    derived_break_attendance_ids = fields.Many2many(string="Derived breaks", comodel_name="resource.calendar.attendance",
+        compute="_compute_derived_break_attendance_ids")
    
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
     role_ids = fields.Many2many(string="Roles", comodel_name="ems.role", relation="hr_employee_public_ems_role_rel", column1="hr_employee_public_id", column2="ems_role_id", domain="[('employee_type', '=', employee_type)]") 
@@ -96,6 +106,38 @@ class ems_employee_base(models.AbstractModel):
         can_edit = self.env.user.has_group('ems.group_department_chief')
         for rec in self:
             rec.can_edit_schedule = can_edit
+
+    def _compute_derived_break_attendance_ids(self):
+        for employee in self:
+            employee.derived_break_attendance_ids = employee._get_derived_break_entries()
+
+    def _get_derived_break_entries(self):
+        """This teacher's break/patio period(s), derived from the level(s) of the groups they
+        actually teach — one per shift (morning/afternoon) they work, mirroring
+        'ems.group._get_break_entries()' but keyed by the teacher's own real teaching entries
+        instead of a single group's level_id (a teacher, unlike a group, has no level of their
+        own). For a shift where the teacher teaches groups from more than one level, the first
+        real entry of that shift (day/hour order) decides which level's break applies — a
+        genuine tie with no single right answer, but a deterministic one. Returns an empty
+        recordset, without error, for a shift the teacher doesn't work, or when the level in
+        question has no framework."""
+        self.ensure_one()
+        real_entries = self.resource_calendar_id.attendance_ids.filtered(
+            lambda attendance: attendance.dayofweek in WEEKDAYS and attendance.subject_id and attendance.group_ids
+        ).sorted(key=lambda attendance: (attendance.dayofweek, attendance.hour_from))
+
+        breaks = self.env['resource.calendar.attendance']
+        for shift in ('morning', 'afternoon'):
+            shift_entries = real_entries.filtered(lambda attendance, shift=shift: attendance.day_period == shift)
+            level = shift_entries[:1].group_ids[:1].level_id
+            if not level:
+                continue
+            framework = self.env['resource.calendar'].search(
+                [('is_framework', '=', True), ('level_id', '=', level.id)], limit=1)
+            breaks |= framework.attendance_ids.filtered(
+                lambda attendance, shift=shift: attendance.dayofweek in WEEKDAYS
+                    and attendance.non_teaching.is_break and attendance.day_period == shift)
+        return breaks
 
     def _get_new_employee_type(self):
         return employee_types

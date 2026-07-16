@@ -8,18 +8,16 @@ employee_types = [
     ("teacher", "Teacher")
 ]
 
-# Shared with models/employees/user.py: marks a write as an internal employee<->user photo
-# push so the receiving side's write() doesn't push it right back (infinite loop guard).
+# Marks write_photo()'s own internal write so hr.employee.write() below skips its own
+# guard/push logic for it - otherwise write_photo(employee, ...) writing employee.image_1920
+# would re-enter hr.employee.write() with 'image_1920' in vals again, calling write_photo()
+# again, forever (RecursionError). Only hr.employee needs this: write_photo() is only ever
+# called with an hr.employee or res.partner record (never res.users), and only hr.employee
+# has its own write() override that could loop back into write_photo() this way - res.partner
+# (models/contacts/contact.py) has no photo-sync logic of its own to re-enter.
 EMS_PHOTO_SYNC_CONTEXT_KEY = 'ems_syncing_photo'
 
-# Marks write_photo()'s own two internal sub-writes so write() below skips its own
-# guard/pop/push logic for them - otherwise the first sub-write (image_1920 = False)
-# would re-enter write() with 'image_1920' in vals again, calling write_photo() again,
-# forever (RecursionError).
-_WRITE_PHOTO_CONTEXT_KEY = 'ems_writing_photo_raw'
-
 _UNSET = object()
-
 
 # image.mixin's resized copies of image_1920 - each stored as its OWN ir_attachment,
 # recomputed automatically whenever image_1920 changes.
@@ -47,7 +45,7 @@ def write_photo(record, value):
         ('res_id', 'in', record.ids),
     ]).unlink()
     record.invalidate_recordset(_IMAGE_SIZE_FIELDS)
-    raw = record.with_context(**{_WRITE_PHOTO_CONTEXT_KEY: True})
+    raw = record.with_context(**{EMS_PHOTO_SYNC_CONTEXT_KEY: True})
     raw.image_1920 = value
     # image_1024/512/256/128 are related, store=True fields recomputed lazily - only on
     # the next actual read, by whoever that happens to be. Left alone, that read (and the
@@ -59,7 +57,8 @@ def write_photo(record, value):
     # now, still as whoever `record` is bound to, forces that create() to happen here
     # instead, once, correctly.
     for field in _IMAGE_SIZE_FIELDS[1:]:
-        raw[field]
+        _ = raw[field]
+
 
 class ems_employee_base(models.AbstractModel):
     _inherit = ["hr.employee.base"]
@@ -225,12 +224,13 @@ class ems_employee(models.AbstractModel):
         return employees
 
     def write(self, vals):
-        if self.env.context.get(_WRITE_PHOTO_CONTEXT_KEY):
+        # write_photo() re-enters here to actually store image_1920 (see its own comment) -
+        # let that one through untouched, skipping the guard/push logic below entirely.
+        if self.env.context.get(EMS_PHOTO_SYNC_CONTEXT_KEY):
             return super().write(vals)
 
-        syncing_photo = self.env.context.get(EMS_PHOTO_SYNC_CONTEXT_KEY)
         photo = vals.pop('image_1920', _UNSET)
-        if photo is not _UNSET and not syncing_photo:
+        if photo is not _UNSET:
             for employee in self:
                 if employee.user_id and employee.user_id.image_disabled:
                     raise UserError(_("The profile picture is disabled; it cannot be changed."))
@@ -246,13 +246,10 @@ class ems_employee(models.AbstractModel):
                 if employee.resource_calendar_id and not employee.resource_calendar_id.is_framework:
                     employee.resource_calendar_id.name = employee._personal_calendar_name()
 
-        if photo is not _UNSET and not syncing_photo:
+        if photo is not _UNSET:
             for employee in self:
                 if employee.user_id:
-                    write_photo(
-                        employee.user_id.partner_id.sudo().with_context(
-                            **{EMS_PHOTO_SYNC_CONTEXT_KEY: True}),
-                        employee.image_1920)
+                    write_photo(employee.user_id.partner_id.sudo(), employee.image_1920)
 
         return result
 

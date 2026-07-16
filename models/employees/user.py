@@ -2,7 +2,7 @@
 
 from odoo import _, fields, models, SUPERUSER_ID
 from odoo.exceptions import UserError
-from .employee import _UNSET, EMS_PHOTO_SYNC_CONTEXT_KEY, write_photo
+from .employee import _UNSET, write_photo
 
 EMS_SYNC_CONTEXT_KEY = 'ems_syncing_groups'
 
@@ -34,10 +34,9 @@ class ems_users(models.Model):
         if trigger and not self.env.context.get(EMS_SYNC_CONTEXT_KEY):
             before = {user: user.groups_id for user in self}
 
-        syncing_photo = self.env.context.get(EMS_PHOTO_SYNC_CONTEXT_KEY)
         disabling = vals.get('image_disabled') is True
         photo = vals.pop('image_1920', _UNSET)
-        if photo is not _UNSET and not syncing_photo:
+        if photo is not _UNSET:
             for user in self:
                 # Use the state image_disabled WILL have after this write (vals, if
                 # present, wins over the current DB value) - not just the current DB
@@ -72,16 +71,14 @@ class ems_users(models.Model):
                 # a teacher disabling their own photo gets a mislabeled attachment that
                 # browsers refuse to render as an image ("Binary file" instead of the
                 # placeholder).
-                synced = user.with_user(SUPERUSER_ID).with_context(**{EMS_PHOTO_SYNC_CONTEXT_KEY: True})
+                synced = user.with_user(SUPERUSER_ID)
                 write_photo(synced.partner_id, placeholder)
                 if user.employee_id:
                     write_photo(synced.employee_id, placeholder)
-        elif photo is not _UNSET and not syncing_photo:
+        elif photo is not _UNSET:
             for user in self:
                 if user.employee_id:
-                    write_photo(
-                        user.employee_id.sudo().with_context(**{EMS_PHOTO_SYNC_CONTEXT_KEY: True}),
-                        user.image_1920)
+                    write_photo(user.employee_id.sudo(), user.image_1920)
 
         return res
 

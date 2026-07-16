@@ -226,6 +226,29 @@ class TestEmployeePhotoVisibility(TransactionCase):
             base64.b64decode(self.photo),
         )
 
+    def test_migration_sync_employee_photo_to_user_avoids_stale_mimetype(self):
+        # Regression test: a centre migrating to this version may have a teacher whose
+        # user-side photo was uploaded independently (e.g. directly via Settings > Users,
+        # before this feature existed) in a different format than their employee-side one.
+        # The migration must not just overwrite the CONTENT in place - Odoo never
+        # re-detects an existing ir_attachment's mimetype on an in-place update - or the
+        # browser ends up being served the new bytes under the OLD, mismatched
+        # Content-Type ("Binary file" instead of the picture).
+        self.teacher_a.image_1920 = self.photo
+        self.teacher_a_user.with_context(ems_syncing_photo=True).partner_id.image_1920 = self.other_photo
+        self.env.cr.execute(
+            "UPDATE ir_attachment SET mimetype = 'image/webp' "
+            "WHERE res_model = 'res.partner' AND res_field = 'image_1920' AND res_id = %s",
+            (self.teacher_a_user.partner_id.id,))
+
+        migration = self._load_post_migrate_module()
+        migration._sync_employee_photo_to_user(self.env.cr)
+
+        self.assertEqual(
+            self._attachment_mimetype(
+                'res.partner', 'image_1920', self.teacher_a_user.partner_id.id),
+            'image/png')
+
     def test_migration_does_not_touch_employee_without_user(self):
         self.employee_without_user.image_1920 = self.photo
         migration = self._load_post_migrate_module()

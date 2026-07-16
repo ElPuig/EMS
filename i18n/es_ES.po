@@ -9024,6 +9024,13 @@ msgstr ""
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+#: code:addons/ems/models/employees/user.py:0
+msgid "The profile picture is disabled; it cannot be changed."
+msgstr "La foto de perfil está desactivada; no se puede cambiar."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
 msgid "The quantity for an enrollment item must always be 1."
 msgstr "La cantidad de un elemento de matrícula debe ser siempre 1."

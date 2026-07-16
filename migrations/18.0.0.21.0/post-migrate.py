@@ -113,53 +113,24 @@ def _seed_task_assignment_recipients(cr):
             type_xmlid, len(users), ', '.join(users.mapped('login')) or '-')
 
 
-def _copy_teacher_photo_to_user(cr):
-    # Before this version, creating/linking a teacher's/ASP's EMS user (via the
-    # "Create Google account" button, see google_workspace_integration.py) never
-    # copied the employee's photo onto the new res.users. Backfill it once here for
-    # whoever is already linked. Uses the ORM (not raw SQL) because image_1920 is an
-    # attachment-backed field (ir_attachment, not a plain column) on both hr.employee
-    # and res.partner - only Model.write() creates/dedupes that attachment correctly.
-    env = api.Environment(cr, SUPERUSER_ID, {})
-    # image_1920 is attachment-backed (no column, see Binary/Image field's
-    # attachment=True), so it can't be searched with a normal ORM domain -
-    # find candidates straight from ir_attachment instead.
-    cr.execute("""
-        SELECT e.id FROM hr_employee e
-        JOIN ir_attachment a
-            ON a.res_model = 'hr.employee' AND a.res_field = 'image_1920' AND a.res_id = e.id
-        WHERE e.employee_type IN ('teacher', 'asp') AND e.user_id IS NOT NULL
-    """)
-    employees = env['hr.employee'].browse(row[0] for row in cr.fetchall())
-    copied = 0
-    for employee in employees:
-        user = employee.user_id
-        # Never overwrite a photo the user already has - except the SVG initials
-        # avatar Odoo auto-generates on res.users/res.partner when no image is set
-        # (see res.users.create()/avatar.mixin._avatar_generate_svg()): that one is
-        # a placeholder, not a real photo, and should still be replaced.
-        cr.execute("""
-            SELECT mimetype FROM ir_attachment
-            WHERE res_model = 'res.partner' AND res_field = 'image_1920' AND res_id = %s
-        """, (user.partner_id.id,))
-        row = cr.fetchone()
-        has_real_photo = bool(row) and row[0] != 'image/svg+xml'
-        if not has_real_photo:
-            user.image_1920 = employee.image_1920
-            copied += 1
-    _logger.info(
-        "Migration 18.0.0.21.0: copied photo from %d teacher/ASP employee(s) to their linked user.",
-        copied,
-    )
-
-
 def _sync_employee_photo_to_user(cr):
-    # New in this version: hr.employee.image_1920 and the linked user's photo are always kept
-    # equal from now on (see models/employees/employee.py and user.py write() overrides). This
-    # feature has never been deployed before, in any form - no image_visibility/image_private
-    # data exists to migrate - so the only thing needed here is a one-time copy from each
-    # employee's current photo to their linked user, matching what write() will maintain
-    # automatically from now on.
+    # Before this version, creating/linking a teacher's/ASP's EMS user (via the
+    # "Create Google account" button, see google_workspace_integration.py) never copied
+    # the employee's photo onto the new res.users, and this feature's own
+    # hr.employee.image_1920 <-> res.users/res.partner.image_1920 sync
+    # (models/employees/employee.py and user.py write() overrides) never existed either -
+    # no image_visibility/image_private data exists anywhere to migrate. Both gaps are
+    # closed the same way: copy each employee's current photo to their linked user once,
+    # unconditionally, matching what write() will maintain automatically from now on.
+    #
+    # Uses write_photo() (not a plain assignment) because overwriting an existing
+    # ir_attachment's content in place does NOT re-detect its mimetype (only Model.create()
+    # does) - a teacher whose employee-side photo and user-side photo happen to differ in
+    # format (e.g. the user's own avatar was uploaded independently, directly on their
+    # res.users record, before this migration) would otherwise end up with the right bytes
+    # under the WRONG Content-Type, which browsers refuse to render (shows literal "Binary
+    # file" instead of the picture).
+    from odoo.addons.ems.models.employees.employee import write_photo
     env = api.Environment(cr, SUPERUSER_ID, {})
     cr.execute("""
         SELECT id FROM hr_employee WHERE user_id IS NOT NULL
@@ -167,7 +138,7 @@ def _sync_employee_photo_to_user(cr):
     employees = env['hr.employee'].with_context(active_test=False).browse(
         row[0] for row in cr.fetchall())
     for employee in employees:
-        employee.user_id.partner_id.image_1920 = employee.image_1920
+        write_photo(employee.user_id.partner_id, employee.image_1920)
     _logger.info(
         "Migration 18.0.0.21.0: synced 'image_1920' from %d employee(s) to their linked user.",
         len(employees),
@@ -178,5 +149,4 @@ def migrate(cr, _version):
     _migrate_non_teaching_type(cr)
     _migrate_attendance_template_teacher_ids(cr)
     _seed_task_assignment_recipients(cr)
-    _copy_teacher_photo_to_user(cr)
     _sync_employee_photo_to_user(cr)

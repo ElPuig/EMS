@@ -199,6 +199,7 @@ class TestAttendanceTemplate(TransactionCase):
         self.teacher_b.user_id = self.env['res.users'].create({
             'name': 'Test User B (Attendance Template)',
             'login': 'test_user_b_attendance_template@example.com',
+            'groups_id': [(4, self.env.ref('base.group_user').id), (4, self.env.ref('ems.group_teacher').id)],
         })
         template = template.with_user(self.teacher_b.user_id)
         self.assertFalse(template._get_read_only_user())

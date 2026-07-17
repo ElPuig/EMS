@@ -22,3 +22,21 @@ def post_init_hook(env):
               WHERE d.model = 'resource.calendar.attendance' AND d.res_id = rca.id
           )
     """)
+    _backfill_default_schedule_framework(env)
+
+
+def _backfill_default_schedule_framework(env):
+    """'res.company.default_schedule_framework_id' is required, and its default resolves
+    'ems.schedule_framework_default' via env.ref(). On a fresh install, Odoo's schema init
+    (which evaluates that default and enforces NOT NULL) runs before this module's own data
+    files are loaded, so the xmlid doesn't exist yet, the default resolves to nothing, and the
+    NOT NULL constraint fails to apply (logged as an odoo.schema ERROR, but non-fatal — see
+    migrations/18.0.0.20.0 and 18.0.0.21.0's post-migrate.py for the same fix on the upgrade
+    path). post_init_hook runs after data files are loaded, so the xmlid is guaranteed to exist
+    here — backfill any company still missing it."""
+    framework = env.ref('ems.schedule_framework_default', raise_if_not_found=False)
+    if not framework:
+        return
+    env['res.company'].search([('default_schedule_framework_id', '=', False)]).write({
+        'default_schedule_framework_id': framework.id,
+    })

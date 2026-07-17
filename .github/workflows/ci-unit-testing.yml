@@ -132,7 +132,7 @@ jobs:
           sudo mkdir -p /tmp/odoo-chrome-logs
           sudo cp -r /tmp/odoo_tests/. /tmp/odoo-chrome-logs/ 2>/dev/null || true
           sudo chmod -R a+r /tmp/odoo-chrome-logs
-          dmesg --time-format iso 2>/dev/null | tail -300 > /tmp/dmesg-tail.log || true
+          sudo dmesg --time-format iso 2>/dev/null | tail -300 > /tmp/dmesg-tail.log || true
 
       - name: Upload logs
         if: always()

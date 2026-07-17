@@ -49,6 +49,15 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y google-chrome-stable
 
+      # Ubuntu 24.04 runner images restrict unprivileged user namespaces via AppArmor
+      # by default, which breaks Chrome's crashpad_handler even with --no-sandbox
+      # (Odoo already passes --no-sandbox itself): it fails with
+      # "crashpad/util/linux/socket.cc: recvmsg: Connection reset by peer" and the
+      # tour test then times out waiting for the devtools port. See
+      # https://github.com/actions/runner-images/issues/9491.
+      - name: Allow unprivileged user namespaces for Chrome sandboxing
+        run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+
       - name: Install Odoo v18 from official repository
         run: |
           wget -q -O - https://nightly.odoo.com/odoo.key \

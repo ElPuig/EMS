@@ -146,6 +146,8 @@ De tornada a **Matrícula**, comproveu que tot estigui correcte:
 
 ![Secció de pagament amb el compte bancari ja registrat](../../assets/families/Matricula-confirmacio-07-PagamentOK.png)
 
+> **Bonificacions i exempcions (matrícules amb Taxes, CFGS):** si teniu dret a una **bonificació** (família nombrosa o monoparental general, beca) o a una **exempció** (família nombrosa o monoparental especial, discapacitat...) que encara **no es veu reflectida als imports**, pugeu el document justificatiu a l'apartat **Documentació** i espereu que Secretaria l'aprovi **abans de confirmar la matrícula**. Les bonificacions o exempcions aprovades **després** de la confirmació **no s'apliquen automàticament**: caldrà que contacteu amb la Secretaria del centre perquè les apliqui i regeneri la factura.
+
 El botó **Confirmar matrícula** **(3)** es manté desactivat (en color clar) fins que es compleixen **totes** aquestes condicions:
 
 * Totes les autoritzacions obligatòries estan **acceptades**.

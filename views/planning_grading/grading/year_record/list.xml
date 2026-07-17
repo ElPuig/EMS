@@ -1,0 +1,26 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_year_record_list">
+            <field name="name">ems.student.year_record.list</field>
+            <field name="model">ems.student.year_record</field>
+            <field name="arch" type="xml">
+                <list create="0" default_order="course_id desc, study_name asc, group_name asc">
+                    <field name="student_id"/>
+                    <field name="course_id"/>
+                    <field name="study_name"/>
+                    <field name="level_name" optional="hide"/>
+                    <field name="group_name"/>
+                    <field name="tutor_name" optional="hide"/>
+                    <field name="academic_result" widget="badge"
+                           decoration-success="academic_result == 'full'"
+                           decoration-warning="academic_result in ['partial', 'repeating']"
+                           decoration-danger="academic_result == 'withdrawn'"/>
+                    <field name="title_obtained"/>
+                    <field name="attendance_rate" optional="show"/>
+                    <field name="exit_type" optional="hide"/>
+                    <field name="exit_date" optional="hide"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

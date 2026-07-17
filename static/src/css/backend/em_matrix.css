@@ -1,0 +1,23 @@
+/* Work placement (EM) matrix: fixed layout so each column keeps the width given in the
+   colgroup (with the default auto layout the browser stretches them to fill the table). */
+.o_em_matrix table {
+    table-layout: fixed;
+    width: auto;
+}
+
+.o_em_matrix th {
+    white-space: normal;   /* the narrow headers ("Grade per module") wrap onto two lines */
+    word-break: break-word;
+    font-size: 12px;
+    line-height: 1.15;
+    vertical-align: middle;
+}
+
+.o_em_matrix td input[type="text"] {
+    width: 100%;
+    padding: 0 2px;
+}
+
+.o_em_matrix .o_em_matrix_module {
+    font-size: 11px;
+}

@@ -21,7 +21,7 @@
             <field name="visible">True</field>
         </record>
 
-        <!-- Holds the Teacher/Tutor/Head of Department/Head of Studies/Director/Administrator role hierarchy. -->
+        <!-- Holds the Teacher/Tutor/Department Chief/Head of Studies/Director/Administrator role hierarchy. -->
         <record model="ir.module.category" id="category_roles">
             <field name="name">Academic</field>
             <field name="description">Educational Management System - Academic roles</field>
@@ -90,8 +90,8 @@
             <field name="implied_ids" eval="[(4, ref('ems.group_teacher'))]"/>
         </record>
 
-        <record model="res.groups" id="group_head_of_department">
-            <field name="name">Head of Department</field>
+        <record model="res.groups" id="group_department_chief">
+            <field name="name">Department Chief</field>
             <field name="comment">Access rights for department heads. Currently identical to Tutor.</field>
             <field name="category_id" ref="ems.category_roles"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_tutor'))]"/>
@@ -101,7 +101,7 @@
             <field name="name">Head of Studies</field>
             <field name="comment">Access rights for Head of Studies / Deputy Head of Studies. Grants full read/write access to all employees' attendance records.</field>
             <field name="category_id" ref="ems.category_roles"/>
-            <field name="implied_ids" eval="[(4, ref('ems.group_head_of_department')), (4, ref('hr_attendance.group_hr_attendance_manager'))]"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_department_chief')), (4, ref('hr_attendance.group_hr_attendance_manager'))]"/>
         </record>
 
         <!-- Same privileges as Head of Studies for now; kept as its own group so it can be
@@ -128,12 +128,15 @@
         </record>
 
         <!-- Same privileges as Manager for now; kept as its own group so it can be
-             differentiated later without another migration. -->
+             differentiated later without another migration. root/admin are added directly
+             (not via group_academic_admin's implied_ids) so the blocks stay independent:
+             see group_academic_admin below. -->
         <record model="res.groups" id="group_secretary_admin">
             <field name="name">Administrator</field>
             <field name="comment">Access rights for the Secretary department's administrator. Currently identical to Manager.</field>
             <field name="category_id" ref="ems.category_secretary"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_secretary')), (4, ref('hr.group_hr_manager'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 
         <!-- The Surveys section (EMS's own LimeSurvey integration), not to be confused with
@@ -145,12 +148,15 @@
         </record>
 
         <!-- Same privileges as Manager for now; kept as its own group so it can be
-             differentiated later without another migration. -->
+             differentiated later without another migration. root/admin are added directly
+             (not via group_academic_admin's implied_ids) so the blocks stay independent:
+             see group_academic_admin below. -->
         <record model="res.groups" id="group_quality_admin">
             <field name="name">Administrator</field>
             <field name="comment">Access rights for the Quality coordinator. Currently identical to Manager.</field>
             <field name="category_id" ref="ems.category_quality"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_quality'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 
         <!-- Transversal to the teacher/tutor/HoS hierarchy: a coexistence coordinator can read every
@@ -163,12 +169,15 @@
         </record>
 
         <!-- Same privileges as Manager for now; kept as its own group so it can be
-             differentiated later without another migration. -->
+             differentiated later without another migration. root/admin are added directly
+             (not via group_academic_admin's implied_ids) so the blocks stay independent:
+             see group_academic_admin below. -->
         <record model="res.groups" id="group_coexistence_admin">
             <field name="name">Administrator</field>
             <field name="comment">Access rights for the Coexistence coordinator. Currently identical to Manager.</field>
             <field name="category_id" ref="ems.category_coexistence"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_coexistence'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 
         <!-- Administration/Access Rights level, plus Canned Responses and Job Queue management
@@ -185,24 +194,29 @@
         </record>
 
         <!-- Only difference from Manager: Settings level of Odoo's Administration (which also
-             implies Access Rights) instead of Access Rights alone. -->
+             implies Access Rights) instead of Access Rights alone. root/admin are added
+             directly (not via group_academic_admin's implied_ids) so the blocks stay
+             independent: see group_academic_admin below. -->
         <record model="res.groups" id="group_settings_admin">
             <field name="name">Administrator</field>
             <field name="comment">Settings level of Odoo's Administration, plus Canned Responses and Job Queue management.</field>
             <field name="category_id" ref="ems.category_settings"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_settings')), (4, ref('base.group_system'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 
+        <!-- Academic block's own admin: only implies group_director (its own hierarchy).
+             Does NOT imply group_secretary_admin/group_quality_admin/group_coexistence_admin/
+             group_settings_admin - each block's "Administrator" is independent, so granting
+             Administrator here must not silently grant it in another block. root/admin are
+             kept with full access to every block through explicit membership on each of
+             those groups instead (see their 'users' field above). -->
         <record model="res.groups" id="group_academic_admin">
             <field name="name">Administrator</field>
-            <field name="comment">All access rights.</field>
+            <field name="comment">All access rights for the Academic block.</field>
             <field name="category_id" ref="ems.category_roles"/>
             <field name="implied_ids" eval="[(6, 0, [
                 ref('ems.group_director'),
-                ref('ems.group_secretary_admin'),
-                ref('ems.group_quality_admin'),
-                ref('ems.group_coexistence_admin'),
-                ref('ems.group_settings_admin'),
             ])]"/>
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>

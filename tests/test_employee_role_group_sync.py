@@ -33,7 +33,7 @@ class TestEmployeeRoleGroupSync(TransactionCase):
         cls.role_quality = cls.env.ref('ems.role_quality')
         cls.job_secretary = cls.env.ref('ems.job_secretary')
         cls.group_teacher = cls.env.ref('ems.group_teacher')
-        cls.group_head_of_department = cls.env.ref('ems.group_head_of_department')
+        cls.group_department_chief = cls.env.ref('ems.group_department_chief')
         cls.group_head_of_studies = cls.env.ref('ems.group_head_of_studies')
         cls.group_director = cls.env.ref('ems.group_director')
         cls.group_secretary = cls.env.ref('ems.group_secretary')
@@ -110,12 +110,12 @@ class TestEmployeeRoleGroupSync(TransactionCase):
 
     def test_assign_role_dchieff_adds_group(self):
         self.employee.write({'role_ids': [(4, self.role_dchieff.id)]})
-        self.assertIn(self.group_head_of_department, self.user.groups_id)
+        self.assertIn(self.group_department_chief, self.user.groups_id)
 
     def test_unassign_role_dchieff_removes_group(self):
         self.employee.write({'role_ids': [(4, self.role_dchieff.id)]})
         self.employee.write({'role_ids': [(3, self.role_dchieff.id)]})
-        self.assertNotIn(self.group_head_of_department, self.user.groups_id)
+        self.assertNotIn(self.group_department_chief, self.user.groups_id)
 
     def test_assign_role_secretary_adds_group(self):
         self.employee.write({'role_ids': [(4, self.role_secretary.id)]})

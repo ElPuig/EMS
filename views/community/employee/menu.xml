@@ -17,7 +17,7 @@
             <field name="context"> {'default_employee_type': 'asp'} </field>
         </record>
 
-        <menuitem name="Teachers" sequence="3" id="menu_teachers" parent="menu_community" action="action_employee_kanban"/>
-        <menuitem name="ASP"      sequence="4" id="menu_asp"      parent="menu_community" action="action_asp_kanban"/>                    
+        <menuitem name="Teachers" sequence="4" id="menu_teachers" parent="menu_community" action="action_employee_kanban"/>
+        <menuitem name="ASP"      sequence="5" id="menu_asp"      parent="menu_community" action="action_asp_kanban"/>
     </data>
 </odoo>

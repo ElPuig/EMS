@@ -1,35 +1,81 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 class ems_group(models.Model):
 	_name = "ems.group"
 	_description = "Groups: Where the students are assigned to."
 	_order = "name"
-	
-	course = fields.Integer(string="Course", required=True)
-	acronym = fields.Char(string="Acronym", required=True)
+
+	group_type = fields.Selection(
+		selection=[('main', 'Main'), ('reinforcement', 'Reinforcement')],
+		string="Group Type", required=True, default="main",
+		help="Main: the group a student is enrolled in (main_group_id), with a tutor, a delegate and a single study/level. "
+			"Reinforcement: appears in the teaching schedule like any other group, but has no tutor/delegate and can mix "
+			"students from different main groups and studies.")
+	course = fields.Integer(string="Course")
+	acronym = fields.Char(string="Acronym")
 	external_id = fields.Char(string="External ID", help="Esfera (SAGA) group code, e.g. 'ESO LOEM101'.")
-	name = fields.Char(string="Name", compute="_compute_name", store=True) #should not be edited manually
+	name = fields.Char(string="Name", compute="_compute_name", store=True, readonly=False) #should not be edited manually for 'main' groups
 	notes = fields.Text(string="Notes")
 
-	level_id = fields.Many2one(string='Level', comodel_name='ems.level', required=True)
-	study_id = fields.Many2one(string="Study", comodel_name="ems.study", required=True)
+	level_id = fields.Many2one(string='Level', comodel_name='ems.level')
+	study_id = fields.Many2one(string="Study", comodel_name="ems.study")
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
-	
-	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', '=', id)]")	
+
+	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', '=', id)]")
 	space_id = fields.Many2one(string="Classroom", comodel_name="ems.space")
-	
+
 	main_student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")
-	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids") 	
+	reinforcement_student_ids = fields.Many2many(string="Reinforcement Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
+	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
 	enrollment_view_ids = fields.One2many(string="Enrollment", comodel_name="ems.enrollment_view", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
 	shift = fields.Selection(selection=[('morning', 'Morning'),('afternoon', 'Afternoon'),],string="Shift",help="Morning or afternoon shift for this group.")
 
-	@api.depends("study_id.acronym", "course", "acronym")
+	@api.depends("group_type", "study_id.acronym", "course", "acronym")
 	def _compute_name(self):
 		for rec in self:
 			#TODO: validate the uniqueness
-			rec.name = "%s%s%s" % (rec.study_id.acronym, rec.course, rec.acronym)
+			if rec.group_type == "main":
+				# 'study_id'/'course'/'acronym' can be transiently empty right after switching from
+				# 'reinforcement' back to 'main' (before the user fills them in) — building the string
+				# anyway would render literal "False"/"0" instead of a blank name.
+				rec.name = "%s%s%s" % (rec.study_id.acronym, rec.course, rec.acronym) \
+					if rec.study_id and rec.course and rec.acronym else False
+			elif not rec.name:
+				rec.name = rec.acronym or rec.external_id or _("New Reinforcement Group")
+
+	@api.onchange("group_type")
+	def _onchange_group_type(self):
+		# NOTE: only clears the group's OWN fields (visible to the user before Save, so nothing is lost
+		# without them seeing it happen first). Existing 'main_student_ids' (other res.partner records
+		# pointing here via main_group_id) are deliberately NOT touched here — see
+		# '_check_group_type_fields' below, which blocks the switch instead of silently orphaning them.
+		for rec in self:
+			if rec.group_type == "reinforcement":
+				rec.level_id = False
+				rec.study_id = False
+				rec.course = False
+				rec.acronym = False
+				rec.tutor_id = False
+				rec.delegate_id = False
+			elif rec.group_type == "main":
+				rec.reinforcement_student_ids = [(5, 0, 0)]
+
+	@api.constrains("group_type", "level_id", "study_id", "course", "acronym", "tutor_id", "delegate_id")
+	def _check_group_type_fields(self):
+		for rec in self:
+			if rec.group_type == "main":
+				if not (rec.level_id and rec.study_id and rec.course and rec.acronym):
+					raise ValidationError(_("A main group requires a level, a study, a course and an acronym."))
+			elif rec.group_type == "reinforcement":
+				if rec.level_id or rec.study_id or rec.tutor_id or rec.delegate_id:
+					raise ValidationError(_("A reinforcement group cannot have a level, a study, a tutor or a delegate: "
+						"it is meant to mix students from different main groups and studies."))
+				if rec.main_student_ids:
+					raise ValidationError(_("This group has %d student(s) enrolled as their main group. Reassign them to "
+						"another group before converting this one to reinforcement.") % len(rec.main_student_ids))
 
 	def _compute_enrolled_student_ids(self):			
 		for rec in self:			
@@ -53,9 +99,29 @@ class ems_group(models.Model):
 					"subject_ids": subs,					
 				})				
 
-	def write(self, vals):		
-		old_tutor = self.tutor_id			
-		res = super(ems_group, self).write(vals) 
+	def _sanitize_group_type_vals(self, vals):
+		# NOTE: '_onchange_group_type' already does this client-side, purely so the user SEES the fields
+		# clear before Save — it cannot be the only place this happens: it never runs for a write() that
+		# doesn't go through this exact form (RPC, batch action, an import), and even in the form its
+		# timing relative to other onchange/compute triggers isn't something to depend on. This is the
+		# actual guarantee that '_check_group_type_fields' below never rejects a plain group_type switch.
+		group_type = vals.get("group_type")
+		if group_type == "reinforcement":
+			for field in ("level_id", "study_id", "course", "acronym", "tutor_id", "delegate_id"):
+				vals.setdefault(field, False)
+		elif group_type == "main":
+			vals.setdefault("reinforcement_student_ids", [(5, 0, 0)])
+
+	@api.model_create_multi
+	def create(self, vals_list):
+		for vals in vals_list:
+			self._sanitize_group_type_vals(vals)
+		return super().create(vals_list)
+
+	def write(self, vals):
+		self._sanitize_group_type_vals(vals)
+		old_tutor = self.tutor_id
+		res = super(ems_group, self).write(vals)
 		new_tutor = self.tutor_id
 
 		if 'tutor_id' in vals:

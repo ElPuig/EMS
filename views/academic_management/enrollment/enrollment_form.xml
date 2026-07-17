@@ -189,6 +189,12 @@
             <xpath expr="//header/button[@name='action_cancel']" position="attributes">
                 <attribute name="groups">ems.group_academic_admin,ems.group_secretary</attribute>
             </xpath>
+            <xpath expr="//header/button[@name='action_cancel']" position="after">
+                <button name="action_ems_reapply_benefits" string="Re-apply Benefits" type="object"
+                        invisible="state != 'sale' or not ems_study_id"
+                        groups="ems.group_academic_admin,ems.group_secretary"
+                        confirm="This will cancel the current invoice, recompute the enrollment amounts with the student's current benefit status and regenerate the invoice. Continue?"/>
+            </xpath>
         </field>
     </record>
 

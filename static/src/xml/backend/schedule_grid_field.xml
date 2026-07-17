@@ -71,12 +71,17 @@
                         <div class="o_schedule_grid_column" t-att-style="columnStyle()">
                             <t t-foreach="entriesForDay(day.index)" t-as="entry" t-key="entry.id">
                                 <div class="o_schedule_grid_entry"
-                                     t-att-class="entry.data.non_teaching ? 'o_schedule_grid_entry_nonteaching' : ''"
+                                     t-att-class="entry.data.non_teaching_is_break ? 'o_schedule_grid_entry_break' : (entry.data.non_teaching ? 'o_schedule_grid_entry_nonteaching' : '')"
                                      t-att-style="entryStyle(entry)"
                                      t-att-title="entryTime(entry) + ' ' + entryLabel(entry)">
-                                    <span class="o_schedule_grid_entry_time" t-esc="entryTime(entry)"/>
-                                    <span class="o_schedule_grid_entry_label" t-esc="entryLabel(entry)"/>
-                                    <span t-if="entryRoom(entry)" class="o_schedule_grid_entry_room" t-esc="entryRoom(entry)"/>
+                                    <t t-if="entry.data.non_teaching_is_break">
+                                        <span class="o_schedule_grid_entry_compact" t-esc="entryTime(entry) + ' ' + entryLabel(entry)"/>
+                                    </t>
+                                    <t t-else="">
+                                        <span class="o_schedule_grid_entry_time" t-esc="entryTime(entry)"/>
+                                        <span class="o_schedule_grid_entry_label" t-esc="entryLabel(entry)"/>
+                                        <span t-if="entryRoom(entry)" class="o_schedule_grid_entry_room" t-esc="entryRoom(entry)"/>
+                                    </t>
                                 </div>
                             </t>
                         </div>

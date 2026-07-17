@@ -45,7 +45,7 @@ class ems_attendance_session_header(models.Model):
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", compute="_compute_group_ids", store=True)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", compute="_compute_subject_id", store=True)
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", compute="_compute_space_id", store=True)
-	template_teacher_id = fields.Many2one(string="Template's teacher", comodel_name="hr.employee", compute="_compute_template_teacher_id", store=True)
+	template_teacher_ids = fields.Many2many(string="Template's teachers", comodel_name="hr.employee", compute="_compute_template_teacher_ids", store=True)
 	session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)	
 	mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 	
@@ -114,9 +114,9 @@ class ems_attendance_session_header(models.Model):
 			rec.space_id = rec.attendance_schedule_id.attendance_template_id.sudo().space_id
 
 	@api.depends("attendance_schedule_id")
-	def _compute_template_teacher_id(self):
+	def _compute_template_teacher_ids(self):
 		for rec in self:
-			rec.template_teacher_id = rec.attendance_schedule_id.attendance_template_id.sudo().teacher_id
+			rec.template_teacher_ids = rec.attendance_schedule_id.attendance_template_id.sudo().teacher_ids
 	
 	@api.depends('attendance_schedule_id', 'date')
 	def _compute_display_name(self):              
@@ -450,7 +450,7 @@ class ems_attendance_session_header(models.Model):
 		domain = [['date', '=', date]]
 		if own_emp:
 			domain += ['!', '|',
-				['template_teacher_id', '=', own_emp.id],
+				['template_teacher_ids', 'in', own_emp.id],
 				['session_teacher_id', '=', own_emp.id]]
 		return self.sudo().search_read(
 			domain,
@@ -477,7 +477,7 @@ class ems_attendance_session_header(models.Model):
 		domain = [['weekday', '=', weekday], ['id', 'not in', list(used_ids)],
 				  ['start_date', '<=', date], ['end_date', '>=', date]]
 		if own_emp:
-			domain.append(['attendance_template_id.teacher_id', '!=', own_emp.id])
+			domain.append(['attendance_template_id.teacher_ids', 'not in', own_emp.id])
 		return self.env['ems.attendance_schedule'].sudo().search_read(
 			domain,
 			fields=['id', 'name', 'time_range', 'attendance_template_id', 'start_time', 'end_time'],
@@ -492,7 +492,7 @@ class ems_attendance_session_header(models.Model):
 		session_domain = [['date', '=', date]]
 		if is_admin and own_emp:
 			session_domain += ['|',
-				['template_teacher_id', '=', own_emp.id],
+				['template_teacher_ids', 'in', own_emp.id],
 				['session_teacher_id',  '=', own_emp.id]]
 		sessions = self.search_read(
 			session_domain,
@@ -510,7 +510,7 @@ class ems_attendance_session_header(models.Model):
 			['id', 'not in', used_ids],
 		]
 		if is_admin and own_emp:
-			sched_domain.append(['attendance_template_id.teacher_id', '=', own_emp.id])
+			sched_domain.append(['attendance_template_id.teacher_ids', 'in', own_emp.id])
 		planned = self.env['ems.attendance_schedule'].search_read(
 			sched_domain,
 			fields=['id', 'name', 'time_range', 'attendance_template_id', 'start_time', 'end_time'],
@@ -560,9 +560,9 @@ class ems_attendance_session_line(models.Model):
 	# This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
 	inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 
 
-	# The teacher_id is used just for permission filtering pruposes.
-	template_teacher_id = fields.Many2one(string="Template's teacher", related="attendance_session_id.template_teacher_id", store=False)    
-	session_teacher_id = fields.Many2one(string="Session's teacher", related="attendance_session_id.session_teacher_id", store=False)    
+	# The teacher_ids/session_teacher_id are used just for permission filtering pruposes.
+	template_teacher_ids = fields.Many2many(string="Template's teachers", related="attendance_session_id.template_teacher_ids", store=False)
+	session_teacher_id = fields.Many2one(string="Session's teacher", related="attendance_session_id.session_teacher_id", store=False)
 
 	# Used to know if the student can be chosen manually or not (should be disabled, otherwise a justified student can be swaped for another).
 	is_auto_generated = fields.Boolean(default=False)

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.GroupScheduleGridField">
+        <div class="o_schedule_grid">
+            <div class="o_schedule_grid_toolbar">
+                <button type="button" class="btn btn-sm btn-secondary" t-on-click="() => this.onPdfClick()">
+                    <i class="fa fa-file-pdf-o me-1"/>PDF
+                </button>
+            </div>
+
+            <div class="o_schedule_grid_grid">
+                <div class="o_schedule_grid_header"/>
+                <t t-foreach="days" t-as="day" t-key="day.index">
+                    <div class="o_schedule_grid_header" t-esc="day.label"/>
+                </t>
+
+                <div class="o_schedule_grid_axis" t-att-style="columnStyle()">
+                    <t t-foreach="hours" t-as="hour" t-key="hour">
+                        <div class="o_schedule_grid_hour" t-esc="formatHour(hour)"/>
+                    </t>
+                </div>
+
+                <t t-foreach="days" t-as="day" t-key="day.index">
+                    <div class="o_schedule_grid_column" t-att-style="columnStyle()">
+                        <t t-foreach="blocksForDay(day.index)" t-as="block" t-key="block.hour_from + '_' + block.hour_to + '_' + blockLabel(block)">
+                            <div class="o_schedule_grid_entry"
+                                 t-att-class="blockIsBreak(block) ? 'o_schedule_grid_entry_break' : ''"
+                                 t-att-style="blockStyle(block)"
+                                 t-att-title="blockTime(block) + ' ' + blockLabel(block)">
+                                <t t-if="blockIsBreak(block)">
+                                    <span class="o_schedule_grid_entry_compact" t-esc="blockCompactText(block)"/>
+                                </t>
+                                <t t-else="">
+                                    <span class="o_schedule_grid_entry_time" t-esc="blockTime(block)"/>
+                                    <span class="o_schedule_grid_entry_label" t-esc="blockLabel(block)"/>
+                                    <span t-if="blockRoom(block)" class="o_schedule_grid_entry_room" t-esc="blockRoom(block)"/>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+
+            <div t-if="subjectTeachersSummary.length" class="o_schedule_grid_summary mt-3">
+                <div class="o_schedule_grid_summary_header">Subject → Teacher(s)</div>
+                <table class="o_schedule_grid_summary_table">
+                    <tbody>
+                        <t t-foreach="subjectTeachersSummary" t-as="row" t-key="row.subject">
+                            <tr>
+                                <td t-esc="row.subject"/>
+                                <td t-esc="row.teachers"/>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+</templates>

@@ -13,10 +13,13 @@
                 <xpath expr="//sheet" position="before">
                     <header>
                         <field name="google_ws_suspended" invisible="1"/>
+                        <!-- Also shown when a corporate email already exists but no EMS
+                             user is linked yet (adopt path: manual email, pre-integration
+                             staff), so pressing it creates/links the res.users. -->
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
                                 class="btn-secondary"
-                                invisible="employee_type not in ('teacher', 'asp') or work_email or google_ws_manual_email"
+                                invisible="employee_type not in ('teacher', 'asp') or (work_email and user_id) or (google_ws_manual_email and not work_email)"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
@@ -77,6 +80,12 @@
                 <xpath expr="//div[@name='div_km_home_work']" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>
+
+                <!-- Needed by the Google account (recovery + credentials delivery);
+                     only enforced on new records: most legacy employees lack it. -->
+                <field name="private_email" position="attributes">
+                    <attribute name="required">not id and employee_type in ('teacher', 'asp')</attribute>
+                </field>
 
                 <xpath expr="//page[@name='personal_information']/group/group[2]" position="attributes">
                     <attribute name="invisible">True</attribute>
@@ -147,6 +156,7 @@
                                 <field name="subject_id"/>
                                 <field name="group_ids"/>
                                 <field name="non_teaching"/>
+                                <field name="non_teaching_is_break"/>
                                 <field name="space_id"/>
                             </list>
                         </field>

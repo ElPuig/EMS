@@ -13,9 +13,12 @@ Aquesta secció conté els manuals per als **professors**.
 | Manual | Descripció |
 |--------|------------|
 | [Fitxatges: revisar les teves entrades/sortides i sol·licitar correccions](attendance-corrections.md) | Revisar les teves entrades/sortides i sol·licitar correccions |
+| [Iniciar sessió a l'EMS amb el compte corporatiu de Google](acces-ems-google.md) | Accedir a l'EMS amb el botó **Inicia la sessió amb Google** i el teu compte `@elpuig.xeill.net`, sense contrasenya separada |
 | [Avaluació: Introduir qualificacions per RAs](qualificacions.md) | Introduir les qualificacions de cada avaluació per preparar la junta d'avaluació |
 | [Strikes: notificar una incidència disciplinària](strike.md) | Posar un strike des de la vista de passar llista quan cal deixar constància del comportament d'un alumne |
 | [El teu horari setmanal](working-schedules.md) | Consultar les teves assignatures, grups, aules, patis i reunions al teu horari setmanal |
+| [Desactivar la teva foto de perfil](photo-visibility.md) | Activar o desactivar la teva foto de perfil |
+| [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
 
 ## Temes previstos
 

@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <!-- "My Profile" (base.action_res_users_my): where a teacher can disable their own
+             profile picture. While disabled, image_1920 is locked (see employee.py's and
+             user.py's write() guards) and shows Odoo's own initials placeholder instead.
+
+             NOTE: anchored on the "signature" group, not on the native image_1920 field/its
+             oe_avatar widget at the top of the form. The hr module has its own separate view
+             (hr.res_users_view_form_simple_modif, mode="primary") that also inherits
+             base.view_users_form_simple_modif and *removes* image_1920 entirely from its own
+             combined tree (it's reused inside the employee form). Since this view's xpaths get
+             applied to every combined tree rooted at base.view_users_form_simple_modif - including
+             that one - an xpath targeting image_1920 fails there with "element cannot be located".
+             The "signature" group is untouched by that other view, so it's a safe anchor. -->
+        <record model="ir.ui.view" id="view_users_form_simple_modif_photo_visibility">
+            <field name="name">ems.res.users.preferences.form.photo.visibility</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+            <field name="arch" type="xml">
+                <group name="signature" position="after">
+                    <group name="ems_photo_visibility" string="Photo">
+                        <field name="image_disabled"/>
+                    </group>
+                </group>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -49,6 +49,15 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y google-chrome-stable
 
+      # Ubuntu 24.04 runner images restrict unprivileged user namespaces via AppArmor
+      # by default, which breaks Chrome's crashpad_handler even with --no-sandbox
+      # (Odoo already passes --no-sandbox itself): it fails with
+      # "crashpad/util/linux/socket.cc: recvmsg: Connection reset by peer" and the
+      # tour test then times out waiting for the devtools port. See
+      # https://github.com/actions/runner-images/issues/9491.
+      - name: Allow unprivileged user namespaces for Chrome sandboxing
+        run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+
       - name: Install Odoo v18 from official repository
         run: |
           wget -q -O - https://nightly.odoo.com/odoo.key \
@@ -96,9 +105,34 @@ jobs:
           sudo /opt/modules/ems/upgrade.sh 2>&1 | tee /tmp/odoo-upgrade.log
 
       - name: Run EMS tests
+        env:
+          # Raises Chrome's own internal log verbosity (odoo/tests/common.py passes this as
+          # --v=<level> to the browser). Level 0 (Odoo's default) only logs the last gasp before
+          # a crash (e.g. the crashpad_handler "recvmsg: Connection reset by peer" line seen on
+          # tour test failures) with no context on what caused it; level 1 keeps the noise
+          # manageable while surfacing the browser-process-level lines (missing libraries, GPU
+          # init, renderer state) that precede it, which is exactly what's missing to diagnose
+          # those failures further.
+          ODOO_BROWSER_LOG_VERBOSITY: "1"
         run: |
           set -o pipefail
           sudo /opt/modules/ems/test.sh 2>&1 | tee /tmp/odoo-test.log
+
+      - name: Collect Chrome/system logs for failed tour tests
+        if: always()
+        run: |
+          # odoo/tests/common.py's ChromeBrowser.stop() already saves the browser's own
+          # chrome_debug.log (odoo.tools.config['screenshots'], defaulting to /tmp/odoo_tests)
+          # whenever a tour test fails after Chrome started — but not on the "Chrome never
+          # started" path (_spawn_chrome deletes user_data_dir, log included, before raising),
+          # where the log is only visible inline in /tmp/odoo-test.log. Copy whatever Odoo did
+          # save, plus a dmesg tail (to catch an OOM-kill of the Chrome process, which would
+          # explain the crash reporter itself also failing to connect), so both are on the
+          # uploaded artifact instead of only the runner's ephemeral filesystem.
+          sudo mkdir -p /tmp/odoo-chrome-logs
+          sudo cp -r /tmp/odoo_tests/. /tmp/odoo-chrome-logs/ 2>/dev/null || true
+          sudo chmod -R a+r /tmp/odoo-chrome-logs
+          sudo dmesg --time-format iso 2>/dev/null | tail -300 > /tmp/dmesg-tail.log || true
 
       - name: Upload logs
         if: always()
@@ -109,3 +143,6 @@ jobs:
             /tmp/odoo-install.log
             /tmp/odoo-upgrade.log
             /tmp/odoo-test.log
+            /tmp/odoo-chrome-logs
+            /tmp/dmesg-tail.log
+          if-no-files-found: ignore

@@ -5,16 +5,9 @@ import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
+import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes, buildColorMap } from "./schedule_grid_geometry";
 
-const PX_PER_HOUR = 48;
-const DEFAULT_START = 8;
-const DEFAULT_END = 20;
-const WEEKDAYS = [0, 1, 2, 3, 4];
 const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids"];
-
-function dayLabels() {
-    return [_t("Monday"), _t("Tuesday"), _t("Wednesday"), _t("Thursday"), _t("Friday")];
-}
 
 // Visual weekly grid (day columns x hourly rows) for a resource.calendar's weekly attendance slots
 // (dayofweek/hour_from/hour_to — a recurring pattern, not real dates, so the native <calendar> view
@@ -50,16 +43,18 @@ export class ScheduleGridField extends Component {
         this.newPanel = useState({ open: false, value: "", frameworks: [], teachers: [] });
         this.catalog = useState({ subjects: [], groups: [], nonTeaching: [] });
         this.summary = useState({ teaching: { rows: [], total: 0 }, fixed: { rows: [], total: 0 }, total: 0 });
+        this.derivedBreaks = useState({ list: [] });
         onWillStart(async () => {
-            const [subjects, groups, attendanceFields] = await Promise.all([
+            const [subjects, groups, nonTeachingTypes] = await Promise.all([
                 this.orm.searchRead("ems.subject", [], ["id", "display_name"]),
                 this.orm.searchRead("ems.group", [], ["id", "display_name"]),
-                this.orm.call("resource.calendar.attendance", "fields_get", [["non_teaching"], ["selection"]]),
+                this.orm.searchRead("ems.non_teaching_type", [], ["id", "name"]),
                 this._loadSummary(),
+                this._loadDerivedBreaks(),
             ]);
             this.catalog.subjects = subjects;
             this.catalog.groups = groups;
-            this.catalog.nonTeaching = attendanceFields.non_teaching.selection.filter((item) => item[0]);
+            this.catalog.nonTeaching = nonTeachingTypes.map((item) => [item.id, item.name]);
         });
     }
 
@@ -81,7 +76,21 @@ export class ScheduleGridField extends Component {
         return value ? value[0] : false;
     }
 
-    // Edit/Import/New require 'ems.group_head_of_department' or above (see hr.employee's
+    // Fetched explicitly (orm.call), not read off the record as a form field — see
+    // hr.employee.get_derived_break_attendance_data()'s own docstring for why a hidden Many2many
+    // field with its own embedded <list> turned out not to reliably load its sub-fields
+    // client-side, despite computing correctly server-side (the PDF report proved that). '.read()'
+    // returns Many2one fields as a (id, name) array, matching what entryLabel/entryRoom already
+    // expect from a real x2many record's own data.
+    async _loadDerivedBreaks() {
+        if (!this.props.record.resId) {
+            return;
+        }
+        const rows = await this.orm.call("hr.employee", "get_derived_break_attendance_data", [[this.props.record.resId]]);
+        this.derivedBreaks.list = rows.map((row) => ({ id: row.id, data: row }));
+    }
+
+    // Edit/Import/New require 'ems.group_department_chief' or above (see hr.employee's
     // 'can_edit_schedule' compute) — enforced server-side via ir.model.access.csv, this getter only
     // drives the toolbar's own visibility. 'PDF' is deliberately NOT gated by it: every role that
     // can already read a schedule may also export it.
@@ -93,18 +102,31 @@ export class ScheduleGridField extends Component {
         return this.props.record.data[this.props.name].records;
     }
 
+    // Gap-filled break(s) this teacher has no real saved row for yet (see
+    // hr.employee._get_derived_break_entries(), fetched via _loadDerivedBreaks()) —
+    // deliberately a SEPARATE list from 'entries', merged in only by 'entriesForDay' (view mode)
+    // below, never by anything the Edit buffer reads, so a derived break can never get silently
+    // "adopted" as real on Save.
+    get derivedBreakEntries() {
+        return this.derivedBreaks.list;
+    }
+
     get days() {
         return dayLabels().map((label, index) => ({ index, label }));
     }
 
+    // Guards against a zero/invalid-duration entry (hour_to <= hour_from, or a missing value)
+    // ever widening the axis or rendering as a degenerate block — never legitimate schedule data.
+    _hasValidDuration(entry) {
+        return Number.isFinite(entry.data.hour_from) && Number.isFinite(entry.data.hour_to) && entry.data.hour_to > entry.data.hour_from;
+    }
+
     get bounds() {
-        let start = DEFAULT_START;
-        let end = DEFAULT_END;
-        for (const entry of this.entries) {
-            start = Math.min(start, Math.floor(entry.data.hour_from));
-            end = Math.max(end, Math.ceil(entry.data.hour_to));
-        }
-        return { start, end };
+        return computeBounds(
+            [...this.entries, ...this.derivedBreakEntries]
+                .filter((entry) => this._hasValidDuration(entry))
+                .map((entry) => ({ hour_from: entry.data.hour_from, hour_to: entry.data.hour_to }))
+        );
     }
 
     get hours() {
@@ -122,26 +144,78 @@ export class ScheduleGridField extends Component {
     }
 
     formatHour(hour) {
-        return `${String(hour).padStart(2, "0")}:00`;
+        return formatHour(hour);
     }
 
     // ── View mode (read-only visual blocks) ──────────────────────────────────
 
     // Blank/unassigned periods are never saved (see the class comment), so in practice every real
     // entry here already has a subject or a non-teaching reason — this filter is just a safety net.
+    // A derived break only fills in a slot no real entry already occupies (a real, explicitly
+    // saved break always wins).
     entriesForDay(dayIndex) {
-        return this.entries.filter((entry) => Number(entry.data.dayofweek) === dayIndex && !this.entryIsBlank(entry));
+        const real = this.entries.filter(
+            (entry) => Number(entry.data.dayofweek) === dayIndex && !this.entryIsBlank(entry) && this._hasValidDuration(entry)
+        );
+        const occupied = new Set(real.map((entry) => `${entry.data.hour_from}_${entry.data.hour_to}`));
+        const derived = this.derivedBreakEntries.filter((entry) =>
+            Number(entry.data.dayofweek) === dayIndex && this._hasValidDuration(entry) && !occupied.has(`${entry.data.hour_from}_${entry.data.hour_to}`));
+        return [...real, ...derived];
     }
 
     entryStyle(entry) {
         const { start } = this.bounds;
         const top = (entry.data.hour_from - start) * PX_PER_HOUR;
-        const height = Math.max(34, (entry.data.hour_to - entry.data.hour_from) * PX_PER_HOUR);
-        return `top:${top}px;height:${height}px`;
+        const naturalHeight = (entry.data.hour_to - entry.data.hour_from) * PX_PER_HOUR;
+        // A break specifically (not every non-teaching activity — a 1h guard duty or meeting has
+        // plenty of room already) is kept at its true, exact duration — stretching it past that
+        // would visually bleed into whatever comes right after it and hide it (MIN_ENTRY_HEIGHT
+        // only helps a block that isn't sharing its vertical space with a neighbour).
+        const height = entry.data.non_teaching_is_break ? naturalHeight : Math.max(MIN_ENTRY_HEIGHT, naturalHeight);
+        const color = this.entryColor(entry);
+        return `top:${top}px;height:${height}px${color ? `;background-color:${color}` : ""}`;
     }
 
     entryIsBlank(entry) {
         return !entry.data.subject_id && !entry.data.non_teaching;
+    }
+
+    // A subject or non-teaching *reason* (a meeting, a guard duty...) gets its own colour, distinct
+    // from every other one appearing in this same schedule — but not a break specifically, which
+    // already has its own fixed, distinctive look (a brown stripe, see .o_schedule_grid_entry_break
+    // in schedule_grid.css) precisely so it never blends in as "just another activity".
+    _colorKey(entry) {
+        if (entry.data.non_teaching_is_break) {
+            return null;
+        }
+        if (entry.data.non_teaching) {
+            return `n_${entry.data.non_teaching[0]}`;
+        }
+        if (entry.data.subject_id) {
+            return `s_${entry.data.subject_id[0]}`;
+        }
+        return null;
+    }
+
+    // Colours are assigned across every entry currently shown (real + derived breaks, though
+    // breaks opt out via _colorKey), not the whole subject/activity catalogue — see buildColorMap.
+    get colorByKey() {
+        const items = [];
+        for (const entry of [...this.entries, ...this.derivedBreakEntries]) {
+            if (!this._hasValidDuration(entry)) {
+                continue;
+            }
+            const key = this._colorKey(entry);
+            if (key) {
+                items.push({ key, dayofweek: Number(entry.data.dayofweek), hour_from: entry.data.hour_from });
+            }
+        }
+        return buildColorMap(items);
+    }
+
+    entryColor(entry) {
+        const key = this._colorKey(entry);
+        return key ? this.colorByKey.get(key) : null;
     }
 
     entryLabel(entry) {
@@ -158,9 +232,7 @@ export class ScheduleGridField extends Component {
     }
 
     formatHourMinutes(value) {
-        const hour = Math.floor(value);
-        const minutes = Math.round((value - hour) * 60);
-        return `${String(hour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+        return formatHourMinutes(value);
     }
 
     // ── Edit mode (two dropdowns per real period, buffered) ──────────────────
@@ -212,7 +284,7 @@ export class ScheduleGridField extends Component {
             dayofweek: Number(data.dayofweek),
             hour_from: data.hour_from,
             hour_to: data.hour_to,
-            non_teaching: data.non_teaching || false,
+            non_teaching: data.non_teaching ? data.non_teaching[0] : false,
             subjectId: data.subject_id ? data.subject_id[0] : false,
             groupId: groupIds.length ? groupIds[0] : false,
         };
@@ -357,7 +429,7 @@ export class ScheduleGridField extends Component {
         const key = this._cellKey(dayIndex, periodId);
         const value = ev.target.value;
         if (value.startsWith("n_")) {
-            this.buffer[key] = { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: value.slice(2) };
+            this.buffer[key] = { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: Number(value.slice(2)) };
         } else if (value.startsWith("s_")) {
             const previous = this.cellState(dayIndex, periodId);
             this.buffer[key] = { kind: "subject", subjectId: Number(value.slice(2)), groupId: previous.groupId, nonTeaching: false };
@@ -468,7 +540,7 @@ export class ScheduleGridField extends Component {
         }
         const subjectById = new Map(this.catalog.subjects.map((s) => [s.id, s.display_name]));
         const groupById = new Map(this.catalog.groups.map((g) => [g.id, g.display_name]));
-        const nonTeachingByCode = new Map(this.catalog.nonTeaching);
+        const nonTeachingById = new Map(this.catalog.nonTeaching);
         const cells = [];
         for (const dayIndex of WEEKDAYS) {
             for (const period of this.periods.list) {
@@ -490,7 +562,7 @@ export class ScheduleGridField extends Component {
                     cell.name = `${subjectById.get(state.subjectId)}: ${groupById.get(state.groupId)}`;
                 } else if (state.kind === "non_teaching") {
                     cell.non_teaching = state.nonTeaching;
-                    cell.name = nonTeachingByCode.get(state.nonTeaching) || state.nonTeaching;
+                    cell.name = nonTeachingById.get(state.nonTeaching) || state.nonTeaching;
                 } else {
                     continue; // a subject was picked but no group yet: skip until both are set
                 }
@@ -500,6 +572,8 @@ export class ScheduleGridField extends Component {
         await this.orm.call("resource.calendar", "apply_schedule_changes", [[this.calendarId], cells, this._pendingSourceFrameworkId || false]);
         await this.props.record.load();
         await this._loadSummary();
+        // A saved schedule change can open or close gaps, so the derived breaks may have changed too.
+        await this._loadDerivedBreaks();
         this.editing.value = false;
         this.dirty.value = false;
     }

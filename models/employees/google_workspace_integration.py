@@ -2,7 +2,7 @@
 import base64
 import logging
 
-from odoo import models, fields, api, _
+from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import UserError
 
 from ..shared.google_workspace_mixin import HttpError
@@ -234,7 +234,10 @@ class HrEmployeeGoogleWorkspace(models.Model):
         # Already has a work email: adopt if corporate, warn otherwise.
         if emp.work_email:
             if emp.work_email.endswith('@%s' % domain):
-                # Corporate account already exists / is managed: nothing to do.
+                # Corporate account already exists / is managed (manual email,
+                # pre-integration staff): make sure the EMS user exists too.
+                if not emp.user_id:
+                    self._ems_create_user(google_id=self._gw_google_user_id())
                 return
             self.message_post(body=_(
                 "Google Workspace: the employee already has a non-corporate work email "
@@ -279,6 +282,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
         # insert() via the 409 conflict (the suggested login falls back to the
         # generated candidates when it is already taken).
         email = None
+        google_id = False
         if dry_run:
             email = candidates[0]
             _logger.info("[GW dry-run] users().insert payload: %s",
@@ -287,8 +291,9 @@ class HrEmployeeGoogleWorkspace(models.Model):
             for cand in candidates:
                 body = dict(base_body, primaryEmail=cand)
                 try:
-                    service.users().insert(body=body).execute()
+                    created = service.users().insert(body=body).execute()
                     email = cand
+                    google_id = created.get('id')
                     break
                 except HttpError as e:
                     status = getattr(getattr(e, 'resp', None), 'status', None)
@@ -310,6 +315,9 @@ class HrEmployeeGoogleWorkspace(models.Model):
 
         # Save the corporate email on the employee
         emp.write({'work_email': email, 'google_ws_missing_notice_sent': False})
+
+        # Create the EMS user (login = corporate email, Google sign-in pre-linked)
+        self._ems_create_user(google_id=google_id)
 
         # Deliver credentials: PDF attachment (always) + email (if personal email exists)
         pdf_saved, emailed = self._gw_deliver_credentials(email, password)
@@ -362,6 +370,158 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 ).send_mail(self.id, force_send=True)
                 emailed = True
         return pdf_saved, emailed
+
+    # ------------------------------------------------------------------
+    # EMS user (res.users)
+    # ------------------------------------------------------------------
+    def _gw_google_user_id(self):
+        """Numeric Google user id of ``work_email`` via the Directory API.
+
+        Returns False when it cannot be resolved (dry-run, API error, libs
+        missing): the EMS user is then created without the OAuth pre-link.
+        Note that the OU-scoped admin role answers 403 - not 404 - for unknown
+        users, so errors are swallowed here, never re-raised.
+        """
+        self.ensure_one()
+        emp = self.sudo()
+        if not emp.work_email or self.env.company.google_ws_dry_run:
+            return False
+        try:
+            service = self._gw()._gw_get_service()
+            info = service.users().get(userKey=emp.work_email).execute()
+            return info.get('id') or False
+        except Exception:
+            _logger.warning(
+                "Google Workspace: could not resolve the Google user id for %s",
+                emp.work_email, exc_info=True)
+            return False
+
+    def _ems_user_groups(self):
+        """Security groups granted to the auto-created EMS user.
+
+        ems.group_teacher does not imply base.group_user, so the internal-user
+        group is always granted explicitly. ASP staff only become internal
+        users; their department groups arrive later via roles/job
+        (_sync_security_groups).
+        """
+        self.ensure_one()
+        groups = self.env.ref('base.group_user')
+        if self.sudo().employee_type == 'teacher':
+            groups |= self.env.ref('ems.group_teacher')
+        return groups
+
+    def _ems_link_google_signin(self, user, google_id):
+        """Pre-link "Sign in with Google" on the user (oauth_uid + provider).
+
+        Skipped when the id is unknown, or already taken by another user
+        (auth_oauth unique constraint). Returns True when the user ends up
+        linked to Google sign-in.
+        """
+        user = user.sudo()
+        if user.oauth_uid:
+            return True
+        provider = self.env.ref('auth_oauth.provider_google', raise_if_not_found=False)
+        if not google_id or not provider:
+            return False
+        taken = user.with_context(active_test=False).search_count([
+            ('oauth_provider_id', '=', provider.id),
+            ('oauth_uid', '=', str(google_id)),
+        ])
+        if taken:
+            return False
+        user.write({'oauth_provider_id': provider.id, 'oauth_uid': str(google_id)})
+        return True
+
+    def _ems_create_user(self, google_id=False):
+        """Create (or re-link) the employee's EMS user for the corporate account.
+
+        Called right after the Google Workspace account exists so staff can log
+        into EMS with "Sign in with Google" (no password/invitation email is
+        sent). Idempotent. Returns the linked res.users record (empty recordset
+        when not applicable).
+        """
+        self.ensure_one()
+        emp = self.sudo()
+        Users = self.env['res.users'].sudo()
+        domain = emp.company_id.google_ws_domain or 'elpuig.xeill.net'
+        if (emp.employee_type not in ('teacher', 'asp') or not emp.work_email
+                or not emp.work_email.endswith('@%s' % domain)):
+            return Users
+
+        if emp.user_id:
+            # Already linked: only backfill the Google sign-in if missing.
+            self._ems_link_google_signin(emp.user_id, google_id)
+            return emp.user_id
+
+        login = emp.work_email.lower()
+        user = Users.with_context(active_test=False).search(
+            [('login', 'in', [emp.work_email, login])], limit=1)
+        if user:
+            if self.sudo().with_context(active_test=False).search_count(
+                    [('user_id', '=', user.id), ('id', '!=', emp.id)]):
+                self.message_post(body=_(
+                    "EMS user not linked: %s already belongs to another employee.")
+                    % user.login)
+                return Users
+            vals = {}
+            if not user.active:
+                vals['active'] = True
+            # Keep login/email aligned with the corporate address so the
+            # work_email stored compute (work_contact_id.email) survives the link.
+            if user.login != login:
+                vals['login'] = login
+            if user.email != emp.work_email:
+                vals['email'] = emp.work_email
+            missing_groups = self._ems_user_groups() - user.groups_id
+            if missing_groups:
+                vals['groups_id'] = [(4, group.id) for group in missing_groups]
+            if vals:
+                user.write(vals)
+            created = False
+        else:
+            given, family = self._gw_split_name()
+            user = Users.with_context(no_reset_password=True).create({
+                'login': login,
+                # email is load-bearing: linking user_id swaps work_contact_id
+                # to the user's partner and work_email recomputes from its email.
+                'email': emp.work_email,
+                'firstname': given or emp.name,
+                'lastname': family or False,
+                'mobile': emp.mobile_phone or emp.private_phone or False,
+                'tz': emp.tz or self.env.user.tz or False,
+                'company_id': emp.company_id.id,
+                'company_ids': [(4, emp.company_id.id)],
+                'groups_id': [(6, 0, self._ems_user_groups().ids)],
+                'image_1920': emp.image_1920,
+            })
+            created = True
+
+        signin_linked = self._ems_link_google_signin(user, google_id)
+        emp.write({'user_id': user.id})
+        # The write() trigger only syncs role/job groups on role_ids/job_id
+        # changes, so apply them explicitly now that the user exists.
+        emp._sync_security_groups()
+        action_msg = (_("EMS user created: %s.") if created
+                      else _("EMS user re-linked: %s.")) % user.login
+        signin_msg = (_("Sign in with Google is pre-linked.") if signin_linked
+                      else _("Sign in with Google is not pre-linked (Google user id unavailable)."))
+        self.message_post(body=f"{action_msg} {signin_msg}")
+        return user
+
+    def _ems_sync_user_active(self, active):
+        """Mirror the employee's active flag on the linked EMS user.
+
+        Synchronous and independent of google_ws_enabled: a former employee
+        must lose EMS access immediately even when the Google integration is
+        disabled or the job queue is down.
+        """
+        for employee in self.sudo():
+            user = employee.user_id
+            if (employee.employee_type not in ('teacher', 'asp') or not user
+                    or user.id == SUPERUSER_ID or user == self.env.user
+                    or user.active == active):
+                continue
+            user.sudo().write({'active': active})
 
     # ------------------------------------------------------------------
     # Deactivation / reactivation (former staff)
@@ -475,6 +635,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 self._gw_enqueue_reactivate()
             else:
                 self._gw_enqueue_suspend()
+            self._ems_sync_user_active(bool(vals.get('active')))
         return res
 
     def unlink(self):
@@ -493,4 +654,6 @@ class HrEmployeeGoogleWorkspace(models.Model):
                     _logger.exception(
                         "Could not suspend Google Workspace account for %s before deletion",
                         employee.name)
+        # The linked EMS user must not stay active once its employee is gone.
+        self._ems_sync_user_active(False)
         return super().unlink()

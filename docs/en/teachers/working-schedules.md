@@ -6,7 +6,7 @@
 
 See your own weekly timetable — subjects, groups, classrooms, breaks and coordination meetings — from your own employee record.
 
-**Required role:** Teacher (you can only view and export your own schedule; editing is done by a Head of Department or above)
+**Required role:** Teacher (you can only view and export your own schedule; editing is done by a Department Chief or above)
 
 ---
 
@@ -24,6 +24,14 @@ Each block on the weekly grid shows:
 - the classroom, when the group has one assigned.
 
 A period that has no block yet is simply not assigned — contact an Administrator if you believe something is missing or incorrect on your schedule.
+
+A "group" can also be a **reinforcement group** — a class made up of students pulled from different regular groups (or even different studies) for a specific reinforcement/support subject. It shows up on your schedule exactly like any other group.
+
+---
+
+## Co-teaching
+
+If a class is genuinely taught by more than one teacher at the same time (same subject, same group, same room, same hour), that period shows up as a shared class on **both** teachers' schedules. Attendance is also shared: whichever co-teacher marks it, both of you see the same, single attendance record for that session — there's no need for each of you to take attendance separately.
 
 ---
 

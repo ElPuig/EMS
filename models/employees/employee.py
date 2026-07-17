@@ -4,9 +4,71 @@ from odoo import models, fields, api, Command, _
 from odoo.exceptions import UserError
 
 employee_types = [
-    ("asp", "Administrative and Services Personnel"), 
+    ("asp", "Administrative and Services Personnel"),
     ("teacher", "Teacher")
 ]
+
+WEEKDAYS = ('0', '1', '2', '3', '4')
+# Two hour_from/hour_to values meant to represent the exact same moment can differ by a tiny
+# float remainder depending on how each was computed/entered (e.g. a framework's break stored as
+# the literal '11.416667' vs a real period's own hour_from computed as '11 + 25/60' ==
+# 11.416666666666666) — a strict '<' comparison would misread that hair's-width gap as a real
+# overlap. Used by '_get_derived_break_entries' for both the day-span containment check and the
+# overlap check; 1/120 hour (30s) safely absorbs that noise without being large enough to treat
+# two genuinely distinct, minutes-apart periods as touching.
+HOUR_EPSILON = 1 / 120
+
+# Marks write_photo()'s own internal write so hr.employee.write() below skips its own
+# guard/push logic for it - otherwise write_photo(employee, ...) writing employee.image_1920
+# would re-enter hr.employee.write() with 'image_1920' in vals again, calling write_photo()
+# again, forever (RecursionError). Only hr.employee needs this: write_photo() is only ever
+# called with an hr.employee or res.partner record (never res.users), and only hr.employee
+# has its own write() override that could loop back into write_photo() this way - res.partner
+# (models/contacts/contact.py) has no photo-sync logic of its own to re-enter.
+EMS_PHOTO_SYNC_CONTEXT_KEY = 'ems_syncing_photo'
+
+_UNSET = object()
+
+# image.mixin's resized copies of image_1920 - each stored as its OWN ir_attachment,
+# recomputed automatically whenever image_1920 changes.
+_IMAGE_SIZE_FIELDS = ('image_1920', 'image_1024', 'image_512', 'image_256', 'image_128')
+
+
+def write_photo(record, value):
+    """Write `value` into record.image_1920, after deleting every existing image_*
+    attachment (1920 down to 128) for this record.
+
+    Odoo never re-detects an ir_attachment's mimetype when overwriting its content in
+    place (ir_attachment._inverse_datas computes file_size/checksum/store_fname but never
+    touches mimetype - only Model.create() does, via _check_contents). This feature
+    writes genuinely different kinds of content into the same fields over time (a real
+    photo, or Odoo's own initials-placeholder SVG) - without deleting the old attachments
+    first, each one keeps whichever mimetype it had before, and browsers refuse to render
+    the new bytes under the stale Content-Type (visible as literal "Binary file" text
+    instead of the picture). Deleting them (image_1024/512/256/128 included - they are
+    each their own attachment, independently recomputed from image_1920, and independently
+    subject to the same stale-mimetype problem) forces every one of them through create()
+    on the next write/recompute, which always detects the mimetype fresh."""
+    record.env['ir.attachment'].sudo().search([
+        ('res_model', '=', record._name),
+        ('res_field', 'in', _IMAGE_SIZE_FIELDS),
+        ('res_id', 'in', record.ids),
+    ]).unlink()
+    record.invalidate_recordset(_IMAGE_SIZE_FIELDS)
+    raw = record.with_context(**{EMS_PHOTO_SYNC_CONTEXT_KEY: True})
+    raw.image_1920 = value
+    # image_1024/512/256/128 are related, store=True fields recomputed lazily - only on
+    # the next actual read, by whoever that happens to be. Left alone, that read (and the
+    # ir_attachment.create() it triggers) could happen well after this call returns, as
+    # some other, unprivileged viewer (e.g. the employee themselves opening their own
+    # kanban card) - re-triggering ir_attachment._check_contents's SVG-mimetype-forced-to-
+    # text/plain restriction for THAT create(), under THEIR privilege level, undoing the
+    # work of writing this value under this call's (possibly elevated) one. Reading them
+    # now, still as whoever `record` is bound to, forces that create() to happen here
+    # instead, once, correctly.
+    for field in _IMAGE_SIZE_FIELDS[1:]:
+        _ = raw[field]
+
 
 class ems_employee_base(models.AbstractModel):
     _inherit = ["hr.employee.base"]
@@ -16,7 +78,7 @@ class ems_employee_base(models.AbstractModel):
     contract_type_id = fields.Many2one(string="Contract Type", comodel_name="hr.contract.type")
     job_id = fields.Many2one(string="Job Position", comodel_name="hr.job", domain="[('employee_type', '=', employee_type)]")
     teaching_ids = fields.One2many(string="Teaching", comodel_name="ems.teaching", inverse_name="teacher_id")
-    attendance_template_ids = fields.One2many(string="Attendance templates", comodel_name="ems.attendance_template", inverse_name="teacher_id")
+    attendance_template_ids = fields.Many2many(string="Attendance templates", comodel_name="ems.attendance_template", relation="ems_attendance_template_teacher_rel")
     schedule_attendance_ids = fields.One2many(string="Schedule", comodel_name="resource.calendar.attendance", related="resource_calendar_id.attendance_ids")
    
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
@@ -41,9 +103,70 @@ class ems_employee_base(models.AbstractModel):
             rec.read_only = self.check_access_rights('write', raise_exception=False)
 
     def _compute_can_edit_schedule(self):
-        can_edit = self.env.user.has_group('ems.group_head_of_department')
+        can_edit = self.env.user.has_group('ems.group_department_chief')
         for rec in self:
             rec.can_edit_schedule = can_edit
+
+    def get_derived_break_attendance_data(self):
+        """RPC-friendly version of '_get_derived_break_entries()', meant to be fetched
+        explicitly by the Schedule tab's widget (orm.call in onWillStart/save, the same
+        pattern already used there for 'catalog.subjects'/'get_schedule_hours_summary') —
+        deliberately NOT exposed as a form field. An earlier version did exactly that (a
+        computed Many2many, hidden, with its own embedded <list> sub-view) and the derived
+        break silently never rendered in the widget despite computing correctly server-side
+        (proven by the PDF report, which calls the same underlying method directly in
+        Python) — an invisible x2many field with its own embedded list doesn't reliably load
+        its sub-fields client-side the way a plain Many2one/Boolean field does. Returns
+        plain '.read()' dicts (Many2one as a (id, name) tuple, matching the array shape
+        'entry.data.non_teaching[1]'/'entry.data.space_id[1]' already expect elsewhere in
+        the widget), not 'web_read()' dicts."""
+        self.ensure_one()
+        return self._get_derived_break_entries().read(
+            ['dayofweek', 'hour_from', 'hour_to', 'name', 'non_teaching', 'non_teaching_is_break'])
+
+    def _get_derived_break_entries(self):
+        """Fills genuine empty gaps in this teacher's own weekly schedule with a break/patio
+        period taken from ANY level's schedule framework — deliberately never tries to guess
+        "the" level a teacher belongs to, since a teacher can plausibly teach several levels
+        (even within the same day), each with its own break time. For each weekday the
+        teacher has at least one real entry (a class, a guard duty, a meeting... anything),
+        every candidate break from every framework is checked against that day's own known
+        span (earliest hour_from to latest hour_to among the teacher's real entries that
+        day) and against every real entry for overlap — a candidate outside that span, or
+        overlapping any real entry, is skipped. A gap that doesn't line up with any known
+        break simply stays empty; there is no fallback guess. A day with no real entries at
+        all has nothing to fill. Two frameworks defining the exact same break (same day and
+        hours) collapse into one result, not a visually-duplicated stack."""
+        self.ensure_one()
+        weekday_entries = self.resource_calendar_id.attendance_ids.filtered(lambda attendance: attendance.dayofweek in WEEKDAYS)
+        candidate_breaks = self.env['resource.calendar.attendance'].search([
+            ('calendar_id.is_framework', '=', True),
+            ('dayofweek', 'in', list(WEEKDAYS)),
+            ('non_teaching.is_break', '=', True),
+        ])
+
+        breaks = self.env['resource.calendar.attendance']
+        seen_slots = set()
+        for day in WEEKDAYS:
+            day_entries = weekday_entries.filtered(lambda attendance, day=day: attendance.dayofweek == day)
+            if not day_entries:
+                continue
+            day_start = min(day_entries.mapped('hour_from'))
+            day_end = max(day_entries.mapped('hour_to'))
+            for candidate in candidate_breaks.filtered(lambda attendance, day=day: attendance.dayofweek == day):
+                if candidate.hour_from < day_start - HOUR_EPSILON or candidate.hour_to > day_end + HOUR_EPSILON:
+                    continue
+                overlaps_real_entry = any(
+                    min(entry.hour_to, candidate.hour_to) - max(entry.hour_from, candidate.hour_from) > HOUR_EPSILON
+                    for entry in day_entries)
+                if overlaps_real_entry:
+                    continue
+                slot = (day, candidate.hour_from, candidate.hour_to)
+                if slot in seen_slots:
+                    continue
+                seen_slots.add(slot)
+                breaks |= candidate
+        return breaks
 
     def _get_new_employee_type(self):
         return employee_types
@@ -172,11 +295,33 @@ class ems_employee(models.AbstractModel):
         return employees
 
     def write(self, vals):
+        # write_photo() re-enters here to actually store image_1920 (see its own comment) -
+        # let that one through untouched, skipping the guard/push logic below entirely.
+        if self.env.context.get(EMS_PHOTO_SYNC_CONTEXT_KEY):
+            return super().write(vals)
+
+        photo = vals.pop('image_1920', _UNSET)
+        if photo is not _UNSET:
+            for employee in self:
+                if employee.user_id and employee.user_id.image_disabled:
+                    raise UserError(_("The profile picture is disabled; it cannot be changed."))
+
         result = super().write(vals)
+
+        if photo is not _UNSET:
+            for employee in self:
+                write_photo(employee, photo)
+
         if 'name' in vals:
             for employee in self:
                 if employee.resource_calendar_id and not employee.resource_calendar_id.is_framework:
                     employee.resource_calendar_id.name = employee._personal_calendar_name()
+
+        if photo is not _UNSET:
+            for employee in self:
+                if employee.user_id:
+                    write_photo(employee.user_id.partner_id.sudo(), employee.image_1920)
+
         return result
 
     def unlink(self):

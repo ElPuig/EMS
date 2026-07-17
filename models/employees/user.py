@@ -1,12 +1,29 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models
+from odoo import _, fields, models, SUPERUSER_ID
+from odoo.exceptions import UserError
+from .employee import _UNSET, write_photo
 
 EMS_SYNC_CONTEXT_KEY = 'ems_syncing_groups'
 
 
 class ems_users(models.Model):
     _inherit = "res.users"
+
+    # Single switch, set from "My Profile" (base.action_res_users_my). While True, nobody -
+    # not even an admin, from any form - may change image_1920 on this user's partner or on
+    # the linked hr.employee (see write() here and in employee.py); the photo becomes Odoo's
+    # own initials placeholder. There is no automatic restore on re-enable: re-enabling just
+    # allows a fresh upload again.
+    image_disabled = fields.Boolean(string="Disable profile picture", default=False)
+
+    @property
+    def SELF_WRITEABLE_FIELDS(self):
+        return super().SELF_WRITEABLE_FIELDS + ['image_disabled']
+
+    @property
+    def SELF_READABLE_FIELDS(self):
+        return super().SELF_READABLE_FIELDS + ['image_disabled']
 
     def write(self, vals):
         trigger = any(
@@ -16,9 +33,53 @@ class ems_users(models.Model):
         before = {}
         if trigger and not self.env.context.get(EMS_SYNC_CONTEXT_KEY):
             before = {user: user.groups_id for user in self}
+
+        disabling = vals.get('image_disabled') is True
+        photo = vals.pop('image_1920', _UNSET)
+        if photo is not _UNSET:
+            for user in self:
+                # Use the state image_disabled WILL have after this write (vals, if
+                # present, wins over the current DB value) - not just the current DB
+                # value - so re-enabling and uploading a new photo in the same save (e.g.
+                # "My Profile": untick "Disable profile picture" and pick a file, then
+                # Save once) works in one step instead of needing two separate saves.
+                will_be_disabled = vals.get('image_disabled', user.image_disabled)
+                if will_be_disabled:
+                    raise UserError(_("The profile picture is disabled; it cannot be changed."))
+
         res = super().write(vals)
+
+        if photo is not _UNSET:
+            for user in self:
+                write_photo(user.partner_id.sudo(), photo)
+
         if before:
             self._sync_ems_implied_groups(before)
+
+        if disabling:
+            for user in self:
+                # res.users has no avatar.mixin method of its own (only its delegated FIELDS
+                # are auto-generated via _inherits) - generate the placeholder from the
+                # partner, which does inherit avatar.mixin directly.
+                placeholder = user.partner_id._avatar_generate_svg()
+                # ir_attachment._check_contents forces any XML-like mimetype (SVG included)
+                # down to 'text/plain' unless the acting user can write ir.ui.view - checked
+                # with sudo(False), so a plain .sudo() wrapper does NOT bypass it (by design,
+                # to stop a non-admin sneaking a script-bearing SVG through a sudo'd write).
+                # with_user(SUPERUSER_ID) genuinely changes the acting user for this
+                # placeholder write, which is what actually clears that check - without it,
+                # a teacher disabling their own photo gets a mislabeled attachment that
+                # browsers refuse to render as an image ("Binary file" instead of the
+                # placeholder).
+                synced = user.with_user(SUPERUSER_ID)
+                write_photo(synced.partner_id, placeholder)
+                if user.employee_id:
+                    write_photo(synced.employee_id, placeholder)
+        elif photo is not _UNSET:
+            for user in self:
+                if user.employee_id:
+                    write_photo(user.employee_id.sudo(), user.image_1920)
+
         return res
 
     def _sync_ems_implied_groups(self, before):

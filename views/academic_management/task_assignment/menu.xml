@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem id="menu_ems_task_assignment"
+                  name="Task Assignment"
+                  parent="menu_ems_configuration"
+                  action="action_task_assignment"
+                  groups="ems.group_secretary_admin"
+                  sequence="40"/>
+    </data>
+</odoo>

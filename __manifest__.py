@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.20.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.21.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -62,6 +62,7 @@
         'security/rules/grading.xml',
         'security/rules/planning.xml',
         'security/rules/portal.xml',
+        'security/rules/task_assignment.xml',
         'security/ir.model.access.csv',
 
 
@@ -130,6 +131,11 @@
             'views/community/working_schedules/import_wizard.xml',
             'views/community/working_schedules/menu.xml',
 
+            'views/employees/non_teaching_type/list.xml',
+            'views/employees/non_teaching_type/form.xml',
+            'views/employees/non_teaching_type/menu.xml',
+            'views/employees/user_profile_form.xml',
+
             'views/community/subject/list.xml',
             'views/community/subject/search.xml',
             'views/community/subject/form.xml',
@@ -168,6 +174,11 @@
             'views/planning_grading/grading/menu.xml',
             'views/planning_grading/grading/wizard.xml',
             'views/planning_grading/grading/import_wizard.xml',
+            'views/planning_grading/grading/em_wizard.xml',
+            'views/planning_grading/grading/year_record/list.xml',
+            'views/planning_grading/grading/year_record/form.xml',
+            'views/planning_grading/grading/year_record/search.xml',
+            'views/planning_grading/grading/year_record/menu.xml',
 
             'views/communications/menu.xml',
 
@@ -253,12 +264,15 @@
             'reports/employees/report_google_credentials_employee.xml',
             'data/mail_template_google_welcome_employee.xml',
             'reports/employees/report_working_schedule.xml',
+            'reports/contacts/report_group_schedule.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_view.xml',
             'views/academic_management/enrollment_configuration/menu.xml',
-      
+            'views/academic_management/task_assignment/view.xml',
+            'views/academic_management/task_assignment/menu.xml',
+
         'views/sales/product_view.xml',
         'views/accounting/payment_term_views.xml',
         'views/accounting/enrollment_collections.xml',
@@ -310,6 +324,7 @@
         'data/main/ems.mail_activity_type.xml',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
+        'data/main/ems.non_teaching_type.csv',
         'data/main/ems.schedule_framework_default.xml',
 
         'data/cat/attachments/asix/ir.attachment.csv',

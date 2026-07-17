@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_non_teaching_type_form">
+            <field name="name">ems.non_teaching_type.form</field>
+            <field name="model">ems.non_teaching_type</field>
+            <field name="arch" type="xml">
+                <form string="Non-teaching type">
+                    <sheet>
+                        <group>
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="is_break"/>
+                            <field name="is_fixed"/>
+                            <field name="active"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

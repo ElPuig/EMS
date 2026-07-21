@@ -80,16 +80,29 @@ Això té un efecte immediat i automàtic sobre tots els professors d'aquell dep
 
 ---
 
+## Un departament sense Cap propi (Comparteix Responsable amb el pare)
+
+No tots els departaments necessiten el seu propi Cap de departament. Si un departament és prou petit perquè el gestioni directament el Cap/Responsable d'àrea del seu departament pare, marqueu **Comparteix Responsable amb el pare** en lloc d'establir un Cap de departament:
+
+1. Navegueu a **Empleats → Departaments** i obriu el departament. Ha de tenir ja un departament pare.
+2. Marqueu **Comparteix Responsable amb el pare** — això buida el camp **Responsable** i l'amaga, ja que el departament deixa de tenir-ne un de propi.
+3. Feu clic a **Desar**.
+
+Tots els professors d'aquell departament (i, si al seu torn té sub-departaments, el seu propi Cap de departament també) tenen el seu **Responsable** establert al Cap/Responsable d'àrea de l'avantpassat més proper — pujant per la jerarquia tants nivells com calgui fins a trobar-ne un. Un departament no pot tenir alhora Responsable propi i aquesta casella marcada.
+
+---
+
 ## Assignar un Responsable d'àrea (Cap d'estudis / adjunt / Secretari)
 
 Alguns departaments (actualment **VET**, **ESO/BTX** i **ASP**) són **departaments top-level** — això canvia el seu formulari:
 
 1. Navegueu a **Empleats → Departaments** i obriu el departament. La casella **Departament top-level** ja està marcada per a VET, ESO/BTX i ASP.
 2. El departament ja no pot tenir un departament pare, i no té Cap de seminari — en lloc de "Cap de departament", el camp Responsable es diu **Responsable d'àrea**.
-3. Establiu el **Responsable d'àrea** (obligatori) i trieu el seu **Rol**: **Cap d'estudis**, **Cap d'estudis adjunt** o **Secretari/ària**.
-4. Feu clic a **Desar**.
+3. Trieu l'**Àrea** (obligatòria): **Acadèmica** (VET, ESO/BTX) o **ASP**. D'això depèn quin **Rol** podreu triar a continuació.
+4. Establiu el **Responsable d'àrea** (obligatori) i trieu el seu **Rol**: **Cap d'estudis** o **Cap d'estudis adjunt** per a una àrea Acadèmica, **Secretari/ària** per a una àrea ASP — triar un Rol que no coincideixi amb l'Àrea es rebutja.
+5. Feu clic a **Desar**.
 
-Quin **Rol** triar depèn del departament: VET i ESO/BTX són àrees acadèmiques, així que el seu Responsable d'àrea normalment és Cap d'estudis o adjunt; **ASP és diferent** — el seu Responsable d'àrea és un professor que coordina el personal administratiu/de secretaria, així que el seu Rol hauria de ser **Secretari/ària** (això concedeix el bloc de permisos de Secretaria, no un d'acadèmic — vegeu la nota sota la taula de permisos de dalt).
+Quina **Àrea**/**Rol** triar depèn del departament: VET i ESO/BTX són àrees Acadèmiques, així que el seu Responsable d'àrea normalment és Cap d'estudis o adjunt; **ASP és diferent** — la seva Àrea és ASP, el seu Responsable d'àrea és un professor que coordina el personal administratiu/de secretaria, així que el seu Rol hauria de ser **Secretari/ària** (això concedeix el bloc de permisos de Secretaria, no un d'acadèmic — vegeu la nota sota la taula de permisos de dalt).
 
 Això té un efecte més enllà del propi departament:
 

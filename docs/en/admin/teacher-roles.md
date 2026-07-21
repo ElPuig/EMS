@@ -80,16 +80,29 @@ This has an immediate, automatic effect on every teacher in that department:
 
 ---
 
+## A department with no Chief of its own (Shares Manager with Parent)
+
+Not every department needs its own Department Chief. If a department is small enough to be managed directly by its parent department's own Chief/Area Manager, tick **Shares Manager with Parent** instead of setting a Department Chief:
+
+1. Navigate to **Employees → Departments** and open the department. It must already have a parent department.
+2. Tick **Shares Manager with Parent** — this clears the **Manager** field and hides it, since the department no longer has one of its own.
+3. Click **Save**.
+
+Every teacher in that department (and, if it itself has sub-departments, their own Department Chief too) gets their **Manager** set to the nearest ancestor department's own Chief/Area Manager — climbing up the hierarchy as many levels as needed until one is found. A department cannot have both its own Manager and this checkbox ticked at the same time.
+
+---
+
 ## Assigning an Area Manager (Head of Studies / Deputy / Secretary)
 
 Some departments (currently **VET**, **ESO/BTX** and **ASP**) are **top-level departments** — this changes their form:
 
 1. Navigate to **Employees → Departments** and open the department. The **Top-level Department** checkbox is already ticked for VET, ESO/BTX and ASP.
 2. The department can no longer have a parent department, and has no Seminar Chief — instead of "Department Chief", the Manager field is labelled **Area Manager**.
-3. Set the **Area Manager** (required) and choose their **Role**: **Head of studies**, **Deputy head of studies** or **Secretary**.
-4. Click **Save**.
+3. Choose the **Area** (required): **Academic** (VET, ESO/BTX) or **ASP**. This determines which **Role** you're allowed to pick next.
+4. Set the **Area Manager** (required) and choose their **Role**: **Head of studies** or **Deputy head of studies** for an Academic area, **Secretary** for an ASP area — picking a Role that doesn't match the Area is rejected.
+5. Click **Save**.
 
-Which **Role** to pick depends on the department: VET and ESO/BTX are academic areas, so their Area Manager is normally Head of studies or Deputy; **ASP is different** — its Area Manager is a teacher coordinating the administrative/secretariat staff, so its Role should be **Secretary** (this grants the separate Secretary permission block, not an academic one — see the note under the permission table above).
+Which **Area**/**Role** to pick depends on the department: VET and ESO/BTX are Academic areas, so their Area Manager is normally Head of studies or Deputy; **ASP is different** — its Area is ASP, its Area Manager is a teacher coordinating the administrative/secretariat staff, so its Role should be **Secretary** (this grants the separate Secretary permission block, not an academic one — see the note under the permission table above).
 
 This has an effect beyond the department itself:
 

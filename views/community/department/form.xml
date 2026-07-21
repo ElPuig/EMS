@@ -11,15 +11,19 @@
             <field name="parent_id" position="before">
                 <field name="is_top_level"/>
             </field>
+            <field name="parent_id" position="after">
+                <field name="shares_manager_with_parent" invisible="is_top_level or not parent_id"/>
+            </field>
             <field name="manager_id" position="attributes">
                 <attribute name="string">Department Chief</attribute>
-                <attribute name="required">1</attribute>
-                <attribute name="invisible">is_top_level</attribute>
+                <attribute name="required">not is_top_level and not shares_manager_with_parent</attribute>
+                <attribute name="invisible">is_top_level or shares_manager_with_parent</attribute>
             </field>
             <field name="manager_id" position="after">
                 <field name="manager_id" string="Area Manager" invisible="not is_top_level" required="is_top_level"/>
+                <field name="top_level_area" invisible="not is_top_level" required="is_top_level"/>
                 <field name="top_level_role" invisible="not is_top_level" required="is_top_level"/>
-                <field name="seminar_head_id" widget="many2one_avatar_employee" invisible="is_top_level"/>
+                <field name="seminar_head_id" widget="many2one_avatar_employee" invisible="is_top_level or shares_manager_with_parent"/>
             </field>
         </field>
     </record>

@@ -56,7 +56,7 @@ class TestCompanyDirector(TransactionCase):
         director = self._create_employee('Test Director (Top Level Manager)')
         head = self._create_employee('Test Head (Top Level Manager)')
         self.env['hr.department'].create({
-            'name': 'Test VET (Top Level Manager)', 'is_top_level': True, 'top_level_role': 'hos', 'manager_id': head.id,
+            'name': 'Test VET (Top Level Manager)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos', 'manager_id': head.id,
         })
 
         self.env.company.director_id = director.id
@@ -66,7 +66,7 @@ class TestCompanyDirector(TransactionCase):
     def test_director_heading_top_level_department_not_self_referenced(self):
         director = self._create_employee('Test Director (Self Reference)')
         self.env['hr.department'].create({
-            'name': 'Test VET (Self Reference)', 'is_top_level': True, 'top_level_role': 'hos', 'manager_id': director.id,
+            'name': 'Test VET (Self Reference)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos', 'manager_id': director.id,
         })
 
         self.env.company.director_id = director.id

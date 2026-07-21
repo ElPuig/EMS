@@ -80,16 +80,29 @@ Esto tiene un efecto inmediato y automático sobre todos los profesores de ese d
 
 ---
 
+## Un departamento sin Jefe propio (Comparte Responsable con el padre)
+
+No todos los departamentos necesitan su propio Jefe de departamento. Si un departamento es lo bastante pequeño como para que lo gestione directamente el Jefe/Responsable de área de su departamento padre, marcar **Comparte Responsable con el padre** en lugar de establecer un Jefe de departamento:
+
+1. Navegar a **Empleados → Departamentos** y abrir el departamento. Debe tener ya un departamento padre.
+2. Marcar **Comparte Responsable con el padre** — esto vacía el campo **Responsable** y lo oculta, ya que el departamento deja de tener uno propio.
+3. Hacer clic en **Guardar**.
+
+Todos los profesores de ese departamento (y, si a su vez tiene subdepartamentos, su propio Jefe de departamento también) tienen su **Responsable** establecido al Jefe/Responsable de área del antepasado más cercano — subiendo por la jerarquía tantos niveles como haga falta hasta encontrar uno. Un departamento no puede tener a la vez Responsable propio y esta casilla marcada.
+
+---
+
 ## Asignar un Responsable de área (Jefe de estudios / adjunto / Secretario)
 
 Algunos departamentos (actualmente **VET**, **ESO/BTX** y **ASP**) son **departamentos top-level** — esto cambia su formulario:
 
 1. Navegar a **Empleados → Departamentos** y abrir el departamento. La casilla **Departamento top-level** ya está marcada para VET, ESO/BTX y ASP.
 2. El departamento ya no puede tener un departamento padre, y no tiene Jefe de seminario — en lugar de "Jefe de departamento", el campo Responsable se llama **Responsable de área**.
-3. Establecer el **Responsable de área** (obligatorio) y elegir su **Rol**: **Jefe de estudios**, **Jefe de estudios adjunto** o **Secretario/a**.
-4. Hacer clic en **Guardar**.
+3. Elegir el **Área** (obligatoria): **Académica** (VET, ESO/BTX) o **ASP**. De esto depende qué **Rol** se podrá elegir a continuación.
+4. Establecer el **Responsable de área** (obligatorio) y elegir su **Rol**: **Jefe de estudios** o **Jefe de estudios adjunto** para un área Académica, **Secretario/a** para un área ASP — elegir un Rol que no coincida con el Área se rechaza.
+5. Hacer clic en **Guardar**.
 
-Qué **Rol** elegir depende del departamento: VET y ESO/BTX son áreas académicas, así que su Responsable de área normalmente es Jefe de estudios o adjunto; **ASP es diferente** — su Responsable de área es un profesor que coordina al personal administrativo/de secretaría, así que su Rol debería ser **Secretario/a** (esto concede el bloque de permisos de Secretaría, no uno académico — ver la nota bajo la tabla de permisos de arriba).
+Qué **Área**/**Rol** elegir depende del departamento: VET y ESO/BTX son áreas Académicas, así que su Responsable de área normalmente es Jefe de estudios o adjunto; **ASP es diferente** — su Área es ASP, su Responsable de área es un profesor que coordina al personal administrativo/de secretaría, así que su Rol debería ser **Secretario/a** (esto concede el bloque de permisos de Secretaría, no uno académico — ver la nota bajo la tabla de permisos de arriba).
 
 Esto tiene un efecto más allá del propio departamento:
 

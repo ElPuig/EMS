@@ -230,7 +230,7 @@ class TestDepartment(TransactionCase):
 
     def test_onchange_is_top_level_unchecked_clears_role(self):
         department = self.env['hr.department'].create({
-            'name': 'Test Department (Top Level Uncheck)', 'is_top_level': True, 'top_level_role': 'hos',
+            'name': 'Test Department (Top Level Uncheck)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos',
         })
         department.is_top_level = False
 
@@ -270,12 +270,12 @@ class TestDepartment(TransactionCase):
         department = self.env['hr.department'].create({'name': 'Test Department (Role Guard)'})
 
         with self.assertRaises(ValidationError):
-            department.write({'top_level_role': 'hos'})
+            department.write({'top_level_area': 'academic', 'top_level_role': 'hos'})
 
     def test_top_level_manager_gets_hos_role_not_dchieff(self):
         head = self._create_employee('Test Head (HOS Role)', with_user=True)
         self.env['hr.department'].create({
-            'name': 'Test Department (HOS Role)', 'is_top_level': True, 'top_level_role': 'hos', 'manager_id': head.id,
+            'name': 'Test Department (HOS Role)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos', 'manager_id': head.id,
         })
 
         self.assertIn(self.role_hos, head.role_ids)
@@ -285,7 +285,7 @@ class TestDepartment(TransactionCase):
     def test_top_level_manager_gets_dhos_role(self):
         head = self._create_employee('Test Head (DHOS Role)', with_user=True)
         department = self.env['hr.department'].create({
-            'name': 'Test Department (DHOS Role)', 'is_top_level': True, 'top_level_role': 'dhos', 'manager_id': head.id,
+            'name': 'Test Department (DHOS Role)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'dhos', 'manager_id': head.id,
         })
 
         self.assertIn(self.role_dhos, head.role_ids)
@@ -298,12 +298,12 @@ class TestDepartment(TransactionCase):
         head_a = self._create_employee('Test Head A (Unipersonal HOS)', with_user=True)
         head_b = self._create_employee('Test Head B (Unipersonal HOS)', with_user=True)
         self.env['hr.department'].create({
-            'name': 'Test Department A (Unipersonal HOS)', 'is_top_level': True, 'top_level_role': 'hos', 'manager_id': head_a.id,
+            'name': 'Test Department A (Unipersonal HOS)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos', 'manager_id': head_a.id,
         })
 
         with self.assertRaises(ValidationError):
             self.env['hr.department'].create({
-                'name': 'Test Department B (Unipersonal HOS)', 'is_top_level': True, 'top_level_role': 'hos', 'manager_id': head_b.id,
+                'name': 'Test Department B (Unipersonal HOS)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos', 'manager_id': head_b.id,
             })
 
     def test_onchange_role_ids_blocks_manual_hos_assignment(self):
@@ -318,7 +318,7 @@ class TestDepartment(TransactionCase):
     def test_onchange_role_ids_blocks_manual_hos_removal(self):
         head = self._create_employee('Test Employee (Onchange HOS Remove)')
         self.env['hr.department'].create({
-            'name': 'Test Department (Onchange HOS Remove)', 'is_top_level': True, 'top_level_role': 'hos', 'manager_id': head.id,
+            'name': 'Test Department (Onchange HOS Remove)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos', 'manager_id': head.id,
         })
         head.role_ids = [(3, self.role_hos.id)]
 
@@ -339,7 +339,7 @@ class TestDepartment(TransactionCase):
     def test_onchange_role_ids_blocks_manual_dhos_removal(self):
         head = self._create_employee('Test Employee (Onchange DHOS Remove)')
         self.env['hr.department'].create({
-            'name': 'Test Department (Onchange DHOS Remove)', 'is_top_level': True, 'top_level_role': 'dhos', 'manager_id': head.id,
+            'name': 'Test Department (Onchange DHOS Remove)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'dhos', 'manager_id': head.id,
         })
         head.role_ids = [(3, self.role_dhos.id)]
 
@@ -412,7 +412,7 @@ class TestDepartment(TransactionCase):
         self.assertEqual(fernando.parent_id, other)
 
         vet = self.env['hr.department'].create({
-            'name': 'Test VET (Fernando Case)', 'is_top_level': True, 'top_level_role': 'dhos', 'manager_id': fernando.id,
+            'name': 'Test VET (Fernando Case)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'dhos', 'manager_id': fernando.id,
         })
 
         # Once Fernando heads VET, he's excluded from Computer Science's own cascade entirely -
@@ -429,7 +429,7 @@ class TestDepartment(TransactionCase):
         self.assertFalse(fernando.parent_id)
 
     def test_find_head_of_studies_via_top_level_cascade(self):
-        vet = self.env['hr.department'].create({'name': 'Test VET (Find HOS)', 'is_top_level': True, 'top_level_role': 'hos'})
+        vet = self.env['hr.department'].create({'name': 'Test VET (Find HOS)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos'})
         fernando = self._create_employee('Test Fernando (Find HOS)', with_user=True)
         vet.manager_id = fernando.id
         cs = self.env['hr.department'].create({'name': 'Test Computer Science (Find HOS)', 'parent_id': vet.id})
@@ -442,7 +442,7 @@ class TestDepartment(TransactionCase):
     def test_get_report_role_lines_hos_shows_department(self):
         head = self._create_employee('Test Head (Report Lines HOS)')
         department = self.env['hr.department'].create({
-            'name': 'Test Department (Report Lines HOS)', 'is_top_level': True, 'top_level_role': 'hos', 'manager_id': head.id,
+            'name': 'Test Department (Report Lines HOS)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos', 'manager_id': head.id,
         })
 
         lines = head.get_report_role_lines()
@@ -453,7 +453,7 @@ class TestDepartment(TransactionCase):
     def test_top_level_manager_gets_secretary_role_not_dchieff(self):
         head = self._create_employee('Test Head (Secretary Role)', with_user=True)
         self.env['hr.department'].create({
-            'name': 'Test Department (Secretary Role)', 'is_top_level': True, 'top_level_role': 'secretary', 'manager_id': head.id,
+            'name': 'Test Department (Secretary Role)', 'is_top_level': True, 'top_level_area': 'asp', 'top_level_role': 'secretary', 'manager_id': head.id,
         })
 
         self.assertIn(self.role_secretary, head.role_ids)
@@ -464,7 +464,7 @@ class TestDepartment(TransactionCase):
 
     def test_reassigning_secretary_area_manager_demotes_old_holder(self):
         department = self.env['hr.department'].create({
-            'name': 'Test Department (Reassign Secretary)', 'is_top_level': True, 'top_level_role': 'secretary',
+            'name': 'Test Department (Reassign Secretary)', 'is_top_level': True, 'top_level_area': 'asp', 'top_level_role': 'secretary',
         })
         old_head = self._create_employee('Test Old Secretary (Reassign)', with_user=True)
         department.manager_id = old_head.id
@@ -479,12 +479,12 @@ class TestDepartment(TransactionCase):
         head_a = self._create_employee('Test Head A (Unipersonal Secretary)', with_user=True)
         head_b = self._create_employee('Test Head B (Unipersonal Secretary)', with_user=True)
         self.env['hr.department'].create({
-            'name': 'Test Department A (Unipersonal Secretary)', 'is_top_level': True, 'top_level_role': 'secretary', 'manager_id': head_a.id,
+            'name': 'Test Department A (Unipersonal Secretary)', 'is_top_level': True, 'top_level_area': 'asp', 'top_level_role': 'secretary', 'manager_id': head_a.id,
         })
 
         with self.assertRaises(ValidationError):
             self.env['hr.department'].create({
-                'name': 'Test Department B (Unipersonal Secretary)', 'is_top_level': True, 'top_level_role': 'secretary', 'manager_id': head_b.id,
+                'name': 'Test Department B (Unipersonal Secretary)', 'is_top_level': True, 'top_level_area': 'asp', 'top_level_role': 'secretary', 'manager_id': head_b.id,
             })
 
     def test_onchange_role_ids_blocks_manual_secretary_assignment(self):
@@ -499,7 +499,7 @@ class TestDepartment(TransactionCase):
     def test_onchange_role_ids_blocks_manual_secretary_removal(self):
         head = self._create_employee('Test Employee (Onchange Secretary Remove)')
         self.env['hr.department'].create({
-            'name': 'Test Department (Onchange Secretary Remove)', 'is_top_level': True, 'top_level_role': 'secretary', 'manager_id': head.id,
+            'name': 'Test Department (Onchange Secretary Remove)', 'is_top_level': True, 'top_level_area': 'asp', 'top_level_role': 'secretary', 'manager_id': head.id,
         })
         head.role_ids = [(3, self.role_secretary.id)]
 
@@ -510,7 +510,7 @@ class TestDepartment(TransactionCase):
 
     def test_secretary_top_level_cascades_to_child_department_chief(self):
         asp = self.env['hr.department'].create({
-            'name': 'Test ASP (Secretary Cascade)', 'is_top_level': True, 'top_level_role': 'secretary',
+            'name': 'Test ASP (Secretary Cascade)', 'is_top_level': True, 'top_level_area': 'asp', 'top_level_role': 'secretary',
         })
         secretary_head = self._create_employee('Test Secretary Head (Secretary Cascade)')
         asp.manager_id = secretary_head.id
@@ -524,10 +524,119 @@ class TestDepartment(TransactionCase):
     def test_get_report_role_lines_secretary_shows_department(self):
         head = self._create_employee('Test Head (Report Lines Secretary)')
         department = self.env['hr.department'].create({
-            'name': 'Test Department (Report Lines Secretary)', 'is_top_level': True, 'top_level_role': 'secretary', 'manager_id': head.id,
+            'name': 'Test Department (Report Lines Secretary)', 'is_top_level': True, 'top_level_area': 'asp', 'top_level_role': 'secretary', 'manager_id': head.id,
         })
 
         lines = head.get_report_role_lines()
 
         self.assertEqual(len(lines), 1)
         self.assertIn(department.name, lines[0])
+
+    def test_top_level_area_role_mismatch_raises(self):
+        with self.assertRaises(ValidationError):
+            self.env['hr.department'].create({
+                'name': 'Test Department (Area Mismatch HOS)', 'is_top_level': True,
+                'top_level_area': 'asp', 'top_level_role': 'hos',
+            })
+
+    def test_top_level_area_role_mismatch_secretary_raises(self):
+        with self.assertRaises(ValidationError):
+            self.env['hr.department'].create({
+                'name': 'Test Department (Area Mismatch Secretary)', 'is_top_level': True,
+                'top_level_area': 'academic', 'top_level_role': 'secretary',
+            })
+
+    def test_top_level_area_on_non_top_level_department_raises(self):
+        department = self.env['hr.department'].create({'name': 'Test Department (Area Guard)'})
+
+        with self.assertRaises(ValidationError):
+            department.write({'top_level_area': 'academic'})
+
+    def test_shares_manager_with_parent_clears_own_manager_id(self):
+        parent = self.env['hr.department'].create({'name': 'Test Parent (Shares Clear)'})
+        head = self._create_employee('Test Head (Shares Clear)')
+        department = self.env['hr.department'].create({
+            'name': 'Test Department (Shares Clear)', 'parent_id': parent.id, 'manager_id': head.id,
+        })
+        department.shares_manager_with_parent = True
+
+        department._onchange_shares_manager_with_parent()
+
+        self.assertFalse(department.manager_id)
+
+    def test_shares_manager_with_parent_requires_parent(self):
+        department = self.env['hr.department'].create({'name': 'Test Department (Shares No Parent)'})
+
+        with self.assertRaises(ValidationError):
+            department.write({'shares_manager_with_parent': True})
+
+    def test_shares_manager_with_parent_and_manager_id_conflict_raises(self):
+        parent = self.env['hr.department'].create({'name': 'Test Parent (Shares Conflict)'})
+        head = self._create_employee('Test Head (Shares Conflict)')
+        department = self.env['hr.department'].create({
+            'name': 'Test Department (Shares Conflict)', 'parent_id': parent.id,
+        })
+        department.shares_manager_with_parent = True
+
+        with self.assertRaises(ValidationError):
+            department.write({'manager_id': head.id})
+
+    def test_top_level_cannot_share_manager_with_parent(self):
+        department = self.env['hr.department'].create({'name': 'Test Department (Top Level No Share)', 'is_top_level': True})
+
+        with self.assertRaises(ValidationError):
+            department.write({'shares_manager_with_parent': True})
+
+    def test_department_with_no_manager_and_no_sharing_leaves_members_unmanaged(self):
+        parent = self.env['hr.department'].create({'name': 'Test Parent (No Sharing)'})
+        parent.manager_id = self._create_employee('Test Parent Chief (No Sharing)').id
+        department = self.env['hr.department'].create({'name': 'Test Department (No Sharing)', 'parent_id': parent.id})
+        regular = self._create_employee('Test Regular (No Sharing)', department)
+
+        self.assertFalse(regular.parent_id)
+
+    def test_shares_manager_with_parent_uses_parent_manager(self):
+        parent = self.env['hr.department'].create({'name': 'Test Parent (Shares Basic)'})
+        parent_chief = self._create_employee('Test Parent Chief (Shares Basic)')
+        parent.manager_id = parent_chief.id
+        department = self.env['hr.department'].create({
+            'name': 'Test Department (Shares Basic)', 'parent_id': parent.id, 'shares_manager_with_parent': True,
+        })
+        regular = self._create_employee('Test Regular (Shares Basic)', department)
+
+        self.assertEqual(regular.parent_id, parent_chief)
+
+    def test_shares_manager_with_parent_climbs_multiple_levels(self):
+        grandparent = self.env['hr.department'].create({
+            'name': 'Test Grandparent (Shares Multi)', 'is_top_level': True,
+            'top_level_area': 'academic', 'top_level_role': 'hos',
+        })
+        grandparent_chief = self._create_employee('Test Grandparent Chief (Shares Multi)')
+        grandparent.manager_id = grandparent_chief.id
+        parent = self.env['hr.department'].create({
+            'name': 'Test Parent (Shares Multi)', 'parent_id': grandparent.id, 'shares_manager_with_parent': True,
+        })
+        department = self.env['hr.department'].create({
+            'name': 'Test Department (Shares Multi)', 'parent_id': parent.id, 'shares_manager_with_parent': True,
+        })
+        regular = self._create_employee('Test Regular (Shares Multi)', department)
+
+        self.assertEqual(regular.parent_id, grandparent_chief)
+
+    def test_chief_of_child_department_of_own_top_level_area_not_self_referenced(self):
+        # Replicates the exact real-world bug found: the same employee is both a top-level
+        # department's Area Manager AND the Department Chief of one of ITS OWN child
+        # departments - their own parent_id must never end up pointing at themselves.
+        area = self.env['hr.department'].create({
+            'name': 'Test ASP (Self Reference Child)', 'is_top_level': True,
+            'top_level_area': 'asp', 'top_level_role': 'secretary',
+        })
+        manager = self._create_employee('Test Manager (Self Reference Child)')
+        area.manager_id = manager.id
+        child = self.env['hr.department'].create({
+            'name': 'Test Secretariat (Self Reference Child)', 'parent_id': area.id, 'manager_id': manager.id,
+        })
+
+        self.assertNotEqual(manager.parent_id, manager)
+        self.assertIn(self.role_secretary, manager.role_ids)
+        self.assertIn(self.role_dchieff, manager.role_ids)

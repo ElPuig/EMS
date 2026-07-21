@@ -183,38 +183,45 @@ class ems_employee_base(models.AbstractModel):
     def _compute_parent_id(self):
         """Replaces hr.employee.base's native default (department.manager_id for everyone) with
         the Department Chief / Seminar Chief cascade, plus a cross-department cascade for whoever
-        chiefs a department themselves (Department Chief of a regular department, or Head of
-        Studies/Deputy of a top-level one - see 'ems.department'):
+        chiefs a department themselves (Department Chief of a regular department, or Area Manager
+        of a top-level one - see 'ems.department'):
 
         - Anyone who chiefs ANY department (headed_department_ids) is excluded from every OTHER
           department's own intra-cascade entirely, including their own nominal department_id if
           it differs from what they head (e.g. an employee nominally in "Computer Science" who
           actually heads "VET"). Their own Manager instead comes from whichever headed department
-          has a parent department with its own Manager set - that parent's Manager becomes their
-          Manager. If a headed department is itself top-level (no parent by definition), the
-          company's own Director (res.company.director_id) becomes their Manager instead, unless
-          they ARE the Director (self-reference guard, same spirit as the manager_id/seminar_head_id
-          one). If none of these applies (no parent chief, no Director set), their own Manager is
-          cleared.
-        - Otherwise (not chiefing anything): the Seminar Chief's Manager is the Department Chief;
-          every other member's Manager is the Seminar Chief, or the Department Chief directly if
-          the department has no Seminar Chief.
+          has a parent department - that parent's *effective* Manager (see
+          'ems.department._effective_manager()': the nearest ancestor's own Manager, walking up
+          through any department that shares its Manager with its parent) becomes their Manager.
+          If a headed department is itself top-level (no parent by definition), the company's own
+          Director (res.company.director_id) becomes their Manager instead. Either way, a
+          candidate that resolves back to the employee themselves is discarded (self-reference
+          guard - e.g. someone who is both a top-level Area Manager AND the Department Chief of
+          one of its own child departments must never end up as their own Manager). If none of
+          these applies (no parent chief, no Director set, or the only candidate was themselves),
+          their own Manager is cleared.
+        - Otherwise (not chiefing anything): the Seminar Chief's Manager is the Department Chief
+          (or, if the department has no Manager of its own, whichever ancestor's Manager it
+          resolves to via 'ems.department._effective_manager()'); every other member's Manager is
+          the Seminar Chief, or that same effective Manager if the department has no Seminar Chief.
         """
         for employee in self:
             headed = employee.headed_department_ids
             if headed:
                 # Explicitly (re)assigned every time, including to an empty recordset (False) -
-                # a transition INTO heading a department (e.g. becoming a top-level Head of
-                # Studies with no parent above it yet) must clear whatever manager a PREVIOUS
-                # cascade left behind, not silently keep it.
+                # a transition INTO heading a department (e.g. becoming a top-level Area Manager
+                # with no parent above it yet) must clear whatever manager a PREVIOUS cascade
+                # left behind, not silently keep it.
                 parent_chief = self.env['hr.employee']
                 for department in headed:
-                    if department.parent_id and department.parent_id.manager_id:
-                        parent_chief = department.parent_id.manager_id
-                    elif department.is_top_level:
-                        director = department.company_id.director_id
-                        if director and director != employee:
-                            parent_chief = director
+                    if department.is_top_level:
+                        candidate = department.company_id.director_id
+                    elif department.parent_id:
+                        candidate = department.parent_id._effective_manager()
+                    else:
+                        candidate = self.env['hr.employee']
+                    if candidate and candidate != employee:
+                        parent_chief = candidate
                 employee.parent_id = parent_chief
                 continue
 
@@ -223,11 +230,11 @@ class ems_employee_base(models.AbstractModel):
                 employee.parent_id = False
                 continue
             if employee == department.seminar_head_id:
-                employee.parent_id = department.manager_id
+                employee.parent_id = department._effective_manager()
             elif department.seminar_head_id:
                 employee.parent_id = department.seminar_head_id
             else:
-                employee.parent_id = department.manager_id
+                employee.parent_id = department._effective_manager()
 
     @api.depends("tutorship_ids")
     def _compute_tutorships_str(self):

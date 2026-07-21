@@ -1249,6 +1249,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__asp_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__asp
+#: model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_area__asp
 #: model:ir.ui.menu,name:ems.menu_asp
 #: model:ir.ui.menu,name:ems.menu_community_config_asp
 msgid "ASP"
@@ -13150,3 +13151,96 @@ msgid ""
 msgstr ""
 "El rol de Secretari/ària no es pot assignar ni treure manualment, es "
 "gestiona automàticament des del formulari del departament top-level."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__top_level_area
+msgid "Area"
+msgstr "Àrea"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__top_level_area
+msgid ""
+"Only applies when this is a Top-level Department: which staff population "
+"this area covers - determines which Role is valid below (Academic -> Head of"
+" Studies/Deputy; ASP -> Secretary)."
+msgstr ""
+"Només aplica quan es tracta d'un Departament top-level: quina població de "
+"personal cobreix aquesta àrea - determina quin Rol és vàlid a sota "
+"(Acadèmica -> Cap d'estudis/adjunt; PAS -> Secretari/ària)."
+
+#. module: ems
+#: model:ir.module.category,name:ems.category_roles
+#: model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_area__academic
+msgid "Academic"
+msgstr "Acadèmica"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__shares_manager_with_parent
+msgid "Shares Manager with Parent"
+msgstr "Comparteix Responsable amb el pare"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__shares_manager_with_parent
+msgid ""
+"If set, this department has no Manager of its own - every member (and, if "
+"this department itself has children, their own Chief's Manager too) uses the"
+" nearest ancestor department's Manager instead, walking up the hierarchy "
+"until one is found."
+msgstr ""
+"Si està marcat, aquest departament no té Responsable propi - tots els "
+"membres (i, si aquest departament té fills, el Responsable del seu propi "
+"Cap també) utilitzen en canvi el Responsable de l'avantpassat més proper, "
+"pujant per la jerarquia fins trobar-ne un."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid ""
+"A top-level department cannot share its Manager with a parent department."
+msgstr ""
+"Un departament top-level no pot compartir el seu Responsable amb un "
+"departament pare."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid ""
+"Head of Studies / Deputy Head of Studies can only be selected for an "
+"Academic top-level department."
+msgstr ""
+"Cap d'estudis / Cap d'estudis adjunt només es pot seleccionar per a un "
+"departament top-level Acadèmic."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "Secretary can only be selected for an ASP top-level department."
+msgstr ""
+"Secretari/ària només es pot seleccionar per a un departament top-level de "
+"PAS."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "Only a top-level department can have an Area selected."
+msgstr "Només un departament top-level pot tenir una Àrea seleccionada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid ""
+"A department can only share its Manager with a parent department if it has "
+"one."
+msgstr ""
+"Un departament només pot compartir el seu Responsable amb un departament "
+"pare si en té un."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid ""
+"A department cannot have its own Manager and also share its Manager with its"
+" parent department."
+msgstr ""
+"Un departament no pot tenir Responsable propi i alhora compartir el seu "
+"Responsable amb el seu departament pare."

@@ -23,7 +23,7 @@ Los niveles de permisos forman una jerarquía — cada nivel incluye todos los p
 | Jefe de departamento | Jefe de departamento | Automático — se establece como **Jefe de departamento** en el formulario del departamento |
 | Jefe de seminario | Jefe de departamento | Automático — se establece como **Jefe de seminario** en el formulario del departamento |
 | Jefe de estudios / Jefe de estudios adjunto | Jefe de estudios | Automático — se establece como **Jefe de estudios** en el formulario de un departamento top-level |
-| Director | Director | Manual — se añade a los roles del profesor |
+| Director | Director | Automático — se establece como **Director** en Ajustes > EMS Management |
 
 > El Jefe de departamento tiene actualmente los mismos permisos que el Tutor, además de poder crear, editar y eliminar Grupos de alumnos (Contactos → Grupos). Existe como nivel propio para poder ampliarse de forma independiente en el futuro. El Jefe de seminario tiene el mismo nivel de permisos.
 
@@ -43,7 +43,7 @@ Navegar a: **Empleados → [abrir la ficha del profesor]**
 
 La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo de seguridad vinculado al rol, junto con todo lo que implica (p. ej. asignar **Jefe de departamento** también concede el acceso de Tutor y de Profesor).
 
-> Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios** y **Jefe de estudios adjunto** no se pueden añadir ni quitar manualmente desde aquí — el Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los otros cuatro se gestionan automáticamente desde el formulario de un departamento (ver más abajo).
+> Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios**, **Jefe de estudios adjunto** y **Director** no se pueden añadir ni quitar manualmente desde aquí — ningún rol de esta lista se puede. El Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los cuatro siguientes se gestionan automáticamente desde el formulario de un departamento; el Director se gestiona automáticamente desde Ajustes (ver más abajo).
 
 ---
 
@@ -92,6 +92,25 @@ Esto tiene un efecto más allá del propio departamento:
 - Como **Jefe de estudios** y **Jefe de estudios adjunto** solo pueden estar ocupados por una persona en todo el centro, intentar establecer el mismo en dos departamentos con dos personas distintas se rechaza — hay que quitar primero la otra asignación si se quiere reasignar.
 
 > **Nota para departamentos existentes:** VET y ESO/BTX ya están marcados como top-level, pero sin ningún Jefe de estudios establecido todavía — un administrador debe abrir cada uno y establecerlo manualmente; no se rellena nada automáticamente.
+
+---
+
+## Asignar el Director
+
+A diferencia de todos los demás roles, el **Director** no se establece desde ninguna ficha de profesor ni ningún formulario de departamento — se configura de forma centralizada desde Ajustes:
+
+1. Navegar a **Ajustes → EMS Management → Center Data**.
+2. Establecer el **Director**.
+3. Hacer clic en **Guardar**.
+
+Esto tiene un efecto más allá del propio ajuste:
+
+- El **Responsable** de quien ejerza de Jefe de estudios/adjunto en cualquier departamento top-level (p. ej. de VET, de ESO/BTX) se establece automáticamente al **Director** — salvo que el propio Director sea quien encabeza ese departamento top-level, en cuyo caso su propio Responsable queda vacío.
+- Reasignar el Director a otra persona revoca automáticamente el rol a quien lo ocupaba antes.
+
+> **Nota sobre el acceso:** la pantalla de Ajustes requiere el acceso de Ajustes de Odoo (concedido a través del grupo "Administrador de Ajustes" o root/admin) — es un permiso *distinto* del que controla los formularios de departamento anteriores. Alguien con acceso académico completo no tiene garantizado poder entrar en Ajustes.
+
+> **Nota para instalaciones existentes:** no hay ningún Director establecido por defecto — un administrador debe configurar uno manualmente; no se rellena nada automáticamente.
 
 ---
 

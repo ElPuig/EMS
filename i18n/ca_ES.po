@@ -3338,6 +3338,10 @@ msgstr "Domiciliació bancària"
 
 #. module: ems
 #: model:ems.role,name:ems.role_director
+#: model:ir.model.fields,field_description:ems.field_res_company__director_id
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__director_id
+#: model:res.groups,name:ems.group_director
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Director"
 msgstr "Director/a"
 
@@ -13107,3 +13111,26 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_hr_department__is_top_level
 msgid "Top-level Department"
 msgstr "Departament top-level"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Director role cannot be assigned or removed manually, it is set "
+"automatically from Settings."
+msgstr ""
+"El rol de Director no es pot assignar ni treure manualment, es gestiona "
+"automàticament des d'Ajustes."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__director_id
+#: model:ir.model.fields,help:ems.field_res_config_settings__director_id
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"The person acting as the center's Director. Every top-level department's "
+"Manager (Head of Studies/Deputy) will have their own Manager set to this "
+"employee automatically."
+msgstr ""
+"La persona que exerceix de Director/a del centre. El Responsable de "
+"qualsevol departament top-level (Cap d'estudis/adjunt) s'establirà "
+"automàticament a aquest empleat."

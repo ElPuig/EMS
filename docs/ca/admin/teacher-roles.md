@@ -23,7 +23,7 @@ Els nivells de permisos formen una jerarquia — cada nivell inclou tots els per
 | Cap de departament | Cap de departament | Automàtic — s'estableix com a **Cap de departament** al formulari del departament |
 | Cap de seminari | Cap de departament | Automàtic — s'estableix com a **Cap de seminari** al formulari del departament |
 | Cap d'estudis / Cap d'estudis adjunt | Cap d'estudis | Automàtic — s'estableix com a **Cap d'estudis** al formulari d'un departament top-level |
-| Director | Director | Manual — s'afegeix als rols del professor |
+| Director | Director | Automàtic — s'estableix com a **Director** a Ajustes > EMS Management |
 
 > El Cap de departament té actualment els mateixos permisos que el Tutor, a més de poder crear, editar i eliminar Grups d'alumnes (Contactes → Grups). Existeix com a nivell propi perquè es pugui ampliar de manera independent en el futur. El Cap de seminari té el mateix nivell de permisos.
 
@@ -43,7 +43,7 @@ Navegueu a: **Empleats → [obriu la fitxa del professor]**
 
 El compte d'usuari del professor s'actualitza immediatament: es concedeix el grup de seguretat vinculat al rol, juntament amb tot allò que implica (p. ex. assignar **Cap de departament** també concedeix l'accés de Tutor i de Professor).
 
-> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis** i **Cap d'estudis adjunt** no es poden afegir ni treure manualment des d'aquí — el Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els altres quatre es gestionen automàticament des del formulari d'un departament (vegeu més avall).
+> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt** i **Director** no es poden afegir ni treure manualment des d'aquí — cap rol d'aquesta llista es pot. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els quatre següents es gestionen automàticament des del formulari d'un departament; el Director es gestiona automàticament des d'Ajustes (vegeu més avall).
 
 ---
 
@@ -92,6 +92,25 @@ Això té un efecte més enllà del propi departament:
 - Com que **Cap d'estudis** i **Cap d'estudis adjunt** només poden estar ocupats per una persona a tot el centre, intentar establir el mateix a dos departaments amb dues persones diferents es rebutja — cal treure primer l'altra assignació si voleu reassignar-lo.
 
 > **Nota per a departaments existents:** VET i ESO/BTX ja estan marcats com a top-level, però sense cap Cap d'estudis establert encara — un administrador ha d'obrir cadascun i establir-lo manualment; no s'omple res automàticament.
+
+---
+
+## Assignar el Director
+
+A diferència de tots els altres rols, el **Director** no s'estableix des de cap fitxa de professor ni cap formulari de departament — es configura de forma centralitzada des d'Ajustes:
+
+1. Navegueu a **Ajustes → EMS Management → Center Data**.
+2. Establiu el **Director**.
+3. Feu clic a **Desar**.
+
+Això té un efecte més enllà del propi ajust:
+
+- El **Responsable** de qui exerceixi de Cap d'estudis/adjunt en qualsevol departament top-level (p. ex. de VET, d'ESO/BTX) s'estableix automàticament al **Director** — llevat que el propi Director sigui qui encapçala aquell departament top-level, cas en què el seu propi Responsable queda buit.
+- Reassignar el Director a una altra persona revoca automàticament el rol a qui l'ocupava abans.
+
+> **Nota sobre l'accés:** la pantalla d'Ajustes requereix l'accés d'Ajustes d'Odoo (concedit a través del grup "Administrador d'Ajustes" o root/admin) — és un permís *diferent* del que controla els formularis de departament anteriors. Algú amb accés acadèmic complet no té garantit poder entrar a Ajustes.
+
+> **Nota per a instal·lacions existents:** no hi ha cap Director establert per defecte — un administrador n'ha de configurar un manualment; no s'omple res automàticament.
 
 ---
 

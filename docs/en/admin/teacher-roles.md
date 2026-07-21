@@ -23,7 +23,7 @@ Permission levels form a hierarchy — each level includes all the permissions o
 | Department chieff | Department Chief | Automatic — set as **Department Chief** on the department's own form |
 | Seminar leader | Department Chief | Automatic — set as **Seminar Chief** on the department's own form |
 | Head of studies / Deputy head of studies | Head of Studies | Automatic — set as **Head of Studies** on a top-level department's own form |
-| Director | Director | Manual — added to the teacher's roles |
+| Director | Director | Automatic — set as **Director** in Settings > EMS Management |
 
 > Department Chief currently grants the same permissions as Tutor, plus the ability to create, edit and delete Class Groups (Contacts → Groups). It exists as its own level so it can be extended independently in the future. Seminar leader is granted the same permission level.
 
@@ -43,7 +43,7 @@ Navigate to: **Employees → [open the teacher's record]**
 
 The teacher's user account is updated immediately: the security group tied to the role is granted, together with everything it implies (e.g. assigning **Department chieff** also grants Tutor and Teacher access).
 
-> The **Tutor**, **Department chieff**, **Seminar leader**, **Head of studies** and **Deputy head of studies** roles cannot be added or removed manually here — Tutor is managed automatically based on whether the teacher is set as the tutor of a Class Group; the other four are managed automatically from a department's own form (see below).
+> The **Tutor**, **Department chieff**, **Seminar leader**, **Head of studies**, **Deputy head of studies** and **Director** roles cannot be added or removed manually here — no role in this list can. Tutor is managed automatically based on whether the teacher is set as the tutor of a Class Group; the next four are managed automatically from a department's own form; Director is managed automatically from Settings (see below).
 
 ---
 
@@ -92,6 +92,25 @@ This has an effect beyond the department itself:
 - Since **Head of studies** and **Deputy head of studies** can each only be held by one person centre-wide, trying to set the same one on two different departments for two different people is rejected — clear the other assignment first if you need to reassign.
 
 > **Note for existing departments:** VET and ESO/BTX are already marked as top-level, but with no Head of Studies set yet — an admin must open each one and set it manually; nothing is filled in automatically.
+
+---
+
+## Assigning the Director
+
+Unlike every other role above, the **Director** is not set from any teacher's record or any department form — it is configured centre-wide from Settings:
+
+1. Navigate to **Settings → EMS Management → Center Data**.
+2. Set the **Director**.
+3. Click **Save**.
+
+This has an effect beyond the setting itself:
+
+- The **Manager** of every top-level department's Head of Studies/Deputy (e.g. VET's, ESO/BTX's) is automatically set to the **Director** — unless the Director is themselves heading that top-level department, in which case their own Manager is left blank.
+- Reassigning the Director to someone else automatically revokes the role from whoever held it before.
+
+> **Note on access:** the Settings screen requires Odoo's Settings access (granted through the "Settings Administrator" group or root/admin) — this is a *different* permission from the one that controls the department forms above. Someone with full academic access is not automatically able to reach Settings.
+
+> **Note for existing installations:** no Director is set by default — an admin must configure one manually; nothing is filled in automatically.
 
 ---
 

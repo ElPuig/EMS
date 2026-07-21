@@ -86,6 +86,7 @@ class ems_employee_base(models.AbstractModel):
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ems.group", inverse_name="tutor_id")
     headed_department_ids = fields.One2many(string="Departments Headed", comodel_name="hr.department", inverse_name="manager_id")
     seminar_department_ids = fields.One2many(string="Seminars Led", comodel_name="hr.department", inverse_name="seminar_head_id")
+    directed_company_ids = fields.One2many(string="Companies Directed", comodel_name="res.company", inverse_name="director_id")
 
     #This fields are computed in order to display string data within some views.
     roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
@@ -190,9 +191,11 @@ class ems_employee_base(models.AbstractModel):
           it differs from what they head (e.g. an employee nominally in "Computer Science" who
           actually heads "VET"). Their own Manager instead comes from whichever headed department
           has a parent department with its own Manager set - that parent's Manager becomes their
-          Manager. If none of their headed departments has such a parent (or the parent has no
-          Manager), their own Manager is cleared - out of scope until a "Direction" department
-          exists above the current top-level ones.
+          Manager. If a headed department is itself top-level (no parent by definition), the
+          company's own Director (res.company.director_id) becomes their Manager instead, unless
+          they ARE the Director (self-reference guard, same spirit as the manager_id/seminar_head_id
+          one). If none of these applies (no parent chief, no Director set), their own Manager is
+          cleared.
         - Otherwise (not chiefing anything): the Seminar Chief's Manager is the Department Chief;
           every other member's Manager is the Seminar Chief, or the Department Chief directly if
           the department has no Seminar Chief.
@@ -208,6 +211,10 @@ class ems_employee_base(models.AbstractModel):
                 for department in headed:
                     if department.parent_id and department.parent_id.manager_id:
                         parent_chief = department.parent_id.manager_id
+                    elif department.is_top_level:
+                        director = department.company_id.director_id
+                        if director and director != employee:
+                            parent_chief = director
                 employee.parent_id = parent_chief
                 continue
 
@@ -249,6 +256,7 @@ class ems_employee_base(models.AbstractModel):
         role_seminar = self.env.ref('ems.role_seminar').ids[0]
         role_hos = self.env.ref('ems.role_hos').ids[0]
         role_dhos = self.env.ref('ems.role_dhos').ids[0]
+        role_director = self.env.ref('ems.role_director').ids[0]
         for rec in self:
             is_role_tutor = role_tutor in rec.role_ids.ids
             is_tutor = len(rec.tutorship_ids) > 0
@@ -313,6 +321,18 @@ class ems_employee_base(models.AbstractModel):
                         'type': 'notification',
                     }
                 }
+
+            is_role_director = role_director in rec.role_ids.ids
+            is_director = len(rec.directed_company_ids) > 0
+            if is_role_director != is_director:
+                rec.role_ids = [(4 if is_director else 3, role_director)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The Director role cannot be assigned or removed manually, it is set automatically from Settings."),
+                        'type': 'notification',
+                    }
+                }
         self._sync_security_groups()
 
     def update_tutor_role(self):
@@ -339,6 +359,12 @@ class ems_employee_base(models.AbstractModel):
             is_hos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'hos')) > 0
             is_dhos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'dhos')) > 0
             rec.role_ids = [(4 if is_hos else 3, role_hos), (4 if is_dhos else 3, role_dhos)]
+
+    def update_director_role(self):
+        role_director = self.env.ref('ems.role_director').ids[0]
+        for rec in self:
+            is_director = len(rec.directed_company_ids) > 0
+            rec.role_ids = [(4 if is_director else 3, role_director)]
 
     def _sync_security_groups(self):
         """Sync res.users.groups_id based on role_ids and job_id that have a linked security group."""
@@ -465,13 +491,15 @@ class ems_employee(models.AbstractModel):
         context for the roles that need it: a tutor's own tutored group(s) ('ems.role_tutor'), a
         department head's own headed department(s) ('ems.role_dchieff'), a Seminar Chief's own
         led department(s) ('ems.role_seminar'), or a Head of Studies/Deputy's own top-level
-        department(s) ('ems.role_hos'/'ems.role_dhos')."""
+        department(s) ('ems.role_hos'/'ems.role_dhos'), or the Director's own directed
+        company/companies ('ems.role_director')."""
         self.ensure_one()
         role_tutor = self.env.ref('ems.role_tutor', raise_if_not_found=False)
         role_dchieff = self.env.ref('ems.role_dchieff', raise_if_not_found=False)
         role_seminar = self.env.ref('ems.role_seminar', raise_if_not_found=False)
         role_hos = self.env.ref('ems.role_hos', raise_if_not_found=False)
         role_dhos = self.env.ref('ems.role_dhos', raise_if_not_found=False)
+        role_director = self.env.ref('ems.role_director', raise_if_not_found=False)
         chief_departments = self.headed_department_ids.filtered(lambda department: not department.is_top_level)
         hos_departments = self.headed_department_ids.filtered(lambda department: department.top_level_role == 'hos')
         dhos_departments = self.headed_department_ids.filtered(lambda department: department.top_level_role == 'dhos')
@@ -488,6 +516,8 @@ class ems_employee(models.AbstractModel):
                 label = "%s: %s" % (label, ", ".join(hos_departments.mapped('name')))
             elif role_dhos and role == role_dhos and dhos_departments:
                 label = "%s: %s" % (label, ", ".join(dhos_departments.mapped('name')))
+            elif role_director and role == role_director and self.directed_company_ids:
+                label = "%s: %s" % (label, ", ".join(self.directed_company_ids.mapped('name')))
             lines.append(label)
         return lines
 

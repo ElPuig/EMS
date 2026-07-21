@@ -43,6 +43,11 @@ class ems_company(models.Model):
         comodel_name="resource.calendar", domain="[('is_framework', '=', True)]", required=True,
         default=lambda self: self.env.ref('ems.schedule_framework_default', raise_if_not_found=False))
 
+    director_id = fields.Many2one(
+        comodel_name="hr.employee", string="Director",
+        help="The person acting as the center's Director. Every top-level department's Manager "
+             "(Head of Studies/Deputy) will have their own Manager set to this employee automatically.")
+
     secretariat_email = fields.Char()
 
     # Official Departament d'Educació center code (e.g. '8028047'). Used by the GEDAC
@@ -92,9 +97,17 @@ class ems_company(models.Model):
         return companies
 
     def write(self, vals):
+        old_directors = {company: company.director_id for company in self}
         res = super().write(vals)
         if 'current_course_id' in vals:
             self._sync_current_course_flag()
+        if 'director_id' in vals:
+            for company in self:
+                old_director = old_directors[company]
+                self.env['hr.department'].search([
+                    ('is_top_level', '=', True), ('company_id', '=', company.id),
+                ]).manager_id._compute_parent_id()
+                (old_director | company.director_id).update_director_role()
         return res
 
     @api.model

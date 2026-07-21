@@ -19,6 +19,9 @@ class TestWorkingSchedule(TransactionCase):
             'login': 'test_hod_for_working_schedule',
             'groups_id': [(4, cls.env.ref('ems.group_department_chief').id)],
         })
+        # role_secretary is unipersonal and may already be assigned to a real employee in the
+        # working database; clear it so the tests below are self-contained.
+        cls.env.ref('ems.role_secretary').sudo().write({'employee_ids': [(5, 0, 0)]})
         cls.level = cls.env['ems.level'].create({'acronym': 'TWSL', 'name': 'Test Level (Working Schedule)'})
         cls.study = cls.env['ems.study'].create({
             'code': 'TWSL001',

@@ -22,10 +22,13 @@ Los niveles de permisos forman una jerarquía — cada nivel incluye todos los p
 | Tutor | Tutor | Automático — se establece cuando el profesor se asigna como tutor de un Grupo |
 | Jefe de departamento | Jefe de departamento | Automático — se establece como **Jefe de departamento** en el formulario del departamento |
 | Jefe de seminario | Jefe de departamento | Automático — se establece como **Jefe de seminario** en el formulario del departamento |
-| Jefe de estudios / Jefe de estudios adjunto | Jefe de estudios | Automático — se establece como **Jefe de estudios** en el formulario de un departamento top-level |
+| Jefe de estudios / Jefe de estudios adjunto | Jefe de estudios | Automático — se establece como **Responsable de área** en el formulario de un departamento top-level (Rol = Jefe de estudios/adjunto) |
+| Secretario/a | *(bloque de Secretaría — ver nota)* | Automático — se establece como **Responsable de área** en el formulario del departamento `ASP` (Rol = Secretario/a) |
 | Director | Director | Automático — se establece como **Director** en Ajustes > EMS Management |
 
 > El Jefe de departamento tiene actualmente los mismos permisos que el Tutor, además de poder crear, editar y eliminar Grupos de alumnos (Contactos → Grupos). Existe como nivel propio para poder ampliarse de forma independiente en el futuro. El Jefe de seminario tiene el mismo nivel de permisos.
+>
+> **El rol de Secretario/a no forma parte de esta jerarquía.** Concede acceso a un bloque de permisos completamente separado (Secretaría: Manager/Administrador), sin relación con la cadena Profesor→...→Director de arriba — aunque se configura de la misma manera (como "Responsable de área" en un departamento top-level), no ocupa ningún peldaño de esta escala.
 
 ---
 
@@ -43,7 +46,7 @@ Navegar a: **Empleados → [abrir la ficha del profesor]**
 
 La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo de seguridad vinculado al rol, junto con todo lo que implica (p. ej. asignar **Jefe de departamento** también concede el acceso de Tutor y de Profesor).
 
-> Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios**, **Jefe de estudios adjunto** y **Director** no se pueden añadir ni quitar manualmente desde aquí — ningún rol de esta lista se puede. El Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los cuatro siguientes se gestionan automáticamente desde el formulario de un departamento; el Director se gestiona automáticamente desde Ajustes (ver más abajo).
+> Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios**, **Jefe de estudios adjunto**, **Secretario/a** y **Director** no se pueden añadir ni quitar manualmente desde aquí — ningún rol de esta lista se puede. El Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los cinco siguientes se gestionan automáticamente desde el formulario de un departamento; el Director se gestiona automáticamente desde Ajustes (ver más abajo).
 
 ---
 
@@ -77,21 +80,23 @@ Esto tiene un efecto inmediato y automático sobre todos los profesores de ese d
 
 ---
 
-## Asignar un Jefe de estudios / Jefe de estudios adjunto
+## Asignar un Responsable de área (Jefe de estudios / adjunto / Secretario)
 
-Algunos departamentos (actualmente **VET** y **ESO/BTX**) son **departamentos top-level** — esto cambia su formulario:
+Algunos departamentos (actualmente **VET**, **ESO/BTX** y **ASP**) son **departamentos top-level** — esto cambia su formulario:
 
-1. Navegar a **Empleados → Departamentos** y abrir el departamento. La casilla **Departamento top-level** ya está marcada para VET y ESO/BTX.
-2. El departamento ya no puede tener un departamento padre, y no tiene Jefe de seminario — en lugar de "Jefe de departamento", el campo Responsable se llama **Jefe de estudios**.
-3. Establecer el **Jefe de estudios** (obligatorio) y elegir su **Rol**: **Jefe de estudios** o **Jefe de estudios adjunto**.
+1. Navegar a **Empleados → Departamentos** y abrir el departamento. La casilla **Departamento top-level** ya está marcada para VET, ESO/BTX y ASP.
+2. El departamento ya no puede tener un departamento padre, y no tiene Jefe de seminario — en lugar de "Jefe de departamento", el campo Responsable se llama **Responsable de área**.
+3. Establecer el **Responsable de área** (obligatorio) y elegir su **Rol**: **Jefe de estudios**, **Jefe de estudios adjunto** o **Secretario/a**.
 4. Hacer clic en **Guardar**.
+
+Qué **Rol** elegir depende del departamento: VET y ESO/BTX son áreas académicas, así que su Responsable de área normalmente es Jefe de estudios o adjunto; **ASP es diferente** — su Responsable de área es un profesor que coordina al personal administrativo/de secretaría, así que su Rol debería ser **Secretario/a** (esto concede el bloque de permisos de Secretaría, no uno académico — ver la nota bajo la tabla de permisos de arriba).
 
 Esto tiene un efecto más allá del propio departamento:
 
-- Cualquier otro departamento colocado *bajo* un departamento top-level (p. ej. "Computer Science" bajo VET) tiene su propio **Jefe de departamento** con el **Responsable** establecido automáticamente al **Jefe de estudios** del departamento top-level. El resto no cambia — sus propios profesores y su Jefe de seminario siguen funcionando exactamente igual, solo cambia el Responsable del propio Jefe de departamento.
-- Como **Jefe de estudios** y **Jefe de estudios adjunto** solo pueden estar ocupados por una persona en todo el centro, intentar establecer el mismo en dos departamentos con dos personas distintas se rechaza — hay que quitar primero la otra asignación si se quiere reasignar.
+- Cualquier otro departamento colocado *bajo* un departamento top-level (p. ej. "Computer Science" bajo VET, o "Secretariado"/"Conserjería" bajo ASP) tiene su propio **Jefe de departamento** con el **Responsable** establecido automáticamente al **Responsable de área** del departamento top-level. El resto no cambia — sus propios profesores y su Jefe de seminario siguen funcionando exactamente igual, solo cambia el Responsable del propio Jefe de departamento.
+- Como **Jefe de estudios**, **Jefe de estudios adjunto** y **Secretario/a** solo pueden estar ocupados por una persona en todo el centro, intentar establecer el mismo en dos departamentos con dos personas distintas se rechaza — hay que quitar primero la otra asignación si se quiere reasignar.
 
-> **Nota para departamentos existentes:** VET y ESO/BTX ya están marcados como top-level, pero sin ningún Jefe de estudios establecido todavía — un administrador debe abrir cada uno y establecerlo manualmente; no se rellena nada automáticamente.
+> **Nota para departamentos existentes:** VET, ESO/BTX y ASP ya están marcados como top-level, pero sin ningún Responsable de área establecido todavía — un administrador debe abrir cada uno y establecerlo manualmente; no se rellena nada automáticamente.
 
 ---
 
@@ -105,7 +110,7 @@ A diferencia de todos los demás roles, el **Director** no se establece desde ni
 
 Esto tiene un efecto más allá del propio ajuste:
 
-- El **Responsable** de quien ejerza de Jefe de estudios/adjunto en cualquier departamento top-level (p. ej. de VET, de ESO/BTX) se establece automáticamente al **Director** — salvo que el propio Director sea quien encabeza ese departamento top-level, en cuyo caso su propio Responsable queda vacío.
+- El **Responsable** de quien ejerza de Responsable de área en cualquier departamento top-level (p. ej. de VET, de ESO/BTX, de ASP) se establece automáticamente al **Director** — salvo que el propio Director sea quien encabeza ese departamento top-level, en cuyo caso su propio Responsable queda vacío.
 - Reasignar el Director a otra persona revoca automáticamente el rol a quien lo ocupaba antes.
 
 > **Nota sobre el acceso:** la pantalla de Ajustes requiere el acceso de Ajustes de Odoo (concedido a través del grupo "Administrador de Ajustes" o root/admin) — es un permiso *distinto* del que controla los formularios de departamento anteriores. Alguien con acceso académico completo no tiene garantizado poder entrar en Ajustes.

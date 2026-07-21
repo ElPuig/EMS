@@ -1875,6 +1875,11 @@ msgid "Are you sure you want to remove this item?"
 msgstr "¿Estás seguro de que quieres eliminar este elemento?"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_department_form
+msgid "Area Manager"
+msgstr "Responsable de área"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__employee_ids
 #: model:ir.model.fields,field_description:ems.field_mail_activity_type__ems_assignee_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_role_form
@@ -7796,6 +7801,7 @@ msgstr "Correo de secretaría"
 
 #. module: ems
 #: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary
+#: model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__secretary
 #: model:project.project,name:ems.project_secretary
 #: model:res.groups,name:ems.group_secretary
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -13086,14 +13092,14 @@ msgstr "Un departamento top-level no puede tener un departamento padre."
 #: model:ir.model.fields,help:ems.field_hr_department__is_top_level
 msgid ""
 "A top-level department has no parent department and no Seminar Chief. Its "
-"Manager is labelled 'Head of Studies' and automatically holds the role "
-"selected below (Head of Studies or Deputy Head of Studies) instead of "
+"Manager is labelled 'Area Manager' and automatically holds the role selected"
+" below (Head of Studies, Deputy Head of Studies or Secretary) instead of "
 "Department Chief."
 msgstr ""
 "Un departamento top-level no tiene departamento padre ni Jefe de "
-"seminario. Su Responsable se llama 'Jefe de estudios' y tiene "
-"automáticamente el rol seleccionado debajo (Jefe de estudios o Jefe de "
-"estudios adjunto) en lugar de Jefe de departamento."
+"seminario. Su Responsable se llama 'Responsable de área' y tiene "
+"automáticamente el rol seleccionado debajo (Jefe de estudios, Jefe de "
+"estudios adjunto o Secretario/a) en lugar de Jefe de departamento."
 
 #. module: ems
 #. odoo-python
@@ -13158,3 +13164,13 @@ msgstr ""
 "La persona que ejerce de Director/a del centro. El Responsable de "
 "cualquier departamento top-level (Jefe de estudios/adjunto) se establecerá "
 "automáticamente a este empleado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Secretary role cannot be assigned or removed manually, it is set "
+"automatically from the top-level department's own form."
+msgstr ""
+"El rol de Secretario/a no se puede asignar ni quitar manualmente, se "
+"gestiona automáticamente desde el formulario del departamento top-level."

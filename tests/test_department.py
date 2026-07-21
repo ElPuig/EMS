@@ -11,11 +11,17 @@ class TestDepartment(TransactionCase):
         cls.role_seminar = cls.env.ref('ems.role_seminar')
         cls.role_hos = cls.env.ref('ems.role_hos')
         cls.role_dhos = cls.env.ref('ems.role_dhos')
+        cls.role_secretary = cls.env.ref('ems.role_secretary')
         cls.group_department_chief = cls.env.ref('ems.group_department_chief')
         cls.group_head_of_studies = cls.env.ref('ems.group_head_of_studies')
-        # role_hos/role_dhos are unipersonal and may already be assigned to a real employee
-        # in the working database; clear them so the tests are self-contained.
-        (cls.role_hos + cls.role_dhos).sudo().write({'employee_ids': [(5, 0, 0)]})
+        cls.group_secretary = cls.env.ref('ems.group_secretary')
+        # role_hos/role_dhos/role_secretary are unipersonal and may already be assigned to a
+        # real employee in the working database; clear them so the tests are self-contained.
+        (cls.role_hos + cls.role_dhos + cls.role_secretary).sudo().write({'employee_ids': [(5, 0, 0)]})
+        # The company may already have a real Director configured (e.g. set by hand while
+        # trying out the feature) - clear it too so the top-level "no Director set" fallback
+        # tests stay self-contained.
+        cls.env.company.director_id = False
 
     def _create_employee(self, name, department=False, with_user=False):
         vals = {'name': name, 'employee_type': 'teacher'}
@@ -437,6 +443,88 @@ class TestDepartment(TransactionCase):
         head = self._create_employee('Test Head (Report Lines HOS)')
         department = self.env['hr.department'].create({
             'name': 'Test Department (Report Lines HOS)', 'is_top_level': True, 'top_level_role': 'hos', 'manager_id': head.id,
+        })
+
+        lines = head.get_report_role_lines()
+
+        self.assertEqual(len(lines), 1)
+        self.assertIn(department.name, lines[0])
+
+    def test_top_level_manager_gets_secretary_role_not_dchieff(self):
+        head = self._create_employee('Test Head (Secretary Role)', with_user=True)
+        self.env['hr.department'].create({
+            'name': 'Test Department (Secretary Role)', 'is_top_level': True, 'top_level_role': 'secretary', 'manager_id': head.id,
+        })
+
+        self.assertIn(self.role_secretary, head.role_ids)
+        self.assertNotIn(self.role_dchieff, head.role_ids)
+        self.assertNotIn(self.role_hos, head.role_ids)
+        self.assertNotIn(self.role_dhos, head.role_ids)
+        self.assertIn(self.group_secretary, head.user_id.groups_id)
+
+    def test_reassigning_secretary_area_manager_demotes_old_holder(self):
+        department = self.env['hr.department'].create({
+            'name': 'Test Department (Reassign Secretary)', 'is_top_level': True, 'top_level_role': 'secretary',
+        })
+        old_head = self._create_employee('Test Old Secretary (Reassign)', with_user=True)
+        department.manager_id = old_head.id
+        new_head = self._create_employee('Test New Secretary (Reassign)', with_user=True)
+
+        department.manager_id = new_head.id
+
+        self.assertNotIn(self.role_secretary, old_head.role_ids)
+        self.assertIn(self.role_secretary, new_head.role_ids)
+
+    def test_unipersonal_secretary_conflict_raises(self):
+        head_a = self._create_employee('Test Head A (Unipersonal Secretary)', with_user=True)
+        head_b = self._create_employee('Test Head B (Unipersonal Secretary)', with_user=True)
+        self.env['hr.department'].create({
+            'name': 'Test Department A (Unipersonal Secretary)', 'is_top_level': True, 'top_level_role': 'secretary', 'manager_id': head_a.id,
+        })
+
+        with self.assertRaises(ValidationError):
+            self.env['hr.department'].create({
+                'name': 'Test Department B (Unipersonal Secretary)', 'is_top_level': True, 'top_level_role': 'secretary', 'manager_id': head_b.id,
+            })
+
+    def test_onchange_role_ids_blocks_manual_secretary_assignment(self):
+        employee = self._create_employee('Test Employee (Onchange Secretary Add)')
+        employee.role_ids = [(4, self.role_secretary.id)]
+
+        result = employee._onchange_role_ids()
+
+        self.assertNotIn(self.role_secretary, employee.role_ids)
+        self.assertIn('warning', result)
+
+    def test_onchange_role_ids_blocks_manual_secretary_removal(self):
+        head = self._create_employee('Test Employee (Onchange Secretary Remove)')
+        self.env['hr.department'].create({
+            'name': 'Test Department (Onchange Secretary Remove)', 'is_top_level': True, 'top_level_role': 'secretary', 'manager_id': head.id,
+        })
+        head.role_ids = [(3, self.role_secretary.id)]
+
+        result = head._onchange_role_ids()
+
+        self.assertIn(self.role_secretary, head.role_ids)
+        self.assertIn('warning', result)
+
+    def test_secretary_top_level_cascades_to_child_department_chief(self):
+        asp = self.env['hr.department'].create({
+            'name': 'Test ASP (Secretary Cascade)', 'is_top_level': True, 'top_level_role': 'secretary',
+        })
+        secretary_head = self._create_employee('Test Secretary Head (Secretary Cascade)')
+        asp.manager_id = secretary_head.id
+        child_chief = self._create_employee('Test Child Chief (Secretary Cascade)')
+        self.env['hr.department'].create({
+            'name': 'Test Secretariat (Secretary Cascade)', 'parent_id': asp.id, 'manager_id': child_chief.id,
+        })
+
+        self.assertEqual(child_chief.parent_id, secretary_head)
+
+    def test_get_report_role_lines_secretary_shows_department(self):
+        head = self._create_employee('Test Head (Report Lines Secretary)')
+        department = self.env['hr.department'].create({
+            'name': 'Test Department (Report Lines Secretary)', 'is_top_level': True, 'top_level_role': 'secretary', 'manager_id': head.id,
         })
 
         lines = head.get_report_role_lines()

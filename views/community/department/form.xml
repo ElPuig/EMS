@@ -17,7 +17,7 @@
                 <attribute name="invisible">is_top_level</attribute>
             </field>
             <field name="manager_id" position="after">
-                <field name="manager_id" string="Head of Studies" invisible="not is_top_level" required="is_top_level"/>
+                <field name="manager_id" string="Area Manager" invisible="not is_top_level" required="is_top_level"/>
                 <field name="top_level_role" invisible="not is_top_level" required="is_top_level"/>
                 <field name="seminar_head_id" widget="many2one_avatar_employee" invisible="is_top_level"/>
             </field>

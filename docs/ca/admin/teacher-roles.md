@@ -22,10 +22,13 @@ Els nivells de permisos formen una jerarquia — cada nivell inclou tots els per
 | Tutor | Tutor | Automàtic — s'estableix quan el professor s'assigna com a tutor d'un Grup |
 | Cap de departament | Cap de departament | Automàtic — s'estableix com a **Cap de departament** al formulari del departament |
 | Cap de seminari | Cap de departament | Automàtic — s'estableix com a **Cap de seminari** al formulari del departament |
-| Cap d'estudis / Cap d'estudis adjunt | Cap d'estudis | Automàtic — s'estableix com a **Cap d'estudis** al formulari d'un departament top-level |
+| Cap d'estudis / Cap d'estudis adjunt | Cap d'estudis | Automàtic — s'estableix com a **Responsable d'àrea** al formulari d'un departament top-level (Rol = Cap d'estudis/adjunt) |
+| Secretari/ària | *(bloc de Secretaria — vegeu la nota)* | Automàtic — s'estableix com a **Responsable d'àrea** al formulari del departament `ASP` (Rol = Secretari/ària) |
 | Director | Director | Automàtic — s'estableix com a **Director** a Ajustes > EMS Management |
 
 > El Cap de departament té actualment els mateixos permisos que el Tutor, a més de poder crear, editar i eliminar Grups d'alumnes (Contactes → Grups). Existeix com a nivell propi perquè es pugui ampliar de manera independent en el futur. El Cap de seminari té el mateix nivell de permisos.
+>
+> **El rol de Secretari/ària no forma part d'aquesta jerarquia.** Concedeix accés a un bloc de permisos completament separat (Secretaria: Manager/Administrador), sense relació amb la cadena Professor→...→Director de dalt — encara que es configura de la mateixa manera (com a "Responsable d'àrea" en un departament top-level), no ocupa cap esglaó d'aquesta escala.
 
 ---
 
@@ -43,7 +46,7 @@ Navegueu a: **Empleats → [obriu la fitxa del professor]**
 
 El compte d'usuari del professor s'actualitza immediatament: es concedeix el grup de seguretat vinculat al rol, juntament amb tot allò que implica (p. ex. assignar **Cap de departament** també concedeix l'accés de Tutor i de Professor).
 
-> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt** i **Director** no es poden afegir ni treure manualment des d'aquí — cap rol d'aquesta llista es pot. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els quatre següents es gestionen automàticament des del formulari d'un departament; el Director es gestiona automàticament des d'Ajustes (vegeu més avall).
+> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt**, **Secretari/ària** i **Director** no es poden afegir ni treure manualment des d'aquí — cap rol d'aquesta llista es pot. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els cinc següents es gestionen automàticament des del formulari d'un departament; el Director es gestiona automàticament des d'Ajustes (vegeu més avall).
 
 ---
 
@@ -77,21 +80,23 @@ Això té un efecte immediat i automàtic sobre tots els professors d'aquell dep
 
 ---
 
-## Assignar un Cap d'estudis / Cap d'estudis adjunt
+## Assignar un Responsable d'àrea (Cap d'estudis / adjunt / Secretari)
 
-Alguns departaments (actualment **VET** i **ESO/BTX**) són **departaments top-level** — això canvia el seu formulari:
+Alguns departaments (actualment **VET**, **ESO/BTX** i **ASP**) són **departaments top-level** — això canvia el seu formulari:
 
-1. Navegueu a **Empleats → Departaments** i obriu el departament. La casella **Departament top-level** ja està marcada per a VET i ESO/BTX.
-2. El departament ja no pot tenir un departament pare, i no té Cap de seminari — en lloc de "Cap de departament", el camp Responsable es diu **Cap d'estudis**.
-3. Establiu el **Cap d'estudis** (obligatori) i trieu el seu **Rol**: **Cap d'estudis** o **Cap d'estudis adjunt**.
+1. Navegueu a **Empleats → Departaments** i obriu el departament. La casella **Departament top-level** ja està marcada per a VET, ESO/BTX i ASP.
+2. El departament ja no pot tenir un departament pare, i no té Cap de seminari — en lloc de "Cap de departament", el camp Responsable es diu **Responsable d'àrea**.
+3. Establiu el **Responsable d'àrea** (obligatori) i trieu el seu **Rol**: **Cap d'estudis**, **Cap d'estudis adjunt** o **Secretari/ària**.
 4. Feu clic a **Desar**.
+
+Quin **Rol** triar depèn del departament: VET i ESO/BTX són àrees acadèmiques, així que el seu Responsable d'àrea normalment és Cap d'estudis o adjunt; **ASP és diferent** — el seu Responsable d'àrea és un professor que coordina el personal administratiu/de secretaria, així que el seu Rol hauria de ser **Secretari/ària** (això concedeix el bloc de permisos de Secretaria, no un d'acadèmic — vegeu la nota sota la taula de permisos de dalt).
 
 Això té un efecte més enllà del propi departament:
 
-- Qualsevol altre departament col·locat *sota* un departament top-level (p. ex. "Computer Science" sota VET) té el seu propi **Cap de departament** amb el **Responsable** establert automàticament al **Cap d'estudis** del departament top-level. La resta no canvia — els seus propis professors i el seu Cap de seminari segueixen funcionant exactament igual, només canvia el Responsable del propi Cap de departament.
-- Com que **Cap d'estudis** i **Cap d'estudis adjunt** només poden estar ocupats per una persona a tot el centre, intentar establir el mateix a dos departaments amb dues persones diferents es rebutja — cal treure primer l'altra assignació si voleu reassignar-lo.
+- Qualsevol altre departament col·locat *sota* un departament top-level (p. ex. "Computer Science" sota VET, o "Secretariat"/"Consergeria" sota ASP) té el seu propi **Cap de departament** amb el **Responsable** establert automàticament al **Responsable d'àrea** del departament top-level. La resta no canvia — els seus propis professors i el seu Cap de seminari segueixen funcionant exactament igual, només canvia el Responsable del propi Cap de departament.
+- Com que **Cap d'estudis**, **Cap d'estudis adjunt** i **Secretari/ària** només poden estar ocupats per una persona a tot el centre, intentar establir el mateix a dos departaments amb dues persones diferents es rebutja — cal treure primer l'altra assignació si voleu reassignar-lo.
 
-> **Nota per a departaments existents:** VET i ESO/BTX ja estan marcats com a top-level, però sense cap Cap d'estudis establert encara — un administrador ha d'obrir cadascun i establir-lo manualment; no s'omple res automàticament.
+> **Nota per a departaments existents:** VET, ESO/BTX i ASP ja estan marcats com a top-level, però sense cap Responsable d'àrea establert encara — un administrador ha d'obrir cadascun i establir-lo manualment; no s'omple res automàticament.
 
 ---
 
@@ -105,7 +110,7 @@ A diferència de tots els altres rols, el **Director** no s'estableix des de cap
 
 Això té un efecte més enllà del propi ajust:
 
-- El **Responsable** de qui exerceixi de Cap d'estudis/adjunt en qualsevol departament top-level (p. ex. de VET, d'ESO/BTX) s'estableix automàticament al **Director** — llevat que el propi Director sigui qui encapçala aquell departament top-level, cas en què el seu propi Responsable queda buit.
+- El **Responsable** de qui exerceixi de Responsable d'àrea en qualsevol departament top-level (p. ex. de VET, d'ESO/BTX, d'ASP) s'estableix automàticament al **Director** — llevat que el propi Director sigui qui encapçala aquell departament top-level, cas en què el seu propi Responsable queda buit.
 - Reassignar el Director a una altra persona revoca automàticament el rol a qui l'ocupava abans.
 
 > **Nota sobre l'accés:** la pantalla d'Ajustes requereix l'accés d'Ajustes d'Odoo (concedit a través del grup "Administrador d'Ajustes" o root/admin) — és un permís *diferent* del que controla els formularis de departament anteriors. Algú amb accés acadèmic complet no té garantit poder entrar a Ajustes.

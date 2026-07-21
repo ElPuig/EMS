@@ -1870,6 +1870,11 @@ msgid "Are you sure you want to remove this item?"
 msgstr "Esteu segur que voleu eliminar aquest element?"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_department_form
+msgid "Area Manager"
+msgstr "Responsable d'àrea"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__employee_ids
 #: model:ir.model.fields,field_description:ems.field_mail_activity_type__ems_assignee_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_role_form
@@ -7781,6 +7786,7 @@ msgstr "Correu de secretaria"
 
 #. module: ems
 #: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary
+#: model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__secretary
 #: model:project.project,name:ems.project_secretary
 #: model:res.groups,name:ems.group_secretary
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -13063,14 +13069,14 @@ msgstr "Un departament top-level no pot tenir un departament pare."
 #: model:ir.model.fields,help:ems.field_hr_department__is_top_level
 msgid ""
 "A top-level department has no parent department and no Seminar Chief. Its "
-"Manager is labelled 'Head of Studies' and automatically holds the role "
-"selected below (Head of Studies or Deputy Head of Studies) instead of "
+"Manager is labelled 'Area Manager' and automatically holds the role selected"
+" below (Head of Studies, Deputy Head of Studies or Secretary) instead of "
 "Department Chief."
 msgstr ""
 "Un departament top-level no té departament pare ni Cap de seminari. El seu "
-"Responsable es diu 'Cap d'estudis' i té automàticament el rol seleccionat "
-"a sota (Cap d'estudis o Cap d'estudis adjunt) en lloc de Cap de "
-"departament."
+"Responsable es diu 'Responsable d'àrea' i té automàticament el rol "
+"seleccionat a sota (Cap d'estudis, Cap d'estudis adjunt o Secretari/ària) "
+"en lloc de Cap de departament."
 
 #. module: ems
 #. odoo-python
@@ -13134,3 +13140,13 @@ msgstr ""
 "La persona que exerceix de Director/a del centre. El Responsable de "
 "qualsevol departament top-level (Cap d'estudis/adjunt) s'establirà "
 "automàticament a aquest empleat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Secretary role cannot be assigned or removed manually, it is set "
+"automatically from the top-level department's own form."
+msgstr ""
+"El rol de Secretari/ària no es pot assignar ni treure manualment, es "
+"gestiona automàticament des del formulari del departament top-level."

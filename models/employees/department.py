@@ -15,12 +15,12 @@ class ems_department(models.Model):
     is_top_level = fields.Boolean(
         string="Top-level Department",
         help="A top-level department has no parent department and no Seminar Chief. Its Manager is "
-             "labelled 'Head of Studies' and automatically holds the role selected below (Head of "
-             "Studies or Deputy Head of Studies) instead of Department Chief.")
+             "labelled 'Area Manager' and automatically holds the role selected below (Head of "
+             "Studies, Deputy Head of Studies or Secretary) instead of Department Chief.")
     top_level_role = fields.Selection(
-        string="Role", selection=[('hos', 'Head of studies'), ('dhos', 'Deputy head of studies')],
-        help="Only applies when this is a Top-level Department: which of the two Head of Studies "
-             "positions its Manager holds.")
+        string="Role",
+        selection=[('hos', 'Head of studies'), ('dhos', 'Deputy head of studies'), ('secretary', 'Secretary')],
+        help="Only applies when this is a Top-level Department: which position its Manager holds.")
 
     @api.onchange('is_top_level')
     def _onchange_is_top_level(self):
@@ -74,5 +74,5 @@ class ems_department(models.Model):
         self.child_ids.manager_id._compute_parent_id()
         self.manager_id._compute_parent_id()
         (old_manager | self.manager_id).update_department_head_role()
-        (old_manager | self.manager_id).update_head_of_studies_role()
+        (old_manager | self.manager_id).update_area_manager_role()
         (old_seminar_head | self.seminar_head_id).update_seminar_head_role()

@@ -256,6 +256,7 @@ class ems_employee_base(models.AbstractModel):
         role_seminar = self.env.ref('ems.role_seminar').ids[0]
         role_hos = self.env.ref('ems.role_hos').ids[0]
         role_dhos = self.env.ref('ems.role_dhos').ids[0]
+        role_secretary = self.env.ref('ems.role_secretary').ids[0]
         role_director = self.env.ref('ems.role_director').ids[0]
         for rec in self:
             is_role_tutor = role_tutor in rec.role_ids.ids
@@ -322,6 +323,18 @@ class ems_employee_base(models.AbstractModel):
                     }
                 }
 
+            is_role_secretary = role_secretary in rec.role_ids.ids
+            is_secretary = len(top_level_headed.filtered(lambda d: d.top_level_role == 'secretary')) > 0
+            if is_role_secretary != is_secretary:
+                rec.role_ids = [(4 if is_secretary else 3, role_secretary)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The Secretary role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."),
+                        'type': 'notification',
+                    }
+                }
+
             is_role_director = role_director in rec.role_ids.ids
             is_director = len(rec.directed_company_ids) > 0
             if is_role_director != is_director:
@@ -351,14 +364,20 @@ class ems_employee_base(models.AbstractModel):
         for rec in self:
             rec.role_ids = [(4 if len(rec.seminar_department_ids) > 0 else 3, role_seminar)]
 
-    def update_head_of_studies_role(self):
+    def update_area_manager_role(self):
         role_hos = self.env.ref('ems.role_hos').ids[0]
         role_dhos = self.env.ref('ems.role_dhos').ids[0]
+        role_secretary = self.env.ref('ems.role_secretary').ids[0]
         for rec in self:
             top_level_headed = rec.headed_department_ids.filtered('is_top_level')
             is_hos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'hos')) > 0
             is_dhos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'dhos')) > 0
-            rec.role_ids = [(4 if is_hos else 3, role_hos), (4 if is_dhos else 3, role_dhos)]
+            is_secretary = len(top_level_headed.filtered(lambda department: department.top_level_role == 'secretary')) > 0
+            rec.role_ids = [
+                (4 if is_hos else 3, role_hos),
+                (4 if is_dhos else 3, role_dhos),
+                (4 if is_secretary else 3, role_secretary),
+            ]
 
     def update_director_role(self):
         role_director = self.env.ref('ems.role_director').ids[0]
@@ -490,8 +509,8 @@ class ems_employee(models.AbstractModel):
         """One display line per role_ids entry for the working-schedule PDF header, appending
         context for the roles that need it: a tutor's own tutored group(s) ('ems.role_tutor'), a
         department head's own headed department(s) ('ems.role_dchieff'), a Seminar Chief's own
-        led department(s) ('ems.role_seminar'), or a Head of Studies/Deputy's own top-level
-        department(s) ('ems.role_hos'/'ems.role_dhos'), or the Director's own directed
+        led department(s) ('ems.role_seminar'), or an Area Manager's own top-level department(s)
+        ('ems.role_hos'/'ems.role_dhos'/'ems.role_secretary'), or the Director's own directed
         company/companies ('ems.role_director')."""
         self.ensure_one()
         role_tutor = self.env.ref('ems.role_tutor', raise_if_not_found=False)
@@ -499,10 +518,12 @@ class ems_employee(models.AbstractModel):
         role_seminar = self.env.ref('ems.role_seminar', raise_if_not_found=False)
         role_hos = self.env.ref('ems.role_hos', raise_if_not_found=False)
         role_dhos = self.env.ref('ems.role_dhos', raise_if_not_found=False)
+        role_secretary = self.env.ref('ems.role_secretary', raise_if_not_found=False)
         role_director = self.env.ref('ems.role_director', raise_if_not_found=False)
         chief_departments = self.headed_department_ids.filtered(lambda department: not department.is_top_level)
         hos_departments = self.headed_department_ids.filtered(lambda department: department.top_level_role == 'hos')
         dhos_departments = self.headed_department_ids.filtered(lambda department: department.top_level_role == 'dhos')
+        secretary_departments = self.headed_department_ids.filtered(lambda department: department.top_level_role == 'secretary')
         lines = []
         for role in self.role_ids:
             label = role.name
@@ -516,6 +537,8 @@ class ems_employee(models.AbstractModel):
                 label = "%s: %s" % (label, ", ".join(hos_departments.mapped('name')))
             elif role_dhos and role == role_dhos and dhos_departments:
                 label = "%s: %s" % (label, ", ".join(dhos_departments.mapped('name')))
+            elif role_secretary and role == role_secretary and secretary_departments:
+                label = "%s: %s" % (label, ", ".join(secretary_departments.mapped('name')))
             elif role_director and role == role_director and self.directed_company_ids:
                 label = "%s: %s" % (label, ", ".join(self.directed_company_ids.mapped('name')))
             lines.append(label)

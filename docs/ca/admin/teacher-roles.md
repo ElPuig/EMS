@@ -22,7 +22,7 @@ Els nivells de permisos formen una jerarquia — cada nivell inclou tots els per
 | Tutor | Tutor | Automàtic — s'estableix quan el professor s'assigna com a tutor d'un Grup |
 | Cap de departament | Cap de departament | Automàtic — s'estableix com a **Cap de departament** al formulari del departament |
 | Cap de seminari | Cap de departament | Automàtic — s'estableix com a **Cap de seminari** al formulari del departament |
-| Cap d'estudis / Cap d'estudis adjunt | Cap d'estudis | Manual — s'afegeix als rols del professor |
+| Cap d'estudis / Cap d'estudis adjunt | Cap d'estudis | Automàtic — s'estableix com a **Cap d'estudis** al formulari d'un departament top-level |
 | Director | Director | Manual — s'afegeix als rols del professor |
 
 > El Cap de departament té actualment els mateixos permisos que el Tutor, a més de poder crear, editar i eliminar Grups d'alumnes (Contactes → Grups). Existeix com a nivell propi perquè es pugui ampliar de manera independent en el futur. El Cap de seminari té el mateix nivell de permisos.
@@ -43,7 +43,7 @@ Navegueu a: **Empleats → [obriu la fitxa del professor]**
 
 El compte d'usuari del professor s'actualitza immediatament: es concedeix el grup de seguretat vinculat al rol, juntament amb tot allò que implica (p. ex. assignar **Cap de departament** també concedeix l'accés de Tutor i de Professor).
 
-> Els rols **Tutor**, **Cap de departament** i **Cap de seminari** no es poden afegir ni treure manualment des d'aquí — el Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; el Cap de departament i el Cap de seminari es gestionen automàticament des del formulari del departament (vegeu més avall).
+> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis** i **Cap d'estudis adjunt** no es poden afegir ni treure manualment des d'aquí — el Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els altres quatre es gestionen automàticament des del formulari d'un departament (vegeu més avall).
 
 ---
 
@@ -74,6 +74,24 @@ Això té un efecte immediat i automàtic sobre tots els professors d'aquell dep
 - Reassignar qualsevol dels dos rols a un altre professor el revoca automàticament a qui l'ocupava abans (dins d'aquell departament).
 
 > **Nota per a departaments existents:** un departament creat abans d'activar aquesta funcionalitat pot no tenir Cap de departament ni Cap de seminari fins que un administrador l'obri i els estableixi — no s'omple res automàticament. **El Cap de departament és obligatori** per desar el formulari del departament d'ara endavant.
+
+---
+
+## Assignar un Cap d'estudis / Cap d'estudis adjunt
+
+Alguns departaments (actualment **VET** i **ESO/BTX**) són **departaments top-level** — això canvia el seu formulari:
+
+1. Navegueu a **Empleats → Departaments** i obriu el departament. La casella **Departament top-level** ja està marcada per a VET i ESO/BTX.
+2. El departament ja no pot tenir un departament pare, i no té Cap de seminari — en lloc de "Cap de departament", el camp Responsable es diu **Cap d'estudis**.
+3. Establiu el **Cap d'estudis** (obligatori) i trieu el seu **Rol**: **Cap d'estudis** o **Cap d'estudis adjunt**.
+4. Feu clic a **Desar**.
+
+Això té un efecte més enllà del propi departament:
+
+- Qualsevol altre departament col·locat *sota* un departament top-level (p. ex. "Computer Science" sota VET) té el seu propi **Cap de departament** amb el **Responsable** establert automàticament al **Cap d'estudis** del departament top-level. La resta no canvia — els seus propis professors i el seu Cap de seminari segueixen funcionant exactament igual, només canvia el Responsable del propi Cap de departament.
+- Com que **Cap d'estudis** i **Cap d'estudis adjunt** només poden estar ocupats per una persona a tot el centre, intentar establir el mateix a dos departaments amb dues persones diferents es rebutja — cal treure primer l'altra assignació si voleu reassignar-lo.
+
+> **Nota per a departaments existents:** VET i ESO/BTX ja estan marcats com a top-level, però sense cap Cap d'estudis establert encara — un administrador ha d'obrir cadascun i establir-lo manualment; no s'omple res automàticament.
 
 ---
 

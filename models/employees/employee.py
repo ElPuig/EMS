@@ -181,21 +181,45 @@ class ems_employee_base(models.AbstractModel):
     @api.depends('department_id')
     def _compute_parent_id(self):
         """Replaces hr.employee.base's native default (department.manager_id for everyone) with
-        the Department Chief / Seminar Chief cascade: the Department Chief is excluded from this
-        cascade entirely (their own Manager is out of scope here, left untouched); the Seminar
-        Head's Manager is the Department Chief; every other member's Manager is the Seminar Chief,
-        or the Department Chief directly if the department has no Seminar Chief — see
-        'ems.department'."""
+        the Department Chief / Seminar Chief cascade, plus a cross-department cascade for whoever
+        chiefs a department themselves (Department Chief of a regular department, or Head of
+        Studies/Deputy of a top-level one - see 'ems.department'):
+
+        - Anyone who chiefs ANY department (headed_department_ids) is excluded from every OTHER
+          department's own intra-cascade entirely, including their own nominal department_id if
+          it differs from what they head (e.g. an employee nominally in "Computer Science" who
+          actually heads "VET"). Their own Manager instead comes from whichever headed department
+          has a parent department with its own Manager set - that parent's Manager becomes their
+          Manager. If none of their headed departments has such a parent (or the parent has no
+          Manager), their own Manager is cleared - out of scope until a "Direction" department
+          exists above the current top-level ones.
+        - Otherwise (not chiefing anything): the Seminar Chief's Manager is the Department Chief;
+          every other member's Manager is the Seminar Chief, or the Department Chief directly if
+          the department has no Seminar Chief.
+        """
         for employee in self:
+            headed = employee.headed_department_ids
+            if headed:
+                # Explicitly (re)assigned every time, including to an empty recordset (False) -
+                # a transition INTO heading a department (e.g. becoming a top-level Head of
+                # Studies with no parent above it yet) must clear whatever manager a PREVIOUS
+                # cascade left behind, not silently keep it.
+                parent_chief = self.env['hr.employee']
+                for department in headed:
+                    if department.parent_id and department.parent_id.manager_id:
+                        parent_chief = department.parent_id.manager_id
+                employee.parent_id = parent_chief
+                continue
+
             department = employee.department_id
-            if not department or employee == department.manager_id:
+            if not department:
+                employee.parent_id = False
                 continue
             if employee == department.seminar_head_id:
-                if department.manager_id:
-                    employee.parent_id = department.manager_id
+                employee.parent_id = department.manager_id
             elif department.seminar_head_id:
                 employee.parent_id = department.seminar_head_id
-            elif department.manager_id:
+            else:
                 employee.parent_id = department.manager_id
 
     @api.depends("tutorship_ids")
@@ -223,6 +247,8 @@ class ems_employee_base(models.AbstractModel):
         role_tutor = self.env.ref('ems.role_tutor').ids[0]
         role_dchieff = self.env.ref('ems.role_dchieff').ids[0]
         role_seminar = self.env.ref('ems.role_seminar').ids[0]
+        role_hos = self.env.ref('ems.role_hos').ids[0]
+        role_dhos = self.env.ref('ems.role_dhos').ids[0]
         for rec in self:
             is_role_tutor = role_tutor in rec.role_ids.ids
             is_tutor = len(rec.tutorship_ids) > 0
@@ -239,7 +265,7 @@ class ems_employee_base(models.AbstractModel):
                 }
 
             is_role_dchieff = role_dchieff in rec.role_ids.ids
-            is_department_head = len(rec.headed_department_ids) > 0
+            is_department_head = len(rec.headed_department_ids.filtered(lambda d: not d.is_top_level)) > 0
             if is_role_dchieff != is_department_head:
                 rec.role_ids = [(4 if is_department_head else 3, role_dchieff)]
                 return {
@@ -261,6 +287,32 @@ class ems_employee_base(models.AbstractModel):
                         'type': 'notification',
                     }
                 }
+
+            top_level_headed = rec.headed_department_ids.filtered('is_top_level')
+
+            is_role_hos = role_hos in rec.role_ids.ids
+            is_hos = len(top_level_headed.filtered(lambda d: d.top_level_role == 'hos')) > 0
+            if is_role_hos != is_hos:
+                rec.role_ids = [(4 if is_hos else 3, role_hos)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The Head of Studies role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."),
+                        'type': 'notification',
+                    }
+                }
+
+            is_role_dhos = role_dhos in rec.role_ids.ids
+            is_dhos = len(top_level_headed.filtered(lambda d: d.top_level_role == 'dhos')) > 0
+            if is_role_dhos != is_dhos:
+                rec.role_ids = [(4 if is_dhos else 3, role_dhos)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The Deputy Head of Studies role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."),
+                        'type': 'notification',
+                    }
+                }
         self._sync_security_groups()
 
     def update_tutor_role(self):
@@ -271,12 +323,22 @@ class ems_employee_base(models.AbstractModel):
     def update_department_head_role(self):
         role_dchieff = self.env.ref('ems.role_dchieff').ids[0]
         for rec in self:
-            rec.role_ids = [(4 if len(rec.headed_department_ids) > 0 else 3, role_dchieff)]
+            is_dchieff = len(rec.headed_department_ids.filtered(lambda department: not department.is_top_level)) > 0
+            rec.role_ids = [(4 if is_dchieff else 3, role_dchieff)]
 
     def update_seminar_head_role(self):
         role_seminar = self.env.ref('ems.role_seminar').ids[0]
         for rec in self:
             rec.role_ids = [(4 if len(rec.seminar_department_ids) > 0 else 3, role_seminar)]
+
+    def update_head_of_studies_role(self):
+        role_hos = self.env.ref('ems.role_hos').ids[0]
+        role_dhos = self.env.ref('ems.role_dhos').ids[0]
+        for rec in self:
+            top_level_headed = rec.headed_department_ids.filtered('is_top_level')
+            is_hos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'hos')) > 0
+            is_dhos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'dhos')) > 0
+            rec.role_ids = [(4 if is_hos else 3, role_hos), (4 if is_dhos else 3, role_dhos)]
 
     def _sync_security_groups(self):
         """Sync res.users.groups_id based on role_ids and job_id that have a linked security group."""
@@ -401,21 +463,31 @@ class ems_employee(models.AbstractModel):
     def get_report_role_lines(self):
         """One display line per role_ids entry for the working-schedule PDF header, appending
         context for the roles that need it: a tutor's own tutored group(s) ('ems.role_tutor'), a
-        department head's own headed department(s) ('ems.role_dchieff'), or a Seminar Chief's own
-        led department(s) ('ems.role_seminar')."""
+        department head's own headed department(s) ('ems.role_dchieff'), a Seminar Chief's own
+        led department(s) ('ems.role_seminar'), or a Head of Studies/Deputy's own top-level
+        department(s) ('ems.role_hos'/'ems.role_dhos')."""
         self.ensure_one()
         role_tutor = self.env.ref('ems.role_tutor', raise_if_not_found=False)
         role_dchieff = self.env.ref('ems.role_dchieff', raise_if_not_found=False)
         role_seminar = self.env.ref('ems.role_seminar', raise_if_not_found=False)
+        role_hos = self.env.ref('ems.role_hos', raise_if_not_found=False)
+        role_dhos = self.env.ref('ems.role_dhos', raise_if_not_found=False)
+        chief_departments = self.headed_department_ids.filtered(lambda department: not department.is_top_level)
+        hos_departments = self.headed_department_ids.filtered(lambda department: department.top_level_role == 'hos')
+        dhos_departments = self.headed_department_ids.filtered(lambda department: department.top_level_role == 'dhos')
         lines = []
         for role in self.role_ids:
             label = role.name
             if role_tutor and role == role_tutor and self.tutorship_ids:
                 label = "%s: %s" % (label, ", ".join(self.tutorship_ids.mapped('name')))
-            elif role_dchieff and role == role_dchieff and self.headed_department_ids:
-                label = "%s: %s" % (label, ", ".join(self.headed_department_ids.mapped('name')))
+            elif role_dchieff and role == role_dchieff and chief_departments:
+                label = "%s: %s" % (label, ", ".join(chief_departments.mapped('name')))
             elif role_seminar and role == role_seminar and self.seminar_department_ids:
                 label = "%s: %s" % (label, ", ".join(self.seminar_department_ids.mapped('name')))
+            elif role_hos and role == role_hos and hos_departments:
+                label = "%s: %s" % (label, ", ".join(hos_departments.mapped('name')))
+            elif role_dhos and role == role_dhos and dhos_departments:
+                label = "%s: %s" % (label, ", ".join(dhos_departments.mapped('name')))
             lines.append(label)
         return lines
 

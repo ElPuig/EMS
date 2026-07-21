@@ -5,12 +5,21 @@
         <field name="model">hr.department</field>
         <field name="inherit_id" ref="hr.view_department_form"/>
         <field name="arch" type="xml">
+            <field name="parent_id" position="attributes">
+                <attribute name="invisible">is_top_level</attribute>
+            </field>
+            <field name="parent_id" position="before">
+                <field name="is_top_level"/>
+            </field>
             <field name="manager_id" position="attributes">
                 <attribute name="string">Department Chief</attribute>
                 <attribute name="required">1</attribute>
+                <attribute name="invisible">is_top_level</attribute>
             </field>
             <field name="manager_id" position="after">
-                <field name="seminar_head_id" widget="many2one_avatar_employee"/>
+                <field name="manager_id" string="Head of Studies" invisible="not is_top_level" required="is_top_level"/>
+                <field name="top_level_role" invisible="not is_top_level" required="is_top_level"/>
+                <field name="seminar_head_id" widget="many2one_avatar_employee" invisible="is_top_level"/>
             </field>
         </field>
     </record>

@@ -22,7 +22,7 @@ Los niveles de permisos forman una jerarquía — cada nivel incluye todos los p
 | Tutor | Tutor | Automático — se establece cuando el profesor se asigna como tutor de un Grupo |
 | Jefe de departamento | Jefe de departamento | Automático — se establece como **Jefe de departamento** en el formulario del departamento |
 | Jefe de seminario | Jefe de departamento | Automático — se establece como **Jefe de seminario** en el formulario del departamento |
-| Jefe de estudios / Jefe de estudios adjunto | Jefe de estudios | Manual — se añade a los roles del profesor |
+| Jefe de estudios / Jefe de estudios adjunto | Jefe de estudios | Automático — se establece como **Jefe de estudios** en el formulario de un departamento top-level |
 | Director | Director | Manual — se añade a los roles del profesor |
 
 > El Jefe de departamento tiene actualmente los mismos permisos que el Tutor, además de poder crear, editar y eliminar Grupos de alumnos (Contactos → Grupos). Existe como nivel propio para poder ampliarse de forma independiente en el futuro. El Jefe de seminario tiene el mismo nivel de permisos.
@@ -43,7 +43,7 @@ Navegar a: **Empleados → [abrir la ficha del profesor]**
 
 La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo de seguridad vinculado al rol, junto con todo lo que implica (p. ej. asignar **Jefe de departamento** también concede el acceso de Tutor y de Profesor).
 
-> Los roles **Tutor**, **Jefe de departamento** y **Jefe de seminario** no se pueden añadir ni quitar manualmente desde aquí — el Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; el Jefe de departamento y el Jefe de seminario se gestionan automáticamente desde el formulario del departamento (ver más abajo).
+> Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios** y **Jefe de estudios adjunto** no se pueden añadir ni quitar manualmente desde aquí — el Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los otros cuatro se gestionan automáticamente desde el formulario de un departamento (ver más abajo).
 
 ---
 
@@ -74,6 +74,24 @@ Esto tiene un efecto inmediato y automático sobre todos los profesores de ese d
 - Reasignar cualquiera de los dos roles a otro profesor lo revoca automáticamente a quien lo ocupaba antes (dentro de ese departamento).
 
 > **Nota para departamentos existentes:** un departamento creado antes de activar esta funcionalidad puede no tener Jefe de departamento ni Jefe de seminario hasta que un administrador lo abra y los establezca — no se rellena nada automáticamente. **El Jefe de departamento es obligatorio** para guardar el formulario del departamento a partir de ahora.
+
+---
+
+## Asignar un Jefe de estudios / Jefe de estudios adjunto
+
+Algunos departamentos (actualmente **VET** y **ESO/BTX**) son **departamentos top-level** — esto cambia su formulario:
+
+1. Navegar a **Empleados → Departamentos** y abrir el departamento. La casilla **Departamento top-level** ya está marcada para VET y ESO/BTX.
+2. El departamento ya no puede tener un departamento padre, y no tiene Jefe de seminario — en lugar de "Jefe de departamento", el campo Responsable se llama **Jefe de estudios**.
+3. Establecer el **Jefe de estudios** (obligatorio) y elegir su **Rol**: **Jefe de estudios** o **Jefe de estudios adjunto**.
+4. Hacer clic en **Guardar**.
+
+Esto tiene un efecto más allá del propio departamento:
+
+- Cualquier otro departamento colocado *bajo* un departamento top-level (p. ej. "Computer Science" bajo VET) tiene su propio **Jefe de departamento** con el **Responsable** establecido automáticamente al **Jefe de estudios** del departamento top-level. El resto no cambia — sus propios profesores y su Jefe de seminario siguen funcionando exactamente igual, solo cambia el Responsable del propio Jefe de departamento.
+- Como **Jefe de estudios** y **Jefe de estudios adjunto** solo pueden estar ocupados por una persona en todo el centro, intentar establecer el mismo en dos departamentos con dos personas distintas se rechaza — hay que quitar primero la otra asignación si se quiere reasignar.
+
+> **Nota para departamentos existentes:** VET y ESO/BTX ya están marcados como top-level, pero sin ningún Jefe de estudios establecido todavía — un administrador debe abrir cada uno y establecerlo manualmente; no se rellena nada automáticamente.
 
 ---
 

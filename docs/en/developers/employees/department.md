@@ -1,46 +1,54 @@
-# Technical Reference: Department Chief / Seminar Chief Cascade
+# Technical Reference: Department Chief / Seminar Chief / Head of Studies Cascade
 
 ## Overview
 
-`hr.department` (extended by `models/employees/department.py`) is the single source of truth for a department's chain of command: its native `manager_id` field is used as the **Department Chief** (required on the form), and a new `seminar_head_id` field (Many2one to `hr.employee`, optional) is the **Seminar Chief**. From these two, EMS derives:
+`hr.department` (extended by `models/employees/department.py`) is the single source of truth for a department's chain of command: its native `manager_id` field is used as the **Department Chief** (required on the form), and a new `seminar_head_id` field (Many2one to `hr.employee`, optional) is the **Seminar Chief**. A department can also be marked `is_top_level`: it then has no `parent_id`, no `seminar_head_id`, and `manager_id` is relabelled **Head of Studies** and holds `role_hos`/`role_dhos` instead of `role_dchieff` (selected via `top_level_role`). From these fields, EMS derives:
 
-- Every other member's `hr.employee.parent_id` ("Manager").
-- The `role_dchieff` ("Department chieff") / `role_seminar` ("Seminar leader") entries in `role_ids`, and (via the existing `_sync_security_groups()` mechanism — see [Academic role hierarchy](role_hierarchy.md)) `group_department_chief` membership.
+- Every other member's `hr.employee.parent_id` ("Manager"), including a cascade **between** departments: a department's own Chief/Head of Studies gets their own Manager set to the parent department's Manager.
+- The `role_dchieff` ("Department chieff") / `role_seminar` ("Seminar leader") / `role_hos` ("Head of studies") / `role_dhos` ("Deputy head of studies") entries in `role_ids`, and (via the existing `_sync_security_groups()` mechanism — see [Academic role hierarchy](role_hierarchy.md)) `group_department_chief`/`group_head_of_studies` membership.
 
-Both are computed, never editable by hand from the employee form — they must be set on the department's own form.
+All of these are computed, never editable by hand from the employee form — they must be set on the department's own form.
 
 ```mermaid
 graph TD
-    D["hr.department"] -->|manager_id, required| H["Department Chief"]
+    P["hr.department (top-level, e.g. VET)"] -->|manager_id, top_level_role| HOS["Head of Studies / Deputy"]
+    HOS -->|role_hos or role_dhos, group_head_of_studies| HOS
+    D["hr.department (child, e.g. Computer Science)"] -->|parent_id| P
+    D -->|manager_id, required| H["Department Chief"]
     D -->|seminar_head_id, optional| S["Seminar Chief"]
     H -->|role_dchieff, group_department_chief| H
     S -->|role_seminar, group_department_chief| S
     S -->|parent_id| H
+    H -->|"parent_id (rule 4: parent's manager_id)"| HOS
     M["Other department members"] -->|parent_id| S
     M -.->|"parent_id (no Seminar Chief set)"| H
 ```
 
 ## Cascade rules
 
-1. Every member of the department, **except the Department Chief**, gets `parent_id` = the department's `seminar_head_id`.
+1. Every member of the department, **except its own Chief/Head of Studies**, gets `parent_id` = the department's `seminar_head_id` (or `manager_id` directly if no `seminar_head_id` — see rule 5).
 2. The Seminar Chief's own `parent_id` = the department's `manager_id` (Department Chief).
-3. The Department Chief is excluded from this cascade entirely — their own `parent_id` is left untouched (out of scope for this feature; a future iteration will handle Head of Studies / Deputy / Director assignment).
-4. If `manager_id` and `seminar_head_id` happen to be the same employee, that employee is caught by rule 3 first (`employee == department.manager_id`) and never reaches the seminar-head branch — no self-referencing `parent_id` is possible.
+3. **Anyone who chiefs *any* department** (`headed_department_ids` non-empty — Department Chief of a regular department, or Head of Studies/Deputy of a top-level one) is excluded from every *other* department's own intra-cascade entirely, including their own nominal `department_id` if it differs from what they head (e.g. an employee nominally in "Computer Science" who actually heads "VET" — see the worked example in `role_hierarchy.md`/the admin manual). Their own `parent_id` instead comes from rule 4.
+4. **Cross-department cascade:** a department's own Chief/Head of Studies gets `parent_id` = the *parent* department's `manager_id`, if the parent department has one set. If none of the departments an employee heads has such a parent (or the parent has no `manager_id` — e.g. a top-level department, which has no parent by definition), their own `parent_id` is cleared — out of scope until a "Direction" department is ever modelled above the current top-level ones.
 5. A department with no `seminar_head_id` falls back to `parent_id` = `manager_id` directly for every other member — the Seminar Chief level is simply skipped, it is never left unset.
-6. `manager_id` is required at the view level (`views/community/department/form.xml`, `required="1"`) so every department always has a Department Chief once saved through the form; it is intentionally **not** a hard model-level `required=True`/DB `NOT NULL` — several pre-existing departments predate this feature and have no `manager_id` yet, and a DB-level constraint would fail the module upgrade for them. Programmatic creation (imports, demo data, tests) can still create a department without one.
+6. If `manager_id` and `seminar_head_id` happen to be the same employee, that employee is caught by rule 3 first and never reaches the seminar-chief branch — no self-referencing `parent_id` is possible.
+7. `manager_id` is required at the view level (`views/community/department/form.xml`, `required="1"`) so every department always has a Chief/Head of Studies once saved through the form; it is intentionally **not** a hard model-level `required=True`/DB `NOT NULL` — several pre-existing departments predate this feature and have no `manager_id` yet, and a DB-level constraint would fail the module upgrade for them. Programmatic creation (imports, demo data, tests) can still create a department without one.
+8. A top-level department (`is_top_level`) cannot have a `parent_id` or a `seminar_head_id` — enforced by an onchange (clears both when checked, mirroring `ems.group`'s `_onchange_group_type`), a `write()`/`create()` sanitize (real guarantee against RPC/import bypass, mirroring `_sanitize_group_type_vals`), and a backstop `@api.constrains` (mirroring `_check_group_type_fields`). The constrain deliberately does **not** require `top_level_role` when `is_top_level` is set — `data/custom/hr.department.csv` seeds the two known top-level departments with `is_top_level=1` and no `manager_id`/`top_level_role` (set manually via the UI post-deploy, same precedent as `seminar_head_id`).
 
 ## CRUD flow
 
-- **`hr.employee._compute_parent_id`** (`models/employees/employee.py`, overriding the native `hr.employee.base` compute) implements rules 1–5 above, `@api.depends('department_id')`. Because it depends only on `department_id`, Odoo automatically re-triggers it whenever an employee's own `department_id` changes (e.g. moved from the employee's own form) — no extra code needed on that side.
-- **`hr.department.write()`** (`models/employees/department.py`) detects a change to `manager_id`/`seminar_head_id` and explicitly forces a recompute for every current `member_ids`, plus updates the role on the union of the old and new head/Seminar Chief (so a person who stops heading *this* department but still heads *another* one keeps the role — `role_dchieff`/`role_seminar` are not unipersonal). This is also what demotes the previous holder of either role when a department is reassigned to someone else.
-- **`hr.employee.update_department_head_role()` / `update_seminar_head_role()`** add/remove `role_dchieff`/`role_seminar` from `role_ids` based on whether the employee still holds `headed_department_ids`/`seminar_department_ids` (One2many inverses of `manager_id`/`seminar_head_id`) for at least one department — mirrors the existing `update_tutor_role()` pattern.
-- **`hr.employee._onchange_role_ids`** blocks manual add *and* remove of `role_dchieff`/`role_seminar` from the employee form (reverts + shows a warning either way), the same UI-level enforcement already used for `role_tutor`. Unlike `role_tutor` (where removing the tag cascades into clearing `tutorship_ids`, since that's a direct, employee-side inverse field), `role_dchieff`/`role_seminar` have no such employee-side field to clear — the position lives entirely on `hr.department` — so removal while still holding the position is reverted, not cascaded.
+- **`hr.employee._compute_parent_id`** (`models/employees/employee.py`, overriding the native `hr.employee.base` compute) implements rules 1–6 above, `@api.depends('department_id')`. Because it depends only on `department_id`, Odoo automatically re-triggers it whenever an employee's own `department_id` changes — no extra code needed on that side. Every branch explicitly (re)assigns `parent_id`, including to `False`/an empty recordset when no rule applies — a stale value from a *previous* cascade state must be cleared, not silently kept, when an employee transitions (e.g. into heading a top-level department with no parent above it).
+- **`hr.department.write()`/`create()`** (`models/employees/department.py`) detects a change to `manager_id`/`seminar_head_id`/`parent_id`/`is_top_level`/`top_level_role` and explicitly forces a recompute of: `member_ids` (rule 1), `child_ids.manager_id` (rule 4, downstream — a child department's own Chief depends on *this* department's `manager_id`), and `manager_id` itself (rule 4, upstream — this department's own Chief depends on *its parent's* `manager_id`, which may have just changed via `parent_id`). It also updates roles on the union of the old and new Chief/Seminar Chief (so a person who stops heading *this* department but still heads *another* one keeps the role — none of `role_dchieff`/`role_seminar`/`role_hos`/`role_dhos` are unipersonal *per department*; `role_hos`/`role_dhos` remain globally unipersonal via `ems.role.check_limit()`, unchanged). This is also what demotes the previous holder of a role when a department is reassigned to someone else.
+- **`hr.employee.update_department_head_role()`** adds/removes `role_dchieff` based on `headed_department_ids` **excluding** top-level ones (a top-level Chief never gets `role_dchieff`).
+- **`hr.employee.update_seminar_head_role()`** adds/removes `role_seminar` based on `seminar_department_ids`, unchanged.
+- **`hr.employee.update_head_of_studies_role()`** (new) adds/removes `role_hos`/`role_dhos` based on `headed_department_ids.filtered('is_top_level')` and each one's `top_level_role`.
+- **`hr.employee._onchange_role_ids`** blocks manual add *and* remove of `role_dchieff`/`role_seminar`/`role_hos`/`role_dhos` from the employee form (reverts + shows a warning either way), the same UI-level enforcement already used for `role_tutor`. **Behavioural change:** `role_hos`/`role_dhos` used to be manually assigned by an admin (see `role_hierarchy.md`) — they now become fully department-driven, exactly like `role_dchieff` before them. If someone already holds `role_hos`/`role_dhos` today without being linked to any top-level department, that assignment sits untouched until their `role_ids` is next edited in the UI, at which point it's reverted — audit `ems.role.employee_ids` for these two roles around deploy time.
 
 ```mermaid
 flowchart LR
-    A["Admin sets manager_id / seminar_head_id on hr.department"] --> B["hr.department.write()"]
-    B --> C["member_ids._compute_parent_id() forces recompute"]
-    B --> D["update_department_head_role()/update_seminar_head_role() on old+new heads"]
+    A["Admin sets manager_id / seminar_head_id / is_top_level / top_level_role / parent_id"] --> B["hr.department.write()"]
+    B --> C["member_ids / child_ids.manager_id / manager_id: _compute_parent_id() forces recompute"]
+    B --> D["update_department_head_role() / update_head_of_studies_role() / update_seminar_head_role() on old+new heads"]
     D --> E["role_ids write triggers _sync_security_groups()"]
 ```
 
@@ -53,9 +61,11 @@ flowchart LR
 | `hr.employee` | `group_academic_admin` | Full CRUD |
 | `hr.employee` | `group_teacher` | Read-only |
 
-Only `group_academic_admin` can set `manager_id`/`seminar_head_id`, so this feature has a single operating role (see the admin user manual, `docs/en/admin/teacher-roles.md`).
+Only `group_academic_admin` can set any of these fields, so this feature has a single operating role (see the admin user manual, `docs/en/admin/teacher-roles.md`).
 
 ## Known limitations
 
-- No automatic backfill: existing departments keep `seminar_head_id` empty, and some predate this feature with no `manager_id` either, until an admin opens and saves each one (the view-level `required="1"` on `manager_id` then kicks in).
-- Out of scope for this iteration: employees whose real manager shouldn't come from this cascade at all (e.g. an assistant head of studies who should report to Direction regardless of their nominal department). They may get an incorrect `parent_id` until a future iteration adds that exception.
+- No automatic backfill: existing departments keep `seminar_head_id` empty, and some predate this feature with no `manager_id` either, until an admin opens and saves each one (the view-level `required="1"` on `manager_id` then kicks in). The two known top-level departments (VET, ESO/BTX) are seeded with `is_top_level=1` but no `manager_id`/`top_level_role` — set manually post-deploy.
+- If an employee heads more than one department whose parents have different Managers, rule 4's "last one wins" (iteration order) — acceptable since none of these roles are unipersonal per department.
+- Still out of scope: no "Direction" department exists above VET/ESO-BTX yet, so a top-level Head of Studies/Deputy's own `parent_id` stays cleared — rule 4 only closes the gap one level down (a regular department's Chief now correctly reports to its top-level parent's Head of Studies), not above the top level itself.
+- `ASP` (secretariat/admin staff, not teachers) is deliberately **not** marked `is_top_level` yet.

@@ -3304,6 +3304,7 @@ msgstr "Obsolet"
 
 #. module: ems
 #: model:ems.role,name:ems.role_dhos
+#: model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__dhos
 msgid "Deputy head of studies"
 msgstr "Cap d'estudis adjunt/a"
 
@@ -4685,7 +4686,14 @@ msgstr "Té accés al portal"
 
 #. module: ems
 #: model:ems.role,name:ems.role_hos
+#: model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__hos
 msgid "Head of studies"
+msgstr "Cap d'estudis"
+
+#. module: ems
+#: model:res.groups,name:ems.group_head_of_studies
+#: model_terms:ir.ui.view,arch_db:ems.view_department_form
+msgid "Head of Studies"
 msgstr "Cap d'estudis"
 
 #. module: ems
@@ -7534,6 +7542,7 @@ msgid "Revoke access"
 msgstr "Revocar accés"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__top_level_role
 #: model_terms:ir.ui.view,arch_db:ems.view_role_list
 msgid "Role"
 msgstr "Rol"
@@ -13033,3 +13042,68 @@ msgid ""
 msgstr ""
 "El rol de cap de seminari no es pot assignar ni treure manualment, es "
 "gestiona automàticament des del formulari del departament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "A top-level department cannot have a Seminar Chief."
+msgstr "Un departament top-level no pot tenir Cap de seminari."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "A top-level department cannot have a parent department."
+msgstr "Un departament top-level no pot tenir un departament pare."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__is_top_level
+msgid ""
+"A top-level department has no parent department and no Seminar Chief. Its "
+"Manager is labelled 'Head of Studies' and automatically holds the role "
+"selected below (Head of Studies or Deputy Head of Studies) instead of "
+"Department Chief."
+msgstr ""
+"Un departament top-level no té departament pare ni Cap de seminari. El seu "
+"Responsable es diu 'Cap d'estudis' i té automàticament el rol seleccionat "
+"a sota (Cap d'estudis o Cap d'estudis adjunt) en lloc de Cap de "
+"departament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "Only a top-level department can have a Role selected."
+msgstr "Només un departament top-level pot tenir un Rol seleccionat."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__top_level_role
+msgid ""
+"Only applies when this is a Top-level Department: which of the two Head of "
+"Studies positions its Manager holds."
+msgstr ""
+"Només s'aplica quan es tracta d'un Departament top-level: quin dels dos "
+"càrrecs de Cap d'estudis ocupa el seu Responsable."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Deputy Head of Studies role cannot be assigned or removed manually, it "
+"is set automatically from the top-level department's own form."
+msgstr ""
+"El rol de Cap d'estudis adjunt no es pot assignar ni treure manualment, es "
+"gestiona automàticament des del formulari del departament top-level."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Head of Studies role cannot be assigned or removed manually, it is set "
+"automatically from the top-level department's own form."
+msgstr ""
+"El rol de Cap d'estudis no es pot assignar ni treure manualment, es "
+"gestiona automàticament des del formulari del departament top-level."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__is_top_level
+msgid "Top-level Department"
+msgstr "Departament top-level"

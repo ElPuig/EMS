@@ -22,7 +22,7 @@ Permission levels form a hierarchy — each level includes all the permissions o
 | Tutor | Tutor | Automatic — set when the teacher is assigned as the tutor of a Class Group |
 | Department chieff | Department Chief | Automatic — set as **Department Chief** on the department's own form |
 | Seminar leader | Department Chief | Automatic — set as **Seminar Chief** on the department's own form |
-| Head of studies / Deputy head of studies | Head of Studies | Manual — added to the teacher's roles |
+| Head of studies / Deputy head of studies | Head of Studies | Automatic — set as **Head of Studies** on a top-level department's own form |
 | Director | Director | Manual — added to the teacher's roles |
 
 > Department Chief currently grants the same permissions as Tutor, plus the ability to create, edit and delete Class Groups (Contacts → Groups). It exists as its own level so it can be extended independently in the future. Seminar leader is granted the same permission level.
@@ -43,7 +43,7 @@ Navigate to: **Employees → [open the teacher's record]**
 
 The teacher's user account is updated immediately: the security group tied to the role is granted, together with everything it implies (e.g. assigning **Department chieff** also grants Tutor and Teacher access).
 
-> The **Tutor**, **Department chieff** and **Seminar leader** roles cannot be added or removed manually here — Tutor is managed automatically based on whether the teacher is set as the tutor of a Class Group; Department chieff and Seminar leader are managed automatically from the department's own form (see below).
+> The **Tutor**, **Department chieff**, **Seminar leader**, **Head of studies** and **Deputy head of studies** roles cannot be added or removed manually here — Tutor is managed automatically based on whether the teacher is set as the tutor of a Class Group; the other four are managed automatically from a department's own form (see below).
 
 ---
 
@@ -74,6 +74,24 @@ This has an immediate, automatic effect on every teacher in that department:
 - Reassigning either role to a different teacher automatically revokes it from whoever held it before (in that department).
 
 > **Note for existing departments:** a department created before this feature was enabled may have no Department Chief and/or Seminar Chief until an admin opens it and sets them — nothing is filled in automatically. **Department Chief is required** to save the department form going forward.
+
+---
+
+## Assigning a Head of Studies / Deputy Head of Studies
+
+Some departments (currently **VET** and **ESO/BTX**) are **top-level departments** — this changes their form:
+
+1. Navigate to **Employees → Departments** and open the department. The **Top-level Department** checkbox is already ticked for VET and ESO/BTX.
+2. The department can no longer have a parent department, and has no Seminar Chief — instead of "Department Chief", the Manager field is labelled **Head of Studies**.
+3. Set the **Head of Studies** (required) and choose their **Role**: **Head of studies** or **Deputy head of studies**.
+4. Click **Save**.
+
+This has an effect beyond the department itself:
+
+- Every other department placed *under* a top-level department (e.g. "Computer Science" under VET) has its own **Department Chief**'s **Manager** automatically set to the top-level department's **Head of Studies**. Nothing else about that department changes — its own teachers and Seminar Chief keep working exactly as before, only its own Department Chief's Manager changes.
+- Since **Head of studies** and **Deputy head of studies** can each only be held by one person centre-wide, trying to set the same one on two different departments for two different people is rejected — clear the other assignment first if you need to reassign.
+
+> **Note for existing departments:** VET and ESO/BTX are already marked as top-level, but with no Head of Studies set yet — an admin must open each one and set it manually; nothing is filled in automatically.
 
 ---
 

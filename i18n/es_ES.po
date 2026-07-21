@@ -9334,6 +9334,7 @@ msgstr "Tutor/a"
 
 #. module: ems
 #: model:res.groups,name:ems.group_department_chief
+#: model_terms:ir.ui.view,arch_db:ems.view_department_form
 msgid "Department Chief"
 msgstr "Jefe de Departamento"
 
@@ -12995,3 +12996,63 @@ msgid ""
 msgstr ""
 "Beneficios reaplicados por %s: la factura se ha regenerado con el estado de "
 "beneficios actual del estudiante."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__headed_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__headed_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__headed_department_ids
+msgid "Departments Headed"
+msgstr "Departamentos dirigidos"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__seminar_head_id
+msgid ""
+"Every other member of this department (the Department Chief excluded) will "
+"have their Manager set to this employee; the Seminar Chief's own Manager is "
+"set to the Department Chief."
+msgstr ""
+"El resto de miembros de este departamento (excluyendo al Jefe de "
+"departamento) tendrán como Responsable a este empleado; el Responsable del "
+"propio Jefe de seminario será el Jefe de departamento."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__seminar_head_id
+msgid "Seminar Chief"
+msgstr "Jefe de seminario"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__seminar_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__seminar_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__seminar_department_ids
+msgid "Seminars Led"
+msgstr "Seminarios dirigidos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid ""
+"Set automatically from the employee's department (Department Chief / "
+"Seminar Chief). Edit it from the Departments form instead."
+msgstr ""
+"Se establece automáticamente a partir del departamento del empleado (Jefe "
+"de departamento / Jefe de seminario). Edítelo desde el formulario de "
+"Departamentos."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The department chief role cannot be assigned or removed manually, it is "
+"set automatically from the department's own form."
+msgstr ""
+"El rol de jefe de departamento no se puede asignar ni quitar manualmente, "
+"se gestiona automáticamente desde el formulario del departamento."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Seminar Chief role cannot be assigned or removed manually, it is set "
+"automatically from the department's own form."
+msgstr ""
+"El rol de jefe de seminario no se puede asignar ni quitar manualmente, se "
+"gestiona automáticamente desde el formulario del departamento."

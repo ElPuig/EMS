@@ -9321,6 +9321,7 @@ msgstr "Tutor/a"
 
 #. module: ems
 #: model:res.groups,name:ems.group_department_chief
+#: model_terms:ir.ui.view,arch_db:ems.view_department_form
 msgid "Department Chief"
 msgstr "Cap de Departament"
 
@@ -12973,3 +12974,62 @@ msgid ""
 msgstr ""
 "Beneficis reaplicats per %s: la factura s'ha regenerat amb l'estat de "
 "beneficis actual de l'estudiant."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__headed_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__headed_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__headed_department_ids
+msgid "Departments Headed"
+msgstr "Departaments dirigits"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__seminar_head_id
+msgid ""
+"Every other member of this department (the Department Chief excluded) will "
+"have their Manager set to this employee; the Seminar Chief's own Manager is "
+"set to the Department Chief."
+msgstr ""
+"La resta de membres d'aquest departament (excloent el Cap de departament) "
+"tindran com a Responsable aquest empleat; el Responsable del propi Cap de "
+"seminari serà el Cap de departament."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__seminar_head_id
+msgid "Seminar Chief"
+msgstr "Cap de seminari"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__seminar_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__seminar_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__seminar_department_ids
+msgid "Seminars Led"
+msgstr "Seminaris dirigits"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid ""
+"Set automatically from the employee's department (Department Chief / "
+"Seminar Chief). Edit it from the Departments form instead."
+msgstr ""
+"S'estableix automàticament a partir del departament de l'empleat (Cap de "
+"departament / Cap de seminari). Editeu-ho des del formulari de Departaments."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The department chief role cannot be assigned or removed manually, it is "
+"set automatically from the department's own form."
+msgstr ""
+"El rol de cap de departament no es pot assignar ni treure manualment, es "
+"gestiona automàticament des del formulari del departament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Seminar Chief role cannot be assigned or removed manually, it is set "
+"automatically from the department's own form."
+msgstr ""
+"El rol de cap de seminari no es pot assignar ni treure manualment, es "
+"gestiona automàticament des del formulari del departament."

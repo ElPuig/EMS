@@ -82,8 +82,10 @@ class ems_employee_base(models.AbstractModel):
     schedule_attendance_ids = fields.One2many(string="Schedule", comodel_name="resource.calendar.attendance", related="resource_calendar_id.attendance_ids")
    
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
-    role_ids = fields.Many2many(string="Roles", comodel_name="ems.role", relation="hr_employee_public_ems_role_rel", column1="hr_employee_public_id", column2="ems_role_id", domain="[('employee_type', '=', employee_type)]") 
+    role_ids = fields.Many2many(string="Roles", comodel_name="ems.role", relation="hr_employee_public_ems_role_rel", column1="hr_employee_public_id", column2="ems_role_id", domain="[('employee_type', '=', employee_type)]")
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ems.group", inverse_name="tutor_id")
+    headed_department_ids = fields.One2many(string="Departments Headed", comodel_name="hr.department", inverse_name="manager_id")
+    seminar_department_ids = fields.One2many(string="Seminars Led", comodel_name="hr.department", inverse_name="seminar_head_id")
 
     #This fields are computed in order to display string data within some views.
     roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
@@ -176,8 +178,28 @@ class ems_employee_base(models.AbstractModel):
         self.update_tutor_role()
         self._sync_security_groups()
 
+    @api.depends('department_id')
+    def _compute_parent_id(self):
+        """Replaces hr.employee.base's native default (department.manager_id for everyone) with
+        the Department Chief / Seminar Chief cascade: the Department Chief is excluded from this
+        cascade entirely (their own Manager is out of scope here, left untouched); the Seminar
+        Head's Manager is the Department Chief; every other member's Manager is the Seminar Chief,
+        or the Department Chief directly if the department has no Seminar Chief — see
+        'ems.department'."""
+        for employee in self:
+            department = employee.department_id
+            if not department or employee == department.manager_id:
+                continue
+            if employee == department.seminar_head_id:
+                if department.manager_id:
+                    employee.parent_id = department.manager_id
+            elif department.seminar_head_id:
+                employee.parent_id = department.seminar_head_id
+            elif department.manager_id:
+                employee.parent_id = department.manager_id
+
     @api.depends("tutorship_ids")
-    def _compute_tutorships_str(self):			
+    def _compute_tutorships_str(self):
         for rec in self:
             rec.tutorships = ""
             for tutorship in rec.tutorship_ids:
@@ -198,11 +220,13 @@ class ems_employee_base(models.AbstractModel):
 
     @api.onchange('role_ids')
     def _onchange_role_ids(self):
-        role_tutor = self.env.ref('ems.role_tutor').ids[0]  
-        for rec in self:	             
-            is_role_tutor = role_tutor in rec.role_ids.ids 
+        role_tutor = self.env.ref('ems.role_tutor').ids[0]
+        role_dchieff = self.env.ref('ems.role_dchieff').ids[0]
+        role_seminar = self.env.ref('ems.role_seminar').ids[0]
+        for rec in self:
+            is_role_tutor = role_tutor in rec.role_ids.ids
             is_tutor = len(rec.tutorship_ids) > 0
-            if not is_role_tutor and is_tutor:                
+            if not is_role_tutor and is_tutor:
                 rec.tutorship_ids = False
             elif is_role_tutor and not is_tutor:
                 rec.role_ids = [(3, role_tutor)]
@@ -213,12 +237,46 @@ class ems_employee_base(models.AbstractModel):
                         'type': 'notification',
                     }
                 }
+
+            is_role_dchieff = role_dchieff in rec.role_ids.ids
+            is_department_head = len(rec.headed_department_ids) > 0
+            if is_role_dchieff != is_department_head:
+                rec.role_ids = [(4 if is_department_head else 3, role_dchieff)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The department chief role cannot be assigned or removed manually, it is set automatically from the department's own form."),
+                        'type': 'notification',
+                    }
+                }
+
+            is_role_seminar = role_seminar in rec.role_ids.ids
+            is_seminar_head = len(rec.seminar_department_ids) > 0
+            if is_role_seminar != is_seminar_head:
+                rec.role_ids = [(4 if is_seminar_head else 3, role_seminar)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The Seminar Chief role cannot be assigned or removed manually, it is set automatically from the department's own form."),
+                        'type': 'notification',
+                    }
+                }
         self._sync_security_groups()
 
     def update_tutor_role(self):
         role_tutor = self.env.ref('ems.role_tutor').ids[0]
         for rec in self:
             rec.role_ids = [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)] # link if tutor, otherwise unlink
+
+    def update_department_head_role(self):
+        role_dchieff = self.env.ref('ems.role_dchieff').ids[0]
+        for rec in self:
+            rec.role_ids = [(4 if len(rec.headed_department_ids) > 0 else 3, role_dchieff)]
+
+    def update_seminar_head_role(self):
+        role_seminar = self.env.ref('ems.role_seminar').ids[0]
+        for rec in self:
+            rec.role_ids = [(4 if len(rec.seminar_department_ids) > 0 else 3, role_seminar)]
 
     def _sync_security_groups(self):
         """Sync res.users.groups_id based on role_ids and job_id that have a linked security group."""
@@ -342,19 +400,22 @@ class ems_employee(models.AbstractModel):
 
     def get_report_role_lines(self):
         """One display line per role_ids entry for the working-schedule PDF header, appending
-        context for the two roles that need it: a tutor's own tutored group(s) ('ems.role_tutor'),
-        or a department head's own department ('ems.role_dchieff') — there's no per-department link
-        for that role today, so the employee's own department_id is reused, per product decision."""
+        context for the roles that need it: a tutor's own tutored group(s) ('ems.role_tutor'), a
+        department head's own headed department(s) ('ems.role_dchieff'), or a Seminar Chief's own
+        led department(s) ('ems.role_seminar')."""
         self.ensure_one()
         role_tutor = self.env.ref('ems.role_tutor', raise_if_not_found=False)
         role_dchieff = self.env.ref('ems.role_dchieff', raise_if_not_found=False)
+        role_seminar = self.env.ref('ems.role_seminar', raise_if_not_found=False)
         lines = []
         for role in self.role_ids:
             label = role.name
             if role_tutor and role == role_tutor and self.tutorship_ids:
                 label = "%s: %s" % (label, ", ".join(self.tutorship_ids.mapped('name')))
-            elif role_dchieff and role == role_dchieff and self.department_id:
-                label = "%s: %s" % (label, self.department_id.name)
+            elif role_dchieff and role == role_dchieff and self.headed_department_ids:
+                label = "%s: %s" % (label, ", ".join(self.headed_department_ids.mapped('name')))
+            elif role_seminar and role == role_seminar and self.seminar_department_ids:
+                label = "%s: %s" % (label, ", ".join(self.seminar_department_ids.mapped('name')))
             lines.append(label)
         return lines
 

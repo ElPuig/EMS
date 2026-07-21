@@ -20,9 +20,9 @@ graph LR
 Group membership is not edited directly by admins in normal operation; it is derived from data:
 
 - **`ems.role`** (`models/employees/role.py`) is a role catalog. Each role may carry a `group_id`: employees holding that role are automatically added to the linked `res.groups`.
-- **`data/main/ems.role_group_relationship.xml`** wires specific role catalog entries (from `data/cat/ems.role.csv`) to their security group, e.g. `role_tutor → group_tutor`, `role_dchieff → group_department_chief`, `role_hos`/`role_dhos → group_head_of_studies`, `role_director → group_director`.
+- **`data/main/ems.role_group_relationship.xml`** wires specific role catalog entries (from `data/cat/ems.role.csv`) to their security group, e.g. `role_tutor → group_tutor`, `role_dchieff → group_department_chief`, `role_seminar → group_department_chief`, `role_hos`/`role_dhos → group_head_of_studies`, `role_director → group_director`.
 - **`ems_employee_base._sync_security_groups()`** (`models/employees/employee.py`) diffs an employee's `role_ids`/`job_id` derived groups against `res.users.groups_id` and issues `(4, id)`/`(3, id)` commands, called from `write()` and the relevant `@api.onchange` handlers.
-- `role_tutor` is the one exception: it is **not** manually assignable — `update_tutor_role()` links/unlinks it automatically based on whether the employee is referenced as `tutor_id` on any `ems.group`. All other roles in the chain (`role_dchieff`, `role_hos`, `role_dhos`, `role_director`) are assigned manually by an admin, by adding the role to the employee's `role_ids`.
+- `role_tutor`, `role_dchieff` and `role_seminar` are **not** manually assignable: `update_tutor_role()` links/unlinks `role_tutor` based on whether the employee is referenced as `tutor_id` on any `ems.group`; `update_department_head_role()`/`update_seminar_head_role()` do the same for `role_dchieff`/`role_seminar` based on `hr.department.manager_id`/`seminar_head_id` (labelled "Department Chief"/"Seminar Chief" on the department form) — see [Department Chief / Seminar Chief cascade](department.md). `role_hos`, `role_dhos` and `role_director` remain assigned manually by an admin, by adding the role to the employee's `role_ids`.
 
 ```mermaid
 flowchart LR

@@ -9,6 +9,10 @@
             <field name="group_id" ref="ems.group_department_chief"/>
         </record>
 
+        <record id="role_seminar" model="ems.role">
+            <field name="group_id" ref="ems.group_department_chief"/>
+        </record>
+
         <record id="role_hos" model="ems.role">
             <field name="group_id" ref="ems.group_head_of_studies"/>
         </record>

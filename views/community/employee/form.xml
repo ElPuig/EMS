@@ -116,7 +116,12 @@
 
                 <field name="coach_id" position="attributes">
                    <attribute name="invisible">True</attribute>
-                </field>                          
+                </field>
+
+                <field name="parent_id" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                    <attribute name="help">Set automatically from the employee's department (Department Chief / Seminar Chief). Edit it from the Departments form instead.</attribute>
+                </field>
 
                 <field name="employee_type" position="after">
                     <field name="contract_type_id" />
@@ -165,6 +170,11 @@
                     <page string="Teaching" invisible="employee_type == 'asp'">
                         <group string="Tutorships">
                             <field name="tutorship_ids" widget="many2many_tags" nolabel="1" />
+                        </group>
+
+                        <group string="Coordination">
+                            <field name="headed_department_ids" widget="many2many_tags" nolabel="1" readonly="1"/>
+                            <field name="seminar_department_ids" widget="many2many_tags" nolabel="1" readonly="1"/>
                         </group>
 
                         <group string="Subjects">

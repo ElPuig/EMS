@@ -34,3 +34,4 @@ from . import test_group_schedule
 from . import test_em_grading_wizard
 from . import test_department
 from . import test_company_director
+from . import test_role

@@ -36,7 +36,8 @@
 
                 <field name="category_ids" position="attributes">
                     <attribute name="name">role_ids</attribute>
-                </field>                                                                
+                    <attribute name="widget">role_color_tags</attribute>
+                </field>
             </field>		      
         </record>
     </data>

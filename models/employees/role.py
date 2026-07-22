@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+import re
+
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 from . import employee
+
+COLOR_HEX_RE = re.compile(r"^#[0-9A-Fa-f]{6}$")
 
 class ems_role(models.Model):
 	_name = "ems.role"
 	_description = "Roles: The coordination position held by the employees."
 
-	name = fields.Char(string="Name", translate=True, required=True)	
-	color = fields.Integer(string="Color")
+	name = fields.Char(string="Name", translate=True, required=True)
+	color = fields.Char(string="Color", default="#3A8DDE")
 	notes = fields.Text(string="Notes")
 	unipersonal = fields.Boolean(string="Unipersonal", default=True)
 	
@@ -24,3 +28,9 @@ class ems_role(models.Model):
 		for rec in self:
 			if rec.unipersonal and len(rec.employee_ids) > 1:
 				raise ValidationError("This role is already assigned to another one.")
+
+	@api.constrains("color")
+	def _check_color_format(self):
+		for rec in self:
+			if rec.color and not COLOR_HEX_RE.match(rec.color):
+				raise ValidationError(_("Color must be a hexadecimal code (e.g. #3A8DDE)."))

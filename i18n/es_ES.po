@@ -13268,3 +13268,9 @@ msgid ""
 msgstr ""
 "Un departamento no puede tener Responsable propio y a la vez compartir su "
 "Responsable con su departamento padre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "Color must be a hexadecimal code (e.g. #3A8DDE)."
+msgstr "El color debe ser un código hexadecimal (p. ej. #3A8DDE)."

@@ -110,9 +110,9 @@
                     <field name="job_id" placeholder="Job Position" />
                 </field>
 
-                <field name="category_ids" position="replace">                    
-                    <field name="role_ids" placeholder="Roles" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" />          
-                </field>        
+                <field name="category_ids" position="replace">
+                    <field name="role_ids" placeholder="Roles" widget="role_color_tags" options="{'color_field': 'color', 'no_create_edit': True}" />
+                </field>
 
                 <field name="coach_id" position="attributes">
                    <attribute name="invisible">True</attribute>

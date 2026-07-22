@@ -5,7 +5,7 @@
             <field name="model">ems.role</field>
             <field name="arch" type="xml">
                 <list default_order="name asc">      
-                    <field name="color" width="50px" widget="color_picker"/>
+                    <field name="color" width="50px" widget="color"/>
                     <field name="name" string="Role" class="w-25"/>                    
                     <field name="employee_ids" string="Assigned to" widget="many2many_tags"/>
                     <field name="employee_type" column_invisible="True"/>

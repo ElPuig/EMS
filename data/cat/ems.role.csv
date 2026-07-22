@@ -3,7 +3,7 @@ id,name,color,employee_type,unipersonal
 "ems.role_dhos","Deputy head of studies",2,teacher,true
 "ems.role_seminar","Seminar leader",3,teacher,false
 "ems.role_quality","Quality coordinator",4,teacher,true
-"ems.role_secretary","Secretary",5,teacher,false
+"ems.role_secretary","Secretary",5,teacher,true
 "ems.role_tutor","Tutor",6,teacher,false
 "ems.role_dchieff","Department chieff",7,teacher,false
 "ems.role_catskills","CatSkills coordinator",8,teacher,true

@@ -44,7 +44,7 @@ class TestEmployeeRoleGroupSync(TransactionCase):
         # in the working database; clear them so the tests are self-contained.
         unipersonal_roles = (
             cls.role_hos + cls.role_dhos + cls.role_director
-            + cls.role_secretary_admin + cls.role_quality
+            + cls.role_secretary_admin + cls.role_quality + cls.role_secretary
         )
         unipersonal_roles.sudo().write({'employee_ids': [(5, 0, 0)]})
 

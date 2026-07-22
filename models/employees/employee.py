@@ -82,8 +82,11 @@ class ems_employee_base(models.AbstractModel):
     schedule_attendance_ids = fields.One2many(string="Schedule", comodel_name="resource.calendar.attendance", related="resource_calendar_id.attendance_ids")
    
     #Note: manual relation is needed, otherwise Odoo creates two tables within the BBDD, one for 'hr.employee.public' and one for 'hr.employee.base' 
-    role_ids = fields.Many2many(string="Roles", comodel_name="ems.role", relation="hr_employee_public_ems_role_rel", column1="hr_employee_public_id", column2="ems_role_id", domain="[('employee_type', '=', employee_type)]") 
+    role_ids = fields.Many2many(string="Roles", comodel_name="ems.role", relation="hr_employee_public_ems_role_rel", column1="hr_employee_public_id", column2="ems_role_id", domain="[('employee_type', '=', employee_type)]")
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ems.group", inverse_name="tutor_id")
+    headed_department_ids = fields.One2many(string="Departments Headed", comodel_name="hr.department", inverse_name="manager_id")
+    seminar_department_ids = fields.One2many(string="Seminars Led", comodel_name="hr.department", inverse_name="seminar_chief_id")
+    directed_company_ids = fields.One2many(string="Companies Directed", comodel_name="res.company", inverse_name="director_id")
 
     #This fields are computed in order to display string data within some views.
     roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
@@ -176,8 +179,65 @@ class ems_employee_base(models.AbstractModel):
         self.update_tutor_role()
         self._sync_security_groups()
 
+    @api.depends('department_id')
+    def _compute_parent_id(self):
+        """Replaces hr.employee.base's native default (department.manager_id for everyone) with
+        the Department Chief / Seminar Chief cascade, plus a cross-department cascade for whoever
+        chiefs a department themselves (Department Chief of a regular department, or Area Manager
+        of a top-level one - see 'ems.department'):
+
+        - Anyone who chiefs ANY department (headed_department_ids) is excluded from every OTHER
+          department's own intra-cascade entirely, including their own nominal department_id if
+          it differs from what they head (e.g. an employee nominally in "Computer Science" who
+          actually heads "VET"). Their own Manager instead comes from whichever headed department
+          has a parent department - that parent's *effective* Manager (see
+          'ems.department._effective_manager()': the nearest ancestor's own Manager, walking up
+          through any department that shares its Manager with its parent) becomes their Manager.
+          If a headed department is itself top-level (no parent by definition), the company's own
+          Director (res.company.director_id) becomes their Manager instead. Either way, a
+          candidate that resolves back to the employee themselves is discarded (self-reference
+          guard - e.g. someone who is both a top-level Area Manager AND the Department Chief of
+          one of its own child departments must never end up as their own Manager). If none of
+          these applies (no parent chief, no Director set, or the only candidate was themselves),
+          their own Manager is cleared.
+        - Otherwise (not chiefing anything): the Seminar Chief's Manager is the Department Chief
+          (or, if the department has no Manager of its own, whichever ancestor's Manager it
+          resolves to via 'ems.department._effective_manager()'); every other member's Manager is
+          the Seminar Chief, or that same effective Manager if the department has no Seminar Chief.
+        """
+        for employee in self:
+            headed = employee.headed_department_ids
+            if headed:
+                # Explicitly (re)assigned every time, including to an empty recordset (False) -
+                # a transition INTO heading a department (e.g. becoming a top-level Area Manager
+                # with no parent above it yet) must clear whatever manager a PREVIOUS cascade
+                # left behind, not silently keep it.
+                parent_chief = self.env['hr.employee']
+                for department in headed:
+                    if department.is_top_level:
+                        candidate = department.company_id.director_id
+                    elif department.parent_id:
+                        candidate = department.parent_id._effective_manager()
+                    else:
+                        candidate = self.env['hr.employee']
+                    if candidate and candidate != employee:
+                        parent_chief = candidate
+                employee.parent_id = parent_chief
+                continue
+
+            department = employee.department_id
+            if not department:
+                employee.parent_id = False
+                continue
+            if employee == department.seminar_chief_id:
+                employee.parent_id = department._effective_manager()
+            elif department.seminar_chief_id:
+                employee.parent_id = department.seminar_chief_id
+            else:
+                employee.parent_id = department._effective_manager()
+
     @api.depends("tutorship_ids")
-    def _compute_tutorships_str(self):			
+    def _compute_tutorships_str(self):
         for rec in self:
             rec.tutorships = ""
             for tutorship in rec.tutorship_ids:
@@ -198,11 +258,17 @@ class ems_employee_base(models.AbstractModel):
 
     @api.onchange('role_ids')
     def _onchange_role_ids(self):
-        role_tutor = self.env.ref('ems.role_tutor').ids[0]  
-        for rec in self:	             
-            is_role_tutor = role_tutor in rec.role_ids.ids 
+        role_tutor = self.env.ref('ems.role_tutor').ids[0]
+        role_dchieff = self.env.ref('ems.role_dchieff').ids[0]
+        role_seminar = self.env.ref('ems.role_seminar').ids[0]
+        role_hos = self.env.ref('ems.role_hos').ids[0]
+        role_dhos = self.env.ref('ems.role_dhos').ids[0]
+        role_secretary = self.env.ref('ems.role_secretary').ids[0]
+        role_director = self.env.ref('ems.role_director').ids[0]
+        for rec in self:
+            is_role_tutor = role_tutor in rec.role_ids.ids
             is_tutor = len(rec.tutorship_ids) > 0
-            if not is_role_tutor and is_tutor:                
+            if not is_role_tutor and is_tutor:
                 rec.tutorship_ids = False
             elif is_role_tutor and not is_tutor:
                 rec.role_ids = [(3, role_tutor)]
@@ -213,12 +279,118 @@ class ems_employee_base(models.AbstractModel):
                         'type': 'notification',
                     }
                 }
+
+            is_role_dchieff = role_dchieff in rec.role_ids.ids
+            is_department_head = len(rec.headed_department_ids.filtered(lambda d: not d.is_top_level)) > 0
+            if is_role_dchieff != is_department_head:
+                rec.role_ids = [(4 if is_department_head else 3, role_dchieff)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The department chief role cannot be assigned or removed manually, it is set automatically from the department's own form."),
+                        'type': 'notification',
+                    }
+                }
+
+            is_role_seminar = role_seminar in rec.role_ids.ids
+            is_seminar_chief = len(rec.seminar_department_ids) > 0
+            if is_role_seminar != is_seminar_chief:
+                rec.role_ids = [(4 if is_seminar_chief else 3, role_seminar)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The Seminar Chief role cannot be assigned or removed manually, it is set automatically from the department's own form."),
+                        'type': 'notification',
+                    }
+                }
+
+            top_level_headed = rec.headed_department_ids.filtered('is_top_level')
+
+            is_role_hos = role_hos in rec.role_ids.ids
+            is_hos = len(top_level_headed.filtered(lambda d: d.top_level_role == 'hos')) > 0
+            if is_role_hos != is_hos:
+                rec.role_ids = [(4 if is_hos else 3, role_hos)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The Head of Studies role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."),
+                        'type': 'notification',
+                    }
+                }
+
+            is_role_dhos = role_dhos in rec.role_ids.ids
+            is_dhos = len(top_level_headed.filtered(lambda d: d.top_level_role == 'dhos')) > 0
+            if is_role_dhos != is_dhos:
+                rec.role_ids = [(4 if is_dhos else 3, role_dhos)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The Deputy Head of Studies role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."),
+                        'type': 'notification',
+                    }
+                }
+
+            is_role_secretary = role_secretary in rec.role_ids.ids
+            is_secretary = len(top_level_headed.filtered(lambda d: d.top_level_role == 'secretary')) > 0
+            if is_role_secretary != is_secretary:
+                rec.role_ids = [(4 if is_secretary else 3, role_secretary)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The Secretary role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."),
+                        'type': 'notification',
+                    }
+                }
+
+            is_role_director = role_director in rec.role_ids.ids
+            is_director = len(rec.directed_company_ids) > 0
+            if is_role_director != is_director:
+                rec.role_ids = [(4 if is_director else 3, role_director)]
+                return {
+                    'warning': {
+                        'title': _("Not allowed"),
+                        'message': _("The Director role cannot be assigned or removed manually, it is set automatically from Settings."),
+                        'type': 'notification',
+                    }
+                }
         self._sync_security_groups()
 
     def update_tutor_role(self):
         role_tutor = self.env.ref('ems.role_tutor').ids[0]
         for rec in self:
             rec.role_ids = [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)] # link if tutor, otherwise unlink
+
+    def update_department_head_role(self):
+        role_dchieff = self.env.ref('ems.role_dchieff').ids[0]
+        for rec in self:
+            is_dchieff = len(rec.headed_department_ids.filtered(lambda department: not department.is_top_level)) > 0
+            rec.role_ids = [(4 if is_dchieff else 3, role_dchieff)]
+
+    def update_seminar_chief_role(self):
+        role_seminar = self.env.ref('ems.role_seminar').ids[0]
+        for rec in self:
+            rec.role_ids = [(4 if len(rec.seminar_department_ids) > 0 else 3, role_seminar)]
+
+    def update_area_manager_role(self):
+        role_hos = self.env.ref('ems.role_hos').ids[0]
+        role_dhos = self.env.ref('ems.role_dhos').ids[0]
+        role_secretary = self.env.ref('ems.role_secretary').ids[0]
+        for rec in self:
+            top_level_headed = rec.headed_department_ids.filtered('is_top_level')
+            is_hos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'hos')) > 0
+            is_dhos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'dhos')) > 0
+            is_secretary = len(top_level_headed.filtered(lambda department: department.top_level_role == 'secretary')) > 0
+            rec.role_ids = [
+                (4 if is_hos else 3, role_hos),
+                (4 if is_dhos else 3, role_dhos),
+                (4 if is_secretary else 3, role_secretary),
+            ]
+
+    def update_director_role(self):
+        role_director = self.env.ref('ems.role_director').ids[0]
+        for rec in self:
+            is_director = len(rec.directed_company_ids) > 0
+            rec.role_ids = [(4 if is_director else 3, role_director)]
 
     def _sync_security_groups(self):
         """Sync res.users.groups_id based on role_ids and job_id that have a linked security group."""
@@ -342,19 +514,40 @@ class ems_employee(models.AbstractModel):
 
     def get_report_role_lines(self):
         """One display line per role_ids entry for the working-schedule PDF header, appending
-        context for the two roles that need it: a tutor's own tutored group(s) ('ems.role_tutor'),
-        or a department head's own department ('ems.role_dchieff') — there's no per-department link
-        for that role today, so the employee's own department_id is reused, per product decision."""
+        context for the roles that need it: a tutor's own tutored group(s) ('ems.role_tutor'), a
+        department head's own headed department(s) ('ems.role_dchieff'), a Seminar Chief's own
+        led department(s) ('ems.role_seminar'), or an Area Manager's own top-level department(s)
+        ('ems.role_hos'/'ems.role_dhos'/'ems.role_secretary'), or the Director's own directed
+        company/companies ('ems.role_director')."""
         self.ensure_one()
         role_tutor = self.env.ref('ems.role_tutor', raise_if_not_found=False)
         role_dchieff = self.env.ref('ems.role_dchieff', raise_if_not_found=False)
+        role_seminar = self.env.ref('ems.role_seminar', raise_if_not_found=False)
+        role_hos = self.env.ref('ems.role_hos', raise_if_not_found=False)
+        role_dhos = self.env.ref('ems.role_dhos', raise_if_not_found=False)
+        role_secretary = self.env.ref('ems.role_secretary', raise_if_not_found=False)
+        role_director = self.env.ref('ems.role_director', raise_if_not_found=False)
+        chief_departments = self.headed_department_ids.filtered(lambda department: not department.is_top_level)
+        hos_departments = self.headed_department_ids.filtered(lambda department: department.top_level_role == 'hos')
+        dhos_departments = self.headed_department_ids.filtered(lambda department: department.top_level_role == 'dhos')
+        secretary_departments = self.headed_department_ids.filtered(lambda department: department.top_level_role == 'secretary')
         lines = []
         for role in self.role_ids:
             label = role.name
             if role_tutor and role == role_tutor and self.tutorship_ids:
                 label = "%s: %s" % (label, ", ".join(self.tutorship_ids.mapped('name')))
-            elif role_dchieff and role == role_dchieff and self.department_id:
-                label = "%s: %s" % (label, self.department_id.name)
+            elif role_dchieff and role == role_dchieff and chief_departments:
+                label = "%s: %s" % (label, ", ".join(chief_departments.mapped('name')))
+            elif role_seminar and role == role_seminar and self.seminar_department_ids:
+                label = "%s: %s" % (label, ", ".join(self.seminar_department_ids.mapped('name')))
+            elif role_hos and role == role_hos and hos_departments:
+                label = "%s: %s" % (label, ", ".join(hos_departments.mapped('name')))
+            elif role_dhos and role == role_dhos and dhos_departments:
+                label = "%s: %s" % (label, ", ".join(dhos_departments.mapped('name')))
+            elif role_secretary and role == role_secretary and secretary_departments:
+                label = "%s: %s" % (label, ", ".join(secretary_departments.mapped('name')))
+            elif role_director and role == role_director and self.directed_company_ids:
+                label = "%s: %s" % (label, ", ".join(self.directed_company_ids.mapped('name')))
             lines.append(label)
         return lines
 

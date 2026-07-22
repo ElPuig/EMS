@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_department_form" model="ir.ui.view">
+        <field name="name">ems.department.form</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='color']/parent::group/parent::group" position="attributes">
+                <attribute name="col">4</attribute>
+            </xpath>
+            <xpath expr="//field[@name='color']/parent::group" position="attributes">
+                <attribute name="col">2</attribute>
+                <attribute name="colspan">3</attribute>
+            </xpath>
+            <xpath expr="//widget[@name='hr_department_chart']/parent::div" position="attributes">
+                <attribute name="colspan">1</attribute>
+                <attribute name="class">ems_department_chart_wide</attribute>
+            </xpath>
+            <field name="parent_id" position="attributes">
+                <attribute name="invisible">is_top_level</attribute>
+            </field>
+            <field name="manager_id" position="attributes">
+                <attribute name="string">Department Chief</attribute>
+                <attribute name="required">not is_top_level and not shares_manager_with_parent</attribute>
+                <attribute name="invisible">is_top_level or shares_manager_with_parent</attribute>
+            </field>
+            <field name="manager_id" position="before">
+                <field name="color" position="move"/>
+                <group>
+                    <field name="is_top_level"/>
+                </group>
+                <field name="parent_id" position="move"/>
+                <group invisible="is_top_level or not parent_id">
+                    <field name="shares_manager_with_parent"/>
+                </group>
+            </field>
+            <field name="manager_id" position="after">
+                <group invisible="is_top_level or shares_manager_with_parent">
+                    <field name="seminar_chief_id" widget="many2one_avatar_employee"/>
+                </group>
+                <group invisible="not is_top_level">
+                    <field name="top_level_area" required="is_top_level"/>
+                </group>
+                <group invisible="not is_top_level">
+                    <field name="manager_id" string="Area Manager" widget="many2one_avatar_employee" required="is_top_level"/>
+                </group>
+                <group invisible="not is_top_level">
+                    <field name="top_level_role" string="Area Role" required="is_top_level"/>
+                </group>
+            </field>
+            <field name="color" position="replace">
+                <group>$0</group>
+            </field>
+            <field name="parent_id" position="replace">
+                <group invisible="is_top_level">$0</group>
+            </field>
+            <field name="manager_id" position="replace">
+                <group invisible="is_top_level or shares_manager_with_parent">$0</group>
+            </field>
+        </field>
+    </record>
+</odoo>

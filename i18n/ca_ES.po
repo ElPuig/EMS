@@ -1249,6 +1249,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__asp_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__asp
+#: model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_area__asp
 #: model:ir.ui.menu,name:ems.menu_asp
 #: model:ir.ui.menu,name:ems.menu_community_config_asp
 msgid "ASP"
@@ -1868,6 +1869,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Are you sure you want to remove this item?"
 msgstr "Esteu segur que voleu eliminar aquest element?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_department_form
+msgid "Area Manager"
+msgstr "Responsable d'àrea"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__employee_ids
@@ -3304,6 +3310,7 @@ msgstr "Obsolet"
 
 #. module: ems
 #: model:ems.role,name:ems.role_dhos
+#: model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__dhos
 msgid "Deputy head of studies"
 msgstr "Cap d'estudis adjunt/a"
 
@@ -3337,6 +3344,10 @@ msgstr "Domiciliació bancària"
 
 #. module: ems
 #: model:ems.role,name:ems.role_director
+#: model:ir.model.fields,field_description:ems.field_res_company__director_id
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__director_id
+#: model:res.groups,name:ems.group_director
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Director"
 msgstr "Director/a"
 
@@ -4685,7 +4696,14 @@ msgstr "Té accés al portal"
 
 #. module: ems
 #: model:ems.role,name:ems.role_hos
+#: model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__hos
 msgid "Head of studies"
+msgstr "Cap d'estudis"
+
+#. module: ems
+#: model:res.groups,name:ems.group_head_of_studies
+#: model_terms:ir.ui.view,arch_db:ems.view_department_form
+msgid "Head of Studies"
 msgstr "Cap d'estudis"
 
 #. module: ems
@@ -7534,6 +7552,7 @@ msgid "Revoke access"
 msgstr "Revocar accés"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__top_level_role
 #: model_terms:ir.ui.view,arch_db:ems.view_role_list
 msgid "Role"
 msgstr "Rol"
@@ -7768,6 +7787,7 @@ msgstr "Correu de secretaria"
 
 #. module: ems
 #: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary
+#: model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__secretary
 #: model:project.project,name:ems.project_secretary
 #: model:res.groups,name:ems.group_secretary
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -9321,6 +9341,7 @@ msgstr "Tutor/a"
 
 #. module: ems
 #: model:res.groups,name:ems.group_department_chief
+#: model_terms:ir.ui.view,arch_db:ems.view_department_form
 msgid "Department Chief"
 msgstr "Cap de Departament"
 
@@ -12973,3 +12994,253 @@ msgid ""
 msgstr ""
 "Beneficis reaplicats per %s: la factura s'ha regenerat amb l'estat de "
 "beneficis actual de l'estudiant."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__headed_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__headed_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__headed_department_ids
+msgid "Departments Headed"
+msgstr "Departaments dirigits"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__seminar_chief_id
+msgid ""
+"Every other member of this department (the Department Chief excluded) will "
+"have their Manager set to this employee; the Seminar Chief's own Manager is "
+"set to the Department Chief."
+msgstr ""
+"La resta de membres d'aquest departament (excloent el Cap de departament) "
+"tindran com a Responsable aquest empleat; el Responsable del propi Cap de "
+"seminari serà el Cap de departament."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__seminar_chief_id
+msgid "Seminar Chief"
+msgstr "Cap de seminari"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__seminar_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__seminar_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__seminar_department_ids
+msgid "Seminars Led"
+msgstr "Seminaris dirigits"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid ""
+"Set automatically from the employee's department (Department Chief / "
+"Seminar Chief). Edit it from the Departments form instead."
+msgstr ""
+"S'estableix automàticament a partir del departament de l'empleat (Cap de "
+"departament / Cap de seminari). Editeu-ho des del formulari de Departaments."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The department chief role cannot be assigned or removed manually, it is "
+"set automatically from the department's own form."
+msgstr ""
+"El rol de cap de departament no es pot assignar ni treure manualment, es "
+"gestiona automàticament des del formulari del departament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Seminar Chief role cannot be assigned or removed manually, it is set "
+"automatically from the department's own form."
+msgstr ""
+"El rol de cap de seminari no es pot assignar ni treure manualment, es "
+"gestiona automàticament des del formulari del departament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "A top-level department cannot have a Seminar Chief."
+msgstr "Un departament top-level no pot tenir Cap de seminari."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "A top-level department cannot have a parent department."
+msgstr "Un departament top-level no pot tenir un departament pare."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__is_top_level
+msgid ""
+"A top-level department has no parent department and no Seminar Chief. Its "
+"Manager is labelled 'Area Manager' and automatically holds the role selected"
+" below (Head of Studies, Deputy Head of Studies or Secretary) instead of "
+"Department Chief."
+msgstr ""
+"Un departament top-level no té departament pare ni Cap de seminari. El seu "
+"Responsable es diu 'Responsable d'àrea' i té automàticament el rol "
+"seleccionat a sota (Cap d'estudis, Cap d'estudis adjunt o Secretari/ària) "
+"en lloc de Cap de departament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "Only a top-level department can have a Role selected."
+msgstr "Només un departament top-level pot tenir un Rol seleccionat."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__top_level_role
+msgid ""
+"Only applies when this is a Top-level Department: which of the two Head of "
+"Studies positions its Manager holds."
+msgstr ""
+"Només s'aplica quan es tracta d'un Departament top-level: quin dels dos "
+"càrrecs de Cap d'estudis ocupa el seu Responsable."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Deputy Head of Studies role cannot be assigned or removed manually, it "
+"is set automatically from the top-level department's own form."
+msgstr ""
+"El rol de Cap d'estudis adjunt no es pot assignar ni treure manualment, es "
+"gestiona automàticament des del formulari del departament top-level."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Head of Studies role cannot be assigned or removed manually, it is set "
+"automatically from the top-level department's own form."
+msgstr ""
+"El rol de Cap d'estudis no es pot assignar ni treure manualment, es "
+"gestiona automàticament des del formulari del departament top-level."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__is_top_level
+msgid "Top-level Department"
+msgstr "Departament top-level"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Director role cannot be assigned or removed manually, it is set "
+"automatically from Settings."
+msgstr ""
+"El rol de Director no es pot assignar ni treure manualment, es gestiona "
+"automàticament des d'Ajustes."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__director_id
+#: model:ir.model.fields,help:ems.field_res_config_settings__director_id
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"The person acting as the center's Director. Every top-level department's "
+"Manager (Head of Studies/Deputy) will have their own Manager set to this "
+"employee automatically."
+msgstr ""
+"La persona que exerceix de Director/a del centre. El Responsable de "
+"qualsevol departament top-level (Cap d'estudis/adjunt) s'establirà "
+"automàticament a aquest empleat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid ""
+"The Secretary role cannot be assigned or removed manually, it is set "
+"automatically from the top-level department's own form."
+msgstr ""
+"El rol de Secretari/ària no es pot assignar ni treure manualment, es "
+"gestiona automàticament des del formulari del departament top-level."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__top_level_area
+msgid "Area"
+msgstr "Àrea"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__top_level_area
+msgid ""
+"Only applies when this is a Top-level Department: which staff population "
+"this area covers - determines which Role is valid below (Academic -> Head of"
+" Studies/Deputy; ASP -> Secretary)."
+msgstr ""
+"Només aplica quan es tracta d'un Departament top-level: quina població de "
+"personal cobreix aquesta àrea - determina quin Rol és vàlid a sota "
+"(Acadèmica -> Cap d'estudis/adjunt; PAS -> Secretari/ària)."
+
+#. module: ems
+#: model:ir.module.category,name:ems.category_roles
+#: model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_area__academic
+msgid "Academic"
+msgstr "Acadèmica"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__shares_manager_with_parent
+msgid "Shares Manager with Parent"
+msgstr "Comparteix Responsable amb el pare"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__shares_manager_with_parent
+msgid ""
+"If set, this department has no Manager of its own - every member (and, if "
+"this department itself has children, their own Chief's Manager too) uses the"
+" nearest ancestor department's Manager instead, walking up the hierarchy "
+"until one is found."
+msgstr ""
+"Si està marcat, aquest departament no té Responsable propi - tots els "
+"membres (i, si aquest departament té fills, el Responsable del seu propi "
+"Cap també) utilitzen en canvi el Responsable de l'avantpassat més proper, "
+"pujant per la jerarquia fins trobar-ne un."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid ""
+"A top-level department cannot share its Manager with a parent department."
+msgstr ""
+"Un departament top-level no pot compartir el seu Responsable amb un "
+"departament pare."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid ""
+"Head of Studies / Deputy Head of Studies can only be selected for an "
+"Academic top-level department."
+msgstr ""
+"Cap d'estudis / Cap d'estudis adjunt només es pot seleccionar per a un "
+"departament top-level Acadèmic."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "Secretary can only be selected for an ASP top-level department."
+msgstr ""
+"Secretari/ària només es pot seleccionar per a un departament top-level de "
+"PAS."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid "Only a top-level department can have an Area selected."
+msgstr "Només un departament top-level pot tenir una Àrea seleccionada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid ""
+"A department can only share its Manager with a parent department if it has "
+"one."
+msgstr ""
+"Un departament només pot compartir el seu Responsable amb un departament "
+"pare si en té un."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/department.py:0
+msgid ""
+"A department cannot have its own Manager and also share its Manager with its"
+" parent department."
+msgstr ""
+"Un departament no pot tenir Responsable propi i alhora compartir el seu "
+"Responsable amb el seu departament pare."

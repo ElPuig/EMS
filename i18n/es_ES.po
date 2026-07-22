@@ -2681,8 +2681,12 @@ msgstr "Apellidos"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
 #: model:ir.model.fields,field_description:ems.field_ems_role__color
+#: model:ir.model.fields,field_description:ems.field_hr_department__custom_color
+#: model_terms:ir.ui.view,arch_db:ems.view_department_form
+#: model_terms:ir.ui.view,arch_db:ems.view_department_kanban
+#: model_terms:ir.ui.view,arch_db:ems.view_department_list
 msgid "Color"
-msgstr ""
+msgstr "Color"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
@@ -13271,6 +13275,18 @@ msgstr ""
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/attendance/attendance_template.py:0
+#: code:addons/ems/models/employees/department.py:0
 #: code:addons/ems/models/employees/role.py:0
 msgid "Color must be a hexadecimal code (e.g. #3A8DDE)."
 msgstr "El color debe ser un código hexadecimal (p. ej. #3A8DDE)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_template__color
+msgid "Free-pick display color, used to tell templates apart in the list view."
+msgstr "Color de visualización libre, para distinguir las plantillas en la vista de lista."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__custom_color
+msgid "Free-pick display color for this department (not Odoo's native, fixed-palette 'Color' field, which the kanban view still uses internally)."
+msgstr "Color de visualización libre para este departamento (no el campo 'Color' nativo de Odoo, de paleta fija, que la vista kanban sigue utilizando internamente)."

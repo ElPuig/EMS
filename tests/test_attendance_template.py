@@ -78,6 +78,14 @@ class TestAttendanceTemplate(TransactionCase):
             'space_id': space.id,
         })
 
+    def test_create_default_color(self):
+        template = self._create_template(self.teacher_a, self.space_a)
+        self.assertEqual(template.color, '#3A8DDE')
+
+    def test_invalid_color_raises(self):
+        with self.assertRaises(Exception):
+            self._create_template(self.teacher_a, self.space_a).write({'color': 'not-a-color'})
+
     def test_same_teacher_overlapping_time_raises(self):
         template1 = self._create_template(self.teacher_a, self.space_a)
         self._create_schedule(template1, self.space_a, weekday='0', start_time=9.0, end_time=10.0)
@@ -286,6 +294,21 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.assertEqual(template.space_id, self.space)
         self.assertEqual(template.start_date, date(2026, 2, 1))
         self.assertEqual(len(template.attendance_schedule_ids), 1)
+        self.assertRegex(template.color, r'^#[0-9A-Fa-f]{6}$')
+
+    def test_consecutive_syncs_get_different_colors(self):
+        # Regression guard: color used to be based on position within the current sync batch,
+        # which is almost always 0 (most syncs create a single template) - every template ended
+        # up the same color. It must now be based on the running total of templates ever created,
+        # so two unrelated, separately-synced templates land on different colors.
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry()])
+        first = self.env['ems.attendance_template'].search([('teacher_ids', 'in', self.teacher.id)])
+
+        self.env['ems.attendance_template'].sync_from_schedule(
+            self.other_teacher, [self._entry(subject=self.other_subject, group=self.other_group)])
+        second = self.env['ems.attendance_template'].search([('teacher_ids', 'in', self.other_teacher.id)])
+
+        self.assertNotEqual(first.color, second.color)
 
     def test_default_start_date_is_september_first(self):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry()])

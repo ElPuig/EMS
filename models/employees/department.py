@@ -5,8 +5,13 @@ from odoo.exceptions import ValidationError
 
 
 class ems_department(models.Model):
-    _inherit = "hr.department"
+    _name = "hr.department"
+    _inherit = ["hr.department", "ems.hex_color_mixin"]
 
+    custom_color = fields.Char(
+        string="Color", default="#3A8DDE",
+        help="Free-pick display color for this department (not Odoo's native, fixed-palette "
+             "'Color' field, which the kanban view still uses internally).")
     seminar_chief_id = fields.Many2one(
         string="Seminar Chief", comodel_name="hr.employee",
         help="Every other member of this department (the Department Chief excluded) will have "
@@ -76,6 +81,10 @@ class ems_department(models.Model):
                         raise ValidationError(_("A department can only share its Manager with a parent department if it has one."))
                     if department.manager_id:
                         raise ValidationError(_("A department cannot have its own Manager and also share its Manager with its parent department."))
+
+    @api.constrains("custom_color")
+    def _check_custom_color_format(self):
+        self._check_hex_color('custom_color')
 
     def _sanitize_top_level_vals(self, vals):
         if vals.get('is_top_level'):

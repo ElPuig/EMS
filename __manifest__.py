@@ -122,6 +122,7 @@
             'views/community/department/list.xml',
             'views/community/department/search.xml',
             'views/community/department/form.xml',
+            'views/community/department/kanban.xml',
                         
             'views/community/work_location/menu.xml',
             'views/community/employmenttypes/menu.xml',        

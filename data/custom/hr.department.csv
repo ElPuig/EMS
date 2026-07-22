@@ -1,13 +1,13 @@
-id,color,active,name,parent_id/id,is_top_level,top_level_area
-hr.dep_administration,10,0,"Administration","",,
-__import__.department_vet,11,1,"VET","",1,academic
-__import__.department_cs,2,1,"Computer Science","__import__.department_vet",,
-__import__.department_administration,9,1,"Administration and management","__import__.department_vet",,
-__import__.department_tlg,8,1,"Training and Labour Guidance","__import__.department_vet",,
-__import__.department_esobtx,1,1,"ESO / BTX","",1,academic
-__import__.department_tecno,11,1,"Tecnology","__import__.department_esobtx",,
-__import__.department_maths,2,1,"Maths","__import__.department_esobtx",,
-__import__.department_langs,3,1,"Foreign Languages","__import__.department_esobtx",,
-__import__.department_asp,4,1,"ASP","",1,asp
-__import__.department_secretariat,6,1,"Secretariat","__import__.department_asp",,
-__import__.department_conciergerie,7,1,"Conciergerie","__import__.department_asp",,
+id,color,custom_color,active,name,parent_id/id,is_top_level,top_level_area
+hr.dep_administration,10,#BC2F2F,0,"Administration","",,
+__import__.department_vet,11,#BC752F,1,"VET","",1,academic
+__import__.department_cs,2,#BCBC2F,1,"Computer Science","__import__.department_vet",,
+__import__.department_administration,9,#75BC2F,1,"Administration and management","__import__.department_vet",,
+__import__.department_tlg,8,#2FBC2F,1,"Training and Labour Guidance","__import__.department_vet",,
+__import__.department_esobtx,1,#2FBC75,1,"ESO / BTX","",1,academic
+__import__.department_tecno,11,#2FBCBC,1,"Tecnology","__import__.department_esobtx",,
+__import__.department_maths,2,#2F75BC,1,"Maths","__import__.department_esobtx",,
+__import__.department_langs,3,#2F2FBC,1,"Foreign Languages","__import__.department_esobtx",,
+__import__.department_asp,4,#752FBC,1,"ASP","",1,asp
+__import__.department_secretariat,6,#BC2FBC,1,"Secretariat","__import__.department_asp",,
+__import__.department_conciergerie,7,#BC2F75,1,"Conciergerie","__import__.department_asp",,

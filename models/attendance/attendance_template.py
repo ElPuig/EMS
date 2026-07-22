@@ -4,15 +4,19 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from datetime import datetime
 
+TEMPLATE_COLOR_PALETTE = [
+	'#EE2D2D', '#DC8534', '#E8BB1D', '#5794DD', '#9F628F', '#DB8865',
+	'#41A9A2', '#304BE0', '#EE2F8A', '#61C36E', '#9872E6', '#A2A2A2',
+]
+
 class ems_attendance_template(models.Model):
 	_name = "ems.attendance_template"
 	_description = "Attendance template: contains the basic attendance data (who teaches what, where and for whom)"
-	_inherit = ['ems.base']
+	_inherit = ['ems.base', 'ems.hex_color_mixin']
 
 	start_date = fields.Date(string="Start date", required=True)
 	end_date = fields.Date(string="End date", required=True)
-	color = fields.Integer(string="Color", help="Field to store the color that will be used for calendar view")   
-
+	color = fields.Char(string="Color", default="#3A8DDE", help="Free-pick display color, used to tell templates apart in the list view.")
 	teacher_ids = fields.Many2many(string="Teachers", comodel_name="hr.employee", relation="ems_attendance_template_teacher_rel", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_ids())
 	# NOTE: not required — a reinforcement ems.group (group_type == 'reinforcement') has no level/study
 	# of its own, so a template built from one (see '_write_schedule_sync') leaves both False.
@@ -53,6 +57,10 @@ class ems_attendance_template(models.Model):
 		# these template fields must re-trigger the check owned by ems.attendance_schedule.
 		for rec in self:
 			rec.attendance_schedule_ids.check_overlap()
+
+	@api.constrains("color")
+	def _check_color_format(self):
+		self._check_hex_color('color')
 
 	@api.depends('subject_id', 'group_ids')
 	def _compute_display_name(self):
@@ -348,6 +356,12 @@ class ems_attendance_template(models.Model):
 					'attendance_schedule_ids': self._schedule_lines(grouped_entries[key], first_group.space_id.id),
 				})
 
+		# NOTE: offset by the count of every template ever created (not just this batch), so
+		# consecutive sync calls keep rotating through the palette instead of every batch
+		# independently restarting at index 0 - which, since most batches create only one new
+		# template, would otherwise leave nearly every template the same color (see the "all red"
+		# issue this replaced). Includes archived records so the rotation never goes backwards.
+		color_offset = self.with_context(active_test=False).search_count([])
 		templates = dict()
 		for key, group_entries in grouped_entries.items():
 			if key in old_items:
@@ -357,7 +371,7 @@ class ems_attendance_template(models.Model):
 			templates[key] = {
 				'start_date': plan['start_date'],
 				'end_date': plan['end_date'],
-				'color': len(templates) + 1,
+				'color': TEMPLATE_COLOR_PALETTE[(color_offset + len(templates)) % len(TEMPLATE_COLOR_PALETTE)],
 				'teacher_ids': [(6, 0, plan['teachers'].ids)],
 				'subject_id': group_entries[0]["subject_id"],
 				'group_ids': [(6, 0, group_entries[0]["group_ids"])],

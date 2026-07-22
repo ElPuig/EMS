@@ -85,7 +85,7 @@ class ems_employee_base(models.AbstractModel):
     role_ids = fields.Many2many(string="Roles", comodel_name="ems.role", relation="hr_employee_public_ems_role_rel", column1="hr_employee_public_id", column2="ems_role_id", domain="[('employee_type', '=', employee_type)]")
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ems.group", inverse_name="tutor_id")
     headed_department_ids = fields.One2many(string="Departments Headed", comodel_name="hr.department", inverse_name="manager_id")
-    seminar_department_ids = fields.One2many(string="Seminars Led", comodel_name="hr.department", inverse_name="seminar_head_id")
+    seminar_department_ids = fields.One2many(string="Seminars Led", comodel_name="hr.department", inverse_name="seminar_chief_id")
     directed_company_ids = fields.One2many(string="Companies Directed", comodel_name="res.company", inverse_name="director_id")
 
     #This fields are computed in order to display string data within some views.
@@ -229,10 +229,10 @@ class ems_employee_base(models.AbstractModel):
             if not department:
                 employee.parent_id = False
                 continue
-            if employee == department.seminar_head_id:
+            if employee == department.seminar_chief_id:
                 employee.parent_id = department._effective_manager()
-            elif department.seminar_head_id:
-                employee.parent_id = department.seminar_head_id
+            elif department.seminar_chief_id:
+                employee.parent_id = department.seminar_chief_id
             else:
                 employee.parent_id = department._effective_manager()
 
@@ -293,9 +293,9 @@ class ems_employee_base(models.AbstractModel):
                 }
 
             is_role_seminar = role_seminar in rec.role_ids.ids
-            is_seminar_head = len(rec.seminar_department_ids) > 0
-            if is_role_seminar != is_seminar_head:
-                rec.role_ids = [(4 if is_seminar_head else 3, role_seminar)]
+            is_seminar_chief = len(rec.seminar_department_ids) > 0
+            if is_role_seminar != is_seminar_chief:
+                rec.role_ids = [(4 if is_seminar_chief else 3, role_seminar)]
                 return {
                     'warning': {
                         'title': _("Not allowed"),
@@ -366,7 +366,7 @@ class ems_employee_base(models.AbstractModel):
             is_dchieff = len(rec.headed_department_ids.filtered(lambda department: not department.is_top_level)) > 0
             rec.role_ids = [(4 if is_dchieff else 3, role_dchieff)]
 
-    def update_seminar_head_role(self):
+    def update_seminar_chief_role(self):
         role_seminar = self.env.ref('ems.role_seminar').ids[0]
         for rec in self:
             rec.role_ids = [(4 if len(rec.seminar_department_ids) > 0 else 3, role_seminar)]

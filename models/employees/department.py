@@ -7,7 +7,7 @@ from odoo.exceptions import ValidationError
 class ems_department(models.Model):
     _inherit = "hr.department"
 
-    seminar_head_id = fields.Many2one(
+    seminar_chief_id = fields.Many2one(
         string="Seminar Chief", comodel_name="hr.employee",
         help="Every other member of this department (the Department Chief excluded) will have "
              "their Manager set to this employee; the Seminar Chief's own Manager is set to the "
@@ -37,7 +37,7 @@ class ems_department(models.Model):
         for department in self:
             if department.is_top_level:
                 department.parent_id = False
-                department.seminar_head_id = False
+                department.seminar_chief_id = False
                 department.shares_manager_with_parent = False
             else:
                 department.top_level_role = False
@@ -48,16 +48,17 @@ class ems_department(models.Model):
         for department in self:
             if department.shares_manager_with_parent:
                 department.manager_id = False
+                department.seminar_chief_id = False
 
     @api.constrains(
-        'is_top_level', 'parent_id', 'seminar_head_id', 'top_level_role', 'top_level_area',
+        'is_top_level', 'parent_id', 'seminar_chief_id', 'top_level_role', 'top_level_area',
         'shares_manager_with_parent', 'manager_id')
     def _check_top_level_fields(self):
         for department in self:
             if department.is_top_level:
                 if department.parent_id:
                     raise ValidationError(_("A top-level department cannot have a parent department."))
-                if department.seminar_head_id:
+                if department.seminar_chief_id:
                     raise ValidationError(_("A top-level department cannot have a Seminar Chief."))
                 if department.shares_manager_with_parent:
                     raise ValidationError(_("A top-level department cannot share its Manager with a parent department."))
@@ -79,7 +80,7 @@ class ems_department(models.Model):
     def _sanitize_top_level_vals(self, vals):
         if vals.get('is_top_level'):
             vals.setdefault('parent_id', False)
-            vals.setdefault('seminar_head_id', False)
+            vals.setdefault('seminar_chief_id', False)
             vals.setdefault('shares_manager_with_parent', False)
         elif vals.get('is_top_level') is False:
             vals.setdefault('top_level_role', False)
@@ -120,18 +121,18 @@ class ems_department(models.Model):
 
     def write(self, vals):
         self._sanitize_top_level_vals(vals)
-        old_heads = {department: (department.manager_id, department.seminar_head_id) for department in self}
+        old_heads = {department: (department.manager_id, department.seminar_chief_id) for department in self}
         res = super().write(vals)
         if {
-            'manager_id', 'seminar_head_id', 'parent_id', 'is_top_level', 'top_level_role',
+            'manager_id', 'seminar_chief_id', 'parent_id', 'is_top_level', 'top_level_role',
             'shares_manager_with_parent',
         } & vals.keys():
             for department in self:
-                old_manager, old_seminar_head = old_heads[department]
-                department._cascade_department_heads(old_manager, old_seminar_head)
+                old_manager, old_seminar_chief = old_heads[department]
+                department._cascade_department_heads(old_manager, old_seminar_chief)
         return res
 
-    def _cascade_department_heads(self, old_manager, old_seminar_head):
+    def _cascade_department_heads(self, old_manager, old_seminar_chief):
         self.ensure_one()
         departments = self.search([('id', 'child_of', self.id)])
         employees = self.env['hr.employee'].search([
@@ -143,4 +144,4 @@ class ems_department(models.Model):
         (employees | self.manager_id)._compute_parent_id()
         (old_manager | self.manager_id).update_department_head_role()
         (old_manager | self.manager_id).update_area_manager_role()
-        (old_seminar_head | self.seminar_head_id).update_seminar_head_role()
+        (old_seminar_chief | self.seminar_chief_id).update_seminar_chief_role()

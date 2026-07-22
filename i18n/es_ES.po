@@ -13025,7 +13025,7 @@ msgid "Departments Headed"
 msgstr "Departamentos dirigidos"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_hr_department__seminar_head_id
+#: model:ir.model.fields,help:ems.field_hr_department__seminar_chief_id
 msgid ""
 "Every other member of this department (the Department Chief excluded) will "
 "have their Manager set to this employee; the Seminar Chief's own Manager is "
@@ -13036,7 +13036,7 @@ msgstr ""
 "propio Jefe de seminario será el Jefe de departamento."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_hr_department__seminar_head_id
+#: model:ir.model.fields,field_description:ems.field_hr_department__seminar_chief_id
 msgid "Seminar Chief"
 msgstr "Jefe de seminario"
 

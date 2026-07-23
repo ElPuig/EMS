@@ -242,14 +242,14 @@
                         <option t-att-value="reason.id"><t t-esc="reason.name"/></option>
                     </t>
                 </select>
-                <textarea t-ref="strikeNotesTextarea"
-                          class="ems-av-strike-notes-textarea"
-                          rows="4"
-                          t-att-placeholder="strings.strikeNotesPlaceholder"/>
                 <label class="ems-av-strike-kicked-out-wrap">
                     <input type="checkbox" t-ref="strikeKickedOutCheckbox" class="ems-av-strike-kicked-out-checkbox"/>
                     <t t-esc="strings.kickedOut"/>
                 </label>
+                <textarea t-ref="strikeNotesTextarea"
+                          class="ems-av-strike-notes-textarea"
+                          rows="4"
+                          t-att-placeholder="strings.strikeNotesPlaceholder"/>
                 <div class="ems-av-strike-dialog-footer">
                     <button class="ems-av-strike-cancel-btn" t-on-click="onStrikeCancel">
                         <t t-esc="strings.cancel"/>

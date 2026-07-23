@@ -1915,6 +1915,12 @@ msgid "At least one teacher must be selected."
 msgstr "Se debe seleccionar al menos un docente."
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Attention notice"
+msgstr "Aviso"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids
 #: model:ir.model.fields,field_description:ems.field_ems_study__attachment_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
@@ -7293,6 +7299,12 @@ msgstr "Solo lectura"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 msgid "Reason for rejection (required before rejecting)"
 msgstr "Motivo de rechazo (obligatorio antes de rechazar)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Reason:"
+msgstr "Motivo:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__limesurvey_recipient_id

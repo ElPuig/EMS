@@ -237,15 +237,24 @@
                     <i class="fa fa-exclamation-triangle me-2"/>
                     <span t-esc="state.editingStrikeStudentName"/>
                 </div>
-                <select t-ref="strikeReasonSelect" class="ems-av-strike-reason-select">
-                    <t t-foreach="strikeReasons" t-as="reason" t-key="reason.id">
-                        <option t-att-value="reason.id"><t t-esc="reason.name"/></option>
-                    </t>
-                </select>
-                <label class="ems-av-strike-kicked-out-wrap">
-                    <input type="checkbox" t-ref="strikeKickedOutCheckbox" class="ems-av-strike-kicked-out-checkbox"/>
-                    <t t-esc="strings.kickedOut"/>
-                </label>
+                <div class="ems-av-strike-kickout-toggle">
+                    <label class="ems-av-strike-kickout-option">
+                        <input type="radio" t-ref="strikeKickoutRadioWarning" class="ems-av-strike-kickout-radio-warning" name="ems-av-strike-kickout" value="warning"/>
+                        <span><t t-esc="strings.strikeAttentionNotice"/></span>
+                    </label>
+                    <label class="ems-av-strike-kickout-option">
+                        <input type="radio" t-ref="strikeKickoutRadioExpelled" class="ems-av-strike-kickout-radio-expelled" name="ems-av-strike-kickout" value="expelled"/>
+                        <span><t t-esc="strings.kickedOut"/></span>
+                    </label>
+                </div>
+                <div class="ems-av-strike-reason-row">
+                    <span class="ems-av-strike-reason-label"><t t-esc="strings.reasonLabel"/></span>
+                    <select t-ref="strikeReasonSelect" class="ems-av-strike-reason-select">
+                        <t t-foreach="strikeReasons" t-as="reason" t-key="reason.id">
+                            <option t-att-value="reason.id"><t t-esc="reason.name"/></option>
+                        </t>
+                    </select>
+                </div>
                 <textarea t-ref="strikeNotesTextarea"
                           class="ems-av-strike-notes-textarea"
                           rows="4"

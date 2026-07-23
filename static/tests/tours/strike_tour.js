@@ -48,6 +48,10 @@ registry.category("web_tour.tours").add("ems_strike_issue", {
             content: "Default reason is preselected",
         },
         {
+            trigger: ".ems-av-strike-kickout-option:has(.ems-av-strike-kickout-radio-warning:checked)",
+            content: "'Attention notice' is the default kick-out option",
+        },
+        {
             trigger: ".ems-av-strike-send-btn",
             content: "Send the strike with no extra notes",
             run: "click",
@@ -62,9 +66,13 @@ registry.category("web_tour.tours").add("ems_strike_issue", {
             run: "click",
         },
         {
-            trigger: ".ems-av-strike-kicked-out-checkbox",
+            trigger: ".ems-av-strike-kickout-option:has(.ems-av-strike-kickout-radio-expelled)",
             content: "Mark this second strike as a class kick-out",
             run: "click",
+        },
+        {
+            trigger: ".ems-av-strike-kickout-option:has(.ems-av-strike-kickout-radio-expelled:checked)",
+            content: "'Kicked out of class' is now the selected option",
         },
         {
             trigger: ".ems-av-strike-notes-textarea",

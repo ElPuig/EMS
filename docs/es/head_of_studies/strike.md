@@ -16,7 +16,7 @@ Si tienes el rol de Convivencia, **Convivencia → Strikes** muestra todos los s
 
 Jefatura de Estudios, Jefatura de Estudios Adjunta y Dirección ven los strikes según las mismas reglas que profesores/tutores (los que han puesto ellos mismos y los de sus alumnos tutorizados), salvo que también tengan el rol de Convivencia.
 
-En la ficha del propio alumno, aparece un botón de **Strikes** en la cabecera que muestra el recuento acumulado.
+En la ficha del propio alumno, aparece un botón de **Strikes** en la cabecera que muestra el recuento acumulado. Al abrir cualquier strike concreto se muestra una casilla **Expulsado de clase**, para saber de un vistazo si esa incidencia terminó con el alumno fuera del aula.
 
 ---
 

@@ -27,6 +27,10 @@ td.o_radio_cell:has(div.o_field_radio.align-middle){
     vertical-align: middle;
 }
 
+.o_field_widget[name="attendance_session_line_ids"] td.o_data_cell:has(button[name="action_view_strikes"]) {
+    vertical-align: middle;
+}
+
 th[data-name="deprecated"]{
     text-align: center;
 }

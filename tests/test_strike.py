@@ -270,6 +270,23 @@ class TestStrike(TransactionCase):
         action = self.minor_student.action_view_strikes()
         self.assertEqual(action['domain'], [('student_id', '=', self.minor_student.id)])
 
+    def test_kicked_out_default_false(self):
+        strike = self._create_strike(self.teacher_a_user)
+        self.assertFalse(strike.kicked_out)
+
+    def test_kicked_out_can_be_set_true(self):
+        strike = self._create_strike(self.teacher_a_user, kicked_out=True)
+        self.assertTrue(strike.kicked_out)
+
+    def test_notification_mentions_kicked_out_status(self):
+        strike_out = self._create_strike(self.teacher_a_user, kicked_out=True)
+        strike_not_out = self._create_strike(self.teacher_a_user, kicked_out=False)
+        template = self.env.ref('ems.mail_strike_notification_student')
+        rendered_out = template._render_field('body_html', strike_out.ids)[strike_out.id]
+        rendered_not_out = template._render_field('body_html', strike_not_out.ids)[strike_not_out.id]
+        self.assertIn('Kicked out of class:</strong> Yes', rendered_out)
+        self.assertIn('Kicked out of class:</strong> No', rendered_not_out)
+
     def test_attendance_session_line_id_is_optional(self):
         strike = self._create_strike(self.teacher_a_user)
         self.assertFalse(strike.attendance_session_line_id)
@@ -287,3 +304,21 @@ class TestStrike(TransactionCase):
             'student_id': self.minor_student.id,
         })
         self.assertEqual(len(other_session_line.strike_ids), 0)
+
+    def test_session_line_strike_count(self):
+        session_line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.minor_student.id,
+        })
+        self.assertEqual(session_line.strike_count, 0)
+        self._create_strike(self.teacher_a_user, attendance_session_line_id=session_line.id)
+        self.assertEqual(session_line.strike_count, 1)
+        self._create_strike(self.teacher_a_user, attendance_session_line_id=session_line.id)
+        self.assertEqual(session_line.strike_count, 2)
+
+    def test_session_line_action_view_strikes(self):
+        session_line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.minor_student.id,
+        })
+        self._create_strike(self.teacher_a_user, attendance_session_line_id=session_line.id)
+        action = session_line.action_view_strikes()
+        self.assertEqual(action['domain'], [('attendance_session_line_id', '=', session_line.id)])

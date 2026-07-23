@@ -41,6 +41,9 @@
                                         <field name="status" widget="radio" class="align-middle" options="{'horizontal': true}" readonly="True"/>
                                         <field name="notes" width="350px" class="align-middle" readonly="True"/>
                                         <field name="attendance_justification_id" readonly="True"/>
+                                        <field name="strike_count" class="align-middle text-center" readonly="True"/>
+                                        <button name="action_view_strikes" type="object" icon="fa-exclamation-triangle"
+                                                title="View strikes" invisible="strike_count == 0"/>
                                         <field name="attendance_prevision_id" column_invisible="True"/>
                                     </list>
                                 </field>

@@ -450,6 +450,19 @@
     color: #212529;
     min-height: 90px;
 }
+.ems-av-strike-kicked-out-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.92rem;
+    color: #212529;
+    cursor: pointer;
+}
+.ems-av-strike-kicked-out-checkbox {
+    cursor: pointer;
+}
 .ems-av-strike-dialog-footer {
     display: flex;
     justify-content: flex-end;

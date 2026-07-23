@@ -11,6 +11,7 @@
                             <field name="teacher_id"/>
                             <field name="reason_id"/>
                             <field name="date"/>
+                            <field name="kicked_out"/>
                             <field name="send_to"/>
                         </group>
                         <group string="Details">

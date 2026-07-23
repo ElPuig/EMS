@@ -16,7 +16,7 @@ Si tens el rol de Convivència, **Convivència → Strikes** mostra tots els str
 
 Cap d'Estudis, Cap d'Estudis Adjunt/a i Direcció veuen els strikes segons les mateixes regles que professors/tutors (els que han posat ells mateixos i els dels seus alumnes tutoritzats), llevat que també tinguin el rol de Convivència.
 
-A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera que mostra el recompte acumulat.
+A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera que mostra el recompte acumulat. En obrir qualsevol strike concret es mostra una casella **Expulsat de classe**, per saber d'un cop d'ull si aquella incidència va acabar amb l'alumne fora de l'aula.
 
 ---
 

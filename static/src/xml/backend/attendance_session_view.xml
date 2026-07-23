@@ -246,6 +246,10 @@
                           class="ems-av-strike-notes-textarea"
                           rows="4"
                           t-att-placeholder="strings.strikeNotesPlaceholder"/>
+                <label class="ems-av-strike-kicked-out-wrap">
+                    <input type="checkbox" t-ref="strikeKickedOutCheckbox" class="ems-av-strike-kicked-out-checkbox"/>
+                    <t t-esc="strings.kickedOut"/>
+                </label>
                 <div class="ems-av-strike-dialog-footer">
                     <button class="ems-av-strike-cancel-btn" t-on-click="onStrikeCancel">
                         <t t-esc="strings.cancel"/>

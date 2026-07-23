@@ -1,6 +1,11 @@
-# AI agent test notifications when running inside a container
+# AI agent proactive notifications when running inside a container
 
-When an AI coding agent (e.g. Claude Code) runs `./test.sh`/`./upgrade.sh` on your behalf, it can send you a proactive push/desktop notification so you know to refresh an open Odoo browser tab (see the "test hangs on open browser tabs" note in the project's `CLAUDE.md`, under *Development scripts*). This works out of the box for a normal terminal install. It does **not** work out of the box when the agent's session runs inside a container (LXC, Incus, a Docker devcontainer, etc.) that is reached through an editor's native extension rather than the standalone terminal CLI — this doc explains why, and how to bridge it.
+An AI coding agent (e.g. Claude Code) working in this repo can send you a proactive push/desktop notification for two distinct reasons (see the project's `CLAUDE.md`, under *Development scripts*):
+
+1. **Test-hang risk** — right when it kicks off a `./test.sh` run that includes tour/`HttpCase` tests, so you know to refresh an open Odoo browser tab if you have one.
+2. **Task completion** — once it has finished everything you asked for in the current task, so you know it's ready to come back and review, even if you stepped away while it worked.
+
+Both rely on the same underlying notification tool, so they share the same delivery problem. This works out of the box for a normal terminal install. It does **not** work out of the box when the agent's session runs inside a container (LXC, Incus, a Docker devcontainer, etc.) that is reached through an editor's native extension rather than the standalone terminal CLI — this doc explains why, and how to bridge it.
 
 ## Why the default channels fail in a container
 
@@ -113,6 +118,16 @@ In `~/.claude/settings.json` (**user-level**, not the project's checked-in `.cla
 
 This fires unconditionally on any Bash command containing `test.sh` — deliberately not scoped to tour/`HttpCase`-only runs, and not subject to the agent's own "you're probably still looking at this" push-notification throttle, since it's a plain filesystem write with no such logic attached.
 
+### Covering the task-completion trigger too
+
+The hook above only covers trigger 1 (test-hang risk), because it keys off a recognisable Bash command (`test.sh`). Trigger 2 (task completion) has no equivalent command to match on — "all requested work is done" is a judgment the agent makes at the end of a turn, not a tool call a `PreToolUse` hook can see coming. So once this bridge is in place, the agent should write directly into the shared drop directory itself when it finishes a task, e.g.:
+
+```bash
+echo "$(date +%H:%M:%S) EMS: task done — <short summary>" > /mnt/claude-notify/done-$(date +%s%N).txt
+```
+
+The same watcher (step 3) picks this up exactly like a hook-triggered file — there's nothing container-specific to add on the watcher or bind-mount side, this is purely about how the *agent* gets a message into the directory when there's no hook to rely on.
+
 ## Verifying each layer
 
 Test bottom-up before declaring it done:
@@ -122,4 +137,4 @@ Test bottom-up before declaring it done:
 
 ## When to offer this
 
-If a developer mentions they're not noticing test-hang reminders and their agent session is running inside a container rather than a bare-metal/VM terminal CLI install, that combination is the specific signature this fix addresses — offer to set it up rather than waiting to be asked.
+If a developer mentions they're not noticing test-hang reminders or task-completion notifications, and their agent session is running inside a container rather than a bare-metal/VM terminal CLI install, that combination is the specific signature this fix addresses — offer to set it up rather than waiting to be asked.

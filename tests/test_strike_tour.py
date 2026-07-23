@@ -73,3 +73,4 @@ class TestStrikeTour(HttpCase):
         #   self.start_tour("/odoo", "ems_strike_issue", login="admin", watch=True)
         self.start_tour("/odoo", "ems_strike_issue", login="admin")
         self.start_tour("/odoo", "ems_strike_consult", login="admin")
+        self.start_tour("/odoo", "ems_strike_session_history", login="admin")

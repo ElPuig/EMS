@@ -70,6 +70,7 @@ class AttendanceSessionView extends Component {
         this.strikeDialog        = useRef("strikeDialog");
         this.strikeReasonSelect  = useRef("strikeReasonSelect");
         this.strikeNotesTextarea = useRef("strikeNotesTextarea");
+        this.strikeKickedOutCheckbox = useRef("strikeKickedOutCheckbox");
         this.strikeReasons = [];   // populated in onWillStart from ems.strike.reason
 
         this.state = useState({
@@ -330,6 +331,7 @@ class AttendanceSessionView extends Component {
             addStrike:            _t("Issue a strike"),
             strikeCount:          (count) => sprintf(_t("%s strike(s) issued this session — click to add another"), count),
             strikeNotesPlaceholder: _t("Details (optional)..."),
+            kickedOut:             _t("Kicked out of class"),
             send:                 _t("Send"),
             lastnameAZ:        _t("Lastname A→Z"),
             lastnameZA:        _t("Lastname Z→A"),
@@ -474,6 +476,7 @@ class AttendanceSessionView extends Component {
         this.state.editingStrikeStudentName = studentName;
         this.strikeReasonSelect.el.value = this.strikeReasons.length ? this.strikeReasons[0].id : "";
         this.strikeNotesTextarea.el.value = "";
+        this.strikeKickedOutCheckbox.el.checked = false;
         this.strikeDialog.el.showModal();
     }
 
@@ -488,10 +491,12 @@ class AttendanceSessionView extends Component {
         const studentId = this.state.editingStrikeStudentId;
         const reasonId  = parseInt(this.strikeReasonSelect.el.value);
         const notes     = this.strikeNotesTextarea.el.value.trim();
+        const kickedOut = this.strikeKickedOutCheckbox.el.checked;
         const strikeId = await this.orm.create("ems.strike", [{
             student_id: studentId,
             reason_id: reasonId,
             notes: notes || false,
+            kicked_out: kickedOut,
             attendance_session_line_id: lineId,
         }]);
         const line = this.state.lines.find(l => l.id === lineId);

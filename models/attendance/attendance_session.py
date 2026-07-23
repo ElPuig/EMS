@@ -568,6 +568,7 @@ class ems_attendance_session_line(models.Model):
 	is_auto_generated = fields.Boolean(default=False)
 	notes = fields.Text("Notes")
 	strike_ids = fields.One2many(string="Strikes", comodel_name="ems.strike", inverse_name="attendance_session_line_id")
+	strike_count = fields.Integer(string="Strike count", compute="_compute_strike_count")
 
 	def status_is_notificable(self):
 		# TODO: load from EMS settings.
@@ -672,8 +673,20 @@ class ems_attendance_session_line(models.Model):
 				rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_session_line_ids.student_id')   
 
 	@api.depends('attendance_session_id', 'student_id')
-	def _compute_display_name(self):              
+	def _compute_display_name(self):
 		for rec in self:
 			rec.display_name = "%s | %s" % (rec.attendance_session_id.display_name, rec.student_id.display_name)
+
+	@api.depends('strike_ids')
+	def _compute_strike_count(self):
+		for rec in self:
+			rec.strike_count = len(rec.strike_ids)
+
+	def action_view_strikes(self):
+		self.ensure_one()
+		action = self.env['ir.actions.act_window']._for_xml_id('ems.action_strike_list')
+		action['domain'] = [('attendance_session_line_id', '=', self.id)]
+		action['context'] = {}
+		return action
 
 	

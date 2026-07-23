@@ -25,6 +25,12 @@
                                 <li><strong>Date and time:</strong> <span t-field="object.date"/></li>
                                 <li><strong>Teacher:</strong> <span t-field="object.teacher_id"/></li>
                                 <li><strong>Reason:</strong> <span t-field="object.reason_id"/></li>
+                                <t t-if="object.kicked_out">
+                                    <li><strong>Kicked out of class:</strong> Yes</li>
+                                </t>
+                                <t t-else="">
+                                    <li><strong>Kicked out of class:</strong> No</li>
+                                </t>
                                 <t t-if="object.notes">
                                     <li><strong>Details:</strong> <span t-field="object.notes"/></li>
                                 </t>
@@ -59,6 +65,12 @@
                                 <li><strong>Date and time:</strong> <span t-field="object.date"/></li>
                                 <li><strong>Teacher:</strong> <span t-field="object.teacher_id"/></li>
                                 <li><strong>Reason:</strong> <span t-field="object.reason_id"/></li>
+                                <t t-if="object.kicked_out">
+                                    <li><strong>Kicked out of class:</strong> Yes</li>
+                                </t>
+                                <t t-else="">
+                                    <li><strong>Kicked out of class:</strong> No</li>
+                                </t>
                                 <t t-if="object.notes">
                                     <li><strong>Details:</strong> <span t-field="object.notes"/></li>
                                 </t>
@@ -94,6 +106,12 @@
                                 <li><strong>Date and time:</strong> <span t-field="object.date"/></li>
                                 <li><strong>Teacher:</strong> <span t-field="object.teacher_id"/></li>
                                 <li><strong>Reason:</strong> <span t-field="object.reason_id"/></li>
+                                <t t-if="object.kicked_out">
+                                    <li><strong>Kicked out of class:</strong> Yes</li>
+                                </t>
+                                <t t-else="">
+                                    <li><strong>Kicked out of class:</strong> No</li>
+                                </t>
                                 <t t-if="object.notes">
                                     <li><strong>Details:</strong> <span t-field="object.notes"/></li>
                                 </t>

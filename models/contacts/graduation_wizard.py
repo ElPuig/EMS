@@ -210,6 +210,19 @@ class EmsWithdrawalWizard(models.TransientModel):
             revoked += len(summary['revoked'])
             skipped += len(summary['skipped'])
             issues += summary['issues']
+            # Archive last, mirroring hr.employee (archiving an employee registers
+            # its departure): res.partner.write() refuses to archive a contact
+            # still linked to an active portal user, so this must run after the
+            # revoke above. If that revoke failed (logged in issues instead of
+            # raising, to not abort the whole batch), the student's own portal
+            # user is still active here — skip the archive rather than let that
+            # guard raise and roll back every student already processed.
+            if student._has_active_portal_user():
+                issues.append(_(
+                    "%s: portal access could not be revoked, kept active"
+                ) % student.display_name)
+            else:
+                student.write({'active': False})
             done += 1
 
         parts = [_("%s student(s) withdrawn") % done]

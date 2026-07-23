@@ -213,7 +213,8 @@ class ems_applicant_import_wizard(models.TransientModel):
         course = course if course in ('1', '2', '3', '4') else False
         comment = self._build_applicant_notes(get)
 
-        existing = self.env['res.partner'].search([('student_id', '=', ralc)], limit=1)
+        existing = self.env['res.partner'].with_context(active_test=False).search(
+            [('student_id', '=', ralc)], limit=1)
         if existing and existing.contact_type == 'student':
             # Internal continuer still enrolled (e.g. CFGM -> CFGS before the course
             # transition): keep the student's own data, record the destination it is
@@ -230,6 +231,9 @@ class ems_applicant_import_wizard(models.TransientModel):
             'email': email,
             'student_id': ralc,
             'contact_type': 'applicant',
+            # Re-admits an ex-student (alumni/withdrawal) archived on exit: without
+            # this, an existing-but-inactive match is written but stays archived.
+            'active': True,
             'main_group_id': False,
             'study_id': study.id,
             'preinscription_shift': shift,

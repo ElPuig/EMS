@@ -247,6 +247,25 @@ class TestApplicantImportWizard(TransactionCase):
         self.assertEqual(alumni.contact_type, 'applicant')
         self.assertEqual(alumni.study_id, self.study)
 
+    def test_archived_withdrawal_becomes_applicant_and_is_reactivated(self):
+        # A withdrawal is archived (active=False) as part of the exit, mirroring
+        # hr.employee. A re-import must find and reactivate that same record
+        # instead of silently creating a duplicate partner (orphaning the
+        # original's year_record_ids/documents/benefits).
+        withdrawal = self.env['res.partner'].create({
+            'name': 'Return Student', 'contact_type': 'withdrawal', 'student_id': '7000003',
+        })
+        withdrawal.write({'active': False})
+        self._run([self._base_row(**{'Ident. RALC': 7000003})])
+        withdrawal.invalidate_recordset()
+        self.assertEqual(withdrawal.contact_type, 'applicant')
+        self.assertTrue(withdrawal.active)
+        self.assertEqual(withdrawal.study_id, self.study)
+        # No duplicate created.
+        matches = self.env['res.partner'].with_context(active_test=False).search(
+            [('student_id', '=', '7000003')])
+        self.assertEqual(len(matches), 1)
+
     def test_phone_normalization(self):
         # Mobile with country code -> stripped to 9-digit national, stored as mobile.
         self._run([self._base_row(**{'Ident. RALC': 571, 'Telèfon': 34631078723})])

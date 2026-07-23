@@ -13,6 +13,7 @@ from . import test_attendance_correction
 from . import test_grade_session
 from . import test_grade_import_wizard
 from . import test_applicant_import_wizard
+from . import test_student_import_wizard
 from . import test_planning
 from . import test_data_custom_import_prefix
 from . import test_data_main_cat_prefix
@@ -38,3 +39,4 @@ from . import test_role
 from . import test_role_color_tour
 from . import test_department_color_tour
 from . import test_attendance_template_color_tour
+from . import test_withdrawal_tour

@@ -11044,6 +11044,12 @@ msgstr "Bajas tramitadas: %s"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "%s: portal access could not be revoked, kept active"
+msgstr "%s: no se ha podido revocar el acceso al portal, se mantiene activo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
 msgid "Already enrolled for the next course — graduation is incompatible"
 msgstr ""
 "Ya tiene matrícula para el próximo curso — la graduación es incompatible"

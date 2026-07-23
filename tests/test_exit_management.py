@@ -1,4 +1,7 @@
+import importlib.util
+import os
 from datetime import date
+from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase
 
@@ -154,6 +157,36 @@ class TestExitManagement(TransactionCase):
         wizard.action_apply()
         self.assertEqual(student.contact_type, 'alumni')
 
+    def test_withdrawal_wizard_archives_student(self):
+        # Withdrawal now archives the student too, mirroring how an employee's
+        # departure wizard archives the employee (see toggle_active override).
+        student = self._student('WW Archive')
+        wizard = self.env['ems.withdrawal_wizard'].with_context(
+            active_ids=student.ids).create({})
+        wizard.action_apply()
+        self.assertFalse(student.active)
+
+    def test_withdrawal_wizard_skips_archive_when_portal_revoke_fails(self):
+        # A failed portal revoke is logged as an issue, not raised (see
+        # _ems_revoke_student_portal). If the archive ran anyway, res.partner's
+        # base write() would raise "cannot archive a contact linked to an
+        # active user" and abort the whole batch instead of just this student.
+        student = self._student('WW Portal Fail', student_email='wwfail@example.com')
+        self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'WW Portal Fail', 'login': 'wwfail@example.com',
+            'email': 'wwfail@example.com', 'partner_id': student.id,
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        wizard = self.env['ems.withdrawal_wizard'].with_context(
+            active_ids=student.ids).create({})
+        with patch.object(
+            type(student), '_ems_revoke_student_portal',
+            return_value={'revoked': [], 'skipped': [], 'issues': ['simulated failure']},
+        ):
+            result = wizard.action_apply()
+        self.assertTrue(student.active)
+        self.assertIn('simulated failure', result['params']['message'])
+
     def test_withdrawal_by_secretary_removes_from_attendance(self):
         # Regression: the secretary has no write access to attendance templates; the
         # wizard must detach the withdrawn student via sudo without raising AccessError.
@@ -236,3 +269,105 @@ class TestExitManagement(TransactionCase):
         student = self._student('RP Lone')
         summary = student._ems_revoke_student_portal()
         self.assertEqual(summary, {'revoked': [], 'skipped': [], 'issues': []})
+
+    # --- archiving a student opens the withdrawal wizard (toggle_active) ----
+
+    def test_toggle_active_single_student_opens_withdrawal_wizard(self):
+        # Mirrors hr.employee: archiving a single student pops a reason wizard
+        # instead of archiving directly. Nothing happens until it is confirmed.
+        student = self._student('TA Single')
+        result = student.toggle_active()
+        self.assertEqual(result.get('res_model'), 'ems.withdrawal_wizard')
+        self.assertEqual(result.get('context', {}).get('active_ids'), student.ids)
+
+    def test_action_archive_single_student_opens_withdrawal_wizard(self):
+        # This is what the UI actually calls (Archive button/action_menu), not
+        # toggle_active() directly — must go through the same wizard.
+        student = self._student('TA Action Archive Single')
+        result = student.action_archive()
+        self.assertEqual(result.get('res_model'), 'ems.withdrawal_wizard')
+        self.assertTrue(student.active)
+
+    def test_action_archive_multiple_students_opens_withdrawal_wizard(self):
+        # Unlike hr.employee (whose wizard only pops for a single record), this
+        # must also work for a multi-selection archive from the list.
+        s1 = self._student('TA Action Archive 1')
+        s2 = self._student('TA Action Archive 2')
+        result = (s1 + s2).action_archive()
+        self.assertEqual(result.get('res_model'), 'ems.withdrawal_wizard')
+        self.assertEqual(set(result.get('context', {}).get('active_ids')), set((s1 + s2).ids))
+        self.assertTrue(s1.active)
+        self.assertTrue(s2.active)
+
+    def test_toggle_active_mixed_recordset_archives_others_and_opens_wizard(self):
+        # A recordset mixing a student with a non-student (e.g. a family contact)
+        # archives the non-student directly and still opens the wizard for the
+        # student — the two are independent operations bundled in one call.
+        student = self._student('TA Mixed Student')
+        family = self.env['res.partner'].create({
+            'name': 'TA Mixed Family', 'contact_type': 'family'})
+        result = (student + family).toggle_active()
+        self.assertEqual(result.get('res_model'), 'ems.withdrawal_wizard')
+        self.assertEqual(result.get('context', {}).get('active_ids'), student.ids)
+        self.assertTrue(student.active)
+        self.assertFalse(family.active)
+
+    def test_toggle_active_non_student_archives_directly(self):
+        family = self.env['res.partner'].create({
+            'name': 'TA Family', 'contact_type': 'family'})
+        family.toggle_active()
+        self.assertFalse(family.active)
+
+    def test_toggle_active_reactivate_no_wizard(self):
+        # Unarchiving never pops the wizard, for a student or anyone else.
+        # (Archived directly, as the withdrawal wizard itself would do, since a
+        # lone active student going through toggle_active would just reopen
+        # the wizard instead of archiving — see the single-student test above.)
+        student = self._student('TA Reactivate')
+        student.write({'active': False})
+        result = student.toggle_active()
+        self.assertTrue(student.active)
+        self.assertIsNone(result)
+
+    # --- migration: archive pre-existing alumni/withdrawal (18.0.0.22.0) -----
+
+    @classmethod
+    def _load_post_migrate_module(cls):
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            'migrations', '18.0.0.22.0', 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_22_0', path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_migration_archives_existing_alumni_and_withdrawal(self):
+        alumni = self._student('Migration Alumni', contact_type='alumni')
+        withdrawal = self._student('Migration Withdrawal', contact_type='withdrawal')
+        # A plain (never withdrawn) student must be left untouched.
+        student = self._student('Migration Untouched')
+
+        migration = self._load_post_migrate_module()
+        migration._archive_existing_ex_students(self.env)
+        for partner in (alumni, withdrawal, student):
+            partner.invalidate_recordset()
+
+        self.assertFalse(alumni.active)
+        self.assertFalse(withdrawal.active)
+        self.assertTrue(student.active)
+
+    def test_migration_keeps_active_when_portal_revoke_fails(self):
+        alumni = self._student('Migration Portal Fail', contact_type='alumni',
+                                student_email='migrationfail@example.com')
+        self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Migration Portal Fail', 'login': 'migrationfail@example.com',
+            'email': 'migrationfail@example.com', 'partner_id': alumni.id,
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        migration = self._load_post_migrate_module()
+        with patch.object(
+            type(alumni), '_ems_revoke_student_portal',
+            return_value={'revoked': [], 'skipped': [], 'issues': ['simulated failure']},
+        ):
+            migration._archive_existing_ex_students(self.env)
+        self.assertTrue(alumni.active)

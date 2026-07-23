@@ -49,7 +49,41 @@ def _archive_existing_ex_students(env):
             "portal access could not be revoked.", skipped)
 
 
+def _backfill_google_ws_suspended(env):
+    """google_ws_suspended (added in 18.0.0.19.0/18.0.0.19.2) defaulted every
+    pre-existing row to False, including staff/students whose account was
+    already suspended in Google before the field existed — the header buttons
+    then offered "Suspend" instead of "Reactivate" for them. There is no way to
+    ask Google for the real state from a migration, so this aligns the flag
+    with the same signal the app itself already treats as "suspended": an
+    archived teacher/ASP, or a contact converted to alumni/withdrawal (run
+    after _archive_existing_ex_students so their 'active' is already correct).
+    """
+    employees = env['hr.employee'].with_context(active_test=False).search([
+        ('active', '=', False),
+        ('work_email', '!=', False),
+        ('google_ws_suspended', '=', False),
+    ])
+    if employees:
+        employees.write({'google_ws_suspended': True})
+        _logger.info(
+            "Migration 18.0.0.22.0: marked %d pre-existing employee Google account(s) as suspended.",
+            len(employees))
+
+    students = env['res.partner'].with_context(active_test=False).search([
+        ('contact_type', 'in', ('alumni', 'withdrawal')),
+        ('student_email', '!=', False),
+        ('google_ws_suspended', '=', False),
+    ])
+    if students:
+        students.write({'google_ws_suspended': True})
+        _logger.info(
+            "Migration 18.0.0.22.0: marked %d pre-existing student Google account(s) as suspended.",
+            len(students))
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _enable_unaccent(cr)
     _archive_existing_ex_students(env)
+    _backfill_google_ws_suspended(env)

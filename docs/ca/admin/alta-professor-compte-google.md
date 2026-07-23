@@ -79,9 +79,9 @@ El botó **Crear compte de Google**, a la part superior de la fitxa, permet for�
 
 ## Casos especials
 
-- **El professor ja tenia un correu corporatiu:** si el camp de correu de feina ja contenia una adreça `@elpuig.xeill.net`, el sistema l'adopta tal qual i no en crea un de nou. Si aquest professor encara no té usuari EMS, el botó **Crear compte de Google** (que segueix visible en aquest cas) el crea i el vincula.
+- **El professor ja tenia un correu corporatiu:** si el camp de correu de feina ja contenia una adreça `@elpuig.xeill.net`, el sistema l'adopta tal qual i no en crea un de nou. Si aquest professor encara no té usuari EMS, apareix el botó **Crear usuari EMS** a la part superior de la fitxa en lloc de **Crear compte de Google** — només crea/vincula l'usuari EMS, sense tocar el compte de Google.
 - **El professor té un correu de feina d'un altre domini:** el sistema no el sobreescriu automàticament; es publica un avís a l'historial de missatges de la fitxa perquè es revisi manualment.
-- **Assignació manual del correu:** el checkbox **Assignar correu corporatiu manualment**, a la fitxa del professor, permet que Recursos Humans introdueixi el correu de feina a mà, per a casos excepcionals. **Quan està marcat, el sistema no genera cap compte automàticament.** Un cop escrita una adreça corporativa, el botó **Crear compte de Google** crea/vincula l'usuari EMS corresponent.
+- **Assignació manual del correu:** el checkbox **Assignar correu corporatiu manualment**, a la fitxa del professor, permet que Recursos Humans introdueixi el correu de feina a mà, per a casos excepcionals. **Quan està marcat, el sistema no genera cap compte automàticament.** Un cop escrita una adreça corporativa, apareix el botó **Crear usuari EMS** per crear/vincular l'usuari EMS corresponent.
 - **Baixa (arxivar la fitxa):** a més de suspendre el compte de Google, arxivar l'empleat **desactiva immediatament el seu usuari EMS**, de manera que ja no pot iniciar sessió. Desarxivar-lo restaura totes dues coses.
 
 ---

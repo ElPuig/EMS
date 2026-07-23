@@ -264,6 +264,26 @@ class TestExitManagement(TransactionCase):
         student.action_suspend_google_account()
         self.assertTrue(student.google_ws_suspended)
 
+    # --- google_ws_state (single source of truth for header buttons) --------
+
+    def test_gw_state_none_for_non_student(self):
+        contact = self.env['res.partner'].create({'name': 'GW Not A Student'})
+        self.assertEqual(contact.google_ws_state, 'none')
+
+    def test_gw_state_none_without_student_email(self):
+        student = self._student('GW State None')
+        self.assertEqual(student.google_ws_state, 'none')
+
+    def test_gw_state_active(self):
+        student = self._student('GW State Active', student_email='gw.state.active@elpuig.xeill.net')
+        self.assertEqual(student.google_ws_state, 'active')
+
+    def test_gw_state_suspended(self):
+        student = self._student(
+            'GW State Suspended', student_email='gw.state.suspended@elpuig.xeill.net',
+            google_ws_suspended=True)
+        self.assertEqual(student.google_ws_state, 'suspended')
+
     def test_revoke_portal_helper_no_relations(self):
         # Lone student with no family relations and no portal user: no crash, empty summary.
         student = self._student('RP Lone')
@@ -371,3 +391,26 @@ class TestExitManagement(TransactionCase):
         ):
             migration._archive_existing_ex_students(self.env)
         self.assertTrue(alumni.active)
+
+    # --- migration: backfill google_ws_suspended (18.0.0.22.0) ---------------
+
+    def test_migration_backfills_suspended_for_alumni_and_withdrawal(self):
+        alumni = self._student('Migration GW Alumni', contact_type='alumni',
+                                student_email='migration.gw.alumni@example.com')
+        withdrawal = self._student('Migration GW Withdrawal', contact_type='withdrawal',
+                                    student_email='migration.gw.withdrawal@example.com')
+        # No corporate email yet: nothing to mark as suspended.
+        no_email = self._student('Migration GW No Email', contact_type='withdrawal')
+        # Still an active student: must be left untouched.
+        active_student = self._student('Migration GW Untouched',
+                                        student_email='migration.gw.active@example.com')
+
+        migration = self._load_post_migrate_module()
+        migration._backfill_google_ws_suspended(self.env)
+        for partner in (alumni, withdrawal, no_email, active_student):
+            partner.invalidate_recordset()
+
+        self.assertTrue(alumni.google_ws_suspended)
+        self.assertTrue(withdrawal.google_ws_suspended)
+        self.assertFalse(no_email.google_ws_suspended)
+        self.assertFalse(active_student.google_ws_suspended)

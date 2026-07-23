@@ -79,9 +79,9 @@ El botón **Crear cuenta de Google**, en la parte superior de la ficha, permite 
 
 ## Casos especiales
 
-- **El profesor ya tenía un correo corporativo:** si el campo de correo de trabajo ya contenía una dirección `@elpuig.xeill.net`, el sistema la adopta tal cual y no crea una nueva. Si ese profesor todavía no tiene usuario EMS, el botón **Crear cuenta de Google** (que sigue visible en este caso) lo crea y lo vincula.
+- **El profesor ya tenía un correo corporativo:** si el campo de correo de trabajo ya contenía una dirección `@elpuig.xeill.net`, el sistema la adopta tal cual y no crea una nueva. Si ese profesor todavía no tiene usuario EMS, aparece el botón **Crear usuario EMS** en la parte superior de la ficha en lugar de **Crear cuenta de Google** — solo crea/vincula el usuario EMS, sin tocar la cuenta de Google.
 - **El profesor tiene un correo de trabajo de otro dominio:** el sistema no lo sobrescribe automáticamente; se publica un aviso en el historial de mensajes de la ficha para que se revise manualmente.
-- **Asignación manual del correo:** la casilla **Asignar correo corporativo manualmente**, en la ficha del profesor, permite que Recursos Humanos introduzca el correo de trabajo a mano, para casos excepcionales. **Cuando está marcada, el sistema no genera ninguna cuenta automáticamente.** Una vez escrita una dirección corporativa, el botón **Crear cuenta de Google** crea/vincula el usuario EMS correspondiente.
+- **Asignación manual del correo:** la casilla **Asignar correo corporativo manualmente**, en la ficha del profesor, permite que Recursos Humanos introduzca el correo de trabajo a mano, para casos excepcionales. **Cuando está marcada, el sistema no genera ninguna cuenta automáticamente.** Una vez escrita una dirección corporativa, aparece el botón **Crear usuario EMS** para crear/vincular el usuario EMS correspondiente.
 - **Baja (archivar la ficha):** además de suspender la cuenta de Google, archivar al empleado **desactiva inmediatamente su usuario EMS**, de modo que ya no puede iniciar sesión. Desarchivarlo restaura ambas cosas.
 
 ---

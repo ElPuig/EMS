@@ -2948,6 +2948,11 @@ msgid "Create Google account"
 msgstr "Crear compte de Google"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Create EMS User"
+msgstr "Crear usuari EMS"
+
+#. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_ems_enrollment_items
 msgid "Create a new Enrollment Item"
 msgstr "Crear un nou element de matrícula"
@@ -4467,8 +4472,59 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_suspended
 #: model:ir.model.fields,field_description:ems.field_res_users__google_ws_suspended
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__google_ws_state__suspended
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__google_ws_state__suspended
 msgid "Google account suspended"
 msgstr "Compte de Google suspès"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__google_ws_state__active
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__google_ws_state__active
+msgid "Google account active"
+msgstr "Compte de Google actiu"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__google_ws_state__none
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__google_ws_state__none
+msgid "No Google account"
+msgstr "Sense compte de Google"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__google_ws_state__pending_user
+msgid "Google account without EMS user"
+msgstr "Compte de Google sense usuari EMS"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__google_ws_state__manual_pending
+msgid "Waiting for the manual corporate email"
+msgstr "Pendent del correu corporatiu manual"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_state
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_state
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_state
+msgid "Google account status"
+msgstr "Estat del compte de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__google_ws_state
+msgid ""
+"Single source of truth for the header buttons: which Google Workspace / "
+"EMS user action, if any, applies to this employee right now."
+msgstr ""
+"Font única de veritat per als botons de la capçalera: quina acció de "
+"Google Workspace / usuari EMS, si escau, s'aplica ara mateix a aquest "
+"empleat."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_state
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_state
+msgid ""
+"Single source of truth for the header buttons: which Google Workspace "
+"action, if any, applies to this student right now."
+msgstr ""
+"Font única de veritat per als botons de la capçalera: quina acció de "
+"Google Workspace, si escau, s'aplica ara mateix a aquest alumne."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_outcome

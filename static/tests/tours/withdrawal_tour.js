@@ -147,6 +147,22 @@ registry.category("web_tour.tours").add("ems_archive_action_shows_in_list", {
             content: "Remove the default 'Students' filter",
             run: "click",
         },
+        // A single click reliably updates the search domain (confirmed via the actual
+        // RPC payload) but can leave the facet *chip* itself stuck in a stale render —
+        // it keeps showing "Students" even though the underlying list already reloaded
+        // unfiltered. Opening the dropdown while that stale chip is still around swaps
+        // out the toggler mid-click and the "Former students" menu item never appears
+        // (TIMEOUT). Click Remove again (no-op if it is already gone) and only then
+        // wait for the chip to actually be gone before opening the dropdown.
+        {
+            trigger: "body",
+            content: "Settle a possible stale facet-chip render by clicking Remove again if still present",
+            run: () => document.querySelector(".o_searchview_facet .o_facet_remove")?.click(),
+        },
+        {
+            trigger: ".o_searchview_input_container:not(:has(.o_searchview_facet))",
+            content: "Wait for the 'Students' filter to be fully removed",
+        },
         {
             trigger: ".o_searchview_dropdown_toggler",
             content: "Open the search dropdown",

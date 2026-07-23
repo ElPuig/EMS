@@ -38,6 +38,34 @@ class HrEmployeeGoogleWorkspace(models.Model):
         copy=False, default=False,
         help="Internal flag: a chatter note about missing required data was already "
              "posted, to avoid repeating it on every write.")
+    google_ws_state = fields.Selection(
+        selection=[
+            ('none', 'No Google account'),
+            ('manual_pending', 'Waiting for the manual corporate email'),
+            ('pending_user', 'Google account without EMS user'),
+            ('active', 'Google account active'),
+            ('suspended', 'Google account suspended'),
+        ],
+        string="Google account status", compute='_compute_google_ws_state', store=True,
+        help="Single source of truth for the header buttons: which Google Workspace "
+             "/ EMS user action, if any, applies to this employee right now.")
+
+    # ------------------------------------------------------------------
+    # Compute
+    # ------------------------------------------------------------------
+    @api.depends('employee_type', 'work_email', 'user_id', 'google_ws_suspended', 'google_ws_manual_email')
+    def _compute_google_ws_state(self):
+        for employee in self:
+            if employee.employee_type not in ('teacher', 'asp'):
+                employee.google_ws_state = 'none'
+            elif not employee.work_email:
+                employee.google_ws_state = 'manual_pending' if employee.google_ws_manual_email else 'none'
+            elif employee.google_ws_suspended:
+                employee.google_ws_state = 'suspended'
+            elif not employee.user_id:
+                employee.google_ws_state = 'pending_user'
+            else:
+                employee.google_ws_state = 'active'
 
     # ------------------------------------------------------------------
     # Helpers
@@ -236,8 +264,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
             if emp.work_email.endswith('@%s' % domain):
                 # Corporate account already exists / is managed (manual email,
                 # pre-integration staff): make sure the EMS user exists too.
-                if not emp.user_id:
-                    self._ems_create_user(google_id=self._gw_google_user_id())
+                emp.action_create_ems_user()
                 return
             self.message_post(body=_(
                 "Google Workspace: the employee already has a non-corporate work email "
@@ -374,6 +401,18 @@ class HrEmployeeGoogleWorkspace(models.Model):
     # ------------------------------------------------------------------
     # EMS user (res.users)
     # ------------------------------------------------------------------
+    def action_create_ems_user(self):
+        """Link (or create) the EMS user for an employee whose corporate Google
+        account already exists but has no ``res.users`` linked yet (state
+        ``pending_user``: data adopted from before the integration, or an
+        incomplete migration). Does not touch the Google Workspace account -
+        no Google API call. Idempotent.
+        """
+        self.ensure_one()
+        if self.employee_type not in ('teacher', 'asp') or not self.work_email:
+            return
+        self._ems_create_user(google_id=self._gw_google_user_id())
+
     def _gw_google_user_id(self):
         """Numeric Google user id of ``work_email`` via the Directory API.
 

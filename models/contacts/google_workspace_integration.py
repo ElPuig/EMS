@@ -20,6 +20,28 @@ class ResPartnerGoogleWorkspace(models.Model):
     google_ws_suspended = fields.Boolean(
         string="Google account suspended", default=False, copy=False,
         help="True when the student's Google Workspace account is suspended (former student).")
+    google_ws_state = fields.Selection(
+        selection=[
+            ('none', 'No Google account'),
+            ('active', 'Google account active'),
+            ('suspended', 'Google account suspended'),
+        ],
+        string="Google account status", compute='_compute_google_ws_state', store=True,
+        help="Single source of truth for the header buttons: which Google Workspace "
+             "action, if any, applies to this student right now.")
+
+    # ------------------------------------------------------------------
+    # Compute
+    # ------------------------------------------------------------------
+    @api.depends('contact_type', 'student_email', 'google_ws_suspended')
+    def _compute_google_ws_state(self):
+        for partner in self:
+            if partner.contact_type != 'student' or not partner.student_email:
+                partner.google_ws_state = 'none'
+            elif partner.google_ws_suspended:
+                partner.google_ws_state = 'suspended'
+            else:
+                partner.google_ws_state = 'active'
 
     # ------------------------------------------------------------------
     # Helpers

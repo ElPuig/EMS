@@ -1,13 +1,13 @@
 # AI agent proactive notifications when running inside a container
 
-An AI coding agent (e.g. Claude Code) working in this repo can send you a proactive push/desktop notification for two distinct reasons (see the project's `CLAUDE.md`, under *Development scripts*):
+An AI coding agent (e.g. Claude Code) working in this repo notifies you for exactly two reasons (see the project's `CLAUDE.md`, under *Development scripts*):
 
-1. **Test-hang risk** — right when it kicks off a `./test.sh` run that includes tour/`HttpCase` tests, so you know to refresh an open Odoo browser tab if you have one.
+1. **Any test launch** — right when it runs `./test.sh` (any class, not only tour/`HttpCase` ones), so you know to close or refresh an open Odoo browser tab before the run starts.
 2. **Task completion** — once it has finished everything you asked for in the current task, so you know it's ready to come back and review, even if you stepped away while it worked.
 
-Both rely on the same underlying notification tool, so they share the same delivery problem. This works out of the box for a normal terminal install. It does **not** work out of the box when the agent's session runs inside a container (LXC, Incus, a Docker devcontainer, etc.) that is reached through an editor's native extension rather than the standalone terminal CLI — this doc explains why, and how to bridge it.
+Both are delivered **only** through the host-side file-drop bridge documented below — this project deliberately does not use the agent's own push-notification tool for either trigger. That tool proved unreliable in this specific setup (a container reached through an editor's native extension rather than the standalone terminal CLI): it silently self-suppresses when it judges the terminal "active" (wrong for a prompt to go do something in a *different* window), and neither of its normal delivery channels (mobile push, a direct DBus bridge) works here at all — see below. This was tried and abandoned; don't re-attempt it.
 
-## Why the default channels fail in a container
+## Why the agent's own notification channels don't work in a container
 
 - **Mobile push (Remote Control) is CLI-only.** It is not exposed anywhere in the VSCode native extension — no settings entry, no UI toggle, no `remote-control` subcommand if the standalone `claude` binary isn't separately installed in the container. There is currently no workaround; this is a product limitation, not a misconfiguration (tracked upstream as a feature request).
 - **A direct DBus bridge to the host session bus is normally not viable in an *unprivileged* container.** These containers remap UIDs: the host user's UID (e.g. `1000`) is not in the container's mapped ID range, so a bind-mounted `/run/user/<uid>/bus` shows up owned by `nobody` inside the container, and the container's own root maps to some other, unrelated host UID. DBus's authentication handshake rejects the mismatch (`Did not receive a reply`). Confirm this quickly rather than debugging blind:
@@ -116,11 +116,11 @@ In `~/.claude/settings.json` (**user-level**, not the project's checked-in `.cla
 }
 ```
 
-This fires unconditionally on any Bash command containing `test.sh` — deliberately not scoped to tour/`HttpCase`-only runs, and not subject to the agent's own "you're probably still looking at this" push-notification throttle, since it's a plain filesystem write with no such logic attached.
+This fires unconditionally on any Bash command containing `test.sh` — deliberately not scoped to tour/`HttpCase`-only runs, since the developer wants the close-or-refresh reminder before every test run. Being a plain filesystem write triggered by the hook (not a call to the agent's notification tool), it's also not subject to that tool's own "you're probably still looking at this" self-suppression.
 
 ### Covering the task-completion trigger too
 
-The hook above only covers trigger 1 (test-hang risk), because it keys off a recognisable Bash command (`test.sh`). Trigger 2 (task completion) has no equivalent command to match on — "all requested work is done" is a judgment the agent makes at the end of a turn, not a tool call a `PreToolUse` hook can see coming. So once this bridge is in place, the agent should write directly into the shared drop directory itself when it finishes a task, e.g.:
+The hook above only covers trigger 1 (any test launch), because it keys off a recognisable Bash command (`test.sh`). Trigger 2 (task completion) has no equivalent command to match on — "all requested work is done" is a judgment the agent makes at the end of a turn, not a tool call a `PreToolUse` hook can see coming. So the agent writes directly into the shared drop directory itself when it finishes a task, e.g.:
 
 ```bash
 echo "$(date +%H:%M:%S) EMS: task done — <short summary>" > /mnt/claude-notify/done-$(date +%s%N).txt
@@ -137,4 +137,4 @@ Test bottom-up before declaring it done:
 
 ## When to offer this
 
-If a developer mentions they're not noticing test-hang reminders or task-completion notifications, and their agent session is running inside a container rather than a bare-metal/VM terminal CLI install, that combination is the specific signature this fix addresses — offer to set it up rather than waiting to be asked.
+This bridge is already built and verified for the primary developer on this project — don't rebuild it from scratch; only revisit the steps above if a specific layer breaks (see *Verifying each layer*). For any other developer who mentions they're not noticing test-hang reminders or task-completion notifications, and their agent session is running inside a container rather than a bare-metal/VM terminal CLI install, that combination is the specific signature this fix addresses — offer to set it up rather than waiting to be asked, and rather than falling back to the agent's own push-notification tool (see the intro above for why that doesn't work here).

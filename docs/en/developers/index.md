@@ -32,6 +32,14 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Attendance
+
+| Model | Description |
+|-------|-------------|
+| [ems.attendance_template](attendance/attendance_template.md) | Who teaches what, where and for whom: schedule sync/reconciliation from the "Schedule" tab and the XML importer, co-teaching, external-conflict detection |
+
+---
+
 ## Coexistence
 
 | Model | Description |
@@ -46,6 +54,14 @@ Technical reference for developers working on the EMS module.
 |-------|-------------|
 | [ems.enrollment_proposal_wizard](enrollment/enrollment_proposal_wizard.md) | Bulk draft enrollments from a student selection, and the secretary-only `allow_other_study` flag that enrolls a current student into a different study |
 | [Enrollment benefits](enrollment/enrollment_benefits.md) | Fee bonifications/exemptions: draft-order recompute, freeze after confirmation and the secretary re-apply action that regenerates the invoice |
+
+---
+
+## Shared
+
+| Topic | Description |
+|-------|-------------|
+| [Free-pick color widget](shared/color_widget.md) | `widget="color"` + the `ems_color_swatch` styling, the `role_color_tags` badge widget, and `ems.hex_color_mixin` — used by `ems.role`, `ems.attendance_template`, and `hr.department`'s `custom_color` |
 
 ---
 

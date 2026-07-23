@@ -38,6 +38,18 @@ Navegar a: **Empleados → [abrir la ficha del profesor]**
 
 ---
 
+## Personalizar el color de un rol
+
+Cada rol del catálogo tiene un color, que se muestra como insignia allá donde se muestran los roles de un profesor (su ficha de empleado, la tarjeta kanban del empleado). Para cambiarlo:
+
+1. Navegar a **Comunidad Educativa → Configuración → Profesorado → Roles** (o **→ PAS → Roles** para los roles del personal PAS).
+2. Abrir el rol y hacer clic en su cuadradito de color — elige el color que quieras, no hay ninguna lista cerrada de la que elegir.
+3. Hacer clic en **Guardar**.
+
+La insignia muestra automáticamente el color elegido con un texto legible, sea cual sea el tono escogido.
+
+---
+
 ## Asignar un rol
 
 1. Abrir la ficha del empleado del profesor.
@@ -77,6 +89,16 @@ Esto tiene un efecto inmediato y automático sobre todos los profesores de ese d
 - Reasignar cualquiera de los dos roles a otro profesor lo revoca automáticamente a quien lo ocupaba antes (dentro de ese departamento).
 
 > **Nota para departamentos existentes:** un departamento creado antes de activar esta funcionalidad puede no tener Jefe de departamento ni Jefe de seminario hasta que un administrador lo abra y los establezca — no se rellena nada automáticamente. **El Jefe de departamento es obligatorio** para guardar el formulario del departamento a partir de ahora.
+
+---
+
+## Personalizar el color de un departamento
+
+Cada departamento también tiene su propio color, que se muestra como un cuadradito en las vistas de lista, formulario y kanban del departamento. Para cambiarlo:
+
+1. Navegar a **Empleados → Departamentos** y abrir el departamento.
+2. Hacer clic en su cuadradito de color — elige el color que quieras, no hay ninguna lista cerrada de la que elegir.
+3. Hacer clic en **Guardar**.
 
 ---
 

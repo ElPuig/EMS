@@ -13266,3 +13266,9 @@ msgstr "Color de visualització lliure, per distingir les plantilles a la vista 
 #: model:ir.model.fields,help:ems.field_hr_department__custom_color
 msgid "Free-pick display color for this department (not Odoo's native, fixed-palette 'Color' field, which the kanban view still uses internally)."
 msgstr "Color de visualització lliure per a aquest departament (no el camp 'Color' nadiu d'Odoo, de paleta fixa, que la vista kanban encara utilitza internament)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is already assigned to another one."
+msgstr "Aquest rol ja està assignat a una altra persona."

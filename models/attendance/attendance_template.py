@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
 from datetime import datetime
+
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 TEMPLATE_COLOR_PALETTE = [
 	'#EE2D2D', '#DC8534', '#E8BB1D', '#5794DD', '#9F628F', '#DB8865',
 	'#41A9A2', '#304BE0', '#EE2F8A', '#61C36E', '#9872E6', '#A2A2A2',
 ]
 
-class ems_attendance_template(models.Model):
+class EmsAttendanceTemplate(models.Model):
 	_name = "ems.attendance_template"
 	_description = "Attendance template: contains the basic attendance data (who teaches what, where and for whom)"
 	_inherit = ['ems.base', 'ems.hex_color_mixin']
@@ -41,22 +42,22 @@ class ems_attendance_template(models.Model):
 
 	@api.constrains('group_ids')
 	def _check_group_ids(self):
-		for rec in self:
-			if not rec.group_ids:
+		for template in self:
+			if not template.group_ids:
 				raise ValidationError(_("At least one group must be selected."))
 
 	@api.constrains('teacher_ids')
 	def _check_teacher_ids(self):
-		for rec in self:
-			if not rec.teacher_ids:
+		for template in self:
+			if not template.teacher_ids:
 				raise ValidationError(_("At least one teacher must be selected."))
 
 	@api.constrains('teacher_ids', 'start_date', 'end_date', 'active')
 	def _check_schedule_overlap(self):
 		# NOTE: @api.constrains does not support dotted paths through relations, so changes to
 		# these template fields must re-trigger the check owned by ems.attendance_schedule.
-		for rec in self:
-			rec.attendance_schedule_ids.check_overlap()
+		for template in self:
+			template.attendance_schedule_ids.check_overlap()
 
 	@api.constrains("color")
 	def _check_color_format(self):
@@ -64,20 +65,20 @@ class ems_attendance_template(models.Model):
 
 	@api.depends('subject_id', 'group_ids')
 	def _compute_display_name(self):
-		for rec in self:
-			groups = ", ".join(rec.group_ids.mapped('name'))
-			rec.display_name = "%s (%s)" % (rec.subject_id.display_name, groups)
+		for template in self:
+			groups = ", ".join(template.group_ids.mapped('name'))
+			template.display_name = "%s (%s)" % (template.subject_id.display_name, groups)
 
 	@api.onchange("group_ids")
 	def _onchange_group_ids(self):
-		for rec in self:
-			if rec.group_ids:
-				rec.space_id = rec.group_ids[0].space_id
+		for template in self:
+			if template.group_ids:
+				template.space_id = template.group_ids[0].space_id
 
 	@api.onchange("subject_id", "group_ids")
 	def _fill_students(self):
-		for rec in self:
-			rec.fill_students()
+		for template in self:
+			template.fill_students()
 
 	def fill_students(self):
 		students = self.env['ems.enrollment'].search([

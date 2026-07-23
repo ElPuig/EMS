@@ -38,6 +38,18 @@ Navegueu a: **Empleats → [obriu la fitxa del professor]**
 
 ---
 
+## Personalitzar el color d'un rol
+
+Cada rol del catàleg té un color, que es mostra com a insígnia allà on es mostren els rols d'un professor (la seva fitxa d'empleat, la targeta kanban de l'empleat). Per canviar-lo:
+
+1. Navegueu a **Comunitat Educativa → Configuració → Professorat → Rols** (o **→ PAS → Rols** per als rols del personal PAS).
+2. Obriu el rol i feu clic al seu quadradet de color — trieu el color que vulgueu, no hi ha cap llista tancada d'on escollir.
+3. Feu clic a **Desar**.
+
+La insígnia mostra automàticament el color triat amb un text llegible, sigui quin sigui el to escollit.
+
+---
+
 ## Assignar un rol
 
 1. Obriu la fitxa de l'empleat del professor.
@@ -77,6 +89,16 @@ Això té un efecte immediat i automàtic sobre tots els professors d'aquell dep
 - Reassignar qualsevol dels dos rols a un altre professor el revoca automàticament a qui l'ocupava abans (dins d'aquell departament).
 
 > **Nota per a departaments existents:** un departament creat abans d'activar aquesta funcionalitat pot no tenir Cap de departament ni Cap de seminari fins que un administrador l'obri i els estableixi — no s'omple res automàticament. **El Cap de departament és obligatori** per desar el formulari del departament d'ara endavant.
+
+---
+
+## Personalitzar el color d'un departament
+
+Cada departament també té el seu propi color, que es mostra com un quadradet a les vistes de llista, formulari i kanban del departament. Per canviar-lo:
+
+1. Navegueu a **Empleats → Departaments** i obriu el departament.
+2. Feu clic al seu quadradet de color — trieu el color que vulgueu, no hi ha cap llista tancada d'on escollir.
+3. Feu clic a **Desar**.
 
 ---
 

@@ -79,6 +79,10 @@ flowchart LR
 
 `group_academic_admin` can set the department-level fields, so that part of the feature has a single operating role (see the admin user manual, `docs/en/admin/teacher-roles.md`). **`director_id` is a deliberate exception:** it lives on `res.config.settings`/`res.company`, gated by Odoo's native Settings access (`base.group_system`, granted in this module only via `ems.group_settings_admin` or root/admin) — a *different*, independent permission from `group_academic_admin`. Someone with full academic control is not guaranteed Settings access; this mismatch was raised with and accepted by the developer rather than widening either group's `implied_ids` as part of this feature.
 
+## Display color (`custom_color`)
+
+`hr.department` also carries `custom_color` (`Char`, hex), a free-pick display color shown on the department's own form/list/kanban — added *alongside* Odoo's native `color` (`Integer`) rather than replacing it, since the native field still drives the kanban's `highlight_color` card-tinting mechanism and other installed modules may assume it stays an `Integer`. See [Free-pick color widget](../shared/color_widget.md) for the full rationale and how the other two color-picking models (`ems.role`, `ems.attendance_template`) differ from this one (they own their field outright and converted it in place).
+
 ## Known limitations
 
 - No automatic backfill: existing departments keep `seminar_chief_id` empty, and some predate this feature with no `manager_id` either, until an admin opens and saves each one (the view-level `required` on `manager_id` then kicks in). All three known top-level departments (VET, ESO/BTX, ASP) are seeded with `is_top_level=1` and `top_level_area` but no `manager_id`/`top_level_role` — set manually post-deploy. `director_id` similarly starts empty — no employee is seeded as Director. `shares_manager_with_parent` defaults to unset for every existing department (an explicit opt-in, never inferred from an empty `manager_id` — see below).

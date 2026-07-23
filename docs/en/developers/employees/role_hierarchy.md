@@ -1,5 +1,19 @@
 # Technical Reference: Academic Role Hierarchy
 
+## `ems.role` model reference
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `name` | `Char`, translatable, required | Role label (e.g. "Head of studies") |
+| `color` | `Char` (hex) | Free-pick display color — see [Free-pick color widget](../shared/color_widget.md) |
+| `notes` | `Text` | Free-form admin notes |
+| `unipersonal` | `Boolean` | If set, `check_limit()` raises when a second employee would be assigned this role |
+| `employee_type` | `Selection` | `teacher`/`asp` — restricts which employees `employee_ids` can hold |
+| `employee_ids` | `Many2many → hr.employee.public` | Who currently holds this role (manual `hr_employee_public_ems_role_rel` relation — see the in-code comment for why) |
+| `group_id` | `Many2one → res.groups` | If set, holding this role auto-adds the employee to this security group — see "Role → Group Sync" below |
+
+CRUD is plain: `group_academic_admin` has full read/write/create/unlink on the role catalog (`security/ir.model.access.csv`); `group_teacher`/`group_secretary` are read-only, so a teacher can see which role a colleague holds but not edit the catalog. The catalog itself (`data/cat/ems.role.csv`) seeds 16 built-in roles; a centre can add its own from the UI.
+
 ## Overview
 
 EMS grants teachers escalating access through a chain of `res.groups` implication (`security/groups.xml`, category `ems.category_roles`). Each group in the chain implies (and therefore includes all permissions of) the one before it, via `implied_ids`.

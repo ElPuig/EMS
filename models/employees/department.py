@@ -86,6 +86,28 @@ class ems_department(models.Model):
     def _check_custom_color_format(self):
         self._check_hex_color('custom_color')
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._sanitize_top_level_vals(vals)
+        departments = super().create(vals_list)
+        for department in departments:
+            department._cascade_department_heads(self.env['hr.employee'], self.env['hr.employee'])
+        return departments
+
+    def write(self, vals):
+        self._sanitize_top_level_vals(vals)
+        old_heads = {department: (department.manager_id, department.seminar_chief_id) for department in self}
+        res = super().write(vals)
+        if {
+            'manager_id', 'seminar_chief_id', 'parent_id', 'is_top_level', 'top_level_role',
+            'shares_manager_with_parent',
+        } & vals.keys():
+            for department in self:
+                old_manager, old_seminar_chief = old_heads[department]
+                department._cascade_department_heads(old_manager, old_seminar_chief)
+        return res
+
     def _sanitize_top_level_vals(self, vals):
         if vals.get('is_top_level'):
             vals.setdefault('parent_id', False)
@@ -118,28 +140,6 @@ class ems_department(models.Model):
                 return self.env['hr.employee']
             department = department.parent_id
         return self.env['hr.employee']
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            self._sanitize_top_level_vals(vals)
-        departments = super().create(vals_list)
-        for department in departments:
-            department._cascade_department_heads(self.env['hr.employee'], self.env['hr.employee'])
-        return departments
-
-    def write(self, vals):
-        self._sanitize_top_level_vals(vals)
-        old_heads = {department: (department.manager_id, department.seminar_chief_id) for department in self}
-        res = super().write(vals)
-        if {
-            'manager_id', 'seminar_chief_id', 'parent_id', 'is_top_level', 'top_level_role',
-            'shares_manager_with_parent',
-        } & vals.keys():
-            for department in self:
-                old_manager, old_seminar_chief = old_heads[department]
-                department._cascade_department_heads(old_manager, old_seminar_chief)
-        return res
 
     def _cascade_department_heads(self, old_manager, old_seminar_chief):
         self.ensure_one()

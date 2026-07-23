@@ -35,3 +35,6 @@ from . import test_em_grading_wizard
 from . import test_department
 from . import test_company_director
 from . import test_role
+from . import test_role_color_tour
+from . import test_department_color_tour
+from . import test_attendance_template_color_tour

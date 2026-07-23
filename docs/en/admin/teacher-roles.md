@@ -38,6 +38,18 @@ Navigate to: **Employees → [open the teacher's record]**
 
 ---
 
+## Customizing a Role's Color
+
+Each role in the catalog has a color, shown as a badge wherever a teacher's roles are displayed (their employee form, the employee kanban card). To change it:
+
+1. Navigate to **Educational Community → Configuration → Teachers → Roles** (or **→ ASP → Roles** for ASP staff roles).
+2. Open the role and click its color swatch — pick any color you like, there is no fixed list to choose from.
+3. Click **Save**.
+
+The badge automatically shows the color you picked with readable text, whatever shade you choose.
+
+---
+
 ## Assign a Role
 
 1. Open the teacher's employee record.
@@ -77,6 +89,16 @@ This has an immediate, automatic effect on every teacher in that department:
 - Reassigning either role to a different teacher automatically revokes it from whoever held it before (in that department).
 
 > **Note for existing departments:** a department created before this feature was enabled may have no Department Chief and/or Seminar Chief until an admin opens it and sets them — nothing is filled in automatically. **Department Chief is required** to save the department form going forward.
+
+---
+
+## Customizing a Department's Color
+
+Each department also has its own color, shown as a swatch on the department's list, form and kanban views. To change it:
+
+1. Navigate to **Employees → Departments** and open the department.
+2. Click its color swatch — pick any color you like, there is no fixed list to choose from.
+3. Click **Save**.
 
 ---
 

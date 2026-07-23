@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 from . import employee
 
-class ems_role(models.Model):
+class EmsRole(models.Model):
 	_name = "ems.role"
 	_description = "Roles: The coordination position held by the employees."
 	_inherit = ['ems.hex_color_mixin']
+	_order = "name asc"
 
 	name = fields.Char(string="Name", translate=True, required=True)
 	color = fields.Char(string="Color", default="#3A8DDE")
@@ -22,9 +23,9 @@ class ems_role(models.Model):
 
 	@api.constrains("employee_ids")
 	def check_limit(self):
-		for rec in self:
-			if rec.unipersonal and len(rec.employee_ids) > 1:
-				raise ValidationError("This role is already assigned to another one.")
+		for role in self:
+			if role.unipersonal and len(role.employee_ids) > 1:
+				raise ValidationError(_("This role is already assigned to another one."))
 
 	@api.constrains("color")
 	def _check_color_format(self):

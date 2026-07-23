@@ -65,4 +65,12 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Tooling
+
+| Topic | Description |
+|-------|-------------|
+| [AI agent test notifications when running inside a container](tooling/ai_agent_test_notifications.md) | Why push/desktop notifications from an AI coding agent don't reach you inside an LXC/Incus/Docker container reached via an editor extension, and how to bridge them with a host-side file-drop watcher + a Claude Code hook |
+
+---
+
 More information about the project on the [GitHub repository](https://github.com/ElPuig/EMS).

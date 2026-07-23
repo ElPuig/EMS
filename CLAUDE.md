@@ -56,6 +56,44 @@ After any change, run `upgrade.sh` and check for WARNING / ERROR / CRITICAL outp
 
 **If you're an AI agent capable of sending a proactive/push notification, use it here instead of only writing an in-chat reminder.** A chat message is silent if the developer has stepped away while the run is going — they only see it once they come back, by which point the run already looks "stuck" with no explanation. So: right when kicking off a `./test.sh` run that includes tour/`HttpCase` tests (the full unscoped suite, or any class matching the pattern above), send a push/desktop notification telling them to refresh their open Odoo tab if they have one — don't wait for the run to look hung first. Skip the notification for scoped runs with no tour/`HttpCase` classes, since those never hit this issue.
 
+**If that push/desktop notification never actually reaches the developer, don't just keep declaring it "sent" — diagnose and, if they want it, fix delivery.** This reliably happens when Claude Code runs inside an unprivileged container (LXC/Incus/Docker devcontainer, etc.) reached through the VSCode extension rather than the standalone terminal CLI, because two of the usual delivery paths are unavailable there:
+- **Remote Control (mobile push) is CLI-only** — it is not exposed anywhere in the VSCode native extension (no settings entry, no UI toggle, no `claude remote-control` binary if the CLI isn't separately installed). Don't spend time hunting for it in VSCode settings or the extension panel; it isn't there.
+- **A raw DBus bridge to the host session bus is normally not viable either.** Unprivileged containers remap UIDs (host UID 1000 shows up as `nobody`/a different UID inside the container, and vice versa), so even bind-mounting the host's `/run/user/<uid>/bus` into the container typically fails DBus's authentication handshake (`Did not receive a reply`) — confirm with `dbus-send --session --dest=org.freedesktop.Notifications --type=method_call --print-reply /org/freedesktop/Notifications org.freedesktop.Notifications.GetServerInformation` before spending time on it; `ServiceUnknown`/an auth failure means this path is a dead end for that container without deeper `raw.idmap` surgery, which isn't worth it just for a notification.
+
+If the developer manages the container themselves (so they can create bind mounts) and wants this to work, the reliable fallback is a **host-side file-drop bridge**, since a plain shared directory sidesteps the DBus UID problem entirely (a `notify-send` call only needs to run natively in the developer's real desktop session — no namespace involved):
+
+1. **Host**: `sudo apt install inotify-tools libnotify-bin`, then create a directory and world-writable-with-sticky-bit permissions (`chmod 1777`) so the container's remapped root can write into it: `mkdir -p ~/claude-notify && chmod 1777 ~/claude-notify`.
+2. **Host → container bind mount** (adapt to whichever tool manages the container — Incus/LXD: `incus config device add <instance> notify-drop disk source=/home/<user>/claude-notify path=/mnt/claude-notify`; raw LXC: an `lxc.mount.entry` line in the container config; Docker: a `-v` bind mount) at container-instance-name granularity — the container's own hostname is not necessarily its instance/container name, so confirm the real name first (`incus list` / `docker ps` / etc.) rather than assuming.
+3. **Host watcher script** (must run as the developer's own user — **never `sudo`**, which both breaks `~` expansion to `/root` and denies the script access to the real desktop session's DBus/display):
+   ```bash
+   #!/bin/bash
+   mkdir -p ~/claude-notify
+   inotifywait -m -e create --format '%f' ~/claude-notify | while read -r f; do
+     msg="$(cat ~/claude-notify/"$f" 2>/dev/null)"
+     notify-send "Claude Code" "$msg"
+     canberra-gtk-play -i dialog-information 2>/dev/null || paplay /usr/share/sounds/freedesktop/stereo/dialog-information.oga 2>/dev/null
+     rm -f ~/claude-notify/"$f"
+   done
+   ```
+   Run it as a `systemd --user` service (starts automatically with the desktop session, survives logout/login cleanly, easy to check with `systemctl --user status`) rather than a bare `nohup ... &`, which needs relaunching by hand after every reboot and is easy to accidentally duplicate (a duplicated watcher fires every notification twice — `ps aux | grep <script-name>` should show exactly one script process before assuming something's broken).
+4. **Container-side Claude Code hook** — in `~/.claude/settings.json` (user-level, **not** the project's checked-in `.claude/settings.json`, since the mount path/username here are specific to this one developer's machine and would break for everyone else cloning the repo):
+   ```json
+   {
+     "hooks": {
+       "PreToolUse": [{
+         "matcher": "Bash",
+         "hooks": [{
+           "type": "command",
+           "command": "jq -r '.tool_input.command' | { read -r cmd; case \"$cmd\" in *test.sh*) echo \"$(date +%H:%M:%S) EMS: lanzando test -> $cmd\" > /mnt/claude-notify/test-$(date +%s%N).txt ;; esac; } 2>/dev/null || true"
+         }]
+       }]
+     }
+   }
+   ```
+   This fires unconditionally on any Bash command containing `test.sh` — deliberately not scoped to tour/`HttpCase`-only runs, and not subject to `PushNotification`'s own "you're probably still looking at this" throttle, since it's a plain filesystem write with no such logic attached.
+
+Proactively offer this whole bridge — don't wait to be asked — whenever a developer mentions they're not noticing test-hang reminders and their session is running inside a container rather than a bare-metal/VM terminal CLI install; that combination is the specific signature this fix addresses. It's real setup work (shared directory, permissions, a host script, a systemd unit, a hook) — walk through it step by step and verify each layer (write test, then a real hook-triggered test) before declaring it done, the same way it was built and verified here.
+
 **Redirect `./test.sh`/`./upgrade.sh` output to a file before inspecting it — never pipe a live run straight into `tail`/`grep` as the only way you look at it.** E.g. `./test.sh TestClassName 2>&1 | tee /path/to/scratchpad/test_output.log`, then `tail`/`grep` against that file for an efficient first pass. Piping directly into `tail`/`grep` on the live command risks silently missing something further up the output, and if that happens the only way to look again is re-running the (slow) run — exactly the redundant-run problem the "don't run the full suite more than necessary" rule above is trying to avoid. With the output already saved to a file, re-reading it (in full, or with a different `tail`/`grep`) costs nothing — only re-run the actual command if the file genuinely doesn't have what's needed (aborted run, or a subsequent code change invalidates it).
 
 ## Testing conventions

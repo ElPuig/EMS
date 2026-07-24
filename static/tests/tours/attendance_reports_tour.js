@@ -1,0 +1,83 @@
+/** @odoo-module **/
+
+import { registry } from "@web/core/registry";
+
+// Attendance report wizards (group/student/subject): after their allowed_*_ids filters and
+// print() were ported from raw SQL to ORM, confirm the OWL forms still render, the level ->
+// study -> group chain still cascades client-side, and clicking 'Print' doesn't crash.
+function selectMany2one(fieldName, searchText) {
+    return [
+        {
+            trigger: `.o_form_view .o_field_widget[name='${fieldName}'] input`,
+            content: `Search '${searchText}' on ${fieldName}`,
+            run: `edit ${searchText}`,
+        },
+        {
+            trigger: `.o-autocomplete--dropdown-item:contains('${searchText}')`,
+            content: `Select '${searchText}'`,
+            run: "click",
+        },
+    ];
+}
+
+registry.category("web_tour.tours").add("ems_attendance_report_group_wizard", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_report_group_wizard",
+    steps: () => [
+        { trigger: ".o_form_view .o_field_widget[name='level_id']", content: "Group report wizard loaded" },
+        ...selectMany2one("level_id", "Attendance Reports Tour Level"),
+        ...selectMany2one("study_id", "Attendance Reports Tour Study"),
+        ...selectMany2one("group_id", "Attendance Reports Tour Group"),
+        {
+            trigger: ".o_form_view .o_field_widget[name='from_date'] input:not([value=''])",
+            content: "from_date got auto-filled by the group's own onchange",
+        },
+        { trigger: "button[name='print']", content: "Print the group report", run: "click" },
+        { trigger: "body:not(:has(.o_error_dialog))", content: "No client-side error after printing" },
+    ],
+});
+
+registry.category("web_tour.tours").add("ems_attendance_report_subject_wizard", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_report_subject_wizard",
+    steps: () => [
+        { trigger: ".o_form_view .o_field_widget[name='level_id']", content: "Subject report wizard loaded" },
+        ...selectMany2one("level_id", "Attendance Reports Tour Level"),
+        ...selectMany2one("study_id", "Attendance Reports Tour Study"),
+        ...selectMany2one("group_id", "Attendance Reports Tour Group"),
+        ...selectMany2one("subject_id", "Attendance Reports Tour Subject"),
+        { trigger: "button[name='print']", content: "Print the subject report", run: "click" },
+        { trigger: "body:not(:has(.o_error_dialog))", content: "No client-side error after printing" },
+    ],
+});
+
+registry.category("web_tour.tours").add("ems_attendance_report_student_wizard", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_report_student_wizard",
+    steps: () => [
+        { trigger: ".o_form_view .o_field_widget[name='level_id']", content: "Student report wizard loaded" },
+        ...selectMany2one("level_id", "Attendance Reports Tour Level"),
+        ...selectMany2one("study_id", "Attendance Reports Tour Study"),
+        ...selectMany2one("group_id", "Attendance Reports Tour Group"),
+        ...selectMany2one("student_id", "Attendance Reports Tour Student"),
+        { trigger: "button[name='print']", content: "Print the student report", run: "click" },
+        { trigger: "body:not(:has(.o_error_dialog))", content: "No client-side error after printing" },
+    ],
+});
+
+// New self-service 'Attendance analysis' screen (list/pivot/graph on ems.attendance_session_line):
+// confirm all 3 view types render with the seeded line and that switching between them works.
+registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_report_analysis",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Attendance Reports Tour Student')",
+            content: "The seeded line is listed",
+        },
+        { trigger: ".o_switch_view.o_pivot", content: "Switch to pivot", run: "click" },
+        { trigger: ".o_pivot_view .o_pivot_cell_value", content: "Pivot renders with at least one value cell" },
+        { trigger: ".o_switch_view.o_graph", content: "Switch to graph", run: "click" },
+        { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
+    ],
+});

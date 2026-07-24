@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_attendance_report_analysis_list" model="ir.ui.view">
+            <field name="name">ems.attendance_session_line.analysis.list</field>
+            <field name="model">ems.attendance_session_line</field>
+            <field name="arch" type="xml">
+                <list string="Attendance analysis" create="0" edit="0" delete="0" default_order="create_date desc">
+                    <field name="date"/>
+                    <field name="level_id"/>
+                    <field name="study_id"/>
+                    <field name="group_ids" widget="many2many_tags"/>
+                    <field name="subject_id"/>
+                    <field name="student_id"/>
+                    <field name="status_id"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_attendance_report_analysis_pivot" model="ir.ui.view">
+            <field name="name">ems.attendance_session_line.analysis.pivot</field>
+            <field name="model">ems.attendance_session_line</field>
+            <field name="arch" type="xml">
+                <pivot string="Attendance analysis">
+                    <field name="student_id" type="row"/>
+                    <field name="status_id" type="col"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="view_attendance_report_analysis_graph" model="ir.ui.view">
+            <field name="name">ems.attendance_session_line.analysis.graph</field>
+            <field name="model">ems.attendance_session_line</field>
+            <field name="arch" type="xml">
+                <graph string="Attendance analysis" type="bar">
+                    <field name="status_id"/>
+                </graph>
+            </field>
+        </record>
+
+        <record id="view_attendance_report_analysis_search" model="ir.ui.view">
+            <field name="name">ems.attendance_session_line.analysis.search</field>
+            <field name="model">ems.attendance_session_line</field>
+            <field name="arch" type="xml">
+                <search string="Attendance analysis">
+                    <field name="student_id"/>
+                    <field name="group_ids"/>
+                    <field name="subject_id"/>
+                    <field name="status_id"/>
+                    <filter string="Date" name="filter_date" date="date"/>
+                    <group string="Group By">
+                        <filter string="Group" name="group_by_group" context="{'group_by': 'group_ids'}"/>
+                        <filter string="Subject" name="group_by_subject" context="{'group_by': 'subject_id'}"/>
+                        <filter string="Student" name="group_by_student" context="{'group_by': 'student_id'}"/>
+                        <filter string="Status" name="group_by_status" context="{'group_by': 'status_id'}"/>
+                        <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

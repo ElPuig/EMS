@@ -13,6 +13,8 @@ from . import test_attendance_justification
 from . import test_employee_role_group_sync
 from . import test_employee_photo_visibility
 from . import test_attendance_correction
+from . import test_attendance_reports
+from . import test_attendance_reports_tour
 from . import test_grade_session
 from . import test_grade_import_wizard
 from . import test_applicant_import_wizard

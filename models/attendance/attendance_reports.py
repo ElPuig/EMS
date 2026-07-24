@@ -9,58 +9,53 @@ overall_status = [("assistance", "Assistance"), ("absence", "Absence")]
 #	2. Attendance by student (for tutors and above, teachers can calso use it, but only its teaching subject/students will be displayed)
 #	3. Attendance by subject (for the teachers teaching that subject and above)
 
-class ems_attendance_report_group_wizard(models.TransientModel):
+class EmsAttendanceReportGroupWizard(models.TransientModel):
 	_name = "ems.attendance_report_group_wizard"
 	_description = "Attendance report wizard: by group."
 
-	level_id = fields.Many2one(string='Level', comodel_name='ems.level')    
-	study_id = fields.Many2one(string='Studies', comodel_name='ems.study') 
-	group_id = fields.Many2one(string='Group', comodel_name='ems.group')     
-	tutor_id = fields.Many2one(string='Tutor', related="group_id.tutor_id") 
+	level_id = fields.Many2one(string='Level', comodel_name='ems.level')
+	study_id = fields.Many2one(string='Studies', comodel_name='ems.study')
+	group_id = fields.Many2one(string='Group', comodel_name='ems.group')
+	tutor_id = fields.Many2one(string='Tutor', related="group_id.tutor_id")
 	allowed_group_ids = fields.Many2many('ems.group', compute='_compute_allowed_group_ids', store=False)
 	from_date = fields.Date(string="From", default=fields.Datetime.now, required=True)
-	to_date = fields.Date(string="To", default=fields.Datetime.now, required=True)	
+	to_date = fields.Date(string="To", default=fields.Datetime.now, required=True)
 
 	@api.onchange('study_id')
 	def _compute_allowed_group_ids(self):
-		for rec in self:
-			if rec.study_id.id == False:
-				rec.allowed_group_ids = []
+		for wizard in self:
+			if wizard.study_id.id == False:
+				wizard.allowed_group_ids = []
 			else:
-				# Crossing student's enrollment data with teacher's teaching data.		
-				query = """SELECT tea.group_id FROM ems_teaching AS tea
-						LEFT JOIN ems_group AS grp ON grp.id = tea.group_id"""
-				
+				# Crossing teacher's teaching data with the wizard's selected study.
+				domain = [('group_id.study_id', '=', wizard.study_id.id)]
+
 				# TODO: use this to set the permissions (uid = 1 means ADMIN)
 				current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
 				if current_teacher.id > 1:
-					query += " WHERE tea.teacher_id=%d" % (current_teacher.id)
-				
-				self.env.cr.execute(query)		
-				group_ids = list(map(lambda x: x[0], self.env.cr.fetchall()))
-				group_ids = list(filter(lambda x: x is not None, group_ids))
+					domain.append(('teacher_id', '=', current_teacher.id))
 
-				rec.allowed_group_ids = self.env["ems.group"].browse(group_ids)
+				wizard.allowed_group_ids = self.env["ems.teaching"].search(domain).mapped('group_id')
 
 	@api.onchange('level_id')
-	def _onchange_level_id(self):	
-		for rec in self:			
-			rec.study_id = False
-		
+	def _onchange_level_id(self):
+		for wizard in self:
+			wizard.study_id = False
+
 	@api.onchange('study_id')
-	def _onchange_study_id(self):	
-		for rec in self:			
-			rec.group_id = False
+	def _onchange_study_id(self):
+		for wizard in self:
+			wizard.group_id = False
 
 	@api.onchange("group_id")
 	def _onchange_group_id(self):
-		for rec in self:
-			if rec.group_id.id != False:
-				sessions = self.env["ems.attendance_session_header"].search([("group_ids", "in", [rec.group_id.id])])
+		for wizard in self:
+			if wizard.group_id.id != False:
+				sessions = self.env["ems.attendance_session_header"].search([("group_ids", "in", [wizard.group_id.id])])
 				first = sessions.search([], order="date asc", limit=1)
 				last = sessions.search([], order="date desc", limit=1)
-				rec.from_date = first.date
-				rec.to_date = last.date
+				wizard.from_date = first.date
+				wizard.to_date = last.date
 
 	def print(self):
 		session_ids = self.env["ems.attendance_session_header"].search([
@@ -69,128 +64,119 @@ class ems_attendance_report_group_wizard(models.TransientModel):
 			("date", "<=", self.to_date),
 		]).ids
 
-		if not session_ids:
-			status_ids = []
-		else:
-			query = """SELECT status.id FROM ems_attendance_session_line AS status
-					WHERE status.attendance_session_id IN %s"""
-			self.env.cr.execute(query, (tuple(session_ids),))
-			status_ids = [r['id'] for r in self.env.cr.dictfetchall()]
+		status_ids = self.env["ems.attendance_session_line"].search([("attendance_session_id", "in", session_ids)]).ids
 
 		data = {'doc_ids': [self.read()[0]['id']], 'status_ids': status_ids}
 		return self.env.ref('ems.action_attendance_report_group').with_context(landscape=True).report_action(None, data=data)
 
-class ems_attendance_report_student_wizard(models.TransientModel):
+class EmsAttendanceReportStudentWizard(models.TransientModel):
 	_name = "ems.attendance_report_student_wizard"
 	_description = "Attendance report wizard: by student."
 
-	level_id = fields.Many2one(string='Level', comodel_name='ems.level')    
-	study_id = fields.Many2one(string='Studies', comodel_name='ems.study') 
-	group_id = fields.Many2one(string='Group', comodel_name='ems.group')     
-	tutor_id = fields.Many2one(string='Tutor', related="group_id.tutor_id") 
+	level_id = fields.Many2one(string='Level', comodel_name='ems.level')
+	study_id = fields.Many2one(string='Studies', comodel_name='ems.study')
+	group_id = fields.Many2one(string='Group', comodel_name='ems.group')
+	tutor_id = fields.Many2one(string='Tutor', related="group_id.tutor_id")
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", required=True)
 	allowed_student_ids = fields.Many2many('res.partner', compute='_compute_allowed_student_ids', store=False)
 	from_date = fields.Date(string="From", default=fields.Datetime.now, required=True)
-	to_date = fields.Date(string="To", default=fields.Datetime.now, required=True)	
+	to_date = fields.Date(string="To", default=fields.Datetime.now, required=True)
 
 	@api.onchange('group_id')
 	def _compute_allowed_student_ids(self):
-		for rec in self:
-			if rec.group_id.id == False:
-				rec.allowed_student_ids = []
+		for wizard in self:
+			if wizard.group_id.id == False:
+				wizard.allowed_student_ids = []
 			else:
-				# Crossing student's enrollment data with teacher's teaching data.		
-				query = """SELECT en.student_id FROM ems_teaching AS tea
-						LEFT JOIN ems_enrollment AS en ON en.group_id = tea.group_id AND en.subject_id = tea.subject_id AND tea.group_id=%d""" % rec.group_id.id
-				
+				# Crossing student's enrollment data with teacher's teaching data.
+				domain = [('group_id', '=', wizard.group_id.id)]
+
 				# TODO: use this to set the permissions (uid = 1 means ADMIN)
 				current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
 				if current_teacher.id > 1:
-					query += " WHERE tea.teacher_id=%d" % (current_teacher.id)
-				
-				self.env.cr.execute(query)		
-				student_ids = list(map(lambda x: x[0], self.env.cr.fetchall()))
-				student_ids = list(filter(lambda x: x is not None, student_ids))
+					taught_subject_ids = self.env["ems.teaching"].search([
+						('group_id', '=', wizard.group_id.id), ('teacher_id', '=', current_teacher.id),
+					]).mapped('subject_id')
+					domain.append(('subject_id', 'in', taught_subject_ids.ids))
 
-				rec.allowed_student_ids = self.env["res.partner"].browse(student_ids)
+				wizard.allowed_student_ids = self.env["ems.enrollment"].search(domain).mapped('student_id')
 
 	@api.onchange('level_id')
-	def _onchange_level_id(self):	
-		for rec in self:			
-			rec.study_id = False
-		
+	def _onchange_level_id(self):
+		for wizard in self:
+			wizard.study_id = False
+
 	@api.onchange('study_id')
-	def _onchange_study_id(self):	
-		for rec in self:			
-			rec.group_id = False
+	def _onchange_study_id(self):
+		for wizard in self:
+			wizard.group_id = False
 
 	@api.onchange("student_id")
 	def _onchange_student_id(self):
-		for rec in self:
-			if rec.student_id.id != False:
-				sessions = self.env["ems.attendance_session_line"].search([("student_id", "=", rec.student_id.id)]).mapped('attendance_session_id')
+		for wizard in self:
+			if wizard.student_id.id != False:
+				sessions = self.env["ems.attendance_session_line"].search([("student_id", "=", wizard.student_id.id)]).mapped('attendance_session_id')
 				first = sessions.search([], order="date asc", limit=1)
 				last = sessions.search([], order="date desc", limit=1)
-				rec.from_date = first.date
-				rec.to_date = last.date
+				wizard.from_date = first.date
+				wizard.to_date = last.date
 
-	def print(self):		
-		query = """SELECT status.id FROM ems_attendance_session_line AS status
-				LEFT JOIN ems_attendance_session_header AS session ON session.id = status.attendance_session_id
-				WHERE status.student_id=%d AND session.date >= '%s' AND session.date <= '%s'""" % (self.student_id, self.from_date, self.to_date)
-								
-		self.env.cr.execute(query)		
-		status_ids = self.env.cr.dictfetchall()
-		data = {'doc_ids': [self.read()[0]['id']],'status_ids': list(map(lambda x:x['id'], status_ids))}
+	def print(self):
+		status_ids = self.env["ems.attendance_session_line"].search([
+			('student_id', '=', self.student_id.id),
+			('attendance_session_id.date', '>=', self.from_date),
+			('attendance_session_id.date', '<=', self.to_date),
+		]).ids
 
+		data = {'doc_ids': [self.read()[0]['id']], 'status_ids': status_ids}
 		return self.env.ref('ems.action_attendance_report_student').with_context(landscape=True).report_action(None, data=data)
 
-class ems_attendance_report_subject_wizard(models.TransientModel):
+class EmsAttendanceReportSubjectWizard(models.TransientModel):
 	_name = "ems.attendance_report_subject_wizard"
 	_description = "Attendance report wizard: by subject."
 
-	level_id = fields.Many2one(string='Level', comodel_name='ems.level')    
-	study_id = fields.Many2one(string='Studies', comodel_name='ems.study') 
-	group_id = fields.Many2one(string='Group', comodel_name='ems.group')     
-	tutor_id = fields.Many2one(string='Tutor', related="group_id.tutor_id") 
+	level_id = fields.Many2one(string='Level', comodel_name='ems.level')
+	study_id = fields.Many2one(string='Studies', comodel_name='ems.study')
+	group_id = fields.Many2one(string='Group', comodel_name='ems.group')
+	tutor_id = fields.Many2one(string='Tutor', related="group_id.tutor_id")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", required=True)
 	allowed_subject_ids = fields.Many2many('ems.subject', compute='_compute_allowed_subject_ids', store=False)
 
 	from_date = fields.Date(string="From", default=fields.Datetime.now, required=True)
 	to_date = fields.Date(string="To", default=fields.Datetime.now, required=True)
-	
+
 	@api.depends('group_id')
-	def _compute_allowed_subject_ids(self):		
+	def _compute_allowed_subject_ids(self):
 		# TODO: use this to set the permissions (uid = 1 means ADMIN)
 		current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
-		
-		for rec in self:
-			if rec.group_id.id == False:
-				rec.allowed_subject_ids = []
+
+		for wizard in self:
+			if wizard.group_id.id == False:
+				wizard.allowed_subject_ids = []
 			else:
-				filter = [('group_id', '=', rec.group_id.id)]
-				if current_teacher.id > 1: filter.append(('group_id', '=', rec.group_id.id))
-				rec.allowed_subject_ids = self.env["ems.teaching"].search(filter).mapped('subject_id')
+				domain = [('group_id', '=', wizard.group_id.id)]
+				if current_teacher.id > 1: domain.append(('teacher_id', '=', current_teacher.id))
+				wizard.allowed_subject_ids = self.env["ems.teaching"].search(domain).mapped('subject_id')
 
 	@api.onchange('level_id')
-	def _onchange_level_id(self):	
-		for rec in self:			
-			rec.study_id = False
-		
+	def _onchange_level_id(self):
+		for wizard in self:
+			wizard.study_id = False
+
 	@api.onchange('study_id')
-	def _onchange_study_id(self):	
-		for rec in self:			
-			rec.group_id = False
+	def _onchange_study_id(self):
+		for wizard in self:
+			wizard.group_id = False
 
 	@api.onchange("subject_id")
 	def _onchange_subject_id(self):
-		for rec in self:
-			if rec.subject_id.id != False:
-				sessions = self.env["ems.attendance_session_header"].search([("subject_id", "=", rec.subject_id.id), ("group_ids", "in", [rec.group_id.id])])
+		for wizard in self:
+			if wizard.subject_id.id != False:
+				sessions = self.env["ems.attendance_session_header"].search([("subject_id", "=", wizard.subject_id.id), ("group_ids", "in", [wizard.group_id.id])])
 				first = sessions.search([], order="date asc", limit=1)
 				last = sessions.search([], order="date desc", limit=1)
-				rec.from_date = first.date
-				rec.to_date = last.date
+				wizard.from_date = first.date
+				wizard.to_date = last.date
 
 	def print(self):
 		session_ids = self.env["ems.attendance_session_header"].search([
@@ -200,107 +186,101 @@ class ems_attendance_report_subject_wizard(models.TransientModel):
 			("date", "<=", self.to_date),
 		]).ids
 
-		if not session_ids:
-			status_ids = []
-		else:
-			query = """SELECT status.id FROM ems_attendance_session_line AS status
-					WHERE status.attendance_session_id IN %s"""
-			self.env.cr.execute(query, (tuple(session_ids),))
-			status_ids = [r['id'] for r in self.env.cr.dictfetchall()]
+		status_ids = self.env["ems.attendance_session_line"].search([("attendance_session_id", "in", session_ids)]).ids
 
 		data = {'doc_ids': [self.read()[0]['id']], 'status_ids': status_ids}
 		return self.env.ref('ems.action_attendance_report_subject').with_context(landscape=True).report_action(None, data=data)
 
-class ems_attendance_report_student(models.AbstractModel):
+class EmsAttendanceReportStudent(models.AbstractModel):
 	_name = 'report.ems.attendance_report_student'
 	_description = "Attendance report data: by student."
 
 	def _get_report_values(self, docids, data=None):
-		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
+		if not docids: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
 		entries = list(self.env["ems.attendance_session_line"].browse(data['status_ids']))
 		main = _report_data(entries, self.env)
 
 		grp_by_subject = {}
-		for e in entries:
-			key = e.attendance_session_id.subject_id
+		for entry in entries:
+			key = entry.attendance_session_id.subject_id
 			if not key in grp_by_subject: grp_by_subject[key] = []
 			values = grp_by_subject[key]
-			values.append(e)
+			values.append(entry)
 
 		lines = {}
-		for s in grp_by_subject:
-			lines[s] = _report_data(grp_by_subject[s], self.env)
-				
+		for subject in grp_by_subject:
+			lines[subject] = _report_data(grp_by_subject[subject], self.env)
+
 		return {
 			'doc_ids': docids,
 			'doc_model': 'ems.attendance_report_student_wizard',
 			'docs': self.env["ems.attendance_report_student_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
-			'attendance_session_line': {s.id: s.name for s in self.env['ems.attendance_status'].with_context(active_test=False).search([])},
+			'attendance_session_line': {status.id: status.name for status in self.env['ems.attendance_status'].with_context(active_test=False).search([])},
 			'overall_status': dict(overall_status)
-		}		
+		}
 
-class ems_attendance_report_subject(models.AbstractModel):
+class EmsAttendanceReportSubject(models.AbstractModel):
 	_name = 'report.ems.attendance_report_subject'
 	_description = "Attendance report data: by subject."
-		
+
 	def _get_report_values(self, docids, data=None):
-		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
+		if not docids: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
 		entries = list(self.env["ems.attendance_session_line"].browse(data['status_ids']))
 		main = _report_data(entries, self.env)
 
 		grp_by_student = {}
-		for e in entries:
-			key = e.student_id
+		for entry in entries:
+			key = entry.student_id
 			if not key in grp_by_student: grp_by_student[key] = []
 			values = grp_by_student[key]
-			values.append(e)
+			values.append(entry)
 
 		lines = {}
-		for s in grp_by_student:
-			lines[s] = _report_data(grp_by_student[s], self.env)
-				
+		for student in grp_by_student:
+			lines[student] = _report_data(grp_by_student[student], self.env)
+
 		return {
 			'doc_ids': docids,
 			'doc_model': 'ems.attendance_report_subject_wizard',
 			'docs': self.env["ems.attendance_report_subject_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
-			'attendance_session_line': {s.id: s.name for s in self.env['ems.attendance_status'].with_context(active_test=False).search([])},
+			'attendance_session_line': {status.id: status.name for status in self.env['ems.attendance_status'].with_context(active_test=False).search([])},
 			'overall_status': dict(overall_status)
 		}
-	
-class ems_attendance_report_group(models.AbstractModel):
+
+class EmsAttendanceReportGroup(models.AbstractModel):
 	_name = 'report.ems.attendance_report_group'
 	_description = "Attendance report data: by group."
-		
+
 	def _get_report_values(self, docids, data=None):
-		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
+		if not docids: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
 		entries = list(self.env["ems.attendance_session_line"].browse(data['status_ids']))
 		main = _report_data(entries, self.env)
 
 		grp_by_subject = {}
-		for e in entries:
-			key = e.attendance_session_id.subject_id
+		for entry in entries:
+			key = entry.attendance_session_id.subject_id
 			if not key in grp_by_subject: grp_by_subject[key] = []
 			values = grp_by_subject[key]
-			values.append(e)
+			values.append(entry)
 
 		lines = {}
-		for s in grp_by_subject:
-			lines[s] = _report_data(grp_by_subject[s], self.env)
-				
+		for subject in grp_by_subject:
+			lines[subject] = _report_data(grp_by_subject[subject], self.env)
+
 		return {
 			'doc_ids': docids,
 			'doc_model': 'ems.attendance_report_group_wizard',
 			'docs': self.env["ems.attendance_report_group_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
-			'attendance_session_line': {s.id: s.name for s in self.env['ems.attendance_status'].with_context(active_test=False).search([])},
+			'attendance_session_line': {status.id: status.name for status in self.env['ems.attendance_status'].with_context(active_test=False).search([])},
 			'overall_status': dict(overall_status)
 		}
-		
+
 class _report_data:
 	def __init__(self, entries, env):
 		self.entries = entries
@@ -315,25 +295,25 @@ class _report_data:
 			absence : self._setup_counters(0, len(entries))
 		}
 
-		for s in statuses:
-			self.breakdown[s.id] = self._setup_counters(0, len(entries))
+		for status in statuses:
+			self.breakdown[status.id] = self._setup_counters(0, len(entries))
 
-		for e in entries:
-			self.breakdown[e.status_id.id]['count'] += 1
-			if e.notes != False: self.comments.append(e)
-			if e.status_id.category == 'assistance': self.overall[assistance]['count'] += 1
+		for entry in entries:
+			self.breakdown[entry.status_id.id]['count'] += 1
+			if entry.notes != False: self.comments.append(entry)
+			if entry.status_id.category == 'assistance': self.overall[assistance]['count'] += 1
 			else: self.overall[absence]['count'] += 1
 
-		for s in statuses:
-			self._compute_counters(self.breakdown[s.id])
+		for status in statuses:
+			self._compute_counters(self.breakdown[status.id])
 
 		self._compute_counters(self.overall[assistance])
 		self._compute_counters(self.overall[absence])
-		
+
 
 	def _get_status(self, name):
 		return list(filter(lambda x: x[0] == name, overall_status))[0]
-	
+
 	def _setup_counters(self, count, total):
 		overall = {
 			'count' : count,
@@ -342,6 +322,6 @@ class _report_data:
 		}
 		self._compute_counters(overall)
 		return overall
-	
+
 	def _compute_counters(self, overall):
 		if overall['total'] > 0: overall['%'] = round((overall['count'] / overall['total']) * 100, 2)

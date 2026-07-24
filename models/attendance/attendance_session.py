@@ -566,6 +566,16 @@ class ems_attendance_session_line(models.Model):
 	template_teacher_ids = fields.Many2many(string="Template's teachers", related="attendance_session_id.template_teacher_ids", store=False)
 	session_teacher_id = fields.Many2one(string="Session's teacher", related="attendance_session_id.session_teacher_id", store=False)
 
+	# Stored so the 'Attendance analysis' pivot/graph view can group by them efficiently.
+	date = fields.Date(string="Date", related="attendance_session_id.date", store=True)
+	level_id = fields.Many2one(string="Level", comodel_name="ems.level", related="attendance_session_id.level_id", store=True)
+	study_id = fields.Many2one(string="Study", comodel_name="ems.study", related="attendance_session_id.study_id", store=True)
+	group_ids = fields.Many2many(
+		string="Groups", comodel_name="ems.group", related="attendance_session_id.group_ids", store=True,
+		relation="ems_attendance_session_line_group_rel", column1="attendance_session_line_id", column2="group_id",
+	)
+	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", related="attendance_session_id.subject_id", store=True)
+
 	# Used to know if the student can be chosen manually or not (should be disabled, otherwise a justified student can be swaped for another).
 	is_auto_generated = fields.Boolean(default=False)
 	notes = fields.Text("Notes")

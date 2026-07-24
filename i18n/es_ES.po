@@ -1992,6 +1992,16 @@ msgstr ""
 " en asistencia de cara al tutor"
 
 #. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_report_analysis
+#: model:ir.ui.menu,name:ems.menu_attendance_reports_analysis
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_graph
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_list
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_pivot
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
+msgid "Attendance analysis"
+msgstr "Análisis de asistencia"
+
+#. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_reports_group
 msgid "Attendance by group"
 msgstr "Asistencia por grupo"
@@ -3226,6 +3236,8 @@ msgstr "Datos descargados"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__date
 #: model:ir.model.fields,field_description:ems.field_ems_minute__date
 #: model:ir.model.fields.selection,name:ems.selection__ems_authorization_field__field_type__date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__date
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
 msgid "Date"
 msgstr "Fecha"
 
@@ -4674,6 +4686,7 @@ msgstr "Otorgar acceso"
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_id
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
 msgid "Group"
 msgstr "Grupo"
 
@@ -4717,6 +4730,7 @@ msgstr "Grupo:"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__group_ids
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids
 #: model:ir.ui.menu,name:ems.menu_groups
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids
 msgid "Groups"
 msgstr "Grupos"
 
@@ -5667,6 +5681,7 @@ msgstr "Texto legal (renderizado)"
 #: model_terms:ir.ui.view,arch_db:ems.view_sale_order_template_search_inherit_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__level_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__level_id
 msgid "Level"
 msgstr "Nivel"
 
@@ -8383,6 +8398,7 @@ msgstr "Estado / Provincia"
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
 msgid "Status"
 msgstr "Estado"
 
@@ -8496,6 +8512,7 @@ msgstr "Calle 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__student_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
 msgid "Student"
 msgstr "Alumno"
 
@@ -8685,6 +8702,7 @@ msgstr "Estudios para matriculación"
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__study_id
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__study_id
 msgid "Study"
 msgstr "Estudio"
 
@@ -8732,6 +8750,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__subject_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
 msgid "Subject"
 msgstr "Asignatura"
 

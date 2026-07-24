@@ -234,10 +234,11 @@
             'views/attendance/attendance_notification/menu.xml',  
             'views/attendance/attendance_notification/list.xml',               
 
+            'views/attendance/attendance_reports/analysis_views.xml',
             'views/attendance/attendance_reports/menu.xml',
-            'views/attendance/attendance_reports/student_wizard.xml', 
-            'views/attendance/attendance_reports/subject_wizard.xml', 
-            'views/attendance/attendance_reports/group_wizard.xml', 
+            'views/attendance/attendance_reports/student_wizard.xml',
+            'views/attendance/attendance_reports/subject_wizard.xml',
+            'views/attendance/attendance_reports/group_wizard.xml',
 
             'views/communications/notice/list.xml',
             'views/communications/notice/form.xml',

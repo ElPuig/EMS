@@ -25,6 +25,8 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
 4. Use the **spreadsheet/download icon** in the header to export the current pivot to Excel.
 5. Switch to the **graph** view (top-right icons) for a visual breakdown — by default it shows the
    **% of absence per subject**, so you can spot which subjects have the highest absenteeism at a glance.
+   The graph shows one measure at a time — use the **Measures** dropdown in its header to switch to
+   **Strike count** if you want to see disciplinary strikes per subject instead.
 
 ---
 

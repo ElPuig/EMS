@@ -21,6 +21,7 @@
                 <graph string="Attendance reports" type="bar">
                     <field name="subject_id"/>
                     <field name="absence_rate" type="measure"/>
+                    <field name="strike_count" type="measure"/>
                 </graph>
             </field>
         </record>

@@ -116,18 +116,27 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   `web/static/src/views/pivot/pivot_model.js`); reaching the fully drilled-down subject/student view takes
   2 clicks on the pivot's own "Expand all" button — a deliberate choice over adding custom auto-expand JS.
 - **Graph**: `<field name="subject_id"/>` (default groupBy/x-axis) + `<field name="absence_rate"
-  type="measure"/>` (default measure). Per the `GraphArchParser` (`web/static/src/views/graph/
-  graph_arch_parser.js`): a `<field>` without `type="measure"` becomes the default groupBy if its type is
-  groupable; a `<field type="measure">` becomes the default *selected* measure (the field still needs to be
-  numeric/aggregatable to appear as a measure option at all — `absence_rate`'s `aggregator="avg"` is what
-  makes `avg(absence_rate)` show as "% absence" per subject out of the box).
+  type="measure"/>` + `<field name="strike_count" type="measure"/>`. Per the `GraphArchParser`
+  (`web/static/src/views/graph/graph_arch_parser.js`): a `<field>` without `type="measure"` becomes the
+  default groupBy if its type is groupable; each `<field type="measure">` becomes a *selectable* measure
+  (needs `aggregator` to qualify — `absence_rate`'s is `avg`, `strike_count`'s is the Integer default
+  `sum`), but **unlike pivot, the graph view can only display one measure at a time** — confirmed against
+  `web/static/src/views/graph/graph_model.js`/`graph_renderer.js`: `metaData.measure` is singular
+  throughout the whole data-fetch/render pipeline, and `onMeasureSelected` *replaces* it rather than
+  toggling a set. The "Measures" dropdown (`web.ReportViewMeasures`, same component pivot uses) lets the
+  user switch between "Absence rate" and "Strike count" with one click, each rendering its own bar chart —
+  there is no built-in way to plot both as separate bar series on the same chart; that would need a custom
+  chart component instead of the stock `<graph>` view.
 - **Menu → role-scoped entry point**: `menu_attendance_reports` ("Reports") no longer points at the
   act_window directly — it points at `action_attendance_reports_open`, an `ir.actions.server` (`state=
   "code"`, same style as `views/academic_management/enrollment/list_tutor.xml`'s
   `action_student_group_enrollment`). Its inline code reads `action_attendance_report_analysis` via
-  `env.ref(...).sudo().read()[0]`, always sets `context['pivot_measures'] = ['absence_rate', '__count']`
-  (so "Count" is available as a second measure alongside the % — sample size matters when reading a
-  percentage), and adds a default `domain` scoping to the current user's own teaching
+  `env.ref(...).sudo().read()[0]`, always sets `context['pivot_measures'] = ['absence_rate', 'strike_count',
+  '__count']` and `context['graph_measure'] = 'absence_rate'` (the latter is what pins the graph's default
+  to "Absence rate" regardless of arch field order — `graph_measure` is read before the arch's own default,
+  see `graph_model.js:181`). "Count" is available as a pivot measure alongside the other two — sample size
+  matters when reading a percentage. The server action also adds a default `domain` scoping to the current
+  user's own teaching
   (`[('template_teacher_ids.user_id', '=', env.uid)]`) **unless** they have `ems.group_head_of_studies`,
   `ems.group_secretary` or `ems.group_secretary_admin` — `group_head_of_studies` alone covers head of
   studies/deputy/director/academic admin too, since each implies the one below it
@@ -174,11 +183,12 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
 
 - `tests/test_attendance_reports.py` (`TransactionCase`): admin-vs-teacher scoping for all 3 `allowed_*`
   computes (including both bug fixes), each wizard's `print()`, the stored related fields, `absence_rate`,
-  and `action_attendance_reports_open`'s role-based domain (`.run()` `with_user(...)` for a plain teacher vs.
-  an academic admin).
+  `strike_count`'s new `store=True` (aggregatable via `read_group`), and `action_attendance_reports_open`'s
+  role-based domain (`.run()` `with_user(...)` for a plain teacher vs. an academic admin).
 - `tests/test_attendance_reports_tour.py` + `static/tests/tours/attendance_reports_tour.js` (`HttpCase`):
   each of the 3 wizard forms end-to-end (cascading level → study → group selection, Print); the analysis
   screen entered through the server action, pivot rendering by default, 2 clicks on "Expand all" actually
-  drilling subject → student, graph on switch; opening the ⚙ Actions cog menu and using one of the 3 PDF
-  shortcuts to confirm it actually opens the corresponding wizard (this is the only coverage of the custom
-  `cogMenu` JS — nothing server-side exercises it).
+  drilling subject → student, graph on switch, switching the graph's measure from "Absence rate" to
+  "Strike count" via the Measures dropdown and confirming it still renders; opening the ⚙ Actions cog menu
+  and using one of the 3 PDF shortcuts to confirm it actually opens the corresponding wizard (this is the
+  only coverage of the custom `cogMenu` JS — nothing server-side exercises it).

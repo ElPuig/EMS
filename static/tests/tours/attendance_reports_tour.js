@@ -88,7 +88,14 @@ registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
             content: "Nested student row appears under the subject",
         },
         { trigger: ".o_switch_view.o_graph", content: "Switch to graph", run: "click" },
-        { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
+        { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart (default measure: absence rate)" },
+        { trigger: ".btn:contains('Measures')", content: "Open the Measures dropdown", run: "click" },
+        {
+            trigger: ".o_menu_item:contains('Strike count')",
+            content: "'Strike count' is offered as an alternative measure — switch to it",
+            run: "click",
+        },
+        { trigger: ".o_graph_renderer canvas", content: "Graph still renders after switching measure" },
         { trigger: ".o_cp_action_menus button:has(.fa-cog)", content: "Open the Actions cog menu", run: "click" },
         {
             trigger: ".o_attendance_report_group_cog_menu",

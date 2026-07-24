@@ -1267,6 +1267,11 @@ msgid "Absence"
 msgstr "Ausencia"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__absence_rate
+msgid "Absence rate"
+msgstr "Tasa de absentismo"
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Absence expected by: "
@@ -1993,28 +1998,11 @@ msgstr ""
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_attendance_report_analysis
-#: model:ir.ui.menu,name:ems.menu_attendance_reports_analysis
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_graph
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_list
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_pivot
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
-msgid "Attendance analysis"
-msgstr "Análisis de asistencia"
-
-#. module: ems
-#: model:ir.ui.menu,name:ems.menu_attendance_reports_group
-msgid "Attendance by group"
-msgstr "Asistencia por grupo"
-
-#. module: ems
-#: model:ir.ui.menu,name:ems.menu_attendance_reports_student
-msgid "Attendance by student"
-msgstr "Asistencia de los estudiantes"
-
-#. module: ems
-#: model:ir.ui.menu,name:ems.menu_attendance_reports_subject
-msgid "Attendance by subject"
-msgstr "Asistencia por asignatura"
+msgid "Attendance reports"
+msgstr "Informes de asistencia"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_attendance_issue_tree
@@ -2073,16 +2061,19 @@ msgstr "Notificación de asistencia: resumen diario"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_attendance_report_group_wizard
+#: code:addons/ems/static/src/xml/backend/attendance_report_analysis_cog_menu.xml:0
 msgid "Attendance report (by group)"
 msgstr "Informe de asistencia (por grupo)"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_attendance_report_student_wizard
+#: code:addons/ems/static/src/xml/backend/attendance_report_analysis_cog_menu.xml:0
 msgid "Attendance report (by student)"
 msgstr "Informe de asistencia (por estudiante)"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_attendance_report_subject_wizard
+#: code:addons/ems/static/src/xml/backend/attendance_report_analysis_cog_menu.xml:0
 msgid "Attendance report (by subject)"
 msgstr "Informe de asistencia (por asignatura)"
 

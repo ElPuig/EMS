@@ -576,6 +576,10 @@ class ems_attendance_session_line(models.Model):
 	)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", related="attendance_session_id.subject_id", store=True)
 
+	# 0/100 rather than a boolean so the 'Attendance reports' graph's default measure (avg,
+	# grouped by subject) resolves directly to a percentage of absence.
+	absence_rate = fields.Float(string="Absence rate", compute="_compute_absence_rate", store=True, aggregator="avg")
+
 	# Used to know if the student can be chosen manually or not (should be disabled, otherwise a justified student can be swaped for another).
 	is_auto_generated = fields.Boolean(default=False)
 	notes = fields.Text("Notes")
@@ -692,6 +696,11 @@ class ems_attendance_session_line(models.Model):
 	def _compute_strike_count(self):
 		for rec in self:
 			rec.strike_count = len(rec.strike_ids)
+
+	@api.depends('status_id')
+	def _compute_absence_rate(self):
+		for rec in self:
+			rec.absence_rate = 100.0 if rec.status_id.category == 'absence' else 0.0
 
 	def action_view_strikes(self):
 		self.ensure_one()

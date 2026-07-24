@@ -238,13 +238,25 @@ class TestAttendanceReportWizards(TransactionCase):
         self.assertEqual(result['data']['status_ids'], [self.line_recent.id])
         self.assertNotIn(self.line_old.id, result['data']['status_ids'])
 
-    # --- stored related fields (used by the 'Attendance analysis' pivot/graph) ---
+    # --- stored related fields (used by the 'Attendance reports' pivot/graph) ---
 
     def test_session_line_analysis_fields_follow_the_session(self):
         self.assertEqual(self.line_recent.date, self.today)
         self.assertEqual(self.line_recent.level_id, self.level)
         self.assertEqual(self.line_recent.study_id, self.study1)
         self.assertEqual(self.line_recent.subject_id, self.subject_a)
+
+    def test_absence_rate_follows_status_category(self):
+        self.assertEqual(self.line_recent.status_id.category, 'assistance')
+        self.assertEqual(self.line_recent.absence_rate, 0.0)
+
+        miss_status = self.env.ref('ems.attendance_status_miss')
+        absent_line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.student1.id, 'status_id': miss_status.id,
+            'attendance_session_id': self.session_recent.id,
+        })
+        self.assertEqual(absent_line.status_id.category, 'absence')
+        self.assertEqual(absent_line.absence_rate, 100.0)
 
     # --- _get_report_values: docids is always None on the real report_action() call path ---
 

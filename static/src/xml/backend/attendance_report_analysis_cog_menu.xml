@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="cog_menu.AttendanceReportGroupCogMenu">
+        <DropdownItem class="'o_attendance_report_group_cog_menu'" onSelected.bind="onClickCogMenu">
+            <i class="fa fa-fw fa-print me-1"></i> Attendance report (by group)
+        </DropdownItem>
+    </t>
+    <t t-name="cog_menu.AttendanceReportStudentCogMenu">
+        <DropdownItem class="'o_attendance_report_student_cog_menu'" onSelected.bind="onClickCogMenu">
+            <i class="fa fa-fw fa-print me-1"></i> Attendance report (by student)
+        </DropdownItem>
+    </t>
+    <t t-name="cog_menu.AttendanceReportSubjectCogMenu">
+        <DropdownItem class="'o_attendance_report_subject_cog_menu'" onSelected.bind="onClickCogMenu">
+            <i class="fa fa-fw fa-print me-1"></i> Attendance report (by subject)
+        </DropdownItem>
+    </t>
+</templates>

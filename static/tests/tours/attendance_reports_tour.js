@@ -65,19 +65,22 @@ registry.category("web_tour.tours").add("ems_attendance_report_student_wizard", 
     ],
 });
 
-// New self-service 'Attendance analysis' screen (list/pivot/graph on ems.attendance_session_line):
-// confirm all 3 view types render with the seeded line and that switching between them works.
+// Self-service 'Attendance reports' screen (pivot/graph on ems.attendance_session_line, no list):
+// confirm pivot is the default view, graph renders, and the 3 PDF wizards are reachable from the
+// Actions (cog) menu instead of a dedicated menu entry.
 registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
     test: true,
     url: "/odoo/action-ems.action_attendance_report_analysis",
     steps: () => [
-        {
-            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Attendance Reports Tour Student')",
-            content: "The seeded line is listed",
-        },
-        { trigger: ".o_switch_view.o_pivot", content: "Switch to pivot", run: "click" },
-        { trigger: ".o_pivot_view .o_pivot_cell_value", content: "Pivot renders with at least one value cell" },
+        { trigger: ".o_pivot_view .o_pivot_cell_value", content: "Pivot renders by default with at least one value cell" },
         { trigger: ".o_switch_view.o_graph", content: "Switch to graph", run: "click" },
         { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
+        { trigger: ".o_cp_action_menus button:has(.fa-cog)", content: "Open the Actions cog menu", run: "click" },
+        {
+            trigger: ".o_attendance_report_group_cog_menu",
+            content: "The 'Attendance report (by group)' shortcut is listed — click it",
+            run: "click",
+        },
+        { trigger: ".o_form_view .o_field_widget[name='level_id']", content: "The group report wizard opened" },
     ],
 });

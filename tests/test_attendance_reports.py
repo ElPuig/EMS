@@ -10,9 +10,10 @@ class TestAttendanceReportWizards(TransactionCase):
     by ORM calls: the teacher-scoping filters (allowed_group_ids/allowed_student_ids/
     allowed_subject_ids) and the print() methods that fetch ems.attendance_session_line ids.
     Also covers a pre-existing bug fixed in the same change: allowed_subject_ids not actually
-    scoping to the current teacher. The group wizard's level/study fields were later removed
-    entirely (simplified to a single group_id step) — allowed_group_ids no longer depends on
-    a prior study selection, only on the current teacher's own teaching."""
+    scoping to the current teacher. The group and student wizards' level/study(/group) fields
+    were later removed entirely (simplified to a single group_id/student_id step) —
+    allowed_group_ids/allowed_student_ids no longer depend on a prior study/group selection,
+    only on the current teacher's own teaching."""
 
     @classmethod
     def setUpClass(cls):
@@ -181,11 +182,11 @@ class TestAttendanceReportWizards(TransactionCase):
         self.assertIn(self.subject_a, wizard.allowed_subject_ids)
         self.assertIn(self.subject_b, wizard.allowed_subject_ids)
 
-    # --- allowed_student_ids (already-correct logic, now via ORM) ------
+    # --- allowed_student_ids: scoped to the current teacher (no level/study/group step) --
 
     def test_allowed_student_ids_scoped_to_owner(self):
         wizard = self.env['ems.attendance_report_student_wizard'].with_user(self.owner_user).create({
-            'group_id': self.group1.id, 'student_id': self.student1.id,
+            'student_id': self.student1.id,
         })
         wizard._compute_allowed_student_ids()
         self.assertIn(self.student1, wizard.allowed_student_ids)
@@ -193,12 +194,20 @@ class TestAttendanceReportWizards(TransactionCase):
 
     def test_allowed_student_ids_scoped_to_other(self):
         wizard = self.env['ems.attendance_report_student_wizard'].with_user(self.other_user).create({
-            'group_id': self.group1.id, 'student_id': self.student1.id,
+            'student_id': self.student1.id,
         })
         wizard._compute_allowed_student_ids()
-        # 'other' only teaches subject_b in group1: student1 is enrolled there, student2 is not.
+        # 'other' only teaches group1/subject_b: student1 is enrolled there, student2 is not.
         self.assertIn(self.student1, wizard.allowed_student_ids)
         self.assertNotIn(self.student2, wizard.allowed_student_ids)
+
+    def test_allowed_student_ids_admin_sees_all(self):
+        wizard = self.env['ems.attendance_report_student_wizard'].with_user(self.admin_user).create({
+            'student_id': self.student1.id,
+        })
+        wizard._compute_allowed_student_ids()
+        self.assertIn(self.student1, wizard.allowed_student_ids)
+        self.assertIn(self.student2, wizard.allowed_student_ids)
 
     # --- print(): ORM-fetched status_ids --------------------------------
 
@@ -220,7 +229,7 @@ class TestAttendanceReportWizards(TransactionCase):
 
     def test_print_student_wizard_filters_by_date_range(self):
         wizard = self.env['ems.attendance_report_student_wizard'].create({
-            'group_id': self.group1.id, 'student_id': self.student1.id,
+            'student_id': self.student1.id,
             'from_date': self.today - timedelta(days=2), 'to_date': self.today,
         })
         result = wizard.print()

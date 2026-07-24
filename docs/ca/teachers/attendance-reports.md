@@ -29,9 +29,14 @@ A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranat
 2. El **Tutor/a** i les dates **Des de**/**Fins a** es preomplen automàticament a partir del grup i del seu rang de sessions.
 3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període.
 
-**Informe d'assistència (per alumne) / (per assignatura):**
+**Informe d'assistència (per alumne):**
+1. Selecciona un **Alumne** — el desplegable només mostra alumnes matriculats en una assignatura que **realment imparteixes**; si et falta algun alumne, comprova que estàs assignat/da a la seva assignatura al teu horari docent.
+2. El **Tutor/a** i les dates **Des de**/**Fins a** es preomplen automàticament a partir de l'alumne i del seu rang de sessions.
+3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període.
+
+**Informe d'assistència (per assignatura):**
 1. Selecciona un **Nivell**, després un **Estudi** i després un **Grup** — cada selecció filtra la següent. Els desplegables només mostren els grups i les assignatures que **realment imparteixes**; si et falta algun grup o assignatura, comprova que hi estàs assignat/da al teu horari docent.
-2. Selecciona també l'**Alumne**/l'**Assignatura** — limitat al que realment està matriculat o s'imparteix al grup seleccionat.
+2. Selecciona també l'**Assignatura** — limitat al que realment s'imparteix al grup seleccionat.
 3. Les dates **Des de**/**Fins a** es preomplen amb tot el rang de sessions disponibles per a la teva selecció; redueix-les si només vols un període concret.
 4. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període.
 

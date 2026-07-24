@@ -42,10 +42,16 @@ reports.
 3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
    session notes recorded for the period.
 
-**Attendance report (by student) / (by subject):**
+**Attendance report (by student):**
+1. Pick a **Student**.
+2. The **Tutor** and the **From**/**To** dates fill in automatically from the student and their full
+   session range.
+3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
+   session notes recorded for the period.
+
+**Attendance report (by subject):**
 1. Pick a **Level**, then a **Study**, then a **Group** — each selection filters the next one.
-2. Also pick the **Student**/**Subject** — limited to what's actually enrolled/taught in the group you
-   picked.
+2. Also pick the **Subject** — limited to what's actually taught in the group you picked.
 3. The **From**/**To** dates are pre-filled with the full range of sessions available for your selection;
    narrow them down if you only want a specific period.
 4. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any

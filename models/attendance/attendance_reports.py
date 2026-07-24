@@ -64,43 +64,38 @@ class EmsAttendanceReportStudentWizard(models.TransientModel):
 	_name = "ems.attendance_report_student_wizard"
 	_description = "Attendance report wizard: by student."
 
-	level_id = fields.Many2one(string='Level', comodel_name='ems.level')
-	study_id = fields.Many2one(string='Studies', comodel_name='ems.study')
-	group_id = fields.Many2one(string='Group', comodel_name='ems.group')
-	tutor_id = fields.Many2one(string='Tutor', related="group_id.tutor_id")
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", required=True)
+	tutor_id = fields.Many2one(string='Tutor', related="student_id.tutor_id")
 	allowed_student_ids = fields.Many2many('res.partner', compute='_compute_allowed_student_ids', store=False)
 	from_date = fields.Date(string="From", default=fields.Datetime.now, required=True)
 	to_date = fields.Date(string="To", default=fields.Datetime.now, required=True)
 
-	@api.onchange('group_id')
+	@api.model
+	def default_get(self, fields_list):
+		res = super().default_get(fields_list)
+		if 'allowed_student_ids' in fields_list:
+			res['allowed_student_ids'] = [(6, 0, self._get_allowed_student_ids().ids)]
+		return res
+
+	def _get_allowed_student_ids(self):
+		# TODO: use this to set the permissions (uid = 1 means ADMIN)
+		current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
+		if current_teacher.id <= 1:
+			return self.env["ems.enrollment"].search([]).mapped('student_id')
+
+		# Crossing student's enrollment data with teacher's teaching data: a student is
+		# allowed if enrolled in a (group, subject) pair the current teacher actually teaches.
+		teachings = self.env["ems.teaching"].search([('teacher_id', '=', current_teacher.id)])
+		taught_pairs = {(teaching.group_id.id, teaching.subject_id.id) for teaching in teachings}
+		enrollments = self.env["ems.enrollment"].search([('group_id', 'in', teachings.mapped('group_id').ids)])
+		enrollments = enrollments.filtered(lambda enrollment: (enrollment.group_id.id, enrollment.subject_id.id) in taught_pairs)
+		return enrollments.mapped('student_id')
+
+	@api.depends_context('uid')
 	def _compute_allowed_student_ids(self):
+		students = self._get_allowed_student_ids()
 		for wizard in self:
-			if wizard.group_id.id == False:
-				wizard.allowed_student_ids = []
-			else:
-				# Crossing student's enrollment data with teacher's teaching data.
-				domain = [('group_id', '=', wizard.group_id.id)]
-
-				# TODO: use this to set the permissions (uid = 1 means ADMIN)
-				current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
-				if current_teacher.id > 1:
-					taught_subject_ids = self.env["ems.teaching"].search([
-						('group_id', '=', wizard.group_id.id), ('teacher_id', '=', current_teacher.id),
-					]).mapped('subject_id')
-					domain.append(('subject_id', 'in', taught_subject_ids.ids))
-
-				wizard.allowed_student_ids = self.env["ems.enrollment"].search(domain).mapped('student_id')
-
-	@api.onchange('level_id')
-	def _onchange_level_id(self):
-		for wizard in self:
-			wizard.study_id = False
-
-	@api.onchange('study_id')
-	def _onchange_study_id(self):
-		for wizard in self:
-			wizard.group_id = False
+			wizard.allowed_student_ids = students
 
 	@api.onchange("student_id")
 	def _onchange_student_id(self):

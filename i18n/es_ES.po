@@ -7542,6 +7542,7 @@ msgstr "Repetir por cada asignatura"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_reports
+#: model:ir.actions.server,name:ems.action_attendance_reports_open
 msgid "Reports"
 msgstr "Informes"
 

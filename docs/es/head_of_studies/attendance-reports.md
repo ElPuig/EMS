@@ -12,10 +12,11 @@
 
 ## Explorar los informes de asistencia
 
-1. Ve a **Asistencia → Informes**. Se abre directamente con una **tabla dinámica** — sin ningún clic adicional.
-2. Por defecto las filas son alumnos y las columnas son estados de asistencia; usa la barra de búsqueda para filtrar por alumno, grupo, asignatura o estado, y **Agrupar por** para cambiar cómo se pliega la tabla — por ejemplo, por grupo para comparar las tasas de asistencia entre grupos del centro.
-3. Usa el icono de **hoja de cálculo/descarga** de la cabecera para exportar la tabla dinámica actual a Excel.
-4. Cambia a la vista de **gráfico** (iconos arriba a la derecha) para ver un resumen visual — por defecto muestra el **% de absentismo por asignatura** de todo el centro, así puedes detectar de un vistazo qué asignaturas tienen más absentismo.
+1. Ve a **Asistencia → Informes**. Se abre directamente con una **tabla dinámica**, mostrando **todo el centro** por defecto.
+2. La tabla agrupa por **asignatura y luego por alumno**. Haz clic en el icono **Expandir todo** (arriba a la derecha, junto a Invertir ejes) dos veces: una para desplegar las asignaturas y otra para desplegar los alumnos de cada asignatura. El número principal es el **% de faltas por alumno** — el **Recuento** (número de sesiones contabilizadas) se muestra al lado, así puedes saber si un 33% sale de 3 sesiones o de 30.
+3. Usa la barra de búsqueda para filtrar más (por alumno, grupo, asignatura o estado), y **Agrupar por** para cambiar cómo se pliega la tabla — por ejemplo, por grupo para comparar las tasas de asistencia entre grupos del centro.
+4. Usa el icono de **hoja de cálculo/descarga** de la cabecera para exportar la tabla dinámica actual a Excel.
+5. Cambia a la vista de **gráfico** (iconos arriba a la derecha) para ver un resumen visual — por defecto muestra el **% de absentismo por asignatura** de todo el centro, así puedes detectar de un vistazo qué asignaturas tienen más absentismo.
 
 ---
 

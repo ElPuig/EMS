@@ -13,12 +13,16 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
 
 ## Exploring Attendance Reports
 
-1. Navigate to **Attendance → Reports**. It opens directly on a **pivot table** — no extra click needed.
-2. By default rows are students and columns are attendance statuses; use the search bar to filter by
-   student, group, subject or status, and **Group By** to change how the table is folded — e.g. by group
-   to compare assistance rates across the school.
-3. Use the **spreadsheet/download icon** in the header to export the current pivot to Excel.
-4. Switch to the **graph** view (top-right icons) for a visual breakdown — by default it shows the
+1. Navigate to **Attendance → Reports**. It opens directly on a **pivot table**, showing the **whole
+   centre** by default.
+2. The table groups by **subject, then student**. Click the **Expand all** icon (top-right, next to Flip
+   axis) twice: once to unfold the subjects, once more to unfold each subject's students. The main number
+   is the **% of absences per student** — **Count** (number of sessions counted) is shown alongside it, so
+   you can tell whether a 33% comes from 3 sessions or from 30.
+3. Use the search bar to filter further (by student, group, subject or status), and **Group By** to change
+   how the table is folded — e.g. by group to compare assistance rates across the school.
+4. Use the **spreadsheet/download icon** in the header to export the current pivot to Excel.
+5. Switch to the **graph** view (top-right icons) for a visual breakdown — by default it shows the
    **% of absence per subject** across the whole centre, so you can spot which subjects have the highest
    absenteeism at a glance.
 

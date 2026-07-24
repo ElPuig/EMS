@@ -12,10 +12,11 @@
 
 ## Explorar els informes d'assistència
 
-1. Vés a **Assistència → Informes**. S'obre directament amb una **taula dinàmica** — sense cap clic addicional.
-2. Per defecte les files són alumnes i les columnes són estats d'assistència; fes servir la barra de cerca per filtrar per alumne, grup, assignatura o estat, i **Agrupa per** per canviar com es plega la taula — per exemple, per grup per comparar les taxes d'assistència entre grups del centre.
-3. Fes servir la icona de **full de càlcul/descàrrega** de la capçalera per exportar la taula dinàmica actual a Excel.
-4. Canvia a la vista de **gràfic** (icones a dalt a la dreta) per veure un resum visual — per defecte mostra el **% d'absentisme per assignatura** de tot el centre, així pots detectar d'un cop d'ull quines assignatures tenen més absentisme.
+1. Vés a **Assistència → Informes**. S'obre directament amb una **taula dinàmica**, mostrant **tot el centre** per defecte.
+2. La taula agrupa per **assignatura i després per alumne**. Fes clic a la icona **Expandeix-ho tot** (a dalt a la dreta, al costat de Capgirar eixos) dues vegades: un cop per desplegar les assignatures i un altre per desplegar els alumnes de cada assignatura. El número principal és el **% de faltes per alumne** — el **Compte** (nombre de sessions comptabilitzades) es mostra al costat, així pots saber si un 33% surt de 3 sessions o de 30.
+3. Fes servir la barra de cerca per filtrar més (per alumne, grup, assignatura o estat), i **Agrupa per** per canviar com es plega la taula — per exemple, per grup per comparar les taxes d'assistència entre grups del centre.
+4. Fes servir la icona de **full de càlcul/descàrrega** de la capçalera per exportar la taula dinàmica actual a Excel.
+5. Canvia a la vista de **gràfic** (icones a dalt a la dreta) per veure un resum visual — per defecte mostra el **% d'absentisme per assignatura** de tot el centre, així pots detectar d'un cop d'ull quines assignatures tenen més absentisme.
 
 ---
 

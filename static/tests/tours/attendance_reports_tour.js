@@ -66,13 +66,27 @@ registry.category("web_tour.tours").add("ems_attendance_report_student_wizard", 
 });
 
 // Self-service 'Attendance reports' screen (pivot/graph on ems.attendance_session_line, no list):
-// confirm pivot is the default view, graph renders, and the 3 PDF wizards are reachable from the
-// Actions (cog) menu instead of a dedicated menu entry.
+// entered through the 'Reports' menu's ir.actions.server (action_attendance_reports_open, role-
+// based default domain) rather than the underlying act_window directly — that's the real entry
+// point now. Confirms pivot is the default view, rows drill subject -> student (2 clicks on
+// 'Expand all', per the decision not to add custom auto-expand JS), graph renders, and the 3 PDF
+// wizards are reachable from the Actions (cog) menu instead of a dedicated menu entry.
 registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
     test: true,
-    url: "/odoo/action-ems.action_attendance_report_analysis",
+    url: "/odoo/action-ems.action_attendance_reports_open",
     steps: () => [
         { trigger: ".o_pivot_view .o_pivot_cell_value", content: "Pivot renders by default with at least one value cell" },
+        { trigger: ".o_pivot_flip_button, .o_pivot_expand_button", content: "Pivot toolbar loaded" },
+        { trigger: ".o_pivot_expand_button", content: "Expand all: Total -> subject", run: "click" },
+        {
+            trigger: ".o_pivot_view :contains('Attendance Reports Tour Subject')",
+            content: "Subject row appears",
+        },
+        { trigger: ".o_pivot_expand_button", content: "Expand all again: subject -> student", run: "click" },
+        {
+            trigger: ".o_pivot_view :contains('Attendance Reports Tour Student')",
+            content: "Nested student row appears under the subject",
+        },
         { trigger: ".o_switch_view.o_graph", content: "Switch to graph", run: "click" },
         { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
         { trigger: ".o_cp_action_menus button:has(.fa-cog)", content: "Open the Actions cog menu", run: "click" },

@@ -6,8 +6,9 @@
             <field name="model">ems.attendance_session_line</field>
             <field name="arch" type="xml">
                 <pivot string="Attendance reports">
+                    <field name="subject_id" type="row"/>
                     <field name="student_id" type="row"/>
-                    <field name="status_id" type="col"/>
+                    <field name="absence_rate" type="measure"/>
                 </pivot>
             </field>
         </record>

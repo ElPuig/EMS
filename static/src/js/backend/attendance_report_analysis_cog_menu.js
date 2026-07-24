@@ -6,25 +6,19 @@ import { useService } from "@web/core/utils/hooks";
 
 const cogMenuRegistry = registry.category("cogMenu");
 
-let _attendanceReportsActionId = null;
-
-// Scoped to the 'Reports' (Attendance reports pivot/graph) screen only, matched the same way as
-// ImportGedacCogMenu (import_gedac_cog_menu.js): by resolving the menu's own actionID once and
-// comparing it against the currently open action.
+// Scoped to the pivot/graph views of ems.attendance_session_line only — the only screen using
+// that model, so no need for the extra actionID/menu-xmlid indirection ImportGedacCogMenu
+// (import_gedac_cog_menu.js) uses to disambiguate a model shared by several menus. Matching by
+// actionId isn't reliable here anyway: the 'Reports' menu opens through an ir.actions.server
+// (action_attendance_reports_open, for role-based default domain scoping) that redirects to this
+// action, so env.config.actionId at render time is the act_window's id, not the menu's own
+// configured action id.
 function isOnAttendanceReportsScreen(env) {
-    const { actionType, actionId } = env.config;
-    if (actionType !== "ir.actions.act_window" || !actionId) {
+    const { actionType, viewType } = env.config;
+    if (actionType !== "ir.actions.act_window" || !["pivot", "graph"].includes(viewType)) {
         return false;
     }
-    if (_attendanceReportsActionId === null) {
-        try {
-            const menu = env.services.menu.getAll().find((m) => m.xmlid === "ems.menu_attendance_reports");
-            _attendanceReportsActionId = menu ? menu.actionID : false;
-        } catch {
-            _attendanceReportsActionId = false;
-        }
-    }
-    return actionId === _attendanceReportsActionId;
+    return env.searchModel?.resModel === "ems.attendance_session_line";
 }
 
 class AttendanceReportGroupCogMenu extends Component {

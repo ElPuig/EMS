@@ -270,4 +270,19 @@ class TestAttendanceReportWizards(TransactionCase):
         values = self.env['report.ems.attendance_report_group']._get_report_values(None, data=data)
         self.assertEqual(values['doc_ids'], [wizard.id])
         self.assertEqual(len(values['main'].overall), 2)
+
+    # --- 'Reports' menu server action: role-based default domain scoping -------
+
+    def test_reports_action_scoped_to_own_teaching_for_plain_teacher(self):
+        server_action = self.env.ref('ems.action_attendance_reports_open')
+        result = server_action.with_user(self.owner_user).run()
+        self.assertEqual(result.get('domain'), [('template_teacher_ids.user_id', '=', self.owner_user.id)])
+        self.assertEqual(result.get('context', {}).get('pivot_measures'), ['absence_rate', '__count'])
+
+    def test_reports_action_unscoped_for_academic_admin(self):
+        # group_academic_admin implies group_head_of_studies (security/groups.xml), which is one
+        # of the roles the server action's code checks to skip the default domain.
+        server_action = self.env.ref('ems.action_attendance_reports_open')
+        result = server_action.with_user(self.admin_user).run()
+        self.assertFalse(result.get('domain'))
         self.assertIn(self.group1, self.line_recent.group_ids)

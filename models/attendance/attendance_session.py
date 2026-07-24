@@ -584,7 +584,8 @@ class ems_attendance_session_line(models.Model):
 	is_auto_generated = fields.Boolean(default=False)
 	notes = fields.Text("Notes")
 	strike_ids = fields.One2many(string="Strikes", comodel_name="ems.strike", inverse_name="attendance_session_line_id")
-	strike_count = fields.Integer(string="Strike count", compute="_compute_strike_count")
+	# store=True so it can be used as a pivot/graph measure (the 'Attendance reports' screen).
+	strike_count = fields.Integer(string="Strike count", compute="_compute_strike_count", store=True)
 
 	def status_is_notificable(self):
 		# TODO: we want to notify also a justified miss? Maybe to prevent falsification (inform about a preveision? But if legit, will be also notified...)

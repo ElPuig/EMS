@@ -79,7 +79,7 @@
             <field name="state">code</field>
             <field name="code">
 action = env.ref('ems.action_attendance_report_analysis').sudo().read()[0]
-action['context'] = {'pivot_measures': ['absence_rate', '__count']}
+action['context'] = {'pivot_measures': ['absence_rate', 'strike_count', '__count']}
 if not (env.user.has_group('ems.group_head_of_studies') or env.user.has_group('ems.group_secretary') or env.user.has_group('ems.group_secretary_admin')):
     action['domain'] = [('template_teacher_ids.user_id', '=', env.uid)]
             </field>

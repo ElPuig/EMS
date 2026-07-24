@@ -17,8 +17,9 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
    centre** by default.
 2. The table groups by **subject, then student**. Click the **Expand all** icon (top-right, next to Flip
    axis) twice: once to unfold the subjects, once more to unfold each subject's students. The main number
-   is the **% of absences per student** — **Count** (number of sessions counted) is shown alongside it, so
-   you can tell whether a 33% comes from 3 sessions or from 30.
+   is the **% of absences per student** — **Count** (number of sessions counted) and **Strike count** are
+   shown alongside it, so you can tell whether a 33% comes from 3 sessions or from 30, and whether it comes
+   with disciplinary strikes attached.
 3. Use the search bar to filter further (by student, group, subject or status), and **Group By** to change
    how the table is folded.
 4. Use the **spreadsheet/download icon** in the header to export the current pivot to Excel.

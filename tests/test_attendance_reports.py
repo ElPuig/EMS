@@ -258,6 +258,14 @@ class TestAttendanceReportWizards(TransactionCase):
         self.assertEqual(absent_line.status_id.category, 'absence')
         self.assertEqual(absent_line.absence_rate, 100.0)
 
+    def test_strike_count_is_stored_and_summable(self):
+        # store=True is what makes it usable as a pivot/graph measure (the 'Attendance reports'
+        # screen) — a non-stored computed field can't be aggregated by read_group at all.
+        groups = self.env['ems.attendance_session_line'].read_group(
+            [('id', '=', self.line_recent.id)], ['strike_count'], [],
+        )
+        self.assertEqual(groups[0]['strike_count'], self.line_recent.strike_count)
+
     # --- _get_report_values: docids is always None on the real report_action() call path ---
 
     def test_get_report_values_handles_none_docids(self):
@@ -277,7 +285,7 @@ class TestAttendanceReportWizards(TransactionCase):
         server_action = self.env.ref('ems.action_attendance_reports_open')
         result = server_action.with_user(self.owner_user).run()
         self.assertEqual(result.get('domain'), [('template_teacher_ids.user_id', '=', self.owner_user.id)])
-        self.assertEqual(result.get('context', {}).get('pivot_measures'), ['absence_rate', '__count'])
+        self.assertEqual(result.get('context', {}).get('pivot_measures'), ['absence_rate', 'strike_count', '__count'])
 
     def test_reports_action_unscoped_for_academic_admin(self):
         # group_academic_admin implies group_head_of_studies (security/groups.xml), which is one

@@ -12001,6 +12001,7 @@ msgstr "Umbral de escalado de strikes"
 #: model:ir.model.fields,field_description:ems.field_res_partner__strike_count
 #: model:ir.model.fields,field_description:ems.field_res_users__strike_count
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_pivot
 msgid "Strike count"
 msgstr "Recuento de strikes"
 

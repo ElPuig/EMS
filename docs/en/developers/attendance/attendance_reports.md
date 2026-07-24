@@ -105,12 +105,16 @@ search views live in `views/attendance/attendance_reports/analysis_views.xml`. R
 scoping it more tightly than the PDF wizards' underlying data already is; see the security note above.
 
 - **Pivot** (default view): rows = `subject_id` → `student_id` (nested — subject outer, student inner, so
-  a teacher's own students group naturally by subject), no columns, default measure `absence_rate`. The
-  pivot always renders collapsed to a single "Total" row on load — there is no context key or arch
-  attribute that pre-expands row groups (`expandedRowGroupBys` starts `[]` and is purely client
-  interaction state, confirmed against `web/static/src/views/pivot/pivot_model.js`); reaching the fully
-  drilled-down subject/student view takes 2 clicks on the pivot's own "Expand all" button — a deliberate
-  choice over adding custom auto-expand JS.
+  a teacher's own students group naturally by subject), no columns, default measures `absence_rate` +
+  `strike_count` + `__count` (set both in the pivot arch's `type="measure"` fields and in
+  `action_attendance_reports_open`'s `context['pivot_measures']`, see below — the arch is the fallback for
+  any entry path that bypasses the server action). `strike_count` (`ems.attendance_session_line.strike_ids`
+  count) needed `store=True` added — a non-stored computed field cannot be aggregated by `read_group` at
+  all, so it couldn't be used as a measure before. The pivot always renders collapsed to a single "Total"
+  row on load — there is no context key or arch attribute that pre-expands row groups
+  (`expandedRowGroupBys` starts `[]` and is purely client interaction state, confirmed against
+  `web/static/src/views/pivot/pivot_model.js`); reaching the fully drilled-down subject/student view takes
+  2 clicks on the pivot's own "Expand all" button — a deliberate choice over adding custom auto-expand JS.
 - **Graph**: `<field name="subject_id"/>` (default groupBy/x-axis) + `<field name="absence_rate"
   type="measure"/>` (default measure). Per the `GraphArchParser` (`web/static/src/views/graph/
   graph_arch_parser.js`): a `<field>` without `type="measure"` becomes the default groupBy if its type is

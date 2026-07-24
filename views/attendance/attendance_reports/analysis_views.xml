@@ -9,6 +9,7 @@
                     <field name="subject_id" type="row"/>
                     <field name="student_id" type="row"/>
                     <field name="absence_rate" type="measure"/>
+                    <field name="strike_count" type="measure"/>
                 </pivot>
             </field>
         </record>

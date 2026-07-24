@@ -142,26 +142,32 @@ registry.category("web_tour.tours").add("ems_archive_action_shows_in_list", {
             content: "Switch to list view",
             run: "click",
         },
+        // A single click on the facet's remove button reliably updates the search domain
+        // (confirmed via the actual RPC payload) but can occasionally get lost — most
+        // likely swallowed by a layout reflow while this 1000+-row list is still settling
+        // its initial render — leaving the facet *chip* stuck showing "Students" even
+        // though the click landed. Opening the dropdown while that stale chip is still
+        // around then swaps out the toggler mid-click and the "Former students" menu item
+        // never appears (TIMEOUT). A single defensive re-click on a fixed "body" trigger
+        // wasn't reliable either (confirmed via a failing run + its screenshot: the chip
+        // was still there), because it only fires once, at a fixed point in time, with no
+        // guarantee the reflow has finished by then. Poll instead: keep clicking the
+        // remove button, with a real delay between attempts, until it is actually gone.
         {
             trigger: ".o_searchview_facet .o_facet_remove",
-            content: "Remove the default 'Students' filter",
-            run: "click",
-        },
-        // A single click reliably updates the search domain (confirmed via the actual
-        // RPC payload) but can leave the facet *chip* itself stuck in a stale render —
-        // it keeps showing "Students" even though the underlying list already reloaded
-        // unfiltered. Opening the dropdown while that stale chip is still around swaps
-        // out the toggler mid-click and the "Former students" menu item never appears
-        // (TIMEOUT). Click Remove again (no-op if it is already gone) and only then
-        // wait for the chip to actually be gone before opening the dropdown.
-        {
-            trigger: "body",
-            content: "Settle a possible stale facet-chip render by clicking Remove again if still present",
-            run: () => document.querySelector(".o_searchview_facet .o_facet_remove")?.click(),
+            content: "Remove the default 'Students' filter, retrying the click until it actually takes",
+            run: async () => {
+                for (let attempt = 0; attempt < 20; attempt++) {
+                    const removeBtn = document.querySelector(".o_searchview_facet .o_facet_remove");
+                    if (!removeBtn) break;
+                    removeBtn.click();
+                    await new Promise((resolve) => setTimeout(resolve, 200));
+                }
+            },
         },
         {
             trigger: ".o_searchview_input_container:not(:has(.o_searchview_facet))",
-            content: "Wait for the 'Students' filter to be fully removed",
+            content: "Confirm the 'Students' filter is fully removed",
         },
         {
             trigger: ".o_searchview_dropdown_toggler",

@@ -61,6 +61,38 @@ def _migrate_attendance_template_color(cr):
     _logger.info("Migration 18.0.0.22.0: converted ems_attendance_template.color from integer to hex varchar.")
 
 
+def _rename_old_status_columns(cr):
+    """ems_attendance_session_line.status / ems_attendance_issue_status.attendance_status
+    (both Selection) become Many2one status_id/attendance_status_id in this version - see
+    docs/en/developers/attendance/attendance_status.md. The post-migrate backfill needs to
+    read the old string values, but confirmed empirically on a dev box: as soon as this
+    module's schema sync runs (right after pre-migrate), Odoo's own ir.model.fields
+    cleanup for the now-removed field drops the physical column outright - there is no
+    window where the old column and the new one coexist unless the old one is moved out
+    of the way first. Renaming here (before schema sync ever runs) sidesteps that: Odoo's
+    cleanup only knows to drop a column literally named "status"/"attendance_status" (via
+    the stale ir.model.fields record for that exact name), so the renamed copies are never
+    a target and survive through to post-migrate, which reads them and drops them itself
+    once the backfill is done.
+    """
+    if _column_exists(cr, 'ems_attendance_session_line', 'status'):
+        cr.execute("ALTER TABLE ems_attendance_session_line RENAME COLUMN status TO status_old")
+        _logger.info("Migration 18.0.0.22.0: preserved ems_attendance_session_line.status as status_old for the post-migrate backfill.")
+
+    if _column_exists(cr, 'ems_attendance_issue_status', 'attendance_status'):
+        cr.execute("ALTER TABLE ems_attendance_issue_status RENAME COLUMN attendance_status TO attendance_status_old")
+        _logger.info("Migration 18.0.0.22.0: preserved ems_attendance_issue_status.attendance_status as attendance_status_old for the post-migrate backfill.")
+
+
+def _column_exists(cr, table, column):
+    cr.execute("""
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = %s AND column_name = %s
+    """, (table, column))
+    return bool(cr.fetchone())
+
+
 def migrate(cr, _version):
     _migrate_role_color(cr)
     _migrate_attendance_template_color(cr)
+    _rename_old_status_columns(cr)

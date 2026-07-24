@@ -26,7 +26,7 @@
                                     <!-- NOTE: force_save needed with readonly because otherwise the changes won't be sent to the server (the field does not appear within 'values' field on 'write' method). -->
                                     <list default_order="student_id asc" create="False" edit="False" delete="False" no_open="True">                                                                               
                                         <field string="Session" name="display_name" />
-                                        <field name="status" width="175px" />
+                                        <field name="status_id" width="175px" />
                                     </list>
                                 </field>
                             </page> 

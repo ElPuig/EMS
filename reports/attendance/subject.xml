@@ -69,7 +69,7 @@
                         <!-- Note: 'self' will be an 'attendance_session_line' object and is necessary to run the 'report_eval' method from the 'details_table' template. -->
                         <t t-set="rows" t-value="[
                             {'style' : '', 'value' : 'self.attendance_session_id.date'},
-                            {'style' : '', 'value' : 'dict(self.fields_get(allfields=[\'status\'])[\'status\'][\'selection\'])[self.status]'},
+                            {'style' : '', 'value' : 'self.status_id.name'},
                             {'style' : '', 'value' : 'self.attendance_session_id.session_teacher_id.display_name'},
                             {'style' : '', 'value' : 'self.student_id.display_name'},
                             {'style' : '', 'value' : 'self.notes'},
@@ -95,7 +95,7 @@
                             <!-- Note: 'self' will be an 'attendance_session_line' object and is necessary to run the 'report_eval' method from the 'details_table' template. -->
                             <t t-set="rows" t-value="[
                                 {'style' : '', 'value' : 'self.attendance_session_id.date'},
-                                {'style' : '', 'value' : 'dict(self.fields_get(allfields=[\'status\'])[\'status\'][\'selection\'])[self.status]'},
+                                {'style' : '', 'value' : 'self.status_id.name'},
                                 {'style' : '', 'value' : 'self.attendance_session_id.session_teacher_id.display_name'},
                                 {'style' : '', 'value' : 'self.notes'},
                             ]"/>

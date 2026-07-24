@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from .attendance_session import attendance_status_selection
 
 class ems_attendance_issue_tutor(models.Model):
 	_name = "ems.attendance_issue_tutor"
@@ -76,14 +75,14 @@ class ems_attendance_issue_status(models.Model):
 	# NOTE: tutor needed for permission purposes
 	tutor_id = fields.Many2one(string='Tutor (sent to)', related="attendance_issue_student_id.student_id.tutor_id") 	
 
-	# NOTE: We want a copy of the original status, because a miss can be justified later, but we want to keep the original notification status. 	
-	attendance_status = fields.Selection(string="Attendance status", selection=attendance_status_selection)	
-	notes = fields.Text(string="Notes") 
+	# NOTE: We want a copy of the original status, because a miss can be justified later, but we want to keep the original notification status.
+	attendance_status_id = fields.Many2one(string="Attendance status", comodel_name="ems.attendance_status")
+	notes = fields.Text(string="Notes")
 
 	@api.depends('attendance_session_line_id')
-	def _compute_display_name(self):              
+	def _compute_display_name(self):
 		for rec in self:
-			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, dict(attendance_status_selection).get(rec.attendance_status))
+			rec.display_name = "%s | %s (%s)" % (rec.attendance_session_id.display_name, rec.attendance_issue_student_id.student_id.display_name, rec.attendance_status_id.name)
 
 	@api.depends('notification_status')
 	def _compute_pending(self):

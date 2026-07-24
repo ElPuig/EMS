@@ -128,10 +128,10 @@ class EmsStudentYearRecord(models.Model):
     @api.model
     def _attendance_rates(self, student):
         """Global and per-subject attendance rate (0-100). A status counts as
-        assistance when it starts with 'a' (attended/delayed/issue), the same
-        criterion as the attendance reports."""
+        assistance when its category is 'assistance' (ems.attendance_status),
+        the same criterion as the attendance reports."""
         def rate(lines):
-            attended = len([line for line in lines if line.status.startswith('a')])
+            attended = len([line for line in lines if line.status_id.category == 'assistance'])
             return round(100.0 * attended / len(lines), 2) if lines else 0.0
 
         lines = self.env['ems.attendance_session_line'].search([('student_id', '=', student.id)])

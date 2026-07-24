@@ -82,8 +82,61 @@ def _backfill_google_ws_suspended(env):
             len(students))
 
 
+def _column_exists(cr, table, column):
+    cr.execute("""
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = %s AND column_name = %s
+    """, (table, column))
+    return bool(cr.fetchone())
+
+
+def _backfill_attendance_status_id(cr):
+    """Second half of the status -> status_id migration - see the matching
+    _rename_old_status_columns() in pre-migrate.py for why the old values are read from
+    status_old/attendance_status_old (renamed there) rather than status/attendance_status
+    directly: by the time post-migrate runs, schema sync has already added the new
+    status_id/attendance_status_id columns and the ems.attendance_status seed data is
+    already loaded (data files load before post-migrate), so xmlids resolve correctly
+    here. Backfill from the preserved old string codes, then drop the backup columns -
+    Odoo's own schema sync does not manage columns it doesn't recognize as a current
+    field, so status_old/attendance_status_old would otherwise sit unused forever.
+    """
+    code_to_xmlid = {
+        'a_attended': 'attendance_status_attended',
+        'a_delayed': 'attendance_status_delayed',
+        'm_miss': 'attendance_status_miss',
+        'm_justified': 'attendance_status_justified',
+        'a_issue': 'attendance_status_issue',
+    }
+
+    if _column_exists(cr, 'ems_attendance_session_line', 'status_old'):
+        for code, xmlid in code_to_xmlid.items():
+            cr.execute("""
+                UPDATE ems_attendance_session_line SET status_id = (
+                    SELECT res_id FROM ir_model_data WHERE module = 'ems' AND name = %s
+                ) WHERE status_old = %s
+            """, (xmlid, code))
+        cr.execute("ALTER TABLE ems_attendance_session_line DROP COLUMN status_old")
+        _logger.info(
+            "Migration 18.0.0.22.0: backfilled ems_attendance_session_line.status_id "
+            "and dropped the status_old backup column.")
+
+    if _column_exists(cr, 'ems_attendance_issue_status', 'attendance_status_old'):
+        for code, xmlid in code_to_xmlid.items():
+            cr.execute("""
+                UPDATE ems_attendance_issue_status SET attendance_status_id = (
+                    SELECT res_id FROM ir_model_data WHERE module = 'ems' AND name = %s
+                ) WHERE attendance_status_old = %s
+            """, (xmlid, code))
+        cr.execute("ALTER TABLE ems_attendance_issue_status DROP COLUMN attendance_status_old")
+        _logger.info(
+            "Migration 18.0.0.22.0: backfilled ems_attendance_issue_status.attendance_status_id "
+            "and dropped the attendance_status_old backup column.")
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _enable_unaccent(cr)
     _archive_existing_ex_students(env)
     _backfill_google_ws_suspended(env)
+    _backfill_attendance_status_id(cr)

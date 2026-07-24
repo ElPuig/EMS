@@ -56,12 +56,16 @@ After any change, run `upgrade.sh` and check for WARNING / ERROR / CRITICAL outp
 
 **Notifications for this developer are handled entirely by an already-built host-side file-drop bridge — never call the `PushNotification` tool on this project.** It proved unreliable in this container/VSCode-extension setup (silently self-suppresses as "terminal active," no mobile push available here) and only adds noise; do not use it for test or completion notifications here, and do not re-attempt Remote Control/DBus approaches — they don't work in this setup and that's settled. The working bridge (`~/claude-notify` on the host ↔ `/mnt/claude-notify` in the container, watched by a `systemd --user` service running `notify-send`) is already built and verified; full rebuild/troubleshooting steps live in `docs/en/developers/tooling/ai_agent_test_notifications.md` — only needed if the bridge itself ever breaks.
 
-Exactly two triggers should ever produce a notification for this developer:
+Exactly three triggers should ever produce a notification for this developer:
 1. **Launching any test** (`./test.sh`, any class — not only tour/`HttpCase` ones), so the developer closes or refreshes their Odoo tab beforehand. This is fully automatic via a `PreToolUse`/`Bash` hook already in the developer's user-level `~/.claude/settings.json`, which writes a trigger file to `/mnt/claude-notify/` on any Bash command containing `test.sh`. No agent action needed — don't duplicate it with anything else.
-2. **Finishing all requested work in a task**, so the developer knows to come back and review. There is no Bash command to hook this on ("all done" isn't a tool call), so the agent must write the trigger file itself, right after concluding a task — code changed, tests run, docs/i18n updated, whatever the task actually required:
-   ```bash
-   echo "$(date +%H:%M:%S) EMS: task done — <short summary>" > /mnt/claude-notify/done-$(date +%s%N).txt
-   ```
+2. **Finishing all requested work in a task**, so the developer knows to come back and review. There is no Bash command to hook this on ("all done" isn't a tool call), so the agent must write the trigger file itself, right after concluding a task — code changed, tests run, docs/i18n updated, whatever the task actually required.
+3. **Blocking on the developer's input before the agent can continue** — an `AskUserQuestion` call, or any chat message that explicitly asks something and then has nothing left to do but wait for the reply. Without a notification here the developer has no way to know the agent stopped *waiting for them* specifically, as opposed to still working — confirmed in practice (2026-07-24): the agent sat idle mid-task waiting on an answer with no notification, and the developer had no way to know that's what was happening. Fire this right when the question is asked (or immediately after, if the question tool itself doesn't allow a preceding action), every time, not just for big/blocking decisions.
+
+For triggers 2 and 3 (no hook can see either coming — "all done" and "asking a question" aren't Bash commands), the agent writes the trigger file itself:
+```bash
+echo "$(date +%H:%M:%S) EMS: task done — <short summary>" > /mnt/claude-notify/done-$(date +%s%N).txt
+echo "$(date +%H:%M:%S) EMS: waiting on you — <short summary of what's being asked>" > /mnt/claude-notify/waiting-$(date +%s%N).txt
+```
 
 **Redirect `./test.sh`/`./upgrade.sh` output to a file before inspecting it — never pipe a live run straight into `tail`/`grep` as the only way you look at it.** E.g. `./test.sh TestClassName 2>&1 | tee /path/to/scratchpad/test_output.log`, then `tail`/`grep` against that file for an efficient first pass. Piping directly into `tail`/`grep` on the live command risks silently missing something further up the output, and if that happens the only way to look again is re-running the (slow) run — exactly the redundant-run problem the "don't run the full suite more than necessary" rule above is trying to avoid. With the output already saved to a file, re-reading it (in full, or with a different `tail`/`grep`) costs nothing — only re-run the actual command if the file genuinely doesn't have what's needed (aborted run, or a subsequent code change invalidates it).
 

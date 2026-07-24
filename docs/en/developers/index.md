@@ -37,6 +37,7 @@ Technical reference for developers working on the EMS module.
 | Model | Description |
 |-------|-------------|
 | [ems.attendance_template](attendance/attendance_template.md) | Who teaches what, where and for whom: schedule sync/reconciliation from the "Schedule" tab and the XML importer, co-teaching, external-conflict detection |
+| [ems.attendance_status](attendance/attendance_status.md) | Archivable model replacing the old hardcoded status enum; `status_id` field rename across the session line, justification, issue-notification and reporting code; the "Issue" status retirement now that `ems.strike` covers it |
 
 ---
 

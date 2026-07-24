@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_status_form">
+            <field name="name">ems.attendance_status.form</field>
+            <field name="model">ems.attendance_status</field>
+            <field name="arch" type="xml">
+                <form string="Attendance status">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="category"/>
+                            <field name="notifiable"/>
+                            <field name="color" widget="color" class="ems_color_swatch"/>
+                            <field name="active"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

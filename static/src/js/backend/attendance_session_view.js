@@ -118,13 +118,13 @@ class AttendanceSessionView extends Component {
     // ── Data loading ──────────────────────────────────────────────────────────
 
     async _loadStatuses() {
-        const info = await this.orm.call(
-            "ems.attendance_session_line", "fields_get", [["status"]], { attributes: ["selection"] }
+        const records = await this.orm.searchRead(
+            "ems.attendance_status", [], ["id", "name"], { order: "sequence" }
         );
-        this.statuses = info.status.selection.map(([key, title]) => ({
-            key,
-            title,
-            label: title.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase(),
+        this.statuses = records.map(({ id, name }) => ({
+            key: id,
+            title: name,
+            label: name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase(),
         }));
     }
 
@@ -204,8 +204,9 @@ class AttendanceSessionView extends Component {
         const lines = await this.orm.searchRead(
             "ems.attendance_session_line",
             [["attendance_session_id", "=", sessionId]],
-            ["id", "student_id", "status", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids"],
+            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids"],
         );
+        lines.forEach(l => { l.status_id = l.status_id ? l.status_id[0] : false; });
 
         // Fetch lastnames to allow client-side sorting
         const partnerIds = lines.filter(l => l.student_id).map(l => l.student_id[0]);
@@ -438,13 +439,13 @@ class AttendanceSessionView extends Component {
         await this._loadAll();
     }
 
-    async onStatusClick(lineId, status) {
+    async onStatusClick(lineId, statusId) {
         if (this.state.saving[lineId]) return;
         this.state.saving[lineId] = true;
         try {
-            await this._writeSessionLine(lineId, { status });
+            await this._writeSessionLine(lineId, { status_id: statusId });
             const line = this.state.lines.find(l => l.id === lineId);
-            if (line) line.status = status;
+            if (line) line.status_id = statusId;
         } finally {
             this.state.saving[lineId] = false;
         }

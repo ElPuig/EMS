@@ -200,6 +200,10 @@
         'views/attendance/menu.xml',
             'views/attendance/configuration/menu.xml',
 
+            'views/attendance/attendance_status/menu.xml',
+            'views/attendance/attendance_status/list.xml',
+            'views/attendance/attendance_status/form.xml',
+
             'views/attendance/attendance_template/menu.xml',
             'views/attendance/attendance_template/list.xml',
             'views/attendance/attendance_template/form.xml',
@@ -326,6 +330,7 @@
         'data/main/ems.mail_activity_type.xml',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
+        'data/main/ems.attendance_status.csv',
         'data/main/ems.non_teaching_type.csv',
         'data/main/ems.schedule_framework_default.xml',
 

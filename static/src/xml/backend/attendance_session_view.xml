@@ -165,7 +165,7 @@
                                         <t t-foreach="statuses" t-as="s" t-key="s.key">
                                             <td class="ems-av-td-status">
                                                 <button class="ems-av-status-btn"
-                                                        t-att-class="line.status === s.key ? 'ems-av-status-btn--active' : ''"
+                                                        t-att-class="line.status_id === s.key ? 'ems-av-status-btn--active' : ''"
                                                         t-att-title="s.title"
                                                         t-att-disabled="state.saving[line.id] || isJustified"
                                                         t-on-click="() => this.onStatusClick(line.id, s.key)">

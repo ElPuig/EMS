@@ -1261,6 +1261,11 @@ msgid "ASP's Name"
 msgstr "Nom del PAS"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__category__absence
+msgid "Absence"
+msgstr "Absència"
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "Absence expected by: "
@@ -1433,6 +1438,7 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_strike_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__active
 #: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1887,6 +1893,11 @@ msgid "Assigned to"
 msgstr "Assignat a"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__category__assistance
+msgid "Assistance"
+msgstr "Assistència"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__assistant_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Assistants"
@@ -2148,7 +2159,8 @@ msgid "Attendance sessions cannot be duplicated."
 msgstr "Les sessions d'assistència no es poden duplicar."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_status
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_status_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_status_form
 msgid "Attendance status"
 msgstr "Estat de l'assistència"
 
@@ -2183,6 +2195,7 @@ msgstr "Plantilles d'assistència"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_attended
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__a_attended
+#: model:ems.attendance_status,name:ems.attendance_status_attended
 msgid "Attended"
 msgstr "Assistència"
 
@@ -2545,6 +2558,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__category
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__category
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_form
 msgid "Category"
@@ -2680,6 +2694,7 @@ msgid "Cognoms"
 msgstr "Cognoms"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__color
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__color
 #: model:ir.model.fields,field_description:ems.field_ems_role__color
 #: model:ir.model.fields,field_description:ems.field_hr_department__custom_color
@@ -3261,6 +3276,7 @@ msgstr "Defineix a quin estudi pertany aquesta matrícula."
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_delayed
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__a_delayed
+#: model:ems.attendance_status,name:ems.attendance_status_delayed
 msgid "Delayed"
 msgstr "Retard"
 
@@ -5359,6 +5375,7 @@ msgstr "És tutoria"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_issue
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__a_issue
+#: model:ems.attendance_status,name:ems.attendance_status_issue
 msgid "Issue"
 msgstr "Incident"
 
@@ -5418,6 +5435,7 @@ msgstr "Justificants"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__m_justified
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__m_justified
+#: model:ems.attendance_status,name:ems.attendance_status_justified
 msgid "Justified Miss"
 msgstr "Falta justificada"
 
@@ -6070,6 +6088,7 @@ msgstr "Actes"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__m_miss
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__m_miss
+#: model:ems.attendance_status,name:ems.attendance_status_miss
 msgid "Miss"
 msgstr "Falta"
 
@@ -6183,6 +6202,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
 #: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__name
 msgid "Name"
 msgstr "Nom"
 
@@ -6447,6 +6467,11 @@ msgstr "Notas"
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0
 msgid "Nothing to do"
 msgstr "Res a fer"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__notifiable
+msgid "Notify family/tutor"
+msgstr "Notificar família/tutor"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__notice_id
@@ -8016,6 +8041,7 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -8334,7 +8360,7 @@ msgstr "Estat / Província"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__status
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__status
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__status_id
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__status
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__display_status
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__status
@@ -8384,6 +8410,8 @@ msgstr "Detalls de l'estat"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__attendance_session_line_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
+#: model:ir.actions.act_window,name:ems.action_attendance_status_list
+#: model:ir.ui.menu,name:ems.menu_attendance_status
 msgid "Statuses"
 msgstr "Estats"
 

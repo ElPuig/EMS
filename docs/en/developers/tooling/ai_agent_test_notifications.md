@@ -1,11 +1,12 @@
 # AI agent proactive notifications when running inside a container
 
-An AI coding agent (e.g. Claude Code) working in this repo notifies you for exactly two reasons (see the project's `CLAUDE.md`, under *Development scripts*):
+An AI coding agent (e.g. Claude Code) working in this repo notifies you for exactly three reasons (see the project's `CLAUDE.md`, under *Development scripts*):
 
 1. **Any test launch** — right when it runs `./test.sh` (any class, not only tour/`HttpCase` ones), so you know to close or refresh an open Odoo browser tab before the run starts.
 2. **Task completion** — once it has finished everything you asked for in the current task, so you know it's ready to come back and review, even if you stepped away while it worked.
+3. **Blocked waiting for your input** — an `AskUserQuestion` call, or any point where the agent has asked something and has nothing left to do but wait for your reply. Without this, "still working" and "stopped, waiting on you" look identical from outside the chat.
 
-Both are delivered **only** through the host-side file-drop bridge documented below — this project deliberately does not use the agent's own push-notification tool for either trigger. That tool proved unreliable in this specific setup (a container reached through an editor's native extension rather than the standalone terminal CLI): it silently self-suppresses when it judges the terminal "active" (wrong for a prompt to go do something in a *different* window), and neither of its normal delivery channels (mobile push, a direct DBus bridge) works here at all — see below. This was tried and abandoned; don't re-attempt it.
+All three are delivered **only** through the host-side file-drop bridge documented below — this project deliberately does not use the agent's own push-notification tool for any of them. That tool proved unreliable in this specific setup (a container reached through an editor's native extension rather than the standalone terminal CLI): it silently self-suppresses when it judges the terminal "active" (wrong for a prompt to go do something in a *different* window), and neither of its normal delivery channels (mobile push, a direct DBus bridge) works here at all — see below. This was tried and abandoned; don't re-attempt it.
 
 ## Why the agent's own notification channels don't work in a container
 
@@ -118,15 +119,16 @@ In `~/.claude/settings.json` (**user-level**, not the project's checked-in `.cla
 
 This fires unconditionally on any Bash command containing `test.sh` — deliberately not scoped to tour/`HttpCase`-only runs, since the developer wants the close-or-refresh reminder before every test run. Being a plain filesystem write triggered by the hook (not a call to the agent's notification tool), it's also not subject to that tool's own "you're probably still looking at this" self-suppression.
 
-### Covering the task-completion trigger too
+### Covering triggers 2 and 3 too
 
-The hook above only covers trigger 1 (any test launch), because it keys off a recognisable Bash command (`test.sh`). Trigger 2 (task completion) has no equivalent command to match on — "all requested work is done" is a judgment the agent makes at the end of a turn, not a tool call a `PreToolUse` hook can see coming. So the agent writes directly into the shared drop directory itself when it finishes a task, e.g.:
+The hook above only covers trigger 1 (any test launch), because it keys off a recognisable Bash command (`test.sh`). Triggers 2 (task completion) and 3 (blocked on your input) have no equivalent command to match on — neither "all requested work is done" nor "I just asked a question and am now waiting" is a tool call a `PreToolUse` hook can see coming. So the agent writes directly into the shared drop directory itself for both, e.g.:
 
 ```bash
 echo "$(date +%H:%M:%S) EMS: task done — <short summary>" > /mnt/claude-notify/done-$(date +%s%N).txt
+echo "$(date +%H:%M:%S) EMS: waiting on you — <short summary of what's being asked>" > /mnt/claude-notify/waiting-$(date +%s%N).txt
 ```
 
-The same watcher (step 3) picks this up exactly like a hook-triggered file — there's nothing container-specific to add on the watcher or bind-mount side, this is purely about how the *agent* gets a message into the directory when there's no hook to rely on.
+The same watcher (step 3 above) picks either up exactly like a hook-triggered file — there's nothing container-specific to add on the watcher or bind-mount side, this is purely about how the *agent* gets a message into the directory when there's no hook to rely on.
 
 ## Verifying each layer
 

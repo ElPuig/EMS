@@ -21,6 +21,11 @@ class TestWithdrawalTour(HttpCase):
         self._seed_student('Archive Action Tour Single')
         self._seed_student('Archive Action Tour Bulk A')
         self._seed_student('Archive Action Tour Bulk B')
-        self.start_tour("/odoo", "ems_archive_action_single_opens_wizard", login="admin")
-        self.start_tour("/odoo", "ems_archive_action_bulk_opens_wizard", login="admin")
-        self.start_tour("/odoo", "ems_archive_action_shows_in_list", login="admin")
+        # step_delay: all three tours load action_student_kanban's list view, ~1100 rows
+        # in this DB — confirmed flaky without it (clicks occasionally lost to layout
+        # reflow while the list is still settling, on different steps in different runs,
+        # not just one specific selector). A small pause between steps gives the DOM time
+        # to settle before the next interaction.
+        self.start_tour("/odoo", "ems_archive_action_single_opens_wizard", login="admin", step_delay=300)
+        self.start_tour("/odoo", "ems_archive_action_bulk_opens_wizard", login="admin", step_delay=300)
+        self.start_tour("/odoo", "ems_archive_action_shows_in_list", login="admin", step_delay=300)

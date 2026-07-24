@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from .attendance_session import attendance_status_selection
 
 overall_status = [("assistance", "Assistance"), ("absence", "Absence")]
 
@@ -219,7 +218,7 @@ class ems_attendance_report_student(models.AbstractModel):
 	def _get_report_values(self, docids, data=None):
 		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
 		entries = list(self.env["ems.attendance_session_line"].browse(data['status_ids']))
-		main = _report_data(entries)
+		main = _report_data(entries, self.env)
 
 		grp_by_subject = {}
 		for e in entries:
@@ -230,7 +229,7 @@ class ems_attendance_report_student(models.AbstractModel):
 
 		lines = {}
 		for s in grp_by_subject:
-			lines[s] = _report_data(grp_by_subject[s])
+			lines[s] = _report_data(grp_by_subject[s], self.env)
 				
 		return {
 			'doc_ids': docids,
@@ -238,7 +237,7 @@ class ems_attendance_report_student(models.AbstractModel):
 			'docs': self.env["ems.attendance_report_student_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
-			'attendance_session_line': dict(attendance_status_selection),
+			'attendance_session_line': {s.id: s.name for s in self.env['ems.attendance_status'].with_context(active_test=False).search([])},
 			'overall_status': dict(overall_status)
 		}		
 
@@ -249,7 +248,7 @@ class ems_attendance_report_subject(models.AbstractModel):
 	def _get_report_values(self, docids, data=None):
 		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
 		entries = list(self.env["ems.attendance_session_line"].browse(data['status_ids']))
-		main = _report_data(entries)
+		main = _report_data(entries, self.env)
 
 		grp_by_student = {}
 		for e in entries:
@@ -260,7 +259,7 @@ class ems_attendance_report_subject(models.AbstractModel):
 
 		lines = {}
 		for s in grp_by_student:
-			lines[s] = _report_data(grp_by_student[s])
+			lines[s] = _report_data(grp_by_student[s], self.env)
 				
 		return {
 			'doc_ids': docids,
@@ -268,7 +267,7 @@ class ems_attendance_report_subject(models.AbstractModel):
 			'docs': self.env["ems.attendance_report_subject_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
-			'attendance_session_line': dict(attendance_status_selection),
+			'attendance_session_line': {s.id: s.name for s in self.env['ems.attendance_status'].with_context(active_test=False).search([])},
 			'overall_status': dict(overall_status)
 		}
 	
@@ -279,7 +278,7 @@ class ems_attendance_report_group(models.AbstractModel):
 	def _get_report_values(self, docids, data=None):
 		if len(docids) == 0: docids = data['doc_ids'] # TODO: is there any way to got this from docids param? Always null even when setting up at report_action
 		entries = list(self.env["ems.attendance_session_line"].browse(data['status_ids']))
-		main = _report_data(entries)
+		main = _report_data(entries, self.env)
 
 		grp_by_subject = {}
 		for e in entries:
@@ -290,7 +289,7 @@ class ems_attendance_report_group(models.AbstractModel):
 
 		lines = {}
 		for s in grp_by_subject:
-			lines[s] = _report_data(grp_by_subject[s])
+			lines[s] = _report_data(grp_by_subject[s], self.env)
 				
 		return {
 			'doc_ids': docids,
@@ -298,35 +297,36 @@ class ems_attendance_report_group(models.AbstractModel):
 			'docs': self.env["ems.attendance_report_group_wizard"].browse(data['doc_ids']),
 			'main': main,
 			'lines': lines,
-			'attendance_session_line': dict(attendance_status_selection),
+			'attendance_session_line': {s.id: s.name for s in self.env['ems.attendance_status'].with_context(active_test=False).search([])},
 			'overall_status': dict(overall_status)
 		}
 		
 class _report_data:
-	def __init__(self, entries):
+	def __init__(self, entries, env):
 		self.entries = entries
 		self.comments = []
 		self.breakdown = {}
+		statuses = env['ems.attendance_status'].with_context(active_test=False).search([])
 
 		assistance = 	self._get_status('assistance')[0]
-		absence = 	self._get_status('absence')[0]		
+		absence = 	self._get_status('absence')[0]
 		self.overall = {
 			assistance : self._setup_counters(0, len(entries)),
 			absence : self._setup_counters(0, len(entries))
 		}
 
-		for s in attendance_status_selection:
-			self.breakdown[s[0]] = self._setup_counters(0, len(entries))
+		for s in statuses:
+			self.breakdown[s.id] = self._setup_counters(0, len(entries))
 
 		for e in entries:
-			self.breakdown[e.status]['count'] += 1		
-			if e.notes != False: self.comments.append(e)	
-			if e.status[0] == 'a': self.overall[assistance]['count'] += 1
+			self.breakdown[e.status_id.id]['count'] += 1
+			if e.notes != False: self.comments.append(e)
+			if e.status_id.category == 'assistance': self.overall[assistance]['count'] += 1
 			else: self.overall[absence]['count'] += 1
 
-		for s in attendance_status_selection:
-			self._compute_counters(self.breakdown[s[0]])
-		
+		for s in statuses:
+			self._compute_counters(self.breakdown[s.id])
+
 		self._compute_counters(self.overall[assistance])
 		self._compute_counters(self.overall[absence])
 		

@@ -57,9 +57,9 @@ automatically once the field is used as a measure.
 
 Each wizard has 2 responsibilities, both formerly raw SQL, now plain ORM:
 
-| Wizard | Dropdown filter (`allowed_*_ids`, onchange) | `print()` |
+| Wizard | Dropdown filter (`allowed_*_ids`) | `print()` |
 |---|---|---|
-| `..._group_wizard` | `env['ems.teaching'].search([('group_id.study_id', '=', study_id), ('teacher_id', '=', current_teacher.id)]).mapped('group_id')` | `env['ems.attendance_session_line'].search([('attendance_session_id', 'in', session_ids)])` |
+| `..._group_wizard` | `env['ems.teaching'].search([('teacher_id', '=', current_teacher.id)]).mapped('group_id')` (no study filter — see "Wizard simplification" below) | `env['ems.attendance_session_line'].search([('attendance_session_id', 'in', session_ids)])` |
 | `..._student_wizard` | `env['ems.enrollment'].search([('group_id', '=', group_id), ('subject_id', 'in', taught_subject_ids)]).mapped('student_id')` | `search([('student_id', '=', ...), ('attendance_session_id.date', '>=', from), ('attendance_session_id.date', '<=', to)])` (dot-notation domain, no manual join) |
 | `..._subject_wizard` | `env['ems.teaching'].search([('group_id', '=', group_id), ('teacher_id', '=', current_teacher.id)]).mapped('subject_id')` | same pattern as group's |
 
@@ -93,6 +93,35 @@ unrestricted read on `ems.attendance_session_line` (`rule_attendance_session_lin
 own. The wizard-side scoping above is UX convenience (don't overwhelm a teacher's dropdown with groups/
 subjects/students they don't teach), not a security boundary; it was never enforced by `ir.rule` and still
 isn't after this change.
+
+### Wizard simplification: by group (first of 3, done incrementally)
+
+The 3 wizards originally all shared the same level → study → group/student/subject cascade. The by-group
+one was simplified first: `level_id`/`study_id` fields removed entirely, `group_id` is now the only
+selection step, and `tutor_id`/`from_date`/`to_date` still auto-fill from it exactly as before. Being
+simplified one wizard at a time (by-student is next, then by-subject with an added group-multi-select) is a
+deliberate, incremental rollout — not a limitation, just the order requested.
+
+Two things worth knowing if repeating this pattern for the other 2 wizards:
+
+- **`group_id`'s domain is now wired to `allowed_group_ids`** (`domain="[('id','in', allowed_group_ids)]"`
+  in `group_wizard.xml`) — previously it wasn't: the original view filtered `group_id` only via
+  `('study_id', '=', study_id)`, and `allowed_group_ids`/`_compute_allowed_group_ids` existed but were never
+  actually referenced by any view domain (dead code). Removing `study_id` removed that filter entirely, so
+  wiring `allowed_group_ids` in is what makes the dropdown teacher-scoped *at all* now — not a regression,
+  but the first time this field's compute result actually reaches the UI.
+- **A compute field with only `@api.depends_context('uid')` (no dependency on a real field) is not reliably
+  computed on a freshly-created record** — confirmed empirically both in `TransactionCase` tests (reading
+  `wizard.allowed_group_ids` right after `.create({})` returned empty; calling
+  `wizard._compute_allowed_group_ids()` explicitly fixed it) and in the browser tour (the group dropdown
+  showed no matches at all, so typing the seeded group's name fell through to the "Create new" quick-create
+  suggestion instead — the `id="Create Group"` full-form dialog in the failure screenshot was the tell).
+  Since there's no other field left to hang an `@api.onchange` off (the pattern the other 2 wizards still
+  use), the fix is a `default_get()` override that populates `allowed_group_ids` directly — `default_get()`
+  is reliably called by the web client when opening a new wizard form, unlike the compute-on-access path.
+  The compute method (`_compute_allowed_group_ids`, still `@api.depends_context('uid')`) stays as a fallback
+  for any other access path (e.g. server-side code creating the wizard directly), sharing the actual lookup
+  logic via a small `_get_allowed_group_ids()` helper so it isn't duplicated between the two.
 
 ---
 
@@ -186,9 +215,11 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   `strike_count`'s new `store=True` (aggregatable via `read_group`), and `action_attendance_reports_open`'s
   role-based domain (`.run()` `with_user(...)` for a plain teacher vs. an academic admin).
 - `tests/test_attendance_reports_tour.py` + `static/tests/tours/attendance_reports_tour.js` (`HttpCase`):
-  each of the 3 wizard forms end-to-end (cascading level → study → group selection, Print); the analysis
-  screen entered through the server action, pivot rendering by default, 2 clicks on "Expand all" actually
-  drilling subject → student, graph on switch, switching the graph's measure from "Absence rate" to
-  "Strike count" via the Measures dropdown and confirming it still renders; opening the ⚙ Actions cog menu
-  and using one of the 3 PDF shortcuts to confirm it actually opens the corresponding wizard (this is the
-  only coverage of the custom `cogMenu` JS — nothing server-side exercises it).
+  the by-group wizard end-to-end (single group_id pick, tutor/dates auto-fill, Print); the by-student/
+  by-subject wizards still end-to-end through their level → study → group cascade (not simplified yet); the
+  analysis screen entered through the server action, pivot rendering by default, 2 clicks on "Expand all"
+  actually drilling subject → student, graph on switch, switching the graph's measure from "Absence rate"
+  to "Strike count" via the Measures dropdown and confirming it still renders; opening the ⚙ Actions cog
+  menu and using one of the 3 PDF shortcuts to confirm it actually opens the corresponding wizard (this is
+  the only coverage of the custom `cogMenu` JS — nothing server-side exercises it). The fixture's seeded
+  group now sets `tutor_id` explicitly (it didn't need to before `tutor_id` had view coverage of its own).

@@ -13,39 +13,30 @@ class EmsAttendanceReportGroupWizard(models.TransientModel):
 	_name = "ems.attendance_report_group_wizard"
 	_description = "Attendance report wizard: by group."
 
-	level_id = fields.Many2one(string='Level', comodel_name='ems.level')
-	study_id = fields.Many2one(string='Studies', comodel_name='ems.study')
 	group_id = fields.Many2one(string='Group', comodel_name='ems.group')
 	tutor_id = fields.Many2one(string='Tutor', related="group_id.tutor_id")
 	allowed_group_ids = fields.Many2many('ems.group', compute='_compute_allowed_group_ids', store=False)
 	from_date = fields.Date(string="From", default=fields.Datetime.now, required=True)
 	to_date = fields.Date(string="To", default=fields.Datetime.now, required=True)
 
-	@api.onchange('study_id')
+	@api.model
+	def default_get(self, fields_list):
+		res = super().default_get(fields_list)
+		if 'allowed_group_ids' in fields_list:
+			res['allowed_group_ids'] = [(6, 0, self._get_allowed_group_ids().ids)]
+		return res
+
+	def _get_allowed_group_ids(self):
+		# TODO: use this to set the permissions (uid = 1 means ADMIN)
+		current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
+		domain = [('teacher_id', '=', current_teacher.id)] if current_teacher.id > 1 else []
+		return self.env["ems.teaching"].search(domain).mapped('group_id')
+
+	@api.depends_context('uid')
 	def _compute_allowed_group_ids(self):
+		groups = self._get_allowed_group_ids()
 		for wizard in self:
-			if wizard.study_id.id == False:
-				wizard.allowed_group_ids = []
-			else:
-				# Crossing teacher's teaching data with the wizard's selected study.
-				domain = [('group_id.study_id', '=', wizard.study_id.id)]
-
-				# TODO: use this to set the permissions (uid = 1 means ADMIN)
-				current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
-				if current_teacher.id > 1:
-					domain.append(('teacher_id', '=', current_teacher.id))
-
-				wizard.allowed_group_ids = self.env["ems.teaching"].search(domain).mapped('group_id')
-
-	@api.onchange('level_id')
-	def _onchange_level_id(self):
-		for wizard in self:
-			wizard.study_id = False
-
-	@api.onchange('study_id')
-	def _onchange_study_id(self):
-		for wizard in self:
-			wizard.group_id = False
+			wizard.allowed_group_ids = groups
 
 	@api.onchange("group_id")
 	def _onchange_group_id(self):

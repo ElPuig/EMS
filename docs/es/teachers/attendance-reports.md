@@ -22,11 +22,18 @@
 
 ## Imprimir un informe PDF
 
-1. En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engranaje)** de la cabecera y elige **Informe de asistencia (por grupo)**, **Informe de asistencia (por estudiante)** o **Informe de asistencia (por asignatura)**.
-2. Selecciona un **Nivel**, luego un **Estudio** y luego un **Grupo** — cada selección filtra la siguiente. Los desplegables solo muestran los grupos y asignaturas que **realmente impartes**; si te falta algún grupo o asignatura, comprueba que estás asignado/a en tu horario docente.
-3. En los informes por alumno y por asignatura, selecciona también el **Alumno**/la **Asignatura** — limitado a lo que realmente está matriculado o se imparte en el grupo seleccionado.
-4. Las fechas **Desde**/**Hasta** se rellenan automáticamente con todo el rango de sesiones disponibles para tu selección; redúcelas si solo quieres un periodo concreto.
-5. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
+En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engranaje)** de la cabecera y elige uno de los 3 informes.
+
+**Informe de asistencia (por grupo):**
+1. Selecciona un **Grupo** — el desplegable solo muestra los grupos que **realmente impartes**; si te falta algún grupo, comprueba que estás asignado/a en tu horario docente.
+2. El **Tutor/a** y las fechas **Desde**/**Hasta** se rellenan automáticamente a partir del grupo y su rango de sesiones.
+3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
+
+**Informe de asistencia (por alumno) / (por asignatura):**
+1. Selecciona un **Nivel**, luego un **Estudio** y luego un **Grupo** — cada selección filtra la siguiente. Los desplegables solo muestran los grupos y asignaturas que **realmente impartes**; si te falta algún grupo o asignatura, comprueba que estás asignado/a en tu horario docente.
+2. Selecciona también el **Alumno**/la **Asignatura** — limitado a lo que realmente está matriculado o se imparte en el grupo seleccionado.
+3. Las fechas **Desde**/**Hasta** se rellenan automáticamente con todo el rango de sesiones disponibles para tu selección; redúcelas si solo quieres un periodo concreto.
+4. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
 
 ---
 

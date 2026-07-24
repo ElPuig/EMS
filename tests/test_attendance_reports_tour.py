@@ -16,10 +16,6 @@ class TestAttendanceReportsTour(HttpCase):
             'code': 'TART001', 'acronym': 'TART', 'name': 'Attendance Reports Tour Subject',
             'study_ids': [(6, 0, [study.id])],
         })
-        group = self.env['ems.group'].create({
-            'course': 1, 'acronym': 'TART', 'level_id': level.id, 'study_id': study.id,
-            'name': 'Attendance Reports Tour Group',
-        })
         space = self.env['ems.space'].create({
             'code': 'TART-A', 'name': 'Attendance Reports Tour Space',
             'space_type_id': self.env.ref('ems.space_type_classroom').id,
@@ -32,6 +28,10 @@ class TestAttendanceReportsTour(HttpCase):
                 'employee_type': 'teacher',
                 'user_id': self.env.ref('base.user_admin').id,
             })
+        group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TART', 'level_id': level.id, 'study_id': study.id,
+            'name': 'Attendance Reports Tour Group', 'tutor_id': admin_employee.id,
+        })
         self.env['ems.teaching'].create({
             'teacher_id': admin_employee.id, 'group_id': group.id, 'subject_id': subject.id,
         })

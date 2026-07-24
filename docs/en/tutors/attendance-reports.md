@@ -33,18 +33,29 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
 
 ## Printing a PDF Report
 
-1. On the **Attendance reports** screen, click the **⚙ (gear)** icon in the header and choose **Attendance
-   report (by group)**, **Attendance report (by student)** or **Attendance report (by subject)**.
-2. Pick a **Level**, then a **Study**, then a **Group** — each selection filters the next one. The
+On the **Attendance reports** screen, click the **⚙ (gear)** icon in the header and choose one of the 3
+reports.
+
+**Attendance report (by group):**
+1. Pick a **Group** — the dropdown only shows the groups **you actually teach**, not every group you
+   tutor: being the tutor of a group doesn't by itself grant it access here if you don't teach any subject
+   in it.
+2. The **Tutor** and the **From**/**To** dates fill in automatically from the group and its full session
+   range.
+3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
+   session notes recorded for the period.
+
+**Attendance report (by student) / (by subject):**
+1. Pick a **Level**, then a **Study**, then a **Group** — each selection filters the next one. The
    dropdowns only show the groups and subjects **you actually teach**, not every group you tutor: being the
    tutor of a group doesn't by itself grant it access here if you don't teach any subject in it (the
    **Tutor** field on the form is purely informational — it shows who the selected group's tutor is, it
    doesn't widen what you can pick).
-3. For the by-student and by-subject reports, also pick the **Student**/**Subject** — again limited to
-   what's actually enrolled/taught in the group you picked.
-4. The **From**/**To** dates are pre-filled with the full range of sessions available for your selection;
+2. Also pick the **Student**/**Subject** — again limited to what's actually enrolled/taught in the group
+   you picked.
+3. The **From**/**To** dates are pre-filled with the full range of sessions available for your selection;
    narrow them down if you only want a specific period.
-5. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
+4. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
    session notes recorded for the period.
 
 > For a broader, per-course view of a tutee's attendance across their whole record, see

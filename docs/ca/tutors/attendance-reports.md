@@ -22,11 +22,18 @@
 
 ## Imprimir un informe PDF
 
-1. A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranatge)** de la capçalera i tria **Informe d'assistència (per grup)**, **Informe d'assistència (per estudiant)** o **Informe d'assistència (per assignatura)**.
-2. Selecciona un **Nivell**, després un **Estudi** i després un **Grup** — cada selecció filtra la següent. Els desplegables només mostren els grups i les assignatures que **realment imparteixes**, no tots els grups que tutories: ser el/la tutor/a d'un grup no et dona accés per si sol si no hi imparteixes cap assignatura (el camp **Tutor/a** del formulari és merament informatiu — mostra qui és el/la tutor/a del grup seleccionat, no amplia el que pots triar).
-3. Als informes per alumne i per assignatura, selecciona també l'**Alumne**/l'**Assignatura** — limitat al que realment està matriculat o s'imparteix al grup seleccionat.
-4. Les dates **Des de**/**Fins a** es preomplen amb tot el rang de sessions disponibles per a la teva selecció; redueix-les si només vols un període concret.
-5. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període.
+A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranatge)** de la capçalera i tria un dels 3 informes.
+
+**Informe d'assistència (per grup):**
+1. Selecciona un **Grup** — el desplegable només mostra els grups que **realment imparteixes**, no tots els grups que tutories: ser el/la tutor/a d'un grup no et dona accés per si sol si no hi imparteixes cap assignatura.
+2. El **Tutor/a** i les dates **Des de**/**Fins a** es preomplen automàticament a partir del grup i del seu rang de sessions.
+3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període.
+
+**Informe d'assistència (per alumne) / (per assignatura):**
+1. Selecciona un **Nivell**, després un **Estudi** i després un **Grup** — cada selecció filtra la següent. Els desplegables només mostren els grups i les assignatures que **realment imparteixes**, no tots els grups que tutories: ser el/la tutor/a d'un grup no et dona accés per si sol si no hi imparteixes cap assignatura (el camp **Tutor/a** del formulari és merament informatiu — mostra qui és el/la tutor/a del grup seleccionat, no amplia el que pots triar).
+2. Selecciona també l'**Alumne**/l'**Assignatura** — limitat al que realment està matriculat o s'imparteix al grup seleccionat.
+3. Les dates **Des de**/**Fins a** es preomplen amb tot el rang de sessions disponibles per a la teva selecció; redueix-les si només vols un període concret.
+4. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període.
 
 > Per a una vista més àmplia, per curs, de l'assistència d'un tutorat al llarg de tot el seu historial, consulta [Historial acadèmic dels teus alumnes](academic-history.md).
 

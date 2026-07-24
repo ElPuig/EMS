@@ -3,8 +3,10 @@
 import { registry } from "@web/core/registry";
 
 // Attendance report wizards (group/student/subject): after their allowed_*_ids filters and
-// print() were ported from raw SQL to ORM, confirm the OWL forms still render, the level ->
-// study -> group chain still cascades client-side, and clicking 'Print' doesn't crash.
+// print() were ported from raw SQL to ORM, confirm the OWL forms still render and clicking
+// 'Print' doesn't crash. The group/student wizards were later simplified to drop the level ->
+// study -> group/student cascade (single-step group_id/student_id pick, scoped server-side by
+// allowed_group_ids/allowed_student_ids); the subject wizard still has the full cascade.
 function selectMany2one(fieldName, searchText) {
     return [
         {
@@ -24,10 +26,12 @@ registry.category("web_tour.tours").add("ems_attendance_report_group_wizard", {
     test: true,
     url: "/odoo/action-ems.action_attendance_report_group_wizard",
     steps: () => [
-        { trigger: ".o_form_view .o_field_widget[name='level_id']", content: "Group report wizard loaded" },
-        ...selectMany2one("level_id", "Attendance Reports Tour Level"),
-        ...selectMany2one("study_id", "Attendance Reports Tour Study"),
+        { trigger: ".o_form_view .o_field_widget[name='group_id']", content: "Group report wizard loaded" },
         ...selectMany2one("group_id", "Attendance Reports Tour Group"),
+        {
+            trigger: ".o_form_view .o_field_widget[name='tutor_id']:not(:empty)",
+            content: "tutor_id got auto-filled by the group's own related field",
+        },
         {
             trigger: ".o_form_view .o_field_widget[name='from_date'] input:not([value=''])",
             content: "from_date got auto-filled by the group's own onchange",
@@ -102,6 +106,6 @@ registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
             content: "The 'Attendance report (by group)' shortcut is listed — click it",
             run: "click",
         },
-        { trigger: ".o_form_view .o_field_widget[name='level_id']", content: "The group report wizard opened" },
+        { trigger: ".o_form_view .o_field_widget[name='group_id']", content: "The group report wizard opened" },
     ],
 });

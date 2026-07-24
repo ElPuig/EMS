@@ -5651,7 +5651,6 @@ msgid "Legal Text (Rendered)"
 msgstr "Texto legal (renderizado)"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__level_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__level_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__level_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__level_id
@@ -8652,7 +8651,6 @@ msgstr "Alumnos/as - Vista tutor/a"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_study_tree
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__study_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__study_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__study_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__study_ids

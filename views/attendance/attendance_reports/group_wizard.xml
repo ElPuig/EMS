@@ -4,17 +4,14 @@
             <field name="name">ems.attendance_report_group.wizard</field>
             <field name="model">ems.attendance_report_group_wizard</field>
             <field name="arch" type="xml">
-                <form string="Session">                       
-                    <group col="2">         
+                <form string="Session">
+                    <group col="2">
                         <group>
-                            <field name="level_id" readonly="False" />
-                            <field name="group_id" readonly="study_id == False" domain="[('study_id','=', study_id)]" />
+                            <field name="group_id" domain="[('id','in', allowed_group_ids)]" />
                         </group>
                         <group>
-                            <field name="study_id" readonly="level_id == False" domain="[('level_id','=', level_id)]" />
                             <field name="tutor_id" />
                         </group>
-
                         <group>
                             <field name="from_date" />
                         </group>

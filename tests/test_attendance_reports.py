@@ -9,8 +9,10 @@ class TestAttendanceReportWizards(TransactionCase):
     """Covers the 3 attendance report wizards after their raw SQL (cr.execute) was replaced
     by ORM calls: the teacher-scoping filters (allowed_group_ids/allowed_student_ids/
     allowed_subject_ids) and the print() methods that fetch ems.attendance_session_line ids.
-    Also covers two pre-existing bugs fixed in the same change: allowed_group_ids ignoring
-    study_id, and allowed_subject_ids not actually scoping to the current teacher."""
+    Also covers a pre-existing bug fixed in the same change: allowed_subject_ids not actually
+    scoping to the current teacher. The group wizard's level/study fields were later removed
+    entirely (simplified to a single group_id step) — allowed_group_ids no longer depends on
+    a prior study selection, only on the current teacher's own teaching."""
 
     @classmethod
     def setUpClass(cls):
@@ -131,40 +133,27 @@ class TestAttendanceReportWizards(TransactionCase):
             'attendance_session_id': cls.session_old.id,
         })
 
-    # --- allowed_group_ids: study_id filter (bug fix) -----------------
+    # --- allowed_group_ids: scoped to the current teacher (no level/study step) --------
 
-    def test_allowed_group_ids_filters_by_study(self):
-        wizard = self.env['ems.attendance_report_group_wizard'].with_user(self.owner_user).create({
-            'study_id': self.study1.id,
-        })
+    def test_allowed_group_ids_scoped_to_owner(self):
+        wizard = self.env['ems.attendance_report_group_wizard'].with_user(self.owner_user).create({})
         wizard._compute_allowed_group_ids()
+        # owner teaches both group1/subject_a and group2/subject_a.
         self.assertIn(self.group1, wizard.allowed_group_ids)
-        self.assertNotIn(self.group2, wizard.allowed_group_ids)
-
-        wizard.study_id = self.study2.id
-        wizard._compute_allowed_group_ids()
         self.assertIn(self.group2, wizard.allowed_group_ids)
-        self.assertNotIn(self.group1, wizard.allowed_group_ids)
 
-    def test_allowed_group_ids_scoped_to_teacher(self):
-        wizard = self.env['ems.attendance_report_group_wizard'].with_user(self.other_user).create({
-            'study_id': self.study1.id,
-        })
+    def test_allowed_group_ids_scoped_to_other(self):
+        wizard = self.env['ems.attendance_report_group_wizard'].with_user(self.other_user).create({})
         wizard._compute_allowed_group_ids()
-        # 'other' teaches group1/subject_b, not group2, and never teaches in study2 at all.
-        self.assertIn(self.group1, wizard.allowed_group_ids)
-
-        wizard.study_id = self.study2.id
-        wizard._compute_allowed_group_ids()
-        self.assertFalse(wizard.allowed_group_ids)
-
-    def test_allowed_group_ids_admin_still_study_filtered(self):
-        wizard = self.env['ems.attendance_report_group_wizard'].with_user(self.admin_user).create({
-            'study_id': self.study1.id,
-        })
-        wizard._compute_allowed_group_ids()
+        # 'other' only teaches group1/subject_b.
         self.assertIn(self.group1, wizard.allowed_group_ids)
         self.assertNotIn(self.group2, wizard.allowed_group_ids)
+
+    def test_allowed_group_ids_admin_sees_all(self):
+        wizard = self.env['ems.attendance_report_group_wizard'].with_user(self.admin_user).create({})
+        wizard._compute_allowed_group_ids()
+        self.assertIn(self.group1, wizard.allowed_group_ids)
+        self.assertIn(self.group2, wizard.allowed_group_ids)
 
     # --- allowed_subject_ids: teacher scoping (bug fix) ----------------
 

@@ -12,7 +12,6 @@
                             <field name="category"/>
                             <field name="notifiable"/>
                             <field name="color" widget="color" class="ems_color_swatch"/>
-                            <field name="active"/>
                         </group>
                     </sheet>
                 </form>

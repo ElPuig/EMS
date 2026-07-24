@@ -100,7 +100,7 @@ Record rules: `security/rules/coexistence.xml`. `ems.group_coexistence` is a **n
 | List/Form (strikes) | `views/coexistence/strike/{list,form}.xml` |
 | Menu (top-level "Convivencia") | `views/coexistence/strike/menu.xml` |
 | List/Form (reasons, admin config) | `views/coexistence/strike_reason/{list,form}.xml` |
-| Menu (Convivencia → Configuration) | `views/coexistence/strike_reason/menu.xml` |
+| Menu (Convivencia → Configuration → Strikes → Reasons) | `views/coexistence/strike_reason/menu.xml` |
 | Student form smart button | `views/community/contact/form.xml` (`button_box`, `strike_count` → `action_view_strikes()`) |
 | Session History form (per-line strike count/button) | `views/attendance/attendance_session/form.xml` (`ems.attendance_session_line.strike_count` → `action_view_strikes()`) |
 

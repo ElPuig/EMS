@@ -2,7 +2,7 @@
 
 ## Overview
 
-`ems.attendance_status` replaces what used to be a hardcoded Python `Selection` list (`attendance_status_selection` in `models/attendance/attendance_session.py`) backing `ems.attendance_session_line.status_id`. The change lets an Administrator add or retire a status from **Attendance → Configuration → Statuses** without a code change — retiring means archiving (`active = False`), never deleting, so historical `ems.attendance_session_line`/`ems.attendance_issue_status` rows that already reference a status keep resolving correctly.
+`ems.attendance_status` replaces what used to be a hardcoded Python `Selection` list (`attendance_status_selection` in `models/attendance/attendance_session.py`) backing `ems.attendance_session_line.status_id`. The change lets an Administrator add or retire a status from **Attendance → Configuration → Sessions → Statuses** without a code change — retiring means archiving (`active = False`), never deleting, so historical `ems.attendance_session_line`/`ems.attendance_issue_status` rows that already reference a status keep resolving correctly.
 
 **Trigger for this change:** the "Issue" status (`ems.attendance_status_issue`) is now redundant — `ems.strike` (see [ems.strike](../coexistence/strike.md)) covers the same "something happened worth flagging" case with a proper record (reason, notes, kicked-out flag, notifications), so `ems.attendance_status_issue` ships **archived from the start**, seeded only so existing historical rows keep a valid reference.
 
@@ -64,7 +64,7 @@ Existing `ems.attendance_session_line.status`/`ems.attendance_issue_status.atten
 | View | File |
 |------|------|
 | List/Form (statuses, admin config) | `views/attendance/attendance_status/{list,form}.xml` |
-| Menu (Attendance → Configuration → Statuses) | `views/attendance/attendance_status/menu.xml` |
+| Menu (Attendance → Configuration → Sessions → Statuses) | `views/attendance/attendance_status/menu.xml` |
 | Session form radio widget | `views/attendance/attendance_session/form.xml` (`status_id`, `widget="radio"` — supports `many2one` in Odoo 18, same as it supported `selection` before) |
 
 ## Access Control

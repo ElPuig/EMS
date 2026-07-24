@@ -10,7 +10,6 @@
                     <field name="category"/>
                     <field name="notifiable" widget="boolean_toggle"/>
                     <field name="color" width="50px" widget="color" class="ems_color_swatch"/>
-                    <field name="active" widget="boolean_toggle"/>
                 </list>
             </field>
         </record>

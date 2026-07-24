@@ -59,6 +59,29 @@ class TestAttendanceStatus(TransactionCase):
         )
         self.assertIn(self.status_issue, found_all)
 
+    def test_session_line_referencing_archived_issue_still_reads_correctly(self):
+        # This is the scenario a production upgrade actually produces: an existing
+        # ems.attendance_session_line row whose old 'status' string was 'a_issue' gets
+        # migrated to point at this now-archived record (see the post-migrate backfill
+        # in migrations/18.0.0.22.0/). A Many2one pointing at an archived record is a
+        # perfectly valid, permanent reference in Odoo - active=False only removes it
+        # from default searches and new-selection dropdowns, it does not affect reads
+        # of an already-set field. Confirms that directly, rather than just asserting it.
+        student = self.env['res.partner'].create({
+            'name': 'Test Student (Archived Issue Reference)', 'contact_type': 'student',
+        })
+        line = self.env['ems.attendance_session_line'].create({
+            'student_id': student.id, 'status_id': self.status_issue.id,
+        })
+        self.assertEqual(line.status_id, self.status_issue)
+        self.assertEqual(line.status_id.name, 'Issue')
+        self.assertFalse(line.status_id.active)
+        # Reports deliberately search with active_test=False (attendance_reports.py's
+        # _report_data) specifically so historical 'Issue' entries still get a legend
+        # label instead of showing blank - confirm that lookup still resolves this row.
+        statuses = self.env['ems.attendance_status'].with_context(active_test=False).search([])
+        self.assertIn(self.status_issue, statuses)
+
     # --- model behaviour -------------------------------------------------
 
     def test_create_valid_status(self):

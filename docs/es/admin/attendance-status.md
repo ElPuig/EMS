@@ -10,7 +10,7 @@
 
 ## Qué es esto
 
-Cada botón que un profesor puede pulsar para un alumno en la vista de pasar lista (Asistió, Retraso, Falta, Falta justificada...) proviene de una lista configurable en **Asistencia → Configuración → Estados**, en lugar de estar fijada en el código de la aplicación. Puedes añadir uno nuevo, reordenarlos o retirar uno que el centro ya no use.
+Cada botón que un profesor puede pulsar para un alumno en la vista de pasar lista (Asistió, Retraso, Falta, Falta justificada...) proviene de una lista configurable en **Asistencia → Configuración → Sesiones → Estados**, en lugar de estar fijada en el código de la aplicación. Puedes añadir uno nuevo, reordenarlos o retirar uno que el centro ya no use.
 
 ---
 
@@ -23,9 +23,8 @@ Cada estado tiene:
 - **Categoría** — *Asistencia* o *Ausencia*. Determina el desglose "Asistencia vs. Ausencia" que se muestra en los informes de asistencia por grupo/alumno/asignatura.
 - **Notificar a familia/tutor** — si se marca, un alumno con este estado dispara el mismo flujo de notificación a familia/tutor que una Falta.
 - **Color** — el color de texto que se usa para este estado en el informe de asistencia por sesión impreso.
-- **Activo** — desmarca para retirar un estado sin borrarlo. Las sesiones ya existentes que lo usaban lo siguen mostrando correctamente (en el historial del pasar lista y en los informes); simplemente deja de ofrecerse como nueva opción.
 
-**Retira, no borres:** esta lista no tiene acción de borrar por un motivo — un estado puede estar referenciado por años de datos históricos de asistencia. Desmarca **Activo** en vez de borrar; el estado "Incidencia" ("Issue") se crea ya archivado de esta forma, ya que `ems.strike` (consulta el manual de Strikes) ahora cubre lo que este estado marcaba.
+**Retira, no borres:** esta lista no tiene acción de borrar por un motivo — un estado puede estar referenciado por años de datos históricos de asistencia. Usa la acción estándar **Archivar** (menú ⚙ del formulario, o selecciona filas en la lista y usa el mismo menú) — las sesiones ya existentes que lo usaban lo siguen mostrando correctamente (en el historial del pasar lista y en los informes); simplemente deja de ofrecerse como nueva opción. Los estados archivados quedan ocultos por defecto; usa **Filtros → Archivado** en la lista para volver a verlos, o para desarchivar uno. El estado "Incidencia" ("Issue") se crea ya archivado de esta forma, ya que `ems.strike` (consulta el manual de Strikes) ahora cubre lo que este estado marcaba.
 
 ---
 

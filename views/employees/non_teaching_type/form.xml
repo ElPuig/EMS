@@ -12,7 +12,6 @@
                             <field name="sequence"/>
                             <field name="is_break"/>
                             <field name="is_fixed"/>
-                            <field name="active"/>
                         </group>
                     </sheet>
                 </form>

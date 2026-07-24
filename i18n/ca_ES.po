@@ -12024,8 +12024,8 @@ msgstr ""
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_strike_reason_list
 #: model:ir.ui.menu,name:ems.menu_coexistence_strike_reasons
-msgid "Strike reasons"
-msgstr "Motius de strike"
+msgid "Reasons"
+msgstr "Motius"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_strike
@@ -12038,6 +12038,7 @@ msgstr "Strike: un avís disciplinari posat per un professor a un alumne."
 #: model:ir.model.fields,field_description:ems.field_res_partner__strike_ids
 #: model:ir.model.fields,field_description:ems.field_res_users__strike_ids
 #: model:ir.ui.menu,name:ems.menu_coexistence_strikes
+#: model:ir.ui.menu,name:ems.menu_coexistence_config_strikes
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Strikes"
 msgstr "Strikes"

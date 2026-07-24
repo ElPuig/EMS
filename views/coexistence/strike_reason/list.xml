@@ -7,7 +7,6 @@
                 <list default_order="sequence, name">
                     <field name="sequence" widget="handle"/>
                     <field name="name"/>
-                    <field name="active" widget="boolean_toggle"/>
                 </list>
             </field>
         </record>

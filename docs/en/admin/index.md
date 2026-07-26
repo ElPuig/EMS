@@ -17,6 +17,7 @@ This section contains the manuals for **administrators**.
 - [Teacher Working Schedules & Schedule Frameworks](working-schedules.md) — Setting up bell-schedule templates, the default framework, and editing/importing a teacher's weekly schedule.
 - [Task Assignment: Who Handles the Tasks EMS Creates](task-assignment.md) — Choosing who reviews the documents students upload and the comments families write, independently of roles and permissions.
 - [A Group's Weekly Schedule](group-schedule.md) — Viewing a group's aggregated timetable (subjects, teachers, classrooms, breaks) and exporting it to PDF.
+- [Setting Up the Next Course](course-transition.md) — Closing the year: archiving the academic history, graduating and archiving former students, placing everyone in their new group and switching the current course.
 
 ---
 

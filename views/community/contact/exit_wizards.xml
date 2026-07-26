@@ -18,6 +18,10 @@
                                   decoration-warning="warning != False and not blocked">
                                 <field name="blocked" column_invisible="1"/>
                                 <field name="student_id"/>
+                                <!-- D2: the study the student graduates from, shown for
+                                     confirmation. A student only ever has one (through its
+                                     main group), so there is nothing to choose yet. -->
+                                <field name="study_id"/>
                                 <field name="already_marked" widget="boolean_toggle" readonly="1"/>
                                 <field name="warning"/>
                             </list>

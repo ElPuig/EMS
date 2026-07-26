@@ -1386,6 +1386,7 @@ msgstr "Acrònim"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__mode
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__action
 msgid "Action"
 msgstr "Acció"
 
@@ -1432,6 +1433,7 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_strike_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__active
 #: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active
+#: model:ir.model.fields.selection,name:ems.selection__ems_study__transition_state__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -2632,6 +2634,7 @@ msgstr "Aula"
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_line_exception_popup
 #: model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
 msgid "Close"
 msgstr "Tancar"
 
@@ -3021,6 +3024,8 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3081,6 +3086,8 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3412,6 +3419,8 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -3475,8 +3484,9 @@ msgstr ""
 
 #. module: ems
 #: model:project.task.type,name:ems.project_stage_secretary_done
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__done
 msgid "Done"
-msgstr ""
+msgstr "Fet"
 
 #. module: ems
 #. odoo-python
@@ -3513,6 +3523,7 @@ msgstr "Descarregant enquestes"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__draft
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice__state__draft
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__draft
 msgid "Draft"
 msgstr "Esborrany"
 
@@ -4821,6 +4832,8 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__id
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -5415,6 +5428,8 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -5475,6 +5490,8 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_tracking__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -8225,6 +8242,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__state
 #: model:ir.model.fields,field_description:ems.field_ems_notice__state
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__state
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__state
 msgid "State"
 msgstr "Estat"
 
@@ -8354,6 +8372,7 @@ msgstr "Carrer 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__student_id
 msgid "Student"
 msgstr "Estudiant"
 
@@ -8517,6 +8536,7 @@ msgstr "Alumnes - Vista tutor/a"
 #: model_terms:ir.ui.view,arch_db:ems.view_study_form
 #: model_terms:ir.ui.view,arch_db:ems.view_subject_form
 #: model_terms:ir.ui.view,arch_db:ems.view_subject_search
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__study_ids
 msgid "Studies"
 msgstr "Estudis"
 
@@ -8543,6 +8563,8 @@ msgstr "Estudis per a matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__study_id
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__study_id
 msgid "Study"
 msgstr "Estudi"
 
@@ -9840,6 +9862,7 @@ msgstr "Indica si hi ha nota final (la nota calculada està disponible)."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_csv_column__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__wizard_id
 msgid "Wizard"
 msgstr "Assistent"
 
@@ -10862,6 +10885,7 @@ msgstr "El fitxer abasta diversos grups: %s."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/grade_import_wizard.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__warning_html
 msgid "Warnings"
 msgstr "Avisos"
 
@@ -11043,6 +11067,7 @@ msgstr "Graduat/da"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__transition_status__missing
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__missing
 msgid "No destination"
 msgstr "Sense destí"
 
@@ -11173,6 +11198,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__ems_group_id
 #: model:ir.model.fields,field_description:ems.field_sale_order__ems_group_id
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__destination_group_id
 msgid "Destination group"
 msgstr "Grup destí"
 
@@ -11268,6 +11294,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__transition_status__unplaced
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__unplaced_count
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__unplaced
 msgid "Enrolled without group"
 msgstr "Amb matrícula sense grup"
 
@@ -12973,3 +13001,167 @@ msgid ""
 msgstr ""
 "Beneficis reaplicats per %s: la factura s'ha regenerat amb l'estat de "
 "beneficis actual de l'estudiant."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_course_transition_wizard
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
+msgid "Set up the next course"
+msgstr "Preparar el curs següent"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__source_course_id
+msgid "Outgoing course"
+msgstr "Curs sortint"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__target_course_id
+msgid "Incoming course"
+msgstr "Curs entrant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__transition_state
+msgid "Transition state"
+msgstr "Estat de transició"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_study__transition_state__transitioned
+msgid "Transitioned"
+msgstr "Transicionat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__line_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__preview
+#: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
+msgid "Preview"
+msgstr "Previsualitzar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__result_html
+msgid "Result"
+msgstr "Resultat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__blocking_html
+msgid "Blockers"
+msgstr "Bloquejants"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__has_blockers
+msgid "Has blockers"
+msgstr "Té bloquejants"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
+msgid "What will happen"
+msgstr "Què passarà"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__graduate
+msgid "Graduate"
+msgstr "Es gradua"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__graduate_count
+msgid "Graduates"
+msgstr "Graduats"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__place
+msgid "Place in destination group"
+msgstr "Col·locar al grup destí"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__place_count
+msgid "To place"
+msgstr "Per col·locar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__missing_count
+msgid "Without destination"
+msgstr "Sense destí"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__source_group_id
+msgid "Current group"
+msgstr "Grup actual"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__pending_study_ids
+msgid "Studies left pending"
+msgstr "Estudis pendents"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__will_flip
+msgid "Flips the course"
+msgstr "Canvia el curs"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__incomplete_evaluation_count
+msgid "Incomplete evaluations"
+msgstr "Avaluacions incompletes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__delete_count
+msgid "Records to delete"
+msgstr "Registres a esborrar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__template_count
+msgid "Attendance templates to archive"
+msgstr "Plantilles d'assistència a arxivar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__declined_applicant_count
+msgid "Applicants without enrollment"
+msgstr "Pre-inscripcions sense matrícula"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__archive_declined_applicants
+msgid "Archive applicants without a confirmed enrollment"
+msgstr "Arxivar pre-inscripcions sense matrícula confirmada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__backup_done
+msgid "I have taken a backup"
+msgstr "He fet una còpia de seguretat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__audit_file
+msgid "Transition log (CSV)"
+msgstr "Registre de la transició (CSV)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__audit_file_name
+msgid "Audit File Name"
+msgstr "Nom del fitxer d'auditoria"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "yes"
+msgstr "sí"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_course_transition_wizard__archive_declined_applicants
+msgid "Summer withdrawals: applicants who never confirmed their enrollment for the incoming course."
+msgstr "Renúncies d'estiu: pre-inscripcions que mai van arribar a confirmar la matrícula del curs entrant."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_course_transition_wizard__backup_done
+msgid "The operational cleanup cannot be undone. Apply stays disabled until this is ticked."
+msgstr "La neteja operativa no es pot desfer. Aplicar roman deshabilitat fins que es marqui."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_course_transition_wizard__will_flip
+msgid "Whether this run leaves no active study behind and therefore switches the current course."
+msgstr "Si aquesta execució no deixa cap estudi actiu i per tant canvia el curs actual."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_course_transition_wizard
+msgid "Course transition wizard: closes the outgoing course and opens the next one."
+msgstr "Auxiliar de transició de curs: tanca el curs sortint i obre el següent."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_course_transition_wizard_line
+msgid "Course transition wizard line: the action predicted for one student."
+msgstr "Línia de l'auxiliar de transició: l'acció prevista per a un alumne."

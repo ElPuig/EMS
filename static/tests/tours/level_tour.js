@@ -86,7 +86,10 @@ registry.category("web_tour.tours").add("ems_level_crud", {
             run: "click",
         },
         {
-            trigger: ".o_menu_item:contains('Delete')",
+            // Matched by its icon, not by its label: "Delete" is translated, so the
+            // step failed for any user whose language is not English (the admin of a
+            // production copy is usually ca_ES).
+            trigger: ".o_menu_item:has(.fa-trash-o)",
             content: "Click Delete",
             run: "click",
         },

@@ -639,6 +639,16 @@ class ems_contact(models.Model):
                 [('student_ids', 'in', partner.id)])
             for template in templates:
                 template.student_ids = [(3, partner.id)]
+            # Attendance issues: the year record already froze attendance_issue_count, so
+            # the live notifications have nothing left to say about a student who has gone.
+            # Dropping its rows can leave a tutor notification with no student at all;
+            # remove_if_empty() disposes of it and cancels its pending queue job.
+            issue_students = self.env['ems.attendance_issue_student'].sudo().search(
+                [('student_id', '=', partner.id)])
+            tutor_issues = issue_students.attendance_issue_tutor_id
+            issue_students.unlink()
+            for tutor_issue in tutor_issues.exists():
+                tutor_issue.remove_if_empty()
             if group.delegate_id == partner:
                 group.sudo().delegate_id = False
 

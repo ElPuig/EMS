@@ -532,9 +532,7 @@ class ems_SaleOrder(models.Model):
         of an internal continuer once the granted study is the one being confirmed.
         Placement (group + subject enrollments) only runs for latecomers whose
         destination study has already been transitioned; in the normal case (study still
-        active) the transition wizard places everyone in bulk later. The
-        `transition_state` field lands in the transition phase, so until then this
-        branch stays dormant.
+        active) the transition wizard places everyone in bulk later.
         """
         self.ensure_one()
         partner = self.partner_id
@@ -550,7 +548,7 @@ class ems_SaleOrder(models.Model):
                 'preinscription_shift': False,
                 'preinscription_course': False,
             })
-        if getattr(self.ems_study_id, 'transition_state', False) == 'transitioned':
+        if self.ems_study_id.transition_state == 'transitioned':
             self._ems_apply_destination_placement()
 
     def _ems_suggest_group(self):
@@ -611,8 +609,17 @@ class ems_SaleOrder(models.Model):
         if not group:
             return
         student = self.partner_id
-        if student.main_group_id != group:
-            student.sudo().main_group_id = group
+        # Study and level travel with the group, they are not derived from it: leaving
+        # them behind would keep a student who moves to another study (or an applicant
+        # entering one) pointing at the previous one. Written together and only when
+        # they differ, so re-running the placement stays a no-op.
+        placement = {
+            'main_group_id': group.id,
+            'study_id': group.study_id.id,
+            'level_id': group.level_id.id,
+        }
+        if any(student[field].id != value for field, value in placement.items()):
+            student.sudo().write(placement)
         Enrollment = self.env['ems.enrollment'].sudo()
         subjects = self.env['ems.subject'].sudo().search([
             ('product_id', 'in', self.order_line.product_id.ids)])

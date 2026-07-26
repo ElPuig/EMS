@@ -1,4 +1,6 @@
 from . import test_contact
+from . import test_course_transition
+from . import test_course_transition_tour
 from . import test_enrollment
 from . import test_enrollment_benefit
 from . import test_enrollment_placement

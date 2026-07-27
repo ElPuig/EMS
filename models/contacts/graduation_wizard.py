@@ -50,7 +50,10 @@ class EmsGraduationWizard(models.TransientModel):
                 ('partner_id', '=', student.id),
                 ('ems_course_id', '=', next_course.id),
                 ('state', '!=', 'cancel')]))
-            warning = _("Already enrolled for the next course — graduation is incompatible") if has_next else ''
+            # Not a contradiction: a graduate moving up to another study at the centre
+            # is graduated AND placed by the transition, never converted nor archived.
+            warning = _("Enrolled for the next course — will be graduated and placed, not archived") \
+                if has_next else ''
         return {
             'student_id': student.id,
             # Shown for confirmation (D2): a student only ever has one study, through its

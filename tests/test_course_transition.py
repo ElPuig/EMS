@@ -196,13 +196,14 @@ class TestCourseTransition(TransactionCase):
         wizard.action_preview()
         self.assertTrue(wizard.has_blockers)
 
-    def test_blocks_graduate_already_enrolled_in_target(self):
+    def test_does_not_block_a_graduate_enrolled_in_the_target_course(self):
+        """Finishing a study and enrolling into another one are independent facts:
+        a CFGM graduate moving up to a CFGS does both at once."""
         graduate = self._graduate()
         self._order(graduate, self.group1, state='sale')
         wizard = self._wizard()
         wizard.action_preview()
-        self.assertTrue(wizard.has_blockers)
-        self.assertIn(graduate.display_name, wizard.blocking_html)
+        self.assertFalse(wizard.has_blockers)
 
     def test_blocks_when_the_last_round_is_not_final(self):
         self._session(self.group1, self.subject_int, round="1", state='open')
@@ -325,6 +326,182 @@ class TestCourseTransition(TransactionCase):
                 self._applied()
         self.assertEqual(graduate.contact_type, 'student')
         self.assertTrue(graduate.active)
+
+    # --- graduates who stay at the centre ------------------------------------
+
+    def test_preview_labels_a_graduate_with_a_confirmed_order_as_continuing(self):
+        graduate = self._graduate('CTW Continuing')
+        self._order(graduate, self.group1, state='sale')
+        wizard = self._wizard()
+        wizard.action_preview()
+        line = wizard.line_ids.filtered(lambda line: line.student_id == graduate)
+        self.assertEqual(line.action, 'graduate_continue')
+        self.assertEqual(line.destination_group_id, self.group1)
+        self.assertEqual(wizard.graduate_continue_count, 1)
+        self.assertEqual(wizard.graduate_count, 0)
+
+    def test_preview_labels_a_graduate_with_an_unconfirmed_order_as_continuing(self):
+        """A draft/sent offer may still be confirmed in September: archiving the
+        student now would leave that confirmation with nobody to place."""
+        graduate = self._graduate('CTW Continuing Sent')
+        self._order(graduate, self.group1, state='sent')
+        wizard = self._wizard()
+        wizard.action_preview()
+        line = wizard.line_ids.filtered(lambda line: line.student_id == graduate)
+        self.assertEqual(line.action, 'graduate_continue')
+        self.assertFalse(line.destination_group_id)
+
+    def test_preview_labels_a_graduate_without_any_order_as_leaving(self):
+        graduate = self._graduate('CTW Leaving')
+        wizard = self._wizard()
+        wizard.action_preview()
+        line = wizard.line_ids.filtered(lambda line: line.student_id == graduate)
+        self.assertEqual(line.action, 'graduate')
+        self.assertEqual(wizard.graduate_count, 1)
+        self.assertEqual(wizard.graduate_continue_count, 0)
+
+    def test_apply_keeps_a_continuing_graduate_active_and_places_it(self):
+        graduate = self._graduate('CTW Continuing Placed')
+        self._order(graduate, self.group1, state='sale')
+        self._applied()
+        self.assertTrue(graduate.active)
+        self.assertEqual(graduate.contact_type, 'student')
+        self.assertEqual(graduate.main_group_id, self.group1)
+
+    def test_apply_clears_the_exit_metadata_of_a_continuing_graduate(self):
+        """Point 4: an active student of the incoming course must not carry the
+        exit date of the study it has just finished. has_graduated is permanent."""
+        graduate = self._graduate('CTW Continuing Exit')
+        self._order(graduate, self.group1, state='sale')
+        self._applied()
+        self.assertFalse(graduate.exit_type)
+        self.assertFalse(graduate.exit_course_id)
+        self.assertTrue(graduate.has_graduated)
+
+    def test_apply_freezes_the_year_record_before_clearing_the_exit_metadata(self):
+        """Load-bearing order: year_record._generate_one() stamps the exit through
+        'exit_course_id', so step 0 has to run before the metadata is cleared."""
+        graduate = self._graduate('CTW Continuing History')
+        self._order(graduate, self.group1, state='sale')
+        self._applied()
+        record = self.env['ems.student.year_record'].search([
+            ('student_id', '=', graduate.id), ('course_id', '=', self.source_course.id)])
+        self.assertEqual(len(record), 1)
+        self.assertEqual(record.exit_type, 'graduation')
+        self.assertEqual(record.group_id, self.group2)
+
+    def test_apply_still_archives_a_graduate_with_no_enrollment(self):
+        graduate = self._graduate('CTW Leaving Archived')
+        self._applied()
+        self.assertEqual(graduate.contact_type, 'alumni')
+        self.assertFalse(graduate.active)
+
+    def test_a_graduate_continuing_into_another_study_is_not_archived(self):
+        """Point 1: the case is not exclusive to CFGM. A CFGS graduate enrolling
+        into a different CFGS, even of another family, is the same situation."""
+        graduate = self._graduate('CTW Cross Study')
+        order = self.env['sale.order'].create({
+            'partner_id': graduate.id, 'ems_study_id': self.study_other.id,
+            'ems_course_id': self.target_course.id, 'ems_group_id': self.group_other.id,
+            'shift': 'morning'})
+        order.order_line = [(0, 0, {'product_id': self.subject_int.product_id.id})]
+        order.action_confirm()
+        self._applied(studies=self.study | self.study_other)
+        self.assertTrue(graduate.active)
+        self.assertEqual(graduate.main_group_id, self.group_other)
+
+    def test_a_continuing_graduate_is_placed_when_it_confirms_in_september(self):
+        """The unconfirmed offer survives the transition (only the OUTGOING course
+        is cancelled), and the student is still a placeable student when it lands."""
+        graduate = self._graduate('CTW September')
+        order = self._order(graduate, self.group1, state='sent')
+        self._applied()
+        self.assertEqual(order.state, 'sent')
+        self.assertTrue(graduate.active)
+        order.action_confirm()
+        self.assertEqual(graduate.main_group_id, self.group1)
+
+    def test_admit_student_reactivates_an_archived_ex_student(self):
+        """A genuine returner: archived last year, enrolls again. The individual
+        path has to convert and unarchive, exactly as the bulk placement does."""
+        self.study.transition_state = 'transitioned'
+        returner = self._student('CTW Returner', group=self.group2,
+                                 has_graduated=True)
+        returner._ems_convert_to_ex_student()
+        returner.active = False
+        order = self._order(returner, self.group1)
+        order.action_confirm()
+        self.assertTrue(returner.active)
+        self.assertEqual(returner.contact_type, 'student')
+        self.assertEqual(returner.main_group_id, self.group1)
+
+    # --- history frozen on the way out of the group --------------------------
+
+    def _cross_order(self, student):
+        """Confirmed enrollment into the OTHER study, so the student is placed by a
+        run that does not have its own study in scope."""
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study_other.id,
+            'ems_course_id': self.target_course.id, 'ems_group_id': self.group_other.id,
+            'shift': 'morning'})
+        order.order_line = [(0, 0, {'product_id': self.subject_int.product_id.id})]
+        return order
+
+    def test_placement_freezes_the_origin_history_of_a_student_from_another_study(self):
+        """Ordering the runs is not enough: with ASIX->DAM and DAM->ASIX the same
+        year no order works, so the history is frozen on the way out of the group."""
+        student = self._student('CTW Cross History', group=self.group2)
+        self._cross_order(student).action_confirm()
+        self._applied(studies=self.study_other)
+        record = self.env['ems.student.year_record'].search([
+            ('student_id', '=', student.id), ('course_id', '=', self.source_course.id)])
+        self.assertEqual(len(record), 1)
+        self.assertEqual(record.group_id, self.group2)
+        self.assertEqual(record.study_id, self.study)
+        self.assertEqual(student.main_group_id, self.group_other)
+
+    def test_the_origin_history_survives_the_transition_of_its_own_study(self):
+        """The record frozen on the way out is not overwritten, and not duplicated,
+        when the origin study transitions afterwards."""
+        student = self._student('CTW Cross Later', group=self.group2)
+        self._cross_order(student).action_confirm()
+        self._applied(studies=self.study_other)
+        self._applied(studies=self.study)
+        record = self.env['ems.student.year_record'].search([
+            ('student_id', '=', student.id), ('course_id', '=', self.source_course.id)])
+        self.assertEqual(len(record), 1)
+        self.assertEqual(record.group_id, self.group2)
+
+    def test_blocks_when_the_origin_study_of_a_placement_is_still_evaluating(self):
+        """Freezing a history half-way is worse than refusing to run."""
+        student = self._student('CTW Cross Open', group=self.group2)
+        self._cross_order(student).action_confirm()
+        self._session(self.group2, self.subject_int, round="1", state='open')
+        wizard = self._wizard(studies=self.study_other)
+        wizard.action_preview()
+        self.assertTrue(wizard.has_blockers)
+        self.assertIn(self.study.display_name, wizard.blocking_html)
+
+    def test_does_not_block_when_the_origin_study_is_in_the_same_run(self):
+        """A study inside the scope is already covered by the last-round blocker."""
+        student = self._student('CTW Cross Same Run', group=self.group2)
+        self._cross_order(student).action_confirm()
+        wizard = self._wizard(studies=self.study | self.study_other)
+        wizard.action_preview()
+        self.assertFalse(wizard.has_blockers)
+
+    def test_cleanup_clears_the_enrollments_of_the_outgoing_groups(self):
+        """A student already placed out by another study's run is no longer in
+        _scope_students(), so its old subject enrollments go by group instead."""
+        student = self._student('CTW Cross Enrollment', group=self.group2)
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': self.group2.id,
+            'subject_id': self.subject_int.id})
+        self._cross_order(student).action_confirm()
+        self._applied(studies=self.study_other)
+        self._applied(studies=self.study)
+        self.assertFalse(self.env['ems.enrollment'].search_count([
+            ('group_id', '=', self.group2.id)]))
 
     # --- apply steps 1-2: graduates ------------------------------------------
 

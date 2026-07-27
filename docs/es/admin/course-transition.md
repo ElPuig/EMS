@@ -14,14 +14,19 @@ Archiva el curso que termina, convierte en exalumnos a los estudiantes que ya es
 
 ## Antes de empezar
 
-Hay cuatro cosas que deben estar resueltas. El asistente comprueba las tres primeras y se niega a ejecutarse si falta alguna.
+Hay tres cosas que deben estar resueltas. El asistente comprueba las dos primeras y se niega a ejecutarse si falta alguna.
 
 1. **El curso entrante existe** y es distinto del actual.
-2. **Las evaluaciones están cerradas.** La última convocatoria de cada grupo del alcance debe estar en estado *Finalizada*. Si quedan abiertas, el asistente te las lista; ciérralas desde **Notas → Cambiar estado de sesión de evaluación**.
-3. **Ningún graduado matriculado en el curso siguiente.** Un alumno no puede irse y volver en la misma ejecución; o la marca de graduación o la matrícula está mal.
-4. **Una copia de seguridad de la base de datos.** El asistente te pide que confirmes que la tienes, y no aplica nada hasta que marques la casilla.
+2. **Las evaluaciones están cerradas.** La última convocatoria de cada grupo del alcance debe estar en estado *Finalizada*. Si quedan abiertas, el asistente te las lista; ciérralas desde **Notas → Cambiar estado de sesión de evaluación**. Esto vale también para los **estudios de procedencia**: si esta ejecución va a colocar alumnos que vienen de un estudio que no estás transicionando y ese estudio aún tiene evaluaciones abiertas, el asistente se niega a ejecutarse, porque al salir del grupo se les congela el expediente y quedaría a medias.
+3. **Una copia de seguridad de la base de datos.** El asistente te pide que confirmes que la tienes, y no aplica nada hasta que marques la casilla.
 
 Marca a los alumnos que se gradúan *antes*, con el asistente de graduación desde la lista de alumnos. La transición no decide quién se gradúa: solo ejecuta marcas que ya están puestas.
+
+### Graduarse y seguir en el centro no es una contradicción
+
+Un alumno que acaba SMX y se matricula de ASIX, DAM o DAW, o uno que acaba DAM y empieza otro ciclo superior —incluso de otra familia—, se gradúa **y** continúa. Son dos hechos independientes: la graduación cierra el ciclo que termina, la matrícula abre el que empieza.
+
+**No tienes que hacer nada para que funcione, ni marcar nada especial.** Tú marcas la graduación, como siempre. La matrícula llega por su cuenta desde la preinscripción y GEDAC. El asistente cruza los dos datos al ejecutarse y decide solo: si un graduado tiene matrícula para el curso siguiente, mantiene su graduación en el expediente pero **no** se convierte en exalumno ni se archiva; se coloca en su grupo nuevo como cualquier otro.
 
 ---
 
@@ -41,7 +46,8 @@ Obtendrás un recuadro rojo si algo bloquea la ejecución, uno azul con todo lo 
 
 | Acción | Qué significa |
 |---|---|
-| **Se gradúa** | Marcado como graduado: pasa a exalumno y se archiva |
+| **Se gradúa** | Marcado como graduado y sin matrícula: pasa a exalumno y se archiva |
+| **Se gradúa y continúa** | Marcado como graduado **y** con matrícula para el curso siguiente: conserva la graduación, no se archiva y se coloca en el grupo nuevo |
 | **Colocar en grupo destino** | Tiene matrícula confirmada con grupo: se traslada allí |
 | **Matriculado sin grupo** | Matrícula confirmada sin grupo destino: **se saltará** |
 | **Sin destino** | No tiene ninguna matrícula para el curso siguiente |
@@ -60,7 +66,7 @@ Marca **He hecho una copia de seguridad** y pulsa **Aplicar la transición**. Se
 Qué ocurre, y en qué orden:
 
 1. Se congela el **historial académico** de todos los alumnos. Si esto falla, no se ejecuta nada más.
-2. Los graduados pasan a **exalumnos**, se les revoca el acceso al portal y **se archivan**.
+2. Los graduados **que se van** pasan a exalumnos, se les revoca el acceso al portal y **se archivan**. Los que continúan en el centro conservan su graduación pero siguen activos: solo se les borra la fecha de salida del ciclo que acaban de terminar.
 3. Se archivan las plantillas de asistencia del curso saliente.
 4. **Se borran los registros operativos**: inscripciones a módulos, notas, asistencia y sesiones de evaluación. Esta es la parte irreversible — el historial académico guardado en el paso 1 es lo que los sustituye.
 5. Los alumnos se colocan en su **grupo destino** y se les inscribe en sus asignaturas.

@@ -12,6 +12,7 @@ from odoo.exceptions import UserError
 # whole vocabulary: every student in scope ends up in exactly one of them.
 TRANSITION_ACTIONS = [
     ('graduate', 'Graduate'),
+    ('graduate_continue', 'Graduates and continues'),
     ('place', 'Place in destination group'),
     ('unplaced', 'Enrolled without group'),
     ('missing', 'No destination'),
@@ -47,6 +48,7 @@ class ems_course_transition_wizard(models.TransientModel):
     has_blockers = fields.Boolean(string="Has blockers", readonly=True)
 
     graduate_count = fields.Integer(string="Graduates", readonly=True)
+    graduate_continue_count = fields.Integer(string="Graduates continuing at the centre", readonly=True)
     place_count = fields.Integer(string="To place", readonly=True)
     unplaced_count = fields.Integer(string="Enrolled without group", readonly=True)
     missing_count = fields.Integer(string="Without destination", readonly=True)
@@ -106,6 +108,28 @@ class ems_course_transition_wizard(models.TransientModel):
             lambda student: student.exit_type == 'graduation'
             and student.exit_course_id == self.source_course_id)
 
+    def _continuing_graduates(self, order_index):
+        """Graduates who keep studying at the centre next course.
+
+        Finishing a study and enrolling into another one are independent facts, not a
+        contradiction: a CFGM graduate moving up to a CFGS, or a CFGS graduate starting
+        a second one — even in another family — is both at once. Nothing marks them:
+        the tutor only knows about the graduation and the enrollment arrives on its own
+        through the GEDAC assignment, so the wizard derives the case at run time from
+        the two facts it already has.
+
+        ANY non-cancelled enrollment counts, not only the confirmed ones: an offer still
+        in draft/sent may be confirmed in September, and archiving the student now would
+        leave that confirmation with nobody to place.
+        """
+        self.ensure_one()
+        return self._scope_graduates().filtered(lambda student: student.id in order_index)
+
+    def _leaving_graduates(self, order_index):
+        """Graduates who really leave the centre: the ones step 2 turns into alumni."""
+        self.ensure_one()
+        return self._scope_graduates() - self._continuing_graduates(order_index)
+
     def _target_orders_by_partner(self):
         """Every non-cancelled enrollment for the incoming course, indexed by partner.
 
@@ -132,17 +156,38 @@ class ems_course_transition_wizard(models.TransientModel):
             ('ems_study_id', 'in', self.study_ids.ids),
             ('state', '=', 'sale')])
 
-    def _last_round_sessions(self):
-        """The last existing round of every group·subject in scope. 'round' is a
-        single-digit Selection, so a plain string comparison keeps the latest."""
+    def _last_round_sessions(self, groups=None):
+        """The last existing round of every group·subject of 'groups', the scope by
+        default. 'round' is a single-digit Selection, so a plain string comparison
+        keeps the latest."""
         self.ensure_one()
+        if groups is None:
+            groups = self._scope_groups()
         latest = {}
         for session in self.env['ems.grade_session'].search([
-                ('group_id', 'in', self._scope_groups().ids)]):
+                ('group_id', 'in', groups.ids)]):
             key = (session.group_id.id, session.subject_id.id)
             if key not in latest or session.round > latest[key].round:
                 latest[key] = session
         return self.env['ems.grade_session'].browse([s.id for s in latest.values()])
+
+    def _unclosed_origin_studies(self):
+        """Studies this run pulls a student OUT of, whose evaluation is still open.
+
+        The placement freezes the history of the year that ends on the way out of the
+        group (ems.student.year_record.freeze_on_leaving), so an origin study still
+        evaluating would be frozen with half its grades in it. Only studies OUTSIDE the
+        scope are examined: the ones inside are already covered by the last-round blocker.
+        """
+        self.ensure_one()
+        origins = self.env['ems.study']
+        for order in self._incoming_orders():
+            origin = order.partner_id.main_group_id.study_id
+            if origin and origin not in self.study_ids and origin.transition_state != 'transitioned':
+                origins |= origin
+        return origins.filtered(lambda study: any(
+            session.state != 'final' for session in self._last_round_sessions(
+                self.env['ems.group'].search([('study_id', '=', study.id)]))))
 
     # --- preview -------------------------------------------------------------
 
@@ -154,18 +199,19 @@ class ems_course_transition_wizard(models.TransientModel):
         if not self.target_course_id or self.target_course_id == self.source_course_id:
             blockers.append(_("The incoming course must exist and be different from the outgoing one."))
 
-        # A graduate already enrolled for the next course is a contradiction: the
-        # transition would archive the very student the enrollment is placing.
-        graduates_enrolled = self._scope_graduates().filtered(
-            lambda student: student.id in order_index)
-        if graduates_enrolled:
-            blockers.append(_("Students marked as graduated but enrolled for the incoming course: %s.")
-                            % ", ".join(graduates_enrolled.mapped('display_name')))
-
         not_final = self._last_round_sessions().filtered(lambda session: session.state != 'final')
         if not_final:
             blockers.append(_("The last round is not finalised in %s evaluation session(s): %s.")
                             % (len(not_final), ", ".join(not_final.mapped('display_name')[:10])))
+
+        # This run places students coming from a study it is not transitioning, and their
+        # history is frozen as they leave: refuse rather than freeze it half-way.
+        unclosed = self._unclosed_origin_studies()
+        if unclosed:
+            blockers.append(_("This run places students coming from study(ies) whose last round is "
+                              "not finalised: %s. Close their evaluations, or transition them in "
+                              "this same run, so their academic history is not frozen half-way.")
+                            % ", ".join(unclosed.mapped('display_name')))
         return blockers
 
     def _incomplete_evaluation_lines(self):
@@ -231,14 +277,24 @@ class ems_course_transition_wizard(models.TransientModel):
 
     def _build_lines(self, order_index):
         """One preview line per student of the scope, with the action the apply
-        would take. Graduation is checked first: a graduate never gets placed."""
+        would take. Graduation is checked first, and splits in two: a graduate who
+        leaves is never placed, one who continues is never archived.
+
+        'graduate_continue' is derived here and nowhere else — it is a computed label,
+        not something anybody marks. The destination group only shows once the order is
+        confirmed: an unconfirmed offer has no placement to predict yet.
+        """
         self.ensure_one()
         vals_list = []
         graduates = self._scope_graduates()
+        continuing = self._continuing_graduates(order_index)
         seen = self.env['res.partner']
         for student in self._scope_students():
             order = order_index.get(student.id)
-            if student in graduates:
+            if student in continuing:
+                action = 'graduate_continue'
+                group = order.ems_group_id if order.state == 'sale' else self.env['ems.group']
+            elif student in graduates:
                 action, group = 'graduate', self.env['ems.group']
             elif not order:
                 action, group = 'missing', self.env['ems.group']
@@ -283,6 +339,12 @@ class ems_course_transition_wizard(models.TransientModel):
         have seen before ticking the backup checkbox."""
         self.ensure_one()
         warnings = []
+        if self.graduate_continue_count:
+            names = self.line_ids.filtered(
+                lambda line: line.action == 'graduate_continue').mapped('student_id.display_name')
+            warnings.append(_("%s graduate(s) stay at the centre: they keep their graduation on "
+                              "record but are neither converted to alumni nor archived: %s.")
+                            % (self.graduate_continue_count, ", ".join(names)))
         if self.missing_count:
             names = self.line_ids.filtered(lambda line: line.action == 'missing').mapped(
                 'student_id.display_name')
@@ -354,6 +416,7 @@ class ems_course_transition_wizard(models.TransientModel):
         pending = self._pending_studies()
         self.write({
             'graduate_count': actions.count('graduate'),
+            'graduate_continue_count': actions.count('graduate_continue'),
             'place_count': actions.count('place'),
             'unplaced_count': actions.count('unplaced'),
             'missing_count': actions.count('missing'),
@@ -425,6 +488,23 @@ class ems_course_transition_wizard(models.TransientModel):
                 graduate.write({'active': False})
         return issues
 
+    def _apply_continuing_graduates(self, graduates):
+        """Step 2c — the graduates who stay at the centre.
+
+        They keep 'has_graduated' (permanent) and the year record step 0 has just
+        frozen, but receive none of the exit treatment: no alumni conversion, no portal
+        revoke, no archive. Clearing the exit metadata is what stops an active student
+        of the incoming course from carrying the exit date of the study it has just
+        finished; _ems_convert_to_student() already does exactly that and leaves
+        'has_graduated' alone.
+
+        MUST run after _apply_history(): year_record._generate_one() stamps how the
+        student left the outgoing course by reading 'exit_course_id', which this clears.
+        """
+        self.ensure_one()
+        if graduates:
+            graduates._ems_convert_to_student()
+
     def _apply_placement(self):
         """Steps 3 and 4 — destination group, then subject enrollments.
 
@@ -464,6 +544,11 @@ class ems_course_transition_wizard(models.TransientModel):
         self._templates_to_archive().write({'active': False})
         students._ems_clear_operational_records()
         groups = self._scope_groups()
+        # Subject enrollments go by group as well, for the same reason grade sessions do
+        # below: a student already pulled out by the run of its destination study is no
+        # longer in _scope_students(), and its enrollments here would linger forever.
+        self.env['ems.enrollment'].sudo().with_context(ems_bypass_grade_guard=True).search(
+            [('group_id', 'in', groups.ids)]).unlink()
         # Grade sessions go by group, not by student: UNIQUE(group_id, subject_id, round)
         # carries no course, so next year's first round could not be created while the
         # outgoing one is still there. The cascade takes the outcome and subject lines
@@ -543,6 +628,7 @@ class ems_course_transition_wizard(models.TransientModel):
         summary = [
             _("Studies: %s") % ", ".join(self.study_ids.mapped('acronym')),
             _("Graduated and archived: %s") % self.graduate_count,
+            _("Graduated and continuing at the centre: %s") % self.graduate_continue_count,
             _("Placed: %s") % self.place_count,
             _("Without destination: %s") % self.missing_count,
             _("Enrollments locked: %s") % locked,
@@ -577,11 +663,14 @@ class ems_course_transition_wizard(models.TransientModel):
         if not self.backup_done:
             raise UserError(_("Please confirm that a backup has been taken before applying the transition."))
 
+        order_index = self._target_orders_by_partner()
         students = self._scope_students()
-        graduates = self._scope_graduates()
+        graduates = self._leaving_graduates(order_index)
+        continuing = self._continuing_graduates(order_index)
 
         self._apply_history(students)
         issues = self._apply_graduates(graduates)
+        self._apply_continuing_graduates(continuing)
         self._apply_cleanup(students)
         self._apply_placement()
         flipped = self._apply_transition_flip()

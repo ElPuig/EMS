@@ -573,8 +573,11 @@ class ems_contact(models.Model):
         Invoked by the sale.order confirmation (applicant admission), the
         transition wizard and the final Esfer@ re-import. Clears the exit
         metadata but never touches has_graduated, which is a permanent mark.
+        Unarchives: an ex-student converted back is by definition active again,
+        and _ems_convert_to_ex_student() is what archived it in the first place.
         """
         self.write({
+            'active': True,
             'contact_type': 'student',
             'exit_type': False,
             'exit_course_id': False,

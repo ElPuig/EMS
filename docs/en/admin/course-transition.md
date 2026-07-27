@@ -14,14 +14,19 @@ It archives the year that ends, turns the students already marked as graduated i
 
 ## Before you start
 
-Four things have to be in place. The wizard checks the first three itself and refuses to run if any is missing.
+Three things have to be in place. The wizard checks the first two itself and refuses to run if any is missing.
 
 1. **The incoming course exists** and is different from the current one.
-2. **The evaluations are closed.** The last round of every group in scope must be in the *Finalised* state. If some are still open, the wizard lists them; close them from **Grades → Change grade session state**.
-3. **No graduate is enrolled for the next course.** A student cannot both leave and come back in the same run; either the graduation mark or the enrollment is wrong.
-4. **A database backup.** The wizard asks you to confirm you have one, and will not apply anything until you tick the box.
+2. **The evaluations are closed.** The last round of every group in scope must be in the *Finalised* state. If some are still open, the wizard lists them; close them from **Grades → Change grade session state**. This also covers the **studies students come from**: if this run is about to place students arriving from a study you are not transitioning, and that study still has open evaluations, the wizard refuses to run — leaving the group freezes their record, and it would be frozen half-way.
+3. **A database backup.** The wizard asks you to confirm you have one, and will not apply anything until you tick the box.
 
 Mark the graduating students *beforehand*, with the graduation wizard from the student list. The transition does not decide who graduates — it only executes marks that are already there.
+
+### Graduating and staying at the centre is not a contradiction
+
+A student who finishes SMX and enrolls in ASIX, DAM or DAW, or one who finishes DAM and starts another higher cycle — even in a different family — graduates **and** continues. These are two independent facts: the graduation closes the cycle that ends, the enrollment opens the one that begins.
+
+**You do not have to do anything for this to work, and there is nothing special to mark.** You mark the graduation as always. The enrollment arrives on its own through the preinscription and GEDAC. The wizard cross-checks the two at run time and decides by itself: a graduate holding an enrollment for the next course keeps the graduation on record but is **not** turned into a former student nor archived; it is placed in its new group like anybody else.
 
 ---
 
@@ -41,7 +46,8 @@ You get a red box if something blocks the run, a blue box with everything worth 
 
 | Action | Meaning |
 |---|---|
-| **Graduate** | Marked as graduated: becomes a former student and is archived |
+| **Graduate** | Marked as graduated with no enrollment: becomes a former student and is archived |
+| **Graduates and continues** | Marked as graduated **and** holding an enrollment for the next course: keeps the graduation, is not archived and is placed in the new group |
 | **Place in destination group** | Has a confirmed enrollment with a group: moves there |
 | **Enrolled without group** | Confirmed enrollment with no destination group: **will be skipped** |
 | **No destination** | No enrollment at all for the next course |
@@ -60,7 +66,7 @@ Tick **I have taken a backup** and click **Apply the transition**. You will be a
 What happens, in order:
 
 1. The **academic history** of every student is frozen. If this fails, nothing else runs.
-2. Graduates become **former students**, their portal access is revoked and they are **archived**.
+2. Graduates **who leave** become former students, their portal access is revoked and they are **archived**. Those who stay at the centre keep their graduation but remain active: only the exit date of the cycle they have just finished is cleared.
 3. The attendance templates of the outgoing year are archived.
 4. The **operational records are deleted**: subject enrollments, grades, attendance and evaluation sessions. This is the irreversible part — the academic history, saved in step 1, is what replaces them.
 5. Students are placed in their **destination group** and enrolled in its subjects.

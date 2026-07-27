@@ -15,8 +15,9 @@
                             <p style="color: #666; font-size: 13px;">
                                 This closes the outgoing course and opens the next one for the
                                 studies you select. It freezes the academic history, turns the
-                                students already marked as graduated into archived alumni, places
-                                everyone else into the destination group of their confirmed
+                                students marked as graduated who leave into archived alumni,
+                                places everyone else — the graduates who stay at the centre
+                                included — into the destination group of their confirmed
                                 enrollment, and deletes the operational records of the year that
                                 ends. <strong>The cleanup cannot be undone.</strong><br/>
                                 Studies do not all finish at the same time: transition the ones
@@ -50,6 +51,7 @@
                             <group string="What will happen">
                                 <group>
                                     <field name="graduate_count"/>
+                                    <field name="graduate_continue_count"/>
                                     <field name="place_count"/>
                                     <field name="unplaced_count"/>
                                     <field name="missing_count"/>

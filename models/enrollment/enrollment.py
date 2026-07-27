@@ -536,7 +536,11 @@ class ems_SaleOrder(models.Model):
         """
         self.ensure_one()
         partner = self.partner_id
-        if partner.contact_type == 'applicant':
+        # Ex-students come back too: a graduate starting another study, or a returner
+        # archived last year. The bulk placement of the transition wizard already
+        # covered the three states, and the individual path has to match it or a
+        # September confirmation would land on an archived alumni nobody can place.
+        if partner.contact_type in ('applicant', 'alumni', 'withdrawal'):
             partner._ems_convert_to_student()
         # Spent assignment: clearing it keeps the "With GEDAC assignment" filter showing
         # only the continuers still pending enrollment. A different study being confirmed
@@ -609,6 +613,13 @@ class ems_SaleOrder(models.Model):
         if not group:
             return
         student = self.partner_id
+        # Last chance to record the year that ends: the write below overwrites the origin
+        # group, and a student placed by the run of ANOTHER study would otherwise lose it
+        # (see ems.student.year_record.freeze_on_leaving). No-op when the history is
+        # already there, which is the normal case of a student of the study being run.
+        origin_group = student.main_group_id
+        if origin_group and origin_group != group:
+            self.env['ems.student.year_record'].sudo().freeze_on_leaving(student, origin_group)
         # Study and level travel with the group, they are not derived from it: leaving
         # them behind would keep a student who moves to another study (or an applicant
         # entering one) pointing at the previous one. Written together and only when

@@ -44,15 +44,16 @@ Step 5 resets every study back to `active` when the flip happens, so the next co
 | Blocker | Rule |
 |---------|------|
 | Target course | It exists and is different from `source_course_id` |
-| Graduate already enrolled | No student marked `exit_type='graduation'` in scope has a non-cancelled `sale.order` in the target course |
 | Evaluation not closed | Every `ems.grade_session` of the **last round** (max existing `round` per group·subject) of the groups in scope is in state `final`, linking the offenders to `ems.action_grade_session_state_wizard` |
+| Origin study still evaluating | No study this run pulls a student **out of** — outside the scope and not yet `transitioned` — has an unfinalised last round (D11) |
 
 ### Warnings (informative, never blocking)
 
 | Warning | Note |
 |---------|------|
+| Graduates continuing at the centre | `action = 'graduate_continue'`, **listed one by one**: they keep the graduation but are neither converted nor archived (D10) |
 | Students with no destination | `transition_status = 'missing'`, **listed one by one** (D8), split by `study.uses_enrollment_flow` |
-| Draft / sent enrollments in the target course | They will be cancelled by step 6 if never confirmed |
+| Draft / sent enrollments in the target course | **NOT cancelled** — step 6 only touches the outgoing course. They stay open for a September confirmation |
 | Confirmed enrollments with no `ems_group_id` | They are skipped by steps 3-4 and the student stays unplaced |
 | Incomplete evaluation | See the rule below (D9) |
 | Attendance templates to archive | Including templates whose `group_ids` span studies both in and out of scope |
@@ -103,6 +104,54 @@ The steps are numbered by the phase they belong to, not by the order they execut
 Graduates are **archived**, not just converted, consistent with issue #357 (withdrawals and alumni are both archived, mirroring how archiving an `hr.employee` asks for a departure reason).
 
 The archive runs **after** the portal revoke and lives in the wizard rather than in `_ems_convert_to_ex_student()`, for two reasons: the helper runs before the revoke, and `res.partner.write()` refuses to archive a contact still linked to an active portal user. A student whose revoke failed is reported and left active instead of raising, so one failure cannot roll back a batch of hundreds.
+
+### Graduating and continuing at the centre (D10, step 2c)
+
+Finishing a study and enrolling into another one are **independent facts, not a contradiction**. A CFGM graduate moving up to a CFGS, or a CFGS graduate starting a second one — even in another family — is both at once, and the case is high volume: the 25-26 data has 28 SMX leavers enrolled into ASIX/DAM/DAW.
+
+Earlier versions treated it as a blocker ("a student cannot leave and come back in the same run"), which refused the whole transition. It is now derived and split:
+
+```mermaid
+flowchart TD
+    G{"exit_type == 'graduation'<br/>and exit_course_id == source"} -- no --> OTHER["place / unplaced / missing"]
+    G -- yes --> E{"non-cancelled sale.order<br/>in the target course?"}
+    E -- no --> LEAVE["_leaving_graduates()<br/>step 2: alumni + portal revoke + archive"]
+    E -- yes --> STAY["_continuing_graduates()<br/>step 2c: keep active, clear exit metadata"]
+```
+
+**Nobody marks `graduate_continue`.** It is a computed preview label: the tutor only knows about the graduation, and the enrollment arrives on its own through the GEDAC assignment, so the wizard is the only place where the two facts meet.
+
+**Any non-cancelled order counts**, not only `state == 'sale'`. An offer still in draft/sent may be confirmed in September, and archiving the student now would leave that confirmation with nobody to place. The confirmed ones are placed by steps 3-4 in the same run; the unconfirmed ones stay `student` with no group and place themselves through the `transitioned` branch when they land.
+
+**Order is load-bearing:** step 2c runs *after* `_apply_history()`, because `year_record._generate_one()` stamps how the student left the outgoing course by reading `exit_course_id` — which `_ems_convert_to_student()` clears. `has_graduated` is never touched: it is permanent (D2).
+
+`_ems_convert_to_student()` also sets `active = True`, and `sale.order._ems_admit_student()` converts `alumni`/`withdrawal` as well as `applicant`, so the individual September path matches what the bulk `_apply_placement()` already did.
+
+### Freezing the history on the way out of the group (D11)
+
+`year_record._generate_one()` reads `student.main_group_id` to stamp the group, study, level and tutor of the year that ends. Step 0 therefore only reaches the students the run still sees in its own groups — and `_incoming_orders()` reaches **further than** `_scope_students()`, so a run can place a student whose origin study it is not transitioning.
+
+Run order does not solve it. The 25-26 data has students finishing SMX to start ASIX/DAM/DAW; the symmetric case (finish ASIX start DAM, finish DAM start ASIX in the same year) makes the dependency **cyclic**, so whichever study runs first strands the other:
+
+```mermaid
+sequenceDiagram
+    participant R1 as Run 1 (DAW)
+    participant S as Student (SMX2A)
+    participant R2 as Run 2 (SMX)
+    R1->>S: _incoming_orders() reaches it, places it
+    Note over S: main_group_id: SMX2A → DAW1A
+    R2->>S: _scope_students() no longer sees it
+    Note over S: no year record, and step 8 deletes<br/>the SMX grade sessions by group
+```
+
+So the freeze moved to `sale.order._ems_apply_destination_placement()` — the single choke point every placement goes through, bulk and individual — right **before** `main_group_id` is overwritten, passing the origin group explicitly through the new `group=` argument of `generate_for_students()`/`_generate_one()`.
+
+`freeze_on_leaving()` is a no-op when a record for `(student, current_course)` already exists (the normal case: step 0 got there first) and when the origin study is already `transitioned` (its own run froze everybody, and the current course may already be the incoming one).
+
+Two consequences elsewhere:
+
+- **A blocker**, not a warning: freezing a history half-way is worse than refusing to run, so `_unclosed_origin_studies()` checks the last round of every out-of-scope origin study this run would pull someone out of. `_last_round_sessions()` now takes an optional `groups` argument so both blockers share it.
+- **Step 8 clears `ems.enrollment` by group as well as by student**, for exactly the reason grade sessions already did: a student pulled out by another study's run is no longer in `_scope_students()`, and its enrollments in the outgoing groups would linger forever.
 
 ### Conditional flip (step 5)
 

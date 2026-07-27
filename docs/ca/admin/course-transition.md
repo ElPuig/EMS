@@ -14,14 +14,19 @@ Arxiva el curs que acaba, converteix en exalumnes els estudiants que ja estiguin
 
 ## Abans de començar
 
-Hi ha quatre coses que han d'estar resoltes. L'auxiliar comprova les tres primeres i es nega a executar-se si en falta alguna.
+Hi ha tres coses que han d'estar resoltes. L'auxiliar comprova les dues primeres i es nega a executar-se si en falta alguna.
 
 1. **El curs entrant existeix** i és diferent de l'actual.
-2. **Les avaluacions estan tancades.** L'última convocatòria de cada grup de l'abast ha d'estar en estat *Finalitzada*. Si n'hi ha d'obertes, l'auxiliar te les llista; tanca-les des de **Notes → Canviar estat de sessió d'avaluació**.
-3. **Cap graduat matriculat al curs següent.** Un alumne no pot marxar i tornar en la mateixa execució; o la marca de graduació o la matrícula és errònia.
-4. **Una còpia de seguretat de la base de dades.** L'auxiliar et demana que confirmis que la tens, i no aplica res fins que marquis la casella.
+2. **Les avaluacions estan tancades.** L'última convocatòria de cada grup de l'abast ha d'estar en estat *Finalitzada*. Si n'hi ha d'obertes, l'auxiliar te les llista; tanca-les des de **Notes → Canviar estat de sessió d'avaluació**. Això val també per als **estudis de procedència**: si aquesta execució ha de col·locar alumnes que vénen d'un estudi que no estàs transicionant i aquell estudi encara té avaluacions obertes, l'auxiliar es nega a executar-se, perquè en sortir del grup se'ls congela l'expedient i quedaria a mitges.
+3. **Una còpia de seguretat de la base de dades.** L'auxiliar et demana que confirmis que la tens, i no aplica res fins que marquis la casella.
 
 Marca els alumnes que es graduen *abans*, amb l'auxiliar de graduació des de la llista d'alumnes. La transició no decideix qui es gradua: només executa marques que ja hi són.
+
+### Graduar-se i continuar al centre no és cap contradicció
+
+Un alumne que acaba SMX i es matricula d'ASIX, DAM o DAW, o un que acaba DAM i comença un altre cicle superior —fins i tot d'una altra família—, es gradua **i** continua. Són dos fets independents: la graduació tanca el cicle que s'acaba, la matrícula obre el que comença.
+
+**No has de fer res perquè funcioni, ni marcar res d'especial.** Tu marques la graduació, com sempre. La matrícula arriba pel seu compte des de la preinscripció i GEDAC. L'auxiliar creua les dues dades en executar-se i decideix sol: si un graduat té matrícula per al curs següent, manté la seva graduació a l'expedient però **no** es converteix en exalumne ni s'arxiva; es col·loca al seu grup nou com qualsevol altre.
 
 ---
 
@@ -41,7 +46,8 @@ Obtindràs un quadre vermell si alguna cosa bloqueja l'execució, un quadre blau
 
 | Acció | Què significa |
 |---|---|
-| **Es gradua** | Marcat com a graduat: passa a exalumne i s'arxiva |
+| **Es gradua** | Marcat com a graduat i sense matrícula: passa a exalumne i s'arxiva |
+| **Es gradua i continua** | Marcat com a graduat **i** amb matrícula per al curs següent: conserva la graduació, no s'arxiva i es col·loca al grup nou |
 | **Col·locar al grup destí** | Té matrícula confirmada amb grup: s'hi trasllada |
 | **Matriculat sense grup** | Matrícula confirmada sense grup destí: **se saltarà** |
 | **Sense destí** | No té cap matrícula per al curs següent |
@@ -60,7 +66,7 @@ Marca **He fet una còpia de seguretat** i fes clic a **Aplicar la transició**.
 Què passa, i en quin ordre:
 
 1. Es congela **l'historial acadèmic** de tots els alumnes. Si això falla, no s'executa res més.
-2. Els graduats passen a **exalumnes**, se'ls revoca l'accés al portal i **s'arxiven**.
+2. Els graduats **que marxen** passen a exalumnes, se'ls revoca l'accés al portal i **s'arxiven**. Els que continuen al centre conserven la seva graduació però segueixen actius: només se'ls esborra la data de sortida del cicle que acaben d'acabar.
 3. S'arxiven les plantilles d'assistència del curs sortint.
 4. **S'esborren els registres operatius**: inscripcions a mòduls, notes, assistència i sessions d'avaluació. Aquesta és la part irreversible — l'historial acadèmic desat al pas 1 és el que els substitueix.
 5. Els alumnes es col·loquen al **grup destí** i s'hi inscriuen a les assignatures.

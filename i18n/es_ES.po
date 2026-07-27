@@ -13187,3 +13187,240 @@ msgstr "Asistente de transición de curso: cierra el curso saliente y abre el si
 #: model:ir.model,name:ems.model_ems_course_transition_wizard_line
 msgid "Course transition wizard line: the action predicted for one student."
 msgstr "Línea del asistente de transición: la acción prevista para un alumno."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__graduate_continue
+msgid "Graduates and continues"
+msgstr "Se gradúa y continúa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__graduate_continue_count
+msgid "Graduates continuing at the centre"
+msgstr "Graduados/as que continúan en el centro"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Graduated and continuing at the centre: %s"
+msgstr "Graduados/as que continúan en el centro: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s graduate(s) stay at the centre: they keep their graduation on record but "
+"are neither converted to alumni nor archived: %s."
+msgstr "%s graduados/as permanecen en el centro: conservan la graduación en el expediente, pero no pasan a exalumnado ni se archivan: %s."
+
+#. module: ems
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid ""
+"Enrolled for the next course — will be graduated and placed, not archived"
+msgstr "Con matrícula para el curso siguiente — se graduará y se colocará, no se archivará"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Graduated and archived: %s"
+msgstr "Graduados/as archivados/as: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Placed: %s"
+msgstr "Colocados/as: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Without destination: %s"
+msgstr "Sin destino: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Enrollments locked: %s"
+msgstr "Matrículas bloqueadas: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Enrollments cancelled: %s"
+msgstr "Matrículas canceladas: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Records deleted: %s"
+msgstr "Registros borrados: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Current course switched: %s"
+msgstr "Curso actual cambiado: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Issues: %s"
+msgstr "Incidencias: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Studies: %s"
+msgstr "Estudios: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Course transition applied"
+msgstr "Transición de curso aplicada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
+msgid "Apply the transition"
+msgstr "Aplicar la transición"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
+msgid "Download the transition log (CSV)"
+msgstr "Descargar el registro de la transición (CSV)"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Please select at least one study."
+msgstr "Selecciona al menos un estudio."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Run the preview before applying the transition."
+msgstr "Ejecuta la previsualización antes de aplicar la transición."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "The transition cannot be applied while there are blockers."
+msgstr "La transición no se puede aplicar mientras haya bloqueantes."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "%s student(s) with no enrollment for the incoming course: %s."
+msgstr "%s estudiantes sin matrícula para el curso entrante: %s."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s enrollment(s) confirmed without a destination group: they will be "
+"skipped."
+msgstr "%s matrículas confirmadas sin grupo destino: se saltarán."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s enrollment(s) for the incoming course are still in draft or sent. They "
+"are NOT cancelled: those students simply have no destination until they "
+"confirm, and will be placed on their own when they do."
+msgstr "%s matrículas del curso entrante siguen en borrador o enviadas. NO se cancelan: esos estudiantes simplemente se quedan sin destino hasta que confirmen, y al confirmar se colocan solos."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s confirmed enrollment(s) of the outgoing course will be locked against "
+"further edits."
+msgstr "%s matrículas confirmadas del curso saliente se bloquearán contra futuras ediciones."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s never-confirmed enrollment(s) of the outgoing course will be cancelled."
+msgstr "%s matrículas del curso saliente que nunca se confirmaron se cancelarán."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "%s subject grade(s) without a closed evaluation in the last round."
+msgstr "%s notas de asignatura sin evaluación cerrada en la última convocatoria."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "%s attendance template(s) will be archived."
+msgstr "%s plantillas de asistencia se archivarán."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s attendance template(s) also cover groups outside the scope and will NOT "
+"be archived: %s."
+msgstr "%s plantillas de asistencia cubren también grupos fuera del alcance y NO se archivarán: %s."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "%s operational record(s) will be deleted. This cannot be undone."
+msgstr "%s registros operativos se borrarán. Esto no se puede deshacer."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "%s applicant(s) without a confirmed enrollment will be archived."
+msgstr "%s solicitantes sin matrícula confirmada se archivarán."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "%s: portal access could not be revoked, kept active"
+msgstr "%s: no se ha podido revocar el acceso al portal, se mantiene activo"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "The incoming course must exist and be different from the outgoing one."
+msgstr "El curso entrante debe existir y ser distinto del saliente."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "The last round is not finalised in %s evaluation session(s): %s."
+msgstr "La última convocatoria no está finalizada en %s sesiones de evaluación: %s."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"This run places students coming from study(ies) whose last round is not "
+"finalised: %s. Close their evaluations, or transition them in this same run,"
+" so their academic history is not frozen half-way."
+msgstr "Esta ejecución coloca estudiantes procedentes de estudios cuya última convocatoria no está finalizada: %s. Cierra sus evaluaciones, o transiciónalos en esta misma ejecución, para que su historial académico no se congele a medias."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"The academic history could not be generated, so the transition was aborted "
+"and nothing has been changed: %s"
+msgstr "No se ha podido generar el historial académico, así que la transición se ha abortado y no se ha cambiado nada: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"Please confirm that a backup has been taken before applying the transition."
+msgstr "Confirma que se ha hecho una copia de seguridad antes de aplicar la transición."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
+msgid ""
+"The operational records of the outgoing course will be deleted and this "
+"cannot be undone. Apply the transition?"
+msgstr "Los registros operativos del curso saliente se borrarán y esto no se puede deshacer. ¿Aplicar la transición?"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "No study is left pending: this run switches the current course to %s."
+msgstr "No queda ningún estudio pendiente: esta ejecución cambia el curso actual a %s."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"The current course will NOT change yet; %s study(ies) stay pending: %s."
+msgstr "El curso actual NO cambiará todavía; %s estudios quedan pendientes: %s."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "no"
+msgstr "no"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
+msgid ""
+"This closes the outgoing course and opens the next one for the\n"
+"                                studies you select. It freezes the academic history, turns the\n"
+"                                students marked as graduated who leave into archived alumni,\n"
+"                                places everyone else — the graduates who stay at the centre\n"
+"                                included — into the destination group of their confirmed\n"
+"                                enrollment, and deletes the operational records of the year that\n"
+"                                ends. <strong>The cleanup cannot be undone.</strong><br/>\n"
+"                                Studies do not all finish at the same time: transition the ones\n"
+"                                that are done, and run it again for the rest. The current course\n"
+"                                only switches on the run that leaves no study pending."
+msgstr "Esto cierra el curso saliente y abre el siguiente para los estudios que selecciones. Congela el historial académico, convierte en exalumnado archivado a los estudiantes marcados como graduados que se van, coloca a todos los demás —incluidos los graduados/as que continúan en el centro— en el grupo destino de su matrícula confirmada, y borra los registros operativos del año que termina. <strong>La limpieza no se puede deshacer.</strong><br/>Los estudios no acaban todos a la vez: transiciona los que estén cerrados y vuelve a ejecutarlo para el resto. El curso actual solo cambia en la ejecución que no deja ningún estudio pendiente."

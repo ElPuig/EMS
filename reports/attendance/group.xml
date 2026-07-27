@@ -76,7 +76,17 @@
                             {'style' : '', 'value' : 'self.student_id.display_name'},
                             {'style' : '', 'value' : 'self.notes'},
                         ]"/>
-                        <t t-call="ems.attendance_template_details_table"/>                        
+                        <t t-call="ems.attendance_template_details_table"/>
+                        <p style="page-break-after:always;" />
+
+                        <h2>Subjects</h2>
+                        <t t-foreach="lines" t-as="subject">
+                            <t t-set="section_name" t-value="subject.display_name"/>
+                            <t t-set="section_data" t-value="lines[subject]"/>
+                            <t t-set="section_detail_entries" t-value="detail_entries[subject]"/>
+                            <t t-set="section_strikes" t-value="detail_strikes[subject]"/>
+                            <t t-call="ems.attendance_template_detail_section"/>
+                        </t>
                     </div>
                 </t>
             </t>

@@ -6,14 +6,12 @@ from odoo.tests.common import TransactionCase
 
 
 class TestAttendanceReportWizards(TransactionCase):
-    """Covers the 3 attendance report wizards after their raw SQL (cr.execute) was replaced
-    by ORM calls: the teacher-scoping filters (allowed_group_ids/allowed_student_ids/
-    allowed_subject_ids) and the print() methods that fetch ems.attendance_session_line ids.
-    Also covers a pre-existing bug fixed in the same change: allowed_subject_ids not actually
-    scoping to the current teacher. All 3 wizards were later simplified, one at a time, to drop
-    their level/study(/group) cascade: group and student down to a single group_id/student_id
-    step, subject down to a single subject_id step that pre-fills a removable group_ids
-    multi-select (every group teaching that subject, per the current teacher's own teaching)."""
+    """Covers the unified attendance report wizard (ems.attendance_report_wizard): a single model
+    driving all 3 PDF variants via a 'report_type' selector (group / student / subject). Exercises
+    the teacher-scoping dropdown filters (allowed_group_ids/allowed_student_ids/allowed_subject_ids,
+    computed per report_type), the print() dispatch that fetches ems.attendance_session_line ids per
+    type, the opt-in per-dimension Details/Strikes (detail_status_ids/include_strikes/warning, now
+    shared by all 3 variants), and the exclusion of student-less orphan lines."""
 
     @classmethod
     def setUpClass(cls):
@@ -134,51 +132,51 @@ class TestAttendanceReportWizards(TransactionCase):
             'attendance_session_id': cls.session_old.id,
         })
 
-    # --- allowed_group_ids: scoped to the current teacher (no level/study step) --------
+    def _wizard(self, user=None, **vals):
+        model = self.env['ems.attendance_report_wizard']
+        if user is not None:
+            model = model.with_user(user)
+        return model.create(vals)
+
+    # --- allowed_group_ids: by-group variant, scoped to the current teacher ------------
 
     def test_allowed_group_ids_scoped_to_owner(self):
-        wizard = self.env['ems.attendance_report_group_wizard'].with_user(self.owner_user).create({})
-        wizard._compute_allowed_group_ids()
+        wizard = self._wizard(self.owner_user, report_type='group')
+        wizard._compute_allowed_ids()
         # owner teaches both group1/subject_a and group2/subject_a.
         self.assertIn(self.group1, wizard.allowed_group_ids)
         self.assertIn(self.group2, wizard.allowed_group_ids)
 
     def test_allowed_group_ids_scoped_to_other(self):
-        wizard = self.env['ems.attendance_report_group_wizard'].with_user(self.other_user).create({})
-        wizard._compute_allowed_group_ids()
+        wizard = self._wizard(self.other_user, report_type='group')
+        wizard._compute_allowed_ids()
         # 'other' only teaches group1/subject_b.
         self.assertIn(self.group1, wizard.allowed_group_ids)
         self.assertNotIn(self.group2, wizard.allowed_group_ids)
 
     def test_allowed_group_ids_admin_sees_all(self):
-        wizard = self.env['ems.attendance_report_group_wizard'].with_user(self.admin_user).create({})
-        wizard._compute_allowed_group_ids()
+        wizard = self._wizard(self.admin_user, report_type='group')
+        wizard._compute_allowed_ids()
         self.assertIn(self.group1, wizard.allowed_group_ids)
         self.assertIn(self.group2, wizard.allowed_group_ids)
 
-    # --- allowed_subject_ids: teacher scoping (bug fix; no level/study/group step) -----
+    # --- allowed_subject_ids: by-subject variant, teacher scoping ----------------------
 
     def test_allowed_subject_ids_scoped_to_owner(self):
-        wizard = self.env['ems.attendance_report_subject_wizard'].with_user(self.owner_user).create({
-            'subject_id': self.subject_a.id,
-        })
-        wizard._compute_allowed_subject_ids()
+        wizard = self._wizard(self.owner_user, report_type='subject', subject_id=self.subject_a.id)
+        wizard._compute_allowed_ids()
         self.assertIn(self.subject_a, wizard.allowed_subject_ids)
         self.assertNotIn(self.subject_b, wizard.allowed_subject_ids)
 
     def test_allowed_subject_ids_scoped_to_other(self):
-        wizard = self.env['ems.attendance_report_subject_wizard'].with_user(self.other_user).create({
-            'subject_id': self.subject_b.id,
-        })
-        wizard._compute_allowed_subject_ids()
+        wizard = self._wizard(self.other_user, report_type='subject', subject_id=self.subject_b.id)
+        wizard._compute_allowed_ids()
         self.assertIn(self.subject_b, wizard.allowed_subject_ids)
         self.assertNotIn(self.subject_a, wizard.allowed_subject_ids)
 
     def test_allowed_subject_ids_admin_sees_both(self):
-        wizard = self.env['ems.attendance_report_subject_wizard'].with_user(self.admin_user).create({
-            'subject_id': self.subject_a.id,
-        })
-        wizard._compute_allowed_subject_ids()
+        wizard = self._wizard(self.admin_user, report_type='subject', subject_id=self.subject_a.id)
+        wizard._compute_allowed_ids()
         self.assertIn(self.subject_a, wizard.allowed_subject_ids)
         self.assertIn(self.subject_b, wizard.allowed_subject_ids)
 
@@ -186,102 +184,106 @@ class TestAttendanceReportWizards(TransactionCase):
 
     def test_allowed_group_ids_for_subject_scoped_to_owner(self):
         # owner teaches subject_a in both group1 and group2.
-        wizard = self.env['ems.attendance_report_subject_wizard'].with_user(self.owner_user).create({
-            'subject_id': self.subject_a.id,
-        })
+        wizard = self._wizard(self.owner_user, report_type='subject', subject_id=self.subject_a.id)
         self.assertIn(self.group1, wizard.allowed_group_ids)
         self.assertIn(self.group2, wizard.allowed_group_ids)
 
     def test_allowed_group_ids_for_subject_scoped_to_other(self):
         # other only teaches subject_b, only in group1.
-        wizard = self.env['ems.attendance_report_subject_wizard'].with_user(self.other_user).create({
-            'subject_id': self.subject_b.id,
-        })
+        wizard = self._wizard(self.other_user, report_type='subject', subject_id=self.subject_b.id)
         self.assertIn(self.group1, wizard.allowed_group_ids)
         self.assertNotIn(self.group2, wizard.allowed_group_ids)
 
     def test_onchange_subject_id_prefills_group_ids_with_every_allowed_group(self):
-        wizard = self.env['ems.attendance_report_subject_wizard'].with_user(self.owner_user).new({})
+        wizard = self.env['ems.attendance_report_wizard'].with_user(self.owner_user).new({'report_type': 'subject'})
         wizard.subject_id = self.subject_a
         wizard._onchange_subject_id()
         self.assertEqual(set(wizard.group_ids.ids), {self.group1.id, self.group2.id})
 
-    # --- allowed_student_ids: scoped to the current teacher (no level/study/group step) --
+    # --- allowed_student_ids: by-student variant, scoped to the current teacher --------
 
     def test_allowed_student_ids_scoped_to_owner(self):
-        wizard = self.env['ems.attendance_report_student_wizard'].with_user(self.owner_user).create({
-            'student_id': self.student1.id,
-        })
-        wizard._compute_allowed_student_ids()
+        wizard = self._wizard(self.owner_user, report_type='student', student_id=self.student1.id)
+        wizard._compute_allowed_ids()
         self.assertIn(self.student1, wizard.allowed_student_ids)
         self.assertIn(self.student2, wizard.allowed_student_ids)
 
     def test_allowed_student_ids_scoped_to_other(self):
-        wizard = self.env['ems.attendance_report_student_wizard'].with_user(self.other_user).create({
-            'student_id': self.student1.id,
-        })
-        wizard._compute_allowed_student_ids()
+        wizard = self._wizard(self.other_user, report_type='student', student_id=self.student1.id)
+        wizard._compute_allowed_ids()
         # 'other' only teaches group1/subject_b: student1 is enrolled there, student2 is not.
         self.assertIn(self.student1, wizard.allowed_student_ids)
         self.assertNotIn(self.student2, wizard.allowed_student_ids)
 
     def test_allowed_student_ids_admin_sees_all(self):
-        wizard = self.env['ems.attendance_report_student_wizard'].with_user(self.admin_user).create({
-            'student_id': self.student1.id,
-        })
-        wizard._compute_allowed_student_ids()
+        wizard = self._wizard(self.admin_user, report_type='student', student_id=self.student1.id)
+        wizard._compute_allowed_ids()
         self.assertIn(self.student1, wizard.allowed_student_ids)
         self.assertIn(self.student2, wizard.allowed_student_ids)
 
-    # --- print(): ORM-fetched status_ids --------------------------------
+    # --- tutor_ids: unified for all 3 types --------------------------------------------
 
-    def test_print_group_wizard_returns_all_lines_in_range(self):
-        wizard = self.env['ems.attendance_report_group_wizard'].create({
-            'group_id': self.group1.id, 'from_date': self.old_date, 'to_date': self.today,
+    def test_tutor_ids_follow_report_type(self):
+        tutor = self.env['hr.employee'].create({
+            'name': 'Test Tutor (Attendance Reports)', 'employee_type': 'teacher',
         })
+        self.group1.tutor_id = tutor
+        group_wizard = self._wizard(report_type='group', group_id=self.group1.id)
+        self.assertIn(tutor, group_wizard.tutor_ids)
+        subject_wizard = self._wizard(report_type='subject', subject_id=self.subject_a.id,
+                                      group_ids=[(6, 0, [self.group1.id])])
+        self.assertIn(tutor, subject_wizard.tutor_ids)
+
+    # --- print(): ORM-fetched status_ids per report_type -------------------------------
+
+    def test_print_group_returns_all_lines_in_range(self):
+        wizard = self._wizard(report_type='group', group_id=self.group1.id,
+                              from_date=self.old_date, to_date=self.today)
         result = wizard.print()
         self.assertEqual(result['type'], 'ir.actions.report')
         self.assertEqual(sorted(result['data']['status_ids']), sorted([self.line_recent.id, self.line_old.id]))
 
-    def test_print_subject_wizard_returns_lines_for_subject(self):
-        wizard = self.env['ems.attendance_report_subject_wizard'].create({
-            'group_ids': [(6, 0, [self.group1.id])], 'subject_id': self.subject_a.id,
-            'from_date': self.old_date, 'to_date': self.today,
-        })
+    def test_print_subject_returns_lines_for_subject(self):
+        wizard = self._wizard(report_type='subject', subject_id=self.subject_a.id,
+                              group_ids=[(6, 0, [self.group1.id])], from_date=self.old_date, to_date=self.today)
         result = wizard.print()
         self.assertEqual(sorted(result['data']['status_ids']), sorted([self.line_recent.id, self.line_old.id]))
 
-    def test_print_student_wizard_filters_by_date_range(self):
-        wizard = self.env['ems.attendance_report_student_wizard'].create({
-            'student_id': self.student1.id,
-            'from_date': self.today - timedelta(days=2), 'to_date': self.today,
-        })
+    def test_print_student_filters_by_date_range(self):
+        wizard = self._wizard(report_type='student', student_id=self.student1.id,
+                              from_date=self.today - timedelta(days=2), to_date=self.today)
         result = wizard.print()
         self.assertEqual(result['data']['status_ids'], [self.line_recent.id])
         self.assertNotIn(self.line_old.id, result['data']['status_ids'])
 
-    def test_print_wizards_skip_student_less_lines(self):
+    def test_print_dispatches_to_the_right_report(self):
+        for report_type, report_name in [('group', 'ems.attendance_report_group'),
+                                         ('student', 'ems.attendance_report_student'),
+                                         ('subject', 'ems.attendance_report_subject')]:
+            wizard = self._wizard(report_type=report_type, group_id=self.group1.id,
+                                  student_id=self.student1.id, subject_id=self.subject_a.id,
+                                  group_ids=[(6, 0, [self.group1.id])], from_date=self.old_date, to_date=self.today)
+            self.assertEqual(wizard.print()['report_name'], report_name)
+
+    def test_print_skips_student_less_lines(self):
         # A student partner hard-deleted from the DB leaves its session lines behind with
-        # student_id = NULL (Odoo's default ondelete='set null'). Those orphans must not reach
-        # the report, where grouping-by-student would render a phantom blank-name row/group.
+        # student_id = NULL (Odoo's default ondelete='set null'). Those orphans must not reach the
+        # by-group/by-subject reports, where grouping-by-student renders a phantom blank-name row.
         orphan_line = self.env['ems.attendance_session_line'].create({
             'status_id': self.status_attended.id, 'attendance_session_id': self.session_recent.id,
         })
         self.assertFalse(orphan_line.student_id)
 
-        subject_wizard = self.env['ems.attendance_report_subject_wizard'].create({
-            'group_ids': [(6, 0, [self.group1.id])], 'subject_id': self.subject_a.id,
-            'from_date': self.old_date, 'to_date': self.today,
-        })
+        subject_wizard = self._wizard(report_type='subject', subject_id=self.subject_a.id,
+                                      group_ids=[(6, 0, [self.group1.id])], from_date=self.old_date, to_date=self.today)
         subject_result = subject_wizard.print()
         self.assertNotIn(orphan_line.id, subject_result['data']['status_ids'])
         # And it must not surface as an empty-partner key in the rendered report data.
         values = self.env['report.ems.attendance_report_subject']._get_report_values(None, data=subject_result['data'])
         self.assertTrue(all(student for student in values['lines']))
 
-        group_wizard = self.env['ems.attendance_report_group_wizard'].create({
-            'group_id': self.group1.id, 'from_date': self.old_date, 'to_date': self.today,
-        })
+        group_wizard = self._wizard(report_type='group', group_id=self.group1.id,
+                                    from_date=self.old_date, to_date=self.today)
         self.assertNotIn(orphan_line.id, group_wizard.print()['data']['status_ids'])
 
     # --- stored related fields (used by the 'Attendance reports' pivot/graph) ---
@@ -315,9 +317,8 @@ class TestAttendanceReportWizards(TransactionCase):
     # --- _get_report_values: docids is always None on the real report_action() call path ---
 
     def test_get_report_values_handles_none_docids(self):
-        wizard = self.env['ems.attendance_report_group_wizard'].create({
-            'group_id': self.group1.id, 'from_date': self.old_date, 'to_date': self.today,
-        })
+        wizard = self._wizard(report_type='group', group_id=self.group1.id,
+                              from_date=self.old_date, to_date=self.today)
         data = {'doc_ids': [wizard.id], 'status_ids': [self.line_recent.id, self.line_old.id]}
         # report_action(None, data=data) never sets active_ids, so the controller always calls
         # _get_report_values with docids=None, not []: len(None) used to raise TypeError here.
@@ -341,76 +342,84 @@ class TestAttendanceReportWizards(TransactionCase):
         self.assertFalse(result.get('domain'))
         self.assertIn(self.group1, self.line_recent.group_ids)
 
-    # --- by-subject wizard: opt-in per-student 'Details'/'Strikes' (detail_status_ids/include_strikes) ---
-    # The per-student 'Details' table used to list every session unconditionally, which is what made
-    # the PDF choke on large subject/group combinations (many sessions x many students). It's now
-    # opt-in: detail_status_ids defaults to absence-category statuses only, include_strikes defaults
-    # to True, and picking anything beyond the default warns the user it may be slow/large.
+    # --- opt-in per-dimension 'Details'/'Strikes' (detail_status_ids/include_strikes) ---
+    # The per-dimension 'Details' table used to list every session unconditionally, which is what
+    # made the by-subject PDF choke on large subject/group combinations. It's now opt-in and shared
+    # by all 3 report variants: detail_status_ids defaults to absence-category statuses only,
+    # include_strikes defaults to True, and picking anything beyond the default warns (inline) that
+    # it may be slow/large.
 
     def test_default_detail_status_ids_is_absence_category_only(self):
-        wizard = self.env['ems.attendance_report_subject_wizard'].create({
-            'subject_id': self.subject_a.id, 'group_ids': [(6, 0, [self.group1.id])],
-        })
+        wizard = self._wizard(report_type='subject', subject_id=self.subject_a.id,
+                              group_ids=[(6, 0, [self.group1.id])])
         self.assertTrue(wizard.detail_status_ids)
         self.assertTrue(all(status.category == 'absence' for status in wizard.detail_status_ids))
         self.assertNotIn(self.status_attended, wizard.detail_status_ids)
 
     def test_detail_status_warning_false_within_default(self):
-        wizard = self.env['ems.attendance_report_subject_wizard'].with_user(self.owner_user).new({
-            'subject_id': self.subject_a.id,
-        })
-        miss_status = self.env.ref('ems.attendance_status_miss')
-        wizard.detail_status_ids = miss_status
+        wizard = self.env['ems.attendance_report_wizard'].with_user(self.owner_user).new({'report_type': 'subject'})
+        wizard.detail_status_ids = self.env.ref('ems.attendance_status_miss')
         self.assertFalse(wizard.detail_status_warning)
 
     def test_detail_status_warning_true_beyond_default(self):
-        wizard = self.env['ems.attendance_report_subject_wizard'].with_user(self.owner_user).new({
-            'subject_id': self.subject_a.id,
-        })
+        wizard = self.env['ems.attendance_report_wizard'].with_user(self.owner_user).new({'report_type': 'subject'})
         wizard.detail_status_ids = wizard._default_detail_status_ids() | self.status_attended
         self.assertTrue(wizard.detail_status_warning)
 
-    def test_get_report_values_filters_detail_entries_by_status(self):
+    def test_subject_report_filters_detail_entries_by_status(self):
         miss_status = self.env.ref('ems.attendance_status_miss')
         miss_line = self.env['ems.attendance_session_line'].create({
             'student_id': self.student1.id, 'status_id': miss_status.id,
             'attendance_session_id': self.session_recent.id,
         })
-        wizard = self.env['ems.attendance_report_subject_wizard'].create({
-            'subject_id': self.subject_a.id, 'group_ids': [(6, 0, [self.group1.id])],
-            'from_date': self.old_date, 'to_date': self.today,
-        })
-        result = wizard.print()
-        values = self.env['report.ems.attendance_report_subject']._get_report_values(None, data=result['data'])
-
-        # default detail_status_ids is absence-only: the two 'Attended' lines are excluded, the
-        # 'Miss' one is included.
+        wizard = self._wizard(report_type='subject', subject_id=self.subject_a.id,
+                              group_ids=[(6, 0, [self.group1.id])], from_date=self.old_date, to_date=self.today)
+        values = self.env['report.ems.attendance_report_subject']._get_report_values(None, data=wizard.print()['data'])
+        # by-subject groups by student; default detail_status_ids is absence-only.
         self.assertIn(miss_line, values['detail_entries'][self.student1])
         self.assertNotIn(self.line_recent, values['detail_entries'][self.student1])
         self.assertNotIn(self.line_old, values['detail_entries'][self.student1])
 
-    def test_get_report_values_includes_strikes_when_enabled(self):
+    def test_group_report_also_has_filtered_detail_sections(self):
+        # The detail_status_ids/include_strikes controls now apply uniformly to all 3 reports; the
+        # by-group report groups its detail sections by subject.
+        miss_status = self.env.ref('ems.attendance_status_miss')
+        miss_line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.student1.id, 'status_id': miss_status.id,
+            'attendance_session_id': self.session_recent.id,
+        })
+        wizard = self._wizard(report_type='group', group_id=self.group1.id,
+                              from_date=self.old_date, to_date=self.today)
+        values = self.env['report.ems.attendance_report_group']._get_report_values(None, data=wizard.print()['data'])
+        self.assertIn(miss_line, values['detail_entries'][self.subject_a])
+        self.assertNotIn(self.line_recent, values['detail_entries'][self.subject_a])
+
+    def test_student_report_also_has_filtered_detail_sections(self):
+        miss_status = self.env.ref('ems.attendance_status_miss')
+        miss_line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.student1.id, 'status_id': miss_status.id,
+            'attendance_session_id': self.session_recent.id,
+        })
+        wizard = self._wizard(report_type='student', student_id=self.student1.id,
+                              from_date=self.old_date, to_date=self.today)
+        values = self.env['report.ems.attendance_report_student']._get_report_values(None, data=wizard.print()['data'])
+        # by-student groups its detail sections by subject.
+        self.assertIn(miss_line, values['detail_entries'][self.subject_a])
+        self.assertNotIn(self.line_recent, values['detail_entries'][self.subject_a])
+
+    def test_include_strikes_toggles_detail_strikes(self):
         strike = self.env['ems.strike'].create({
             'student_id': self.student1.id, 'teacher_id': self.owner_employee.id,
             'attendance_session_line_id': self.line_recent.id,
         })
-        wizard = self.env['ems.attendance_report_subject_wizard'].create({
-            'subject_id': self.subject_a.id, 'group_ids': [(6, 0, [self.group1.id])],
-            'from_date': self.old_date, 'to_date': self.today, 'include_strikes': True,
-        })
-        result = wizard.print()
-        values = self.env['report.ems.attendance_report_subject']._get_report_values(None, data=result['data'])
-        self.assertIn(strike, values['detail_strikes'][self.student1])
+        on = self._wizard(report_type='subject', subject_id=self.subject_a.id,
+                          group_ids=[(6, 0, [self.group1.id])], from_date=self.old_date, to_date=self.today,
+                          include_strikes=True)
+        on_values = self.env['report.ems.attendance_report_subject']._get_report_values(None, data=on.print()['data'])
+        self.assertIn(strike, on_values['detail_strikes'][self.student1])
 
-    def test_get_report_values_excludes_strikes_when_disabled(self):
-        self.env['ems.strike'].create({
-            'student_id': self.student1.id, 'teacher_id': self.owner_employee.id,
-            'attendance_session_line_id': self.line_recent.id,
-        })
-        wizard = self.env['ems.attendance_report_subject_wizard'].create({
-            'subject_id': self.subject_a.id, 'group_ids': [(6, 0, [self.group1.id])],
-            'from_date': self.old_date, 'to_date': self.today, 'include_strikes': False,
-        })
-        result = wizard.print()
-        values = self.env['report.ems.attendance_report_subject']._get_report_values(None, data=result['data'])
-        self.assertFalse(values['detail_strikes'][self.student1])
+        off = self._wizard(report_type='subject', subject_id=self.subject_a.id,
+                           group_ids=[(6, 0, [self.group1.id])], from_date=self.old_date, to_date=self.today,
+                           include_strikes=False)
+        off_values = self.env['report.ems.attendance_report_subject']._get_report_values(None, data=off.print()['data'])
+        self.assertFalse(off_values['detail_strikes'][self.student1])

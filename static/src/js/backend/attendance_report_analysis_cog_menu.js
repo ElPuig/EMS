@@ -21,8 +21,10 @@ function isOnAttendanceReportsScreen(env) {
     return env.searchModel?.resModel === "ems.attendance_session_line";
 }
 
-class AttendanceReportGroupCogMenu extends Component {
-    static template = "cog_menu.AttendanceReportGroupCogMenu";
+// Single entry that opens the unified wizard; the user picks the report type (group / student /
+// subject) inside the form via its 'report_type' selector.
+class AttendanceReportCogMenu extends Component {
+    static template = "cog_menu.AttendanceReportCogMenu";
     static components = { DropdownItem };
     static props = {};
 
@@ -31,50 +33,12 @@ class AttendanceReportGroupCogMenu extends Component {
     }
 
     onClickCogMenu() {
-        this.action.doAction("ems.action_attendance_report_group_wizard");
-    }
-}
-
-class AttendanceReportStudentCogMenu extends Component {
-    static template = "cog_menu.AttendanceReportStudentCogMenu";
-    static components = { DropdownItem };
-    static props = {};
-
-    setup() {
-        this.action = useService("action");
-    }
-
-    onClickCogMenu() {
-        this.action.doAction("ems.action_attendance_report_student_wizard");
-    }
-}
-
-class AttendanceReportSubjectCogMenu extends Component {
-    static template = "cog_menu.AttendanceReportSubjectCogMenu";
-    static components = { DropdownItem };
-    static props = {};
-
-    setup() {
-        this.action = useService("action");
-    }
-
-    onClickCogMenu() {
-        this.action.doAction("ems.action_attendance_report_subject_wizard");
+        this.action.doAction("ems.action_attendance_report_wizard");
     }
 }
 
 cogMenuRegistry.add(
-    "attendance-report-group-cog-menu",
-    { Component: AttendanceReportGroupCogMenu, groupNumber: 20, isDisplayed: isOnAttendanceReportsScreen },
+    "attendance-report-cog-menu",
+    { Component: AttendanceReportCogMenu, groupNumber: 20, isDisplayed: isOnAttendanceReportsScreen },
     { sequence: 10 }
-);
-cogMenuRegistry.add(
-    "attendance-report-student-cog-menu",
-    { Component: AttendanceReportStudentCogMenu, groupNumber: 20, isDisplayed: isOnAttendanceReportsScreen },
-    { sequence: 11 }
-);
-cogMenuRegistry.add(
-    "attendance-report-subject-cog-menu",
-    { Component: AttendanceReportSubjectCogMenu, groupNumber: 20, isDisplayed: isOnAttendanceReportsScreen },
-    { sequence: 12 }
 );

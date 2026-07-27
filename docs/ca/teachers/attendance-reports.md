@@ -22,7 +22,7 @@
 
 ## Imprimir un informe PDF
 
-A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranatge)** de la capçalera i tria un dels 3 informes.
+A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranatge)** de la capçalera i tria **Informe d'assistència**. Al formulari, escull el **Tipus d'informe** — per grup, per alumne o per assignatura — i els camps s'adapten a la teva tria.
 
 **Informe d'assistència (per grup):**
 1. Selecciona un **Grup** — el desplegable només mostra els grups que **realment imparteixes**; si et falta algun grup, comprova que hi estàs assignat/da al teu horari docent.
@@ -38,8 +38,13 @@ A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranat
 1. Selecciona una **Assignatura** — el desplegable només mostra assignatures que **realment imparteixes**.
 2. El camp **Grups** es preomple automàticament amb tots els grups on imparteixes aquesta assignatura, i **Tutors** mostra els seus tutors com a referència. Si només vols alguns d'aquests grups a l'informe, elimina la resta del camp **Grups** — es queda editable.
 3. Les dates **Des de**/**Fins a** es preomplen automàticament per cobrir tot el rang de sessions de la teva selecció.
-4. **Estats de detall** controla quins estats apareixen a la taula "Detalls" per sessió de cada alumne al PDF — per defecte només inclou estats d'absència (**Falta**, **Falta justificada**), perquè l'informe es mantingui d'una mida raonable. Afegeix-hi més estats si els necessites; escollir-ne més enllà dels predeterminats mostra un avís que l'informe pot tornar-se lent de generar o fallar directament per a combinacions grans d'assignatura/grups. **Inclou els strikes** (actiu per defecte) afegeix una taula per alumne amb els strikes disciplinaris registrats durant el període.
-5. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat, les notes de sessió registrades durant el període i, per alumne, les taules de Detalls/Strikes descrites més amunt.
+4. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període.
+
+**Per a qualsevol tipus d'informe**, dos controls governen el detall per línia al PDF:
+- **Estats de detall** — quins estats apareixen a les taules "Detalls". Per defecte només inclou estats
+  d'absència (**Falta**, **Falta justificada**) perquè l'informe es mantingui d'una mida raonable; afegeix-ne
+  més i apareix un avís que l'informe pot tornar-se lent de generar o fallar per a seleccions grans.
+- **Inclou els strikes** (actiu per defecte) — afegeix taules dels strikes disciplinaris del període.
 
 ---
 

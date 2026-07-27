@@ -2,10 +2,12 @@
 
 ## Overview
 
-Three printable PDF reports over `ems.attendance_session_line` — by group, by student, by subject — plus a
+Three printable PDF report variants over `ems.attendance_session_line` — by group, by student, by subject —
+driven by a **single unified wizard** (`ems.attendance_report_wizard`) with a `report_type` selector, plus a
 self-service **Attendance reports** pivot/graph screen. **Attendance → Reports** opens the pivot/graph
-screen directly (pivot by default); the 3 PDF wizards are reachable from its header's ⚙ Actions menu, not
-from a separate menu entry.
+screen directly (pivot by default); the PDF wizard is reachable from its header's ⚙ Actions menu (one
+"Attendance report" entry), not from a separate menu entry. The 3 variants were originally 3 separate
+wizard models/views/actions; they were later merged into one (see "Unification" below).
 
 **Trigger for this change:** the 3 PDF wizards (`ems.attendance_report_{group,student,subject}_wizard`)
 used raw `cr.execute()` SQL against physical table/column names to fetch report data and to filter their
@@ -19,8 +21,8 @@ actual usage showed the list added no value and the wizards read better as quick
 screen than as separate menu items.
 
 **Module files:** `models/attendance/attendance_reports.py`, `models/attendance/attendance_session.py`
-(new stored fields on `ems.attendance_session_line`), `views/attendance/attendance_reports/*.xml`,
-`reports/attendance/{group,student,subject}.xml` + `reports/attendance/templates/*.xml`,
+(new stored fields on `ems.attendance_session_line`), `views/attendance/attendance_reports/{wizard,menu,analysis_views}.xml`,
+`reports/attendance/{group,student,subject}.xml` + `reports/attendance/templates/{sumary_table,details_table,detail_section}.xml`,
 `static/src/js/backend/attendance_report_analysis_cog_menu.js` +
 `static/src/xml/backend/attendance_report_analysis_cog_menu.xml`.
 
@@ -33,10 +35,15 @@ erDiagram
     ems_attendance_session_header ||--o{ ems_attendance_session_line : "attendance_session_id"
     ems_attendance_session_line }o--|| ems_attendance_status : "status_id"
     ems_attendance_session_line }o--o| res_partner : "student_id"
-    ems_attendance_report_group_wizard ..> ems_attendance_session_line : "print() -> status_ids"
-    ems_attendance_report_student_wizard ..> ems_attendance_session_line : "print() -> status_ids"
-    ems_attendance_report_subject_wizard ..> ems_attendance_session_line : "print() -> status_ids"
+    ems_attendance_report_wizard ..> ems_attendance_session_line : "print() -> status_ids (per report_type)"
 ```
+
+The single `ems.attendance_report_wizard` carries a `report_type` selector (`group` / `student` / `subject`)
+and the union of the 3 variants' fields; only the ones relevant to the chosen type are shown/required. Its
+`print()` dispatches to one of the 3 `ir.actions.report` (unchanged) by `report_type`; the 3 report
+data `AbstractModel`s (`report.ems.attendance_report_{group,student,subject}`) all `browse` this one wizard
+and share a single `_build_report_values(env, docids, data, group_key)` helper (they differ only in the
+`group_key` used to group the per-line entries — student for by-subject, subject for by-group/by-student).
 
 `ems.attendance_session_line` gained 5 stored `related` fields, copied from `attendance_session_id` purely
 so the analysis pivot/graph can `GROUP BY` them without a join: `date`, `level_id`, `study_id`, `group_ids`,
@@ -252,6 +259,45 @@ DAM1A + DAW1A):
   in a multi-page table. This was the initial hypothesis for the "broken row" before the phantom-row cause
   was found; kept because it's a genuine, low-risk improvement for any report table that spans pages.
 
+### Unification: one wizard for all 3 variants
+
+The 3 wizards (`ems.attendance_report_{group,student,subject}_wizard`) were near-identical — same dates,
+same `default_get`/current-teacher/print scaffolding — differing only in the selection field, its
+`allowed_*` scoping, the date-filling onchange, and which report template `print()` dispatched to. They were
+merged into a single `ems.attendance_report_wizard` reached from **one** cog-menu entry, with the user
+picking the variant via a `report_type` radio inside the form (chosen over keeping 3 preset entries).
+
+- **Model.** One `report_type` `Selection`; the union of selection fields (`group_id` / `student_id` /
+  `subject_id` / `group_ids`), each shown/required in the view by `report_type`. The 3 old per-variant
+  `allowed_*` computes collapsed into one `_compute_allowed_ids` (`@api.depends_context('uid')` +
+  `@api.depends('report_type', 'subject_id')`): `allowed_group_ids` means "the teacher's groups" for the
+  by-group variant but "groups teaching the chosen subject" for by-subject — same field, branch on
+  `report_type`. The 3 tutor fields collapsed into one computed `tutor_ids` (Many2many, so it holds one
+  tutor for group/student and several for subject). `detail_status_ids` / `include_strikes` /
+  `detail_status_warning` / `from_date` / `to_date` are now shared by all 3 variants (previously the
+  detail/strikes controls existed only on the by-subject wizard). `print()` branches on `report_type` to
+  build `status_ids` and pick the report `ir.actions.report` ref.
+- **Report data.** The 3 `AbstractModel`s stayed (one per template/action, so grouping/layout stay
+  explicit) but now share `_build_report_values(env, docids, data, group_key)` — the only difference is the
+  `group_key` lambda. All 3 now produce `detail_entries`/`detail_strikes`, so the opt-in Details/Strikes
+  sections render uniformly across variants.
+- **Templates.** The per-dimension "Summary + (filtered) Details + Strikes" block was extracted to a shared
+  `ems.attendance_template_detail_section` (`reports/attendance/templates/detail_section.xml`), `t-call`ed
+  by all 3 report templates (the caller sets `section_name` / `section_data` / `section_detail_entries` /
+  `section_strikes`). The by-group and by-student reports gained this per-subject section (they previously
+  had none / an unfiltered one); the by-subject report's hand-written per-student block was replaced by the
+  same `t-call`. Extracting it also fixed a latent bug in the old by-subject template, where each student's
+  "Summary" table re-used the whole-subject `data` (the per-row `data` was never re-`t-set`), so every
+  student showed the subject-wide numbers.
+- **XML-ID churn / migration.** No migration script was needed: the removed records are all module-owned
+  metadata that Odoo recreates/cleans up on `-u` — the 3 wizard `TransientModel`s (no persisted data), their
+  3 views, and their 3 `act_window` actions. The **render side is unchanged** on purpose (the 3
+  `ir.actions.report` + 3 report `AbstractModel`s + `report_name`s keep their XML IDs), so nothing that a
+  saved report attachment or external reference could point at was renamed. `security/ir.model.access.csv`'s
+  3×3 rows became 3 rows for the one model. The date-filling onchange also stopped calling
+  `sessions.search([], ...)` (which ignored the recordset and searched *all* sessions globally) — From/To
+  now reflect the actual filtered selection's range.
+
 ---
 
 ## Attendance reports (pivot/graph)
@@ -323,15 +369,15 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
 
 | View | File |
 |---|---|
-| 3 PDF wizard forms | `views/attendance/attendance_reports/{group,student,subject}_wizard.xml` |
+| Unified PDF wizard form (`report_type` selector) | `views/attendance/attendance_reports/wizard.xml` |
 | Analysis pivot/graph/search | `views/attendance/attendance_reports/analysis_views.xml` |
 | Actions + `Attendance → Reports` menu + `action_attendance_reports_open` server action | `views/attendance/attendance_reports/menu.xml` |
-| PDF templates | `reports/attendance/{group,student,subject,session}.xml` + `reports/attendance/templates/{sumary,details}_table.xml` |
-| ⚙ Actions cog menu (3 PDF shortcuts) | `static/src/js/backend/attendance_report_analysis_cog_menu.js` + `static/src/xml/backend/attendance_report_analysis_cog_menu.xml` |
+| PDF templates | `reports/attendance/{group,student,subject,session}.xml` + `reports/attendance/templates/{sumary_table,details_table,detail_section}.xml` |
+| ⚙ Actions cog menu (single PDF shortcut) | `static/src/js/backend/attendance_report_analysis_cog_menu.js` + `static/src/xml/backend/attendance_report_analysis_cog_menu.xml` |
 
 ## Access control
 
-| Role | PDF wizards (create/read on the `TransientModel`) | Analysis screen (read on `ems.attendance_session_line`) |
+| Role | PDF wizard (create/read on `ems.attendance_report_wizard`) | Analysis screen (read on `ems.attendance_session_line`) |
 |---|:---:|:---:|
 | Administrator / Director / Head of Studies (+ deputy) | ✓ | ✓ (all data, no default domain) |
 | Secretary (+ admin) | read-only | ✓ (all data, no default domain) |
@@ -339,27 +385,23 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
 
 ## Testing
 
-- `tests/test_attendance_reports.py` (`TransactionCase`): admin-vs-teacher scoping for all 3 `allowed_*`
-  computes (including both bug fixes), `allowed_group_ids`/`group_ids` prefill for the by-subject wizard,
-  each wizard's `print()`, the stored related fields, `absence_rate`, `strike_count`'s new `store=True`
-  (aggregatable via `read_group`), and `action_attendance_reports_open`'s role-based domain (`.run()`
-  `with_user(...)` for a plain teacher vs. an academic admin). Also: `detail_status_ids`'s default
-  (absence-category only), `detail_status_warning` computing `False`/`True` depending on whether the
-  selection stays a subset of the default, and `_get_report_values` producing correctly filtered
-  `detail_entries`/`detail_strikes` (status filtering, `include_strikes` on/off).
+- `tests/test_attendance_reports.py` (`TransactionCase`): admin-vs-teacher scoping of `allowed_*` per
+  `report_type` (including the bug fixes), `group_ids` prefill for the by-subject variant, `tutor_ids`
+  following the type, `print()` dispatching to the right report per type + skipping student-less orphan
+  lines, the stored related fields, `absence_rate`, `strike_count`'s `store=True` (aggregatable via
+  `read_group`), and `action_attendance_reports_open`'s role-based domain (`.run()` `with_user(...)` for a
+  plain teacher vs. an academic admin). Also: `detail_status_ids`'s default (absence-category only),
+  `detail_status_warning` computing `False`/`True`, and `_get_report_values` producing correctly filtered
+  `detail_entries`/`detail_strikes` for **all 3** report data models (by-subject grouped by student,
+  by-group/by-student grouped by subject).
 - `tests/test_attendance_reports_tour.py` + `static/tests/tours/attendance_reports_tour.js` (`HttpCase`):
-  all 3 wizards end-to-end (by-group/by-student: single pick, tutor/dates auto-fill; by-subject: subject
-  pick auto-filling the removable `group_ids` tags and read-only `tutor_ids` tags, dates auto-fill, Print);
-  the analysis screen entered through the server action, pivot rendering by default, 2 clicks on
-  "Expand all" actually drilling subject → student, graph on switch, switching the graph's measure from
-  "Absence rate" to "Strike count" via the Measures dropdown and confirming it still renders; opening the ⚙
-  Actions cog menu and using one of the 3 PDF shortcuts to confirm it actually opens the corresponding
-  wizard (this is the only coverage of the custom `cogMenu` JS — nothing server-side exercises it). The
-  fixture's seeded group sets `tutor_id` explicitly (needed once `tutor_id` had real view coverage). All 4
-  `start_tour()` calls use `step_delay=300` (see the flakiness note above). The by-subject tour also seeds a
-  "Miss" line + a strike on it, confirms `detail_status_ids`/`include_strikes` default correctly in the UI,
-  confirms the inline size-warning `alert-warning` div is absent from the DOM (`invisible="..."` removes it
-  entirely, it isn't just CSS-hidden) while the selection stays within the default, then adds "Attended" to
-  `detail_status_ids` to confirm the banner appears
-  (this — and the `<td t-field=...>` QWeb bug above — is exactly the kind of thing a `TransactionCase`/clean
-  `upgrade.sh` can't catch, since neither renders any QWeb or OWL) before printing.
+  one wizard tour that switches through all 3 `report_type`s on a single open form (each variant's selector
+  shows, its onchange fills tutor/dates, the by-subject prefills `group_ids`), exercises the shared Detail
+  statuses / Include strikes defaults + the inline size-warning banner (absent within the default, appears
+  after adding "Attended"), and prints once at the end (printing returns a report download that closes the
+  dialog, so the single print comes last); plus the analysis-screen tour (pivot default, 2× Expand-all
+  drilling subject → student, graph + Measures switch, and the single ⚙ cog entry opening the unified
+  wizard — the only coverage of the custom `cogMenu` JS). Both `start_tour()` calls use `step_delay=300`
+  (see the flakiness note above). All 3 variants' PDF *data* (QWeb HTML) render was additionally verified
+  out-of-band via `_render_qweb_html` (no wkhtmltopdf), which is what catches template crashes like the
+  `<td t-field=...>` one — a `TransactionCase`/clean `upgrade.sh` renders no QWeb.

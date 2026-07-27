@@ -1,27 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>          
-        <record model="ir.actions.act_window" id="action_attendance_report_student_wizard">
-            <field name="name">Attendance report (by student)</field>
-            <field name="res_model">ems.attendance_report_student_wizard</field>
+        <record model="ir.actions.act_window" id="action_attendance_report_wizard">
+            <field name="name">Attendance report</field>
+            <field name="res_model">ems.attendance_report_wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_attendance_report_subject_wizard">
-            <field name="name">Attendance report (by subject)</field>
-            <field name="res_model">ems.attendance_report_subject_wizard</field>
-            <field name="view_mode">form</field>
-            <field name="target">new</field>
-        </record>
-
-        <record model="ir.actions.act_window" id="action_attendance_report_group_wizard">
-            <field name="name">Attendance report (by group)</field>
-            <field name="res_model">ems.attendance_report_group_wizard</field>
-            <field name="view_mode">form</field>
-            <field name="target">new</field>
-        </record>
-        
         <record model="ir.actions.report" id="action_attendance_report_session">
             <field name="name">Attendance report: by session</field>
             <field name="model">ems.attendance_session_header</field>

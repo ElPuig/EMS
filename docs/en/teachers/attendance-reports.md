@@ -32,8 +32,9 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
 
 ## Printing a PDF Report
 
-On the **Attendance reports** screen, click the **⚙ (gear)** icon in the header and choose one of the 3
-reports.
+On the **Attendance reports** screen, click the **⚙ (gear)** icon in the header and choose **Attendance
+report**. In the form, pick the **Report type** — by group, by student, or by subject — and the fields adapt
+to your choice.
 
 **Attendance report (by group):**
 1. Pick a **Group** — the dropdown only shows the groups **you actually teach**; if a group you expect is
@@ -57,14 +58,14 @@ reports.
    **Tutors** shows their tutors for reference. If you only want some of those groups in the report,
    remove the others from the **Groups** field — it stays editable.
 3. The **From**/**To** dates fill in automatically to cover the full session range for your selection.
-4. **Detail statuses** controls which statuses appear in each student's per-session "Details" table in the
-   PDF — it defaults to absence-related statuses only (**Miss**, **Justified Miss**), so the report stays a
-   manageable size. Add more statuses if you need them; picking anything beyond the default shows a warning
-   that the report may become slow to generate or fail outright for large subject/group combinations.
-   **Include strikes** (on by default) adds a per-student table of disciplinary strikes recorded during the
-   period.
-5. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, any
-   session notes recorded for the period, and — per student — the Details/Strikes tables described above.
+4. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
+   session notes recorded for the period.
+
+**For any report type**, two controls govern the per-line detail in the PDF:
+- **Detail statuses** — which statuses appear in the "Details" tables. It defaults to absence-related
+  statuses only (**Miss**, **Justified Miss**) so the report stays a manageable size; add more and a warning
+  appears that the report may become slow to generate or fail for large selections.
+- **Include strikes** (on by default) — adds tables of the disciplinary strikes recorded during the period.
 
 ---
 

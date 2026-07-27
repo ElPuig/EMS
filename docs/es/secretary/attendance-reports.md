@@ -22,7 +22,7 @@
 
 ## Imprimir un informe PDF
 
-En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engranaje)** de la cabecera y elige uno de los 3 informes.
+En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engranaje)** de la cabecera y elige **Informe de asistencia**. En el formulario, elige el **Tipo de informe** — por grupo, por alumno o por asignatura — y los campos se adaptan a tu elección.
 
 **Informe de asistencia (por grupo):**
 1. Selecciona un **Grupo**.
@@ -38,8 +38,14 @@ En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engran
 1. Selecciona una **Asignatura**.
 2. El campo **Grupos** se rellena automáticamente con todos los grupos que imparten esa asignatura, y **Tutores** muestra sus tutores como referencia. Quita los grupos que no quieras en el informe — **Grupos** se queda editable.
 3. Las fechas **Desde**/**Hasta** se rellenan automáticamente para cubrir todo el rango de sesiones de tu selección.
-4. **Estados de detalle** controla qué estados aparecen en la tabla "Detalles" por sesión de cada alumno en el PDF — por defecto solo incluye estados de ausencia (**Falta**, **Falta justificada**), para que el informe se mantenga de un tamaño razonable. Añade más estados si los necesitas; elegir algo más allá de los predeterminados muestra un aviso de que el informe puede volverse lento de generar o fallar directamente para combinaciones grandes de asignatura/grupos. **Incluir los strikes** (activado por defecto) añade una tabla por alumno con los strikes disciplinarios registrados durante el periodo.
-5. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado, las notas de sesión registradas durante el periodo y, por alumno, las tablas de Detalles/Strikes descritas arriba.
+4. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
+
+**Para cualquier tipo de informe**, dos controles gobiernan el detalle por línea en el PDF:
+- **Estados de detalle** — qué estados aparecen en las tablas "Detalles". Por defecto solo incluye estados
+  de ausencia (**Falta**, **Falta justificada**) para que el informe se mantenga de un tamaño razonable;
+  añade más y aparece un aviso de que el informe puede volverse lento de generar o fallar para selecciones
+  grandes.
+- **Incluir los strikes** (activado por defecto) — añade tablas de los strikes disciplinarios del periodo.
 
 ---
 

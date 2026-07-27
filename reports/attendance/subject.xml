@@ -79,59 +79,11 @@
                         
                         <h2>Students</h2>
                         <t t-foreach="lines" t-as="student">
-                            <h3 t-field="student.display_name"/>
-
-                            <h4>Summary</h4>
-                            <t t-set="entries" t-value="lines[student].entries"/>
-                            <t t-call="ems.attendance_template_sumary_table"/>
-
-                            <!-- Details is opt-in (wizard's 'Detail statuses'/'Include strikes'), not every
-                                 session: a full session-by-session listing for every student is what made
-                                 this section grow with the subject's total session count instead of with
-                                 what's actually worth reading (absences, strikes). -->
-                            <t t-if="detail_entries[student]">
-                                <h4>Details</h4>
-                                <t t-set="header" t-value="[
-                                    {'style' : 'width:10%;', 'value' : 'Date'},
-                                    {'style' : 'width:10%;', 'value' : 'Status'},
-                                    {'style' : 'width:20%;', 'value' : 'Teacher'},
-                                    {'style' : '', 'value' : 'Comment'}
-                                ]"/>
-                                <!-- Note: 'self' will be an 'attendance_session_line' object and is necessary to run the 'report_eval' method from the 'details_table' template. -->
-                                <t t-set="rows" t-value="[
-                                    {'style' : '', 'value' : 'self.attendance_session_id.date'},
-                                    {'style' : '', 'value' : 'self.status_id.name'},
-                                    {'style' : '', 'value' : 'self.attendance_session_id.session_teacher_id.display_name'},
-                                    {'style' : '', 'value' : 'self.notes'},
-                                ]"/>
-                                <t t-set="entries" t-value="detail_entries[student]"/>
-                                <t t-call="ems.attendance_template_details_table"/>
-                            </t>
-
-                            <t t-if="detail_strikes[student]">
-                                <h4>Strikes</h4>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th style="width:15%;">Date</th>
-                                            <th style="width:25%;">Reason</th>
-                                            <th style="width:20%;">Teacher</th>
-                                            <th>Notes</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-foreach="detail_strikes[student]" t-as="strike">
-                                            <tr style="page-break-inside: avoid;">
-                                                <td><span t-field="strike.date"/></td>
-                                                <td><span t-field="strike.reason_id.display_name"/></td>
-                                                <td><span t-field="strike.teacher_id.display_name"/></td>
-                                                <td><span t-field="strike.notes"/></td>
-                                            </tr>
-                                        </t>
-                                    </tbody>
-                                </table>
-                            </t>
-                            <p style="page-break-after:always;" />
+                            <t t-set="section_name" t-value="student.display_name"/>
+                            <t t-set="section_data" t-value="lines[student]"/>
+                            <t t-set="section_detail_entries" t-value="detail_entries[student]"/>
+                            <t t-set="section_strikes" t-value="detail_strikes[student]"/>
+                            <t t-call="ems.attendance_template_detail_section"/>
                         </t>
                     </div>
                 </t>

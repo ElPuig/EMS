@@ -2060,22 +2060,30 @@ msgid "Attendance notification: daily summary"
 msgstr "Notificación de asistencia: resumen diario"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_attendance_report_group_wizard
+#: model:ir.actions.act_window,name:ems.action_attendance_report_wizard
 #: code:addons/ems/static/src/xml/backend/attendance_report_analysis_cog_menu.xml:0
-msgid "Attendance report (by group)"
-msgstr "Informe de asistencia (por grupo)"
+msgid "Attendance report"
+msgstr "Informe de asistencia"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_attendance_report_student_wizard
-#: code:addons/ems/static/src/xml/backend/attendance_report_analysis_cog_menu.xml:0
-msgid "Attendance report (by student)"
-msgstr "Informe de asistencia (por estudiante)"
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__report_type
+msgid "Report type"
+msgstr "Tipo de informe"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_attendance_report_subject_wizard
-#: code:addons/ems/static/src/xml/backend/attendance_report_analysis_cog_menu.xml:0
-msgid "Attendance report (by subject)"
-msgstr "Informe de asistencia (por asignatura)"
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_report_wizard__report_type__group
+msgid "By group"
+msgstr "Por grupo"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_report_wizard__report_type__student
+msgid "By student"
+msgstr "Por estudiante"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_report_wizard__report_type__subject
+msgid "By subject"
+msgstr "Por asignatura"
 
 #. module: ems
 #: model:ir.model,name:ems.model_report_ems_attendance_report_group
@@ -3250,7 +3258,7 @@ msgid "Default last entry time"
 msgstr "Hora de última entrada predeterminada"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__detail_status_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__detail_status_ids
 msgid "Detail statuses"
 msgstr "Estados de detalle"
 
@@ -4341,9 +4349,7 @@ msgid "Friday"
 msgstr "Viernes"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__from_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__from_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__from_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__from_date
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
@@ -4667,7 +4673,7 @@ msgid "Grant access"
 msgstr "Otorgar acceso"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__group_id
@@ -4726,7 +4732,7 @@ msgstr "Grupo:"
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids
 #: model:ir.ui.menu,name:ems.menu_groups
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__group_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_ids
 msgid "Groups"
 msgstr "Grupos"
 
@@ -5260,7 +5266,7 @@ msgid "In-person"
 msgstr "En persona"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__include_strikes
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__include_strikes
 msgid "Include strikes"
 msgstr "Incluir los strikes"
 
@@ -8468,7 +8474,7 @@ msgstr "Calle 2"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__student_id
@@ -8724,7 +8730,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__subject_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_content__subject_id
@@ -9400,9 +9406,7 @@ msgid "Today"
 msgstr "Hoy"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__to_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__to_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__to_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__to_date
 msgid "To"
 msgstr "A"
 
@@ -9491,7 +9495,7 @@ msgid "Tutor"
 msgstr "Tutor/a"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__tutor_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__tutor_ids
 msgid "Tutors"
 msgstr "Tutores/as"
 

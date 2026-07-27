@@ -71,11 +71,9 @@ class TestAttendanceReportsTour(HttpCase):
 
     def test_attendance_report_wizards_and_analysis_tour(self):
         self._seed_session()
-        # step_delay: the 3 PDF wizard tours end on a 'Print' click, which triggers a real
-        # report download; without a delay, the harness's post-tour "no dirty form left open"
-        # check can race that download and intermittently fail even though every tour step
-        # itself already matched (same class of flake as TestWithdrawalTour, see that test file).
-        self.start_tour("/odoo", "ems_attendance_report_group_wizard", login="admin", step_delay=300)
-        self.start_tour("/odoo", "ems_attendance_report_subject_wizard", login="admin", step_delay=300)
-        self.start_tour("/odoo", "ems_attendance_report_student_wizard", login="admin", step_delay=300)
+        # step_delay: the wizard tour ends on a 'Print' click, which triggers a real report
+        # download; without a delay, the harness's post-tour "no dirty form left open" check can
+        # race that download and intermittently fail even though every tour step itself already
+        # matched (same class of flake as TestWithdrawalTour, see that test file).
+        self.start_tour("/odoo", "ems_attendance_report_wizard", login="admin", step_delay=300)
         self.start_tour("/odoo", "ems_attendance_report_analysis", login="admin", step_delay=300)

@@ -236,9 +236,7 @@
 
             'views/attendance/attendance_reports/analysis_views.xml',
             'views/attendance/attendance_reports/menu.xml',
-            'views/attendance/attendance_reports/student_wizard.xml',
-            'views/attendance/attendance_reports/subject_wizard.xml',
-            'views/attendance/attendance_reports/group_wizard.xml',
+            'views/attendance/attendance_reports/wizard.xml',
 
             'views/communications/notice/list.xml',
             'views/communications/notice/form.xml',
@@ -313,8 +311,9 @@
         'mails/enrollment/enrollment_send.xml',
 
         ### Reports templates ###
-        'reports/attendance/templates/sumary_table.xml', 
-        'reports/attendance/templates/details_table.xml', 
+        'reports/attendance/templates/sumary_table.xml',
+        'reports/attendance/templates/details_table.xml',
+        'reports/attendance/templates/detail_section.xml',
 
         ### Reports entries ###
         'reports/attendance/session.xml', 

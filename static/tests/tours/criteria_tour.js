@@ -12,6 +12,10 @@ import { registry } from "@web/core/registry";
 // swallowed here with no visible effect and no console error — the same flakiness
 // documented and fixed the same way in withdrawal_tour.js and outcome_tour.js: retry the
 // click, with a real delay between attempts, until the new editable row actually shows up.
+// NOTE: the retry loop must use plain DOM APIs only (document.querySelector doesn't
+// understand the tour engine's own `:contains()` extension — using it here throws a
+// SyntaxError, confirmed the hard way) — scope retries to a plain-selectable ancestor
+// and use querySelector("a")/[".o_selected_row"] etc. from there, same as below.
 function addLineRetrying(widgetSelector) {
     return {
         trigger: `${widgetSelector} a:contains('Add a line')`,

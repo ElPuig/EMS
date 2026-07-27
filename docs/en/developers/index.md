@@ -39,6 +39,7 @@ Technical reference for developers working on the EMS module.
 
 | Topic | Description |
 |-------|-------------|
+| [hr.employee (EMS extension)](employees/employee.md) | Map of the whole model — cross-links every already-documented area (roles, schedule, photo, Google Workspace) plus a real `compute_sudo` bug fix on `read_only`, new `get_report_role_lines()` branch coverage, and a flagged `ems.group.create()` gap |
 | [Academic role hierarchy](employees/role_hierarchy.md) | Teacher → Tutor → Department Chief → Head of Studies → Director → Administrator group chain and how roles sync to `res.users.groups_id` |
 | [Department Chief / Seminar Chief / Head of Studies / Director cascade](employees/department.md) | `hr.department.manager_id`/`seminar_chief_id`/`is_top_level`/`top_level_role` (Head of Studies/Deputy/Secretary) plus `res.company.director_id` driving `hr.employee.parent_id` (between departments and up to the Director) and the `role_dchieff`/`role_seminar`/`role_hos`/`role_dhos`/`role_secretary`/`role_director` roles automatically |
 | [Teacher working schedules & schedule frameworks](employees/working_schedule.md) | The "Schedule" tab widget, schedule frameworks, the empty-slot rule, employee lifecycle hooks, the XML import wizard |

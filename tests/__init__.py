@@ -19,6 +19,8 @@ from . import test_course
 from . import test_course_tour
 from . import test_company_settings
 from . import test_settings
+from . import test_employee_display_fields
+from . import test_employee_tour
 from . import test_attendance_template
 from . import test_attendance_schedule
 from . import test_attendance_status

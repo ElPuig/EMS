@@ -102,13 +102,20 @@ class ems_employee_base(models.AbstractModel):
     can_edit_schedule = fields.Boolean(string="Can edit schedule", compute="_compute_can_edit_schedule", compute_sudo=True, store=False)
 
     def _compute_read_only(self):
-        for rec in self:
-            rec.read_only = self.check_access_rights('write', raise_exception=False)
+        # compute_sudo=True (needed so a read-only user can compute this field at all — see
+        # the field's own comment) also means `self` runs as superuser here, so
+        # self.check_access_rights('write') would always see full rights and this field
+        # would always read False regardless of who's actually looking — re-checking
+        # against a recordset explicitly bound to the real calling user (self.env.user
+        # itself is unaffected by compute_sudo) restores the real per-user answer.
+        can_write = self.with_user(self.env.user).check_access_rights('write', raise_exception=False)
+        for employee in self:
+            employee.read_only = not can_write
 
     def _compute_can_edit_schedule(self):
         can_edit = self.env.user.has_group('ems.group_department_chief')
-        for rec in self:
-            rec.can_edit_schedule = can_edit
+        for employee in self:
+            employee.can_edit_schedule = can_edit
 
     def get_derived_break_attendance_data(self):
         """RPC-friendly version of '_get_derived_break_entries()', meant to be fetched
@@ -238,19 +245,19 @@ class ems_employee_base(models.AbstractModel):
 
     @api.depends("tutorship_ids")
     def _compute_tutorships_str(self):
-        for rec in self:
-            rec.tutorships = ""
-            for tutorship in rec.tutorship_ids:
-                rec.tutorships = "%s, %s" % (rec.tutorships, tutorship.name) 			
-            rec.tutorships = rec.tutorships.lstrip(", ")   
+        for employee in self:
+            employee.tutorships = ""
+            for tutorship in employee.tutorship_ids:
+                employee.tutorships = "%s, %s" % (employee.tutorships, tutorship.name)
+            employee.tutorships = employee.tutorships.lstrip(", ")
 
     @api.depends("role_ids")
-    def _compute_roles_str(self):			
-        for rec in self:
-            rec.roles = ""
-            for role in rec.role_ids:
-                rec.roles = "%s, %s" % (rec.roles, role.name) 			
-            rec.roles = rec.roles.lstrip(", ")
+    def _compute_roles_str(self):
+        for employee in self:
+            employee.roles = ""
+            for role in employee.role_ids:
+                employee.roles = "%s, %s" % (employee.roles, role.name)
+            employee.roles = employee.roles.lstrip(", ")
     
     @api.onchange('job_id')
     def _onchange_job_id(self):
@@ -265,13 +272,13 @@ class ems_employee_base(models.AbstractModel):
         role_dhos = self.env.ref('ems.role_dhos').ids[0]
         role_secretary = self.env.ref('ems.role_secretary').ids[0]
         role_director = self.env.ref('ems.role_director').ids[0]
-        for rec in self:
-            is_role_tutor = role_tutor in rec.role_ids.ids
-            is_tutor = len(rec.tutorship_ids) > 0
+        for employee in self:
+            is_role_tutor = role_tutor in employee.role_ids.ids
+            is_tutor = len(employee.tutorship_ids) > 0
             if not is_role_tutor and is_tutor:
-                rec.tutorship_ids = False
+                employee.tutorship_ids = False
             elif is_role_tutor and not is_tutor:
-                rec.role_ids = [(3, role_tutor)]
+                employee.role_ids = [(3, role_tutor)]
                 return {
                     'warning': {
                         'title': _("Not allowed"),
@@ -280,10 +287,10 @@ class ems_employee_base(models.AbstractModel):
                     }
                 }
 
-            is_role_dchieff = role_dchieff in rec.role_ids.ids
-            is_department_head = len(rec.headed_department_ids.filtered(lambda d: not d.is_top_level)) > 0
+            is_role_dchieff = role_dchieff in employee.role_ids.ids
+            is_department_head = len(employee.headed_department_ids.filtered(lambda d: not d.is_top_level)) > 0
             if is_role_dchieff != is_department_head:
-                rec.role_ids = [(4 if is_department_head else 3, role_dchieff)]
+                employee.role_ids = [(4 if is_department_head else 3, role_dchieff)]
                 return {
                     'warning': {
                         'title': _("Not allowed"),
@@ -292,10 +299,10 @@ class ems_employee_base(models.AbstractModel):
                     }
                 }
 
-            is_role_seminar = role_seminar in rec.role_ids.ids
-            is_seminar_chief = len(rec.seminar_department_ids) > 0
+            is_role_seminar = role_seminar in employee.role_ids.ids
+            is_seminar_chief = len(employee.seminar_department_ids) > 0
             if is_role_seminar != is_seminar_chief:
-                rec.role_ids = [(4 if is_seminar_chief else 3, role_seminar)]
+                employee.role_ids = [(4 if is_seminar_chief else 3, role_seminar)]
                 return {
                     'warning': {
                         'title': _("Not allowed"),
@@ -304,12 +311,12 @@ class ems_employee_base(models.AbstractModel):
                     }
                 }
 
-            top_level_headed = rec.headed_department_ids.filtered('is_top_level')
+            top_level_headed = employee.headed_department_ids.filtered('is_top_level')
 
-            is_role_hos = role_hos in rec.role_ids.ids
+            is_role_hos = role_hos in employee.role_ids.ids
             is_hos = len(top_level_headed.filtered(lambda d: d.top_level_role == 'hos')) > 0
             if is_role_hos != is_hos:
-                rec.role_ids = [(4 if is_hos else 3, role_hos)]
+                employee.role_ids = [(4 if is_hos else 3, role_hos)]
                 return {
                     'warning': {
                         'title': _("Not allowed"),
@@ -318,10 +325,10 @@ class ems_employee_base(models.AbstractModel):
                     }
                 }
 
-            is_role_dhos = role_dhos in rec.role_ids.ids
+            is_role_dhos = role_dhos in employee.role_ids.ids
             is_dhos = len(top_level_headed.filtered(lambda d: d.top_level_role == 'dhos')) > 0
             if is_role_dhos != is_dhos:
-                rec.role_ids = [(4 if is_dhos else 3, role_dhos)]
+                employee.role_ids = [(4 if is_dhos else 3, role_dhos)]
                 return {
                     'warning': {
                         'title': _("Not allowed"),
@@ -330,10 +337,10 @@ class ems_employee_base(models.AbstractModel):
                     }
                 }
 
-            is_role_secretary = role_secretary in rec.role_ids.ids
+            is_role_secretary = role_secretary in employee.role_ids.ids
             is_secretary = len(top_level_headed.filtered(lambda d: d.top_level_role == 'secretary')) > 0
             if is_role_secretary != is_secretary:
-                rec.role_ids = [(4 if is_secretary else 3, role_secretary)]
+                employee.role_ids = [(4 if is_secretary else 3, role_secretary)]
                 return {
                     'warning': {
                         'title': _("Not allowed"),
@@ -342,10 +349,10 @@ class ems_employee_base(models.AbstractModel):
                     }
                 }
 
-            is_role_director = role_director in rec.role_ids.ids
-            is_director = len(rec.directed_company_ids) > 0
+            is_role_director = role_director in employee.role_ids.ids
+            is_director = len(employee.directed_company_ids) > 0
             if is_role_director != is_director:
-                rec.role_ids = [(4 if is_director else 3, role_director)]
+                employee.role_ids = [(4 if is_director else 3, role_director)]
                 return {
                     'warning': {
                         'title': _("Not allowed"),
@@ -357,30 +364,30 @@ class ems_employee_base(models.AbstractModel):
 
     def update_tutor_role(self):
         role_tutor = self.env.ref('ems.role_tutor').ids[0]
-        for rec in self:
-            rec.role_ids = [(4 if len(rec.tutorship_ids) > 0 else 3, role_tutor)] # link if tutor, otherwise unlink
+        for employee in self:
+            employee.role_ids = [(4 if len(employee.tutorship_ids) > 0 else 3, role_tutor)] # link if tutor, otherwise unlink
 
     def update_department_head_role(self):
         role_dchieff = self.env.ref('ems.role_dchieff').ids[0]
-        for rec in self:
-            is_dchieff = len(rec.headed_department_ids.filtered(lambda department: not department.is_top_level)) > 0
-            rec.role_ids = [(4 if is_dchieff else 3, role_dchieff)]
+        for employee in self:
+            is_dchieff = len(employee.headed_department_ids.filtered(lambda department: not department.is_top_level)) > 0
+            employee.role_ids = [(4 if is_dchieff else 3, role_dchieff)]
 
     def update_seminar_chief_role(self):
         role_seminar = self.env.ref('ems.role_seminar').ids[0]
-        for rec in self:
-            rec.role_ids = [(4 if len(rec.seminar_department_ids) > 0 else 3, role_seminar)]
+        for employee in self:
+            employee.role_ids = [(4 if len(employee.seminar_department_ids) > 0 else 3, role_seminar)]
 
     def update_area_manager_role(self):
         role_hos = self.env.ref('ems.role_hos').ids[0]
         role_dhos = self.env.ref('ems.role_dhos').ids[0]
         role_secretary = self.env.ref('ems.role_secretary').ids[0]
-        for rec in self:
-            top_level_headed = rec.headed_department_ids.filtered('is_top_level')
+        for employee in self:
+            top_level_headed = employee.headed_department_ids.filtered('is_top_level')
             is_hos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'hos')) > 0
             is_dhos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'dhos')) > 0
             is_secretary = len(top_level_headed.filtered(lambda department: department.top_level_role == 'secretary')) > 0
-            rec.role_ids = [
+            employee.role_ids = [
                 (4 if is_hos else 3, role_hos),
                 (4 if is_dhos else 3, role_dhos),
                 (4 if is_secretary else 3, role_secretary),
@@ -388,9 +395,9 @@ class ems_employee_base(models.AbstractModel):
 
     def update_director_role(self):
         role_director = self.env.ref('ems.role_director').ids[0]
-        for rec in self:
-            is_director = len(rec.directed_company_ids) > 0
-            rec.role_ids = [(4 if is_director else 3, role_director)]
+        for employee in self:
+            is_director = len(employee.directed_company_ids) > 0
+            employee.role_ids = [(4 if is_director else 3, role_director)]
 
     def _sync_security_groups(self):
         """Sync res.users.groups_id based on role_ids and job_id that have a linked security group."""
@@ -399,19 +406,19 @@ class ems_employee_base(models.AbstractModel):
         managed_groups = role_groups | job_groups
         if not managed_groups:
             return
-        for rec in self:
-            employee = self.env['hr.employee'].sudo().search([('id', '=', rec.id)], limit=1)
-            if not employee or not employee.user_id:
+        for employee in self:
+            sudo_employee = self.env['hr.employee'].sudo().search([('id', '=', employee.id)], limit=1)
+            if not sudo_employee or not sudo_employee.user_id:
                 continue
-            should_have = rec.role_ids.mapped('group_id') | rec.job_id.group_id
+            should_have = employee.role_ids.mapped('group_id') | employee.job_id.group_id
             commands = []
             for g in managed_groups:
-                if g in should_have and g not in employee.user_id.groups_id:
+                if g in should_have and g not in sudo_employee.user_id.groups_id:
                     commands.append((4, g.id))
-                elif g not in should_have and g in employee.user_id.groups_id:
+                elif g not in should_have and g in sudo_employee.user_id.groups_id:
                     commands.append((3, g.id))
             if commands:
-                employee.user_id.sudo().write({'groups_id': commands})
+                sudo_employee.user_id.sudo().write({'groups_id': commands})
 
     def write(self, vals):
         if "tutorship_ids" in vals:
@@ -425,9 +432,11 @@ class ems_employee_base(models.AbstractModel):
                         
     @api.constrains("role_ids")
     def check_limit(self):
-        for rec in self:
-            for role in rec.role_ids:                
-                role.check_limit()                
+        for employee in self:
+            for role in employee.role_ids:
+                role.check_limit()
+
+
 class ems_employee(models.AbstractModel):
     _inherit = ["hr.employee"]
 

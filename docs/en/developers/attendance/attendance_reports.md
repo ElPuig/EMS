@@ -227,6 +227,31 @@ render in English regardless of language (a pre-existing gap, not introduced her
 was written with literal `<th>Date</th>`-style static text instead specifically so it *would* be
 extracted/translatable.
 
+### Report robustness: student-less lines and page-break-inside
+
+Two independent PDF-rendering issues fixed together after a "broken row" report on subject 0485 (groups
+DAM1A + DAW1A):
+
+- **Phantom blank-name row (the actual cause).** `ems.attendance_session_line.student_id` is a plain
+  `Many2one` with no explicit `ondelete`, so it defaults to `ondelete='set null'`: when a student partner
+  is *hard-deleted* (not archived), that student's session lines survive with `student_id = NULL`. In the
+  by-subject report, `grp_by_student` keys on `entry.student_id`, so all such orphans collapse under a
+  single **empty `res.partner()` recordset** key and render as one extra row/section with a blank name —
+  visually a "broken" row wedged between the real students (in the reported case, right after the student
+  whose lines happened to precede the orphans by id). Fixed at the source: the by-group and by-subject
+  wizards' `print()` now filter `('student_id', '!=', False)` when collecting `status_ids`, so orphan lines
+  never enter the report at all (they also no longer skew the subject's overall totals). The by-student
+  wizard was already immune — it filters `('student_id', '=', self.student_id.id)`, which NULL never
+  matches. Diagnosed by rendering the report to **HTML** (`_render_qweb_html`, no wkhtmltopdf, so no memory
+  cost) and dumping the row order: the grouped student list contained an `id=False` entry. The two orphan
+  lines themselves (session 38, from two students deleted from the DB) are left in place — the report is now
+  robust to them regardless; deleting orphan data is a separate, centre-owned decision.
+- **Row splitting across page boundaries (separate hardening).** Every per-row `<tr>` in the report tables
+  (`sumary_table.xml`, `details_table.xml`, and the subject/group per-line tables + the new Strikes table)
+  now carries `style="page-break-inside: avoid;"` so a single row isn't split top/bottom across two pages
+  in a multi-page table. This was the initial hypothesis for the "broken row" before the phantom-row cause
+  was found; kept because it's a genuine, low-risk improvement for any report table that spans pages.
+
 ---
 
 ## Attendance reports (pivot/graph)

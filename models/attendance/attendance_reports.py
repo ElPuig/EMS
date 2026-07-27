@@ -55,7 +55,12 @@ class EmsAttendanceReportGroupWizard(models.TransientModel):
 			("date", "<=", self.to_date),
 		]).ids
 
-		status_ids = self.env["ems.attendance_session_line"].search([("attendance_session_id", "in", session_ids)]).ids
+		# Exclude student-less lines: when a student partner is hard-deleted, their session
+		# lines survive with student_id = NULL (Odoo's default ondelete='set null'). Grouping
+		# those by student would render a phantom blank-name row/group in the PDF.
+		status_ids = self.env["ems.attendance_session_line"].search([
+			("attendance_session_id", "in", session_ids), ("student_id", "!=", False),
+		]).ids
 
 		data = {'doc_ids': [self.read()[0]['id']], 'status_ids': status_ids}
 		return self.env.ref('ems.action_attendance_report_group').with_context(landscape=True).report_action(None, data=data)
@@ -215,7 +220,12 @@ class EmsAttendanceReportSubjectWizard(models.TransientModel):
 			("date", "<=", self.to_date),
 		]).ids
 
-		status_ids = self.env["ems.attendance_session_line"].search([("attendance_session_id", "in", session_ids)]).ids
+		# Exclude student-less lines: when a student partner is hard-deleted, their session
+		# lines survive with student_id = NULL (Odoo's default ondelete='set null'). Grouping
+		# those by student would render a phantom blank-name row/group in the PDF.
+		status_ids = self.env["ems.attendance_session_line"].search([
+			("attendance_session_id", "in", session_ids), ("student_id", "!=", False),
+		]).ids
 
 		data = {'doc_ids': [self.read()[0]['id']], 'status_ids': status_ids}
 		return self.env.ref('ems.action_attendance_report_subject').with_context(landscape=True).report_action(None, data=data)

@@ -260,6 +260,30 @@ class TestAttendanceReportWizards(TransactionCase):
         self.assertEqual(result['data']['status_ids'], [self.line_recent.id])
         self.assertNotIn(self.line_old.id, result['data']['status_ids'])
 
+    def test_print_wizards_skip_student_less_lines(self):
+        # A student partner hard-deleted from the DB leaves its session lines behind with
+        # student_id = NULL (Odoo's default ondelete='set null'). Those orphans must not reach
+        # the report, where grouping-by-student would render a phantom blank-name row/group.
+        orphan_line = self.env['ems.attendance_session_line'].create({
+            'status_id': self.status_attended.id, 'attendance_session_id': self.session_recent.id,
+        })
+        self.assertFalse(orphan_line.student_id)
+
+        subject_wizard = self.env['ems.attendance_report_subject_wizard'].create({
+            'group_ids': [(6, 0, [self.group1.id])], 'subject_id': self.subject_a.id,
+            'from_date': self.old_date, 'to_date': self.today,
+        })
+        subject_result = subject_wizard.print()
+        self.assertNotIn(orphan_line.id, subject_result['data']['status_ids'])
+        # And it must not surface as an empty-partner key in the rendered report data.
+        values = self.env['report.ems.attendance_report_subject']._get_report_values(None, data=subject_result['data'])
+        self.assertTrue(all(student for student in values['lines']))
+
+        group_wizard = self.env['ems.attendance_report_group_wizard'].create({
+            'group_id': self.group1.id, 'from_date': self.old_date, 'to_date': self.today,
+        })
+        self.assertNotIn(orphan_line.id, group_wizard.print()['data']['status_ids'])
+
     # --- stored related fields (used by the 'Attendance reports' pivot/graph) ---
 
     def test_session_line_analysis_fields_follow_the_session(self):

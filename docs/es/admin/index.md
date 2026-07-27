@@ -15,6 +15,7 @@ Esta sección contiene los manuales para **administradores**.
 - [Asignaturas](curriculum-subjects.md) — Configuración curricular: asignaturas, sus resultados de aprendizaje/contenidos, y la sincronización automática del producto de facturación.
 - [Curso Actual](course-settings.md) — Cambiar el año académico utilizado para las operaciones del día a día.
 - [Grupos de trabajo](workgroups.md) — Agrupaciones libres de empleados (equipos de proyecto, comisiones).
+- [Espacios y tipos de espacio](facilities.md) — Aulas físicas y sus tipos, usados en sesiones/grupos/actas/horarios.
 - [Roles de profesorado y niveles de permisos](teacher-roles.md) — Cómo asignar roles (Tutor, Jefe de departamento, Jefe de estudios, Director...) para conceder niveles de permisos.
 - [Alta de un profesor y creación de la cuenta de correo corporativo (Google Workspace)](alta-professor-compte-google.md) — Cómo dar de alta a un profesor o miembro del PAS y cómo se genera su cuenta corporativa.
 - [Strikes: gestionar motivos y umbral de escalado](strike.md) — Configurar la lista de motivos de strike y el umbral de escalado de convivencia.

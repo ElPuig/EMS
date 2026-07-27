@@ -27,6 +27,15 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Facilities
+
+| Model | Description |
+|-------|-------------|
+| [ems.space_type](facilities/space_type.md) | Kinds of physical space (classroom, lab...); removed a stale TODO comment about a config page that already existed |
+| [ems.space](facilities/space.md) | Physical spaces, widely referenced by scheduling/attendance/documentation models |
+
+---
+
 ## Contacts
 
 | Model | Description |

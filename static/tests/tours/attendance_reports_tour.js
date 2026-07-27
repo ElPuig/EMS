@@ -4,9 +4,10 @@ import { registry } from "@web/core/registry";
 
 // Attendance report wizards (group/student/subject): after their allowed_*_ids filters and
 // print() were ported from raw SQL to ORM, confirm the OWL forms still render and clicking
-// 'Print' doesn't crash. The group/student wizards were later simplified to drop the level ->
-// study -> group/student cascade (single-step group_id/student_id pick, scoped server-side by
-// allowed_group_ids/allowed_student_ids); the subject wizard still has the full cascade.
+// 'Print' doesn't crash. All 3 were later simplified to drop the level -> study -> group cascade:
+// group/student down to a single group_id/student_id pick; subject down to a single subject_id
+// pick that pre-fills a removable group_ids multi-select (every group teaching that subject) and
+// a read-only tutor_ids multi-select — all scoped server-side by allowed_*_ids.
 function selectMany2one(fieldName, searchText) {
     return [
         {
@@ -45,11 +46,37 @@ registry.category("web_tour.tours").add("ems_attendance_report_subject_wizard", 
     test: true,
     url: "/odoo/action-ems.action_attendance_report_subject_wizard",
     steps: () => [
-        { trigger: ".o_form_view .o_field_widget[name='level_id']", content: "Subject report wizard loaded" },
-        ...selectMany2one("level_id", "Attendance Reports Tour Level"),
-        ...selectMany2one("study_id", "Attendance Reports Tour Study"),
-        ...selectMany2one("group_id", "Attendance Reports Tour Group"),
+        { trigger: ".o_form_view .o_field_widget[name='subject_id']", content: "Subject report wizard loaded" },
         ...selectMany2one("subject_id", "Attendance Reports Tour Subject"),
+        {
+            trigger: ".o_form_view .o_field_widget[name='group_ids'] .o_tag:contains('Attendance Reports Tour Group')",
+            content: "group_ids got pre-filled with every group teaching the subject",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='tutor_ids'] .o_tag",
+            content: "tutor_ids got auto-filled with the pre-filled groups' tutors",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='from_date'] input:not([value=''])",
+            content: "from_date got auto-filled by the subject's own onchange",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='detail_status_ids'] .o_tag:contains('Miss')",
+            content: "detail_status_ids defaults to absence-category statuses only",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='include_strikes'] input:checked",
+            content: "include_strikes defaults to enabled",
+        },
+        // Adding a status beyond the absence-only default (e.g. 'Attended') must warn that the
+        // per-student sections can grow large — this is the opt-in safety net from the report-
+        // scale fix, not just a cosmetic field.
+        ...selectMany2one("detail_status_ids", "Attended"),
+        {
+            trigger: ".modal-title:contains('The report may become very large')",
+            content: "Picking a non-default status triggers the size warning",
+        },
+        { trigger: ".modal-footer button:contains('Close')", content: "Dismiss the warning", run: "click" },
         { trigger: "button[name='print']", content: "Print the subject report", run: "click" },
         { trigger: "body:not(:has(.o_error_dialog))", content: "No client-side error after printing" },
     ],

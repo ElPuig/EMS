@@ -35,10 +35,11 @@ En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engran
 3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
 
 **Informe de asistencia (por asignatura):**
-1. Selecciona un **Nivel**, luego un **Estudio** y luego un **Grupo** — cada selección filtra la siguiente.
-2. Selecciona también la **Asignatura** — limitado a lo que realmente se imparte en el grupo seleccionado.
-3. Las fechas **Desde**/**Hasta** se rellenan automáticamente con todo el rango de sesiones disponibles para tu selección; redúcelas si solo quieres un periodo concreto.
-4. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
+1. Selecciona una **Asignatura**.
+2. El campo **Grupos** se rellena automáticamente con todos los grupos que imparten esa asignatura, y **Tutores** muestra sus tutores como referencia. Quita los grupos que no quieras en el informe — **Grupos** se queda editable.
+3. Las fechas **Desde**/**Hasta** se rellenan automáticamente para cubrir todo el rango de sesiones de tu selección.
+4. **Estados de detalle** controla qué estados aparecen en la tabla "Detalles" por sesión de cada alumno en el PDF — por defecto solo incluye estados de ausencia (**Falta**, **Falta justificada**), para que el informe se mantenga de un tamaño razonable. Añade más estados si los necesitas; elegir algo más allá de los predeterminados muestra un aviso de que el informe puede volverse lento de generar o fallar directamente para combinaciones grandes de asignatura/grupos. **Incluir los strikes** (activado por defecto) añade una tabla por alumno con los strikes disciplinarios registrados durante el periodo.
+5. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado, las notas de sesión registradas durante el periodo y, por alumno, las tablas de Detalles/Strikes descritas arriba.
 
 ---
 

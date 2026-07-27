@@ -61,7 +61,7 @@ Each wizard has 2 responsibilities, both formerly raw SQL, now plain ORM:
 |---|---|---|
 | `..._group_wizard` | `env['ems.teaching'].search([('teacher_id', '=', current_teacher.id)]).mapped('group_id')` (no study filter — see "Wizard simplification" below) | `env['ems.attendance_session_line'].search([('attendance_session_id', 'in', session_ids)])` |
 | `..._student_wizard` | enrollments whose `(group_id, subject_id)` matches one of the teacher's `ems.teaching` pairs (no group filter anymore — see "Wizard simplification" below) | `search([('student_id', '=', ...), ('attendance_session_id.date', '>=', from), ('attendance_session_id.date', '<=', to)])` (dot-notation domain, no manual join) |
-| `..._subject_wizard` | `env['ems.teaching'].search([('group_id', '=', group_id), ('teacher_id', '=', current_teacher.id)]).mapped('subject_id')` | same pattern as group's |
+| `..._subject_wizard` | `allowed_subject_ids`: teacher's own taught subjects (no group filter — see "Wizard simplification" below); `allowed_group_ids`: `env['ems.teaching'].search([('subject_id', '=', subject_id), ('teacher_id', '=', current_teacher.id)]).mapped('group_id')` | domain now `("group_ids", "in", self.group_ids.ids)` (was `self.group_id.id` singular) |
 
 The `current_teacher.id > 1` admin-bypass check (an existing convention: any user with no `hr.employee`
 record, or whose employee id is 1, sees unfiltered data) was preserved as-is — not in scope to change.
@@ -94,12 +94,11 @@ own. The wizard-side scoping above is UX convenience (don't overwhelm a teacher'
 subjects/students they don't teach), not a security boundary; it was never enforced by `ir.rule` and still
 isn't after this change.
 
-### Wizard simplification: by group, by student (2 of 3, done incrementally)
+### Wizard simplification: all 3, done incrementally
 
-The 3 wizards originally all shared the same level → study → group/student/subject cascade. They're being
+The 3 wizards originally all shared the same level → study → group/student/subject cascade. They were
 simplified one at a time, by explicit request, each requiring a sign-off before moving to the next:
-by-group first, then by-student, then by-subject (which will instead gain a group *multi*-select driven by
-the chosen subject — not simplified yet).
+by-group first, then by-student, then by-subject.
 
 - **By group**: `level_id`/`study_id` removed, `group_id` is now the only selection step; `tutor_id`/
   `from_date`/`to_date` still auto-fill from it exactly as before.
@@ -114,13 +113,35 @@ the chosen subject — not simplified yet).
   level), then `.filtered()` in Python for an exact `(group_id, subject_id)` pair match — a plain
   `('subject_id', 'in', ...)` domain would have been wrong, since it would match a student enrolled in a
   *different* group for a subject the teacher happens to teach elsewhere.
-- Both new single-field wizards use the same 2×2 layout: `<group col="2">` with 4 nested single-field
-  `<group>` elements (not 4 plain `<field>` inside one `<group col="4">` — that renders one field per row
-  instead of 2-per-row; confirmed by screenshot, see `views/planning_grading/grading/form.xml` for another
-  in-repo example of the working pattern). Row 1: the main selection field + its related `tutor_id`. Row 2:
-  `from_date` + `to_date`.
+- **By subject** (the one that changed shape, not just lost fields): `level_id`/`study_id`/the old single
+  `group_id`/`tutor_id` are gone; `subject_id` is now the only *selection* step, but it drives two new
+  fields instead of just filtering the next one:
+  - `group_ids` (`Many2many`, editable): pre-filled by `_onchange_subject_id` with *every* group where the
+    current teacher teaches that subject (`ems.teaching` rows matching `subject_id` + `teacher_id`) — the
+    user can remove entries afterward (tags widget), but its `domain` is still wired to `allowed_group_ids`
+    (same `@api.depends('subject_id')` pattern as `allowed_subject_ids`→`subject_id` elsewhere) so re-adding
+    one is restricted to the same allowed set, not a free-for-all.
+  - `tutor_ids` (`Many2many`, read-only, informational): the distinct tutors of whatever's currently in
+    `group_ids`. **Cannot be a `related="group_ids.tutor_id"` field** — Odoo raised `TypeError: Type of
+    related field ... is inconsistent with ems.group.tutor_id` at `_auto_init` (a related chain through a
+    Many2many to a trailing Many2one doesn't auto-promote to Many2many the way `store=True` related M2M
+    fields do elsewhere in this file for `ems.attendance_session_line.group_ids`). Needed an explicit
+    `compute='_compute_tutor_ids'` (`@api.depends('group_ids.tutor_id')`) instead — one line
+    (`wizard.tutor_ids = wizard.group_ids.tutor_id`), since reading a Many2one field off a multi-record
+    recordset already returns the deduplicated aggregate in the ORM.
+  - `print()`'s domain changed from `("group_ids", "in", [self.group_id.id])` (singular) to
+    `("group_ids", "in", self.group_ids.ids)` (the multi-select). The PDF template's header
+    (`reports/attendance/subject.xml`) used `o.group_id.display_name` — switched to
+    `', '.join(o.group_ids.mapped('display_name'))` via `t-esc` (no `t-field` equivalent for joining a
+    recordset's names).
+- All 3 use the same 2×2-ish layout: `<group col="2">` with nested single-field `<group>` elements (not
+  plain `<field>` inside one `<group col="4">` — that renders one field per row instead of 2-per-row;
+  confirmed by screenshot, see `views/planning_grading/grading/form.xml` for another in-repo example of the
+  working pattern). By-group/by-student: row 1 is the main field + its related tutor, row 2 is
+  `from_date`+`to_date`. By-subject needed 3 full-width rows first (`subject_id`, then `group_ids` tags,
+  then `tutor_ids` tags — `colspan="2"` on each nested group) before the same `from_date`/`to_date` row.
 
-Two things worth knowing if repeating this pattern for the last wizard:
+Two things worth knowing, useful beyond just this feature:
 
 - **The selection field's domain must be wired to its `allowed_*_ids`** (e.g.
   `domain="[('id','in', allowed_group_ids)]"`) — previously it wasn't for `group_id`: the original view
@@ -131,16 +152,77 @@ Two things worth knowing if repeating this pattern for the last wizard:
   actually reach the UI.
 - **A compute field with only `@api.depends_context('uid')` (no dependency on a real field) is not reliably
   computed on a freshly-created record** — confirmed empirically both in `TransactionCase` tests (reading
-  `wizard.allowed_group_ids`/`allowed_student_ids` right after `.create({})` returned empty; calling
-  `wizard._compute_allowed_*_ids()` explicitly fixed it) and in the browser tour (the dropdown showed no
-  matches at all, so typing the seeded record's name fell through to the "Create new" quick-create
-  suggestion instead — a full "Create Group" form dialog appearing in a failure screenshot was the tell).
-  Since there's no other field left to hang an `@api.onchange` off once level/study/group are gone, the fix
-  is a `default_get()` override that populates the `allowed_*_ids` field directly — `default_get()` is
-  reliably called by the web client when opening a new wizard form, unlike the compute-on-access path. The
-  compute method (still `@api.depends_context('uid')`) stays as a fallback for any other access path (e.g.
-  server-side code creating the wizard directly), sharing the actual lookup logic via a small
-  `_get_allowed_*_ids()` helper so it isn't duplicated between the two.
+  `wizard.allowed_group_ids`/`allowed_student_ids`/`allowed_subject_ids` right after `.create({})` returned
+  empty; calling `wizard._compute_allowed_*_ids()` explicitly fixed it) and in the browser tour (the
+  dropdown showed no matches at all, so typing the seeded record's name fell through to the "Create new"
+  quick-create suggestion instead — a full "Create Group" form dialog appearing in a failure screenshot was
+  the tell). Since there's no other field left to hang an `@api.onchange` off once level/study/group are
+  gone, the fix is a `default_get()` override that populates the `allowed_*_ids` field directly —
+  `default_get()` is reliably called by the web client when opening a new wizard form, unlike the
+  compute-on-access path. The compute method (still `@api.depends_context('uid')`) stays as a fallback for
+  any other access path (e.g. server-side code creating the wizard directly), sharing the actual lookup
+  logic via a small `_get_allowed_*_ids()` helper so it isn't duplicated between the two. Note
+  `allowed_group_ids` on the by-subject wizard *doesn't* need this trick — it genuinely depends on a real
+  field (`subject_id`), so plain `@api.depends('subject_id')` is reliable on its own; only the
+  context-only `allowed_subject_ids` there needed the `default_get()` workaround.
+- **Tour flakiness after a `Print` click ("Tour finished with an open form view in edition mode")**
+  recurred across more than one of these wizards' tours (same class of flake as `TestWithdrawalTour` —
+  click-vs-reflow contention, not a real bug: every tour step had already matched by the time it fired).
+  Fixed the same way: `step_delay=300` on all 4 `start_tour()` calls in
+  `tests/test_attendance_reports_tour.py`.
+
+### By-subject wizard: opt-in per-student detail (`detail_status_ids`/`include_strikes`)
+
+**The problem.** The by-subject PDF's "Students" section prints one full "Details" table per student —
+every single session line for that student, unfiltered — with a forced page-break after each student. For
+a subject taught across several large groups over a long date range this is a lot of unaggregated rows fed
+to wkhtmltopdf (single-threaded, memory-heavy, and known to struggle with many forced page-breaks): a real
+case with 182 sessions / 4725 lines / 59 students triggered a memory/row-count failure generating the PDF.
+The "Summary" section (percentages, via `_report_data`) was never the problem — it's already aggregated;
+only the per-student session-by-session listing scales with total session count.
+
+**The fix.** The per-student "Details" table is now opt-in and filterable, not unconditional:
+
+- `detail_status_ids` (`Many2many` on `ems.attendance_status`) — which statuses appear in the per-student
+  "Details" table. Defaults to absence-category statuses only (`_default_detail_status_ids()`:
+  `search([('category', '=', 'absence')])`), so by default the table only lists what's actually worth
+  reading (misses, justified misses) instead of every "Attended" session.
+- `include_strikes` (`Boolean`, default `True`) — whether the new per-student "Strikes" table (a separate
+  small table, not routed through `attendance_template_details_table`/`report_eval`) is included at all.
+- `@api.onchange('detail_status_ids')` (`_onchange_detail_status_ids`) compares the current selection
+  against the default absence-only set; if it isn't a subset (i.e. the user added something beyond the
+  default), it returns an onchange `{'warning': {...}}` dict — Odoo renders this as a dialog with a single
+  "Close" button — warning that the report may become slow or fail for large subject/group combinations.
+  It does **not** fire when narrowing the selection (e.g. down to just "Miss") — only when growing beyond
+  the default.
+- `EmsAttendanceReportSubject._get_report_values()` computes `detail_entries`/`detail_strikes` dicts
+  (keyed by student) alongside the existing `lines` dict: `detail_entries[student]` is
+  `grp_by_student[student]` filtered to `entry.status_id.id in detail_status_ids`; `detail_strikes[student]`
+  is `ems.strike.search([('attendance_session_line_id', 'in', [that student's entry ids])])` when
+  `include_strikes` is set, otherwise an empty recordset. Both are computed off `grp_by_student` — which
+  still aggregates *every* entry for the "Summary" percentages regardless of `detail_status_ids` — so
+  narrowing the detail table never affects the summary numbers above it.
+- In `reports/attendance/subject.xml`, both the "Details" and the new "Strikes" subsection are wrapped in
+  `<t t-if="detail_entries[student]">` / `<t t-if="detail_strikes[student]">` respectively, so a student
+  with nothing to show in either gets neither heading.
+
+**Gotcha hit while building the "Strikes" table**: `<td t-field="strike.date"/>` (and siblings) raised
+`QWebException: Error when compiling xml template` / `AssertionError: QWeb widgets do not work correctly on
+'td' elements` at render time — only caught by the browser tour (a clean `./upgrade.sh` and passing
+`TransactionCase` tests don't render any QWeb, so neither catches this). QWeb widgets (`t-field`, which
+picks a widget by field type) cannot be applied directly to `<td>`/`<tr>`/table-structural elements; the fix
+is wrapping each field in a `<span t-field="...">` inside the `<td>` instead of putting `t-field` on the
+`<td>` itself — the pattern already implicit in the rest of this report via `t-esc`, which has no such
+restriction (that's why the older `attendance_template_details_table`/`report_eval` tables never hit this:
+they use `t-esc`, not `t-field`, on the `<td>`).
+
+**Also note**: the header/row column labels used by `attendance_template_details_table` (e.g. `'Date'`,
+`'Teacher'` in the `header`/`rows` Python list literals set via `t-set ... t-value="[...]"`) are plain
+Python string literals inside a QWeb expression attribute, not XML text nodes — Odoo's translation
+extractor only picks up genuine static text content, so those never got translation `#:` references and
+render in English regardless of language (a pre-existing gap, not introduced here). The new "Strikes" table
+was written with literal `<th>Date</th>`-style static text instead specifically so it *would* be
+extracted/translatable.
 
 ---
 
@@ -230,15 +312,24 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
 ## Testing
 
 - `tests/test_attendance_reports.py` (`TransactionCase`): admin-vs-teacher scoping for all 3 `allowed_*`
-  computes (including both bug fixes), each wizard's `print()`, the stored related fields, `absence_rate`,
-  `strike_count`'s new `store=True` (aggregatable via `read_group`), and `action_attendance_reports_open`'s
-  role-based domain (`.run()` `with_user(...)` for a plain teacher vs. an academic admin).
+  computes (including both bug fixes), `allowed_group_ids`/`group_ids` prefill for the by-subject wizard,
+  each wizard's `print()`, the stored related fields, `absence_rate`, `strike_count`'s new `store=True`
+  (aggregatable via `read_group`), and `action_attendance_reports_open`'s role-based domain (`.run()`
+  `with_user(...)` for a plain teacher vs. an academic admin). Also: `detail_status_ids`'s default
+  (absence-category only), `_onchange_detail_status_ids` firing (or not) depending on whether the selection
+  stays a subset of the default, and `_get_report_values` producing correctly filtered
+  `detail_entries`/`detail_strikes` (status filtering, `include_strikes` on/off).
 - `tests/test_attendance_reports_tour.py` + `static/tests/tours/attendance_reports_tour.js` (`HttpCase`):
-  the by-group and by-student wizards end-to-end (single group_id/student_id pick, tutor/dates auto-fill,
-  Print); the by-subject wizard still end-to-end through its level → study → group cascade (not simplified
-  yet); the analysis screen entered through the server action, pivot rendering by default, 2 clicks on
+  all 3 wizards end-to-end (by-group/by-student: single pick, tutor/dates auto-fill; by-subject: subject
+  pick auto-filling the removable `group_ids` tags and read-only `tutor_ids` tags, dates auto-fill, Print);
+  the analysis screen entered through the server action, pivot rendering by default, 2 clicks on
   "Expand all" actually drilling subject → student, graph on switch, switching the graph's measure from
   "Absence rate" to "Strike count" via the Measures dropdown and confirming it still renders; opening the ⚙
   Actions cog menu and using one of the 3 PDF shortcuts to confirm it actually opens the corresponding
   wizard (this is the only coverage of the custom `cogMenu` JS — nothing server-side exercises it). The
-  fixture's seeded group sets `tutor_id` explicitly (needed once `tutor_id` had real view coverage).
+  fixture's seeded group sets `tutor_id` explicitly (needed once `tutor_id` had real view coverage). All 4
+  `start_tour()` calls use `step_delay=300` (see the flakiness note above). The by-subject tour also seeds a
+  "Miss" line + a strike on it, confirms `detail_status_ids`/`include_strikes` default correctly in the UI,
+  adds "Attended" to `detail_status_ids` to confirm the size warning dialog actually appears (this — and the
+  `<td t-field=...>` QWeb bug above — is exactly the kind of thing a `TransactionCase`/clean `upgrade.sh`
+  can't catch, since neither renders any QWeb or OWL), then dismisses it and prints.

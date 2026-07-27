@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 
 overall_status = [("assistance", "Assistance"), ("absence", "Absence")]
 
@@ -121,44 +121,95 @@ class EmsAttendanceReportSubjectWizard(models.TransientModel):
 	_name = "ems.attendance_report_subject_wizard"
 	_description = "Attendance report wizard: by subject."
 
-	level_id = fields.Many2one(string='Level', comodel_name='ems.level')
-	study_id = fields.Many2one(string='Studies', comodel_name='ems.study')
-	group_id = fields.Many2one(string='Group', comodel_name='ems.group')
-	tutor_id = fields.Many2one(string='Tutor', related="group_id.tutor_id")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", required=True)
 	allowed_subject_ids = fields.Many2many('ems.subject', compute='_compute_allowed_subject_ids', store=False)
+	group_ids = fields.Many2many(string='Groups', comodel_name='ems.group')
+	allowed_group_ids = fields.Many2many('ems.group', compute='_compute_allowed_group_ids', store=False)
+	tutor_ids = fields.Many2many(string='Tutors', comodel_name='hr.employee', compute='_compute_tutor_ids')
+
+	# Per-student "Details" section of the PDF (see print()): defaults to absence-category
+	# statuses only, so the report doesn't grow with every single "Attended" session — that's
+	# what made it choke on large subject/group combinations before this field existed.
+	detail_status_ids = fields.Many2many(
+		string="Detail statuses", comodel_name="ems.attendance_status", default=lambda self: self._default_detail_status_ids(),
+	)
+	include_strikes = fields.Boolean(string="Include strikes", default=True)
 
 	from_date = fields.Date(string="From", default=fields.Datetime.now, required=True)
 	to_date = fields.Date(string="To", default=fields.Datetime.now, required=True)
 
-	@api.depends('group_id')
-	def _compute_allowed_subject_ids(self):
+	def _default_detail_status_ids(self):
+		return self.env['ems.attendance_status'].search([('category', '=', 'absence')])
+
+	@api.onchange('detail_status_ids')
+	def _onchange_detail_status_ids(self):
+		for wizard in self:
+			default_ids = set(wizard._default_detail_status_ids().ids)
+			if not set(wizard.detail_status_ids.ids) <= default_ids:
+				return {
+					'warning': {
+						'title': _("The report may become very large"),
+						'message': _(
+							"Adding statuses beyond the default absence ones makes the per-student "
+							"detail section grow with every session, not just the absences — for a "
+							"subject taught in several large groups over a long period, this can be "
+							"slow to generate or fail outright."
+						),
+					}
+				}
+
+	@api.model
+	def default_get(self, fields_list):
+		res = super().default_get(fields_list)
+		if 'allowed_subject_ids' in fields_list:
+			res['allowed_subject_ids'] = [(6, 0, self._get_allowed_subject_ids().ids)]
+		return res
+
+	def _get_current_teacher(self):
 		# TODO: use this to set the permissions (uid = 1 means ADMIN)
-		current_teacher = self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
+		return self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
 
-		for wizard in self:
-			if wizard.group_id.id == False:
-				wizard.allowed_subject_ids = []
-			else:
-				domain = [('group_id', '=', wizard.group_id.id)]
-				if current_teacher.id > 1: domain.append(('teacher_id', '=', current_teacher.id))
-				wizard.allowed_subject_ids = self.env["ems.teaching"].search(domain).mapped('subject_id')
+	def _get_allowed_subject_ids(self):
+		current_teacher = self._get_current_teacher()
+		domain = [('teacher_id', '=', current_teacher.id)] if current_teacher.id > 1 else []
+		return self.env["ems.teaching"].search(domain).mapped('subject_id')
 
-	@api.onchange('level_id')
-	def _onchange_level_id(self):
-		for wizard in self:
-			wizard.study_id = False
+	def _get_allowed_group_ids(self, subject):
+		if not subject:
+			return self.env["ems.group"]
+		current_teacher = self._get_current_teacher()
+		domain = [('subject_id', '=', subject.id)]
+		if current_teacher.id > 1:
+			domain.append(('teacher_id', '=', current_teacher.id))
+		return self.env["ems.teaching"].search(domain).mapped('group_id')
 
-	@api.onchange('study_id')
-	def _onchange_study_id(self):
+	@api.depends_context('uid')
+	def _compute_allowed_subject_ids(self):
+		subjects = self._get_allowed_subject_ids()
 		for wizard in self:
-			wizard.group_id = False
+			wizard.allowed_subject_ids = subjects
+
+	@api.depends('subject_id')
+	def _compute_allowed_group_ids(self):
+		for wizard in self:
+			wizard.allowed_group_ids = wizard._get_allowed_group_ids(wizard.subject_id)
+
+	@api.depends('group_ids.tutor_id')
+	def _compute_tutor_ids(self):
+		for wizard in self:
+			wizard.tutor_ids = wizard.group_ids.tutor_id
 
 	@api.onchange("subject_id")
 	def _onchange_subject_id(self):
 		for wizard in self:
+			allowed_groups = wizard._get_allowed_group_ids(wizard.subject_id)
+			# Pre-fill with every group teaching the subject; the user can then remove the
+			# ones they don't want (the field stays editable, restricted to allowed_group_ids).
+			wizard.group_ids = allowed_groups
 			if wizard.subject_id.id != False:
-				sessions = self.env["ems.attendance_session_header"].search([("subject_id", "=", wizard.subject_id.id), ("group_ids", "in", [wizard.group_id.id])])
+				sessions = self.env["ems.attendance_session_header"].search([
+					("subject_id", "=", wizard.subject_id.id), ("group_ids", "in", allowed_groups.ids),
+				])
 				first = sessions.search([], order="date asc", limit=1)
 				last = sessions.search([], order="date desc", limit=1)
 				wizard.from_date = first.date
@@ -166,7 +217,7 @@ class EmsAttendanceReportSubjectWizard(models.TransientModel):
 
 	def print(self):
 		session_ids = self.env["ems.attendance_session_header"].search([
-			("group_ids", "in", [self.group_id.id]),
+			("group_ids", "in", self.group_ids.ids),
 			("subject_id", "=", self.subject_id.id),
 			("date", ">=", self.from_date),
 			("date", "<=", self.to_date),
@@ -227,12 +278,28 @@ class EmsAttendanceReportSubject(models.AbstractModel):
 		for student in grp_by_student:
 			lines[student] = _report_data(grp_by_student[student], self.env)
 
+		wizard = self.env["ems.attendance_report_subject_wizard"].browse(data['doc_ids'])
+		detail_status_ids = set(wizard.detail_status_ids.ids)
+
+		# Per-student "Details"/"Strikes" sections: kept out of _report_data (which still
+		# aggregates every entry, regardless of detail_status_ids, for the % summary) since
+		# they're only used for the optional, filterable session-by-session listing.
+		detail_entries = {}
+		detail_strikes = {}
+		for student, student_entries in grp_by_student.items():
+			detail_entries[student] = [entry for entry in student_entries if entry.status_id.id in detail_status_ids]
+			detail_strikes[student] = self.env['ems.strike'].search([
+				('attendance_session_line_id', 'in', [entry.id for entry in student_entries]),
+			]) if wizard.include_strikes else self.env['ems.strike']
+
 		return {
 			'doc_ids': docids,
 			'doc_model': 'ems.attendance_report_subject_wizard',
-			'docs': self.env["ems.attendance_report_subject_wizard"].browse(data['doc_ids']),
+			'docs': wizard,
 			'main': main,
 			'lines': lines,
+			'detail_entries': detail_entries,
+			'detail_strikes': detail_strikes,
 			'attendance_session_line': {status.id: status.name for status in self.env['ems.attendance_status'].with_context(active_test=False).search([])},
 			'overall_status': dict(overall_status)
 		}

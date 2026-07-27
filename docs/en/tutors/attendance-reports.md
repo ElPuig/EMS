@@ -55,16 +55,21 @@ reports.
    session notes recorded for the period.
 
 **Attendance report (by subject):**
-1. Pick a **Level**, then a **Study**, then a **Group** — each selection filters the next one. The
-   dropdowns only show the groups and subjects **you actually teach**, not every group you tutor: being the
-   tutor of a group doesn't by itself grant it access here if you don't teach any subject in it (the
-   **Tutor** field on the form is purely informational — it shows who the selected group's tutor is, it
-   doesn't widen what you can pick).
-2. Also pick the **Subject** — again limited to what's actually taught in the group you picked.
-3. The **From**/**To** dates are pre-filled with the full range of sessions available for your selection;
-   narrow them down if you only want a specific period.
-4. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
-   session notes recorded for the period.
+1. Pick a **Subject** — the dropdown only shows subjects **you actually teach**, not every subject taught
+   in a group you tutor.
+2. The **Groups** field fills in automatically with every group where you teach that subject, and
+   **Tutors** shows their tutors for reference (this is where you can actually see who tutors each group —
+   not by picking the group yourself first). If you only want some of those groups in the report, remove
+   the others from the **Groups** field — it stays editable.
+3. The **From**/**To** dates fill in automatically to cover the full session range for your selection.
+4. **Detail statuses** controls which statuses appear in each student's per-session "Details" table in the
+   PDF — it defaults to absence-related statuses only (**Miss**, **Justified Miss**), so the report stays a
+   manageable size. Add more statuses if you need them; picking anything beyond the default shows a warning
+   that the report may become slow to generate or fail outright for large subject/group combinations.
+   **Include strikes** (on by default) adds a per-student table of disciplinary strikes recorded during the
+   period.
+5. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, any
+   session notes recorded for the period, and — per student — the Details/Strikes tables described above.
 
 > For a broader, per-course view of a tutee's attendance across their whole record, see
 > [Academic history of your students](academic-history.md) instead.

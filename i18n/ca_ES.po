@@ -3226,6 +3226,7 @@ msgstr "Dades descarregades"
 #: model:ir.model.fields.selection,name:ems.selection__ems_authorization_field__field_type__date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__date
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 msgid "Date"
 msgstr "Data"
 
@@ -3244,6 +3245,11 @@ msgstr "Hora de primera entrada predeterminada"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_employees_ems
 msgid "Default last entry time"
 msgstr "Hora d'última entrada predeterminada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__detail_status_ids
+msgid "Detail statuses"
+msgstr "Estats de detall"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_employees_ems
@@ -4652,7 +4658,6 @@ msgstr "Atorgar accés"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__group_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_view__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__group_id
@@ -4711,6 +4716,7 @@ msgstr "Grup:"
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids
 #: model:ir.ui.menu,name:ems.menu_groups
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__group_ids
 msgid "Groups"
 msgstr "Grups"
 
@@ -5241,6 +5247,11 @@ msgid "In-person"
 msgstr "Presencial"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__include_strikes
+msgid "Include strikes"
+msgstr "Inclou els strikes"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice__has_families
 msgid "Includes families"
 msgstr ""
@@ -5637,7 +5648,6 @@ msgid "Legal Text (Rendered)"
 msgstr "Text legal (renderitzat)"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__level_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__level_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_template__level_id
 #: model:ir.model.fields,field_description:ems.field_ems_content__level
@@ -6462,6 +6472,7 @@ msgstr "Nota"
 #: model_terms:ir.ui.view,arch_db:ems.view_study_form
 #: model_terms:ir.ui.view,arch_db:ems.view_subject_form
 #: model_terms:ir.ui.view,arch_db:ems.view_workgroup_form
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 msgid "Notes"
 msgstr "Notas"
 
@@ -8634,7 +8645,6 @@ msgstr "Alumnes - Vista tutor/a"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_study_tree
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__study_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__study_ids
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__study_ids
 #: model:ir.model.fields,field_description:ems.field_ems_level__study_ids
@@ -8926,6 +8936,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_list
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 msgid "Teacher"
 msgstr "Professor/a"
 
@@ -9159,6 +9170,26 @@ msgstr "La foto de perfil està desactivada; no es pot canviar."
 #: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
 msgid "The quantity for an enrollment item must always be 1."
 msgstr "La quantitat d'un element de matrícula ha de ser sempre 1."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_reports.py:0
+msgid "The report may become very large"
+msgstr "L'informe pot arribar a ser molt gran"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_reports.py:0
+msgid ""
+"Adding statuses beyond the default absence ones makes the per-student "
+"detail section grow with every session, not just the absences — for a "
+"subject taught in several large groups over a long period, this can be "
+"slow to generate or fail outright."
+msgstr ""
+"Afegir estats més enllà dels d'absència predeterminats fa que la secció de"
+" detall per alumne creixi amb cada sessió, no només amb les absències — "
+"per a una assignatura impartida en diversos grups grans durant un període"
+" llarg, això pot ser lent de generar o fallar directament."
 
 #. module: ems
 #. odoo-python
@@ -9442,7 +9473,6 @@ msgstr "Dimarts"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__tutor_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__tutor_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__tutor_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__tutor_id
 #: model:ir.model.fields,field_description:ems.field_ems_group__tutor_id
 #: model:ir.model.fields,field_description:ems.field_res_partner__tutor_id
 #: model:ir.model.fields,field_description:ems.field_res_users__tutor_id
@@ -9452,6 +9482,11 @@ msgstr "Dimarts"
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__tutor_id
 msgid "Tutor"
 msgstr "Tutor/a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__tutor_ids
+msgid "Tutors"
+msgstr "Tutors/es"
 
 #. module: ems
 #: model:res.groups,name:ems.group_department_chief
@@ -10506,6 +10541,7 @@ msgstr "Sortida original"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__reason
 #: model:ir.model.fields,field_description:ems.field_ems_strike__reason_id
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 msgid "Reason"
 msgstr "Motiu"
 
@@ -12049,6 +12085,7 @@ msgstr "Strike: un avís disciplinari posat per un professor a un alumne."
 #: model:ir.ui.menu,name:ems.menu_coexistence_strikes
 #: model:ir.ui.menu,name:ems.menu_coexistence_config_strikes
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 msgid "Strikes"
 msgstr "Strikes"
 

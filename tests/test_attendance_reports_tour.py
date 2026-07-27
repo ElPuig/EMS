@@ -58,10 +58,24 @@ class TestAttendanceReportsTour(HttpCase):
         self.env['ems.attendance_session_line'].create({
             'attendance_session_id': session.id, 'student_id': student.id,
         })
+        # A 'Miss' line (+ a strike on it) so the subject wizard tour has something to show in
+        # the opt-in 'Details'/'Strikes' sections, which default to absence-category statuses.
+        miss_status = self.env.ref('ems.attendance_status_miss')
+        miss_line = self.env['ems.attendance_session_line'].create({
+            'attendance_session_id': session.id, 'student_id': student.id, 'status_id': miss_status.id,
+        })
+        self.env['ems.strike'].create({
+            'student_id': student.id, 'teacher_id': admin_employee.id,
+            'attendance_session_line_id': miss_line.id,
+        })
 
     def test_attendance_report_wizards_and_analysis_tour(self):
         self._seed_session()
-        self.start_tour("/odoo", "ems_attendance_report_group_wizard", login="admin")
-        self.start_tour("/odoo", "ems_attendance_report_subject_wizard", login="admin")
-        self.start_tour("/odoo", "ems_attendance_report_student_wizard", login="admin")
-        self.start_tour("/odoo", "ems_attendance_report_analysis", login="admin")
+        # step_delay: the 3 PDF wizard tours end on a 'Print' click, which triggers a real
+        # report download; without a delay, the harness's post-tour "no dirty form left open"
+        # check can race that download and intermittently fail even though every tour step
+        # itself already matched (same class of flake as TestWithdrawalTour, see that test file).
+        self.start_tour("/odoo", "ems_attendance_report_group_wizard", login="admin", step_delay=300)
+        self.start_tour("/odoo", "ems_attendance_report_subject_wizard", login="admin", step_delay=300)
+        self.start_tour("/odoo", "ems_attendance_report_student_wizard", login="admin", step_delay=300)
+        self.start_tour("/odoo", "ems_attendance_report_analysis", login="admin", step_delay=300)

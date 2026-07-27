@@ -35,10 +35,11 @@ En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engran
 3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
 
 **Informe de asistencia (por asignatura):**
-1. Selecciona un **Nivel**, luego un **Estudio** y luego un **Grupo** — cada selección filtra la siguiente. Los desplegables solo muestran los grupos y asignaturas que **realmente impartes**, no todos los grupos que tutorizas: ser el/la tutor/a de un grupo no te da acceso por sí solo si no impartes ninguna asignatura en él (el campo **Tutor/a** del formulario es meramente informativo — muestra quién es el/la tutor/a del grupo seleccionado, no amplía lo que puedes elegir).
-2. Selecciona también la **Asignatura** — limitado a lo que realmente se imparte en el grupo seleccionado.
-3. Las fechas **Desde**/**Hasta** se rellenan automáticamente con todo el rango de sesiones disponibles para tu selección; redúcelas si solo quieres un periodo concreto.
-4. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
+1. Selecciona una **Asignatura** — el desplegable solo muestra asignaturas que **realmente impartes**, no todas las que se imparten en un grupo que tutorizas.
+2. El campo **Grupos** se rellena automáticamente con todos los grupos donde impartes esa asignatura, y **Tutores** muestra sus tutores como referencia (aquí es donde realmente puedes ver quién tutoriza cada grupo — sin tener que elegir tú primero el grupo). Si solo quieres algunos de esos grupos en el informe, quita el resto del campo **Grupos** — se queda editable.
+3. Las fechas **Desde**/**Hasta** se rellenan automáticamente para cubrir todo el rango de sesiones de tu selección.
+4. **Estados de detalle** controla qué estados aparecen en la tabla "Detalles" por sesión de cada alumno en el PDF — por defecto solo incluye estados de ausencia (**Falta**, **Falta justificada**), para que el informe se mantenga de un tamaño razonable. Añade más estados si los necesitas; elegir algo más allá de los predeterminados muestra un aviso de que el informe puede volverse lento de generar o fallar directamente para combinaciones grandes de asignatura/grupos. **Incluir los strikes** (activado por defecto) añade una tabla por alumno con los strikes disciplinarios registrados durante el periodo.
+5. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado, las notas de sesión registradas durante el periodo y, por alumno, las tablas de Detalles/Strikes descritas arriba.
 
 > Para una vista más amplia, por curso, de la asistencia de un tutorizado a lo largo de todo su historial, consulta [Historial académico de tus alumnos](academic-history.md).
 

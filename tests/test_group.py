@@ -154,6 +154,25 @@ class TestGroup(TransactionCase):
         self.assertFalse(group.course)
         self.assertFalse(group.acronym)
 
+    def test_create_with_tutor_already_set_syncs_role(self):
+        # Regression test: create() used to skip the Tutor-role/security-group sync that
+        # write() already did on tutor_id changes — a group created with tutor_id passed
+        # directly in the create() vals (rather than assigned via a later write()) left the
+        # tutorship_ids relation correct (it's just the inverse of tutor_id) but never
+        # granted ems.role_tutor or synced the employee's security groups, until someone
+        # happened to re-save the tutor field later.
+        role_tutor = self.env.ref('ems.role_tutor')
+        teacher = self.env['hr.employee'].create({
+            'name': 'Test Tutor (Group Create Sync)', 'employee_type': 'teacher',
+        })
+        group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'F',
+            'level_id': self.test_level.id, 'study_id': self.test_study.id,
+            'tutor_id': teacher.id,
+        })
+        self.assertIn(group, teacher.tutorship_ids)
+        self.assertIn(role_tutor, teacher.role_ids)
+
     def test_compute_name_leaves_blank_for_incomplete_main_group(self):
         # Regression test: '_compute_name' used to build "%s%s%s" % (study_id.acronym, course, acronym)
         # unconditionally for 'main' groups, rendering the literal "False0False" whenever those fields

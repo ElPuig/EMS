@@ -112,11 +112,21 @@ class ems_group(models.Model):
 		elif group_type == "main":
 			vals.setdefault("reinforcement_student_ids", [(5, 0, 0)])
 
+	def _sync_tutor_role(self, employees):
+		"""Keep 'employees' Tutor role and security groups in sync with whether they
+		currently tutor at least one group. Shared by create() (a group created with
+		tutor_id already set) and write() (tutor_id assigned/reassigned/cleared later) so
+		both paths behave the same way instead of only write() doing the sync."""
+		employees.update_tutor_role()
+		employees._sync_security_groups()
+
 	@api.model_create_multi
 	def create(self, vals_list):
 		for vals in vals_list:
 			self._sanitize_group_type_vals(vals)
-		return super().create(vals_list)
+		groups = super().create(vals_list)
+		self._sync_tutor_role(groups.mapped('tutor_id'))
+		return groups
 
 	def write(self, vals):
 		self._sanitize_group_type_vals(vals)
@@ -127,10 +137,7 @@ class ems_group(models.Model):
 		if 'tutor_id' in vals:
 			# NOTE: tutor_id field changes when the tutor is assigned from the teacher form, but the old tutor's role
 			# should be updated and must be done from here once changed.
-			old_tutor.update_tutor_role()
-			new_tutor.update_tutor_role()
-			old_tutor._sync_security_groups()
-			new_tutor._sync_security_groups()
+			self._sync_tutor_role(old_tutor | new_tutor)
 		return res
 class ems_enrollment_view(models.TransientModel):
 	_name = "ems.enrollment_view"

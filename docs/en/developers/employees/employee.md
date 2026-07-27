@@ -57,9 +57,9 @@ Comma-joined `role_ids`/`tutorship_ids` names, used only for display (the employ
 
 One display line per `role_ids` entry for the working-schedule PDF header, appending role-specific context (tutored group(s), headed department(s), etc.) for seven roles: tutor, department chief, seminar chief, HoS, DHoS, secretary, director. Before this pass, `test_company_director.py` only exercised the director branch (`test_get_report_role_lines_director_shows_company`) — the other six were logic that had never actually run in a test. Added one test per remaining branch to the same file (it already has the department/employee creation helpers these needed).
 
-### `ems.group.create()` doesn't sync the tutor role (found here, left for `ems.group`'s own DTON pass)
+### `ems.group.create()` didn't sync the tutor role — fixed 2026-07-27
 
-While writing the `roles`/`tutorships` tests, creating an `ems.group` with `tutor_id` set **at creation time** did not add `ems.role_tutor` to the employee — only a later `write({'tutor_id': ...})` on an *existing* group does (`ems.group.write()` explicitly calls `update_tutor_role()`; `create()` does not). Not fixed here — `ems.group` is scheduled for its own DTON pass later in the rollout (see the roadmap); this is flagged so that pass picks it up rather than being fixed as a drive-by change to a model that hasn't had its own D/T/O/N cycle yet. The new tests use `write()` (the tested, working path) to stay green in the meantime.
+Found while writing the `roles`/`tutorships` tests: creating an `ems.group` with `tutor_id` set **at creation time** did not add `ems.role_tutor` to the employee — only a later `write({'tutor_id': ...})` on an *existing* group did (`ems.group.write()` explicitly called `update_tutor_role()`/`_sync_security_groups()`; `create()` did not). Initially left for `ems.group`'s own DTON pass to avoid a drive-by change to a model that hadn't had its D/T/O/N cycle yet — but per the project's own DTON trigger rule (apply Testing at minimum when a change is requested to an un-DTON'd model, rather than deferring), the user asked for it to be fixed immediately once the gap was confirmed. Both `create()` and `write()` now share a `_sync_tutor_role()` helper (`models/contacts/group.py`); full D/O/N for the rest of that model — it doesn't have its own dev doc yet — still waits for its own DTON phase.
 
 ---
 

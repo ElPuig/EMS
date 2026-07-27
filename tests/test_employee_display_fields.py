@@ -44,14 +44,11 @@ class TestEmployeeDisplayFields(TransactionCase):
 
     def test_roles_single_via_tutorship(self):
         role_tutor = self.env.ref('ems.role_tutor')
-        # ems.group.update_tutor_role() only fires from write() (see group.py), not
-        # create() — assigning tutor_id at creation time doesn't sync the role. Known gap,
-        # left for ems.group's own DTON pass; write() is the tested/working path here.
         group = self.env['ems.group'].create({
             'course': 1, 'acronym': 'TD1',
             'level_id': self.test_level.id, 'study_id': self.test_study.id,
+            'tutor_id': self.employee.id,
         })
-        group.write({'tutor_id': self.employee.id})
         self.assertIn(role_tutor, self.employee.role_ids)
         self.assertEqual(self.employee.roles, role_tutor.name)
         group.write({'tutor_id': False})
@@ -69,7 +66,7 @@ class TestEmployeeDisplayFields(TransactionCase):
         group = self.env['ems.group'].create({
             'course': 1, 'acronym': 'TD2',
             'level_id': self.test_level.id, 'study_id': self.test_study.id,
+            'tutor_id': self.employee.id,
         })
-        group.write({'tutor_id': self.employee.id})
         self.assertEqual(self.employee.tutorships, group.name)
         group.write({'tutor_id': False})

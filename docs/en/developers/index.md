@@ -46,6 +46,8 @@ Technical reference for developers working on the EMS module.
 | [ems.workgroup](employees/workgroup.md) | Simple free-form employee grouping (project teams, committees) — no business logic |
 | [ems.teaching](employees/teaching.md) | Ternary teacher/group/subject relation, derived from and kept in sync with the schedule via `sync_from_schedule()` |
 | [ems.non_teaching_type](employees/non_teaching_type.md) | Catalogue of non-subject schedule period types (breaks, guard duties); note the admin group is `group_department_chief`, not the usual `group_academic_admin` |
+| [hr.attendance auto-checkout (EMS extension)](employees/attendance_autocheckout.md) | Closing stale open attendances on check-in, and the EMS nightly cron mode using the employee's real schedule instead of fixed hours |
+| [res.users (EMS extension)](employees/user.md) | `_sync_ems_implied_groups()` — compensates for Odoo's own implied-group grants being permanent/never auto-revoked |
 | [ems.tracking](employees/tracking.md) | Free-form student follow-up notes; flags a possible access-scope mismatch (teachers described as able to "add" notes but only granted read access) |
 | [Teacher working schedules & schedule frameworks](employees/working_schedule.md) | The "Schedule" tab widget, schedule frameworks, the empty-slot rule, employee lifecycle hooks, the XML import wizard |
 | [Google Workspace staff integration & EMS user auto-creation](employees/google_workspace_staff.md) | Corporate Google account creation (Directory API), automatic `res.users` with OAuth pre-link, lifecycle sync (archive ↔ suspend), required-fields chain |

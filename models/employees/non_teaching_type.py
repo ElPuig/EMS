@@ -3,7 +3,7 @@
 from odoo import fields, models
 
 
-class ems_non_teaching_type(models.Model):
+class EmsNonTeachingType(models.Model):
     _name = "ems.non_teaching_type"
     _description = "Non-teaching activity type: a working schedule period that isn't a subject (guard duty, break, coordination meeting...)."
     _order = "sequence, name"

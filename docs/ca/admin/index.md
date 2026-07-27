@@ -14,6 +14,7 @@ Aquesta secció conté els manuals per a **administradors**.
 - [Estudis](curriculum-studies.md) — Configuració curricular: programes d'estudi, les seves assignatures i documents curriculars.
 - [Assignatures](curriculum-subjects.md) — Configuració curricular: assignatures, els seus resultats d'aprenentatge/continguts, i la sincronització automàtica del producte de facturació.
 - [Curs Actual](course-settings.md) — Canviar l'any acadèmic utilitzat per a les operacions del dia a dia.
+- [Grups de treball](workgroups.md) — Agrupacions lliures d'empleats (equips de projecte, comissions).
 - [Rols de professorat i nivells de permisos](teacher-roles.md) — Com assignar rols (Tutor, Cap de departament, Cap d'estudis, Director...) per concedir nivells de permisos.
 - [Alta d'un professor i creació del compte de correu corporatiu (Google Workspace)](alta-professor-compte-google.md) — Com donar d'alta un professor o membre del PAS i com es genera el seu compte corporatiu.
 - [Strikes: gestionar motius i llindar d'escalat](strike.md) — Configurar la llista de motius de strike i el llindar d'escalat de convivència.

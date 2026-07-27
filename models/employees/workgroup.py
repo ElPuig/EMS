@@ -2,10 +2,11 @@
 
 from odoo import models, fields
 
-class ems_workgroup(models.Model):
+class EmsWorkgroup(models.Model):
 	_name = "ems.workgroup"
 	_description = "Workgroup: Employees (teachers, providers, and ASP) can define workgroups."
-	
+	_order = "name asc"
+
 	name = fields.Char(string="Name", required=True)
 	notes = fields.Text("Notes")
 

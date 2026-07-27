@@ -21,6 +21,13 @@ from . import test_company_settings
 from . import test_settings
 from . import test_employee_display_fields
 from . import test_employee_tour
+from . import test_workgroup
+from . import test_workgroup_tour
+from . import test_job
+from . import test_teaching
+from . import test_teaching_tour
+from . import test_tracking
+from . import test_non_teaching_type_tour
 from . import test_attendance_template
 from . import test_attendance_schedule
 from . import test_attendance_status

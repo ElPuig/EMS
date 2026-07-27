@@ -16,13 +16,13 @@ This section contains the manuals for **secretariat staff**.
 - [Onboarding a Teacher and Creating Their Corporate Email Account (Google Workspace)](../admin/alta-professor-compte-google.md) — How to onboard a teacher or ASP staff member and how their corporate account is generated.
 - [A Group's Weekly Schedule](../admin/group-schedule.md) — Viewing a group's aggregated timetable (subjects, teachers, classrooms, breaks) and exporting it to PDF.
 - [Attendance Reports](attendance-reports.md) — Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data with the Attendance analysis pivot/graph screen.
+- [Managing student and family contacts](student-contacts.md) — Contact types and how they change, adding a family contact to a student, and registering bonifications and exemptions.
 
 ## Planned Topics
 
 - Enrollment management: review, validation and sending to families
 - Document management: approval of documents and student IBANs
 - Payments: payment methods and payment terms
-- Bonifications and exemptions: validation of supporting documents
 
 ---
 

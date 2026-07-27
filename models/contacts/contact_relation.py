@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 class ems_partner_relation_all(models.AbstractModel):
@@ -10,7 +10,7 @@ class ems_partner_relation_all(models.AbstractModel):
     other_partner_mobile = fields.Char(related='other_partner_id.mobile', string='Mobile')
     other_partner_email = fields.Char(related='other_partner_id.email', string='Email')
 
-class ems_contact_relation_wizard(models.TransientModel):
+class EmsContactRelationWizard(models.TransientModel):
     _name = 'ems.contact.relation.wizard'
     _description = 'Add family contact and relation'
 
@@ -45,14 +45,14 @@ class ems_contact_relation_wizard(models.TransientModel):
 
     def action_save(self):
         if not self.type_selection_id:
-            raise ValidationError("Please select a relation type.")
+            raise ValidationError(_("Please select a relation type."))
         if not self.partner_id and not (self.firstname or self.lastname):
-            raise ValidationError("Please select an existing contact or enter a first/last name for the new one.")
+            raise ValidationError(_("Please select an existing contact or enter a first/last name for the new one."))
         if not self.partner_id:
             if not (self.document_id or self.passport_id):
-                raise ValidationError("Please provide at least one identification document (DNI/NIE or Passport).")
+                raise ValidationError(_("Please provide at least one identification document (DNI/NIE or Passport)."))
             if not (self.phone or self.mobile or self.email):
-                raise ValidationError("Please provide at least one contact method (phone, mobile or email).")
+                raise ValidationError(_("Please provide at least one contact method (phone, mobile or email)."))
 
         if self.partner_id:
             partner = self.partner_id

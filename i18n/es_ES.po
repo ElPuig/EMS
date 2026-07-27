@@ -7150,6 +7150,30 @@ msgstr "Por favor, rellena los siguientes datos:"
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "Please provide at least one contact method (phone, mobile or email)."
+msgstr "Por favor, indica al menos una vía de contacto (teléfono, móvil o correo)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "Please provide at least one identification document (DNI/NIE or Passport)."
+msgstr "Por favor, indica al menos un documento de identificación (DNI/NIE o pasaporte)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "Please select a relation type."
+msgstr "Por favor, selecciona un tipo de relación."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "Please select an existing contact or enter a first/last name for the new one."
+msgstr "Por favor, selecciona un contacto existente o introduce un nombre/apellido para el nuevo contacto."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/grades/grade_session_wizard.py:0
 msgid "Please select at least one level or study."
 msgstr "Seleccione al menos un nivel o estudio."

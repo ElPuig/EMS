@@ -8,10 +8,11 @@ import datetime
 import re
 from dateutil.relativedelta import relativedelta
 
-class ems_student_benefit(models.Model):
+class EmsStudentBenefit(models.Model):
     _name = 'ems.student.benefit'
     _description = 'Student Benefits and Exemptions'
-    
+    _order = 'student_id, benefit_type'
+
     student_id = fields.Many2one('res.partner', string="Student", required=True, ondelete='cascade')
     
     benefit_type = fields.Selection([
@@ -38,14 +39,14 @@ class ems_student_benefit(models.Model):
 
     @api.depends('benefit_type')
     def _compute_category(self):
-        for rec in self:
-            if not rec.benefit_type:
+        for benefit in self:
+            if not benefit.benefit_type:
                 # If no type is selected, there is no Bonification or Exemption.
-                rec.category = False
-            elif rec.benefit_type in ['large_family_gen', 'single_parent_gen', 'scholarship']:
-                rec.category = 'bonification'
+                benefit.category = False
+            elif benefit.benefit_type in ['large_family_gen', 'single_parent_gen', 'scholarship']:
+                benefit.category = 'bonification'
             else:
-                rec.category = 'exemption'
+                benefit.category = 'exemption'
 
     @api.onchange('benefit_type')
     def _onchange_benefit_type(self):
@@ -59,7 +60,7 @@ class ems_student_benefit(models.Model):
             else:
                 self.renewal_date = today + relativedelta(years=2)
 
-class ems_contact(models.Model):
+class ResPartner(models.Model):
     _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.base, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
             
     # view-oriented fields:
@@ -155,8 +156,8 @@ class ems_contact(models.Model):
 
     @api.constrains('nuss')
     def _check_nuss(self):
-        for rec in self:
-            if rec.nuss and not re.fullmatch(r'\d{12}', rec.nuss):
+        for partner in self:
+            if partner.nuss and not re.fullmatch(r'\d{12}', partner.nuss):
                 raise ValidationError(_("The NUSS must be exactly 12 numeric digits."))
     birth_date = fields.Date(string="Birth Date")
     birth_country_id = fields.Many2one(string="Birth Country", comodel_name='res.country')
@@ -395,20 +396,20 @@ class ems_contact(models.Model):
     
     @api.depends('benefit_ids', 'benefit_ids.category')
     def _compute_benefit_status(self):
-        for rec in self:
-            if not rec.benefit_ids:
-                rec.benefit_status = 'none'
+        for partner in self:
+            if not partner.benefit_ids:
+                partner.benefit_status = 'none'
             else:
-                categories = rec.benefit_ids.mapped('category')
+                categories = partner.benefit_ids.mapped('category')
                 # Priority 1: If there is an exemption, the status will be Exemption.
                 if 'exemption' in categories:
-                    rec.benefit_status = 'exemption'
+                    partner.benefit_status = 'exemption'
                 # Priority 2: If there is a bonus, the status will be Exemption.
                 elif 'bonification' in categories:
-                    rec.benefit_status = 'bonification'
+                    partner.benefit_status = 'bonification'
                 # If there are lines but no defined category
                 else:
-                    rec.benefit_status = 'none'
+                    partner.benefit_status = 'none'
 
     @api.depends('strike_ids')
     def _compute_strike_count(self):
@@ -417,18 +418,19 @@ class ems_contact(models.Model):
 
     @api.depends('birth_date')
     def _compute_is_adult(self):
-        for rec in self:	
-            rec.is_adult = bool(rec.birth_date) and (relativedelta(datetime.date.today(), rec.birth_date).years >= 18)
+        for partner in self:
+            partner.is_adult = bool(partner.birth_date) and (
+                relativedelta(datetime.date.today(), partner.birth_date).years >= 18)
 
     @api.onchange('level_id')
-    def _onchange_level_id(self):	
-        for rec in self:			
-            rec.study_id = False
-        
+    def _onchange_level_id(self):
+        for partner in self:
+            partner.study_id = False
+
     @api.onchange('study_id')
-    def _onchange_study_id(self):	
-        for rec in self:			
-            rec.main_group_id = False
+    def _onchange_study_id(self):
+        for partner in self:
+            partner.main_group_id = False
      
     @api.model_create_multi
     def create(self, values):
@@ -446,7 +448,7 @@ class ems_contact(models.Model):
                 elif parent.contact_type == 'provider':
                     entry['contact_type'] = 'provider'
         
-        contact = super(ems_contact, self).create(values)
+        contact = super(ResPartner, self).create(values)
         contact._sync_category()
 
         # Google Workspace: enqueue account creation for brand-new students without
@@ -471,7 +473,7 @@ class ems_contact(models.Model):
                 and email_normalize(p.email) != new_email
                 and p._has_active_portal_user())
         self._compute_group_data(values)
-        contact = super(ems_contact, self).write(values)
+        contact = super(ResPartner, self).write(values)
         if 'contact_type' in values:
             self._sync_category()
 

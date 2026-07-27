@@ -7137,6 +7137,30 @@ msgstr "Si us plau, omple les dades següents:"
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "Please provide at least one contact method (phone, mobile or email)."
+msgstr "Si us plau, indica com a mínim una via de contacte (telèfon, mòbil o correu)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "Please provide at least one identification document (DNI/NIE or Passport)."
+msgstr "Si us plau, indica com a mínim un document d'identificació (DNI/NIE o passaport)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "Please select a relation type."
+msgstr "Si us plau, selecciona un tipus de relació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "Please select an existing contact or enter a first/last name for the new one."
+msgstr "Si us plau, selecciona un contacte existent o introdueix un nom/cognom per al nou contacte."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/grades/grade_session_wizard.py:0
 msgid "Please select at least one level or study."
 msgstr "Seleccioneu almenys un nivell o estudi."

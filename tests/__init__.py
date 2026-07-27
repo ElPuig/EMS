@@ -34,6 +34,7 @@ from . import test_space_type
 from . import test_space_type_tour
 from . import test_space
 from . import test_space_tour
+from . import test_group_tour
 from . import test_attendance_template
 from . import test_attendance_schedule
 from . import test_attendance_status

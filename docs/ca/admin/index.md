@@ -22,6 +22,7 @@ Aquesta secció conté els manuals per a **administradors**.
 - [Estats d'assistència: gestionar les opcions del passar llista](attendance-status.md) — Afegir, reordenar o retirar els estats que els professors poden triar a la vista de passar llista.
 - [Horaris dels docents i marcs horaris](working-schedules.md) — Configurar les plantilles d'horari, el marc predeterminat, i editar/importar l'horari setmanal d'un docent.
 - [Assignació de tasques: qui gestiona les tasques que crea l'EMS](task-assignment.md) — Triar qui revisa els documents que pugen els alumnes i els comentaris de les famílies, amb independència dels rols i els permisos.
+- [Grups](groups.md) — Crear i gestionar grups Principals/de Reforç, tutors, delegats i canvi de tipus de grup.
 - [L'horari setmanal d'un grup](group-schedule.md) — Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF.
 
 ---

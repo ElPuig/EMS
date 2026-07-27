@@ -3,7 +3,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
-class ems_group(models.Model):
+class EmsGroup(models.Model):
 	_name = "ems.group"
 	_description = "Groups: Where the students are assigned to."
 	_order = "name"
@@ -35,16 +35,16 @@ class ems_group(models.Model):
 
 	@api.depends("group_type", "study_id.acronym", "course", "acronym")
 	def _compute_name(self):
-		for rec in self:
+		for group in self:
 			#TODO: validate the uniqueness
-			if rec.group_type == "main":
+			if group.group_type == "main":
 				# 'study_id'/'course'/'acronym' can be transiently empty right after switching from
 				# 'reinforcement' back to 'main' (before the user fills them in) — building the string
 				# anyway would render literal "False"/"0" instead of a blank name.
-				rec.name = "%s%s%s" % (rec.study_id.acronym, rec.course, rec.acronym) \
-					if rec.study_id and rec.course and rec.acronym else False
-			elif not rec.name:
-				rec.name = rec.acronym or rec.external_id or _("New Reinforcement Group")
+				group.name = "%s%s%s" % (group.study_id.acronym, group.course, group.acronym) \
+					if group.study_id and group.course and group.acronym else False
+			elif not group.name:
+				group.name = group.acronym or group.external_id or _("New Reinforcement Group")
 
 	@api.onchange("group_type")
 	def _onchange_group_type(self):
@@ -52,52 +52,59 @@ class ems_group(models.Model):
 		# without them seeing it happen first). Existing 'main_student_ids' (other res.partner records
 		# pointing here via main_group_id) are deliberately NOT touched here — see
 		# '_check_group_type_fields' below, which blocks the switch instead of silently orphaning them.
-		for rec in self:
-			if rec.group_type == "reinforcement":
-				rec.level_id = False
-				rec.study_id = False
-				rec.course = False
-				rec.acronym = False
-				rec.tutor_id = False
-				rec.delegate_id = False
-			elif rec.group_type == "main":
-				rec.reinforcement_student_ids = [(5, 0, 0)]
+		for group in self:
+			if group.group_type == "reinforcement":
+				group.level_id = False
+				group.study_id = False
+				group.course = False
+				group.acronym = False
+				group.tutor_id = False
+				group.delegate_id = False
+			elif group.group_type == "main":
+				group.reinforcement_student_ids = [(5, 0, 0)]
 
 	@api.constrains("group_type", "level_id", "study_id", "course", "acronym", "tutor_id", "delegate_id")
 	def _check_group_type_fields(self):
-		for rec in self:
-			if rec.group_type == "main":
-				if not (rec.level_id and rec.study_id and rec.course and rec.acronym):
+		for group in self:
+			if group.group_type == "main":
+				if not (group.level_id and group.study_id and group.course and group.acronym):
 					raise ValidationError(_("A main group requires a level, a study, a course and an acronym."))
-			elif rec.group_type == "reinforcement":
-				if rec.level_id or rec.study_id or rec.tutor_id or rec.delegate_id:
+			elif group.group_type == "reinforcement":
+				if group.level_id or group.study_id or group.tutor_id or group.delegate_id:
 					raise ValidationError(_("A reinforcement group cannot have a level, a study, a tutor or a delegate: "
 						"it is meant to mix students from different main groups and studies."))
-				if rec.main_student_ids:
+				if group.main_student_ids:
 					raise ValidationError(_("This group has %d student(s) enrolled as their main group. Reassign them to "
-						"another group before converting this one to reinforcement.") % len(rec.main_student_ids))
+						"another group before converting this one to reinforcement.") % len(group.main_student_ids))
 
-	def _compute_enrolled_student_ids(self):			
-		for rec in self:			
-			rec.enrolled_student_ids = self.env["ems.enrollment"].search([("group_id", "=", rec.id)]).mapped("student_id") or False
+	def _compute_enrolled_student_ids(self):
+		for group in self:
+			group.enrolled_student_ids = self.env["ems.enrollment"].search([("group_id", "=", group.id)]).mapped("student_id") or False
 
-	def _compute_enrollment_ids(self):							
-		for rec in self:							
-			self.env['ems.enrollment_view'].search([('group_id', '=', rec.id)]).unlink()
-			rec.enrollment_view_ids = False
-			#Sources: 
+	def _compute_enrollment_ids(self):
+		# NOTE: deliberately a compute WITH side effects (delete + recreate ems.enrollment_view
+		# rows) rather than a pure read — the only way found to expose "enrollment_view_ids
+		# filtered to just this group" as a One2many, since Odoo can't filter a computed
+		# relation server-side the way a stored inverse can. ems.enrollment_view is a
+		# TransientModel (auto-vacuumed), so the churn is cheap, but this does mean every read
+		# of an unset/stale enrollment_view_ids re-runs a delete+insert, not just a select —
+		# worth knowing if this model's read patterns ever become a hot path.
+		for group in self:
+			self.env['ems.enrollment_view'].search([('group_id', '=', group.id)]).unlink()
+			group.enrollment_view_ids = False
+			# Sources:
 			# 	https://www.odoo.com/documentation/16.0/developer/reference/backend/orm.html?highlight=read_group#search-read
-			#	https://www.cybrosys.com/odoo/odoo-books/odoo-15-development/ch15/grouped-data/	
-			for student in self.env['ems.enrollment'].read_group(domain=[('group_id', '=', rec.id)], fields=['student_id'], groupby=['student_id']):	
-				sid = student['student_id'][0]	
-				subs = self.env["ems.enrollment"].search([("group_id", "=", rec.id), ('student_id', '=', sid)]).mapped("subject_id")
-				
+			#	https://www.cybrosys.com/odoo/odoo-books/odoo-15-development/ch15/grouped-data/
+			for student in self.env['ems.enrollment'].read_group(domain=[('group_id', '=', group.id)], fields=['student_id'], groupby=['student_id']):
+				sid = student['student_id'][0]
+				subs = self.env["ems.enrollment"].search([("group_id", "=", group.id), ('student_id', '=', sid)]).mapped("subject_id")
+
 				# Source: https://www.odoo.com/fi_FI/forum/apua-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
-				rec.enrollment_view_ids.create({
-					"group_id": rec.id,
+				group.enrollment_view_ids.create({
+					"group_id": group.id,
 					"student_id": sid,
-					"subject_ids": subs,					
-				})				
+					"subject_ids": subs,
+				})
 
 	def _sanitize_group_type_vals(self, vals):
 		# NOTE: '_onchange_group_type' already does this client-side, purely so the user SEES the fields
@@ -131,7 +138,7 @@ class ems_group(models.Model):
 	def write(self, vals):
 		self._sanitize_group_type_vals(vals)
 		old_tutor = self.tutor_id
-		res = super(ems_group, self).write(vals)
+		res = super(EmsGroup, self).write(vals)
 		new_tutor = self.tutor_id
 
 		if 'tutor_id' in vals:
@@ -139,20 +146,13 @@ class ems_group(models.Model):
 			# should be updated and must be done from here once changed.
 			self._sync_tutor_role(old_tutor | new_tutor)
 		return res
-class ems_enrollment_view(models.TransientModel):
+
+
+class EmsEnrollmentView(models.TransientModel):
 	_name = "ems.enrollment_view"
-	_description = "Transitient model for displaying enrollment data within groups but filtered (allows ems.group.enrollment_view_ids to work: contains the same data as enrolled_student_ids but filtered for the current group because it cannot be filtered on view...)."
-	
+	_description = "Transient model for displaying enrollment data within groups but filtered (allows ems.group.enrollment_view_ids to work: contains the same data as enrolled_student_ids but filtered for the current group because it cannot be filtered on view...)."
+
 	group_id = fields.Many2one(comodel_name="ems.group")
 	student_id = fields.Many2one(comodel_name="res.partner")
-	subject_ids = fields.Many2many(comodel_name="ems.subject")	
+	subject_ids = fields.Many2many(comodel_name="ems.subject")
 	image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
-
-	# def open_form(self):
-	# 	return {
-	# 		'type': 'ir.actions.act_window',
-	# 		'res_model': 'res.partner',
-	# 		'res_id': self.student_id.id,						
-	# 		'view_id': self.env.ref('base.view_partner_form').id,
-	# 		'view_mode': 'form',
-	# 	}		

@@ -173,6 +173,53 @@ class TestGroup(TransactionCase):
         self.assertIn(group, teacher.tutorship_ids)
         self.assertIn(role_tutor, teacher.role_ids)
 
+    def test_enrolled_student_ids_from_enrollment_lines(self):
+        student = self.env['res.partner'].create({
+            'name': 'Test Enrolled Student (Group)', 'contact_type': 'student',
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': self.test_group.id, 'subject_id': self._enrollment_subject().id,
+        })
+        self.assertIn(student, self.test_group.enrolled_student_ids)
+
+    def test_enrollment_view_ids_aggregates_subjects_per_student(self):
+        student = self.env['res.partner'].create({
+            'name': 'Test Enrollment View Student (Group)', 'contact_type': 'student',
+        })
+        subject_a = self._enrollment_subject('A')
+        subject_b = self._enrollment_subject('B')
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': self.test_group.id, 'subject_id': subject_a.id,
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': self.test_group.id, 'subject_id': subject_b.id,
+        })
+
+        lines = self.test_group.enrollment_view_ids
+        self.assertEqual(len(lines), 1)
+        self.assertEqual(lines.student_id, student)
+        self.assertEqual(lines.subject_ids, subject_a | subject_b)
+
+    def test_enrollment_view_ids_refreshes_on_recompute(self):
+        # Regression-style check for the compute's own delete+recreate side effect: stale
+        # rows from a prior computation must not linger once the underlying enrollments change.
+        student = self.env['res.partner'].create({
+            'name': 'Test Enrollment Refresh Student (Group)', 'contact_type': 'student',
+        })
+        enrollment = self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': self.test_group.id, 'subject_id': self._enrollment_subject().id,
+        })
+        self.assertEqual(len(self.test_group.enrollment_view_ids), 1)
+
+        enrollment.unlink()
+        self.test_group.invalidate_recordset(['enrollment_view_ids'])
+        self.assertFalse(self.test_group.enrollment_view_ids)
+
+    def _enrollment_subject(self, suffix=''):
+        return self.env['ems.subject'].create({
+            'code': f'TSTG-ENR{suffix}', 'acronym': f'TGE{suffix}', 'name': f'Test Enrollment Subject {suffix}',
+        })
+
     def test_compute_name_leaves_blank_for_incomplete_main_group(self):
         # Regression test: '_compute_name' used to build "%s%s%s" % (study_id.acronym, course, acronym)
         # unconditionally for 'main' groups, rendering the literal "False0False" whenever those fields

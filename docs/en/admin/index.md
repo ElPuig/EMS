@@ -22,6 +22,7 @@ This section contains the manuals for **administrators**.
 - [Attendance Statuses: Managing the Passlist Options](attendance-status.md) — Adding, reordering or retiring the statuses teachers can pick from in the roll-call view.
 - [Teacher Working Schedules & Schedule Frameworks](working-schedules.md) — Setting up bell-schedule templates, the default framework, and editing/importing a teacher's weekly schedule.
 - [Task Assignment: Who Handles the Tasks EMS Creates](task-assignment.md) — Choosing who reviews the documents students upload and the comments families write, independently of roles and permissions.
+- [Groups](groups.md) — Creating and managing Main/Reinforcement groups, tutors, delegates and switching group type.
 - [A Group's Weekly Schedule](group-schedule.md) — Viewing a group's aggregated timetable (subjects, teachers, classrooms, breaks) and exporting it to PDF.
 
 ---

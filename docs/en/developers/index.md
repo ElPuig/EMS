@@ -40,6 +40,7 @@ Technical reference for developers working on the EMS module.
 
 | Model | Description |
 |-------|-------------|
+| [ems.group](contacts/group.md) | The core class-group model — one of the most widely-referenced in EMS; `group_type` switching, the tutor-role sync bug fix, the side-effecting `enrollment_view_ids` compute |
 | [Group schedule (read-only aggregation)](contacts/group_schedule.md) | The group form's "Schedule" tab: aggregating teachers' `resource.calendar.attendance` rows by `group_ids`, deriving the break period from the level's schedule framework, the "Subject → Teacher(s)" co-teaching summary, and the PDF export |
 
 ---

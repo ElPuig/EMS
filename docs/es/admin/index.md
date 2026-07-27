@@ -22,6 +22,7 @@ Esta sección contiene los manuales para **administradores**.
 - [Estados de asistencia: gestionar las opciones del pasar lista](attendance-status.md) — Añadir, reordenar o retirar los estados que los profesores pueden elegir en la vista de pasar lista.
 - [Horarios de los docentes y marcos horarios](working-schedules.md) — Configurar las plantillas de horario, el marco predeterminado, y editar/importar el horario semanal de un docente.
 - [Asignación de tareas: quién gestiona las tareas que crea EMS](task-assignment.md) — Elegir quién revisa los documentos que suben los alumnos y los comentarios de las familias, con independencia de los roles y los permisos.
+- [Grupos](groups.md) — Crear y gestionar grupos Principales/de Refuerzo, tutores, delegados y cambio de tipo de grupo.
 - [El horario semanal de un grupo](group-schedule.md) — Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF.
 
 ---

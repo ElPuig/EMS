@@ -9,6 +9,11 @@ Technical reference for developers working on the EMS module.
 | Model | Description |
 |-------|-------------|
 | [ems.level](curriculum/level.md) | Study levels (top of the curriculum hierarchy) |
+| [ems.study](curriculum/study.md) | Study programmes under a level: subjects, curriculum documents, the `uses_enrollment_flow` derived flag |
+| [ems.subject](curriculum/subject.md) | Subjects: the most widely referenced curriculum node, and the automatic `product.product` sync on create/write |
+| [ems.outcome](curriculum/outcome.md) | Learning outcomes nested in a subject's form — no menu of its own; the `subject_id` dangling-compute bug fix |
+| [ems.criteria](curriculum/criteria.md) | Evaluation criteria nested two levels deep (subject → outcome popup → criteria popup); the identical dangling-compute bug fix on `outcome_id` |
+| [ems.content](curriculum/content.md) | Content items with a real self-referencing "Composite" hierarchy; fixes a view-context bug where adding a nested child silently created a sibling instead |
 
 ---
 

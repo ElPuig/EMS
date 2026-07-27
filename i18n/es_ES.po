@@ -8726,7 +8726,7 @@ msgstr "Nivel: Define el nivel de estudios (Universidad, FP, etc.)."
 #. module: ems
 #: model:ir.model,name:ems.model_ems_study
 msgid ""
-"Study: The concrete type of stidy (kind of bachelor, concrete univeristy "
+"Study: The concrete type of study (kind of bachelor, concrete university "
 "grade, etc.)"
 msgstr ""
 "Estudio: El tipo concreto de estudio (tipo de licenciatura, titulación "
@@ -9079,6 +9079,29 @@ msgstr "El NUSS debe tener exactamente 12 dígitos numéricos."
 #: model:ir.model.constraint,message:ems.constraint_ems_level_acronym_unique
 msgid "The acronym must be unique."
 msgstr ""
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_study_unique_code
+msgid "The code must be unique."
+msgstr "El código debe ser único."
+
+#. module: ems
+#: code:addons/ems/models/curriculum/outcome.py:0
+msgid "The code must start as the subject's code."
+msgstr "El código debe empezar como el código de la asignatura."
+
+#. module: ems
+#: code:addons/ems/models/curriculum/content.py:0
+#: code:addons/ems/models/curriculum/criteria.py:0
+msgid "The code must start as the parent's code."
+msgstr "El código debe empezar como el código del padre."
+
+#. module: ems
+#: code:addons/ems/models/curriculum/content.py:0
+#: code:addons/ems/models/curriculum/criteria.py:0
+#: code:addons/ems/models/curriculum/outcome.py:0
+msgid "%s Edit"
+msgstr "Editar %s"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form

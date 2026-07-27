@@ -23,7 +23,7 @@
                         
                         <notebook>                           
                             <page string="Composite">
-                                <field name="content_ids" widget="one2many" context="{'default_content_id': content_id, 'default_code': code}">
+                                <field name="content_ids" widget="one2many" context="{'default_content_id': id, 'default_code': code}">
                                     <list editable="bottom" default_order="code asc, level asc, acronym asc"
                                         decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
                                         <field name="code"/>

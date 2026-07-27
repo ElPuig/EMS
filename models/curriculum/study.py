@@ -3,15 +3,20 @@
 from datetime import date
 from odoo import models, fields, api, _
 
-class ems_study(models.Model):
+class EmsStudy(models.Model):
     _name = "ems.study"
-    _description = "Study: The concrete type of stidy (kind of bachelor, concrete univeristy grade, etc.)"
-    
+    _description = "Study: The concrete type of study (kind of bachelor, concrete university grade, etc.)"
+    _order = "code asc"
+
+    _sql_constraints = [
+        ('unique_code', 'unique (code)', 'The code must be unique.'),
+    ]
+
     code = fields.Char(string="Code", required=True)
     acronym = fields.Char(string="Acronym", required=True)
     name = fields.Char(string="Name", required=True)
     date = fields.Date(string="Release Date", required=True)
-    deprecated = fields.Boolean(string="Deprecated", required=True)    
+    deprecated = fields.Boolean(string="Deprecated", required=True, default=False)
     notes = fields.Text(string="Notes")
     
     follow_ids = fields.One2many(string="Follow-up", comodel_name="ems.tracking", inverse_name="study_id")
@@ -34,9 +39,9 @@ class ems_study(models.Model):
 
     @api.depends('acronym', 'name')
     def _compute_display_name(self):
-        for rec in self:
-            year = date.today().year if rec.date is False else rec.date.year
-            rec.display_name = "%s (%s): %s" % (rec.acronym, year, rec.name)
+        for study in self:
+            year = date.today().year if study.date is False else study.date.year
+            study.display_name = "%s (%s): %s" % (study.acronym, year, study.name)
 
     def _compute_uses_enrollment_flow(self):
         Template = self.env['sale.order.template']
@@ -52,5 +57,3 @@ class ems_study(models.Model):
         # positive = has a flow; negative = has none
         positive = (operator == '=' and value) or (operator == '!=' and not value)
         return [('id', 'in' if positive else 'not in', study_ids)]
-
-            

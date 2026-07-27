@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api
 
-class ems_subject(models.Model):
+class EmsSubject(models.Model):
     _name = "ems.subject"
     _description = "Subject: The main item for a student's subject."    
     _rec_names_search = ['name', 'acronym']
@@ -63,19 +63,19 @@ class ems_subject(models.Model):
             
             vals['product_id'] = new_product.id
 
-        return super(ems_subject, self).create(vals_list)
+        return super(EmsSubject, self).create(vals_list)
 
     def write(self, vals):
-        result = super(ems_subject, self).write(vals)
+        result = super(EmsSubject, self).write(vals)
         categ_id = self._get_academic_category_id()
 
-        for record in self:
-            # A) Autocuración: Si no tiene producto, lo crea
-            if not record.product_id:
+        for subject in self:
+            # A) Self-healing: create the linked product if it's missing.
+            if not subject.product_id:
                 product_vals = {
-                    'name': record.name,
-                    'default_code': record.code,
-                    'type': 'service',  # Usamos 'type' aquí también
+                    'name': subject.name,
+                    'default_code': subject.code,
+                    'type': 'service',
                     'invoice_policy': 'order',
                     'list_price': 0.0,
                     'sale_ok': True,
@@ -84,28 +84,28 @@ class ems_subject(models.Model):
                 if categ_id:
                     product_vals['categ_id'] = categ_id
                 new_product = self.env['product.product'].create(product_vals)
-                record.write({'product_id': new_product.id})
+                subject.write({'product_id': new_product.id})
 
-            # B) Sincronización: Si cambia nombre o código
+            # B) Sync: keep the product in step with name/code changes.
             elif 'name' in vals or 'code' in vals:
                 update_vals = {}
                 if 'name' in vals:
-                    update_vals['name'] = record.name
+                    update_vals['name'] = subject.name
                 if 'code' in vals:
-                    update_vals['default_code'] = record.code
-                    update_vals['ems_is_tutoria'] = record.code.startswith(('T1_', 'T2_'))
-                
+                    update_vals['default_code'] = subject.code
+                    update_vals['ems_is_tutoria'] = subject.code.startswith(('T1_', 'T2_'))
+
                 if update_vals:
-                    record.product_id.write(update_vals)
-        
+                    subject.product_id.write(update_vals)
+
         return result
 
-    @api.onchange("internal_hours", "external_hours")
+    @api.depends('internal_hours', 'external_hours')
     def _compute_total_hours(self):
-        for rec in self:
-            rec.total_hours = rec.internal_hours + rec.external_hours    
+        for subject in self:
+            subject.total_hours = subject.internal_hours + subject.external_hours
 
     @api.depends('acronym', 'name')
-    def _compute_display_name(self):               
-        for rec in self:                
-            rec.display_name = "%s: %s" % (rec.acronym, rec.name)
+    def _compute_display_name(self):
+        for subject in self:
+            subject.display_name = "%s: %s" % (subject.acronym, subject.name)

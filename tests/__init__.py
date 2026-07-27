@@ -5,6 +5,16 @@ from . import test_enrollment_placement
 from . import test_exit_management
 from . import test_level
 from . import test_level_tour
+from . import test_study
+from . import test_study_tour
+from . import test_subject
+from . import test_subject_tour
+from . import test_outcome
+from . import test_outcome_tour
+from . import test_criteria
+from . import test_criteria_tour
+from . import test_content
+from . import test_content_tour
 from . import test_attendance_template
 from . import test_attendance_schedule
 from . import test_attendance_status

@@ -33,7 +33,7 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
 
 ## Printing a PDF Report
 
-On the **Attendance reports** screen, click the **⚙ (gear)** icon in the header and choose **Attendance
+On the **Attendance reports** screen, click the **⚙ (gear)** icon in the header and choose **Print attendance
 report**. In the form, pick the **Report type** — by group, by student, or by subject — and the fields adapt
 to your choice.
 

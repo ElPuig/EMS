@@ -129,7 +129,7 @@ registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
         { trigger: ".o_cp_action_menus button:has(.fa-cog)", content: "Open the Actions cog menu", run: "click" },
         {
             trigger: ".o_attendance_report_cog_menu",
-            content: "The single 'Attendance report' shortcut is listed — click it",
+            content: "The single 'Print attendance report' shortcut is listed — click it",
             run: "click",
         },
         { trigger: ".o_form_view .o_field_widget[name='report_type']", content: "The unified report wizard opened" },

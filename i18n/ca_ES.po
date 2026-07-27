@@ -2056,9 +2056,13 @@ msgstr "Notificación de asistencia: resum diari"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_attendance_report_wizard
-#: code:addons/ems/static/src/xml/backend/attendance_report_analysis_cog_menu.xml:0
 msgid "Attendance report"
 msgstr "Informe d'assistència"
+
+#. module: ems
+#: code:addons/ems/static/src/xml/backend/attendance_report_analysis_cog_menu.xml:0
+msgid "Print attendance report"
+msgstr "Imprimeix informe d'assistència"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__report_type

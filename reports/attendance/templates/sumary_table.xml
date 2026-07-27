@@ -19,8 +19,8 @@
                     </t> 
                 </tr>                                
             </thead>
-            <tbody>                                
-                <tr>                                                                       
+            <tbody>
+                <tr style="page-break-inside: avoid;">
                     <t t-foreach="data.overall" t-as="s">
                         <t t-set="entry" t-value="data.overall[s]"/> 
                         <td>

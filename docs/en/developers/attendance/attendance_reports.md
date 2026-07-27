@@ -189,12 +189,15 @@ only the per-student session-by-session listing scales with total session count.
   reading (misses, justified misses) instead of every "Attended" session.
 - `include_strikes` (`Boolean`, default `True`) — whether the new per-student "Strikes" table (a separate
   small table, not routed through `attendance_template_details_table`/`report_eval`) is included at all.
-- `@api.onchange('detail_status_ids')` (`_onchange_detail_status_ids`) compares the current selection
-  against the default absence-only set; if it isn't a subset (i.e. the user added something beyond the
-  default), it returns an onchange `{'warning': {...}}` dict — Odoo renders this as a dialog with a single
-  "Close" button — warning that the report may become slow or fail for large subject/group combinations.
-  It does **not** fire when narrowing the selection (e.g. down to just "Miss") — only when growing beyond
-  the default.
+- `detail_status_warning` (`Boolean`, `compute='_compute_detail_status_warning'`,
+  `@api.depends('detail_status_ids')`) is `True` whenever the current selection isn't a subset of the
+  default absence-only set (i.e. the user added something beyond the default), `False` otherwise (including
+  when narrowing, e.g. down to just "Miss"). The view (`subject_wizard.xml`) renders it as an inline
+  `<div class="alert alert-warning" invisible="not detail_status_warning">` on the form itself, not a
+  blocking dialog — an onchange-returned `{'warning': {...}}` dict was the first approach, but was changed
+  to this compute + inline-`alert` pattern (matching `views/community/working_schedules/import_wizard.xml`'s
+  `blocking_error_message`/`email_mismatch_warning` fields) once a modal was found to be too disruptive for
+  what's just a heads-up, not a blocking condition — the user can still submit the form either way.
 - `EmsAttendanceReportSubject._get_report_values()` computes `detail_entries`/`detail_strikes` dicts
   (keyed by student) alongside the existing `lines` dict: `detail_entries[student]` is
   `grp_by_student[student]` filtered to `entry.status_id.id in detail_status_ids`; `detail_strikes[student]`
@@ -316,8 +319,8 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   each wizard's `print()`, the stored related fields, `absence_rate`, `strike_count`'s new `store=True`
   (aggregatable via `read_group`), and `action_attendance_reports_open`'s role-based domain (`.run()`
   `with_user(...)` for a plain teacher vs. an academic admin). Also: `detail_status_ids`'s default
-  (absence-category only), `_onchange_detail_status_ids` firing (or not) depending on whether the selection
-  stays a subset of the default, and `_get_report_values` producing correctly filtered
+  (absence-category only), `detail_status_warning` computing `False`/`True` depending on whether the
+  selection stays a subset of the default, and `_get_report_values` producing correctly filtered
   `detail_entries`/`detail_strikes` (status filtering, `include_strikes` on/off).
 - `tests/test_attendance_reports_tour.py` + `static/tests/tours/attendance_reports_tour.js` (`HttpCase`):
   all 3 wizards end-to-end (by-group/by-student: single pick, tutor/dates auto-fill; by-subject: subject
@@ -330,6 +333,8 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   fixture's seeded group sets `tutor_id` explicitly (needed once `tutor_id` had real view coverage). All 4
   `start_tour()` calls use `step_delay=300` (see the flakiness note above). The by-subject tour also seeds a
   "Miss" line + a strike on it, confirms `detail_status_ids`/`include_strikes` default correctly in the UI,
-  adds "Attended" to `detail_status_ids` to confirm the size warning dialog actually appears (this — and the
-  `<td t-field=...>` QWeb bug above — is exactly the kind of thing a `TransactionCase`/clean `upgrade.sh`
-  can't catch, since neither renders any QWeb or OWL), then dismisses it and prints.
+  confirms the inline size-warning `alert-warning` div is absent from the DOM (`invisible="..."` removes it
+  entirely, it isn't just CSS-hidden) while the selection stays within the default, then adds "Attended" to
+  `detail_status_ids` to confirm the banner appears
+  (this — and the `<td t-field=...>` QWeb bug above — is exactly the kind of thing a `TransactionCase`/clean
+  `upgrade.sh` can't catch, since neither renders any QWeb or OWL) before printing.

@@ -331,21 +331,20 @@ class TestAttendanceReportWizards(TransactionCase):
         self.assertTrue(all(status.category == 'absence' for status in wizard.detail_status_ids))
         self.assertNotIn(self.status_attended, wizard.detail_status_ids)
 
-    def test_onchange_detail_status_ids_no_warning_within_default(self):
+    def test_detail_status_warning_false_within_default(self):
         wizard = self.env['ems.attendance_report_subject_wizard'].with_user(self.owner_user).new({
             'subject_id': self.subject_a.id,
         })
         miss_status = self.env.ref('ems.attendance_status_miss')
         wizard.detail_status_ids = miss_status
-        self.assertIsNone(wizard._onchange_detail_status_ids())
+        self.assertFalse(wizard.detail_status_warning)
 
-    def test_onchange_detail_status_ids_warns_beyond_default(self):
+    def test_detail_status_warning_true_beyond_default(self):
         wizard = self.env['ems.attendance_report_subject_wizard'].with_user(self.owner_user).new({
             'subject_id': self.subject_a.id,
         })
         wizard.detail_status_ids = wizard._default_detail_status_ids() | self.status_attended
-        result = wizard._onchange_detail_status_ids()
-        self.assertIn('warning', result)
+        self.assertTrue(wizard.detail_status_warning)
 
     def test_get_report_values_filters_detail_entries_by_status(self):
         miss_status = self.env.ref('ems.attendance_status_miss')

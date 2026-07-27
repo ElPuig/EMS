@@ -68,15 +68,18 @@ registry.category("web_tour.tours").add("ems_attendance_report_subject_wizard", 
             trigger: ".o_form_view .o_field_widget[name='include_strikes'] input:checked",
             content: "include_strikes defaults to enabled",
         },
-        // Adding a status beyond the absence-only default (e.g. 'Attended') must warn that the
-        // per-student sections can grow large — this is the opt-in safety net from the report-
-        // scale fix, not just a cosmetic field.
+        {
+            trigger: ".o_form_view:not(:has(div[name='alert-detail-status-warning']))",
+            content: "The size warning banner is absent while the selection stays within the default",
+        },
+        // Adding a status beyond the absence-only default (e.g. 'Attended') must warn inline (not
+        // a blocking dialog) that the per-student sections can grow large — this is the opt-in
+        // safety net from the report-scale fix, not just a cosmetic field.
         ...selectMany2one("detail_status_ids", "Attended"),
         {
-            trigger: ".modal-title:contains('The report may become very large')",
-            content: "Picking a non-default status triggers the size warning",
+            trigger: ".o_form_view div[name='alert-detail-status-warning']:contains('The report may become very large')",
+            content: "Picking a non-default status shows the inline size warning",
         },
-        { trigger: ".modal-footer button:contains('Close')", content: "Dismiss the warning", run: "click" },
         { trigger: "button[name='print']", content: "Print the subject report", run: "click" },
         { trigger: "body:not(:has(.o_error_dialog))", content: "No client-side error after printing" },
     ],

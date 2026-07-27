@@ -34,9 +34,9 @@
                                     </t> 
                                 </tr>                                
                             </thead>
-                            <tbody> 
-                                <t t-foreach="lines" t-as="student">     
-                                    <tr>
+                            <tbody>
+                                <t t-foreach="lines" t-as="student">
+                                    <tr style="page-break-inside: avoid;">
                                         <td  t-esc="student.display_name"/>
                                         <t t-set="line" t-value="lines[student]"/>                                                                              
                                         <t t-foreach="line.overall" t-as="s">
@@ -121,7 +121,7 @@
                                     </thead>
                                     <tbody>
                                         <t t-foreach="detail_strikes[student]" t-as="strike">
-                                            <tr>
+                                            <tr style="page-break-inside: avoid;">
                                                 <td><span t-field="strike.date"/></td>
                                                 <td><span t-field="strike.reason_id.display_name"/></td>
                                                 <td><span t-field="strike.teacher_id.display_name"/></td>

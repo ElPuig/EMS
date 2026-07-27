@@ -34,9 +34,9 @@
                                     </t> 
                                 </tr>                                
                             </thead>
-                            <tbody> 
-                                <t t-foreach="lines" t-as="subject">     
-                                    <tr>
+                            <tbody>
+                                <t t-foreach="lines" t-as="subject">
+                                    <tr style="page-break-inside: avoid;">
                                         <td  t-esc="subject.display_name"/>
                                         <t t-set="line" t-value="lines[subject]"/>                                                                              
                                         <t t-foreach="line.overall" t-as="s">

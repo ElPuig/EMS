@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _
+from odoo import models, fields, api
 
 overall_status = [("assistance", "Assistance"), ("absence", "Absence")]
 
@@ -134,6 +134,9 @@ class EmsAttendanceReportSubjectWizard(models.TransientModel):
 		string="Detail statuses", comodel_name="ems.attendance_status", default=lambda self: self._default_detail_status_ids(),
 	)
 	include_strikes = fields.Boolean(string="Include strikes", default=True)
+	# Shown as an inline alert on the form (not a blocking dialog) when detail_status_ids grows
+	# beyond the default absence-only set - see _compute_detail_status_warning.
+	detail_status_warning = fields.Boolean(compute='_compute_detail_status_warning')
 
 	from_date = fields.Date(string="From", default=fields.Datetime.now, required=True)
 	to_date = fields.Date(string="To", default=fields.Datetime.now, required=True)
@@ -141,22 +144,11 @@ class EmsAttendanceReportSubjectWizard(models.TransientModel):
 	def _default_detail_status_ids(self):
 		return self.env['ems.attendance_status'].search([('category', '=', 'absence')])
 
-	@api.onchange('detail_status_ids')
-	def _onchange_detail_status_ids(self):
+	@api.depends('detail_status_ids')
+	def _compute_detail_status_warning(self):
 		for wizard in self:
 			default_ids = set(wizard._default_detail_status_ids().ids)
-			if not set(wizard.detail_status_ids.ids) <= default_ids:
-				return {
-					'warning': {
-						'title': _("The report may become very large"),
-						'message': _(
-							"Adding statuses beyond the default absence ones makes the per-student "
-							"detail section grow with every session, not just the absences — for a "
-							"subject taught in several large groups over a long period, this can be "
-							"slow to generate or fail outright."
-						),
-					}
-				}
+			wizard.detail_status_warning = not set(wizard.detail_status_ids.ids) <= default_ids
 
 	@api.model
 	def default_get(self, fields_list):

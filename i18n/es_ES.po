@@ -9187,25 +9187,18 @@ msgid "The quantity for an enrollment item must always be 1."
 msgstr "La cantidad de un elemento de matrícula debe ser siempre 1."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_reports.py:0
-msgid "The report may become very large"
-msgstr "El informe puede llegar a ser muy grande"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_reports.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard
 msgid ""
-"Adding statuses beyond the default absence ones makes the per-student "
-"detail section grow with every session, not just the absences — for a "
-"subject taught in several large groups over a long period, this can be "
-"slow to generate or fail outright."
+"<strong>The report may become very large.</strong> Adding statuses beyond "
+"the default absence ones makes the per-student detail section grow with "
+"every session, not just the absences — for a subject taught in several large"
+" groups over a long period, this can be slow to generate or fail outright."
 msgstr ""
-"Añadir estados más allá de los de ausencia predeterminados hace que la"
-" sección de detalle por alumno crezca con cada sesión, no solo con las"
-" ausencias — para una asignatura impartida en varios grupos grandes"
-" durante un periodo largo, esto puede ser lento de generar o fallar"
-" directamente."
+"<strong>El informe puede llegar a ser muy grande.</strong> Añadir estados"
+" más allá de los de ausencia predeterminados hace que la sección de detalle"
+" por alumno crezca con cada sesión, no solo con las ausencias — para una"
+" asignatura impartida en varios grupos grandes durante un periodo largo,"
+" esto puede ser lento de generar o fallar directamente."
 
 #. module: ems
 #. odoo-python

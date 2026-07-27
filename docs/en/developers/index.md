@@ -17,6 +17,16 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Settings
+
+| Model | Description |
+|-------|-------------|
+| [ems.course](settings/course.md) | Academic year windows; known limitation — no course-management UI exists yet (only the "Current course" selector), see the doc for the unbuilt "Setup next course" TODO |
+| [res.company (EMS extension)](settings/company.md) | Every centre-wide config field EMS adds, grouped by area with cross-links to their owning feature docs; the Fernet-encrypted credential pattern (`limesurvey_pwd`, `google_ws_sa_json`) and a real `NameError` bug fixed in its inverse method |
+| [res.config.settings (EMS extension)](settings/settings.md) | The related-field proxy that makes every `res.company` field above editable from Settings; `set_values()`'s EMS auto-checkout cron activation |
+
+---
+
 ## Contacts
 
 | Model | Description |

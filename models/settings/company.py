@@ -122,45 +122,45 @@ class ems_company(models.Model):
         key = self._get_fernet_key()
         f = Fernet(key)
         
-        for record in self:
-            if record.limesurvey_pwd_encrypted:
+        for company in self:
+            if company.limesurvey_pwd_encrypted:
                 try:
-                    record.limesurvey_pwd = f.decrypt(record.limesurvey_pwd_encrypted.encode()).decode()
+                    company.limesurvey_pwd = f.decrypt(company.limesurvey_pwd_encrypted.encode()).decode()
                 except Exception:
-                    record.limesurvey_pwd = False
+                    company.limesurvey_pwd = False
             else:
-                record.limesurvey_pwd = False
+                company.limesurvey_pwd = False
 
     def _inverse_limesurvey_pwd(self):
         key = self._get_fernet_key()
         f = Fernet(key)
 
-        for record in self:
-            if record.limesurvey_pwd:
-                record.limesurvey_pwd_encrypted = f.encrypt(record.limesurvey_pwd.encode()).decode()
+        for company in self:
+            if company.limesurvey_pwd:
+                company.limesurvey_pwd_encrypted = f.encrypt(company.limesurvey_pwd.encode()).decode()
             else:
-                record.limesurvey_pwd_encrypted = False
+                company.limesurvey_pwd_encrypted = False
 
     @api.depends('google_ws_sa_json_encrypted')
     def _compute_google_ws_sa_json(self):
         key = self._get_fernet_key()
         f = Fernet(key)
 
-        for record in self:
-            if record.google_ws_sa_json_encrypted:
+        for company in self:
+            if company.google_ws_sa_json_encrypted:
                 try:
-                    record.google_ws_sa_json = f.decrypt(record.google_ws_sa_json_encrypted.encode()).decode()
+                    company.google_ws_sa_json = f.decrypt(company.google_ws_sa_json_encrypted.encode()).decode()
                 except Exception:
-                    record.google_ws_sa_json = False
+                    company.google_ws_sa_json = False
             else:
-                record.google_ws_sa_json = False
+                company.google_ws_sa_json = False
 
     def _inverse_google_ws_sa_json(self):
         key = self._get_fernet_key()
         f = Fernet(key)
 
-        for record in self:
-            if record.google_ws_sa_json:
-                record.google_ws_sa_json_encrypted = f.encrypt(record.google_ws_sa_json.encode()).decode()
+        for company in self:
+            if company.google_ws_sa_json:
+                company.google_ws_sa_json_encrypted = f.encrypt(company.google_ws_sa_json.encode()).decode()
             else:
-                record.google_ws_sa_json_encrypted = False
+                company.google_ws_sa_json_encrypted = False

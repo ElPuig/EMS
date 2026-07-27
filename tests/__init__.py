@@ -15,6 +15,10 @@ from . import test_criteria
 from . import test_criteria_tour
 from . import test_content
 from . import test_content_tour
+from . import test_course
+from . import test_course_tour
+from . import test_company_settings
+from . import test_settings
 from . import test_attendance_template
 from . import test_attendance_schedule
 from . import test_attendance_status

@@ -20,8 +20,12 @@
             <field name="arch" type="xml">
                 <graph string="Attendance reports" type="bar">
                     <field name="subject_id"/>
-                    <field name="absence_rate" type="measure"/>
+                    <!-- Odoo's graph arch parser defaults to the LAST type="measure" field
+                         declared here (see web/static/src/views/graph/graph_arch_parser.js) — keep
+                         absence_rate last so it stays the default measure, regardless of the
+                         graph_measure context set in action_attendance_reports_open. -->
                     <field name="strike_count" type="measure"/>
+                    <field name="absence_rate" type="measure"/>
                 </graph>
             </field>
         </record>

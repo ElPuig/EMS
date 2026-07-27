@@ -319,11 +319,10 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   (`expandedRowGroupBys` starts `[]` and is purely client interaction state, confirmed against
   `web/static/src/views/pivot/pivot_model.js`); reaching the fully drilled-down subject/student view takes
   2 clicks on the pivot's own "Expand all" button — a deliberate choice over adding custom auto-expand JS.
-- **Graph**: `<field name="subject_id"/>` (default groupBy/x-axis) + `<field name="absence_rate"
-  type="measure"/>` + `<field name="strike_count" type="measure"/>`. Per the `GraphArchParser`
-  (`web/static/src/views/graph/graph_arch_parser.js`): a `<field>` without `type="measure"` becomes the
-  default groupBy if its type is groupable; each `<field type="measure">` becomes a *selectable* measure
-  (needs `aggregator` to qualify — `absence_rate`'s is `avg`, `strike_count`'s is the Integer default
+- **Graph**: `<field name="subject_id"/>` (default groupBy/x-axis) + 2 `type="measure"` fields. Per the
+  `GraphArchParser` (`web/static/src/views/graph/graph_arch_parser.js`): a `<field>` without `type="measure"`
+  becomes the default groupBy if its type is groupable; each `<field type="measure">` becomes a *selectable*
+  measure (needs `aggregator` to qualify — `absence_rate`'s is `avg`, `strike_count`'s is the Integer default
   `sum`), but **unlike pivot, the graph view can only display one measure at a time** — confirmed against
   `web/static/src/views/graph/graph_model.js`/`graph_renderer.js`: `metaData.measure` is singular
   throughout the whole data-fetch/render pipeline, and `onMeasureSelected` *replaces* it rather than
@@ -331,14 +330,33 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   user switch between "Absence rate" and "Strike count" with one click, each rendering its own bar chart —
   there is no built-in way to plot both as separate bar series on the same chart; that would need a custom
   chart component instead of the stock `<graph>` view.
+  - **Default measure = the *last* `type="measure"` field in the arch, not the context key alone.**
+    `GraphArchParser` explicitly picks the last declared measure field as `archInfo.measure`
+    (`graph_arch_parser.js`, comment: *"the last field with type='measure' (if any) will be used as
+    measure"*), and `graph_view.js` feeds that straight into the `GraphModel`'s initial `metaData.measure`
+    before any `load()`/context merge happens. The arch originally declared `absence_rate` before
+    `strike_count`, so — despite `action_attendance_reports_open` also setting
+    `context['graph_measure'] = 'absence_rate'` — the graph opened with **Strike count** selected, not
+    Absence rate. `graph_measure` isn't a no-op (`_buildMetaData` in `graph_model.js` does read it), but
+    empirically it wasn't enough to override the arch-derived initial state for the very first paint. Fixed
+    by swapping the arch order (`strike_count` declared first, `absence_rate` last) so the parser's own
+    "last measure wins" default lines up with what `graph_measure` was already trying to force — belt and
+    braces, and the arch order is now the actual source of truth. Caught by strengthening the tour's graph
+    step to assert `.o_menu_item.selected:contains('Absence rate')` in the Measures dropdown *before*
+    switching to Strike count (previously the tour only checked that a canvas rendered at all, which passed
+    regardless of which measure was showing) — a `TransactionCase`/clean `upgrade.sh` can't catch this
+    class of bug either, since it's pure client-side OWL/JS state.
 - **Menu → role-scoped entry point**: `menu_attendance_reports` ("Reports") no longer points at the
   act_window directly — it points at `action_attendance_reports_open`, an `ir.actions.server` (`state=
   "code"`, same style as `views/academic_management/enrollment/list_tutor.xml`'s
   `action_student_group_enrollment`). Its inline code reads `action_attendance_report_analysis` via
   `env.ref(...).sudo().read()[0]`, always sets `context['pivot_measures'] = ['absence_rate', 'strike_count',
-  '__count']` and `context['graph_measure'] = 'absence_rate'` (the latter is what pins the graph's default
-  to "Absence rate" regardless of arch field order — `graph_measure` is read before the arch's own default,
-  see `graph_model.js:181`). "Count" is available as a pivot measure alongside the other two — sample size
+  '__count']` and `context['graph_measure'] = 'absence_rate'`. For pivot, `pivot_measures` reliably decides
+  which measures are enabled/visible (pivot can show several measures at once, so this is a whitelist, not a
+  single "current selection" — arch field order doesn't matter here). For graph the picture is more fragile:
+  `graph_measure` alone was *not* enough to control the actual default on first paint — see "Default measure
+  ..." above — the arch's own field order is what actually decides it, and `graph_measure` is now belt and
+  braces on top of that. "Count" is available as a pivot measure alongside the other two — sample size
   matters when reading a percentage. The server action also adds a default `domain` scoping to the current
   user's own teaching
   (`[('template_teacher_ids.user_id', '=', env.uid)]`) **unless** they have `ems.group_head_of_studies`,

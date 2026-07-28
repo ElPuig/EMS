@@ -512,10 +512,11 @@ class ems_course_transition_wizard(models.TransientModel):
         already idempotent and already ordered (the ems.enrollment domain demands a
         'student', so the conversion has to come first). An enrollment confirmed
         without a destination group is skipped by the helper and was reported as
-        'unplaced' in the preview. Returns how many students were placed.
+        'unplaced' in the preview. Returns the students actually placed, which step 4b
+        needs to tell them from the ones nobody moved.
         """
         self.ensure_one()
-        placed = 0
+        placed = self.env['res.partner']
         for order in self._incoming_orders():
             if not order.ems_group_id:
                 continue
@@ -525,8 +526,30 @@ class ems_course_transition_wizard(models.TransientModel):
             if student.contact_type in ('applicant', 'alumni', 'withdrawal'):
                 student._ems_convert_to_student()
             order._ems_apply_destination_placement()
-            placed += 1
+            placed |= student
         return placed
+
+    def _apply_detach_unplaced(self, students, placed):
+        """Step 4b — take whoever nobody placed out of the group that has just ended.
+
+        ems.group carries the course number but not the academic year, so groups are
+        reused: a student left pointing at the outgoing group turns up next September
+        as a member of the new cohort. Leaving graduates already lost the group in step
+        1 and placed students had it overwritten in step 3, so this is for everybody
+        else — no enrollment at all, an unconfirmed one, or a confirmed one whose
+        destination study is not in this run.
+
+        It keys on who was actually placed, NOT on 'still sitting in a group of the
+        scope': promoting a student from 1st to 2nd year of the same study lands in a
+        scope group too, and that one must keep it.
+
+        'study_id' and 'level_id' are deliberately kept: they say what the student was
+        doing, which is what the "no destination" report and a late enrollment read.
+        """
+        self.ensure_one()
+        stranded = (students - placed).filtered(lambda student: student.main_group_id)
+        stranded.write({'main_group_id': False})
+        return len(stranded)
 
     def _apply_cleanup(self, students):
         """Steps 7 and 8 — archive the attendance templates and delete the operational
@@ -612,7 +635,7 @@ class ems_course_transition_wizard(models.TransientModel):
             ])
         return base64.b64encode(output.getvalue().encode("utf-8-sig")).decode()
 
-    def _apply_audit(self, flipped, issues, locked, cancelled):
+    def _apply_audit(self, flipped, issues, locked, cancelled, detached):
         """Step 9 — a permanent trace of the run.
 
         Logged on the company's PARTNER: res.company itself carries no chatter
@@ -631,6 +654,7 @@ class ems_course_transition_wizard(models.TransientModel):
             _("Graduated and continuing at the centre: %s") % self.graduate_continue_count,
             _("Placed: %s") % self.place_count,
             _("Without destination: %s") % self.missing_count,
+            _("Detached from the outgoing group: %s") % detached,
             _("Enrollments locked: %s") % locked,
             _("Enrollments cancelled: %s") % cancelled,
             _("Records deleted: %s") % self.delete_count,
@@ -672,10 +696,11 @@ class ems_course_transition_wizard(models.TransientModel):
         issues = self._apply_graduates(graduates)
         self._apply_continuing_graduates(continuing)
         self._apply_cleanup(students)
-        self._apply_placement()
+        placed = self._apply_placement()
+        detached = self._apply_detach_unplaced(students, placed)
         flipped = self._apply_transition_flip()
         locked, cancelled = self._apply_outgoing_enrollments()
-        self._apply_audit(flipped, issues, locked, cancelled)
+        self._apply_audit(flipped, issues, locked, cancelled, detached)
 
         self.state = 'done'
         return {

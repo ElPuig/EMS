@@ -84,7 +84,8 @@ flowchart TD
     S7 --> S8["8 · Operational cleanup<br/>IRREVERSIBLE"]
     S8 --> S3["3 · Placement (group)"]
     S3 --> S4["4 · Subject enrollments"]
-    S4 --> S5["5 · Mark transitioned<br/>+ conditional global flip"]
+    S4 --> S4B["4b · Detach the unplaced<br/>main_group_id = False"]
+    S4B --> S5["5 · Mark transitioned<br/>+ conditional global flip"]
     S5 --> S6["6 · Outgoing enrollments<br/>lock confirmed / cancel draft"]
     S6 --> S9["9 · Audit: message_post + CSV"]
 ```
@@ -152,6 +153,20 @@ Two consequences elsewhere:
 
 - **A blocker**, not a warning: freezing a history half-way is worse than refusing to run, so `_unclosed_origin_studies()` checks the last round of every out-of-scope origin study this run would pull someone out of. `_last_round_sessions()` now takes an optional `groups` argument so both blockers share it.
 - **Step 8 clears `ems.enrollment` by group as well as by student**, for exactly the reason grade sessions already did: a student pulled out by another study's run is no longer in `_scope_students()`, and its enrollments in the outgoing groups would linger forever.
+
+### Detaching whoever nobody placed (step 4b)
+
+`ems.group` carries the course number but **not the academic year**, so groups are reused: a student left pointing at the outgoing group turns up next September as a member of the new cohort. Nothing used to clear it — leaving graduates lose it in step 1 and placed students have it overwritten in step 3, but everybody else kept it. On the 25-26 data that is ~107 students with no enrollment plus ~161 enrolled without a destination group.
+
+The criterion is **who was actually placed**, not "who is still sitting in a group of the scope":
+
+```python
+stranded = (students - placed).filtered(lambda student: student.main_group_id)
+```
+
+`_apply_placement()` therefore returns the placed `res.partner` recordset instead of a count. Keying on the scope groups would detach a student promoted from 1st to 2nd year of the same study, since its destination group is in the scope too — `test_apply_keeps_the_group_of_a_student_promoted_within_the_same_study` pins that down.
+
+`study_id` and `level_id` are deliberately **kept**: they record what the student was doing, which is what the "no destination" report and a late enrollment both read. Only the group goes.
 
 ### Conditional flip (step 5)
 

@@ -558,6 +558,52 @@ class TestCourseTransition(TransactionCase):
 
     # --- apply steps 3-4: placement and subject enrollments ------------------
 
+    def test_apply_detaches_a_student_with_no_destination(self):
+        """Groups are reused year after year, so a student left pointing at the
+        outgoing group turns up next September inside the new cohort."""
+        stranded = self._student('CTW Detach Missing', group=self.group2)
+        self._applied()
+        self.assertFalse(stranded.main_group_id)
+        self.assertEqual(stranded.contact_type, 'student')
+        self.assertTrue(stranded.active)
+
+    def test_apply_detaches_a_student_enrolled_without_a_destination_group(self):
+        stranded = self._student('CTW Detach Unplaced', group=self.group2)
+        self._order(stranded, group=None, state='sale')
+        self._applied()
+        self.assertFalse(stranded.main_group_id)
+
+    def test_apply_detaches_a_graduate_whose_enrollment_is_not_confirmed(self):
+        graduate = self._graduate('CTW Detach Pending')
+        self._order(graduate, self.group1, state='sent')
+        self._applied()
+        self.assertFalse(graduate.main_group_id)
+        self.assertEqual(graduate.contact_type, 'student')
+        self.assertTrue(graduate.has_graduated)
+
+    def test_apply_keeps_the_group_of_a_student_promoted_within_the_same_study(self):
+        """The detach must key on who was actually placed, not on 'still sitting in a
+        group of the scope': promoting 1st to 2nd year lands in a scope group too."""
+        promoted = self._student('CTW Detach Promoted', group=self.group1)
+        self._order(promoted, self.group2, state='sale')
+        self._applied()
+        self.assertEqual(promoted.main_group_id, self.group2)
+
+    def test_apply_detaches_a_student_whose_destination_study_runs_later(self):
+        """Its order is not in _incoming_orders() of this run, so nobody places it
+        here; it stays groupless until its destination study transitions."""
+        crossing = self._student('CTW Detach Crossing', group=self.group2)
+        order = self.env['sale.order'].create({
+            'partner_id': crossing.id, 'ems_study_id': self.study_other.id,
+            'ems_course_id': self.target_course.id, 'ems_group_id': self.group_other.id,
+            'shift': 'morning'})
+        order.order_line = [(0, 0, {'product_id': self.subject_int.product_id.id})]
+        order.action_confirm()
+        self._applied(studies=self.study)
+        self.assertFalse(crossing.main_group_id)
+        self._applied(studies=self.study_other)
+        self.assertEqual(crossing.main_group_id, self.group_other)
+
     def test_apply_places_the_student_in_its_destination_group(self):
         student = self._student('CTW Promoted')
         self._order(student, self.group2, state='sale')
@@ -593,17 +639,19 @@ class TestCourseTransition(TransactionCase):
         self.assertEqual(alumnus.main_group_id, self.group1)
 
     def test_apply_skips_a_confirmed_enrollment_without_group(self):
+        """Nobody places it, so it gets no subjects — and it is detached from the
+        outgoing group rather than left inside next year's cohort."""
         student = self._student('CTW No Group')
         self._order(student, group=False, state='sale')
         self._applied()
-        self.assertEqual(student.main_group_id, self.group1)
+        self.assertFalse(student.main_group_id)
         self.assertFalse(student.enrollment_ids)
 
     def test_apply_ignores_enrollments_still_in_draft(self):
         student = self._student('CTW Draft')
         self._order(student, self.group2)
         self._applied()
-        self.assertEqual(student.main_group_id, self.group1)
+        self.assertFalse(student.main_group_id)
 
     def test_apply_placement_is_idempotent(self):
         student = self._student('CTW Placed Twice')

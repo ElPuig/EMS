@@ -13424,3 +13424,8 @@ msgid ""
 "                                that are done, and run it again for the rest. The current course\n"
 "                                only switches on the run that leaves no study pending."
 msgstr "Esto cierra el curso saliente y abre el siguiente para los estudios que selecciones. Congela el historial académico, convierte en exalumnado archivado a los estudiantes marcados como graduados que se van, coloca a todos los demás —incluidos los graduados/as que continúan en el centro— en el grupo destino de su matrícula confirmada, y borra los registros operativos del año que termina. <strong>La limpieza no se puede deshacer.</strong><br/>Los estudios no acaban todos a la vez: transiciona los que estén cerrados y vuelve a ejecutarlo para el resto. El curso actual solo cambia en la ejecución que no deja ningún estudio pendiente."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Detached from the outgoing group: %s"
+msgstr "Desvinculados/as del grupo saliente: %s"

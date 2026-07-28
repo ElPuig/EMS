@@ -269,6 +269,23 @@ ESO and BTX do not enroll through `sale.order` at all; their continuity arrives 
 
 **A draft or sent proposal is enough** to clear it: those students are `pending`, not `missing`. The blocker only fires when there is nothing at all.
 
+### A frozen record is never rewritten from an empty group (D18)
+
+`year_record.generate_for_students()` is idempotent on `(student_id, course_id)`: an existing record has its content **replaced**, subject lines unlinked and all. That is what makes it safe to call repeatedly — until the student has nothing left to read.
+
+After a run, a student the transition did not place has no `main_group_id` (step 4b) and no live grade lines (step 8 deleted them, precisely because the record replaces them). Regenerating then rewrites the record from blanks:
+
+```
+before  group=CTWS2A  study="CTWS (2026)"  1 subject
+after   group=False   study=False          0 subjects
+```
+
+And the record is the **only** surviving trace of that year — the grades it copied are gone. Only a backup restores it.
+
+It is not hypothetical: `ems.withdrawal_wizard.action_apply()` regenerates on every exit, `_current_course()` stays on the outgoing course until the global flip, and the manual tells the operator to register the leavers **after** applying the transition. The window is exactly the summer.
+
+The guard lives in `_generate_one()` rather than in the withdrawal wizard: three callers reach it (the transition, the withdrawal wizard and `freeze_on_leaving`), and a fourth would reintroduce the bug. An explicit `group=` argument still refreshes normally, which is what `freeze_on_leaving()` relies on.
+
 ### Conditional flip (step 5)
 
 ```mermaid

@@ -1011,3 +1011,26 @@ class TestCourseTransition(TransactionCase):
         self.assertEqual(line.action, 'place')
         self.assertEqual(line.destination_group_id, self.group1)
 
+
+    def test_withdrawing_after_the_transition_keeps_the_frozen_record(self):
+        """The manual sends the operator here: register the leavers AFTER applying.
+        Regenerating would have read an empty group and blanked the only surviving
+        trace of the year."""
+        student = self._student('CTW Withdraw After', group=self.group2)
+        self._scored(student, self.group2, self.subject_int, self.outcome_int)
+        self._applied()
+        record = self.env['ems.student.year_record'].search([
+            ('student_id', '=', student.id), ('course_id', '=', self.source_course.id)])
+        self.assertEqual(record.group_id, self.group2)
+        subjects = len(record.subject_record_ids)
+        self.assertTrue(subjects)
+
+        wizard = self.env['ems.withdrawal_wizard'].with_context(
+            active_ids=student.ids).create({})
+        wizard.action_apply()
+
+        record = self.env['ems.student.year_record'].search([
+            ('student_id', '=', student.id), ('course_id', '=', self.source_course.id)])
+        self.assertEqual(record.group_id, self.group2)
+        self.assertEqual(len(record.subject_record_ids), subjects)
+        self.assertEqual(student.contact_type, 'withdrawal')

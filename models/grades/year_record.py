@@ -118,6 +118,16 @@ class EmsStudentYearRecord(models.Model):
     @api.model
     def _generate_one(self, student, course, group=None):
         group = group or student.main_group_id
+        # A record already frozen is never rewritten from an empty group. Once the
+        # transition has run, the student has no main_group_id (step 4b detached it) and
+        # its live grade lines are gone (step 8 deleted them, precisely because this
+        # record replaces them) — so regenerating would overwrite the only surviving
+        # trace of the year with blanks. It is not hypothetical: the withdrawal wizard
+        # regenerates on every exit, and the manual tells the operator to register the
+        # leavers AFTER applying the transition.
+        existing = self.search([('student_id', '=', student.id), ('course_id', '=', course.id)])
+        if existing and not group:
+            return existing
         attendance_rate, subject_rates = self._attendance_rates(student)
         subject_vals = self._subject_vals(student, subject_rates)
         all_passed = all(vals['state'] == 'passed' for vals in subject_vals)
@@ -144,7 +154,7 @@ class EmsStudentYearRecord(models.Model):
             'title_obtained': title_obtained,
             'subject_record_ids': [(0, 0, vals) for vals in subject_vals],
         }
-        record = self.search([('student_id', '=', student.id), ('course_id', '=', course.id)])
+        record = existing
         if record:
             record.subject_record_ids.unlink()
             record.write(vals)

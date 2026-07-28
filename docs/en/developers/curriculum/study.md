@@ -56,7 +56,7 @@ flowchart LR
 
 ### `uses_enrollment_flow` Computation
 
-Single source of truth for whether a study manages admissions through the matrícula (`sale.order`) flow. Derived — not a manual flag — from whether the study has at least one active `sale.order.template` (`ems.enrollment_template`) pointing at it via `ems_study_id`. Consumed by the "no destination" report, the transition-status computation, and the transition wizard preview.
+Single source of truth for whether a study manages admissions through the matrícula (`sale.order`) flow. Derived — not a manual flag — from whether the study has at least one active [enrollment template](../enrollment/enrollment_template.md) (`sale.order.template`) pointing at it via `ems_study_id`. Consumed by the "no destination" report, the transition-status computation, and the transition wizard preview.
 
 ```mermaid
 flowchart TD
@@ -153,7 +153,7 @@ No record-level rules exist for this model. Teacher/Secretary/Portal read access
 | `ems.tracking` | `study_id` | Many2one | Follow-up records scoped to a study |
 | `ems.enrollment` | `ems_study_id` | Many2one | Enrolment header targets a study; derives `ems_level_id` |
 | `ems.authorization` / `ems.authorization.template` | `ems_study_id` / `ems_study_ids` | Many2one / Many2many | Authorization scope |
-| `ems.enrollment_template` (`sale.order.template`) | `ems_study_id` | Many2one | Drives `uses_enrollment_flow` |
+| [Enrollment template](../enrollment/enrollment_template.md) (`sale.order.template`) | `ems_study_id` | Many2one | Drives `uses_enrollment_flow` |
 | `ems.attendance_template` | `study_id` | Many2one | Attendance scheduling, filtered by `level_id` |
 | `ems.attendance_session_header` / `_line` | `study_id` | Computed / related | Inherited from the attendance template |
 | `ems.student.year_record` | `study_id` | Many2one | Historical academic record |

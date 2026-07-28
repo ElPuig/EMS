@@ -135,3 +135,14 @@ All three notification templates live in the same file since they're the same un
 
 - No per-course-year scoping of the strike count (cumulative for the student's entire history).
 - No configurable per-branch escalation recipient override beyond the HoS/DHoS-matching algorithm.
+
+## `ems.strike.reason` DTON pass (2026-07-28)
+
+Class renamed `ems_strike_reason` → `EmsStrikeReason` (had its own `_name`, not an
+`_inherit`-only extension). New `tests/test_strike_reason.py` (5 tests: required `name`,
+default `active`, `sequence`/`name` ordering, archiving doesn't disturb a strike already
+referencing it, the seeded `ems.strike_reason_other` default) — no dedicated test file
+existed before, only incidental use via `env.ref` in `test_strike.py`. No dev-doc changes
+needed — the fields table and views table above already covered this model; no tour needed
+either, since `static/tests/tours/strike_tour.js`'s reason-select step already exercises the
+one place this model's data is rendered outside its own admin config screen. No bugs found.

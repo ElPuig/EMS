@@ -3,7 +3,7 @@
 from odoo import fields, models
 
 
-class ems_strike_reason(models.Model):
+class EmsStrikeReason(models.Model):
     _name = "ems.strike.reason"
     _description = "Strike reason: predefined reasons a teacher can pick when issuing a strike."
     _order = "sequence, name"

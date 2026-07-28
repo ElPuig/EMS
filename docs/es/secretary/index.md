@@ -18,6 +18,7 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [Informes de asistencia](attendance-reports.md) — Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos con la pantalla de Análisis de asistencia.
 - [Gestión de contactos de alumnado y familia](student-contacts.md) — Tipos de contacto y cómo cambian, añadir un contacto familiar a un alumno, y registrar bonificaciones y exenciones.
 - [Revisar los documentos del alumnado](student-documents.md) — Aprobar, rechazar o reabrir tramitaciones de DNI/tarjeta sanitaria/IBAN/beneficios, y qué hace cada decisión por detrás.
+- [Marcar una graduación y tramitar una baja](graduation-withdrawal.md) — La diferencia entre la marca diferida de graduación y una baja inmediata, y toda la cascada de la baja paso a paso.
 
 ## Temas previstos
 

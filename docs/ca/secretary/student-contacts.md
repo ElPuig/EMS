@@ -22,7 +22,7 @@ Aquesta guia explica com gestionar els contactes de tipus **alumne, família, as
 
 Cada persona o entitat a EMS és un contacte amb un **tipus**: Alumne, Família, Aspirant, Extitulat, Baixa o Proveïdor. El tipus d'un contacte canvia automàticament a mesura que avança pel seu recorregut habitual — un aspirant esdevé alumne un cop admès, un alumne esdevé extitulat (si ha graduat) o baixa (si no ho ha fet) en marxar, i tots dos poden tornar a ser alumne en una nova matrícula. Afegir un contacte nou sota un alumne o proveïdor existent (des de la pestanya "Contactes i adreces") li assigna automàticament el tipus Família o Proveïdor — no cal triar-lo mai manualment allà.
 
-> Què passa amb les dades d'un alumne en donar-se de baixa (la congelació de l'històric acadèmic, la baixa dels grups/assistència/qualificació) es documenta a [Històric acadèmic](academic-history.md).
+> Com marcar una graduació o tramitar una baixa, i tot el que passa amb les dades d'un alumne quan ho feu, es documenta a [Marcar una graduació i tramitar una baixa](graduation-withdrawal.md).
 
 ## Afegir un contacte familiar a un alumne
 

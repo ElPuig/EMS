@@ -86,9 +86,9 @@ class EmsGraduationWizard(models.TransientModel):
                 'has_graduated': True,
             })
             done += 1
-        message = _("%s student(s) marked as graduated.") % done
+        message = _("%(done)s student(s) marked as graduated.", done=done)
         if skipped:
-            message += " " + _("%s skipped (not in the last course).") % skipped
+            message += " " + _("%(skipped)s skipped (not in the last course).", skipped=skipped)
         return self._notify(message)
 
     def action_unmark(self):
@@ -103,7 +103,7 @@ class EmsGraduationWizard(models.TransientModel):
             if student.exit_type == 'graduation':
                 student.write({'exit_type': False, 'exit_course_id': False})
                 done += 1
-        return self._notify(_("%s graduation mark(s) removed.") % done)
+        return self._notify(_("%(done)s graduation mark(s) removed.", done=done))
 
     def _notify(self, message):
         return {
@@ -162,7 +162,7 @@ class EmsWithdrawalWizard(models.TransientModel):
         pending = self.env['sale.order'].search_count([
             ('partner_id', '=', student.id),
             ('state', 'in', ['draft', 'sent'])])
-        note = _("%s pending enrolment(s) will be cancelled") % pending if pending else ''
+        note = _("%(pending)s pending enrolment(s) will be cancelled", pending=pending) if pending else ''
         return {'student_id': student.id, 'note': note}
 
     def action_apply(self):
@@ -219,17 +219,18 @@ class EmsWithdrawalWizard(models.TransientModel):
             # guard raise and roll back every student already processed.
             if student._has_active_portal_user():
                 issues.append(_(
-                    "%s: portal access could not be revoked, kept active"
-                ) % student.display_name)
+                    "%(student)s: portal access could not be revoked, kept active",
+                    student=student.display_name,
+                ))
             else:
                 student.write({'active': False})
             done += 1
 
-        parts = [_("%s student(s) withdrawn") % done]
+        parts = [_("%(done)s student(s) withdrawn", done=done)]
         if revoked:
-            parts.append(_("%s portal access(es) revoked") % revoked)
+            parts.append(_("%(revoked)s portal access(es) revoked", revoked=revoked))
         if skipped:
-            parts.append(_("%s kept (sibling still enrolled)") % skipped)
+            parts.append(_("%(skipped)s kept (sibling still enrolled)", skipped=skipped))
         message = ", ".join(parts)
         if issues:
             message += "\n" + _("Issues:") + "\n- " + "\n- ".join(issues)

@@ -22,7 +22,7 @@ This guide explains how to manage **student, family, applicant and provider cont
 
 Every person or organisation in EMS is a contact with a **type**: Student, Family, Applicant, Alumni, Withdrawal or Provider. A contact's type changes automatically as it moves through its normal path — an applicant becomes a student once admitted, a student becomes alumni (if they graduated) or withdrawal (if they didn't) once they leave, and either can become a student again on re-enrolment. Adding a new contact under an existing student or provider (from the "Contacts & Addresses" tab) sets its type to Family or Provider automatically — you never need to pick it manually there.
 
-> What happens to a student's data on withdrawal (the academic history freeze, removal from groups/attendance/grading) is covered in [Academic history](academic-history.md).
+> How to mark a graduation or register a withdrawal, and everything that happens to a student's data when they do, is covered in [Marking a graduation and registering a withdrawal](graduation-withdrawal.md).
 
 ## Adding a family contact to a student
 

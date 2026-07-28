@@ -11232,44 +11232,44 @@ msgstr "Antic alumnat"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
-msgid "%s graduation mark(s) removed."
-msgstr "Marques de graduació esborrades: %s"
+msgid "%(done)s graduation mark(s) removed."
+msgstr "Marques de graduació esborrades: %(done)s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
-msgid "%s kept (sibling still enrolled)"
-msgstr "Accessos conservats (germà/na matriculat/da): %s"
+msgid "%(skipped)s kept (sibling still enrolled)"
+msgstr "Accessos conservats (germà/na matriculat/da): %(skipped)s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
-msgid "%s pending enrolment(s) will be cancelled"
-msgstr "Es cancel·laran %s matrícula(es) pendent(s)"
+msgid "%(pending)s pending enrolment(s) will be cancelled"
+msgstr "Es cancel·laran %(pending)s matrícula(es) pendent(s)"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
-msgid "%s portal access(es) revoked"
-msgstr "Accessos al portal revocats: %s"
+msgid "%(revoked)s portal access(es) revoked"
+msgstr "Accessos al portal revocats: %(revoked)s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
-msgid "%s student(s) marked as graduated."
-msgstr "Graduació marcada a %s estudiant(s)."
+msgid "%(done)s student(s) marked as graduated."
+msgstr "Graduació marcada a %(done)s estudiant(s)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
-msgid "%s student(s) withdrawn"
-msgstr "Baixes tramitades: %s"
+msgid "%(done)s student(s) withdrawn"
+msgstr "Baixes tramitades: %(done)s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
-msgid "%s: portal access could not be revoked, kept active"
-msgstr "%s: no s'ha pogut revocar l'accés al portal, es manté actiu"
+msgid "%(student)s: portal access could not be revoked, kept active"
+msgstr "%(student)s: no s'ha pogut revocar l'accés al portal, es manté actiu"
 
 #. module: ems
 #. odoo-python
@@ -11422,8 +11422,8 @@ msgstr "No està a l'últim curs de l'estudi — no es pot graduar"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
-msgid "%s skipped (not in the last course)."
-msgstr "S'ometen %s (no estan a l'últim curs)."
+msgid "%(skipped)s skipped (not in the last course)."
+msgstr "S'ometen %(skipped)s (no estan a l'últim curs)."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__blocked

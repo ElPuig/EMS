@@ -9,7 +9,7 @@ EMS does not define its own "contact" model: every student, family member, appli
 - `models/contacts/contact_relation.py` — `EmsContactRelationWizard`, `ResPartnerRelationAll` (`_inherit = 'res.partner.relation.all'`, from the `partner_multi_relation` OCA module)
 - `models/contacts/google_workspace_integration.py` — `ResPartnerGoogleWorkspace`, the corporate-account side of the lifecycle (not covered here — see the "Google Workspace" note below)
 
-Related docs: [`ems.group`](group.md) (`main_group_id`), [Enrollment benefits](../enrollment/enrollment_benefits.md) (`ems.student.benefit` vs `sale.order`/invoice interaction), [Exit management](../../developers) *(withdrawal/graduation wizards — see `tests/test_exit_management.py`, no dedicated doc yet)*.
+Related docs: [`ems.group`](group.md) (`main_group_id`), [Enrollment benefits](../enrollment/enrollment_benefits.md) (`ems.student.benefit` vs `sale.order`/invoice interaction), [Graduation & withdrawal wizards](exit_wizards.md) (deferred graduation mark vs immediate withdrawal cascade).
 
 ---
 
@@ -91,7 +91,7 @@ The Spanish Social Security number (NUSS) must be exactly 12 numeric digits (`re
 
 ## `toggle_active()` — archiving is the withdrawal flow
 
-Archiving one or more **active students** does not flip `active` directly: it opens the withdrawal wizard instead (mirroring `hr.employee`'s departure-reason flow), because withdrawal changes more state atomically (`contact_type`, operational-record cleanup, portal) than a bare `active` flip — none of it may run before a reason is captured, and nothing should happen if the wizard is cancelled. Non-student contacts in the same recordset are archived directly; reactivating never opens the wizard. Full coverage (including the generic Archive action from list/form, mixed recordsets, and the "still shows under Former students" edge case the tour catches) lives in `tests/test_exit_management.py` and `tests/test_withdrawal_tour.py`.
+Archiving one or more **active students** does not flip `active` directly: it opens the withdrawal wizard instead (mirroring `hr.employee`'s departure-reason flow), because withdrawal changes more state atomically (`contact_type`, operational-record cleanup, portal) than a bare `active` flip — none of it may run before a reason is captured, and nothing should happen if the wizard is cancelled. Non-student contacts in the same recordset are archived directly; reactivating never opens the wizard. See [Graduation & withdrawal wizards](exit_wizards.md) for the full withdrawal cascade this triggers. Full coverage (including the generic Archive action from list/form, mixed recordsets, and the "still shows under Former students" edge case the tour catches) lives in `tests/test_exit_management.py` and `tests/test_withdrawal_tour.py`.
 
 ---
 
@@ -163,4 +163,4 @@ The **field-level** editing surface for tutors is narrower than the record rule 
 | Relation wizard | `views/community/contact/relation_wizard.xml` | `action_contact_relation_wizard` |
 | Menu | `views/community/contact/menu.xml` + `views/community/menu.xml` | `action_student_kanban` (top-level "Educational Community" entry), `action_family_list`, `action_provider_kanban` |
 
-Other student-related popups (portal access, documents, graduation/withdrawal, import wizards) live in the same `views/community/contact/` folder but belong to their own not-yet-DTON'd models (see the roadmap).
+Other student-related popups — [portal access](portal_access_wizard.md), [documents](student_document.md), [graduation/withdrawal](exit_wizards.md) — live in the same `views/community/contact/` folder but are documented separately. The import wizards (`student_import`, `student_update`, `applicant_import`) are not yet DTON'd (see the roadmap).

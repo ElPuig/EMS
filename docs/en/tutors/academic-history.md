@@ -24,6 +24,10 @@ The records are ordered **by study and course**, so you can read each study from
 
 > The history is **read-only**: it is a frozen copy of what the grades subsystem computed during the course. If something needs correcting, contact the secretariat or the administrator.
 
+## Marking a student as graduating
+
+If one of your tutored students is in the **last course of their study** (e.g. 2nd of CFGM/CFGS/Batxillerat, 4th of ESO), you can mark them as graduating from **Actions → Graduation** on their form. This only flags it in advance — the student keeps attending classes normally, and nothing else changes until the course transition. See [Marking a graduation and registering a withdrawal](../secretary/graduation-withdrawal.md) for the full details (that guide is written for secretariat, but the graduation-marking part applies to tutors too — withdrawal itself is secretary/admin only).
+
 ---
 
 [← Back to main index](index.md)

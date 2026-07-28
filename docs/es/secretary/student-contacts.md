@@ -22,7 +22,7 @@ Esta guía explica cómo gestionar los contactos de tipo **alumno, familia, aspi
 
 Cada persona o entidad en EMS es un contacto con un **tipo**: Alumno, Familia, Aspirante, Extitulado, Baja o Proveedor. El tipo de un contacto cambia automáticamente a medida que avanza por su recorrido habitual — un aspirante pasa a alumno una vez admitido, un alumno pasa a extitulado (si se ha graduado) o baja (si no lo ha hecho) al marcharse, y ambos pueden volver a ser alumno en una nueva matrícula. Añadir un contacto nuevo bajo un alumno o proveedor existente (desde la pestaña "Contactos y direcciones") le asigna automáticamente el tipo Familia o Proveedor — nunca hace falta elegirlo manualmente ahí.
 
-> Qué ocurre con los datos de un alumno al darse de baja (la congelación del histórico académico, la baja de los grupos/asistencia/calificación) se documenta en [Histórico académico](academic-history.md).
+> Cómo marcar una graduación o tramitar una baja, y todo lo que ocurre con los datos de un alumno al hacerlo, se documenta en [Marcar una graduación y tramitar una baja](graduation-withdrawal.md).
 
 ## Añadir un contacto familiar a un alumno
 

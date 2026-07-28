@@ -24,6 +24,10 @@ Els registres estan ordenats **per estudi i curs**, de manera que podeu llegir c
 
 > L'històric és **només de lectura**: és una còpia congelada del que el subsistema de notes va calcular durant el curs. Si cal corregir alguna cosa, contacteu amb secretaria o amb l'administrador.
 
+## Marcar un alumne com a graduat
+
+Si un dels vostres alumnes tutoritzats està al **darrer curs del seu estudi** (per exemple, 2n de CFGM/CFGS/Batxillerat, 4t d'ESO), podeu marcar-lo com a graduat des de **Accions → Graduació** a la seva fitxa. Això només ho indica per endavant — l'alumne/a continua assistint a classe amb normalitat, i res més canvia fins a la transició de curs. Consulteu [Marcar una graduació i tramitar una baixa](../secretary/graduation-withdrawal.md) per als detalls complets (aquella guia està escrita per a secretaria, però la part de marcar la graduació també us aplica — la baixa en si és només de secretaria/admin).
+
 ---
 
 [← Torna a l'índex principal](index.md)

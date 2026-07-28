@@ -173,8 +173,12 @@ because `ems.enrollment` blocks manual creation for non-admins.
 
 ## Billing
 
-`_ems_generate_enrollment_invoice()` (idempotent — a no-op if a live
-`out_invoice` already exists) creates and posts the enrollment's invoice:
+The student picks `payment_term_id` on the portal enrollment-confirm page
+from the plans an admin/secretary marked portal-visible — see
+[`payment_term.md`](payment_term.md) for that `account.payment.term`
+extension. `_ems_generate_enrollment_invoice()` (idempotent — a no-op if a
+live `out_invoice` already exists) creates and posts the enrollment's
+invoice:
 
 - **Single payment:** one due date (`_ems_billing_due_dates()`'s first date,
   15-Jul of the course start year by default).

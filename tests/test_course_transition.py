@@ -510,6 +510,34 @@ class TestCourseTransition(TransactionCase):
         self.assertEqual(record.exit_type, 'graduation')
         self.assertEqual(record.group_id, self.group2)
 
+    def test_a_pending_graduate_keeps_the_record_frozen_before_the_conversion(self):
+        """Step 0 freezes the whole scope before step 2d turns anybody into an
+        applicant, so the record is written while the student still has its group."""
+        graduate = self._graduate('CTW Pending History')
+        self._scored(graduate, self.group2, self.subject_int, self.outcome_int)
+        self._order(graduate, self.group1, state='sent')
+        self._applied()
+        self.assertEqual(graduate.contact_type, 'applicant')
+        record = self.env['ems.student.year_record'].search([
+            ('student_id', '=', graduate.id), ('course_id', '=', self.source_course.id)])
+        self.assertEqual(len(record), 1)
+        self.assertEqual(record.group_id, self.group2)
+        self.assertTrue(record.subject_record_ids)
+
+    def test_an_unconfirmed_offer_leaves_a_non_graduate_as_a_student(self):
+        """Only GRADUATES holding an unconfirmed offer become applicants. Everybody
+        else keeps being a student — they simply lose the group until they confirm."""
+        student = self._student('CTW Pending Student', group=self.group2)
+        self._scored(student, self.group2, self.subject_int, self.outcome_int)
+        self._order(student, self.group1, state='sent')
+        self._applied()
+        self.assertEqual(student.contact_type, 'student')
+        self.assertFalse(student.main_group_id)
+        record = self.env['ems.student.year_record'].search([
+            ('student_id', '=', student.id), ('course_id', '=', self.source_course.id)])
+        self.assertEqual(record.group_id, self.group2)
+        self.assertTrue(record.subject_record_ids)
+
     def test_apply_still_archives_a_graduate_with_no_enrollment(self):
         graduate = self._graduate('CTW Leaving Archived')
         self._applied()

@@ -33,8 +33,6 @@ class ems_course_transition_wizard(models.TransientModel):
     # it is given; everything below is bounded by this, the global flip excepted.
     study_ids = fields.Many2many(string="Studies", comodel_name="ems.study",
         default=lambda self: self._default_study_ids())
-    archive_declined_applicants = fields.Boolean(string="Archive applicants without a confirmed enrollment",
-        help="Summer withdrawals: applicants who never confirmed their enrollment for the incoming course.")
     backup_done = fields.Boolean(string="I have taken a backup",
         help="The operational cleanup cannot be undone. Apply stays disabled until this is ticked.")
     state = fields.Selection(string="State", selection=[
@@ -59,7 +57,6 @@ class ems_course_transition_wizard(models.TransientModel):
     incomplete_evaluation_count = fields.Integer(string="Incomplete evaluations", readonly=True)
     template_count = fields.Integer(string="Attendance templates to archive", readonly=True)
     delete_count = fields.Integer(string="Records to delete", readonly=True)
-    declined_applicant_count = fields.Integer(string="Applicants without enrollment", readonly=True)
 
     audit_file = fields.Binary(string="Transition log (CSV)", readonly=True)
     audit_file_name = fields.Char()
@@ -297,20 +294,6 @@ class ems_course_transition_wizard(models.TransientModel):
         self.ensure_one()
         return self._scope_templates() - self._mixed_templates()
 
-    def _declined_applicants(self, order_index):
-        """Applicants of the studies in scope with no live enrollment at all.
-
-        An offer still in draft/sent is one the centre is WAITING on, not a declined
-        one: archiving it would cut off the very confirmation being expected — and
-        since step 2d turns a graduate holding an unconfirmed offer into an applicant,
-        that would hit them too.
-        """
-        self.ensure_one()
-        applicants = self.env['res.partner'].search([
-            ('contact_type', '=', 'applicant'),
-            ('study_id', 'in', self.study_ids.ids)])
-        return applicants.filtered(lambda applicant: applicant.id not in order_index)
-
     def _delete_count(self):
         """How many operational records step 8 would delete, for the scope."""
         self.ensure_one()
@@ -451,9 +434,6 @@ class ems_course_transition_wizard(models.TransientModel):
         if self.delete_count:
             warnings.append(_("%s operational record(s) will be deleted. This cannot be undone.")
                             % self.delete_count)
-        if self.archive_declined_applicants and self.declined_applicant_count:
-            warnings.append(_("%s applicant(s) without a confirmed enrollment will be archived.")
-                            % self.declined_applicant_count)
         if self.will_flip:
             warnings.append(_("No study is left pending: this run switches the current course to %s.")
                             % self.target_course_id.display_name)
@@ -490,7 +470,6 @@ class ems_course_transition_wizard(models.TransientModel):
             'incomplete_evaluation_count': len(self._incomplete_evaluation_lines()),
             'template_count': len(self._templates_to_archive()),
             'delete_count': self._delete_count(),
-            'declined_applicant_count': len(self._declined_applicants(order_index)),
             'pending_study_ids': [(6, 0, pending.ids)],
             'will_flip': not pending,
         })

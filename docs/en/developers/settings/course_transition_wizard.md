@@ -59,7 +59,6 @@ Step 5 resets every study back to `active` when the flip happens, so the next co
 | Incomplete evaluation | See the rule below (D9) |
 | Attendance templates to archive | Including templates whose `group_ids` span studies both in and out of scope |
 | Records to delete | Counts per model for step 8, grade sessions included |
-| Applicants without a confirmed enrollment | Summer withdrawals, only when the optional checkbox is ticked (D3) |
 
 ### Incomplete-evaluation rule (D9)
 
@@ -141,7 +140,7 @@ The three cases are not two. A graduate holding an offer **nobody has confirmed 
 
 Conceptually it is not a workaround: an internal SMX graduate holding an ASIX offer is in the very same position as an outsider who preinscribed to ASIX. `study_id`/`level_id` follow the destination on the order so they read as an applicant of the study they are heading to; the exit metadata is cleared (they have not left, they are waiting to come in); `has_graduated` stays, which is what makes a later manual withdrawal land on alumni.
 
-**Knock-on fix:** `_declined_applicants()` used to treat *any* applicant without a confirmed enrollment as declined, so the optional archive checkbox would have swallowed these. An offer still in draft/sent is one the centre is **waiting on**, not a declined one, so the predicate is now `applicant.id not in order_index` — no live enrollment at all.
+**D3 reversed:** the wizard used to offer an "archive applicants without a confirmed enrollment" checkbox. It never archived anything — the flag only ever reached a warning, no apply step consumed it — and the intent was wrong anyway: applicants with no enrollment in July are precisely the ones who may turn up in September, and now that a graduate holding an unconfirmed offer becomes an applicant itself, the sweep would have caught them too. Checkbox, counter, warning and `_declined_applicants()` are gone; summer clean-up stays manual.
 
 **Order is load-bearing:** step 2c runs *after* `_apply_history()`, because `year_record._generate_one()` stamps how the student left the outgoing course by reading `exit_course_id` — which `_ems_convert_to_student()` clears. `has_graduated` is never touched: it is permanent (D2).
 

@@ -29,9 +29,6 @@
                                     <field name="source_course_id"/>
                                     <field name="target_course_id"/>
                                 </group>
-                                <group>
-                                    <field name="archive_declined_applicants"/>
-                                </group>
                             </group>
                             <group>
                                 <field name="study_ids" widget="many2many_tags"
@@ -62,8 +59,6 @@
                                     <field name="incomplete_evaluation_count"/>
                                     <field name="template_count"/>
                                     <field name="delete_count"/>
-                                    <field name="declined_applicant_count"
-                                           invisible="not archive_declined_applicants"/>
                                 </group>
                             </group>
                             <field name="line_ids" nolabel="1" readonly="1">

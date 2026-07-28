@@ -471,18 +471,6 @@ class TestCourseTransition(TransactionCase):
         self.assertEqual(graduate.contact_type, 'applicant')
         self.assertEqual(graduate.study_id, self.study_other)
 
-    def test_declined_applicants_ignore_an_applicant_with_a_live_offer(self):
-        """An offer still in draft/sent is one we are waiting on, not a declined one:
-        archiving it would cut off the very confirmation we are expecting."""
-        applicant = self.env['res.partner'].create({
-            'name': 'CTW Live Offer', 'contact_type': 'applicant',
-            'study_id': self.study.id})
-        self._order(applicant, self.group1, state='sent')
-        wizard = self._wizard(archive_declined_applicants=True)
-        wizard.action_preview()
-        self.assertNotIn(applicant, wizard._declined_applicants(
-            wizard._target_orders_by_partner()))
-
     def test_preview_labels_a_graduate_without_any_order_as_leaving(self):
         graduate = self._graduate('CTW Leaving')
         wizard = self._wizard()

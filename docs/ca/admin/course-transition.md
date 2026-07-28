@@ -18,7 +18,9 @@ Hi ha quatre coses que han d'estar resoltes. L'auxiliar comprova les tres primer
 
 1. **El curs entrant existeix** i és diferent de l'actual.
 2. **Les avaluacions estan tancades.** L'última convocatòria de cada grup de l'abast ha d'estar en estat *Finalitzada*. Si n'hi ha d'obertes, l'auxiliar te les llista; tanca-les des de **Notes → Canviar estat de sessió d'avaluació**. Això val també per als **estudis de procedència**: si aquesta execució ha de col·locar alumnes que vénen d'un estudi que no estàs transicionant i aquell estudi encara té avaluacions obertes, l'auxiliar es nega a executar-se, perquè en sortir del grup se'ls congela l'expedient i quedaria a mitges.
-3. **Cap matrícula confirmada sense grup destí.** Si una matrícula està confirmada però ningú no n'ha triat el grup, l'auxiliar es nega a executar-se i te les llista. Resol-les amb l'acció **Suggerir grup destí** de l'informe *Alumnes sense destí*.
+3. **Cap matrícula confirmada sense grup destí.** Si una matrícula està confirmada però ningú no n'ha triat el grup, l'auxiliar es nega a executar-se i te les llista. Passa'ls l'acció **Suggerir grup destí** de l'informe *Alumnes sense destí*: proposa el grup del mateix acrònim i torn al curs destí, i també resol els repetidors, el curs dels quals dedueix de la tutoria que tenen matriculada.
+
+   Si tot i així en queden algunes, gairebé sempre és perquè **el grup destí encara no existeix**: un grup de tarda que promociona a un curs on només hi ha grup de matí, o un estudi sense cap grup del curs següent. Crea'ls abans de continuar, o decideix a quin grup existent van aquests alumnes i assigna'ls-el a mà a la seva matrícula. Cap suggeriment automàtic pot col·locar ningú en un grup que no està creat.
 4. **Una còpia de seguretat de la base de dades.** L'auxiliar et demana que confirmis que la tens, i no aplica res fins que marquis la casella.
 
 Marca els alumnes que es graduen *abans*, amb l'auxiliar de graduació des de la llista d'alumnes. La transició no decideix qui es gradua: només executa marques que ja hi són.

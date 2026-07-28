@@ -18,7 +18,9 @@ Hay cuatro cosas que deben estar resueltas. El asistente comprueba las tres prim
 
 1. **El curso entrante existe** y es distinto del actual.
 2. **Las evaluaciones están cerradas.** La última convocatoria de cada grupo del alcance debe estar en estado *Finalizada*. Si quedan abiertas, el asistente te las lista; ciérralas desde **Notas → Cambiar estado de sesión de evaluación**. Esto vale también para los **estudios de procedencia**: si esta ejecución va a colocar alumnos que vienen de un estudio que no estás transicionando y ese estudio aún tiene evaluaciones abiertas, el asistente se niega a ejecutarse, porque al salir del grupo se les congela el expediente y quedaría a medias.
-3. **Ninguna matrícula confirmada sin grupo destino.** Si una matrícula está confirmada pero nadie eligió el grupo, el asistente se niega a ejecutarse y te las lista. Resuélvelas con la acción **Sugerir grupo destino** del informe *Alumnos sin destino*.
+3. **Ninguna matrícula confirmada sin grupo destino.** Si una matrícula está confirmada pero nadie eligió el grupo, el asistente se niega a ejecutarse y te las lista. Pásales la acción **Sugerir grupo destino** del informe *Alumnos sin destino*: propone el grupo del mismo acrónimo y turno en el curso destino, y también resuelve a los repetidores, cuyo curso deduce de la tutoría que llevan matriculada.
+
+   Si aun así quedan algunas, casi siempre es porque **el grupo destino todavía no existe**: un grupo de tarde que promociona a un curso donde solo hay grupo de mañana, o un estudio sin ningún grupo del curso siguiente. Créalos antes de continuar, o decide a qué grupo existente van esos alumnos y asígnaselo a mano en su matrícula. Ninguna sugerencia automática puede colocar a nadie en un grupo que no está creado.
 4. **Una copia de seguridad de la base de datos.** El asistente te pide que confirmes que la tienes, y no aplica nada hasta que marques la casilla.
 
 Marca a los alumnos que se gradúan *antes*, con el asistente de graduación desde la lista de alumnos. La transición no decide quién se gradúa: solo ejecuta marcas que ya están puestas.

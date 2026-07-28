@@ -9249,6 +9249,7 @@ msgstr "La nota externa debe estar en el rango [0, 10]."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/student_import_wizard.py:0
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
 msgid ""
 "The file is missing required columns:\n"
 "• %(columns)s"
@@ -11033,6 +11034,7 @@ msgstr "Errores"
 #. odoo-python
 #: code:addons/ems/models/contacts/student_import_wizard.py:0
 #: code:addons/ems/models/contacts/student_update_wizard.py:0
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
 msgid "Errors (%(count)s):"
 msgstr "Errores (%(count)s):"
 
@@ -11881,8 +11883,8 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/applicant_import_wizard.py:0
-msgid "Study not found: %s / %s"
-msgstr "Estudio no encontrado: %s / %s"
+msgid "Study not found: %(code)s / %(name)s"
+msgstr "Estudio no encontrado: %(code)s / %(name)s"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_name

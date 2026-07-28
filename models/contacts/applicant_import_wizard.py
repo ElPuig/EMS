@@ -6,13 +6,15 @@ import io
 import logging
 from datetime import datetime
 
+from markupsafe import Markup
+
 from odoo import models, fields, _
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
 
-class ems_applicant_import_wizard(models.TransientModel):
+class EmsApplicantImportWizard(models.TransientModel):
     _name = "ems.applicant_import_wizard"
     _description = "Applicant import wizard (GEDAC preinscription xlsx/csv)"
 
@@ -69,8 +71,10 @@ class ems_applicant_import_wizard(models.TransientModel):
 
         missing = [col for col in self._REQUIRED_COLUMNS if col not in col_map]
         if missing:
-            raise UserError(
-                _("The file is missing required columns:\n• %s") % "\n• ".join(missing))
+            raise UserError(_(
+                "The file is missing required columns:\n• %(columns)s",
+                columns="\n• ".join(missing),
+            ))
 
         stats = {'created': 0, 'updated': 0, 'skipped': 0, 'students': 0,
                  'errors': [], 'log': [], 'student_rows': []}
@@ -86,10 +90,10 @@ class ems_applicant_import_wizard(models.TransientModel):
 
         stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         self.log_file = self._build_log_csv(stats['log'])
-        self.log_file_name = 'import_gedac_%s.csv' % stamp
+        self.log_file_name = f'import_gedac_{stamp}.csv'
         if stats['student_rows']:
             self.students_file = self._build_students_csv(stats['student_rows'])
-            self.students_file_name = 'gedac_alumnes_actius_%s.csv' % stamp
+            self.students_file_name = f'gedac_alumnes_actius_{stamp}.csv'
         self.result_html = self._build_result_html(stats)
         return {
             'type': 'ir.actions.act_window',
@@ -199,7 +203,10 @@ class ems_applicant_import_wizard(models.TransientModel):
             stats['skipped'] += 1
             stats['log'].append({
                 'accio': 'Omès', 'ralc': ralc, 'name': name, 'partner_id': False,
-                'motiu': _("Study not found: %s / %s") % (study_code, study_name),
+                'motiu': _(
+                    "Study not found: %(code)s / %(name)s",
+                    code=study_code, name=study_name,
+                ),
                 'ts': datetime.now(),
             })
             return
@@ -250,7 +257,12 @@ class ems_applicant_import_wizard(models.TransientModel):
     def _build_applicant_notes(self, get):
         """Provenance and preinscription metadata GEDAC provides but the applicant
         model has no dedicated field for. Kept in the notes (comment) until the
-        student history structure can host it (see Fase histórico)."""
+        student history structure can host it (see Fase histórico).
+
+        Built with Markup(...).format() (auto-escapes the GEDAC-sourced dynamic
+        values — center/study names are external data, not to be trusted as safe
+        HTML) rather than f-strings, same escaping discipline as _build_result_html.
+        """
         lines = []
         for label, key in [
             (_("Application number"), 'Núm. sol·licitud'),
@@ -263,12 +275,12 @@ class ems_applicant_import_wizard(models.TransientModel):
         ]:
             val = get(key)
             if val:
-                lines.append("%s: %s" % (label, self._norm_code(val)))
+                lines.append(Markup("{}: {}").format(label, self._norm_code(val)))
 
         # High-level athlete flag (values come as "Sí sense valor" / "No sense valor").
         athlete = get("Esportista d'alt nivell") or ''
         if athlete.lower().startswith('s'):
-            lines.append("%s: %s" % (_("High-level athlete"), _("Yes")))
+            lines.append(Markup("{}: {}").format(_("High-level athlete"), _("Yes")))
 
         prov = [
             (_("Origin center code"), self._norm_code(get('Codi centre procedència'))),
@@ -277,15 +289,15 @@ class ems_applicant_import_wizard(models.TransientModel):
             (_("Origin study"), get('Nom ensenyament procedència')),
             (_("Origin course"), self._norm_code(get('Curs procedència'))),
         ]
-        prov_lines = ["%s: %s" % (label, val) for label, val in prov if val]
+        prov_lines = [Markup("{}: {}").format(label, val) for label, val in prov if val]
         if prov_lines:
-            lines.append("<strong>%s</strong>" % _("Provenance"))
+            lines.append(Markup("<strong>{}</strong>").format(_("Provenance")))
             lines.extend(prov_lines)
 
         if not lines:
             return False
-        header = "[%s %s]" % (_("Import GEDAC"), datetime.now().strftime('%Y-%m-%d'))
-        return '<br/>'.join([header] + lines)
+        header = Markup("[{} {}]").format(_("Import GEDAC"), datetime.now().strftime('%Y-%m-%d'))
+        return Markup('<br/>').join([header] + lines)
 
     def _get_or_create_applicant(self, ralc, existing, applicant_data, stats):
         # Active students are handled apart (never reach here). Existing applicants and
@@ -436,21 +448,23 @@ class ems_applicant_import_wizard(models.TransientModel):
     def _build_result_html(self, stats):
         errors_html = ''
         if stats['errors']:
-            items = ''.join('<li>%s</li>' % e for e in stats['errors'])
-            errors_html = '<p><strong>%s (%d):</strong></p><ul>%s</ul>' % (
-                _("Errors"), len(stats['errors']), items)
+            items = Markup('').join(Markup('<li>{}</li>').format(e) for e in stats['errors'])
+            errors_html = Markup('<p><strong>{}</strong></p><ul>{}</ul>').format(
+                _("Errors (%(count)s):", count=len(stats['errors'])), items)
 
         students_html = ''
         if stats['student_rows']:
-            items = ''.join(
-                '<li>%s → %s (%s)</li>' % (r['current_name'], r['assigned_study'], r['current_group'])
-                for r in stats['student_rows'])
-            students_html = (
+            items = Markup('').join(
+                Markup('<li>{} → {} ({})</li>').format(
+                    r['current_name'], r['assigned_study'], r['current_group'])
+                for r in stats['student_rows']
+            )
+            students_html = Markup(
                 '<hr/>'
-                '<p>👤 <strong>%s</strong> %d</p>'
-                '<p style="color:#666;">%s</p>'
-                '<ul>%s</ul>'
-            ) % (
+                '<p>👤 <strong>{}</strong> {}</p>'
+                '<p style="color:#666;">{}</p>'
+                '<ul>{}</ul>'
+            ).format(
                 _("Already active students (destination recorded):"), stats['students'],
                 _("Internal continuers still enrolled (e.g. CFGM to CFGS before the "
                   "course transition). Their own data is kept, and the granted study, "
@@ -459,12 +473,12 @@ class ems_applicant_import_wizard(models.TransientModel):
                   "also in the 'active students' CSV below."),
                 items,
             )
-        return (
-            '<p>✅ <strong>%s</strong> %d</p>'
-            '<p>🔄 <strong>%s</strong> %d</p>'
-            '<p>⏭️ <strong>%s</strong> %d</p>'
-            '%s%s'
-        ) % (
+        return Markup(
+            '<p>✅ <strong>{}</strong> {}</p>'
+            '<p>🔄 <strong>{}</strong> {}</p>'
+            '<p>⏭️ <strong>{}</strong> {}</p>'
+            '{}{}'
+        ).format(
             _("Applicants created:"), stats['created'],
             _("Applicants updated:"), stats['updated'],
             _("Rows skipped (not assigned to this center):"), stats['skipped'],

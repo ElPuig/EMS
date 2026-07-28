@@ -300,3 +300,34 @@ class TestApplicantImportWizard(TransactionCase):
         self.env.company.center_code = False
         with self.assertRaises(UserError):
             self._run([self._base_row()])
+
+    # --- HTML escaping regressions -------------------------------------------------
+
+    def test_build_result_html_escapes_error_content(self):
+        wizard = self.env['ems.applicant_import_wizard'].new({})
+        html = wizard._build_result_html({
+            'created': 1, 'updated': 0, 'skipped': 0, 'students': 0,
+            'errors': ['<script>alert(1)</script>'], 'student_rows': [],
+        })
+        self.assertIn('&lt;script&gt;', html)
+        self.assertNotIn('<script>alert(1)</script>', html)
+
+    def test_build_result_html_escapes_active_student_row(self):
+        wizard = self.env['ems.applicant_import_wizard'].new({})
+        html = wizard._build_result_html({
+            'created': 0, 'updated': 0, 'skipped': 0,
+            'students': 1, 'errors': [],
+            'student_rows': [{
+                'current_name': '<b>Injected</b>', 'assigned_study': 'Study',
+                'current_group': 'Group',
+            }],
+        })
+        self.assertIn('&lt;b&gt;Injected&lt;/b&gt;', html)
+        self.assertNotIn('<b>Injected</b>', html)
+
+    def test_build_applicant_notes_escapes_gedac_values(self):
+        wizard = self.env['ems.applicant_import_wizard'].new({})
+        row = {'Nom centre procedència': '<img src=x onerror=alert(1)>'}
+        note = wizard._build_applicant_notes(lambda key: row.get(key))
+        self.assertIn('&lt;img', note)
+        self.assertNotIn('<img src=x', note)

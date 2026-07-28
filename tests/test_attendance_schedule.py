@@ -2,7 +2,7 @@
 
 from datetime import date
 
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -124,3 +124,161 @@ class TestAttendanceScheduleAccess(TransactionCase):
             [('id', '=', self.schedule.id)]
         )
         self.assertIn(self.schedule, schedule)
+
+
+class TestAttendanceScheduleLogic(TransactionCase):
+    """The model's own business logic: computed name/time_range/start_date/end_date,
+    check_overlap's co-teaching exception, and the unlink guard. See
+    docs/en/developers/attendance/attendance_schedule.md; the sync pipeline that
+    creates/archives these schedules from a teacher's weekly timetable is documented
+    (and separately tested) in attendance_template.md/tests/test_attendance_template.py
+    — not duplicated here."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.level = cls.env['ems.level'].create({'acronym': 'TASL', 'name': 'Test Level (Attendance Schedule Logic)'})
+        cls.study = cls.env['ems.study'].create({
+            'code': 'TASL001', 'acronym': 'TASL', 'name': 'Test Study (Attendance Schedule Logic)',
+            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
+        })
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TASL001', 'acronym': 'TASL', 'name': 'Test Subject (Attendance Schedule Logic)',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        cls.other_subject = cls.env['ems.subject'].create({
+            'code': 'TASL002', 'acronym': 'TASL2', 'name': 'Other Subject (Attendance Schedule Logic)',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        cls.group1 = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'TASLA', 'level_id': cls.level.id, 'study_id': cls.study.id,
+        })
+        cls.group2 = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'TASLB', 'level_id': cls.level.id, 'study_id': cls.study.id,
+        })
+        cls.space = cls.env['ems.space'].create({
+            'code': 'TASL-A', 'name': 'Test Space (Attendance Schedule Logic)',
+            'space_type_id': cls.env.ref('ems.space_type_classroom').id,
+            'work_location_id': cls.env.ref('ems.work_location_main').id,
+        })
+        cls.other_space = cls.env['ems.space'].create({
+            'code': 'TASL-B', 'name': 'Other Space (Attendance Schedule Logic)',
+            'space_type_id': cls.env.ref('ems.space_type_classroom').id,
+            'work_location_id': cls.env.ref('ems.work_location_main').id,
+        })
+        cls.teacher1 = cls.env['hr.employee'].create({
+            'name': 'Test Teacher 1 (Attendance Schedule Logic)', 'employee_type': 'teacher'})
+        cls.teacher2 = cls.env['hr.employee'].create({
+            'name': 'Test Teacher 2 (Attendance Schedule Logic)', 'employee_type': 'teacher'})
+
+    def _template(self, teacher, subject=None, groups=None, space=None):
+        return self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, teacher.ids)], 'level_id': self.level.id, 'study_id': self.study.id,
+            'subject_id': (subject or self.subject).id,
+            'group_ids': [(6, 0, (groups or self.group1).ids)],
+            'space_id': (space or self.space).id,
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+
+    # --- computed fields ---------------------------------------------------------------
+
+    def test_compute_name_and_time_range(self):
+        template = self._template(self.teacher1)
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '2',
+            'start_time': 9.5, 'end_time': 11.0, 'space_id': self.space.id,
+        })
+        self.assertIn('Wednesday', schedule.name)
+        self.assertIn(template.display_name, schedule.name)
+        self.assertEqual(schedule.time_range, '09:30 - 11:00')
+
+    def test_start_end_date_derived_from_template_dates_and_times(self):
+        template = self._template(self.teacher1)
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+        self.assertTrue(schedule.start_date)
+        self.assertTrue(schedule.end_date)
+        self.assertLess(schedule.start_date, schedule.end_date)
+
+    # --- check_overlap -----------------------------------------------------------------
+
+    def test_overlap_same_teacher_same_time_raises(self):
+        template1 = self._template(self.teacher1, space=self.space)
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template1.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+        template2 = self._template(self.teacher1, subject=self.other_subject, groups=self.group2, space=self.other_space)
+        with self.assertRaises(ValidationError):
+            self.env['ems.attendance_schedule'].create({
+                'attendance_template_id': template2.id, 'weekday': '1',
+                'start_time': 8.5, 'end_time': 9.5, 'space_id': self.other_space.id,
+            })
+
+    def test_overlap_same_space_different_teachers_raises(self):
+        template1 = self._template(self.teacher1, space=self.space)
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template1.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+        template2 = self._template(self.teacher2, subject=self.other_subject, groups=self.group2, space=self.space)
+        with self.assertRaises(ValidationError):
+            self.env['ems.attendance_schedule'].create({
+                'attendance_template_id': template2.id, 'weekday': '1',
+                'start_time': 8.5, 'end_time': 9.5, 'space_id': self.space.id,
+            })
+
+    def test_overlap_co_teaching_same_subject_shared_group_does_not_raise(self):
+        """Same subject + shared group, different teacher, same room/time: a legitimate
+        co-taught session, not a double-booking — check_overlap's exception via
+        is_co_teaching_with()."""
+        template1 = self._template(self.teacher1, subject=self.subject, groups=self.group1, space=self.space)
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template1.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+        template2 = self._template(self.teacher2, subject=self.subject, groups=self.group1, space=self.space)
+        schedule2 = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template2.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+        self.assertTrue(schedule2.id)
+
+    def test_overlap_different_weekday_does_not_raise(self):
+        template1 = self._template(self.teacher1, space=self.space)
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template1.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+        template2 = self._template(self.teacher1, subject=self.other_subject, groups=self.group2, space=self.other_space)
+        schedule2 = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template2.id, 'weekday': '2',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.other_space.id,
+        })
+        self.assertTrue(schedule2.id)
+
+    # --- unlink guard --------------------------------------------------------------------
+
+    def test_unlink_blocked_when_sessions_exist(self):
+        template = self._template(self.teacher1)
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+        self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': date.today(),
+            'mode': 'guard', 'session_teacher_id': self.teacher1.id,
+        })
+        with self.assertRaises(ValidationError):
+            schedule.unlink()
+
+    def test_unlink_allowed_without_sessions(self):
+        template = self._template(self.teacher1)
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+        schedule.unlink()
+        self.assertFalse(schedule.exists())

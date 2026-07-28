@@ -6,7 +6,7 @@
 
 **Trigger for this change:** the "Issue" status (`ems.attendance_status_issue`) is now redundant — `ems.strike` (see [ems.strike](../coexistence/strike.md)) covers the same "something happened worth flagging" case with a proper record (reason, notes, kicked-out flag, notifications), so `ems.attendance_status_issue` ships **archived from the start**, seeded only so existing historical rows keep a valid reference.
 
-**Module files:** `models/attendance/attendance_status.py`, `models/attendance/attendance_session.py`, `models/attendance/attendance_justification.py`, `models/attendance/attendance_issue.py`, `models/attendance/attendance_reports.py`.
+**Module files:** `models/attendance/attendance_status.py`, `models/attendance/attendance_session.py` (own fields/logic in [`attendance_session.md`](attendance_session.md)), `models/attendance/attendance_justification.py` (own fields/logic in [`attendance_justification.md`](attendance_justification.md)), `models/attendance/attendance_issue.py` (own fields/logic in [`attendance_issue.md`](attendance_issue.md) — **not dead code**, despite the "Issue" status value below being superseded), `models/attendance/attendance_reports.py`.
 
 ---
 

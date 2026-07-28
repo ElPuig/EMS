@@ -90,3 +90,5 @@ from . import test_payment_term
 from . import test_enrollment_line
 from . import test_enrollment_product_extension
 from . import test_enrollment_mail_activity
+from . import test_attendance_session
+from . import test_attendance_issue

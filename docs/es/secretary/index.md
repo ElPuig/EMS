@@ -19,6 +19,7 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [Gestión de contactos de alumnado y familia](student-contacts.md) — Tipos de contacto y cómo cambian, añadir un contacto familiar a un alumno, y registrar bonificaciones y exenciones.
 - [Revisar los documentos del alumnado](student-documents.md) — Aprobar, rechazar o reabrir tramitaciones de DNI/tarjeta sanitaria/IBAN/beneficios, y qué hace cada decisión por detrás.
 - [Marcar una graduación y tramitar una baja](graduation-withdrawal.md) — La diferencia entre la marca diferida de graduación y una baja inmediata, y toda la cascada de la baja paso a paso.
+- [Importar alumnado desde Esfera (SAGA)](student-import-esfera.md) — Actualizar masivamente los datos del alumnado ya matriculado (no confundir con la importación de preinscripción GEDAC), qué se hace coincidir/crea, y las limitaciones conocidas de deduplicación.
 
 ## Temas previstos
 

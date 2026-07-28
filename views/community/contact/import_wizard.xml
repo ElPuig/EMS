@@ -44,5 +44,8 @@
             <field name="target">new</field>
             <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary'))]"/>
         </record>
+        <!-- Entry point: a "cogMenu" item on the Students list/kanban (not a <menuitem> —
+             see static/src/js/backend/import_student_cog_menu.js), shown only on
+             ems.menu_students' own action. -->
     </data>
 </odoo>

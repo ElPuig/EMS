@@ -19,6 +19,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [Gestió de contactes d'alumnat i família](student-contacts.md) — Tipus de contacte i com canvien, afegir un contacte familiar a un alumne, i registrar bonificacions i exempcions.
 - [Revisar els documents dels alumnes](student-documents.md) — Aprovar, rebutjar o reobrir tramitacions de DNI/targeta sanitària/IBAN/beneficis, i què fa cada decisió per darrere.
 - [Marcar una graduació i tramitar una baixa](graduation-withdrawal.md) — La diferència entre la marca diferida de graduació i una baixa immediata, i tota la cascada de la baixa pas a pas.
+- [Importar alumnat des d'Esfera (SAGA)](student-import-esfera.md) — Actualitzar massivament les dades de l'alumnat ja matriculat (no confondre amb la importació de preinscripció GEDAC), què es fa coincidir/crea, i les limitacions conegudes de deduplicació.
 
 ## Temes previstos
 

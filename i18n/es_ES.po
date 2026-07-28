@@ -8726,6 +8726,18 @@ msgid "Students"
 msgstr "Estudiantes"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "Students created:"
+msgstr "Alumnos creados:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "Students updated:"
+msgstr "Alumnos actualizados:"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 msgid "Students - Tutor View"
 msgstr "Alumnos/as - Vista tutor/a"
@@ -9231,10 +9243,10 @@ msgstr "La nota externa debe estar en el rango [0, 10]."
 #: code:addons/ems/models/contacts/student_import_wizard.py:0
 msgid ""
 "The file is missing required columns:\n"
-"• %s"
+"• %(columns)s"
 msgstr ""
 "Al archivo le faltan columnas obligatorias:\n"
-"• %s"
+"• %(columns)s"
 
 #. module: ems
 #. odoo-python
@@ -11010,6 +11022,12 @@ msgid "Errors"
 msgstr "Errores"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "Errors (%(count)s):"
+msgstr "Errores (%(count)s):"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__round
 msgid "Evaluation"
 msgstr "Evaluación"
@@ -11151,6 +11169,8 @@ msgstr "Notas de empresa aplicadas"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/grade_import_wizard.py:0
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
 msgid "openpyxl is required to import xlsx files."
 msgstr "openpyxl es necesario para importar ficheros xlsx."
 

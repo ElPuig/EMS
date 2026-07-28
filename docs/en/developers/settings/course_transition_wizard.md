@@ -204,6 +204,27 @@ Two changes, because one alone is not enough:
 - **A blocker**, not a warning. A warning is the right shape when the consequence is recoverable; this one was not.
 - **`_ems_place_on_group_assignment()`**, called from `write()` when `ems_group_id` is filled in. It is deliberately narrow — `state == 'sale'`, placement is individual (below), and the student has **no** group yet. That last guard matters: `_ems_apply_destination_placement()` creates the new group's enrollments but does not remove the old ones, so re-pointing an already-placed student would leave it enrolled in two groups at once.
 
+### The destination course of a re-enrolment (D15)
+
+`_ems_suggest_group()` reads the destination course from `sale_order_template_id.study_year`. A **repeater** never goes through a template: they re-enrol only in what they failed, so the field is empty and the suggestion gave up before looking at a single group. On the 25-26 data that was 10 of the 51 confirmed enrollments with no destination group.
+
+Matching their lines against a template as a whole does not work either — no template is ever a superset of them:
+
+```
+Zakariae Boukraa (SMX2D)
+   Seguretat informàtica
+   Muntatge i manteniment d'equips     <- module pending from an earlier course
+   Matrícula El Puig Castellar         <- economic item
+   Quota AMPA                          <- economic item
+   Tutoria 2n SMX                      <- the one reliable handle
+```
+
+`_ems_course_from_tutorship()` uses the tutorship instead: there is exactly one per enrollment and it is course-specific (`Tutoria 2n SMX`, `T2_CFGS_ICB0_DAM`), so whichever templates sell that product pin the year down. It resolves all 10.
+
+Ambiguity returns nothing and the group stays empty — no tutorship line, more than one, or templates disagreeing on the year. If the centre ever stopped making tutorships course-specific, the rule would simply find no answer instead of guessing wrong.
+
+It does **not** touch the other 41: those fail because no group exists at all in the destination study/course/shift (GA1B afternoon promoting to a 2nd year that only exists in the morning, AD with no 2nd-year group at all). That is missing data, not a rule the code can improve.
+
 ### Placement is individual after the flip too (D14)
 
 `_ems_admit_student()` keyed the individual placement on `ems_study_id.transition_state == 'transitioned'`. But step 5 puts **every** study back to `active` once nothing is pending, so in the normal end state — the whole centre transitioned — the branch was true for nobody and confirming an enrollment in September placed no one:

@@ -210,6 +210,83 @@ class TestEnrollmentPlacement(TransactionCase):
             'sale_order_template_id': self.template2.id})
         self.assertEqual(order._ems_suggest_group(), self.g2a)
 
+    # --- destination course read from the tutorship, with no template ---------
+
+    def _tutorship(self, code, year):
+        """A course-specific tutorship subject, sold by the template of that year."""
+        subject = self.env['ems.subject'].create({
+            'code': code, 'acronym': code, 'name': 'Tutorship %s' % code,
+            'is_tutorship': True, 'study_ids': [(6, 0, [self.study.id])]})
+        template = self.template1 if year == 1 else self.template2
+        template.sale_order_template_line_ids = [
+            (0, 0, {'product_id': subject.product_id.id})]
+        return subject
+
+    def _repeater_order(self, student, *subjects):
+        """A re-enrolment: no template, only the subjects the student is retaking."""
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id, 'shift': 'morning'})
+        order.order_line = [(0, 0, {'product_id': s.product_id.id}) for s in subjects]
+        return order
+
+    def test_suggested_group_reads_the_course_from_the_tutorship(self):
+        """A repeater re-enrolling only in what they failed never goes through a
+        template, so study_year is empty and the suggestion used to give up."""
+        tutorship = self._tutorship('PLTUT2', 2)
+        student = self.env['res.partner'].create({
+            'name': 'PL Repeater', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, tutorship)
+        self.assertFalse(order.sale_order_template_id)
+        self.assertEqual(order._ems_suggest_group(), self.g2a)
+
+    def test_the_tutorship_wins_over_modules_pending_from_another_course(self):
+        """Their lines cannot be matched against a template as a whole: they mix
+        modules pending from an earlier course with the current one."""
+        tutorship = self._tutorship('PLTUT2B', 2)
+        self.template1.sale_order_template_line_ids = [
+            (0, 0, {'product_id': self.subject1.product_id.id})]
+        student = self.env['res.partner'].create({
+            'name': 'PL Mixed', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, tutorship, self.subject1)
+        self.assertEqual(order._ems_suggest_group(), self.g2a)
+
+    def test_no_suggestion_without_a_tutorship_line(self):
+        student = self.env['res.partner'].create({
+            'name': 'PL No Tutorship', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, self.subject1)
+        self.assertFalse(order._ems_suggest_group())
+
+    def test_no_suggestion_when_two_tutorships_are_enrolled(self):
+        """Ambiguous input must leave the group empty rather than pick a course."""
+        first = self._tutorship('PLTUT1C', 1)
+        second = self._tutorship('PLTUT2C', 2)
+        student = self.env['res.partner'].create({
+            'name': 'PL Two Tutorships', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, first, second)
+        self.assertFalse(order._ems_suggest_group())
+
+    def test_no_suggestion_when_the_tutorship_is_sold_by_two_courses(self):
+        """A tutorship shared by both templates pins nothing down."""
+        tutorship = self._tutorship('PLTUTX', 2)
+        self.template1.sale_order_template_line_ids = [
+            (0, 0, {'product_id': tutorship.product_id.id})]
+        student = self.env['res.partner'].create({
+            'name': 'PL Shared Tutorship', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, tutorship)
+        self.assertFalse(order._ems_suggest_group())
+
+    def test_the_template_still_wins_when_there_is_one(self):
+        """The tutorship is a fallback, not a replacement."""
+        self._tutorship('PLTUT1D', 1)
+        student = self.env['res.partner'].create({
+            'name': 'PL Templated', 'contact_type': 'student', 'main_group_id': self.g1a.id})
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id, 'shift': 'morning',
+            'sale_order_template_id': self.template2.id})
+        self.assertEqual(order._ems_suggest_group(), self.g2a)
+
     def test_action_suggest_fills_enrolled_skips_unenrolled(self):
         enrolled = self.env['res.partner'].create({
             'name': 'ASG Enrolled', 'contact_type': 'student', 'main_group_id': self.g1a.id})

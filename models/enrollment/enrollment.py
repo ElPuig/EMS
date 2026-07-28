@@ -585,7 +585,7 @@ class ems_SaleOrder(models.Model):
         """
         self.ensure_one()
         study = self.ems_study_id
-        course = self.sale_order_template_id.study_year
+        course = self.sale_order_template_id.study_year or self._ems_course_from_tutorship()
         if not (study and course):
             return self.env['ems.group']
         Group = self.env['ems.group']
@@ -606,6 +606,36 @@ class ems_SaleOrder(models.Model):
             domain.append(('shift', '=', shift))
         matches = Group.search(domain)
         return matches if len(matches) == 1 else Group
+
+    def _ems_course_from_tutorship(self):
+        """Destination course of an enrollment that carries no template.
+
+        A repeater re-enrolling only in what they failed never goes through a template,
+        so sale_order_template_id.study_year is empty and the suggestion gave up. Their
+        lines cannot be matched against a template as a whole either: they mix modules
+        pending from an earlier course with the current one, plus the economic items
+        (enrollment fee, AMPA), so no template is ever a superset of them.
+
+        The tutorship is the handle. There is exactly one per enrollment and it is
+        course-specific ("Tutoria 2n SMX"), so whichever templates sell it pin the
+        course down. Anything ambiguous — no tutorship, more than one, or templates
+        disagreeing on the year — returns nothing, and the caller leaves the group
+        empty rather than guess.
+        """
+        self.ensure_one()
+        tutorships = self.env['ems.subject'].search([
+            ('product_id', 'in', self.order_line.mapped('product_id').ids),
+            ('is_tutorship', '=', True)])
+        if len(tutorships) != 1:
+            return False
+        years = {
+            template.study_year
+            for template in self.env['sale.order.template'].search([
+                ('ems_study_id', '=', self.ems_study_id.id),
+                ('study_year', '!=', False)])
+            if tutorships.product_id in template.sale_order_template_line_ids.product_id
+        }
+        return years.pop() if len(years) == 1 else False
 
     def _ems_fill_suggested_group(self):
         """Fill ems_group_id with the suggestion on enrollments that have none.

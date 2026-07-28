@@ -26,7 +26,7 @@ Marca els alumnes que es graduen *abans*, amb l'auxiliar de graduació des de la
 
 Un alumne que acaba SMX i es matricula d'ASIX, DAM o DAW, o un que acaba DAM i comença un altre cicle superior —fins i tot d'una altra família—, es gradua **i** continua. Són dos fets independents: la graduació tanca el cicle que s'acaba, la matrícula obre el que comença.
 
-**No has de fer res perquè funcioni, ni marcar res d'especial.** Tu marques la graduació, com sempre. La matrícula arriba pel seu compte des de la preinscripció i GEDAC. L'auxiliar creua les dues dades en executar-se i decideix sol: si un graduat té matrícula per al curs següent, manté la seva graduació a l'expedient però **no** es converteix en exalumne ni s'arxiva; es col·loca al seu grup nou com qualsevol altre.
+**No has de fer res perquè funcioni, ni marcar res d'especial.** Tu marques la graduació, com sempre. La matrícula arriba pel seu compte des de la preinscripció i GEDAC. L'auxiliar creua les dues dades en executar-se i decideix sol, i distingeix tres casos: sense matrícula, s'arxiva com a exalumne; amb matrícula **confirmada**, continua sent alumne i es col·loca al grup nou; amb matrícula **sense confirmar**, passa a sol·licitant conservant l'accés al portal, perquè pugui confirmar-la més endavant. Si la confirma, torna a ser alumne i es col·loca sol.
 
 ---
 
@@ -47,7 +47,8 @@ Obtindràs un quadre vermell si alguna cosa bloqueja l'execució, un quadre blau
 | Acció | Què significa |
 |---|---|
 | **Es gradua** | Marcat com a graduat i sense matrícula: passa a exalumne i s'arxiva |
-| **Es gradua i continua** | Marcat com a graduat **i** amb matrícula per al curs següent: conserva la graduació, no s'arxiva i es col·loca al grup nou |
+| **Es gradua i continua** | Marcat com a graduat **i** amb matrícula **confirmada**: conserva la graduació, no s'arxiva i es col·loca al grup nou |
+| **Es gradua, pendent de confirmar** | Marcat com a graduat i amb matrícula **sense confirmar**: passa a sol·licitant, **conserva l'accés al portal** i no s'arxiva, perquè pugui confirmar-la al setembre |
 | **Col·locar al grup destí** | Té matrícula confirmada amb grup: s'hi trasllada |
 | **Matriculat sense grup** | Matrícula confirmada sense grup destí: **se saltarà** |
 | **Sense destí** | No té cap matrícula per al curs següent |
@@ -66,7 +67,7 @@ Marca **He fet una còpia de seguretat** i fes clic a **Aplicar la transició**.
 Què passa, i en quin ordre:
 
 1. Es congela **l'historial acadèmic** de tots els alumnes. Si això falla, no s'executa res més.
-2. Els graduats **que marxen** passen a exalumnes, se'ls revoca l'accés al portal i **s'arxiven**. Els que continuen al centre conserven la seva graduació però segueixen actius: només se'ls esborra la data de sortida del cicle que acaben d'acabar.
+2. Els graduats **que marxen** passen a exalumnes, se'ls revoca l'accés al portal i **s'arxiven**. Els que continuen amb matrícula confirmada segueixen actius com a alumnes. Els que tenen matrícula sense confirmar passen a **sol·licitants i conserven el portal**: sense ell no podrien confirmar la matrícula, perquè un exalumne arxivat no hi té accés.
 3. S'arxiven les plantilles d'assistència del curs sortint.
 4. **S'esborren els registres operatius**: inscripcions a mòduls, notes, assistència i sessions d'avaluació. S'esborren els dels grups del curs sortint, encara que l'alumne ja hagi estat col·locat al seu grup nou per una execució anterior. Aquesta és la part irreversible — l'historial acadèmic desat al pas 1 és el que els substitueix.
 5. Els alumnes es col·loquen al **grup destí** i s'hi inscriuen a les assignatures.

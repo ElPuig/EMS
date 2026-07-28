@@ -340,16 +340,68 @@ class TestCourseTransition(TransactionCase):
         self.assertEqual(wizard.graduate_continue_count, 1)
         self.assertEqual(wizard.graduate_count, 0)
 
-    def test_preview_labels_a_graduate_with_an_unconfirmed_order_as_continuing(self):
-        """A draft/sent offer may still be confirmed in September: archiving the
-        student now would leave that confirmation with nobody to place."""
-        graduate = self._graduate('CTW Continuing Sent')
+    def test_preview_labels_a_graduate_with_an_unconfirmed_order_as_pending(self):
+        """An offer still on the table is neither a placement nor a departure."""
+        graduate = self._graduate('CTW Pending Sent')
         self._order(graduate, self.group1, state='sent')
         wizard = self._wizard()
         wizard.action_preview()
         line = wizard.line_ids.filtered(lambda line: line.student_id == graduate)
-        self.assertEqual(line.action, 'graduate_continue')
+        self.assertEqual(line.action, 'graduate_pending')
         self.assertFalse(line.destination_group_id)
+        self.assertEqual(wizard.graduate_pending_count, 1)
+        self.assertEqual(wizard.graduate_count, 0)
+        self.assertEqual(wizard.graduate_continue_count, 0)
+
+    def test_apply_turns_a_graduate_pending_confirmation_into_an_applicant(self):
+        """#357 archives every alumnus, and Odoo refuses to archive a contact with an
+        active portal user — so an alumnus has no portal and could not confirm the
+        offer. 'applicant' already models exactly this situation."""
+        graduate = self._graduate('CTW Pending Applicant')
+        self._order(graduate, self.group1, state='sent')
+        self._applied()
+        self.assertEqual(graduate.contact_type, 'applicant')
+        self.assertTrue(graduate.active)
+        self.assertFalse(graduate.exit_type)
+        self.assertTrue(graduate.has_graduated)
+
+    def test_apply_keeps_the_portal_of_a_graduate_pending_confirmation(self):
+        """Without portal there is no /my/gestion-matriculas, and the offer could
+        never be confirmed."""
+        graduate = self._graduate('CTW Pending Portal', email='ctw.pending@example.com')
+        self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'CTW Pending User', 'login': 'ctw_pending_user',
+            'partner_id': graduate.id,
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])]})
+        self._order(graduate, self.group1, state='sent')
+        self._applied()
+        self.assertTrue(graduate._has_active_portal_user())
+        self.assertTrue(graduate.active)
+
+    def test_pending_graduate_takes_the_study_of_its_destination(self):
+        """So it is indistinguishable from any other applicant of that study."""
+        graduate = self._graduate('CTW Pending Study')
+        order = self.env['sale.order'].create({
+            'partner_id': graduate.id, 'ems_study_id': self.study_other.id,
+            'ems_course_id': self.target_course.id, 'ems_group_id': self.group_other.id,
+            'shift': 'morning'})
+        order.order_line = [(0, 0, {'product_id': self.subject_int.product_id.id})]
+        order.state = 'sent'
+        self._applied()
+        self.assertEqual(graduate.contact_type, 'applicant')
+        self.assertEqual(graduate.study_id, self.study_other)
+
+    def test_declined_applicants_ignore_an_applicant_with_a_live_offer(self):
+        """An offer still in draft/sent is one we are waiting on, not a declined one:
+        archiving it would cut off the very confirmation we are expecting."""
+        applicant = self.env['res.partner'].create({
+            'name': 'CTW Live Offer', 'contact_type': 'applicant',
+            'study_id': self.study.id})
+        self._order(applicant, self.group1, state='sent')
+        wizard = self._wizard(archive_declined_applicants=True)
+        wizard.action_preview()
+        self.assertNotIn(applicant, wizard._declined_applicants(
+            wizard._target_orders_by_partner()))
 
     def test_preview_labels_a_graduate_without_any_order_as_leaving(self):
         graduate = self._graduate('CTW Leaving')
@@ -410,16 +462,20 @@ class TestCourseTransition(TransactionCase):
         self.assertTrue(graduate.active)
         self.assertEqual(graduate.main_group_id, self.group_other)
 
-    def test_a_continuing_graduate_is_placed_when_it_confirms_in_september(self):
-        """The unconfirmed offer survives the transition (only the OUTGOING course
-        is cancelled), and the student is still a placeable student when it lands."""
+    def test_a_pending_graduate_becomes_a_student_again_when_it_confirms(self):
+        """The offer survives the transition (only the OUTGOING course is cancelled)
+        and the applicant path takes the graduate back in, exactly as it does for an
+        outsider who preinscribed."""
         graduate = self._graduate('CTW September')
         order = self._order(graduate, self.group1, state='sent')
         self._applied()
         self.assertEqual(order.state, 'sent')
+        self.assertEqual(graduate.contact_type, 'applicant')
         self.assertTrue(graduate.active)
         order.action_confirm()
+        self.assertEqual(graduate.contact_type, 'student')
         self.assertEqual(graduate.main_group_id, self.group1)
+        self.assertTrue(graduate.has_graduated)
 
     def test_admit_student_reactivates_an_archived_ex_student(self):
         """A genuine returner: archived last year, enrolls again. The individual
@@ -578,7 +634,7 @@ class TestCourseTransition(TransactionCase):
         self._order(graduate, self.group1, state='sent')
         self._applied()
         self.assertFalse(graduate.main_group_id)
-        self.assertEqual(graduate.contact_type, 'student')
+        self.assertEqual(graduate.contact_type, 'applicant')
         self.assertTrue(graduate.has_graduated)
 
     def test_apply_keeps_the_group_of_a_student_promoted_within_the_same_study(self):

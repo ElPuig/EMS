@@ -26,7 +26,7 @@ Marca a los alumnos que se gradúan *antes*, con el asistente de graduación des
 
 Un alumno que acaba SMX y se matricula de ASIX, DAM o DAW, o uno que acaba DAM y empieza otro ciclo superior —incluso de otra familia—, se gradúa **y** continúa. Son dos hechos independientes: la graduación cierra el ciclo que termina, la matrícula abre el que empieza.
 
-**No tienes que hacer nada para que funcione, ni marcar nada especial.** Tú marcas la graduación, como siempre. La matrícula llega por su cuenta desde la preinscripción y GEDAC. El asistente cruza los dos datos al ejecutarse y decide solo: si un graduado tiene matrícula para el curso siguiente, mantiene su graduación en el expediente pero **no** se convierte en exalumno ni se archiva; se coloca en su grupo nuevo como cualquier otro.
+**No tienes que hacer nada para que funcione, ni marcar nada especial.** Tú marcas la graduación, como siempre. La matrícula llega por su cuenta desde la preinscripción y GEDAC. El asistente cruza los dos datos al ejecutarse y decide solo, y distingue tres casos: sin matrícula, se archiva como exalumno; con matrícula **confirmada**, sigue siendo alumno y se coloca en su grupo nuevo; con matrícula **sin confirmar**, pasa a solicitante conservando el acceso al portal, para que pueda confirmarla más adelante. Si la confirma, vuelve a ser alumno y se coloca solo.
 
 ---
 
@@ -47,7 +47,8 @@ Obtendrás un recuadro rojo si algo bloquea la ejecución, uno azul con todo lo 
 | Acción | Qué significa |
 |---|---|
 | **Se gradúa** | Marcado como graduado y sin matrícula: pasa a exalumno y se archiva |
-| **Se gradúa y continúa** | Marcado como graduado **y** con matrícula para el curso siguiente: conserva la graduación, no se archiva y se coloca en el grupo nuevo |
+| **Se gradúa y continúa** | Marcado como graduado **y** con matrícula **confirmada**: conserva la graduación, no se archiva y se coloca en el grupo nuevo |
+| **Se gradúa, pendiente de confirmar** | Marcado como graduado y con matrícula **sin confirmar**: pasa a solicitante, **conserva el acceso al portal** y no se archiva, para que pueda confirmarla en septiembre |
 | **Colocar en grupo destino** | Tiene matrícula confirmada con grupo: se traslada allí |
 | **Matriculado sin grupo** | Matrícula confirmada sin grupo destino: **se saltará** |
 | **Sin destino** | No tiene ninguna matrícula para el curso siguiente |
@@ -66,7 +67,7 @@ Marca **He hecho una copia de seguridad** y pulsa **Aplicar la transición**. Se
 Qué ocurre, y en qué orden:
 
 1. Se congela el **historial académico** de todos los alumnos. Si esto falla, no se ejecuta nada más.
-2. Los graduados **que se van** pasan a exalumnos, se les revoca el acceso al portal y **se archivan**. Los que continúan en el centro conservan su graduación pero siguen activos: solo se les borra la fecha de salida del ciclo que acaban de terminar.
+2. Los graduados **que se van** pasan a exalumnos, se les revoca el acceso al portal y **se archivan**. Los que continúan con matrícula confirmada siguen activos como alumnos. Los que tienen matrícula sin confirmar pasan a **solicitantes y conservan el portal**: sin él no podrían confirmar la matrícula, porque un exalumno archivado no tiene acceso.
 3. Se archivan las plantillas de asistencia del curso saliente.
 4. **Se borran los registros operativos**: inscripciones a módulos, notas, asistencia y sesiones de evaluación. Se borran las de los grupos del curso saliente, aunque el alumno ya haya sido colocado en su grupo nuevo por una ejecución anterior. Esta es la parte irreversible — el historial académico guardado en el paso 1 es lo que los sustituye.
 5. Los alumnos se colocan en su **grupo destino** y se les inscribe en sus asignaturas.

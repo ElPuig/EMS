@@ -13,6 +13,7 @@ from odoo.exceptions import UserError
 TRANSITION_ACTIONS = [
     ('graduate', 'Graduate'),
     ('graduate_continue', 'Graduates and continues'),
+    ('graduate_pending', 'Graduates, pending confirmation'),
     ('place', 'Place in destination group'),
     ('unplaced', 'Enrolled without group'),
     ('missing', 'No destination'),
@@ -49,6 +50,7 @@ class ems_course_transition_wizard(models.TransientModel):
 
     graduate_count = fields.Integer(string="Graduates", readonly=True)
     graduate_continue_count = fields.Integer(string="Graduates continuing at the centre", readonly=True)
+    graduate_pending_count = fields.Integer(string="Graduates pending confirmation", readonly=True)
     place_count = fields.Integer(string="To place", readonly=True)
     unplaced_count = fields.Integer(string="Enrolled without group", readonly=True)
     missing_count = fields.Integer(string="Without destination", readonly=True)
@@ -118,17 +120,33 @@ class ems_course_transition_wizard(models.TransientModel):
         through the GEDAC assignment, so the wizard derives the case at run time from
         the two facts it already has.
 
-        ANY non-cancelled enrollment counts, not only the confirmed ones: an offer still
-        in draft/sent may be confirmed in September, and archiving the student now would
-        leave that confirmation with nobody to place.
+        Only a CONFIRMED enrollment counts here: an offer still in draft/sent has
+        nobody to place yet, and belongs to _pending_graduates() instead.
         """
         self.ensure_one()
-        return self._scope_graduates().filtered(lambda student: student.id in order_index)
+        return self._scope_graduates().filtered(
+            lambda student: order_index.get(student.id)
+            and order_index[student.id].state == 'sale')
+
+    def _pending_graduates(self, order_index):
+        """Graduates holding an offer nobody has confirmed yet.
+
+        They can be neither placed (there is nothing to place) nor turned into alumni:
+        #357 archives every alumnus, and res.partner.write() refuses to archive a
+        contact with an active portal user — so an alumnus is by construction someone
+        without portal, and without portal they could never confirm the offer from
+        /my/gestion-matriculas. Step 2d makes them applicants instead.
+        """
+        self.ensure_one()
+        return self._scope_graduates().filtered(
+            lambda student: order_index.get(student.id)
+            and order_index[student.id].state != 'sale')
 
     def _leaving_graduates(self, order_index):
         """Graduates who really leave the centre: the ones step 2 turns into alumni."""
         self.ensure_one()
-        return self._scope_graduates() - self._continuing_graduates(order_index)
+        return self._scope_graduates() - self._continuing_graduates(order_index) \
+            - self._pending_graduates(order_index)
 
     def _target_orders_by_partner(self):
         """Every non-cancelled enrollment for the incoming course, indexed by partner.
@@ -252,14 +270,18 @@ class ems_course_transition_wizard(models.TransientModel):
         return self._scope_templates() - self._mixed_templates()
 
     def _declined_applicants(self, order_index):
-        """Applicants of the studies in scope who never confirmed an enrollment."""
+        """Applicants of the studies in scope with no live enrollment at all.
+
+        An offer still in draft/sent is one the centre is WAITING on, not a declined
+        one: archiving it would cut off the very confirmation being expected — and
+        since step 2d turns a graduate holding an unconfirmed offer into an applicant,
+        that would hit them too.
+        """
         self.ensure_one()
         applicants = self.env['res.partner'].search([
             ('contact_type', '=', 'applicant'),
             ('study_id', 'in', self.study_ids.ids)])
-        return applicants.filtered(
-            lambda applicant: applicant.id not in order_index
-            or order_index[applicant.id].state != 'sale')
+        return applicants.filtered(lambda applicant: applicant.id not in order_index)
 
     def _delete_count(self):
         """How many operational records step 8 would delete, for the scope."""
@@ -288,12 +310,14 @@ class ems_course_transition_wizard(models.TransientModel):
         vals_list = []
         graduates = self._scope_graduates()
         continuing = self._continuing_graduates(order_index)
+        pending = self._pending_graduates(order_index)
         seen = self.env['res.partner']
         for student in self._scope_students():
             order = order_index.get(student.id)
             if student in continuing:
-                action = 'graduate_continue'
-                group = order.ems_group_id if order.state == 'sale' else self.env['ems.group']
+                action, group = 'graduate_continue', order.ems_group_id
+            elif student in pending:
+                action, group = 'graduate_pending', self.env['ems.group']
             elif student in graduates:
                 action, group = 'graduate', self.env['ems.group']
             elif not order:
@@ -345,6 +369,13 @@ class ems_course_transition_wizard(models.TransientModel):
             warnings.append(_("%s graduate(s) stay at the centre: they keep their graduation on "
                               "record but are neither converted to alumni nor archived: %s.")
                             % (self.graduate_continue_count, ", ".join(names)))
+        if self.graduate_pending_count:
+            names = self.line_ids.filtered(
+                lambda line: line.action == 'graduate_pending').mapped('student_id.display_name')
+            warnings.append(_("%s graduate(s) hold an enrollment nobody has confirmed yet: they "
+                              "become applicants and keep their portal access, so they can still "
+                              "confirm it. They are not archived: %s.")
+                            % (self.graduate_pending_count, ", ".join(names)))
         if self.missing_count:
             names = self.line_ids.filtered(lambda line: line.action == 'missing').mapped(
                 'student_id.display_name')
@@ -417,6 +448,7 @@ class ems_course_transition_wizard(models.TransientModel):
         self.write({
             'graduate_count': actions.count('graduate'),
             'graduate_continue_count': actions.count('graduate_continue'),
+            'graduate_pending_count': actions.count('graduate_pending'),
             'place_count': actions.count('place'),
             'unplaced_count': actions.count('unplaced'),
             'missing_count': actions.count('missing'),
@@ -504,6 +536,39 @@ class ems_course_transition_wizard(models.TransientModel):
         self.ensure_one()
         if graduates:
             graduates._ems_convert_to_student()
+
+    def _apply_pending_graduates(self, graduates, order_index):
+        """Step 2d — the graduates whose offer nobody has confirmed yet.
+
+        'applicant' is not a workaround, it is the state that already models this exact
+        situation: someone holding an offer for a study, with a portal user of their own
+        (ems.portal.access.wizard covers 'applicant' and, unlike a minor, gives the
+        applicant its own login rather than the family's), and with the return path
+        already written — sale.order._ems_admit_student() converts an applicant back
+        into a student on confirmation. An internal graduate holding an ASIX offer is in
+        the very same position as an outsider who preinscribed to ASIX.
+
+        Alumni is not an option: see _pending_graduates(). The portal is deliberately
+        NOT revoked here, which is also why they are not archived.
+
+        study_id and level_id follow the destination on the order, so they read as an
+        applicant of the study they are heading to, not of the one they just finished.
+        The exit metadata goes: they have not left, they are waiting to come back in.
+        'has_graduated' stays — it is permanent, and it is what would make a later
+        manual withdrawal land on alumni rather than on a withdrawal.
+        """
+        self.ensure_one()
+        for graduate in graduates:
+            study = order_index[graduate.id].ems_study_id
+            graduate.write({
+                'contact_type': 'applicant',
+                'study_id': study.id or graduate.study_id.id,
+                'level_id': study.level_id.id or graduate.level_id.id,
+                'exit_type': False,
+                'exit_course_id': False,
+                'exit_date': False,
+            })
+        return len(graduates)
 
     def _apply_placement(self):
         """Steps 3 and 4 — destination group, then subject enrollments.
@@ -652,6 +717,7 @@ class ems_course_transition_wizard(models.TransientModel):
             _("Studies: %s") % ", ".join(self.study_ids.mapped('acronym')),
             _("Graduated and archived: %s") % self.graduate_count,
             _("Graduated and continuing at the centre: %s") % self.graduate_continue_count,
+            _("Graduated, pending confirmation: %s") % self.graduate_pending_count,
             _("Placed: %s") % self.place_count,
             _("Without destination: %s") % self.missing_count,
             _("Detached from the outgoing group: %s") % detached,
@@ -691,10 +757,12 @@ class ems_course_transition_wizard(models.TransientModel):
         students = self._scope_students()
         graduates = self._leaving_graduates(order_index)
         continuing = self._continuing_graduates(order_index)
+        pending = self._pending_graduates(order_index)
 
         self._apply_history(students)
         issues = self._apply_graduates(graduates)
         self._apply_continuing_graduates(continuing)
+        self._apply_pending_graduates(pending, order_index)
         self._apply_cleanup(students)
         placed = self._apply_placement()
         detached = self._apply_detach_unplaced(students, placed)

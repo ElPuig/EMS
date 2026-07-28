@@ -117,12 +117,30 @@ flowchart TD
     G{"exit_type == 'graduation'<br/>and exit_course_id == source"} -- no --> OTHER["place / unplaced / missing"]
     G -- yes --> E{"non-cancelled sale.order<br/>in the target course?"}
     E -- no --> LEAVE["_leaving_graduates()<br/>step 2: alumni + portal revoke + archive"]
-    E -- yes --> STAY["_continuing_graduates()<br/>step 2c: keep active, clear exit metadata"]
+    E -- "yes, confirmed" --> STAY["_continuing_graduates()<br/>step 2c: keep student, clear exit metadata"]
+    E -- "yes, draft/sent" --> PEND["_pending_graduates()<br/>step 2d: applicant, portal kept, not archived"]
 ```
 
 **Nobody marks `graduate_continue`.** It is a computed preview label: the tutor only knows about the graduation, and the enrollment arrives on its own through the GEDAC assignment, so the wizard is the only place where the two facts meet.
 
-**Any non-cancelled order counts**, not only `state == 'sale'`. An offer still in draft/sent may be confirmed in September, and archiving the student now would leave that confirmation with nobody to place. The confirmed ones are placed by steps 3-4 in the same run; the unconfirmed ones stay `student` with no group and place themselves through the `transitioned` branch when they land.
+### Why an unconfirmed offer becomes an applicant (D12, step 2d)
+
+The three cases are not two. A graduate holding an offer **nobody has confirmed yet** can be neither placed (there is nothing to place) nor turned into alumni, and the reason is a hard constraint rather than a preference:
+
+> #357 archives every alumnus, and `res.partner.write()` refuses to archive a contact with an active portal user. An alumnus is therefore, by construction, someone **without portal** — and `/my/gestion-matriculas` is `auth="user"`, so without portal the offer could never be confirmed. `_ems_revoke_student_portal()` makes it worse: it revokes the family's user too unless another child is still enrolled, cutting off both routes.
+
+`applicant` is the state that already models this exact situation, and reusing it means no new machinery:
+
+| Need | Already provided by `applicant` |
+|------|--------------------------------|
+| Portal access | `ems.portal.access.wizard` domain is `('contact_type', 'in', ('student', 'applicant'))`, and an applicant gets **its own** login rather than the family's |
+| Sees the offer | `get_portal_enrollment()` filters by partner, state and course under `sudo()` — no `contact_type` check |
+| Return path | `sale.order._ems_admit_student()` has always converted `applicant` → student on confirmation |
+| Not archived | Applicants are never archived by the transition |
+
+Conceptually it is not a workaround: an internal SMX graduate holding an ASIX offer is in the very same position as an outsider who preinscribed to ASIX. `study_id`/`level_id` follow the destination on the order so they read as an applicant of the study they are heading to; the exit metadata is cleared (they have not left, they are waiting to come in); `has_graduated` stays, which is what makes a later manual withdrawal land on alumni.
+
+**Knock-on fix:** `_declined_applicants()` used to treat *any* applicant without a confirmed enrollment as declined, so the optional archive checkbox would have swallowed these. An offer still in draft/sent is one the centre is **waiting on**, not a declined one, so the predicate is now `applicant.id not in order_index` — no live enrollment at all.
 
 **Order is load-bearing:** step 2c runs *after* `_apply_history()`, because `year_record._generate_one()` stamps how the student left the outgoing course by reading `exit_course_id` — which `_ems_convert_to_student()` clears. `has_graduated` is never touched: it is permanent (D2).
 

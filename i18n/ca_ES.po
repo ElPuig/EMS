@@ -13407,3 +13407,41 @@ msgstr "Això tanca el curs sortint i obre el següent per als estudis que selec
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Detached from the outgoing group: %s"
 msgstr "Desvinculats/des del grup sortint: %s"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__graduate_pending
+msgid "Graduates, pending confirmation"
+msgstr "Es gradua, pendent de confirmar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__graduate_pending_count
+msgid "Graduates pending confirmation"
+msgstr "Graduats/des pendents de confirmar"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "Graduated, pending confirmation: %s"
+msgstr "Graduats/des pendents de confirmar: %s"
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s graduate(s) hold an enrollment nobody has confirmed yet: they become "
+"applicants and keep their portal access, so they can still confirm it. They "
+"are not archived: %s."
+msgstr "%s graduats/des tenen una matrícula que ningú no ha confirmat encara: passen a sol·licitants i conserven l'accés al portal, perquè puguin confirmar-la. No s'arxiven: %s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
+msgid ""
+"This closes the outgoing course and opens the next one for the\n"
+"                                studies you select. It freezes the academic history, turns the\n"
+"                                graduates who leave into archived alumni, turns the graduates\n"
+"                                whose enrollment is not confirmed yet into applicants that keep\n"
+"                                their portal access, places everyone else into the destination\n"
+"                                group of their confirmed enrollment, and deletes the operational\n"
+"                                records of the year that ends. <strong>The cleanup cannot be undone.</strong><br/>\n"
+"                                Studies do not all finish at the same time: transition the ones\n"
+"                                that are done, and run it again for the rest. The current course\n"
+"                                only switches on the run that leaves no study pending."
+msgstr "Això tanca el curs sortint i obre el següent per als estudis que seleccionis. Congela l'historial acadèmic, converteix en exalumnes arxivats els graduats que marxen, converteix en sol·licitants que conserven l'accés al portal els graduats amb matrícula sense confirmar, col·loca la resta al grup destí de la seva matrícula confirmada, i esborra els registres operatius de l'any que acaba. <strong>La neteja no es pot desfer.</strong><br/>Els estudis no acaben tots alhora: transiciona els que estiguin tancats i torna a executar-ho per a la resta. El curs actual només canvia en l'execució que no deixa cap estudi pendent."

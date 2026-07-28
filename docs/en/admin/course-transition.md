@@ -26,7 +26,7 @@ Mark the graduating students *beforehand*, with the graduation wizard from the s
 
 A student who finishes SMX and enrolls in ASIX, DAM or DAW, or one who finishes DAM and starts another higher cycle — even in a different family — graduates **and** continues. These are two independent facts: the graduation closes the cycle that ends, the enrollment opens the one that begins.
 
-**You do not have to do anything for this to work, and there is nothing special to mark.** You mark the graduation as always. The enrollment arrives on its own through the preinscription and GEDAC. The wizard cross-checks the two at run time and decides by itself: a graduate holding an enrollment for the next course keeps the graduation on record but is **not** turned into a former student nor archived; it is placed in its new group like anybody else.
+**You do not have to do anything for this to work, and there is nothing special to mark.** You mark the graduation as always. The enrollment arrives on its own through the preinscription and GEDAC. The wizard cross-checks the two at run time and decides by itself, telling three cases apart: with no enrollment, archived as a former student; with a **confirmed** enrollment, still a student and placed in its new group; with an **unconfirmed** one, turned into an applicant keeping portal access so it can confirm later. Once it confirms, it becomes a student again and is placed on its own.
 
 ---
 
@@ -47,7 +47,8 @@ You get a red box if something blocks the run, a blue box with everything worth 
 | Action | Meaning |
 |---|---|
 | **Graduate** | Marked as graduated with no enrollment: becomes a former student and is archived |
-| **Graduates and continues** | Marked as graduated **and** holding an enrollment for the next course: keeps the graduation, is not archived and is placed in the new group |
+| **Graduates and continues** | Marked as graduated **and** holding a **confirmed** enrollment: keeps the graduation, is not archived and is placed in the new group |
+| **Graduates, pending confirmation** | Marked as graduated with an **unconfirmed** enrollment: becomes an applicant, **keeps portal access** and is not archived, so it can still confirm in September |
 | **Place in destination group** | Has a confirmed enrollment with a group: moves there |
 | **Enrolled without group** | Confirmed enrollment with no destination group: **will be skipped** |
 | **No destination** | No enrollment at all for the next course |
@@ -66,7 +67,7 @@ Tick **I have taken a backup** and click **Apply the transition**. You will be a
 What happens, in order:
 
 1. The **academic history** of every student is frozen. If this fails, nothing else runs.
-2. Graduates **who leave** become former students, their portal access is revoked and they are **archived**. Those who stay at the centre keep their graduation but remain active: only the exit date of the cycle they have just finished is cleared.
+2. Graduates **who leave** become former students, their portal access is revoked and they are **archived**. Those continuing with a confirmed enrollment stay active as students. Those whose enrollment is not confirmed become **applicants and keep their portal**: without it they could not confirm the enrollment, since an archived former student has no access.
 3. The attendance templates of the outgoing year are archived.
 4. The **operational records are deleted**: subject enrollments, grades, attendance and evaluation sessions. Those of the outgoing groups go too, even for a student already moved into their new group by an earlier run. This is the irreversible part — the academic history, saved in step 1, is what replaces them.
 5. Students are placed in their **destination group** and enrolled in its subjects.

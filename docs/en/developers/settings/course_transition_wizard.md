@@ -225,6 +225,12 @@ Ambiguity returns nothing and the group stays empty — no tutorship line, more 
 
 It does **not** touch the other 41: those fail because no group exists at all in the destination study/course/shift (GA1B afternoon promoting to a 2nd year that only exists in the morning, AD with no 2nd-year group at all). That is missing data, not a rule the code can improve.
 
+### Newcomers stop being applicants at the worst moment (D16)
+
+`_ems_suggest_group()` picked its strategy with `contact_type == 'applicant'`. The question it means to ask is *"is there an origin group to copy the letter from?"*, and the contact type looked equivalent — but it stops being true at exactly the wrong moment: confirming the enrollment runs `_ems_admit_student()`, which turns the applicant into a student. From then on a newcomer awaiting the bulk placement matched neither branch and got no suggestion at all.
+
+The condition is now the absence of `main_group_id`, which is what the two strategies actually differ on. It surfaced on a single student — a GEDAC applicant admitted straight into 2nd year whose destination group did not exist when she enrolled — but 150 students were one manual step away from the same hole: `student`, no group, confirmed enrollment, waiting for the transition.
+
 ### Placement is individual after the flip too (D14)
 
 `_ems_admit_student()` keyed the individual placement on `ems_study_id.transition_state == 'transitioned'`. But step 5 puts **every** study back to `active` once nothing is pending, so in the normal end state — the whole centre transitioned — the branch was true for nobody and confirming an enrollment in September placed no one:

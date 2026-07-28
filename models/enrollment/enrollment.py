@@ -579,9 +579,16 @@ class ems_SaleOrder(models.Model):
     def _ems_suggest_group(self):
         """Suggest a destination group for this enrollment from its own data.
 
-        Continuing student: the same acronym as the student's current group plus
-        the enrollment shift, in the destination study/course. Applicant: the
-        lowest-letter group of the shift. Empty when there is no single match.
+        Continuing student: the same acronym as the student's current group plus the
+        enrollment shift, in the destination study/course. Newcomer: the lowest-letter
+        group of the shift. Empty when there is no single match.
+
+        What tells the two apart is whether there is a group to copy the letter FROM,
+        not the contact type. Keying it on 'applicant' looked equivalent but stopped
+        being true at exactly the wrong moment: confirming the enrollment runs
+        _ems_admit_student(), which turns the applicant into a student, so from then on
+        a newcomer awaiting the bulk placement fell through both branches and got no
+        suggestion at all.
         """
         self.ensure_one()
         study = self.ems_study_id
@@ -590,15 +597,13 @@ class ems_SaleOrder(models.Model):
             return self.env['ems.group']
         Group = self.env['ems.group']
         partner = self.partner_id
-        if partner.contact_type == 'applicant':
+        current = partner.main_group_id
+        if not current:
             domain = [('study_id', '=', study.id), ('course', '=', course)]
             shift = self.shift or partner.preinscription_shift
             if shift:
                 domain.append(('shift', '=', shift))
             return Group.search(domain, order='acronym', limit=1)
-        current = partner.main_group_id
-        if not current:
-            return Group
         domain = [('study_id', '=', study.id), ('course', '=', course),
                   ('acronym', '=', current.acronym)]
         shift = self.shift or current.shift

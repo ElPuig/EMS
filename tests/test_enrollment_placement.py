@@ -210,6 +210,45 @@ class TestEnrollmentPlacement(TransactionCase):
             'sale_order_template_id': self.template2.id})
         self.assertEqual(order._ems_suggest_group(), self.g2a)
 
+    # --- newcomers already converted into students ---------------------------
+
+    def test_suggested_group_for_a_newcomer_already_turned_into_a_student(self):
+        """Confirming the enrollment converts the applicant into a student, so by the
+        time anybody suggests groups the 'applicant' branch no longer fires — and the
+        continuing-student one has no current group to copy the letter from."""
+        newcomer = self.env['res.partner'].create({
+            'name': 'PL Converted Newcomer', 'contact_type': 'student',
+            'study_id': self.study.id, 'preinscription_shift': 'morning'})
+        self.assertFalse(newcomer.main_group_id)
+        order = self.env['sale.order'].create({
+            'partner_id': newcomer.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id, 'shift': 'morning',
+            'sale_order_template_id': self.template2.id})
+        self.assertEqual(order._ems_suggest_group(), self.g2a)
+
+    def test_a_groupless_student_takes_the_shift_from_its_preinscription(self):
+        """The order may carry no shift; the one granted at pre-enrollment stands in."""
+        newcomer = self.env['res.partner'].create({
+            'name': 'PL Converted Afternoon', 'contact_type': 'student',
+            'study_id': self.study.id, 'preinscription_shift': 'afternoon'})
+        order = self.env['sale.order'].create({
+            'partner_id': newcomer.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id,
+            'sale_order_template_id': self.template1.id})
+        self.assertEqual(order._ems_suggest_group(), self.g1a_aft)
+
+    def test_a_student_with_a_group_still_keeps_its_letter(self):
+        """The fallback must not steal the continuing-student rule: a student that
+        does have a group keeps matching by acronym."""
+        student = self.env['res.partner'].create({
+            'name': 'PL Keeps Letter', 'contact_type': 'student',
+            'main_group_id': self.g1a.id})
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id, 'shift': 'morning',
+            'sale_order_template_id': self.template2.id})
+        self.assertEqual(order._ems_suggest_group(), self.g2a)
+
     # --- destination course read from the tutorship, with no template ---------
 
     def _tutorship(self, code, year):

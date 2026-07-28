@@ -185,3 +185,45 @@ class TestEnrollment(TransactionCase):
 
         lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student)
         self.assertTrue(lines)
+
+    # -- default_get admin guard --
+
+    def test_default_get_blocks_non_admin(self):
+        teacher_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Non-Admin (Enrollment)', 'login': 'test_non_admin_enrollment',
+            'groups_id': [(4, self.env.ref('ems.group_teacher').id)],
+        })
+        with self.assertRaises(UserError):
+            self.env['ems.enrollment'].with_user(teacher_user).default_get(['user_is_admin'])
+
+    def test_default_get_allows_admin(self):
+        admin_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Admin (Enrollment)', 'login': 'test_admin_enrollment',
+            'groups_id': [(4, self.env.ref('ems.group_academic_admin').id)],
+        })
+        res = self.env['ems.enrollment'].with_user(admin_user).default_get(['user_is_admin'])
+        self.assertTrue(res['user_is_admin'])
+
+    # -- inuse_subject_ids --
+
+    def test_inuse_subject_ids_lists_students_other_enrolled_subjects(self):
+        other_subject = self.env['ems.subject'].create({
+            'code': 'TENR002', 'acronym': 'TENR2', 'name': 'Test Subject 2 (Enrollment)',
+            'study_ids': [(6, 0, [self.study.id])],
+        })
+        self._create_enrollment(student=self.student)
+        second = self.env['ems.enrollment'].new({'student_id': self.student.id})
+        second._compute_inuse_subject_ids()
+        # second is a virtual (.new()) record: Odoo wraps its computed relational values with
+        # NewId(origin=...) for onchange-time consistency — compare against the real records.
+        self.assertIn(self.subject, second.inuse_subject_ids._origin)
+        self.assertNotIn(other_subject, second.inuse_subject_ids._origin)
+
+    def test_inuse_subject_ids_empty_without_student(self):
+        enrollment = self.env['ems.enrollment'].new({})
+        enrollment._compute_inuse_subject_ids()
+        self.assertFalse(enrollment.inuse_subject_ids)
+
+    def test_display_name_is_subject_name(self):
+        enrollment = self._create_enrollment()
+        self.assertEqual(enrollment.display_name, self.subject.display_name)

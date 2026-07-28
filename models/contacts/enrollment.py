@@ -4,110 +4,109 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
 
-class ems_enrollment(models.Model):
-	_name = "ems.enrollment"
-	_description = "Enrollment: ternary relation between student-group-uf."
-	_order = 'student_id, subject_id, group_id'
-	_inherit = ['ems.base']
+class EmsEnrollment(models.Model):
+    _name = "ems.enrollment"
+    _description = "Enrollment: ternary relation between student-group-uf."
+    _order = 'student_id, subject_id, group_id'
+    _inherit = ['ems.base']
 
-	student_id = fields.Many2one(string="Student", comodel_name="res.partner", required=True, ondelete='cascade', domain="[('contact_type', '=', 'student')]")
-	group_id = fields.Many2one(string="Group", comodel_name="ems.group", ondelete='cascade', required=True)
-	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", ondelete='cascade', required=True)
+    student_id = fields.Many2one(string="Student", comodel_name="res.partner", required=True, ondelete='cascade', domain="[('contact_type', '=', 'student')]")
+    group_id = fields.Many2one(string="Group", comodel_name="ems.group", ondelete='cascade', required=True)
+    subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", ondelete='cascade', required=True)
 
-	#NOTE: this field is used to filter the availabe subjects within the view (avoiding the selection of repeated subject in enrolling form).
-	inuse_subject_ids = fields.Many2many('ems.subject', compute='_compute_inuse_subject_ids', store=False)
+    # NOTE: this field is used to filter the availabe subjects within the view (avoiding the selection of repeated subject in enrolling form).
+    inuse_subject_ids = fields.Many2many('ems.subject', compute='_compute_inuse_subject_ids', store=False)
 
-	#NOTE: this field is used within ems.base.get_user_is_tutor, which is used to block the opening of the edit form if no permissions.
-	#	   BUT, at this moment, only admins are allowed to create manual enrollments.
-	#tutor_id = fields.Many2one(string='Tutor', related="student_id.tutor_id")
+    # NOTE: this field is used within ems.base.get_user_is_tutor, which is used to block the opening of the edit form if no permissions.
+    #       BUT, at this moment, only admins are allowed to create manual enrollments.
+    # tutor_id = fields.Many2one(string='Tutor', related="student_id.tutor_id")
 
-	@api.model
-	def default_get(self, fields_list):
-		# TODO: unable to hide the "NEW" button based for only tutors...
-		res = super().default_get(fields_list)
-		if "user_is_admin" in fields_list:
-			# This happens when opening the form, when storing fires again but field per field
-			if not (res["user_is_admin"]):
-				raise UserError(_("Only admins can create manual enrollments. If you're a group's tutor, you can enroll students using the student's form."))
-		return res
+    @api.model
+    def default_get(self, fields_list):
+        # TODO: unable to hide the "NEW" button based for only tutors...
+        res = super().default_get(fields_list)
+        if "user_is_admin" in fields_list:
+            # This happens when opening the form, when storing fires again but field per field
+            if not (res["user_is_admin"]):
+                raise UserError(_("Only admins can create manual enrollments. If you're a group's tutor, you can enroll students using the student's form."))
+        return res
 
-	@api.depends('student_id')
-	def _compute_inuse_subject_ids(self):
-		for rec in self:
-			rec.inuse_subject_ids = False
-			if rec.student_id:
-				rec.inuse_subject_ids = rec.mapped('student_id.enrollment_ids.subject_id')
+    @api.depends('student_id')
+    def _compute_inuse_subject_ids(self):
+        for enrollment in self:
+            enrollment.inuse_subject_ids = False
+            if enrollment.student_id:
+                enrollment.inuse_subject_ids = enrollment.mapped('student_id.enrollment_ids.subject_id')
 
-	@api.depends('subject_id')
-	def _compute_display_name(self):
-		for rec in self:
-			rec.display_name = "%s" % rec.subject_id.display_name
+    @api.depends('subject_id')
+    def _compute_display_name(self):
+        for enrollment in self:
+            enrollment.display_name = enrollment.subject_id.display_name
 
-	@api.model_create_multi
-	def create(self, vals_list):
-		enrollments = super().create(vals_list)
-		for enrollment in enrollments:
-			enrollment._ems_sync_attendance_template_add()
-			enrollment._ems_sync_grade_session_add()
-		return enrollments
+    @api.model_create_multi
+    def create(self, vals_list):
+        enrollments = super().create(vals_list)
+        for enrollment in enrollments:
+            enrollment._ems_sync_attendance_template_add()
+            enrollment._ems_sync_grade_session_add()
+        return enrollments
 
-	def unlink(self):
-		if not self.env.context.get('ems_bypass_grade_guard'):
-			for enrollment in self:
-				if self.env['ems.grade_session']._ems_has_scored_grades(
-					enrollment.student_id.id, enrollment.group_id.id, enrollment.subject_id.id
-				):
-					raise UserError(_("This enrollment cannot be deleted: the student already has grades assigned for this group and subject."))
+    def unlink(self):
+        if not self.env.context.get('ems_bypass_grade_guard'):
+            for enrollment in self:
+                if self.env['ems.grade_session']._ems_has_scored_grades(
+                    enrollment.student_id.id, enrollment.group_id.id, enrollment.subject_id.id
+                ):
+                    raise UserError(_("This enrollment cannot be deleted: the student already has grades assigned for this group and subject."))
 
-		snapshots = [(enrollment.student_id.id, enrollment.group_id.id, enrollment.subject_id.id) for enrollment in self]
-		res = super().unlink()
-		for student_id, group_id, subject_id in snapshots:
-			self._ems_sync_attendance_template_remove(student_id, group_id, subject_id)
-			self._ems_sync_grade_session_remove(student_id, group_id, subject_id)
-		return res
+        snapshots = [(enrollment.student_id.id, enrollment.group_id.id, enrollment.subject_id.id) for enrollment in self]
+        res = super().unlink()
+        for student_id, group_id, subject_id in snapshots:
+            self._ems_sync_attendance_template_remove(student_id, group_id, subject_id)
+            self._ems_sync_grade_session_remove(student_id, group_id, subject_id)
+        return res
 
-	def _ems_matching_attendance_templates(self, subject_id, group_id):
-		return self.env['ems.attendance_template'].search([
-			('subject_id', '=', subject_id),
-			('group_ids', 'in', group_id),
-		])
+    def _ems_matching_attendance_templates(self, subject_id, group_id):
+        return self.env['ems.attendance_template'].search([
+            ('subject_id', '=', subject_id),
+            ('group_ids', 'in', group_id),
+        ])
 
-	def _ems_sync_attendance_template_add(self):
-		self.ensure_one()
-		for template in self._ems_matching_attendance_templates(self.subject_id.id, self.group_id.id):
-			template.student_ids = [(4, self.student_id.id, 0)]
+    def _ems_sync_attendance_template_add(self):
+        self.ensure_one()
+        for template in self._ems_matching_attendance_templates(self.subject_id.id, self.group_id.id):
+            template.student_ids = [(4, self.student_id.id, 0)]
 
-	@api.model
-	def _ems_sync_attendance_template_remove(self, student_id, group_id, subject_id):
-		for template in self._ems_matching_attendance_templates(subject_id, group_id):
-			# A template can cover several 'group_ids' (co-teaching): only drop the student if no
-			# other remaining enrollment still keeps them within this same template's scope.
-			still_enrolled = self.search_count([
-				('student_id', '=', student_id),
-				('subject_id', '=', template.subject_id.id),
-				('group_id', 'in', template.group_ids.ids),
-			])
-			if not still_enrolled:
-				template.student_ids = [(3, student_id)]
+    @api.model
+    def _ems_sync_attendance_template_remove(self, student_id, group_id, subject_id):
+        for template in self._ems_matching_attendance_templates(subject_id, group_id):
+            # A template can cover several 'group_ids' (co-teaching): only drop the student if no
+            # other remaining enrollment still keeps them within this same template's scope.
+            still_enrolled = self.search_count([
+                ('student_id', '=', student_id),
+                ('subject_id', '=', template.subject_id.id),
+                ('group_id', 'in', template.group_ids.ids),
+            ])
+            if not still_enrolled:
+                template.student_ids = [(3, student_id)]
 
-	def _ems_sync_grade_session_add(self):
-		self.ensure_one()
-		sessions = self.env['ems.grade_session'].search([
-			('group_id', '=', self.group_id.id),
-			('subject_id', '=', self.subject_id.id),
-			('state', '=', 'open'),
-		])
-		for session in sessions:
-			session._ems_add_student_lines(self.student_id)
+    def _ems_sync_grade_session_add(self):
+        self.ensure_one()
+        sessions = self.env['ems.grade_session'].search([
+            ('group_id', '=', self.group_id.id),
+            ('subject_id', '=', self.subject_id.id),
+            ('state', '=', 'open'),
+        ])
+        for session in sessions:
+            session._ems_add_student_lines(self.student_id)
 
-	@api.model
-	def _ems_sync_grade_session_remove(self, student_id, group_id, subject_id):
-		sessions = self.env['ems.grade_session'].search([
-			('group_id', '=', group_id),
-			('subject_id', '=', subject_id),
-			('state', '=', 'open'),
-		])
-		for session in sessions:
-			session.grade_outcome_line_ids.filtered(lambda line: line.student_id.id == student_id).unlink()
-			session.grade_subject_line_ids.filtered(lambda line: line.student_id.id == student_id).unlink()
-	
+    @api.model
+    def _ems_sync_grade_session_remove(self, student_id, group_id, subject_id):
+        sessions = self.env['ems.grade_session'].search([
+            ('group_id', '=', group_id),
+            ('subject_id', '=', subject_id),
+            ('state', '=', 'open'),
+        ])
+        for session in sessions:
+            session.grade_outcome_line_ids.filtered(lambda line: line.student_id.id == student_id).unlink()
+            session.grade_subject_line_ids.filtered(lambda line: line.student_id.id == student_id).unlink()

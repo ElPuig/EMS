@@ -12,8 +12,9 @@ This guide explains how to manage **student, family, applicant and provider cont
 
 1. [Contact types](#contact-types)
 2. [Adding a family contact to a student](#adding-a-family-contact-to-a-student)
-3. [Bonifications and exemptions](#bonifications-and-exemptions)
-4. [Fields only admin/secretary/tutors can see](#fields-only-adminsecretarytutors-can-see)
+3. [Enrolling a student in subjects](#enrolling-a-student-in-subjects)
+4. [Bonifications and exemptions](#bonifications-and-exemptions)
+5. [Fields only admin/secretary/tutors can see](#fields-only-adminsecretarytutors-can-see)
 
 ---
 
@@ -32,6 +33,12 @@ Open the student's record and, in the **Contacts & Addresses** tab, click **Add 
 - Save. The new relation appears immediately in the student's contact list, together with the student's own address prefilled on it (editable if the family member lives elsewhere).
 
 The same relation shows up on the family member's own record too, listing which student(s) they are related to.
+
+## Enrolling a student in subjects
+
+A student's main group (**Studies** tab) does not by itself enroll them in any subject — that is a separate step, right below it in the same tab: add one line per subject, choosing the subject and the group it is taught in (usually the student's own main group, but a different one for a subject taken elsewhere, e.g. a reinforcement group). Once a subject is added here, the student starts appearing in that subject's attendance sheets and grading sessions. A subject already added can't be picked twice — it drops out of the selection list automatically.
+
+Removing a subject line is blocked once the student already has grades recorded for it, to avoid silently losing graded work — un-enroll before any grade is entered if a mistake needs correcting.
 
 ## Bonifications and exemptions
 

@@ -12,8 +12,9 @@ Aquesta guia explica com gestionar els contactes de tipus **alumne, família, as
 
 1. [Tipus de contacte](#tipus-de-contacte)
 2. [Afegir un contacte familiar a un alumne](#afegir-un-contacte-familiar-a-un-alumne)
-3. [Bonificacions i exempcions](#bonificacions-i-exempcions)
-4. [Camps que només veuen admin/secretaria/tutors](#camps-que-només-veuen-adminsecretariatutors)
+3. [Matricular un alumne en assignatures](#matricular-un-alumne-en-assignatures)
+4. [Bonificacions i exempcions](#bonificacions-i-exempcions)
+5. [Camps que només veuen admin/secretaria/tutors](#camps-que-només-veuen-adminsecretariatutors)
 
 ---
 
@@ -32,6 +33,12 @@ Obre la fitxa de l'alumne i, a la pestanya **Contactes i adreces**, fes clic a *
 - Desa. La nova relació apareix immediatament a la llista de contactes de l'alumne, amb l'adreça de l'alumne preomplerta (editable si el familiar viu en un altre lloc).
 
 La mateixa relació també apareix a la fitxa del familiar, indicant amb quin(s) alumne(s) està relacionat.
+
+## Matricular un alumne en assignatures
+
+El grup principal d'un alumne (pestanya **Estudis**) no el matricula per si sol en cap assignatura — és un pas independent, just a sota, a la mateixa pestanya: afegeix una línia per assignatura, triant l'assignatura i el grup en què es fa (normalment el grup principal de l'alumne, però un altre de diferent si cursa l'assignatura en un altre grup, per exemple un grup de reforç). Un cop afegida una assignatura aquí, l'alumne comença a aparèixer als fulls d'assistència i a les sessions d'avaluació d'aquesta assignatura. Una assignatura ja afegida no es pot tornar a triar — desapareix automàticament de la llista de selecció.
+
+Eliminar una línia d'assignatura queda bloquejat un cop l'alumne ja té notes registrades per a aquesta assignatura, per evitar perdre feina avaluada sense voler — desmatricula abans que s'introdueixi cap nota si cal corregir un error.
 
 ## Bonificacions i exempcions
 

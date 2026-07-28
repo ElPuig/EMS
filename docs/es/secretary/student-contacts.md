@@ -12,8 +12,9 @@ Esta guía explica cómo gestionar los contactos de tipo **alumno, familia, aspi
 
 1. [Tipos de contacto](#tipos-de-contacto)
 2. [Añadir un contacto familiar a un alumno](#añadir-un-contacto-familiar-a-un-alumno)
-3. [Bonificaciones y exenciones](#bonificaciones-y-exenciones)
-4. [Campos que solo ven admin/secretaría/tutores](#campos-que-solo-ven-adminsecretaríatutores)
+3. [Matricular a un alumno en asignaturas](#matricular-a-un-alumno-en-asignaturas)
+4. [Bonificaciones y exenciones](#bonificaciones-y-exenciones)
+5. [Campos que solo ven admin/secretaría/tutores](#campos-que-solo-ven-adminsecretaríatutores)
 
 ---
 
@@ -32,6 +33,12 @@ Abre la ficha del alumno y, en la pestaña **Contactos y direcciones**, haz clic
 - Guarda. La nueva relación aparece inmediatamente en la lista de contactos del alumno, con la dirección del alumno precargada (editable si el familiar vive en otro lugar).
 
 La misma relación también aparece en la ficha del familiar, indicando con qué alumno(s) está relacionado.
+
+## Matricular a un alumno en asignaturas
+
+El grupo principal de un alumno (pestaña **Estudios**) no lo matricula por sí solo en ninguna asignatura — es un paso independiente, justo debajo, en la misma pestaña: añade una línea por asignatura, eligiendo la asignatura y el grupo en el que se imparte (normalmente el grupo principal del alumno, pero uno distinto si cursa la asignatura en otro grupo, por ejemplo un grupo de refuerzo). Una vez añadida una asignatura aquí, el alumno empieza a aparecer en las hojas de asistencia y en las sesiones de evaluación de esa asignatura. Una asignatura ya añadida no se puede volver a elegir — desaparece automáticamente de la lista de selección.
+
+Eliminar una línea de asignatura queda bloqueado una vez que el alumno ya tiene notas registradas para ella, para evitar perder trabajo evaluado sin querer — desmatricula antes de que se introduzca ninguna nota si hace falta corregir un error.
 
 ## Bonificaciones y exenciones
 

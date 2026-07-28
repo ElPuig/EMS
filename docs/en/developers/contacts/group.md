@@ -102,7 +102,7 @@ Note: the admin-equivalent group here is `group_department_chief`, not `group_ac
 | Attendance | `ems.attendance_template`, `ems.attendance_session_header/_line`, `ems.attendance_report_wizard` |
 | Teaching/schedule | `ems.teaching`, `resource.calendar.attendance` (working schedule) |
 | Grades | `ems.grade_session`, `ems.student.year_record`, `ems.em_grading_wizard` |
-| Enrollment | `ems.enrollment`, `ems.contact` (`main_group_id`) |
+| Enrollment | [`ems.enrollment`](enrollment.md), `ems.contact` (`main_group_id`) |
 | Communications | `ems.notice`, `ems.limesurvey_header`, `ems.limesurvey_recipient` |
 | Employees | `hr.employee.tutorship_ids` (inverse of `tutor_id`) |
 

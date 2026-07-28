@@ -7730,6 +7730,12 @@ msgid "Review enrollment comment"
 msgstr "Revisar comentario de matrícula"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Review enrollment comment: %(name)s"
+msgstr "Revisar comentario de matrícula: %(name)s"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Review grades and academic records"
 msgstr "Consultar calificaciones y expediente académico"
@@ -9317,6 +9323,28 @@ msgstr ""
 #: code:addons/ems/models/grades/grade_outcome_line.py:0
 msgid "The score must be within the range [0, 10]."
 msgstr "La nota debe estar en el rango [0, 10]."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid ""
+"The student %(student)s already has a pre-enrolment or active enrolment "
+"for the academic year %(course)s."
+msgstr ""
+"El alumno/a %(student)s ya tiene una preinscripción o matrícula activa "
+"para el curso académico %(course)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid ""
+"Cannot confirm enrollment '%(name)s'. The following required "
+"authorizations are still pending:\n"
+"%(names)s"
+msgstr ""
+"No se puede confirmar la matrícula '%(name)s'. Las siguientes "
+"autorizaciones obligatorias todavía están pendientes:\n"
+"%(names)s"
 
 #. module: ems
 #. odoo-python
@@ -11990,6 +12018,24 @@ msgstr "Selecciona matrículas en borrador para enviar."
 #: code:addons/ems/models/enrollment/enrollment.py:0
 msgid "The enrollment proposal email template is missing."
 msgstr "Falta la plantilla de correo de propuesta de matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Tutors cannot cancel enrollments. Please contact the secretary or admin."
+msgstr "Los tutores no pueden cancelar matrículas. Contacta con secretaría o administración."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Tutors cannot change the enrollment status. Please contact the secretary or admin."
+msgstr "Los tutores no pueden cambiar el estado de la matrícula. Contacta con secretaría o administración."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Tutors cannot confirm enrollments. Please contact the secretary or admin."
+msgstr "Los tutores no pueden confirmar matrículas. Contacta con secretaría o administración."
 
 #. module: ems
 #. odoo-python

@@ -98,3 +98,15 @@ through `action_approve()`.
 `docs/en/developers/contacts/student_document.md`, section "A known,
 deliberately-not-fixed gap" — that section stays even after this plan file is deleted;
 update it if the resolution differs from what's written there today.
+
+## A third code path, found later (2026-07-28, `enrollment.py` DTON pass)
+
+`models/enrollment/enrollment.py`'s `_ems_generate_enrollment_invoice()` (see
+`docs/en/developers/enrollment/enrollment.md`, "Billing" section) contains a *third*
+place that touches this flag: for a direct-debit enrollment, if the student's bank
+account isn't trusted yet, it force-sets `bank.sudo().allow_out_payment = True` itself,
+right there at invoicing time, rather than failing or requiring prior document approval.
+This is evidence relevant to open question 3 above — the codebase already has at least
+one path that treats "renew/import without approval" as good enough to auto-grant trust,
+which leans toward "the missing flag in the portal renewal path is an oversight, not
+intentional caution" — but it's still the developer's call, not changed here.

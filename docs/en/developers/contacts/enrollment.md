@@ -6,7 +6,7 @@
 
 **Module file:** `models/contacts/enrollment.py`
 
-**Not to be confused with** the sale.order-based enrollment *process* under `models/enrollment/` (matriculation, fees, authorizations) — a separate, not-yet-DTON'd area of the codebase (a later phase). This model is only the per-subject placement record, created once a subject placement is confirmed.
+**Not to be confused with** the sale.order-based enrollment *header* under `models/enrollment/` (matriculation, fees, authorizations) — see [`enrollment.md`](../enrollment/enrollment.md) in the `enrollment/` doc folder. This model is only the per-subject placement record, created once a subject placement is confirmed.
 
 ---
 

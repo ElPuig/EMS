@@ -2,7 +2,7 @@
 
 ## Overview
 
-There is no dedicated `ems.enrollment_template` model — "enrollment template" is this project's name for Odoo's native **`sale.order.template`** (a reusable quotation template, from the `sale_management` module), extended with three EMS-specific fields. A template is a study's fee "pack" for a given entry course: which products (subjects, fees) get pre-filled onto a new enrollment (`sale.order`) once picked.
+There is no dedicated `ems.enrollment_template` model — "enrollment template" is this project's name for Odoo's native **`sale.order.template`** (a reusable quotation template, from the `sale_management` module), extended with three EMS-specific fields. A template is a study's fee "pack" for a given entry course: which products (subjects, fees) get pre-filled onto a new enrollment ([`sale.order`](enrollment.md)) once picked.
 
 **Module file:** `models/enrollment/enrollment_template.py` (`SaleOrderTemplate`, `_inherit = 'sale.order.template'`)
 

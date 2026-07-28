@@ -97,6 +97,7 @@
             'views/community/contact/import_wizard.xml',
             'views/community/contact/update_wizard.xml',            
             'views/community/contact/portal_access_wizard.xml',
+            'views/community/contact/native_action_bindings.xml',
             'views/community/contact/exit_wizards.xml',
             'views/community/contact/student_document.xml',
 

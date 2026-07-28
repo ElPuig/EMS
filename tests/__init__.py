@@ -87,3 +87,6 @@ from . import test_withdrawal_tour
 from . import test_enrollment_header
 from . import test_authorization
 from . import test_payment_term
+from . import test_enrollment_line
+from . import test_enrollment_product_extension
+from . import test_enrollment_mail_activity

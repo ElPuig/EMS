@@ -2,7 +2,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
-class ems_SaleOrderLine(models.Model):
+class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     ems_is_tutoria = fields.Boolean(
@@ -24,7 +24,10 @@ class ems_SaleOrderLine(models.Model):
                 return {
                     'warning': {
                         'title': _("Duplicate Item"),
-                        'message': _("The item '%s' is already in the list. Please select a different one.") % name,
+                        'message': _(
+                            "The item '%(name)s' is already in the list. "
+                            "Please select a different one.", name=name,
+                        ),
                     }
                 }
     def _ems_benefit_frozen_lines(self):
@@ -41,22 +44,20 @@ class ems_SaleOrderLine(models.Model):
     @api.depends('product_id', 'order_id.order_line', 'order_id.partner_id.benefit_status')
     def _compute_price_unit(self):
         lines = self - self._ems_benefit_frozen_lines()
-        # Primero ejecutamos la lógica original de Odoo (tarifas, etc.)
-        super(ems_SaleOrderLine, lines)._compute_price_unit()
+        # Run Odoo's own pricing logic first (price lists, etc.).
+        super(SaleOrderLine, lines)._compute_price_unit()
         for line in lines:
-            # Solo actuamos si el producto de esta línea está marcado como Tasa
+            # A fee line's price is calculated, not looked up: only act on those.
             if line.product_template_id.ems_is_enrollment_fee:
-                # 1. Contamos asignaturas (no genéricos) en el pedido padre
                 subject_lines = line.order_id.order_line.filtered(
                     lambda l: l.product_template_id and not l.product_template_id.is_generic and not l.product_template_id.ems_is_tutoria
                 )
                 count = len(subject_lines)
-                
-                # 2. Obtenemos configuración
-                max_fee = line.product_template_id.list_price 
+
+                max_fee = line.product_template_id.list_price
                 unit_cost = line.product_template_id.ems_subject_unit_cost
-                
-                # 3. Aplicamos el menor valor entre el cálculo y el precio de lista
+
+                # Never exceed the product's own list price, however many subjects.
                 line.price_unit = min(count * unit_cost, max_fee)
                 
                 base_name = f"{line.product_template_id.name} ({count} Subjects)"
@@ -73,14 +74,12 @@ class ems_SaleOrderLine(models.Model):
     @api.depends('product_id', 'order_id.partner_id.benefit_status')
     def _compute_discount(self):
         lines = self - self._ems_benefit_frozen_lines()
-        # Primero ejecutamos la lógica original
-        super(ems_SaleOrderLine, lines)._compute_discount()
+        super(SaleOrderLine, lines)._compute_discount()
         for line in lines:
             if line.product_template_id.ems_is_enrollment_fee:
                 discount = 0.0
                 benefit_text = ""
                 partner = line.order_id.partner_id
-                # Aplicamos bonificación o exención según el estado del partner
                 if partner and partner.benefit_status:
                     if partner.benefit_status == 'bonification':
                         discount = 50.0
@@ -104,7 +103,10 @@ class ems_SaleOrderLine(models.Model):
                 ('id', '!=', line.id)
             ]
             if self.search_count(domain) > 0:
-                raise ValidationError(_("Item '%s' is already enrolled in this record.") % line.product_id.name)
+                raise ValidationError(_(
+                    "Item '%(name)s' is already enrolled in this record.",
+                    name=line.product_id.name,
+                ))
 
     @api.onchange('product_id', 'product_uom_qty')
     def _force_quantity_one(self):

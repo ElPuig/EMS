@@ -5470,8 +5470,8 @@ msgstr "Elemento"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
-msgid "Item '%s' is already enrolled in this record."
-msgstr "El elemento '%s' ya está matriculado en este registro."
+msgid "Item '%(name)s' is already enrolled in this record."
+msgstr "El elemento '%(name)s' ya está matriculado en este registro."
 
 #. module: ems
 #: model:ir.model,name:ems.model_hr_job
@@ -9274,10 +9274,10 @@ msgstr "La nota interna debe estar en el rango [0, 10]."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
-msgid "The item '%s' is already in the list. Please select a different one."
-msgstr ""
-"El elemento '%s' ya está en la lista. Por favor, selecciona uno diferente.El"
-" elemento '%s' ya está en la lista. Por favor, selecciona uno diferente."
+msgid ""
+"The item '%(name)s' is already in the list. Please select a different "
+"one."
+msgstr "El elemento '%(name)s' ya está en la lista. Por favor, selecciona uno diferente."
 
 #. module: ems
 #. odoo-python

@@ -9,7 +9,10 @@ admission/billing side-effects that fire on confirmation. Do not confuse it
 with [`ems.enrollment`](../contacts/enrollment.md) (a different model: the
 student x group x subject junction row created once a student is actually
 placed), nor with [`sale.order.template`](enrollment_template.md) (the "pack"
-of pre-filled lines an enrollment can start from).
+of pre-filled lines an enrollment can start from). Its lines are documented
+separately in [`enrollment_line.md`](enrollment_line.md) (`sale.order.line`)
+and [`enrollment_product_extension.md`](enrollment_product_extension.md)
+(`product.template`).
 
 **Module file:** `models/enrollment/enrollment.py` (`SaleOrder`, `_inherit = "sale.order"`)
 
@@ -205,6 +208,18 @@ orders freeze their fee lines against later bonification/exemption changes):
 it cancels the unpaid invoice, recomputes price/discount on the lines, and
 regenerates the invoice — refusing if any existing invoice already has a
 payment registered.
+
+---
+
+## Portal comment review
+
+When a student/family leaves a comment instead of confirming (the "comment"
+action on `controllers/portal_enrollment.py`'s confirm route),
+`_ems_schedule_comment_review_activities()` schedules one systray to-do per
+configured reviewer and posts the comment on the enrollment's chatter. See
+[`mail_activity.md`](mail_activity.md) for how resolving one reviewer's
+copy closes it for the others, and how the "Sales Order" systray group gets
+relabeled "Enrollments".
 
 ---
 

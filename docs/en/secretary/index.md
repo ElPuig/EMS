@@ -17,11 +17,11 @@ This section contains the manuals for **secretariat staff**.
 - [A Group's Weekly Schedule](../admin/group-schedule.md) — Viewing a group's aggregated timetable (subjects, teachers, classrooms, breaks) and exporting it to PDF.
 - [Attendance Reports](attendance-reports.md) — Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data with the Attendance analysis pivot/graph screen.
 - [Managing student and family contacts](student-contacts.md) — Contact types and how they change, adding a family contact to a student, and registering bonifications and exemptions.
+- [Reviewing student documents](student-documents.md) — Approving, rejecting or reopening ID/medical/IBAN/benefit submissions, and what each decision does behind the scenes.
 
 ## Planned Topics
 
 - Enrollment management: review, validation and sending to families
-- Document management: approval of documents and student IBANs
 - Payments: payment methods and payment terms
 
 ---

@@ -17,11 +17,11 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [El horario semanal de un grupo](../admin/group-schedule.md) — Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF.
 - [Informes de asistencia](attendance-reports.md) — Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos con la pantalla de Análisis de asistencia.
 - [Gestión de contactos de alumnado y familia](student-contacts.md) — Tipos de contacto y cómo cambian, añadir un contacto familiar a un alumno, y registrar bonificaciones y exenciones.
+- [Revisar los documentos del alumnado](student-documents.md) — Aprobar, rechazar o reabrir tramitaciones de DNI/tarjeta sanitaria/IBAN/beneficios, y qué hace cada decisión por detrás.
 
 ## Temas previstos
 
 - Gestión de matrículas: revisión, validación y envío a las familias
-- Gestión de documentos: aprobación de documentos e IBAN de los alumnos
 - Pagos: formas de pago y plazos
 
 ---

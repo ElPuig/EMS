@@ -15,11 +15,7 @@ This section contains the manuals for **families and students**.
 | [Student portal access and activation](manual-portal-alumne.md) | How to activate the account and access the portal for the first time |
 | [Confirming the enrollment proposal](manual-confirmacio-matricula.md) | How to review and confirm the enrollment proposal received by email |
 | [Recovering the school email password](manual-recuperacio-contrasenya-correu.md) | How to recover the password of the `@elpuig.xeill.net` email account |
-
-## Planned Topics
-
-- Official documents: how to upload your ID/Passport or health insurance card
-- Bonifications and exemptions: how to request a bonification or fee exemption
+| [Uploading official documents, IBAN and benefit requests](manual-documentacio.md) | How to submit ID/health card documents, register your IBAN and request a bonification or exemption |
 
 ---
 

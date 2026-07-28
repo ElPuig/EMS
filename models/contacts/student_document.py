@@ -52,45 +52,49 @@ class EmsStudentDocument(models.Model):
     review_uid       = fields.Many2one('res.users', string='Reviewed by', readonly=True)
     rejection_reason = fields.Char(string='Rejection reason')
 
+    def _doc_label(self):
+        """Human-readable label for this document's doc_type, in the current language."""
+        self.ensure_one()
+        return dict(self._fields['doc_type'].selection).get(self.doc_type, self.doc_type or '')
+
     @api.depends('doc_type', 'partner_id', 'benefit_type')
     def _compute_name(self):
-        for rec in self:
-            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, '') if rec.doc_type else ''
-            if rec.doc_type == 'benefit' and rec.benefit_type:
+        for document in self:
+            doc_label = document._doc_label()
+            if document.doc_type == 'benefit' and document.benefit_type:
                 benefit_labels = dict(self.env['ems.student.benefit']._fields['benefit_type'].selection)
-                benefit_label = benefit_labels.get(rec.benefit_type, rec.benefit_type)
-                doc_label = '%s – %s' % (doc_label, benefit_label)
-            student = rec.partner_id.name or ''
-            rec.name = 'Document Submission: %s – %s' % (doc_label, student)
+                benefit_label = benefit_labels.get(document.benefit_type, document.benefit_type)
+                doc_label = f'{doc_label} – {benefit_label}'
+            student = document.partner_id.name or ''
+            document.name = f'Document Submission: {doc_label} – {student}'
 
+    @api.depends('doc_file', 'doc_file_name')
     def _compute_doc_file_link(self):
         Attachment = self.env['ir.attachment'].sudo()
-        for rec in self:
-            if not rec.doc_file or not rec.doc_file_name:
-                rec.doc_file_link = ''
+        for document in self:
+            if not document.doc_file or not document.doc_file_name:
+                document.doc_file_link = ''
                 continue
-            att = Attachment.search([
+            attachment = Attachment.search([
                 ('res_model', '=', self._name),
                 ('res_field', '=', 'doc_file'),
-                ('res_id', '=', rec.id),
+                ('res_id', '=', document.id),
             ], limit=1)
-            if att:
-                url = '/web/content/%d?download=false' % att.id
-                rec.doc_file_link = Markup('<a href="%s" target="_blank">%s</a>') % (
-                    url, escape(rec.doc_file_name)
-                )
+            if attachment:
+                url = f'/web/content/{attachment.id}?download=false'
+                document.doc_file_link = Markup(f'<a href="{url}" target="_blank">{escape(document.doc_file_name)}</a>')
             else:
-                rec.doc_file_link = escape(rec.doc_file_name)
+                document.doc_file_link = escape(document.doc_file_name)
 
     @api.constrains('partner_id', 'doc_type', 'status')
     def _check_single_pending_iban(self):
-        for rec in self:
-            if rec.doc_type == 'iban' and rec.status == 'pending':
+        for document in self:
+            if document.doc_type == 'iban' and document.status == 'pending':
                 duplicates = self.search([
-                    ('partner_id', '=', rec.partner_id.id),
+                    ('partner_id', '=', document.partner_id.id),
                     ('doc_type', '=', 'iban'),
                     ('status', '=', 'pending'),
-                    ('id', '!=', rec.id),
+                    ('id', '!=', document.id),
                 ])
                 if duplicates:
                     raise ValidationError(_("There is already a pending IBAN submission for this student."))
@@ -110,10 +114,10 @@ class EmsStudentDocument(models.Model):
         """
         users = self.env['mail.activity.type']._ems_get_task_users(
             'ems.mail_activity_student_document_review')
-        for rec in self:
-            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
+        for document in self:
+            doc_label = document._doc_label()
             for user in users:
-                rec.with_context(mail_activity_quick_update=True).activity_schedule(
+                document.with_context(mail_activity_quick_update=True).activity_schedule(
                     act_type_xmlid='ems.mail_activity_student_document_review',
                     summary=_('Review document: %s') % doc_label,
                     user_id=user.id,
@@ -127,26 +131,25 @@ class EmsStudentDocument(models.Model):
         """Keep the task recipients out of the followers (their to-do is the notice)."""
         partner_ids = users.mapped('partner_id').ids
         if partner_ids:
-            for rec in self:
-                rec.message_unsubscribe(partner_ids=partner_ids)
+            for document in self:
+                document.message_unsubscribe(partner_ids=partner_ids)
 
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
-        for rec in records:
-            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
-
+        for document in records:
             # Only the student follows the document: they are the one who must hear
             # back about it by email. Reviewers get a task instead (see
             # _schedule_review_activities).
-            rec.message_subscribe(partner_ids=[rec.partner_id.id])
+            document.message_subscribe(partner_ids=[document.partner_id.id])
 
-            if rec.status == 'pending':
+            if document.status == 'pending':
                 # Internal log note — does NOT email followers (the reviewer is
                 # notified via the review activity instead, avoiding a duplicate email)
-                rec.message_post(
-                    body=Markup('<b>Document submitted for review:</b> %s<br/>Student: %s') % (
-                        escape(doc_label), escape(rec.partner_id.name)
+                document.message_post(
+                    body=Markup(
+                        f"<b>{_('Document submitted for review:')}</b> {escape(document._doc_label())}"
+                        f"<br/>{_('Student:')} {escape(document.partner_id.name)}"
                     ),
                     message_type='comment',
                     subtype_xmlid='mail.mt_note',
@@ -158,93 +161,93 @@ class EmsStudentDocument(models.Model):
         return records
 
     def action_approve(self):
-        for rec in self:
+        for document in self:
             # Remove previously approved document of the same type for this student
             # For benefit documents, also match benefit_type to avoid removing other benefit types
             domain = [
-                ('partner_id', '=', rec.partner_id.id),
-                ('doc_type', '=', rec.doc_type),
+                ('partner_id', '=', document.partner_id.id),
+                ('doc_type', '=', document.doc_type),
                 ('status', '=', 'approved'),
-                ('id', '!=', rec.id),
+                ('id', '!=', document.id),
             ]
-            if rec.doc_type == 'benefit' and rec.benefit_type:
-                domain.append(('benefit_type', '=', rec.benefit_type))
+            if document.doc_type == 'benefit' and document.benefit_type:
+                domain.append(('benefit_type', '=', document.benefit_type))
             self.search(domain).unlink()
 
-            rec.write({
+            document.write({
                 'status': 'approved',
                 'review_date': fields.Datetime.now(),
                 'review_uid': self.env.user.id,
             })
-            if rec.doc_type == 'iban' and rec.doc_value:
-                rec._apply_bank_account()
-            elif rec.doc_type == 'benefit' and rec.benefit_type:
-                rec._apply_benefit()
+            if document.doc_type == 'iban' and document.doc_value:
+                document._apply_bank_account()
+            elif document.doc_type == 'benefit' and document.benefit_type:
+                document._apply_benefit()
 
-            rec.activity_ids.unlink()
+            document.activity_ids.unlink()
 
-            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
-            rec.message_post(
-                body=Markup('<b>Document approved:</b> %s<br/>Student: %s') % (
-                    escape(doc_label), escape(rec.partner_id.name)
+            document.message_post(
+                body=Markup(
+                    f"<b>{_('Document approved:')}</b> {escape(document._doc_label())}"
+                    f"<br/>{_('Student:')} {escape(document.partner_id.name)}"
                 ),
                 message_type='comment',
                 subtype_xmlid='mail.mt_comment',
             )
 
     def action_reject(self):
-        for rec in self:
-            rec.write({
+        for document in self:
+            document.write({
                 'status': 'rejected',
                 'review_date': fields.Datetime.now(),
                 'review_uid': self.env.user.id,
             })
-            rec.activity_ids.unlink()
+            document.activity_ids.unlink()
 
-            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
-            body = Markup('<b>Document rejected:</b> %s<br/>Student: %s') % (
-                escape(doc_label), escape(rec.partner_id.name)
+            body = Markup(
+                f"<b>{_('Document rejected:')}</b> {escape(document._doc_label())}"
+                f"<br/>{_('Student:')} {escape(document.partner_id.name)}"
             )
-            if rec.rejection_reason:
-                body += Markup('<br/>Reason: %s') % escape(rec.rejection_reason)
-            rec.message_post(
+            if document.rejection_reason:
+                body += Markup(f"<br/>{_('Reason:')} {escape(document.rejection_reason)}")
+            document.message_post(
                 body=body,
                 message_type='comment',
                 subtype_xmlid='mail.mt_comment',
             )
 
     def action_cancel(self):
-        for rec in self:
-            rec.write({'status': 'cancelled'})
-            rec.activity_ids.unlink()
+        for document in self:
+            document.write({'status': 'cancelled'})
+            document.activity_ids.unlink()
 
-            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
-            rec.message_post(
-                body=Markup('<b>Document submission cancelled:</b> %s<br/>Student: %s') % (
-                    escape(doc_label), escape(rec.partner_id.name)
+            document.message_post(
+                body=Markup(
+                    f"<b>{_('Document submission cancelled:')}</b> {escape(document._doc_label())}"
+                    f"<br/>{_('Student:')} {escape(document.partner_id.name)}"
                 ),
                 message_type='comment',
                 subtype_xmlid='mail.mt_comment',
             )
 
     def action_reset_to_pending(self):
-        for rec in self:
+        for document in self:
             # Drop any leftover activities and reschedule a fresh review task
-            rec.activity_ids.unlink()
-            rec.write({
+            document.activity_ids.unlink()
+            document.write({
                 'status': 'pending',
                 'review_uid': False,
                 'review_date': False,
                 'rejection_reason': False,
             })
-            rec._schedule_review_activities()
+            document._schedule_review_activities()
 
-            doc_label = dict(rec._fields['doc_type'].selection).get(rec.doc_type, rec.doc_type)
             # Internal log note — does NOT email followers (the secretary is
             # notified via the review activity instead, avoiding a duplicate email)
-            rec.message_post(
-                body=Markup('<b>Document reopened for review:</b> %s<br/>Student: %s') % (
-                    escape(doc_label), escape(rec.partner_id.name)
+            document.message_post(
+                body=Markup(
+                    f"<b>{_('Document reopened for review:')}</b> {escape(document._doc_label())}"
+                    f"<br/>{_('Student:')} {escape(document.partner_id.name)}"
                 ),
                 message_type='comment',
                 subtype_xmlid='mail.mt_note',
@@ -270,6 +273,7 @@ class EmsStudentDocument(models.Model):
         })
 
     def _apply_bank_account(self):
+        self.ensure_one()
         student = self.partner_id
         iban = self.doc_value.strip().upper()
         holder = self.doc_value2 or False

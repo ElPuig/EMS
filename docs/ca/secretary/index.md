@@ -17,11 +17,11 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [L'horari setmanal d'un grup](../admin/group-schedule.md) — Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF.
 - [Informes d'assistència](attendance-reports.md) — Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades amb la pantalla d'Anàlisi d'assistència.
 - [Gestió de contactes d'alumnat i família](student-contacts.md) — Tipus de contacte i com canvien, afegir un contacte familiar a un alumne, i registrar bonificacions i exempcions.
+- [Revisar els documents dels alumnes](student-documents.md) — Aprovar, rebutjar o reobrir tramitacions de DNI/targeta sanitària/IBAN/beneficis, i què fa cada decisió per darrere.
 
 ## Temes previstos
 
 - Gestió de matrícules: revisió, validació i enviament a les famílies
-- Gestió de documents: aprovació de documents i IBAN dels alumnes
 - Pagaments: formes de pagament i terminis
 
 ---

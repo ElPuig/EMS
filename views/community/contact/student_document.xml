@@ -108,6 +108,8 @@
             <field name="context">{'search_default_pending': 1}</field>
             <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary'))]"/>
         </record>
+        <!-- Menu: see views/academic_management/enrollment_configuration/menu.xml
+             (menu_student_documents, under Academic Management). -->
 
     </data>
 </odoo>

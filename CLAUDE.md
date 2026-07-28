@@ -34,6 +34,7 @@ static/
     └── tours/        # Browser tour JS files (web.assets_tests)
 tests/                # Python test cases
 docs/                 # Trilingual user and developer documentation
+plans/                # Design plans for not-yet-implemented work (see "Design plans" below)
 ```
 
 ## Development scripts
@@ -136,6 +137,24 @@ docs/
 Folder names are always in English regardless of the language tree (`teachers/`, not `professors/`; `secretary/`, not `secretaria/`), so paths stay consistent across `en/`, `ca/` and `es/` — only the file contents and index labels are translated.
 
 Image references in markdown use relative paths: `../../assets/<section>/filename.png`
+
+## Design plans (`plans/`)
+
+`plans/` (project root) holds **design plans for work that hasn't been implemented yet** —
+e.g. a plan drafted in one session/branch to be executed later in a different one. It is
+deliberately separate from `docs/`: it is not documentation of shipped behaviour, it's a
+working note that becomes stale/obsolete the moment the described work either lands (at
+which point the real `docs/en/developers/` + `docs/{en,ca,es}/<role>/` docs are what's
+authoritative — fold anything still relevant from the plan into them and delete the plan
+file) or gets superseded by a different approach.
+
+- One file per plan, `plans/<short_topic>.md`, English.
+- State at the top whether it's still current: a plan can go stale as the surrounding code
+  moves on between when it was written and when someone picks it up — say so explicitly
+  rather than letting a reader assume it's up to date.
+- Not trilingual, not linked from any `index.md` — it's a working note, not a manual.
+- Once the plan is implemented (or abandoned), delete the file rather than leaving a
+  stale plan behind — `git log` still has it if anyone needs the history.
 
 ## Data folder conventions
 

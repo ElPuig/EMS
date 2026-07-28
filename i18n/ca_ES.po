@@ -3497,6 +3497,12 @@ msgid "Document"
 msgstr ""
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document approved:"
+msgstr "Document aprovat:"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__document_id
 #: model:ir.model.fields,field_description:ems.field_res_users__document_id
 #: model_terms:ir.ui.view,arch_db:ems.view_family_search
@@ -3512,6 +3518,30 @@ msgstr "DNI/NIE"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__signed_document_name
 msgid "Document Name"
 msgstr "Nom del document"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document rejected:"
+msgstr "Document rebutjat:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document reopened for review:"
+msgstr "Document reobert per a revisió:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document submission cancelled:"
+msgstr "Presentació del document cancel·lada:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document submitted for review:"
+msgstr "Document presentat per a revisió:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
@@ -7363,6 +7393,8 @@ msgstr "Motiu de rebuig (obligatori abans de rebutjar)"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
 msgid "Reason:"
 msgstr "Motiu:"
 
@@ -8649,6 +8681,12 @@ msgstr "Configuració d'assistència de l'alumne/a"
 #: model:ir.ui.menu,name:ems.menu_attendance
 msgid "Student's Attendances"
 msgstr "Assistència dels estudiants"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Student:"
+msgstr "Alumne/a:"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_student_form

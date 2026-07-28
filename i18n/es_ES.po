@@ -3500,6 +3500,12 @@ msgid "Document"
 msgstr "Documento"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document approved:"
+msgstr "Documento aprobado:"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__document_id
 #: model:ir.model.fields,field_description:ems.field_res_users__document_id
 #: model_terms:ir.ui.view,arch_db:ems.view_family_search
@@ -3515,6 +3521,30 @@ msgstr "DNI/NIE"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__signed_document_name
 msgid "Document Name"
 msgstr "Nombre del documento"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document rejected:"
+msgstr "Documento rechazado:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document reopened for review:"
+msgstr "Documento reabierto para revisión:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document submission cancelled:"
+msgstr "Presentación del documento cancelada:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document submitted for review:"
+msgstr "Documento presentado para revisión:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
@@ -7376,6 +7406,8 @@ msgstr "Motivo de rechazo (obligatorio antes de rechazar)"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
 msgid "Reason:"
 msgstr "Motivo:"
 
@@ -8664,6 +8696,12 @@ msgstr "Configuración de asistencia del alumno/a"
 #: model:ir.ui.menu,name:ems.menu_attendance
 msgid "Student's Attendances"
 msgstr "Asistencia de los estudiantes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Student:"
+msgstr "Alumno/a:"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_student_form

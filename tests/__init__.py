@@ -7,6 +7,8 @@ from . import test_enrollment_placement
 from . import test_exit_management
 from . import test_level
 from . import test_level_tour
+from . import test_student_document
+from . import test_student_document_tour
 from . import test_study
 from . import test_study_tour
 from . import test_subject

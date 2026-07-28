@@ -248,6 +248,45 @@ class TestCourseTransition(TransactionCase):
         unplaced = wizard.line_ids.filtered(lambda line: line.action == 'unplaced')
         self.assertEqual(unplaced.student_id, student)
 
+    def test_lists_an_unconfirmed_enrollment_as_pending(self):
+        """The preview used to promise 'joins its group' for anybody whose enrollment
+        carried one, confirmed or not — but step 3 only executes confirmed ones, so
+        the counter the operator reads before applying was overstating the placement."""
+        student = self._student('CTW Pending Order')
+        self._order(student, self.group2, state='sent')
+        wizard = self._wizard()
+        wizard.action_preview()
+        line = wizard.line_ids.filtered(lambda line: line.student_id == student)
+        self.assertEqual(line.action, 'pending')
+        self.assertEqual(wizard.pending_count, 1)
+        self.assertEqual(wizard.place_count, 0)
+
+    def test_an_unconfirmed_enrollment_without_group_is_pending_too(self):
+        """Not 'unplaced': that one blocks the run, and an offer nobody has confirmed
+        must not, since there is nothing to place either way."""
+        student = self._student('CTW Pending No Group')
+        self._order(student, group=False, state='sent')
+        wizard = self._wizard()
+        wizard.action_preview()
+        line = wizard.line_ids.filtered(lambda line: line.student_id == student)
+        self.assertEqual(line.action, 'pending')
+        self.assertEqual(wizard.unplaced_count, 0)
+        self.assertFalse(wizard.has_blockers)
+
+    def test_place_counts_only_what_the_apply_will_really_move(self):
+        confirmed = self._student('CTW Really Placed')
+        self._order(confirmed, self.group2, state='sale')
+        unconfirmed = self._student('CTW Not Yet')
+        self._order(unconfirmed, self.group2, state='sent')
+        wizard = self._wizard()
+        wizard.action_preview()
+        self.assertEqual(wizard.place_count, 1)
+        self.assertEqual(wizard.pending_count, 1)
+        wizard.backup_done = True
+        wizard.action_apply()
+        self.assertEqual(confirmed.main_group_id, self.group2)
+        self.assertFalse(unconfirmed.main_group_id)
+
     def test_incomplete_evaluation_ignores_the_missing_em_before_the_last_course(self):
         """D9: the work placement only exists in the last course, so a first-course
         subject with an external weight but no EM grade is NOT incomplete — its

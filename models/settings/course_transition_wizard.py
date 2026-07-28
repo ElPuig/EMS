@@ -14,9 +14,10 @@ TRANSITION_ACTIONS = [
     ('graduate', 'Graduates and leaves'),
     ('graduate_continue', 'Graduates and continues'),
     ('graduate_pending', 'Graduates, pending confirmation'),
-    ('place', 'Place in destination group'),
-    ('unplaced', 'Enrolled without group'),
-    ('missing', 'No destination'),
+    ('place', 'Joins its group for the next course'),
+    ('pending', 'Enrollment pending confirmation'),
+    ('unplaced', 'Enrollment with no destination group'),
+    ('missing', 'No enrollment for the next course'),
 ]
 
 
@@ -51,9 +52,10 @@ class ems_course_transition_wizard(models.TransientModel):
     graduate_count = fields.Integer(string="Graduates leaving the centre", readonly=True)
     graduate_continue_count = fields.Integer(string="Graduates continuing at the centre", readonly=True)
     graduate_pending_count = fields.Integer(string="Graduates pending confirmation", readonly=True)
-    place_count = fields.Integer(string="To place", readonly=True)
-    unplaced_count = fields.Integer(string="Enrolled without group", readonly=True)
-    missing_count = fields.Integer(string="Without destination", readonly=True)
+    place_count = fields.Integer(string="Joining their group", readonly=True)
+    pending_count = fields.Integer(string="Enrollments pending confirmation", readonly=True)
+    unplaced_count = fields.Integer(string="Enrollments with no destination group", readonly=True)
+    missing_count = fields.Integer(string="Without an enrollment", readonly=True)
     incomplete_evaluation_count = fields.Integer(string="Incomplete evaluations", readonly=True)
     template_count = fields.Integer(string="Attendance templates to archive", readonly=True)
     delete_count = fields.Integer(string="Records to delete", readonly=True)
@@ -332,6 +334,12 @@ class ems_course_transition_wizard(models.TransientModel):
                 action, group = 'graduate', self.env['ems.group']
             elif not order:
                 action, group = 'missing', self.env['ems.group']
+            elif order.state != 'sale':
+                # Step 3 only executes confirmed enrollments, so promising a placement
+                # here would overstate what the apply is about to do. They keep the
+                # offer, lose the group like everybody unplaced, and place themselves
+                # through _ems_admit_student() the day they confirm.
+                action, group = 'pending', self.env['ems.group']
             elif order.ems_group_id:
                 action, group = 'place', order.ems_group_id
             else:
@@ -457,6 +465,7 @@ class ems_course_transition_wizard(models.TransientModel):
             'graduate_continue_count': actions.count('graduate_continue'),
             'graduate_pending_count': actions.count('graduate_pending'),
             'place_count': actions.count('place'),
+            'pending_count': actions.count('pending'),
             'unplaced_count': actions.count('unplaced'),
             'missing_count': actions.count('missing'),
             'incomplete_evaluation_count': len(self._incomplete_evaluation_lines()),

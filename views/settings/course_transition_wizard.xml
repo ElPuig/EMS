@@ -54,6 +54,7 @@
                                     <field name="graduate_continue_count"/>
                                     <field name="graduate_pending_count"/>
                                     <field name="place_count"/>
+                                    <field name="pending_count"/>
                                     <field name="unplaced_count"/>
                                     <field name="missing_count"/>
                                 </group>

@@ -52,14 +52,15 @@ Obtindràs un quadre vermell si alguna cosa bloqueja l'execució, un quadre blau
 | **Es gradua i marxa** | Marcat com a graduat i sense cap matrícula: passa a exalumne i s'arxiva |
 | **Es gradua i continua** | Marcat com a graduat **i** amb matrícula **confirmada**: conserva la graduació, no s'arxiva i es col·loca al grup nou |
 | **Es gradua, pendent de confirmar** | Marcat com a graduat i amb matrícula **sense confirmar**: passa a sol·licitant, **conserva l'accés al portal** i no s'arxiva, perquè pugui confirmar-la al setembre |
-| **Col·locar al grup destí** | Té matrícula confirmada amb grup: s'hi trasllada |
-| **Matriculat sense grup** | Matrícula sense grup destí. Si està confirmada, **bloqueja l'execució** |
-| **Sense destí** | No té cap matrícula per al curs següent |
+| **S'incorpora al seu grup del curs vinent** | Matrícula **confirmada** amb grup: entra en aquell grup i se li creen les inscripcions a les assignatures |
+| **Matrícula pendent de confirmar** | La matrícula existeix però ningú no l'ha confirmada: encara no s'hi incorpora. Ho farà sol el dia que es confirmi |
+| **Matrícula sense grup destí** | Matrícula confirmada sense grup: **bloqueja l'execució** |
+| **Sense matrícula per al curs vinent** | No té cap matrícula |
 
 Dues d'aquestes mereixen la teva atenció:
 
-- **Matriculat sense grup** — la matrícula existeix però ningú n'ha triat el grup. Si està confirmada, l'execució queda bloquejada fins que l'assignis: col·locar-hi ningú no tindria arranjament després. Fes servir l'acció *Suggerir grup destí* i torna a previsualitzar.
-- **Sense destí** — l'alumne no s'ha matriculat. **No** se'l dona de baixa: simplement es queda sense grup. És deliberat, perquè al juliol no hi ha manera de distingir qui se'n va a un altre institut de qui es matricula tard. Guarda aquesta llista: és la que revisaràs després per decidir qui ha marxat de debò.
+- **Matrícula sense grup destí** — la matrícula està confirmada però ningú n'ha triat el grup, així que l'execució queda bloquejada fins que l'assignis: deixar-lo sense grup no tindria arranjament després. Fes servir l'acció *Suggerir grup destí* i torna a previsualitzar.
+- **Sense matrícula per al curs vinent** — l'alumne no s'ha matriculat. **No** se'l dona de baixa: simplement es queda sense grup. És deliberat, perquè al juliol no hi ha manera de distingir qui se'n va a un altre institut de qui es matricula tard. Guarda aquesta llista: és la que revisaràs després per decidir qui ha marxat de debò.
 
 ---
 

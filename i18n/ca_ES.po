@@ -13538,3 +13538,43 @@ msgstr "Es gradua i marxa"
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__graduate_count
 msgid "Graduates leaving the centre"
 msgstr "Graduats/des que marxen del centre"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__place
+msgid "Joins its group for the next course"
+msgstr "S'incorpora al seu grup del curs vinent"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__pending
+msgid "Enrollment pending confirmation"
+msgstr "Matrícula pendent de confirmar"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__unplaced
+msgid "Enrollment with no destination group"
+msgstr "Matrícula sense grup destí"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__missing
+msgid "No enrollment for the next course"
+msgstr "Sense matrícula per al curs vinent"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__place_count
+msgid "Joining their group"
+msgstr "S'incorporen al seu grup"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__pending_count
+msgid "Enrollments pending confirmation"
+msgstr "Matrícules pendents de confirmar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__unplaced_count
+msgid "Enrollments with no destination group"
+msgstr "Matrícules sense grup destí"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__missing_count
+msgid "Without an enrollment"
+msgstr "Sense matrícula"

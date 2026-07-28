@@ -52,14 +52,15 @@ You get a red box if something blocks the run, a blue box with everything worth 
 | **Graduates and leaves** | Marked as graduated with no enrollment at all: becomes a former student and is archived |
 | **Graduates and continues** | Marked as graduated **and** holding a **confirmed** enrollment: keeps the graduation, is not archived and is placed in the new group |
 | **Graduates, pending confirmation** | Marked as graduated with an **unconfirmed** enrollment: becomes an applicant, **keeps portal access** and is not archived, so it can still confirm in September |
-| **Place in destination group** | Has a confirmed enrollment with a group: moves there |
-| **Enrolled without group** | Enrollment with no destination group. If it is confirmed, it **blocks the run** |
-| **No destination** | No enrollment at all for the next course |
+| **Joins its group for the next course** | **Confirmed** enrollment with a group: moves into it and gets the subject enrollments |
+| **Enrollment pending confirmation** | The enrollment exists but nobody has confirmed it: it does not move yet, and will do so on its own once confirmed |
+| **Enrollment with no destination group** | Confirmed enrollment with no group: it **blocks the run** |
+| **No enrollment for the next course** | No enrollment at all |
 
 Two of these deserve your attention:
 
-- **Enrolled without group** — the enrollment exists but nobody chose the group. If it is confirmed, the run is blocked until you assign it: placing nobody there would leave no way back afterwards. Use the *Suggest destination group* action and preview again.
-- **No destination** — the student has not enrolled. They are **not** withdrawn: they simply end up with no group. This is deliberate, because in July there is no way to tell someone moving to another school from someone who enrolls late. Keep this list: it is the one you will review afterwards to decide who really left.
+- **Enrollment with no destination group** — the enrollment is confirmed but nobody chose the group, so the run is blocked until you assign it: leaving them with no group would have no way back afterwards. Use the *Suggest destination group* action and preview again.
+- **No enrollment for the next course** — the student has not enrolled. They are **not** withdrawn: they simply end up with no group. This is deliberate, because in July there is no way to tell someone moving to another school from someone who enrolls late. Keep this list: it is the one you will review afterwards to decide who really left.
 
 ---
 

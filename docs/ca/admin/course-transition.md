@@ -14,14 +14,19 @@ Arxiva el curs que acaba, converteix en exalumnes els graduats que marxen del ce
 
 ## Abans de començar
 
-Hi ha quatre coses que han d'estar resoltes. L'auxiliar comprova les tres primeres i es nega a executar-se si en falta alguna.
+Hi ha cinc coses que han d'estar resoltes. L'auxiliar comprova les quatre primeres i es nega a executar-se si en falta alguna.
 
 1. **El curs entrant existeix** i és diferent de l'actual.
 2. **Les avaluacions estan tancades.** L'última convocatòria de cada grup de l'abast ha d'estar en estat *Finalitzada*. Si n'hi ha d'obertes, l'auxiliar te les llista; tanca-les des de **Notes → Canviar estat de sessió d'avaluació**. Això val també per als **estudis de procedència**: si aquesta execució ha de col·locar alumnes que vénen d'un estudi que no estàs transicionant i aquell estudi encara té avaluacions obertes, l'auxiliar es nega a executar-se, perquè en sortir del grup se'ls congela l'expedient i quedaria a mitges.
 3. **Cap matrícula confirmada sense grup destí.** Si una matrícula està confirmada però ningú no n'ha triat el grup, l'auxiliar es nega a executar-se i te les llista. Passa'ls l'acció **Suggerir grup destí** de l'informe *Alumnes sense destí*: proposa el grup del mateix acrònim i torn al curs destí, i també resol els repetidors, el curs dels quals dedueix de la tutoria que tenen matriculada.
 
    Si tot i així en queden algunes, gairebé sempre és perquè **el grup destí encara no existeix**: un grup de tarda que promociona a un curs on només hi ha grup de matí, o un estudi sense cap grup del curs següent. Crea'ls abans de continuar, o decideix a quin grup existent van aquests alumnes i assigna'ls-el a mà a la seva matrícula. Cap suggeriment automàtic pot col·locar ningú en un grup que no està creat.
-4. **Una còpia de seguretat de la base de dades.** L'auxiliar et demana que confirmis que la tens, i no aplica res fins que marquis la casella.
+4. **Cap alumne sense matrícula als estudis que es matriculen pel flux.** En un cicle formatiu, un alumne sense **cap** matrícula —ni tan sols una proposta en esborrany— és que marxa o que algú se n'ha oblidat. Registra-li la baixa o envia-li la proposta abans de continuar.
+
+   És un bloquejant perquè després ja no hi ha marxa enrere: la transició li treu el grup, i l'auxiliar de graduació necessita el grup per saber si és a l'últim curs, així que **graduar-lo a posteriori és impossible**.
+
+   A l'ESO, el Batxillerat i la resta d'estudis que **no** fan servir el flux de matrícula això és només un avís: allà no tenir matrícula és el normal fins a la reimportació d'Esfer@ del setembre.
+5. **Una còpia de seguretat de la base de dades.** L'auxiliar et demana que confirmis que la tens, i no aplica res fins que marquis la casella.
 
 Marca els alumnes que es graduen *abans*, amb l'auxiliar de graduació des de la llista d'alumnes. La transició no decideix qui es gradua: només executa marques que ja hi són.
 

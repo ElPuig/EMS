@@ -14,14 +14,19 @@ It archives the year that ends, turns the graduates who leave the centre into fo
 
 ## Before you start
 
-Four things have to be in place. The wizard checks the first three itself and refuses to run if any is missing.
+Five things have to be in place. The wizard checks the first four itself and refuses to run if any is missing.
 
 1. **The incoming course exists** and is different from the current one.
 2. **The evaluations are closed.** The last round of every group in scope must be in the *Finalised* state. If some are still open, the wizard lists them; close them from **Grades → Change grade session state**. This also covers the **studies students come from**: if this run is about to place students arriving from a study you are not transitioning, and that study still has open evaluations, the wizard refuses to run — leaving the group freezes their record, and it would be frozen half-way.
 3. **No confirmed enrollment without a destination group.** If an enrollment is confirmed but nobody chose the group, the wizard refuses to run and lists them. Run the **Suggest destination group** action of the *Students without destination* report over them: it proposes the group with the same letter and shift in the destination course, and it also resolves repeaters, whose course it reads from the tutorship they enrolled in.
 
    If some are still left, it is almost always because **the destination group does not exist yet**: an afternoon group moving up to a course that only has a morning group, or a study with no group at all for the next course. Create them before carrying on, or decide which existing group those students go to and set it by hand on their enrollment. No automatic suggestion can place anybody in a group that has not been created.
-4. **A database backup.** The wizard asks you to confirm you have one, and will not apply anything until you tick the box.
+4. **No student without an enrollment in the studies that enroll through the flow.** In a vocational cycle, a student with **no** enrollment at all — not even a draft proposal — is either leaving or somebody forgot about them. Register the withdrawal or send the proposal before carrying on.
+
+   It blocks because afterwards there is no way back: the transition takes the group away, and the graduation wizard needs it to tell whether the student is in the last course, so **graduating them later is impossible**.
+
+   In ESO, Bachillerato and the other studies that do **not** use the enrollment flow this is only a warning: there, having no enrollment is the normal state until the September Esfer@ re-import.
+5. **A database backup.** The wizard asks you to confirm you have one, and will not apply anything until you tick the box.
 
 Mark the graduating students *beforehand*, with the graduation wizard from the student list. The transition does not decide who graduates — it only executes marks that are already there.
 

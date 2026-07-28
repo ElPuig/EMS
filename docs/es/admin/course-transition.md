@@ -14,14 +14,19 @@ Archiva el curso que termina, convierte en exalumnos a los graduados que se van 
 
 ## Antes de empezar
 
-Hay cuatro cosas que deben estar resueltas. El asistente comprueba las tres primeras y se niega a ejecutarse si falta alguna.
+Hay cinco cosas que deben estar resueltas. El asistente comprueba las cuatro primeras y se niega a ejecutarse si falta alguna.
 
 1. **El curso entrante existe** y es distinto del actual.
 2. **Las evaluaciones están cerradas.** La última convocatoria de cada grupo del alcance debe estar en estado *Finalizada*. Si quedan abiertas, el asistente te las lista; ciérralas desde **Notas → Cambiar estado de sesión de evaluación**. Esto vale también para los **estudios de procedencia**: si esta ejecución va a colocar alumnos que vienen de un estudio que no estás transicionando y ese estudio aún tiene evaluaciones abiertas, el asistente se niega a ejecutarse, porque al salir del grupo se les congela el expediente y quedaría a medias.
 3. **Ninguna matrícula confirmada sin grupo destino.** Si una matrícula está confirmada pero nadie eligió el grupo, el asistente se niega a ejecutarse y te las lista. Pásales la acción **Sugerir grupo destino** del informe *Alumnos sin destino*: propone el grupo del mismo acrónimo y turno en el curso destino, y también resuelve a los repetidores, cuyo curso deduce de la tutoría que llevan matriculada.
 
    Si aun así quedan algunas, casi siempre es porque **el grupo destino todavía no existe**: un grupo de tarde que promociona a un curso donde solo hay grupo de mañana, o un estudio sin ningún grupo del curso siguiente. Créalos antes de continuar, o decide a qué grupo existente van esos alumnos y asígnaselo a mano en su matrícula. Ninguna sugerencia automática puede colocar a nadie en un grupo que no está creado.
-4. **Una copia de seguridad de la base de datos.** El asistente te pide que confirmes que la tienes, y no aplica nada hasta que marques la casilla.
+4. **Ningún alumno sin matrícula en los estudios que se matriculan por el flujo.** En un ciclo formativo, un alumno sin **ninguna** matrícula —ni siquiera una propuesta en borrador— es que se va o que alguien se ha olvidado de él. Regístrale la baja o envíale la propuesta antes de continuar.
+
+   Es un bloqueante porque después ya no hay marcha atrás: la transición le quita el grupo, y el asistente de graduación necesita el grupo para saber si está en el último curso, así que **graduarlo a posteriori es imposible**.
+
+   En ESO, Bachillerato y demás estudios que **no** usan el flujo de matrícula esto es solo un aviso: allí no tener matrícula es lo normal hasta la reimportación de Esfer@ de septiembre.
+5. **Una copia de seguridad de la base de datos.** El asistente te pide que confirmes que la tienes, y no aplica nada hasta que marques la casilla.
 
 Marca a los alumnos que se gradúan *antes*, con el asistente de graduación desde la lista de alumnos. La transición no decide quién se gradúa: solo ejecuta marcas que ya están puestas.
 

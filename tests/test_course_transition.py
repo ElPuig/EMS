@@ -248,6 +248,47 @@ class TestCourseTransition(TransactionCase):
         unplaced = wizard.line_ids.filtered(lambda line: line.action == 'unplaced')
         self.assertEqual(unplaced.student_id, student)
 
+    def _enrollment_flow(self):
+        """Make the study use the enrollment flow. uses_enrollment_flow keys on having
+        an active sale.order.template, which this fixture deliberately has none of —
+        ESO and BTX are exactly that case in production."""
+        return self.env['sale.order.template'].create({
+            'name': 'CTW Flow Template', 'ems_study_id': self.study.id, 'study_year': 1})
+
+    def test_blocks_a_student_with_no_enrollment_when_the_study_uses_the_flow(self):
+        """Settle them BEFORE the freeze: afterwards the student has no group, and the
+        graduation wizard needs it to tell whether they are in the last course, so
+        graduating them becomes impossible."""
+        self._enrollment_flow()
+        stranded = self._student('CTW Flow Stranded', group=self.group2)
+        wizard = self._wizard()
+        wizard.action_preview()
+        self.assertTrue(wizard.has_blockers)
+        self.assertIn(stranded.display_name, wizard.blocking_html)
+        with self.assertRaises(UserError):
+            wizard.action_apply()
+
+    def test_does_not_block_a_student_with_no_enrollment_without_the_flow(self):
+        """ESO and BTX do not enroll through sale.order: 478 of 493 ESO students have
+        no enrollment, and that is the expected state until the September re-import."""
+        stranded = self._student('CTW No Flow Stranded', group=self.group2)
+        wizard = self._wizard()
+        wizard.action_preview()
+        self.assertFalse(wizard.has_blockers)
+        self.assertEqual(wizard.missing_count, 1)
+        self.assertIn(stranded.display_name, wizard.warning_html)
+
+    def test_a_draft_enrollment_clears_the_no_enrollment_blocker(self):
+        """An offer nobody has confirmed still means somebody looked at the student."""
+        self._enrollment_flow()
+        student = self._student('CTW Flow Offered', group=self.group2)
+        self._order(student, self.group1)
+        wizard = self._wizard()
+        wizard.action_preview()
+        self.assertFalse(wizard.has_blockers)
+        line = wizard.line_ids.filtered(lambda line: line.student_id == student)
+        self.assertEqual(line.action, 'pending')
+
     def test_lists_an_unconfirmed_enrollment_as_pending(self):
         """The preview used to promise 'joins its group' for anybody whose enrollment
         carried one, confirmed or not — but step 3 only executes confirmed ones, so
@@ -969,3 +1010,4 @@ class TestCourseTransition(TransactionCase):
         line = wizard.line_ids.filtered(lambda line: line.student_id == applicant)
         self.assertEqual(line.action, 'place')
         self.assertEqual(line.destination_group_id, self.group1)
+

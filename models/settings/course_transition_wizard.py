@@ -234,6 +234,22 @@ class ems_course_transition_wizard(models.TransientModel):
                               "report does it in bulk — and preview again.")
                             % (len(unplaced), ", ".join(unplaced.mapped('partner_id.display_name')[:10])))
 
+        # A student of a study that enrolls through the enrollment flow and has NO
+        # enrollment at all is either a leaver nobody registered or somebody forgotten.
+        # Both have to be settled BEFORE the freeze: after it the student has no group,
+        # which makes graduating them impossible (the graduation wizard needs the group
+        # to tell whether they are in the last course). Studies that do not use the flow
+        # are left as a warning: there a missing enrollment is the expected state until
+        # the September Esfer@ re-import.
+        stranded = self.line_ids.filtered(
+            lambda line: line.action == 'missing' and line.study_id.uses_enrollment_flow)
+        if stranded:
+            blockers.append(_("%s student(s) have no enrollment at all for the incoming course, "
+                              "and their study enrolls through it: %s. Either register their "
+                              "withdrawal or send them an enrollment proposal — a draft one is "
+                              "enough — and preview again.")
+                            % (len(stranded), ", ".join(stranded.mapped('student_id.display_name')[:10])))
+
         # This run places students coming from a study it is not transitioning, and their
         # history is frozen as they leave: refuse rather than freeze it half-way.
         unclosed = self._unclosed_origin_studies()
@@ -394,11 +410,14 @@ class ems_course_transition_wizard(models.TransientModel):
                               "become applicants and keep their portal access, so they can still "
                               "confirm it. They are not archived: %s.")
                             % (self.graduate_pending_count, ", ".join(names)))
-        if self.missing_count:
-            names = self.line_ids.filtered(lambda line: line.action == 'missing').mapped(
-                'student_id.display_name')
-            warnings.append(_("%s student(s) with no enrollment for the incoming course: %s.")
-                            % (self.missing_count, ", ".join(names)))
+        # The ones whose study DOES use the flow are a blocker, not a warning.
+        expected = self.line_ids.filtered(
+            lambda line: line.action == 'missing' and not line.study_id.uses_enrollment_flow)
+        if expected:
+            warnings.append(_("%s student(s) have no enrollment for the incoming course. Their "
+                              "study does not use the enrollment flow, so that is the expected "
+                              "state until the September Esfer@ re-import: %s.")
+                            % (len(expected), ", ".join(expected.mapped('student_id.display_name')[:10])))
         incoming_drafts = self.env['sale.order'].search_count([
             ('ems_course_id', '=', self.target_course_id.id),
             ('ems_study_id', 'in', self.study_ids.ids),

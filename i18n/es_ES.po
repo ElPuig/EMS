@@ -13600,3 +13600,21 @@ msgstr "Matrículas sin grupo destino"
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__missing_count
 msgid "Without an enrollment"
 msgstr "Sin matrícula"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s student(s) have no enrollment at all for the incoming course, and their "
+"study enrolls through it: %s. Either register their withdrawal or send them "
+"an enrollment proposal — a draft one is enough — and preview again."
+msgstr "%s estudiantes no tienen ninguna matrícula para el curso entrante, y su estudio se matricula por ese flujo: %s. Registra su baja o envíales una propuesta de matrícula —basta con un borrador— y vuelve a previsualizar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s student(s) have no enrollment for the incoming course. Their study does "
+"not use the enrollment flow, so that is the expected state until the "
+"September Esfer@ re-import: %s."
+msgstr "%s estudiantes no tienen matrícula para el curso entrante. Su estudio no usa el flujo de matrícula, así que es lo esperado hasta la reimportación de Esfer@ de septiembre: %s."

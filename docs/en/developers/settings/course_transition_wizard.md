@@ -46,6 +46,7 @@ Step 5 resets every study back to `active` when the flip happens, so the next co
 | Target course | It exists and is different from `source_course_id` |
 | Evaluation not closed | Every `ems.grade_session` of the **last round** (max existing `round` per group·subject) of the groups in scope is in state `final`, linking the offenders to `ems.action_grade_session_state_wizard` |
 | Confirmed enrollment with no group | No `sale.order` of `_incoming_orders()` lacks `ems_group_id` (D13) |
+| Student with no enrollment | No `missing` line whose `study_id.uses_enrollment_flow` is true (D17) |
 | Origin study still evaluating | No study this run pulls a student **out of** — outside the scope and not yet `transitioned` — has an unfinalised last round (D11) |
 
 ### Warnings (informative, never blocking)
@@ -247,6 +248,26 @@ flip=True | transition_state after the flip='active' | group after confirming=NO
 | `ems_course_id == company.current_course_id` | The course has already started, so the wizard is long past |
 
 An enrollment for a course that has not started yet is still left to the wizard.
+
+### A student with no enrollment blocks, but only where enrolling is the flow (D17)
+
+D8 originally said the opposite: list them, never block, *"in July there is no way to tell a student moving to another school from one who enrolls late"*. That reasoning still holds for **withdrawing them automatically**, which the wizard still refuses to do. It does not hold for letting the run pass without anybody looking, because two things turned out to be irreversible:
+
+- **Graduating them afterwards is impossible.** `graduation_wizard._is_last_course()` needs `main_group_id` to tell whether the student is in the last course, and step 4b has just taken it away.
+- **Withdrawing them afterwards destroys the year record** (see the withdrawal note below).
+
+Scoping is what makes it workable. `study.uses_enrollment_flow` — computed from the study having an active `sale.order.template` — separates the two worlds, and the 25-26 data shows why a blanket blocker would be unusable:
+
+| Study | Uses the flow | Students | With no enrollment |
+|-------|---------------|----------|--------------------|
+| ESO | no | 493 | **478** |
+| BTX | no | 112 | **107** |
+| ASIX | yes | 55 | 28 |
+| SMX | yes | 130 | 9 |
+
+ESO and BTX do not enroll through `sale.order` at all; their continuity arrives with the September Esfer@ re-import, so a missing enrollment there is the expected state and stays a warning. In a vocational cycle it is a blocker.
+
+**A draft or sent proposal is enough** to clear it: those students are `pending`, not `missing`. The blocker only fires when there is nothing at all.
 
 ### Conditional flip (step 5)
 

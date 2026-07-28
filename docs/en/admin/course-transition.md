@@ -49,7 +49,7 @@ You get a red box if something blocks the run, a blue box with everything worth 
 
 | Action | Meaning |
 |---|---|
-| **Graduate** | Marked as graduated with no enrollment: becomes a former student and is archived |
+| **Graduates and leaves** | Marked as graduated with no enrollment at all: becomes a former student and is archived |
 | **Graduates and continues** | Marked as graduated **and** holding a **confirmed** enrollment: keeps the graduation, is not archived and is placed in the new group |
 | **Graduates, pending confirmation** | Marked as graduated with an **unconfirmed** enrollment: becomes an applicant, **keeps portal access** and is not archived, so it can still confirm in September |
 | **Place in destination group** | Has a confirmed enrollment with a group: moves there |

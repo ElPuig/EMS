@@ -11,7 +11,7 @@ from odoo.exceptions import UserError
 # Actions the preview predicts for each student of the scope. They are the wizard's
 # whole vocabulary: every student in scope ends up in exactly one of them.
 TRANSITION_ACTIONS = [
-    ('graduate', 'Graduate'),
+    ('graduate', 'Graduates and leaves'),
     ('graduate_continue', 'Graduates and continues'),
     ('graduate_pending', 'Graduates, pending confirmation'),
     ('place', 'Place in destination group'),
@@ -48,7 +48,7 @@ class ems_course_transition_wizard(models.TransientModel):
     warning_html = fields.Html(string="Warnings", readonly=True)
     has_blockers = fields.Boolean(string="Has blockers", readonly=True)
 
-    graduate_count = fields.Integer(string="Graduates", readonly=True)
+    graduate_count = fields.Integer(string="Graduates leaving the centre", readonly=True)
     graduate_continue_count = fields.Integer(string="Graduates continuing at the centre", readonly=True)
     graduate_pending_count = fields.Integer(string="Graduates pending confirmation", readonly=True)
     place_count = fields.Integer(string="To place", readonly=True)

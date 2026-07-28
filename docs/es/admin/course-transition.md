@@ -49,7 +49,7 @@ Obtendrás un recuadro rojo si algo bloquea la ejecución, uno azul con todo lo 
 
 | Acción | Qué significa |
 |---|---|
-| **Se gradúa** | Marcado como graduado y sin matrícula: pasa a exalumno y se archiva |
+| **Se gradúa y se va** | Marcado como graduado y sin ninguna matrícula: pasa a exalumno y se archiva |
 | **Se gradúa y continúa** | Marcado como graduado **y** con matrícula **confirmada**: conserva la graduación, no se archiva y se coloca en el grupo nuevo |
 | **Se gradúa, pendiente de confirmar** | Marcado como graduado y con matrícula **sin confirmar**: pasa a solicitante, **conserva el acceso al portal** y no se archiva, para que pueda confirmarla en septiembre |
 | **Colocar en grupo destino** | Tiene matrícula confirmada con grupo: se traslada allí |

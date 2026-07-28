@@ -49,7 +49,7 @@ Obtindràs un quadre vermell si alguna cosa bloqueja l'execució, un quadre blau
 
 | Acció | Què significa |
 |---|---|
-| **Es gradua** | Marcat com a graduat i sense matrícula: passa a exalumne i s'arxiva |
+| **Es gradua i marxa** | Marcat com a graduat i sense cap matrícula: passa a exalumne i s'arxiva |
 | **Es gradua i continua** | Marcat com a graduat **i** amb matrícula **confirmada**: conserva la graduació, no s'arxiva i es col·loca al grup nou |
 | **Es gradua, pendent de confirmar** | Marcat com a graduat i amb matrícula **sense confirmar**: passa a sol·licitant, **conserva l'accés al portal** i no s'arxiva, perquè pugui confirmar-la al setembre |
 | **Col·locar al grup destí** | Té matrícula confirmada amb grup: s'hi trasllada |

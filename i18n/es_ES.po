@@ -13550,3 +13550,13 @@ msgstr "<strong>Lee esto antes de aplicar:</strong>"
 #: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
 msgid "<strong>The transition cannot be applied yet:</strong>"
 msgstr "<strong>La transición todavía no se puede aplicar:</strong>"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__graduate
+msgid "Graduates and leaves"
+msgstr "Se gradúa y se va"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__graduate_count
+msgid "Graduates leaving the centre"
+msgstr "Graduados/as que se van del centro"

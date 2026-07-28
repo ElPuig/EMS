@@ -7226,6 +7226,24 @@ msgstr "Ponderació (%)"
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/planning/planning.py:0
+msgid "The outcome ponderation values must sum 100."
+msgstr "Els valors de ponderació dels resultats d'aprenentatge han de sumar 100."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/planning/planning.py:0
+msgid "The main ponderation values must sum 100."
+msgstr "Els valors de ponderació principals han de sumar 100."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/planning/planning_outcome.py:0
+msgid "The ponderation value must be within the range [0,100]."
+msgstr "El valor de ponderació ha d'estar dins el rang [0,100]."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Portal access"

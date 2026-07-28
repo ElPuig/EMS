@@ -6,7 +6,7 @@
 
 Al final del curso, una sola operación cierra el curso que acaba y abre el siguiente: **Configuración → EMS Management → Preparar el curso siguiente**.
 
-Archiva el curso que termina, convierte en exalumnos a los estudiantes que ya estén marcados como graduados y coloca al resto en el grupo en el que se han matriculado para el curso que viene.
+Archiva el curso que termina, convierte en exalumnos a los graduados que se van del centro y coloca a todos los demás —incluidos los graduados que siguen aquí en otro ciclo— en el grupo en el que se han matriculado para el curso que viene.
 
 > Este botón **solo lo ven los administradores**, y parte de lo que hace **no se puede deshacer**. Lee esta página antes de usarlo.
 
@@ -68,10 +68,10 @@ Qué ocurre, y en qué orden:
 1. Se congela el **historial académico** de todos los alumnos. Si esto falla, no se ejecuta nada más.
 2. Los graduados **que se van** pasan a exalumnos, se les revoca el acceso al portal y **se archivan**. Los que continúan en el centro conservan su graduación pero siguen activos: solo se les borra la fecha de salida del ciclo que acaban de terminar.
 3. Se archivan las plantillas de asistencia del curso saliente.
-4. **Se borran los registros operativos**: inscripciones a módulos, notas, asistencia y sesiones de evaluación. Esta es la parte irreversible — el historial académico guardado en el paso 1 es lo que los sustituye.
+4. **Se borran los registros operativos**: inscripciones a módulos, notas, asistencia y sesiones de evaluación. Se borran las de los grupos del curso saliente, aunque el alumno ya haya sido colocado en su grupo nuevo por una ejecución anterior. Esta es la parte irreversible — el historial académico guardado en el paso 1 es lo que los sustituye.
 5. Los alumnos se colocan en su **grupo destino** y se les inscribe en sus asignaturas.
 6. Se marcan los estudios como transicionados y, si no queda ninguno pendiente, **cambia el curso actual**.
-7. Se cierran las matrículas salientes: las confirmadas se bloquean (son un registro legal y nunca se cancelan), las que nunca se confirmaron se cancelan.
+7. Se cierran las matrículas **del curso saliente**: las confirmadas se bloquean (son un registro legal y nunca se cancelan), las que nunca se confirmaron se cancelan. Las del curso entrante no se tocan.
 
 ---
 
@@ -79,10 +79,11 @@ Qué ocurre, y en qué orden:
 
 El asistente deja un **registro con la lista de alumnos y su grupo destino**, descargable al terminar y también adjunto a la conversación de la empresa. Guárdalo: es lo que te permite deshacer un caso concreto a mano.
 
-Dos flecos que resolver en los días siguientes:
+Tres flecos que resolver en los días siguientes:
 
 - **Alumnos sin destino.** Revisa la lista y registra la baja de los que se han ido de verdad, desde la ficha del alumno. Los que se matriculen tarde no necesitan nada: al confirmarse su matrícula, se les coloca en su grupo automáticamente.
 - **Alumnos matriculados sin grupo**, si aplicaste sin resolverlos: asigna el grupo y confirma; se colocan igual.
+- **Matrículas del curso entrante sin confirmar.** No se cancelan ni se tocan. Quien confirme en septiembre se coloca solo en su grupo, sin que tengas que volver a ejecutar nada — **siempre que la matrícula tenga grupo destino asignado**. Sin grupo, confirmar no coloca a nadie.
 
 ---
 

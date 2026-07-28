@@ -6,7 +6,7 @@
 
 At the end of the school year, one operation closes the outgoing course and opens the next one: **Settings → EMS Management → Set up the next course**.
 
-It archives the year that ends, turns the students already marked as graduated into former students, and moves everyone else into the group they enrolled in for the coming year.
+It archives the year that ends, turns the graduates who leave the centre into former students, and moves everyone else — the graduates staying on in another cycle included — into the group they enrolled in for the coming year.
 
 > **Only administrators** see this button, and part of what it does **cannot be undone**. Read this page before using it.
 
@@ -68,10 +68,10 @@ What happens, in order:
 1. The **academic history** of every student is frozen. If this fails, nothing else runs.
 2. Graduates **who leave** become former students, their portal access is revoked and they are **archived**. Those who stay at the centre keep their graduation but remain active: only the exit date of the cycle they have just finished is cleared.
 3. The attendance templates of the outgoing year are archived.
-4. The **operational records are deleted**: subject enrollments, grades, attendance and evaluation sessions. This is the irreversible part — the academic history, saved in step 1, is what replaces them.
+4. The **operational records are deleted**: subject enrollments, grades, attendance and evaluation sessions. Those of the outgoing groups go too, even for a student already moved into their new group by an earlier run. This is the irreversible part — the academic history, saved in step 1, is what replaces them.
 5. Students are placed in their **destination group** and enrolled in its subjects.
 6. The studies are marked as transitioned and, if none is left pending, **the current course switches**.
-7. The outgoing enrollments are closed: the confirmed ones are locked (they are a legal record and are never cancelled), the ones that never got confirmed are cancelled.
+7. The enrollments **of the outgoing course** are closed: the confirmed ones are locked (they are a legal record and are never cancelled), the ones that never got confirmed are cancelled. Those of the incoming course are left alone.
 
 ---
 
@@ -79,10 +79,11 @@ What happens, in order:
 
 The wizard leaves a **log with the list of students and their destination group**, downloadable at the end and also attached to the company's chatter. Keep it: it is what lets you undo a specific case by hand.
 
-Two loose ends to deal with in the following days:
+Three loose ends to deal with in the following days:
 
 - **Students with no destination.** Review the list and register the withdrawal of the ones who really left, from the student form. The ones who enroll late need nothing: when their enrollment is confirmed, they are placed in their group automatically.
 - **Students enrolled without a group**, if you applied without solving them: assign the group and confirm; they are placed the same way.
+- **Unconfirmed enrollments for the incoming course.** They are neither cancelled nor touched. Whoever confirms in September is placed in their group on their own, with nothing for you to re-run — **as long as the enrollment has a destination group**. With no group, confirming places nobody.
 
 ---
 

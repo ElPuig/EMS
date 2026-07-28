@@ -6,7 +6,7 @@
 
 Al final del curs, una sola operació tanca el curs que acaba i obre el següent: **Configuració → EMS Management → Preparar el curs següent**.
 
-Arxiva el curs que acaba, converteix en exalumnes els estudiants que ja estiguin marcats com a graduats i col·loca la resta al grup on s'han matriculat per al curs vinent.
+Arxiva el curs que acaba, converteix en exalumnes els graduats que marxen del centre i col·loca tots els altres —inclosos els graduats que continuen aquí en un altre cicle— al grup on s'han matriculat per al curs vinent.
 
 > Aquest botó **només el veuen els administradors**, i part del que fa **no es pot desfer**. Llegeix aquesta pàgina abans d'utilitzar-lo.
 
@@ -68,10 +68,10 @@ Què passa, i en quin ordre:
 1. Es congela **l'historial acadèmic** de tots els alumnes. Si això falla, no s'executa res més.
 2. Els graduats **que marxen** passen a exalumnes, se'ls revoca l'accés al portal i **s'arxiven**. Els que continuen al centre conserven la seva graduació però segueixen actius: només se'ls esborra la data de sortida del cicle que acaben d'acabar.
 3. S'arxiven les plantilles d'assistència del curs sortint.
-4. **S'esborren els registres operatius**: inscripcions a mòduls, notes, assistència i sessions d'avaluació. Aquesta és la part irreversible — l'historial acadèmic desat al pas 1 és el que els substitueix.
+4. **S'esborren els registres operatius**: inscripcions a mòduls, notes, assistència i sessions d'avaluació. S'esborren els dels grups del curs sortint, encara que l'alumne ja hagi estat col·locat al seu grup nou per una execució anterior. Aquesta és la part irreversible — l'historial acadèmic desat al pas 1 és el que els substitueix.
 5. Els alumnes es col·loquen al **grup destí** i s'hi inscriuen a les assignatures.
 6. Es marquen els estudis com a transicionats i, si no en queda cap de pendent, **canvia el curs actual**.
-7. Es tanquen les matrícules sortints: les confirmades es bloquegen (són un registre legal i no es cancel·len mai), les que mai es van confirmar es cancel·len.
+7. Es tanquen les matrícules **del curs sortint**: les confirmades es bloquegen (són un registre legal i no es cancel·len mai), les que mai es van confirmar es cancel·len. Les del curs entrant no es toquen.
 
 ---
 
@@ -79,10 +79,11 @@ Què passa, i en quin ordre:
 
 L'auxiliar deixa un **registre amb la llista d'alumnes i el seu grup destí**, descarregable en acabar i també adjunt a la conversa de l'empresa. Guarda'l: és el que et permet desfer un cas concret a mà.
 
-Dos serrells per resoldre els dies següents:
+Tres serrells per resoldre els dies següents:
 
 - **Alumnes sense destí.** Revisa la llista i registra la baixa dels que han marxat de debò, des de la fitxa de l'alumne. Els que es matriculin tard no necessiten res: en confirmar-se la matrícula, se'ls col·loca al grup automàticament.
 - **Alumnes matriculats sense grup**, si vas aplicar sense resoldre'ls: assigna el grup i confirma; es col·loquen igual.
+- **Matrícules del curs entrant sense confirmar.** No es cancel·len ni es toquen. Qui confirmi al setembre es col·loca sol al seu grup, sense que hagis de tornar a executar res — **sempre que la matrícula tingui grup destí assignat**. Sense grup, confirmar no col·loca ningú.
 
 ---
 

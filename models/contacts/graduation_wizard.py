@@ -115,7 +115,10 @@ class EmsGraduationWizard(models.TransientModel):
                 'message': message,
                 'type': 'success',
                 'sticky': False,
-                'next': {'type': 'ir.actions.act_window_close'},
+                # Reload instead of just closing: the graduation mark the wizard has
+                # just written is invisible in the list until the rows are read again.
+                # 'soft_reload' keeps the search filters and the group-by.
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
             },
         }
 
@@ -230,7 +233,10 @@ class EmsWithdrawalWizard(models.TransientModel):
                 'message': message,
                 'type': 'warning' if issues else 'success',
                 'sticky': bool(issues),
-                'next': {'type': 'ir.actions.act_window_close'},
+                # Reload instead of just closing: a withdrawal drops the student out
+                # of the list domain altogether, so leaving the rows on screen reads
+                # as if nothing had happened. 'soft_reload' keeps filters and group-by.
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
             },
         }
 

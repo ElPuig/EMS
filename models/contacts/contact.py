@@ -355,6 +355,12 @@ class ems_contact(models.Model):
                 'message': message,
                 'type': 'success',
                 'sticky': False,
+                # Without this the list keeps showing the rows as they were, which
+                # reads as if nothing had happened. 'soft_reload' restores the very
+                # same controller (action.restore), so the search filters, the
+                # group-by and the search panel all survive; the row selection does
+                # not, because the records are read again.
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
             },
         }
 

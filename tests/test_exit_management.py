@@ -147,6 +147,18 @@ class TestExitManagement(TransactionCase):
         self.assertFalse(student.main_group_id)
         self.assertEqual(order.state, 'cancel')
 
+    def test_the_wizards_reload_the_list_they_were_launched_from(self):
+        """A toast alone left the old rows on screen, which reads as if nothing had
+        happened — the withdrawn students even stay in a list they no longer belong to."""
+        student = self._student('WW Reload')
+        graduation = self.env['ems.graduation_wizard'].with_context(
+            active_ids=student.ids).create({})
+        withdrawal = self.env['ems.withdrawal_wizard'].with_context(
+            active_ids=student.ids).create({})
+        for action in (graduation.action_apply(), withdrawal.action_apply()):
+            self.assertEqual(action['params']['next'],
+                             {'type': 'ir.actions.client', 'tag': 'soft_reload'})
+
     def test_withdrawal_wizard_takes_a_whole_selection(self):
         """What the bulk button of the tutor list relies on: one line per selected
         student, and action_apply() walks them all."""

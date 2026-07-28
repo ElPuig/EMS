@@ -131,9 +131,10 @@ stateDiagram-v2
 | `suspended` | Reactivate Google account | `google_ws_suspended = True` |
 
 `res.partner` (students) has the analogous `google_ws_state` in
-`models/contacts/google_workspace_integration.py`, with only three values (`none` /
-`active` / `suspended` — students never get a `pending_user` state since account creation
-there never involves a separate `res.users`).
+`models/contacts/google_workspace_integration.py` — see
+[Google Workspace student integration](../contacts/google_workspace_student.md) — with
+only three values (`none` / `active` / `suspended` — students never get a `pending_user`
+state since account creation there never involves a separate `res.users`).
 
 A one-off migration (`migrations/18.0.0.22.0/post-migrate.py`,
 `_backfill_google_ws_suspended`) marks `google_ws_suspended = True` for employees/students
@@ -185,4 +186,6 @@ and backfill tests live in `tests/test_exit_management.py`.
 `tests/test_employee_google_workspace_tour.py` +
 `static/tests/tours/employee_google_workspace_tour.js` open the employee form in a real
 browser for each state and assert exactly one header button renders — the client-side
-render that a `TransactionCase` cannot exercise.
+render that a `TransactionCase` cannot exercise. The student-side integration has its own
+`tests/test_student_google_workspace.py` — see
+[Google Workspace student integration](../contacts/google_workspace_student.md#tests).

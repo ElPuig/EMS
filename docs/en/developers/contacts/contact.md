@@ -7,7 +7,7 @@ EMS does not define its own "contact" model: every student, family member, appli
 **Module files:**
 - `models/contacts/contact.py` — `ResPartner` (`_inherit = 'res.partner'`), `EmsStudentBenefit`
 - `models/contacts/contact_relation.py` — `EmsContactRelationWizard`, `ResPartnerRelationAll` (`_inherit = 'res.partner.relation.all'`, from the `partner_multi_relation` OCA module)
-- `models/contacts/google_workspace_integration.py` — `ResPartnerGoogleWorkspace`, the corporate-account side of the lifecycle (not covered here — see the "Google Workspace" note below)
+- `models/contacts/google_workspace_integration.py` — `ResPartnerGoogleWorkspace`, the corporate-account side of the lifecycle (not covered here — see [Google Workspace student integration](google_workspace_student.md))
 
 Related docs: [`ems.group`](group.md) (`main_group_id`), [Enrollment benefits](../enrollment/enrollment_benefits.md) (`ems.student.benefit` vs `sale.order`/invoice interaction), [Graduation & withdrawal wizards](exit_wizards.md) (deferred graduation mark vs immediate withdrawal cascade).
 
@@ -118,9 +118,9 @@ flowchart TD
 
 ---
 
-## Google Workspace (out of scope for this pass)
+## Google Workspace
 
-`models/contacts/google_workspace_integration.py` (`ResPartnerGoogleWorkspace`, 461 lines) manages the student corporate-account lifecycle (creation eligibility, OU relocation on adult/minor transition, suspend/reactivate) via `with_delay()`-queued jobs, invoked from `ResPartner.create()`/`write()`/`_ems_convert_to_ex_student()`. It has **no dedicated tests or developer doc yet** — this is tracked separately as "Google Workspace on `res.partner`" later in Phase 5 of the DTON rollout, not folded into this pass (its `hr.employee` counterpart, `HrEmployeeGoogleWorkspace`, already has both — see [Google Workspace staff](../employees/google_workspace_staff.md) for the equivalent pattern on the employee side).
+`models/contacts/google_workspace_integration.py` (`ResPartnerGoogleWorkspace`) manages the student corporate-account lifecycle (creation eligibility, OU relocation on adult/minor transition, suspend/reactivate) via `with_delay()`-queued jobs, invoked from `ResPartner.create()`/`write()`/`_ems_convert_to_ex_student()`. Fully DTON'd separately — see [Google Workspace student integration](google_workspace_student.md) for the full technical reference, and [Google Workspace staff](../employees/google_workspace_staff.md) for the equivalent pattern on the employee side.
 
 ---
 

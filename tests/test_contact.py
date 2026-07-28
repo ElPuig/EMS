@@ -251,3 +251,26 @@ class TestContactFields(TransactionCase):
         student = self.env['res.partner'].new({'main_group_id': self.group.id})
         student._onchange_study_id()
         self.assertFalse(student.main_group_id)
+
+    # --- ems_authorization_ids ---------------------------------------------------
+
+    def test_ems_authorization_ids_recomputes_within_same_transaction(self):
+        """Regression test: _compute_ems_authorization_ids had no @api.depends,
+        so within a single transaction its cached (non-stored) value could go
+        stale after a new enrollment/authorization was created for the same
+        student — fixed in the authorization.py DTON pass, see
+        docs/en/developers/enrollment/authorization.md."""
+        course = self.env['ems.course'].search([('is_current', '=', True)], limit=1) \
+            or self.env['ems.course'].create({'start': 2098, 'end': 2099, 'is_current': True})
+        student = self.env['res.partner'].create({'name': 'Auth Recompute Student', 'contact_type': 'student'})
+        template = self.env['ems.authorization.template'].create({
+            'name': 'Recompute Template', 'legal_text': '<p>Text</p>'})
+
+        self.assertFalse(student.ems_authorization_ids)
+
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study.id, 'ems_course_id': course.id,
+        })
+        order.apply_authorizations()
+
+        self.assertIn(template, student.ems_authorization_ids.mapped('template_id'))

@@ -122,6 +122,11 @@ flowchart TD
     C --> E["add a pending ems.authorization\nfor each newly-matching template\nwithout one yet"]
 ```
 
+This OR-of-scopes matching differs from `ems.authorization.template`'s own
+retroactive apply/remove methods (AND-of-scopes) — see
+[`authorization.md`](authorization.md#known-gap-two-different-matching-semantics)
+for the details of that inconsistency.
+
 `action_confirm` then blocks on any authorization still `pending` whose
 template is `is_required`:
 

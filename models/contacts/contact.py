@@ -236,13 +236,14 @@ class ResPartner(models.Model):
             student.auth_healt = health
             student.auth_share = share        
 
+    @api.depends('sale_order_ids.ems_authorization_ids', 'sale_order_ids.ems_course_id')
     def _compute_ems_authorization_ids(self):
         current_course = self.env['ems.course'].search([
             ('is_current', '=', True)
         ], limit=1)
 
         for partner in self:
-            # Buscamos las matrículas (sale.order) de este alumno y sacamos sus autorizaciones
+            # Find this student's enrollments and pull their authorizations.
             enrollments = self.env['sale.order'].search([
                 ('partner_id', '=', partner.id),
                 ('ems_course_id', '=', current_course.id if current_course else False),

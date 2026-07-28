@@ -12045,6 +12045,18 @@ msgstr "Los tutores no pueden enviar matrículas a los alumnos. Contacta con sec
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/enrollment/authorization.py:0
+msgid "The authorization '%(name)s' can only be accepted, not rejected."
+msgstr "La autorización '%(name)s' solo se puede aceptar, no rechazar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization.py:0
+msgid "You must attach a signed PDF document to manually change the authorization status."
+msgstr "Debes adjuntar un documento PDF firmado para cambiar manualmente el estado de la autorización."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/enrollment/enrollment.py:0
 msgid "%(count)s enrollment(s) emailed and marked as sent."
 msgstr "%(count)s matrícula(s) enviada(s) por correo y marcada(s) como enviadas."

@@ -85,3 +85,4 @@ from . import test_department_color_tour
 from . import test_attendance_template_color_tour
 from . import test_withdrawal_tour
 from . import test_enrollment_header
+from . import test_authorization

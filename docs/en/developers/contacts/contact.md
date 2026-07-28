@@ -63,7 +63,7 @@ Every lifecycle transition re-tags `category_id` via a fixed map (`contact_type`
 | `ems_current_enrollment_id` | (not stored) | The student's `sale.order` for the enrollment-default (or else current) course, in `draft/sent/sale` state |
 | `benefit_status` | `benefit_ids`, `benefit_ids.category` | See `ems.student.benefit` above |
 
-> `ems_authorization_ids`/`ems_current_enrollment_id`/`auth_*` sit at the boundary with `ems.authorization*` (`models/enrollment/authorization.py`) — that model group has no dedicated DTON pass yet (Phase 6 of the rollout), so these fields' *own* consumers aren't further covered by new tests in this pass beyond what already existed.
+> `ems_authorization_ids`/`ems_current_enrollment_id`/`auth_*` sit at the boundary with [`ems.authorization*`](../enrollment/authorization.md) (`models/enrollment/authorization.py`). `_compute_ems_authorization_ids` was missing its `@api.depends` entirely (a real bug — a non-stored compute field with no dependencies never gets invalidated by later writes in the same transaction) — found and fixed during that model group's own DTON pass, not this one; see that doc's "res.partner auth booleans" section.
 
 ### `_compute_group_data(values)`
 

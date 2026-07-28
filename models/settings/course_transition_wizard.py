@@ -222,6 +222,16 @@ class ems_course_transition_wizard(models.TransientModel):
             blockers.append(_("The last round is not finalised in %s evaluation session(s): %s.")
                             % (len(not_final), ", ".join(not_final.mapped('display_name')[:10])))
 
+        # A confirmed enrollment with no destination group used to be a warning saying it
+        # would be skipped. The outcome was not recoverable through the UI, so it refuses.
+        unplaced = self._incoming_orders().filtered(lambda order: not order.ems_group_id)
+        if unplaced:
+            blockers.append(_("%s confirmed enrollment(s) have no destination group and nobody "
+                              "would be placed by them: %s. Fill the group in — the \"Suggest "
+                              "destination group\" action of the \"Students without destination\" "
+                              "report does it in bulk — and preview again.")
+                            % (len(unplaced), ", ".join(unplaced.mapped('partner_id.display_name')[:10])))
+
         # This run places students coming from a study it is not transitioning, and their
         # history is frozen as they leave: refuse rather than freeze it half-way.
         unclosed = self._unclosed_origin_studies()
@@ -381,9 +391,6 @@ class ems_course_transition_wizard(models.TransientModel):
                 'student_id.display_name')
             warnings.append(_("%s student(s) with no enrollment for the incoming course: %s.")
                             % (self.missing_count, ", ".join(names)))
-        if self.unplaced_count:
-            warnings.append(_("%s enrollment(s) confirmed without a destination group: they will be skipped.")
-                            % self.unplaced_count)
         incoming_drafts = self.env['sale.order'].search_count([
             ('ems_course_id', '=', self.target_course_id.id),
             ('ems_study_id', 'in', self.study_ids.ids),

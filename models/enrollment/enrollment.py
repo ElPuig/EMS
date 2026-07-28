@@ -225,6 +225,9 @@ class ems_SaleOrder(models.Model):
         if handover_orders:
             handover_orders._ems_unfollow_teachers()
 
+        if vals.get('ems_group_id'):
+            self._ems_place_on_group_assignment()
+
         # Si se ha modificado alguno de los campos que forman el código...
         if any(field in vals for field in ['ems_course_id', 'ems_level_id', 'ems_study_id']):
             for rec in self:
@@ -552,8 +555,26 @@ class ems_SaleOrder(models.Model):
                 'preinscription_shift': False,
                 'preinscription_course': False,
             })
-        if self.ems_study_id.transition_state == 'transitioned':
+        if self._ems_placement_is_individual():
             self._ems_apply_destination_placement()
+
+    def _ems_placement_is_individual(self):
+        """Whether THIS enrollment has to place its student on its own.
+
+        The bulk pass of the transition wizard has already run when either is true:
+
+        - the destination study is 'transitioned' — a partial transition, the wizard
+          did that study and the centre is still on the outgoing course; or
+        - the enrollment is for the course that is already running. The global flip
+          puts every study back to 'active', so after a complete transition — the
+          normal end state — 'transitioned' is true for nobody and keying on it alone
+          left September unable to place a single latecomer.
+
+        An enrollment for a course that has not started yet is left to the wizard.
+        """
+        self.ensure_one()
+        return self.ems_study_id.transition_state == 'transitioned' \
+            or self.ems_course_id == self.env.company.current_course_id
 
     def _ems_suggest_group(self):
         """Suggest a destination group for this enrollment from its own data.
@@ -598,6 +619,31 @@ class ems_SaleOrder(models.Model):
                 order.ems_group_id = group
                 filled += 1
         return filled
+
+    def _ems_place_on_group_assignment(self):
+        """Place a confirmed enrollment whose destination group arrives late.
+
+        The placement used to run only on confirmation and in the wizard's bulk pass,
+        so an enrollment confirmed WITHOUT a destination group could never be repaired:
+        writing the group did nothing, and action_confirm() refuses to run twice
+        ("Some orders are not in a state requiring confirmation"). The student stayed
+        with no group, no subject enrollments and no evaluation sessions, recoverable
+        only by hand.
+
+        Deliberately narrow: it only fires for a student that has NO group.
+        _ems_apply_destination_placement() creates the enrollments of the new group but
+        does not remove those of the old one, so re-pointing an already-placed student
+        would leave it enrolled in two groups' subjects at once. Moving somebody is a
+        different operation and does not belong here.
+        """
+        for order in self:
+            if order.state != 'sale' or not order.ems_group_id:
+                continue
+            if not order._ems_placement_is_individual():
+                continue  # the wizard's bulk pass will place them
+            if order.partner_id.main_group_id:
+                continue
+            order._ems_apply_destination_placement()
 
     def _ems_apply_destination_placement(self):
         """Place the student in the destination group and materialize the subject

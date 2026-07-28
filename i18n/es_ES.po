@@ -10939,6 +10939,7 @@ msgstr "Graduados/as"
 #: model:res.partner.category,name:ems.partner_category_withdrawal
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__exit_type__withdrawal
 msgid "Withdrawal"
 msgstr "Baja"
@@ -13467,3 +13468,12 @@ msgid ""
 "                                that are done, and run it again for the rest. The current course\n"
 "                                only switches on the run that leaves no study pending."
 msgstr "Esto cierra el curso saliente y abre el siguiente para los estudios que selecciones. Congela el historial académico, convierte en exalumnos archivados a los graduados que se van, convierte en solicitantes que conservan el acceso al portal a los graduados con matrícula sin confirmar, coloca al resto en el grupo destino de su matrícula confirmada, y borra los registros operativos del año que termina. <strong>La limpieza no se puede deshacer.</strong><br/>Los estudios no acaban todos a la vez: transiciona los que estén cerrados y vuelve a ejecutarlo para el resto. El curso actual solo cambia en la ejecución que no deja ningún estudio pendiente."
+
+#. module: ems
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s confirmed enrollment(s) have no destination group and nobody would be "
+"placed by them: %s. Fill the group in — the \"Suggest destination group\" "
+"action of the \"Students without destination\" report does it in bulk — and "
+"preview again."
+msgstr "%s matrículas confirmadas no tienen grupo destino y no colocarían a nadie: %s. Asigna el grupo —la acción «Sugerir grupo destino» del informe «Alumnos sin destino» lo hace en bloque— y vuelve a previsualizar."

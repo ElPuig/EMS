@@ -14,11 +14,12 @@ It archives the year that ends, turns the graduates who leave the centre into fo
 
 ## Before you start
 
-Three things have to be in place. The wizard checks the first two itself and refuses to run if any is missing.
+Four things have to be in place. The wizard checks the first three itself and refuses to run if any is missing.
 
 1. **The incoming course exists** and is different from the current one.
 2. **The evaluations are closed.** The last round of every group in scope must be in the *Finalised* state. If some are still open, the wizard lists them; close them from **Grades → Change grade session state**. This also covers the **studies students come from**: if this run is about to place students arriving from a study you are not transitioning, and that study still has open evaluations, the wizard refuses to run — leaving the group freezes their record, and it would be frozen half-way.
-3. **A database backup.** The wizard asks you to confirm you have one, and will not apply anything until you tick the box.
+3. **No confirmed enrollment without a destination group.** If an enrollment is confirmed but nobody chose the group, the wizard refuses to run and lists them. Solve them with the **Suggest destination group** action of the *Students without destination* report.
+4. **A database backup.** The wizard asks you to confirm you have one, and will not apply anything until you tick the box.
 
 Mark the graduating students *beforehand*, with the graduation wizard from the student list. The transition does not decide who graduates — it only executes marks that are already there.
 
@@ -50,12 +51,12 @@ You get a red box if something blocks the run, a blue box with everything worth 
 | **Graduates and continues** | Marked as graduated **and** holding a **confirmed** enrollment: keeps the graduation, is not archived and is placed in the new group |
 | **Graduates, pending confirmation** | Marked as graduated with an **unconfirmed** enrollment: becomes an applicant, **keeps portal access** and is not archived, so it can still confirm in September |
 | **Place in destination group** | Has a confirmed enrollment with a group: moves there |
-| **Enrolled without group** | Confirmed enrollment with no destination group: **will be skipped** |
+| **Enrolled without group** | Enrollment with no destination group. If it is confirmed, it **blocks the run** |
 | **No destination** | No enrollment at all for the next course |
 
 Two of these deserve your attention:
 
-- **Enrolled without group** — the enrollment exists but nobody chose the group, so the student stays where they are. Assign the group (the *Suggest group* action helps) and preview again.
+- **Enrolled without group** — the enrollment exists but nobody chose the group. If it is confirmed, the run is blocked until you assign it: placing nobody there would leave no way back afterwards. Use the *Suggest destination group* action and preview again.
 - **No destination** — the student has not enrolled. They are **not** withdrawn: they simply end up with no group. This is deliberate, because in July there is no way to tell someone moving to another school from someone who enrolls late. Keep this list: it is the one you will review afterwards to decide who really left.
 
 ---
@@ -82,8 +83,8 @@ The wizard leaves a **log with the list of students and their destination group*
 
 Three loose ends to deal with in the following days:
 
-- **Students with no destination.** Review the list and register the withdrawal of the ones who really left, from the student form. The ones who enroll late need nothing: when their enrollment is confirmed, they are placed in their group automatically.
-- **Students enrolled without a group**, if you applied without solving them: assign the group and confirm; they are placed the same way.
+- **Students with no destination.** Review the list and register the withdrawal of the ones who really left. One at a time from the student form, or **several at once**: select them in the *Group enrollment proposal* list and click **Withdrawal**. Only academic administration and the secretariat see that button, since registering an exit cancels enrollments and revokes the portal. The ones who enroll late need nothing: when their enrollment is confirmed, they are placed in their group automatically.
+- **Students enrolled without a group** turning up later (an enrollment confirmed in September with no group, say): just **fill the destination group in on the enrollment**. That alone places them, subjects included.
 - **Unconfirmed enrollments for the incoming course.** They are neither cancelled nor touched. Whoever confirms in September is placed in their group on their own, with nothing for you to re-run — **as long as the enrollment has a destination group**. With no group, confirming places nobody.
 
 ---

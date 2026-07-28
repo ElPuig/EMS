@@ -147,6 +147,22 @@ class TestExitManagement(TransactionCase):
         self.assertFalse(student.main_group_id)
         self.assertEqual(order.state, 'cancel')
 
+    def test_withdrawal_wizard_takes_a_whole_selection(self):
+        """What the bulk button of the tutor list relies on: one line per selected
+        student, and action_apply() walks them all."""
+        first = self._student('WW Bulk One')
+        second = self._student('WW Bulk Two')
+        third = self.env['res.partner'].create(
+            {'name': 'WW Bulk Family', 'contact_type': 'family'})
+        wizard = self.env['ems.withdrawal_wizard'].with_context(
+            active_ids=(first + second + third).ids).create({})
+        # The family contact is filtered out: only students can be withdrawn.
+        self.assertEqual(wizard.line_ids.student_id, first + second)
+        wizard.action_apply()
+        self.assertEqual(first.contact_type, 'withdrawal')
+        self.assertEqual(second.contact_type, 'withdrawal')
+        self.assertEqual(third.contact_type, 'family')
+
     def test_withdrawal_wizard_graduated_becomes_alumni(self):
         student = self._student('WW Grad', has_graduated=True)
         wizard = self.env['ems.withdrawal_wizard'].with_context(

@@ -623,9 +623,9 @@ class TestCourseTransition(TransactionCase):
         self.assertEqual(stranded.contact_type, 'student')
         self.assertTrue(stranded.active)
 
-    def test_apply_detaches_a_student_enrolled_without_a_destination_group(self):
+    def test_apply_detaches_a_student_whose_offer_is_not_confirmed(self):
         stranded = self._student('CTW Detach Unplaced', group=self.group2)
-        self._order(stranded, group=None, state='sale')
+        self._order(stranded, group=None, state='sent')
         self._applied()
         self.assertFalse(stranded.main_group_id)
 
@@ -659,6 +659,42 @@ class TestCourseTransition(TransactionCase):
         self.assertFalse(crossing.main_group_id)
         self._applied(studies=self.study_other)
         self.assertEqual(crossing.main_group_id, self.group_other)
+
+    def test_a_latecomer_is_placed_after_the_course_has_flipped(self):
+        """The flip puts every study back to 'active', so keying the individual
+        placement on transition_state alone left the normal end state — everything
+        transitioned — unable to place anybody."""
+        late = self._student('CTW Late After Flip', group=self.group2)
+        order = self._order(late, self.group1, state='sent')
+        self._transition_everything_else()
+        self._applied()
+        self.assertEqual(self.env.company.current_course_id, self.target_course)
+        self.assertEqual(self.study.transition_state, 'active')
+        order.action_confirm()
+        self.assertEqual(late.main_group_id, self.group1)
+
+    def test_filling_the_group_of_a_confirmed_enrollment_places_the_student(self):
+        """action_confirm() cannot be run twice ('Some orders are not in a state
+        requiring confirmation'), so without this the repair was impossible."""
+        student = self._student('CTW Late Group', group=self.group2)
+        order = self._order(student, group=None, state='sale')
+        self.study.transition_state = 'transitioned'
+        student.main_group_id = False
+        order.ems_group_id = self.group1
+        self.assertEqual(student.main_group_id, self.group1)
+        self.assertEqual(student.enrollment_ids.mapped('subject_id'), self.subject_int)
+
+    def test_filling_the_group_does_not_move_an_already_placed_student(self):
+        """_ems_apply_destination_placement() creates the new group's enrollments but
+        does not remove the old ones, so re-pointing a placed student would leave it
+        enrolled in two groups at once. Moving somebody is a different operation."""
+        student = self._student('CTW Already Placed', group=self.group2)
+        order = self._order(student, self.group1, state='sale')
+        self.study.transition_state = 'transitioned'
+        order._ems_apply_destination_placement()
+        self.assertEqual(student.main_group_id, self.group1)
+        order.ems_group_id = self.group2
+        self.assertEqual(student.main_group_id, self.group1)
 
     def test_apply_places_the_student_in_its_destination_group(self):
         student = self._student('CTW Promoted')
@@ -694,14 +730,18 @@ class TestCourseTransition(TransactionCase):
         self.assertEqual(alumnus.contact_type, 'student')
         self.assertEqual(alumnus.main_group_id, self.group1)
 
-    def test_apply_skips_a_confirmed_enrollment_without_group(self):
-        """Nobody places it, so it gets no subjects — and it is detached from the
-        outgoing group rather than left inside next year's cohort."""
+    def test_blocks_a_confirmed_enrollment_without_a_destination_group(self):
+        """It used to be a warning saying they would be skipped, but the outcome was
+        not recoverable: the student ended with no group, no subjects and no way back
+        through the UI. Better to refuse and let 'Suggest destination group' run."""
         student = self._student('CTW No Group')
         self._order(student, group=False, state='sale')
-        self._applied()
-        self.assertFalse(student.main_group_id)
-        self.assertFalse(student.enrollment_ids)
+        wizard = self._wizard()
+        wizard.action_preview()
+        self.assertTrue(wizard.has_blockers)
+        self.assertEqual(wizard.unplaced_count, 1)
+        with self.assertRaises(UserError):
+            wizard.action_apply()
 
     def test_apply_ignores_enrollments_still_in_draft(self):
         student = self._student('CTW Draft')

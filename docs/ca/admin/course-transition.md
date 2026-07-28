@@ -14,11 +14,12 @@ Arxiva el curs que acaba, converteix en exalumnes els graduats que marxen del ce
 
 ## Abans de començar
 
-Hi ha tres coses que han d'estar resoltes. L'auxiliar comprova les dues primeres i es nega a executar-se si en falta alguna.
+Hi ha quatre coses que han d'estar resoltes. L'auxiliar comprova les tres primeres i es nega a executar-se si en falta alguna.
 
 1. **El curs entrant existeix** i és diferent de l'actual.
 2. **Les avaluacions estan tancades.** L'última convocatòria de cada grup de l'abast ha d'estar en estat *Finalitzada*. Si n'hi ha d'obertes, l'auxiliar te les llista; tanca-les des de **Notes → Canviar estat de sessió d'avaluació**. Això val també per als **estudis de procedència**: si aquesta execució ha de col·locar alumnes que vénen d'un estudi que no estàs transicionant i aquell estudi encara té avaluacions obertes, l'auxiliar es nega a executar-se, perquè en sortir del grup se'ls congela l'expedient i quedaria a mitges.
-3. **Una còpia de seguretat de la base de dades.** L'auxiliar et demana que confirmis que la tens, i no aplica res fins que marquis la casella.
+3. **Cap matrícula confirmada sense grup destí.** Si una matrícula està confirmada però ningú no n'ha triat el grup, l'auxiliar es nega a executar-se i te les llista. Resol-les amb l'acció **Suggerir grup destí** de l'informe *Alumnes sense destí*.
+4. **Una còpia de seguretat de la base de dades.** L'auxiliar et demana que confirmis que la tens, i no aplica res fins que marquis la casella.
 
 Marca els alumnes que es graduen *abans*, amb l'auxiliar de graduació des de la llista d'alumnes. La transició no decideix qui es gradua: només executa marques que ja hi són.
 
@@ -50,12 +51,12 @@ Obtindràs un quadre vermell si alguna cosa bloqueja l'execució, un quadre blau
 | **Es gradua i continua** | Marcat com a graduat **i** amb matrícula **confirmada**: conserva la graduació, no s'arxiva i es col·loca al grup nou |
 | **Es gradua, pendent de confirmar** | Marcat com a graduat i amb matrícula **sense confirmar**: passa a sol·licitant, **conserva l'accés al portal** i no s'arxiva, perquè pugui confirmar-la al setembre |
 | **Col·locar al grup destí** | Té matrícula confirmada amb grup: s'hi trasllada |
-| **Matriculat sense grup** | Matrícula confirmada sense grup destí: **se saltarà** |
+| **Matriculat sense grup** | Matrícula sense grup destí. Si està confirmada, **bloqueja l'execució** |
 | **Sense destí** | No té cap matrícula per al curs següent |
 
 Dues d'aquestes mereixen la teva atenció:
 
-- **Matriculat sense grup** — la matrícula existeix però ningú n'ha triat el grup, així que l'alumne es queda on és. Assigna'l (l'acció *Suggerir grup* t'ajuda) i torna a previsualitzar.
+- **Matriculat sense grup** — la matrícula existeix però ningú n'ha triat el grup. Si està confirmada, l'execució queda bloquejada fins que l'assignis: col·locar-hi ningú no tindria arranjament després. Fes servir l'acció *Suggerir grup destí* i torna a previsualitzar.
 - **Sense destí** — l'alumne no s'ha matriculat. **No** se'l dona de baixa: simplement es queda sense grup. És deliberat, perquè al juliol no hi ha manera de distingir qui se'n va a un altre institut de qui es matricula tard. Guarda aquesta llista: és la que revisaràs després per decidir qui ha marxat de debò.
 
 ---
@@ -82,8 +83,8 @@ L'auxiliar deixa un **registre amb la llista d'alumnes i el seu grup destí**, d
 
 Tres serrells per resoldre els dies següents:
 
-- **Alumnes sense destí.** Revisa la llista i registra la baixa dels que han marxat de debò, des de la fitxa de l'alumne. Els que es matriculin tard no necessiten res: en confirmar-se la matrícula, se'ls col·loca al grup automàticament.
-- **Alumnes matriculats sense grup**, si vas aplicar sense resoldre'ls: assigna el grup i confirma; es col·loquen igual.
+- **Alumnes sense destí.** Revisa la llista i registra la baixa dels que han marxat de debò. Pots fer-ho d'un en un des de la fitxa de l'alumne, o **de diversos alhora**: selecciona'ls a la llista de *Proposta de matrícula de grup* i fes clic a **Baixa**. El botó només el veuen administració acadèmica i secretaria, perquè registrar una baixa cancel·la matrícules i revoca el portal. Els que es matriculin tard no necessiten res: en confirmar-se la matrícula, se'ls col·loca al grup automàticament.
+- **Alumnes matriculats sense grup** que apareguin després (per exemple, una matrícula confirmada al setembre sense grup): només cal **assignar-los el grup destí a la matrícula**. En fer-ho es col·loquen sols, amb els seus mòduls inclosos.
 - **Matrícules del curs entrant sense confirmar.** No es cancel·len ni es toquen. Qui confirmi al setembre es col·loca sol al seu grup, sense que hagis de tornar a executar res — **sempre que la matrícula tingui grup destí assignat**. Sense grup, confirmar no col·loca ningú.
 
 ---

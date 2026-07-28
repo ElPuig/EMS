@@ -45,6 +45,7 @@ Step 5 resets every study back to `active` when the flip happens, so the next co
 |---------|------|
 | Target course | It exists and is different from `source_course_id` |
 | Evaluation not closed | Every `ems.grade_session` of the **last round** (max existing `round` per group·subject) of the groups in scope is in state `final`, linking the offenders to `ems.action_grade_session_state_wizard` |
+| Confirmed enrollment with no group | No `sale.order` of `_incoming_orders()` lacks `ems_group_id` (D13) |
 | Origin study still evaluating | No study this run pulls a student **out of** — outside the scope and not yet `transitioned` — has an unfinalised last round (D11) |
 
 ### Warnings (informative, never blocking)
@@ -54,7 +55,6 @@ Step 5 resets every study back to `active` when the flip happens, so the next co
 | Graduates continuing at the centre | `action = 'graduate_continue'`, **listed one by one**: they keep the graduation but are neither converted nor archived (D10) |
 | Students with no destination | `transition_status = 'missing'`, **listed one by one** (D8), split by `study.uses_enrollment_flow` |
 | Draft / sent enrollments in the target course | **NOT cancelled** — step 6 only touches the outgoing course. They stay open for a September confirmation |
-| Confirmed enrollments with no `ems_group_id` | They are skipped by steps 3-4 and the student stays unplaced |
 | Incomplete evaluation | See the rule below (D9) |
 | Attendance templates to archive | Including templates whose `group_ids` span studies both in and out of scope |
 | Records to delete | Counts per model for step 8, grade sessions included |
@@ -185,6 +185,41 @@ stranded = (students - placed).filtered(lambda student: student.main_group_id)
 `_apply_placement()` therefore returns the placed `res.partner` recordset instead of a count. Keying on the scope groups would detach a student promoted from 1st to 2nd year of the same study, since its destination group is in the scope too — `test_apply_keeps_the_group_of_a_student_promoted_within_the_same_study` pins that down.
 
 `study_id` and `level_id` are deliberately **kept**: they record what the student was doing, which is what the "no destination" report and a late enrollment both read. Only the group goes.
+
+### An unplaced student was a dead end (D13)
+
+A `sale.order` confirmed **without** `ems_group_id` used to be a warning: *"they will be skipped"*. It was skipped indeed — and then there was no way back:
+
+```python
+# the probe that settled it
+tras apply            -> no group
+tras escribir el grupo -> no group          # write() had no side effect
+tras action_confirm    -> UserError: "Some orders are not in a state requiring confirmation"
+```
+
+`_ems_apply_destination_placement()` only ran from `action_confirm()` and from the wizard's bulk pass, so filling the group in afterwards did nothing and the order could not be confirmed twice. The student was left with no group, no subject enrollments and no evaluation sessions, recoverable only by editing `main_group_id` by hand and creating every `ems.enrollment` one by one. On the 25-26 data that was **161 enrollments against 129 placeable ones**.
+
+Two changes, because one alone is not enough:
+
+- **A blocker**, not a warning. A warning is the right shape when the consequence is recoverable; this one was not.
+- **`_ems_place_on_group_assignment()`**, called from `write()` when `ems_group_id` is filled in. It is deliberately narrow — `state == 'sale'`, placement is individual (below), and the student has **no** group yet. That last guard matters: `_ems_apply_destination_placement()` creates the new group's enrollments but does not remove the old ones, so re-pointing an already-placed student would leave it enrolled in two groups at once.
+
+### Placement is individual after the flip too (D14)
+
+`_ems_admit_student()` keyed the individual placement on `ems_study_id.transition_state == 'transitioned'`. But step 5 puts **every** study back to `active` once nothing is pending, so in the normal end state — the whole centre transitioned — the branch was true for nobody and confirming an enrollment in September placed no one:
+
+```
+flip=True | transition_state after the flip='active' | group after confirming=NONE
+```
+
+`_ems_placement_is_individual()` now answers the real question, "has the bulk pass already happened for this enrollment?", with two ways of being true:
+
+| Condition | Situation |
+|-----------|-----------|
+| `transition_state == 'transitioned'` | Partial transition: that study is done, the centre still runs the outgoing course |
+| `ems_course_id == company.current_course_id` | The course has already started, so the wizard is long past |
+
+An enrollment for a course that has not started yet is still left to the wizard.
 
 ### Conditional flip (step 5)
 

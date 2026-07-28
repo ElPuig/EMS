@@ -14,11 +14,12 @@ Archiva el curso que termina, convierte en exalumnos a los graduados que se van 
 
 ## Antes de empezar
 
-Hay tres cosas que deben estar resueltas. El asistente comprueba las dos primeras y se niega a ejecutarse si falta alguna.
+Hay cuatro cosas que deben estar resueltas. El asistente comprueba las tres primeras y se niega a ejecutarse si falta alguna.
 
 1. **El curso entrante existe** y es distinto del actual.
 2. **Las evaluaciones están cerradas.** La última convocatoria de cada grupo del alcance debe estar en estado *Finalizada*. Si quedan abiertas, el asistente te las lista; ciérralas desde **Notas → Cambiar estado de sesión de evaluación**. Esto vale también para los **estudios de procedencia**: si esta ejecución va a colocar alumnos que vienen de un estudio que no estás transicionando y ese estudio aún tiene evaluaciones abiertas, el asistente se niega a ejecutarse, porque al salir del grupo se les congela el expediente y quedaría a medias.
-3. **Una copia de seguridad de la base de datos.** El asistente te pide que confirmes que la tienes, y no aplica nada hasta que marques la casilla.
+3. **Ninguna matrícula confirmada sin grupo destino.** Si una matrícula está confirmada pero nadie eligió el grupo, el asistente se niega a ejecutarse y te las lista. Resuélvelas con la acción **Sugerir grupo destino** del informe *Alumnos sin destino*.
+4. **Una copia de seguridad de la base de datos.** El asistente te pide que confirmes que la tienes, y no aplica nada hasta que marques la casilla.
 
 Marca a los alumnos que se gradúan *antes*, con el asistente de graduación desde la lista de alumnos. La transición no decide quién se gradúa: solo ejecuta marcas que ya están puestas.
 
@@ -50,12 +51,12 @@ Obtendrás un recuadro rojo si algo bloquea la ejecución, uno azul con todo lo 
 | **Se gradúa y continúa** | Marcado como graduado **y** con matrícula **confirmada**: conserva la graduación, no se archiva y se coloca en el grupo nuevo |
 | **Se gradúa, pendiente de confirmar** | Marcado como graduado y con matrícula **sin confirmar**: pasa a solicitante, **conserva el acceso al portal** y no se archiva, para que pueda confirmarla en septiembre |
 | **Colocar en grupo destino** | Tiene matrícula confirmada con grupo: se traslada allí |
-| **Matriculado sin grupo** | Matrícula confirmada sin grupo destino: **se saltará** |
+| **Matriculado sin grupo** | Matrícula sin grupo destino. Si está confirmada, **bloquea la ejecución** |
 | **Sin destino** | No tiene ninguna matrícula para el curso siguiente |
 
 Dos de ellas merecen tu atención:
 
-- **Matriculado sin grupo** — la matrícula existe pero nadie eligió el grupo, así que el alumno se queda donde está. Asígnalo (la acción *Sugerir grupo* te ayuda) y vuelve a previsualizar.
+- **Matriculado sin grupo** — la matrícula existe pero nadie eligió el grupo. Si está confirmada, la ejecución queda bloqueada hasta que lo asignes: colocar a nadie ahí no tendría arreglo después. Usa la acción *Sugerir grupo destino* y vuelve a previsualizar.
 - **Sin destino** — el alumno no se ha matriculado. **No** se le da de baja: simplemente se queda sin grupo. Es deliberado, porque en julio no hay forma de distinguir a quien se va a otro instituto de quien se matricula tarde. Guarda esta lista: es la que revisarás después para decidir quién se ha ido de verdad.
 
 ---
@@ -82,8 +83,8 @@ El asistente deja un **registro con la lista de alumnos y su grupo destino**, de
 
 Tres flecos que resolver en los días siguientes:
 
-- **Alumnos sin destino.** Revisa la lista y registra la baja de los que se han ido de verdad, desde la ficha del alumno. Los que se matriculen tarde no necesitan nada: al confirmarse su matrícula, se les coloca en su grupo automáticamente.
-- **Alumnos matriculados sin grupo**, si aplicaste sin resolverlos: asigna el grupo y confirma; se colocan igual.
+- **Alumnos sin destino.** Revisa la lista y registra la baja de los que se han ido de verdad. Puedes hacerlo de uno en uno desde la ficha del alumno, o **de varios a la vez**: selecciónalos en la lista de *Propuesta de matrícula de grupo* y pulsa **Baja**. El botón solo lo ven administración académica y secretaría, porque registrar una baja cancela matrículas y revoca el portal. Los que se matriculen tarde no necesitan nada: al confirmarse su matrícula, se les coloca en su grupo automáticamente.
+- **Alumnos matriculados sin grupo** que aparezcan después (por ejemplo, una matrícula confirmada en septiembre sin grupo): basta con **asignarles el grupo destino en la matrícula**. Al hacerlo se colocan solos, con sus módulos incluidos.
 - **Matrículas del curso entrante sin confirmar.** No se cancelan ni se tocan. Quien confirme en septiembre se coloca solo en su grupo, sin que tengas que volver a ejecutar nada — **siempre que la matrícula tenga grupo destino asignado**. Sin grupo, confirmar no coloca a nadie.
 
 ---

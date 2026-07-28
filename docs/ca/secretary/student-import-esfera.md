@@ -25,6 +25,8 @@ No confongueu això amb [Matriculació per l'alumnat de preinscripció](manual-m
 - **GEDAC** (preinscripció) incorpora **aspirants** — persones que encara no tenen plaça al centre, o alumnat actual que canvia d'estudis.
 - **Esfera (SAGA)** — aquesta guia — actualitza les dades de l'**alumnat ja matriculat**: dades personals, adreça, documents i contactes familiars, des del registre oficial del centre al sistema de l'administració educativa catalana.
 
+Per a una actualització més petita i puntual des de qualsevol altre fitxer CSV (no el format oficial d'Esfera, i incapaç de crear alumnat nou), consulteu [Actualitzar dades de l'alumnat des d'un CSV](student-update-csv.md).
+
 ## Executar la importació
 
 Des de la llista d'**Alumnat**, obriu el menú d'accions (la icona de l'engranatge ⚙️ al costat de la llista) i trieu **Importar des d'Esfera**. Seleccioneu el fitxer `.xlsx` exportat des d'Esfera/SAGA i feu clic a **Importar alumnes**.

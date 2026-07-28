@@ -20,6 +20,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [Revisar els documents dels alumnes](student-documents.md) — Aprovar, rebutjar o reobrir tramitacions de DNI/targeta sanitària/IBAN/beneficis, i què fa cada decisió per darrere.
 - [Marcar una graduació i tramitar una baixa](graduation-withdrawal.md) — La diferència entre la marca diferida de graduació i una baixa immediata, i tota la cascada de la baixa pas a pas.
 - [Importar alumnat des d'Esfera (SAGA)](student-import-esfera.md) — Actualitzar massivament les dades de l'alumnat ja matriculat (no confondre amb la importació de preinscripció GEDAC), què es fa coincidir/crea, i les limitacions conegudes de deduplicació.
+- [Actualitzar dades de l'alumnat des d'un CSV](student-update-csv.md) — Actualització massiva genèrica, de qualsevol format CSV, per a alumnat existent (mai en crea), amb columnes mapejables i actualització opcional del compte bancari.
 
 ## Temes previstos
 

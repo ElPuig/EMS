@@ -5,10 +5,10 @@ import io
 import json
 from datetime import datetime
 
-from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from markupsafe import Markup
 
-_ACTION_NAME = 'EMS: Update students from CSV'
+from odoo import models, fields, _
+from odoo.exceptions import UserError
 
 
 class EmsCSVColumn(models.TransientModel):
@@ -112,7 +112,7 @@ class EmsStudentUpdateWizard(models.TransientModel):
 
     def _reload_action(self):
         return {
-            'name': _(_ACTION_NAME),
+            'name': _("EMS: Update students from CSV"),
             'type': 'ir.actions.act_window',
             'res_model': self._name,
             'res_id': self.id,
@@ -199,17 +199,27 @@ class EmsStudentUpdateWizard(models.TransientModel):
                         if parsed:
                             vals[field] = parsed
                         else:
-                            errors.append(_("Row %s: could not parse date '%s'.") % (idalu, raw))
+                            errors.append(_(
+                                "Row %(idalu)s: could not parse date '%(value)s'.",
+                                idalu=idalu, value=raw,
+                            ))
                 else:
                     vals[field] = raw or False
 
             row_error = None
             try:
-                student.write(vals)
+                # Odoo's @api.constrains checks (e.g. res.partner._check_nuss) run
+                # AFTER the underlying SQL write already flushed — without a
+                # savepoint, a "failed" row would silently keep its already-applied
+                # field changes in the transaction despite being reported as an
+                # error. The savepoint rolls the whole row back cleanly on any
+                # exception so "reported as failed" actually means "not applied".
+                with self.env.cr.savepoint():
+                    student.write(vals)
             except Exception as e:
                 row_error = str(e)
-                errors.append(_("Row %s: %s") % (idalu, row_error))
-                result_rows.append({**row, 'ems_import_status': 'error: %s' % row_error})
+                errors.append(_("Row %(idalu)s: %(error)s", idalu=idalu, error=row_error))
+                result_rows.append({**row, 'ems_import_status': f'error: {row_error}'})
                 continue
 
             updated += 1
@@ -219,28 +229,29 @@ class EmsStudentUpdateWizard(models.TransientModel):
                 if iban:
                     holder = row.get(self.col_acc_holder.name, '').strip() if self.col_acc_holder else ''
                     try:
-                        BankAccount = self.env['res.partner.bank'].with_context(active_test=False)
-                        existing = BankAccount.search([
-                            ('partner_id', '=', student.id),
-                            ('acc_number', '=', iban),
-                        ], limit=1)
-                        if existing:
-                            existing.write({'active': True, 'acc_holder_name': holder or False})
-                            # Archive any other accounts for this student
-                            BankAccount.search([
+                        with self.env.cr.savepoint():
+                            BankAccount = self.env['res.partner.bank'].with_context(active_test=False)
+                            existing = BankAccount.search([
                                 ('partner_id', '=', student.id),
-                                ('id', '!=', existing.id),
-                            ]).write({'active': False})
-                        else:
-                            # Archive all current accounts and create new
-                            BankAccount.search([('partner_id', '=', student.id)]).write({'active': False})
-                            self.env['res.partner.bank'].create({
-                                'acc_number': iban,
-                                'partner_id': student.id,
-                                'acc_holder_name': holder or False,
-                            })
+                                ('acc_number', '=', iban),
+                            ], limit=1)
+                            if existing:
+                                existing.write({'active': True, 'acc_holder_name': holder or False})
+                                # Archive any other accounts for this student
+                                BankAccount.search([
+                                    ('partner_id', '=', student.id),
+                                    ('id', '!=', existing.id),
+                                ]).write({'active': False})
+                            else:
+                                # Archive all current accounts and create new
+                                BankAccount.search([('partner_id', '=', student.id)]).write({'active': False})
+                                self.env['res.partner.bank'].create({
+                                    'acc_number': iban,
+                                    'partner_id': student.id,
+                                    'acc_holder_name': holder or False,
+                                })
                     except Exception as e:
-                        errors.append(_("Row %s (bank): %s") % (idalu, str(e)))
+                        errors.append(_("Row %(idalu)s (bank): %(error)s", idalu=idalu, error=str(e)))
 
             result_rows.append({**row, 'ems_import_status': 'imported'})
 
@@ -254,14 +265,14 @@ class EmsStudentUpdateWizard(models.TransientModel):
             self.result_csv = base64.b64encode(out.getvalue().encode('utf-8'))
             self.result_csv_filename = 'import_result.csv'
 
-        lines = [
-            '<p><b>%s</b> students updated, <b>%s</b> IDALU not found.</p>' % (updated, not_found),
-        ]
+        html = Markup('<p>{}</p>').format(_(
+            "%(updated)s student(s) updated, %(not_found)s IDALU not found.",
+            updated=updated, not_found=not_found,
+        ))
         if errors:
-            lines.append('<p><b>Errors (%d):</b></p><ul>' % len(errors))
-            for e in errors:
-                lines.append('<li>%s</li>' % e)
-            lines.append('</ul>')
+            items = Markup('').join(Markup('<li>{}</li>').format(e) for e in errors)
+            html += Markup('<p><b>{}</b></p><ul>{}</ul>').format(
+                _("Errors (%(count)s):", count=len(errors)), items)
 
-        self.result_html = ''.join(lines)
+        self.result_html = html
         return self._reload_action()

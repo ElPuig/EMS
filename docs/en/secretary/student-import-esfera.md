@@ -25,6 +25,8 @@ Don't confuse this with [Enrolling the preinscription students](manual-matricula
 - **GEDAC** (preinscription) brings in **applicants** — people who don't have a place at the centre yet, or current students changing study.
 - **Esfera (SAGA)** — this guide — refreshes **already-enrolled students'** data: personal details, address, documents and family contacts, from the centre's official record in the Catalan education administration's system.
 
+For a smaller, ad-hoc update from any other CSV file (not the official Esfera format, and unable to create new students), see [Updating student data from a CSV file](student-update-csv.md) instead.
+
 ## Running the import
 
 From the **Students** list, open the actions menu (the gear icon ⚙️ next to the list) and choose **Import from Esfera**. Select the `.xlsx` file exported from Esfera/SAGA and click **Import students**.

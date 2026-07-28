@@ -53,6 +53,7 @@ from . import test_grade_session
 from . import test_grade_import_wizard
 from . import test_applicant_import_wizard
 from . import test_student_import_wizard
+from . import test_student_update_wizard
 from . import test_planning
 from . import test_portal_access_wizard
 from . import test_data_custom_import_prefix

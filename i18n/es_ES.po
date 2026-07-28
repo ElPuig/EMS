@@ -3688,6 +3688,8 @@ msgid "EMS: Send Enrollment Proposal"
 msgstr "EMS: Enviar propuesta de matrícula"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_update_wizard.py:0
 #: model:ir.actions.act_window,name:ems.action_student_update_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
 msgid "EMS: Update students from CSV"
@@ -7801,20 +7803,26 @@ msgstr "Evaluación"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/student_update_wizard.py:0
-msgid "Row %s (bank): %s"
-msgstr "Fila %s (banco): %s"
+msgid "%(updated)s student(s) updated, %(not_found)s IDALU not found."
+msgstr "%(updated)s alumno(s) actualizado(s), %(not_found)s IDALU no encontrado(s)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/student_update_wizard.py:0
-msgid "Row %s: %s"
-msgstr "Fila %s: %s"
+msgid "Row %(idalu)s (bank): %(error)s"
+msgstr "Fila %(idalu)s (banco): %(error)s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/student_update_wizard.py:0
-msgid "Row %s: could not parse date '%s'."
-msgstr "Fila %s: no se pudo interpretar la fecha '%s'."
+msgid "Row %(idalu)s: %(error)s"
+msgstr "Fila %(idalu)s: %(error)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_update_wizard.py:0
+msgid "Row %(idalu)s: could not parse date '%(value)s'."
+msgstr "Fila %(idalu)s: no se pudo interpretar la fecha '%(value)s'."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__is_running
@@ -11024,6 +11032,7 @@ msgstr "Errores"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/student_import_wizard.py:0
+#: code:addons/ems/models/contacts/student_update_wizard.py:0
 msgid "Errors (%(count)s):"
 msgstr "Errores (%(count)s):"
 

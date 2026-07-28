@@ -1228,12 +1228,14 @@ msgstr ""
 "modificarlos a su gusto."
 
 #. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 #, python-format
 msgid "More than one session is scheduled for the current time slot. Please select one manually or switch to 'Manual' mode."
 msgstr "Hay más de una sesión programada para la franja horaria actual. Por favor, seleccione una manualmente o cambie al modo 'Manual'."
 
 #. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 #, python-format
 msgid "Justified absence — status and notes are locked."
@@ -2697,6 +2699,7 @@ msgid "Comment"
 msgstr "Comentario"
 
 #. module: ems
+#. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_student
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
@@ -8603,6 +8606,7 @@ msgstr ""
 "universitaria específica, etc.)."
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__subject_id
@@ -9258,6 +9262,7 @@ msgid "Title"
 msgstr "Título"
 
 #. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Today"
 msgstr "Hoy"
@@ -10692,11 +10697,13 @@ msgid "OU for suspended staff"
 msgstr "OU para personal dado de baja"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 msgid "Credentials PDF saved as attachment"
 msgstr "PDF de credenciales guardado como adjunto"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 msgid ""
 "Google Workspace: the employee already has a non-corporate work email (%s); "
@@ -10706,6 +10713,7 @@ msgstr ""
 "(%s); no se ha creado la cuenta corporativa para evitar sobrescribirlo."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 msgid ""
 "Google Workspace: not authorized to create accounts in OU %(ou)s. The "
@@ -10732,6 +10740,7 @@ msgid "Google Workspace - Welcome credentials (staff)"
 msgstr "Google Workspace - Credenciales de bienvenida (personal)"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 msgid ""
 "Google Workspace: the corporate account was not created automatically. "
@@ -11252,16 +11261,19 @@ msgid "Personal data"
 msgstr "Datos personales"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/enrollment/enrollment.py:0
 msgid "Destination group mismatch"
 msgstr "Grupo destino incongruente"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/enrollment/enrollment.py:0
 msgid "The group shift does not match the enrollment shift."
 msgstr "El turno del grupo no coincide con el turno de la matrícula."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/enrollment/enrollment.py:0
 #, python-format
 msgid ""
@@ -12259,6 +12271,7 @@ msgid "Planner files (XML)"
 msgstr "Archivos de planificación (XML)"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "No XML file has been loaded. Please, provide at least one XML file and try again."
 msgstr "No se ha cargado ningún archivo XML. Por favor, proporciona al menos un archivo XML e inténtalo de nuevo."
@@ -12789,6 +12802,7 @@ msgid "New Reinforcement Group"
 msgstr "Grupo de refuerzo nuevo"
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__score
 #: code:addons/ems/static/src/js/backend/em_matrix_field.js:0
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__score
@@ -12838,6 +12852,7 @@ msgid "Previous course"
 msgstr "Curso anterior"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/grades/em_grading_wizard.py:0
 msgid "Work placement (EM)"
 msgstr "Prácticas de empresa (EM)"
@@ -12865,21 +12880,25 @@ msgid "Apply EM grade"
 msgstr "Aplicar la nota de EM"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/grades/em_grading_wizard.py:0
 msgid "The work placement grade must be within the range [0, 10]."
 msgstr "La nota de las prácticas debe estar en el intervalo [0, 10]."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/grades/em_grading_wizard.py:0
 msgid "Select at least one student with a module to grade."
 msgstr "Selecciona al menos un estudiante con algún módulo por calificar."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/grades/em_grading_wizard.py:0
 msgid "%s module(s) graded."
 msgstr "Módulos calificados: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/grades/em_grading_wizard.py:0
 msgid "%s placement(s) below 5: to be repeated (final still pending)."
 msgstr ""
@@ -12898,17 +12917,20 @@ msgid "Group domain"
 msgstr "Dominio del grupo"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/grades/em_grading_wizard.py:0
 msgid "You can only grade the work placement of a group you tutor."
 msgstr ""
 "Solo puedes calificar las prácticas de empresa de un grupo que tutorizas."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/grades/em_grading_wizard.py:0
 msgid "Invalid module line: it does not belong to the selected group."
 msgstr "Línea de módulo no válida: no pertenece al grupo seleccionado."
 
 #. module: ems
+#. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__per_module
 #: code:addons/ems/static/src/js/backend/em_matrix_field.js:0
 msgid "Grade per module"
@@ -12925,6 +12947,7 @@ msgid "Work placement (EM) grading wizard: one student of the group."
 msgstr "Asistente de nota de EM: un estudiante del grupo."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/grades/em_grading_wizard.py:0
 msgid "Enter the work placement grade of at least one student."
 msgstr "Introduce la nota de las prácticas de al menos un estudiante."
@@ -13160,6 +13183,7 @@ msgid "Audit File Name"
 msgstr "Nombre del archivo de auditoría"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "yes"
 msgstr "sí"
@@ -13200,11 +13224,13 @@ msgid "Graduates continuing at the centre"
 msgstr "Graduados/as que continúan en el centro"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Graduated and continuing at the centre: %s"
 msgstr "Graduados/as que continúan en el centro: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "%s graduate(s) stay at the centre: they keep their graduation on record but "
@@ -13212,57 +13238,68 @@ msgid ""
 msgstr "%s graduados/as permanecen en el centro: conservan la graduación en el expediente, pero no pasan a exalumnado ni se archivan: %s."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
 msgid ""
 "Enrolled for the next course — will be graduated and placed, not archived"
 msgstr "Con matrícula para el curso siguiente — se graduará y se colocará, no se archivará"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Graduated and archived: %s"
 msgstr "Graduados/as archivados/as: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Placed: %s"
 msgstr "Colocados/as: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Without destination: %s"
 msgstr "Sin destino: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Enrollments locked: %s"
 msgstr "Matrículas bloqueadas: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Enrollments cancelled: %s"
 msgstr "Matrículas canceladas: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Records deleted: %s"
 msgstr "Registros borrados: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Current course switched: %s"
 msgstr "Curso actual cambiado: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Issues: %s"
 msgstr "Incidencias: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Studies: %s"
 msgstr "Estudios: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Course transition applied"
 msgstr "Transición de curso aplicada"
@@ -13278,26 +13315,31 @@ msgid "Download the transition log (CSV)"
 msgstr "Descargar el registro de la transición (CSV)"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Please select at least one study."
 msgstr "Selecciona al menos un estudio."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Run the preview before applying the transition."
 msgstr "Ejecuta la previsualización antes de aplicar la transición."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "The transition cannot be applied while there are blockers."
 msgstr "La transición no se puede aplicar mientras haya bloqueantes."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "%s student(s) with no enrollment for the incoming course: %s."
 msgstr "%s estudiantes sin matrícula para el curso entrante: %s."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "%s enrollment(s) confirmed without a destination group: they will be "
@@ -13305,6 +13347,7 @@ msgid ""
 msgstr "%s matrículas confirmadas sin grupo destino: se saltarán."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "%s enrollment(s) for the incoming course are still in draft or sent. They "
@@ -13313,6 +13356,7 @@ msgid ""
 msgstr "%s matrículas del curso entrante siguen en borrador o enviadas. NO se cancelan: esos estudiantes simplemente se quedan sin destino hasta que confirmen, y al confirmar se colocan solos."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "%s confirmed enrollment(s) of the outgoing course will be locked against "
@@ -13320,22 +13364,26 @@ msgid ""
 msgstr "%s matrículas confirmadas del curso saliente se bloquearán contra futuras ediciones."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "%s never-confirmed enrollment(s) of the outgoing course will be cancelled."
 msgstr "%s matrículas del curso saliente que nunca se confirmaron se cancelarán."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "%s subject grade(s) without a closed evaluation in the last round."
 msgstr "%s notas de asignatura sin evaluación cerrada en la última convocatoria."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "%s attendance template(s) will be archived."
 msgstr "%s plantillas de asistencia se archivarán."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "%s attendance template(s) also cover groups outside the scope and will NOT "
@@ -13343,31 +13391,37 @@ msgid ""
 msgstr "%s plantillas de asistencia cubren también grupos fuera del alcance y NO se archivarán: %s."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "%s operational record(s) will be deleted. This cannot be undone."
 msgstr "%s registros operativos se borrarán. Esto no se puede deshacer."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "%s applicant(s) without a confirmed enrollment will be archived."
 msgstr "%s solicitantes sin matrícula confirmada se archivarán."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "%s: portal access could not be revoked, kept active"
 msgstr "%s: no se ha podido revocar el acceso al portal, se mantiene activo"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "The incoming course must exist and be different from the outgoing one."
 msgstr "El curso entrante debe existir y ser distinto del saliente."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "The last round is not finalised in %s evaluation session(s): %s."
 msgstr "La última convocatoria no está finalizada en %s sesiones de evaluación: %s."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "This run places students coming from study(ies) whose last round is not "
@@ -13376,6 +13430,7 @@ msgid ""
 msgstr "Esta ejecución coloca estudiantes procedentes de estudios cuya última convocatoria no está finalizada: %s. Cierra sus evaluaciones, o transiciónalos en esta misma ejecución, para que su historial académico no se congele a medias."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "The academic history could not be generated, so the transition was aborted "
@@ -13383,6 +13438,7 @@ msgid ""
 msgstr "No se ha podido generar el historial académico, así que la transición se ha abortado y no se ha cambiado nada: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "Please confirm that a backup has been taken before applying the transition."
@@ -13396,17 +13452,20 @@ msgid ""
 msgstr "Los registros operativos del curso saliente se borrarán y esto no se puede deshacer. ¿Aplicar la transición?"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "No study is left pending: this run switches the current course to %s."
 msgstr "No queda ningún estudio pendiente: esta ejecución cambia el curso actual a %s."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "The current course will NOT change yet; %s study(ies) stay pending: %s."
 msgstr "El curso actual NO cambiará todavía; %s estudios quedan pendientes: %s."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "no"
 msgstr "no"
@@ -13427,6 +13486,7 @@ msgid ""
 msgstr "Esto cierra el curso saliente y abre el siguiente para los estudios que selecciones. Congela el historial académico, convierte en exalumnado archivado a los estudiantes marcados como graduados que se van, coloca a todos los demás —incluidos los graduados/as que continúan en el centro— en el grupo destino de su matrícula confirmada, y borra los registros operativos del año que termina. <strong>La limpieza no se puede deshacer.</strong><br/>Los estudios no acaban todos a la vez: transiciona los que estén cerrados y vuelve a ejecutarlo para el resto. El curso actual solo cambia en la ejecución que no deja ningún estudio pendiente."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Detached from the outgoing group: %s"
 msgstr "Desvinculados/as del grupo saliente: %s"
@@ -13442,11 +13502,13 @@ msgid "Graduates pending confirmation"
 msgstr "Graduados/as pendientes de confirmar"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid "Graduated, pending confirmation: %s"
 msgstr "Graduados/as pendientes de confirmar: %s"
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "%s graduate(s) hold an enrollment nobody has confirmed yet: they become "
@@ -13470,6 +13532,7 @@ msgid ""
 msgstr "Esto cierra el curso saliente y abre el siguiente para los estudios que selecciones. Congela el historial académico, convierte en exalumnos archivados a los graduados que se van, convierte en solicitantes que conservan el acceso al portal a los graduados con matrícula sin confirmar, coloca al resto en el grupo destino de su matrícula confirmada, y borra los registros operativos del año que termina. <strong>La limpieza no se puede deshacer.</strong><br/>Los estudios no acaban todos a la vez: transiciona los que estén cerrados y vuelve a ejecutarlo para el resto. El curso actual solo cambia en la ejecución que no deja ningún estudio pendiente."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
 msgid ""
 "%s confirmed enrollment(s) have no destination group and nobody would be "

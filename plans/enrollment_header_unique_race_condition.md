@@ -56,12 +56,15 @@ multiple non-cancelled `sale.order`s in the same `ems_course_id`) before decidin
 
 ## Open questions (need an answer before touching the code)
 
-1. Has this race condition ever actually produced a duplicate enrollment in production? A
-   quick query (`GROUP BY partner_id, ems_course_id HAVING count(*) > 1` filtered to
-   `state != 'cancel'`) would confirm or rule this out empirically — do that first, the same
-   way the `ems.enrollment` junction-table duplicate check was done (see
-   `plans/enrollment_junction_duplicate_constraint.md` for that precedent and why checking
-   live data before adding a constraint matters).
+1. ~~Has this race condition ever actually produced a duplicate enrollment in production?~~
+   **Checked 2026-07-29:**
+   `SELECT partner_id, ems_course_id, count(*) FROM sale_order WHERE state != 'cancel' AND
+   ems_course_id IS NOT NULL GROUP BY partner_id, ems_course_id HAVING count(*) > 1` returns
+   **0 rows** — this race has never actually produced a duplicate in this production data.
+   Lowers urgency: the gap is real (still a TOCTOU with no DB-level guard) but not an active
+   data-integrity incident, unlike `enrollment_junction_duplicate_constraint.md`'s 21 already-
+   existing dup triples. Re-run this query before deciding whether/when to fix, since it can
+   go stale.
 2. If a DB-level fix is warranted: a plain unique index on `(partner_id, ems_course_id)`
    won't work directly, since cancelled orders must be excluded — this needs either a
    **partial unique index** (`CREATE UNIQUE INDEX ... WHERE state != 'cancel'`, expressed in

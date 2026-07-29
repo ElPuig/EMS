@@ -253,7 +253,7 @@ def run_action(self, title, action, status_w, status_ok, status_ko, compute, per
 	if not self.already_running():
 		def setup(self):			
 			persistent_data["success"] = True
-			persistent_data["ls_api"] = limesurvey_api(self.env)
+			persistent_data["ls_api"] = LimesurveyApi(self.env)
 			try:
 				# TODO: maybe is better to use diferent load_persistent_data methods for teachers or ASP...
 				persistent_data["surveys"] = load_persistent_data(self, compute_survey_data)
@@ -399,219 +399,223 @@ def _build_csv(env, all_responses):
 
 	return output.getvalue()
 # endregion
-class limesurvey_api():
-	def __init__(self, env):
-		self.limesurvey_api = env.company.limesurvey_api
-		self.limesurvey_usr = env.company.limesurvey_usr
-		self.limesurvey_pwd = env.company.limesurvey_pwd
-		self.limesurvey_gid = env.company.limesurvey_gid
+class LimesurveyApi():
+    """Thin wrapper around LimeSurvey's RemoteControl 2 JSON-RPC API. Every
+    call opens its own session (get_session_key), runs one RPC method, and
+    releases the session (release_session_key) — see _run_api_request."""
 
-	def create_survey(self, raw_tsv):		
-		data = base64.b64encode(raw_tsv.encode('utf-8')).decode('utf-8')
-		result  = self._run_api_request("import_survey", [data, "txt"])
-		
-		if isinstance(result, int) or (isinstance(result, str) and result.isdigit()): 
-			try:
-				self._run_api_request("set_survey_properties", [result,  {"gsid": self.limesurvey_gid}])
-				self._run_api_request("activate_tokens", [result, [0]])
-				return result
-			except:
-				self.delete_survey(result)
-				raise			
-		else: 			
-			raise Exception(f"{_('Unable to create the survey.')} {result}")
-	
-	def add_participants(self, survey_id, participants):
-		# TODO: errors?				
-		return self._run_api_request("add_participants", [survey_id, participants])		
+    def __init__(self, env):
+        self.limesurvey_api = env.company.limesurvey_api
+        self.limesurvey_usr = env.company.limesurvey_usr
+        self.limesurvey_pwd = env.company.limesurvey_pwd
+        self.limesurvey_gid = env.company.limesurvey_gid
 
-	def delete_participants(self, survey_id, participant_ids):		
-		error = _("Unable to delete some participants")
-		result = self._run_api_request("delete_participants", [survey_id, participant_ids])
-		values = list(result.values())
+    def create_survey(self, raw_tsv):
+        data = base64.b64encode(raw_tsv.encode('utf-8')).decode('utf-8')
+        result = self._run_api_request("import_survey", [data, "txt"])
 
-		# Trying to delete something that does not exists, is not an error for us (maybe it's a retry).
-		if not "Deleted" in values and not "Invalid token ID" in values:
-			raise Exception(f"{error}: " + " | ".join(values))
+        if isinstance(result, int) or (isinstance(result, str) and result.isdigit()):
+            try:
+                self._run_api_request("set_survey_properties", [result, {"gsid": self.limesurvey_gid}])
+                self._run_api_request("activate_tokens", [result, [0]])
+                return result
+            except Exception:
+                self.delete_survey(result)
+                raise
+        else:
+            raise Exception(f"{_('Unable to create the survey.')} {result}")
 
-	def update_participant_data(self, survey_id, participant_id, participant_data):			
-		error = _("Unable to update some participants")
-		result = self._run_api_request("set_participant_properties", [survey_id, participant_id, participant_data])
+    def add_participants(self, survey_id, participants):
+        # TODO: errors?
+        return self._run_api_request("add_participants", [survey_id, participants])
 
-		if "error" in result: raise Exception(f"{error}: " + result["error"])
-		elif not "emailstatus" in result: raise Exception(f"{error}: " + str(result["status"]))
-		elif result["emailstatus"] != "OK": raise Exception(f"{error}: " + result["emailstatus"])
+    def delete_participants(self, survey_id, participant_ids):
+        error = _("Unable to delete some participants")
+        result = self._run_api_request("delete_participants", [survey_id, participant_ids])
+        values = list(result.values())
 
-	def list_participants(self, survey_id):	
-		# TODO: errors?		
-		return self._run_api_request("list_participants", [survey_id])
-	
-	def count_participants(self, survey_id):	
-		list = 	self.list_participants(survey_id)
-		if "status" in list and list["status"] == "No survey participants found.": return 0
-		else: return len(list)
-		
-	def delete_survey(self, survey_id):
-		error = _("Unable to delete the survey")
-		result = self._run_api_request("delete_survey", [survey_id])
-		if "status" in result:
-			if result["status"] == "No permission":			
-				# Deleted ones appears as "no permissions", checking if exists or not...
-				result = self._run_api_request("get_survey_properties", [survey_id])
-				if not "status" in result: raise Exception(f"{error}: No permission.")
-			elif result["status"] != "OK":
-				raise Exception(f"{error}: {result['status']}")
-		else:
-			raise Exception(f"{error}: UNKWONW ERROR!")
-	
-	def get_group(self, name):
-		result = self._run_api_request("list_survey_groups", [None])		
-		group_found = False if result is None else next((g for g in result if g['name'].lower() == name), None)
-		return None if not group_found else group_found	
+        # Trying to delete something that does not exists, is not an error for us (maybe it's a retry).
+        if "Deleted" not in values and "Invalid token ID" not in values:
+            raise Exception(f"{error}: " + " | ".join(values))
 
-	def activate_survey(self, survey_id):
-		error = _("Unable to activate the survey")
-		try:
-			self._run_api_request("set_survey_properties", [survey_id,  {"expires": None, "startdate": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])
-			result  = self._run_api_request("activate_survey", [survey_id])
-			if "status" not in result:
-				raise Exception(f"{error}: {result}")
-			if "status" in result and result["status"] not in ("OK", "Error: Survey already active"):
-				raise Exception(f"{error}: {result['status']}")
-		except Exception as e:
-			raise Exception(f"{error}: {e}")
+    def update_participant_data(self, survey_id, participant_id, participant_data):
+        error = _("Unable to update some participants")
+        result = self._run_api_request("set_participant_properties", [survey_id, participant_id, participant_data])
 
-	def deactivate_survey(self, survey_id):
-		error = _("Unable to deactivate the survey")
-		try:
-			result = self._run_api_request("set_survey_properties", [survey_id, {"expires": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])
-			if not isinstance(result, dict) or not result.get("expires"):
-				raise Exception(f"{error}: {result}")
-		except Exception as e:
-			raise Exception(f"{error}: {e}")
+        if "error" in result: raise Exception(f"{error}: " + result["error"])
+        elif "emailstatus" not in result: raise Exception(f"{error}: " + str(result["status"]))
+        elif result["emailstatus"] != "OK": raise Exception(f"{error}: " + result["emailstatus"])
 
-	def reactivate_survey(self, survey_id):
-		error = _("Unable to reactivate the survey")
-		try:
-			result = self._run_api_request("set_survey_properties", [survey_id, {"expires": None}])
-			if not isinstance(result, dict) or not result.get("expires"):
-				raise Exception(f"{error}: {result}")
-		except Exception as e:
-			raise Exception(f"{error}: {e}")
+    def list_participants(self, survey_id):
+        # TODO: errors?
+        return self._run_api_request("list_participants", [survey_id])
 
-	def export_survey_responses(self, survey_id):
-		error = _("Unable to export survey responses")
-		try:
-			result = self._run_api_request("export_responses", [int(survey_id), "json", None, "complete", "code", "long"])
-			if isinstance(result, dict):
-				status = result.get("status", "")
-				if "No Data" in status: return []
-				raise Exception(status or str(result))
-			decoded = base64.b64decode(result).decode("utf-8")
-			data = json.loads(decoded)
-			if isinstance(data, dict) and "responses" in data:
-				return data["responses"]
-			elif isinstance(data, list):
-				return data
-			raise Exception(f"Unexpected response format: {type(data)}")
-		except Exception as e:
-			raise Exception(f"{error}: {e}")
+    def count_participants(self, survey_id):
+        participants = self.list_participants(survey_id)
+        if "status" in participants and participants["status"] == "No survey participants found.": return 0
+        else: return len(participants)
 
-	def invite_participants(self, survey_id):
-		error = _("Unable to invite some participants")		
-		try:
-			for current_try in range(5):
-				result  = self._run_api_request("invite_participants", [survey_id])
-				if "status" not in result: raise Exception(f"{error}: " + "UNKWOWN ERROR!")
-				elif result["status"] in ("0 left to send", "Error: No candidate tokens"): break
-				else: time.sleep(15*(current_try))
-		except Exception as e:
-			raise Exception(f"{error}: {e}")
+    def delete_survey(self, survey_id):
+        error = _("Unable to delete the survey")
+        result = self._run_api_request("delete_survey", [survey_id])
+        if "status" in result:
+            if result["status"] == "No permission":
+                # Deleted ones appears as "no permissions", checking if exists or not...
+                result = self._run_api_request("get_survey_properties", [survey_id])
+                if "status" not in result: raise Exception(f"{error}: No permission.")
+            elif result["status"] != "OK":
+                raise Exception(f"{error}: {result['status']}")
+        else:
+            raise Exception(f"{error}: UNKNOWN ERROR!")
 
-	def remind_participants(self, survey_id, part_ids=None):
-		error = _("Unable to invite some participants")		
-		try:
-			data = [survey_id]
-			if part_ids is not None: data.append(part_ids)
+    def get_group(self, name):
+        result = self._run_api_request("list_survey_groups", [None])
+        name = name.lower()
+        group_found = False if result is None else next((g for g in result if g['name'].lower() == name), None)
+        return None if not group_found else group_found
 
-			for current_try in range(5):
-				result  = self._run_api_request("remind_participants", [survey_id])
-				if "status" not in result: raise Exception(f"{error}: " + "UNKWOWN ERROR!")
-				elif result["status"] in ("0 left to send", "Error: No candidate tokens"): break
-				else: time.sleep(15*(current_try))
-		except Exception as e:
-			raise Exception(f"{error}: {e}")
+    def activate_survey(self, survey_id):
+        error = _("Unable to activate the survey")
+        try:
+            self._run_api_request("set_survey_properties", [survey_id, {"expires": None, "startdate": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])
+            result = self._run_api_request("activate_survey", [survey_id])
+            if "status" not in result:
+                raise Exception(f"{error}: {result}")
+            if "status" in result and result["status"] not in ("OK", "Error: Survey already active"):
+                raise Exception(f"{error}: {result['status']}")
+        except Exception as e:
+            raise Exception(f"{error}: {e}")
 
-	def _parse_api_response(self, response, context="LimeSurvey API"):
-		if response.status_code != 200:
-			raise UserError(f"{context} error: {response.reason}\n\n{self._extract_limesurvey_html_error(response.text)}")
+    def deactivate_survey(self, survey_id):
+        error = _("Unable to deactivate the survey")
+        try:
+            result = self._run_api_request("set_survey_properties", [survey_id, {"expires": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])
+            if not isinstance(result, dict) or not result.get("expires"):
+                raise Exception(f"{error}: {result}")
+        except Exception as e:
+            raise Exception(f"{error}: {e}")
 
-		try:
-			data = response.json()
-		except Exception:
-			raise UserError(f"{context} error: the response is not valid JSON.\n\n{response.text[:500]}")
+    def reactivate_survey(self, survey_id):
+        error = _("Unable to reactivate the survey")
+        try:
+            result = self._run_api_request("set_survey_properties", [survey_id, {"expires": None}])
+            if not isinstance(result, dict) or not result.get("expires"):
+                raise Exception(f"{error}: {result}")
+        except Exception as e:
+            raise Exception(f"{error}: {e}")
 
-		if data.get('error'):
-			raise UserError(f"{context} error: {data.get('error')}")
+    def export_survey_responses(self, survey_id):
+        error = _("Unable to export survey responses")
+        try:
+            result = self._run_api_request("export_responses", [int(survey_id), "json", None, "complete", "code", "long"])
+            if isinstance(result, dict):
+                status = result.get("status", "")
+                if "No Data" in status: return []
+                raise Exception(status or str(result))
+            decoded = base64.b64decode(result).decode("utf-8")
+            data = json.loads(decoded)
+            if isinstance(data, dict) and "responses" in data:
+                return data["responses"]
+            elif isinstance(data, list):
+                return data
+            raise Exception(f"Unexpected response format: {type(data)}")
+        except Exception as e:
+            raise Exception(f"{error}: {e}")
 
-		return data
+    def invite_participants(self, survey_id):
+        error = _("Unable to invite some participants")
+        try:
+            for current_try in range(5):
+                result = self._run_api_request("invite_participants", [survey_id])
+                if "status" not in result: raise Exception(f"{error}: " + "UNKNOWN ERROR!")
+                elif result["status"] in ("0 left to send", "Error: No candidate tokens"): break
+                else: time.sleep(15 * current_try)
+        except Exception as e:
+            raise Exception(f"{error}: {e}")
 
-	def _run_api_request(self, method, params=[]):
-		headers = {'content-type': 'application/json'}
-		session_key = self._get_session_key(headers)
+    def remind_participants(self, survey_id, part_ids=None):
+        error = _("Unable to invite some participants")
+        try:
+            params = [survey_id] if part_ids is None else [survey_id, part_ids]
 
-		if not session_key:
-			raise UserError(_("Unable to get the LimeSurvey's session key."))
+            for current_try in range(5):
+                result = self._run_api_request("remind_participants", params)
+                if "status" not in result: raise Exception(f"{error}: " + "UNKNOWN ERROR!")
+                elif result["status"] in ("0 left to send", "Error: No candidate tokens"): break
+                else: time.sleep(15 * current_try)
+        except Exception as e:
+            raise Exception(f"{error}: {e}")
 
-		try:
-			payload = {
+    def _parse_api_response(self, response, context="LimeSurvey API"):
+        if response.status_code != 200:
+            raise UserError(f"{context} error: {response.reason}\n\n{self._extract_limesurvey_html_error(response.text)}")
+
+        try:
+            data = response.json()
+        except Exception:
+            raise UserError(f"{context} error: the response is not valid JSON.\n\n{response.text[:500]}")
+
+        if data.get('error'):
+            raise UserError(f"{context} error: {data.get('error')}")
+
+        return data
+
+    def _run_api_request(self, method, params=[]):
+        headers = {'content-type': 'application/json'}
+        session_key = self._get_session_key(headers)
+
+        if not session_key:
+            raise UserError(_("Unable to get the LimeSurvey's session key."))
+
+        try:
+            payload = {
                 "method": method,
                 "params": [session_key, *params],
                 "id": 1
             }
 
-			response = requests.post(self.limesurvey_api, data=json.dumps(payload), headers=headers)
-			result = self._parse_api_response(response, "LimeSurvey API call").get('result')
+            response = requests.post(self.limesurvey_api, data=json.dumps(payload), headers=headers)
+            result = self._parse_api_response(response, "LimeSurvey API call").get('result')
 
-			if result is None:
-				raise UserError(f"LimeSurvey API call error: unknown (maybe permissions?)")
-			return result
+            if result is None:
+                raise UserError("LimeSurvey API call error: unknown (maybe permissions?)")
+            return result
 
-		except UserError as ue:
-			raise ue
-		except Exception as e:
-			raise UserError(f"Unexpected error: {str(e)}")
+        except UserError as ue:
+            raise ue
+        except Exception as e:
+            raise UserError(f"Unexpected error: {str(e)}")
 
-		finally:
-			self._release_session_key(session_key, headers)
+        finally:
+            self._release_session_key(session_key, headers)
 
-	def _extract_limesurvey_html_error(self, html_content):
-		match = re.search(r'<h2[^>]*class="error-title"[^>]*>(.*?)</h2>', html_content, re.IGNORECASE | re.DOTALL)
+    def _extract_limesurvey_html_error(self, html_content):
+        match = re.search(r'<h2[^>]*class="error-title"[^>]*>(.*?)</h2>', html_content, re.IGNORECASE | re.DOTALL)
 
-		if match:
-			raw_text = match.group(1)
-			clean_text = " ".join(raw_text.split())
-			final_text = html.unescape(clean_text)
-			return final_text
+        if match:
+            raw_text = match.group(1)
+            clean_text = " ".join(raw_text.split())
+            final_text = html.unescape(clean_text)
+            return final_text
 
-		return html_content
+        return html_content
 
-	def _get_session_key(self, headers):
-		payload = {
-			"method": "get_session_key",
-			"params": [self.limesurvey_usr, self.limesurvey_pwd],
-			"id": 1
-		}
-		response = requests.post(self.limesurvey_api, data=json.dumps(payload), headers=headers)
-		return self._parse_api_response(response, "LimeSurvey session key").get('result')
-	
-	def _release_session_key(self, session_key, headers):		
-		payload = {
-			"method": "release_session_key",
-			"params": [session_key],
-			"id": 1
-		}
-		requests.post(self.limesurvey_api, data=json.dumps(payload), headers=headers)
+    def _get_session_key(self, headers):
+        payload = {
+            "method": "get_session_key",
+            "params": [self.limesurvey_usr, self.limesurvey_pwd],
+            "id": 1
+        }
+        response = requests.post(self.limesurvey_api, data=json.dumps(payload), headers=headers)
+        return self._parse_api_response(response, "LimeSurvey session key").get('result')
+
+    def _release_session_key(self, session_key, headers):
+        payload = {
+            "method": "release_session_key",
+            "params": [session_key],
+            "id": 1
+        }
+        requests.post(self.limesurvey_api, data=json.dumps(payload), headers=headers)
 class ems_limesurvey_header(models.Model):
 	_name = "ems.limesurvey_header"
 	_description = "LimeSurvey header: contains the survey's header and its content."
@@ -1037,7 +1041,7 @@ class ems_limesurvey_header(models.Model):
 			ext_ids = {r.external_id for r in header.limesurvey_recipient_ids if r.external_id}
 			if ext_ids:
 				if ls_api is None:
-					ls_api = limesurvey_api(self.env)
+					ls_api = LimesurveyApi(self.env)
 				for ext_id in ext_ids:
 					ls_api.delete_survey(ext_id)
 

@@ -93,3 +93,4 @@ from . import test_enrollment_mail_activity
 from . import test_attendance_session
 from . import test_attendance_issue
 from . import test_strike_reason
+from . import test_minute

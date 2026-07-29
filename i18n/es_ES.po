@@ -6080,13 +6080,9 @@ msgid "Medical card (TIS)"
 msgstr "Tarjeta sanitaria (TIS)"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__members
 #: model:ir.model.fields,field_description:ems.field_ems_workgroup__employee_ids
 msgid "Members"
-msgstr "Miembros"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__members
-msgid "Memebers"
 msgstr "Miembros"
 
 #. module: ems

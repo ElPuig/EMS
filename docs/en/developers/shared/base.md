@@ -33,7 +33,7 @@ or the `user_is_admin`/`user_is_tutor` computed flags used across many views' `i
 | `get_user_is_tutor()` | `True` if the current user has an `hr.employee` with any `tutorship_ids`. |
 | `get_user_is_tutor_of_self()` | Only meaningful on a model that actually has a `tutor_id` field (checked via `'tutor_id' in self.env[self._name]._fields`) — returns `None` otherwise, since there's no explicit `return` for that branch. |
 | `persistent_hash(data)` | `sha256(str(data))` — a hash stable across process restarts, unlike Python's own salted `hash()`. Used by `ems.limesurvey_header.compute_survey_data()` to derive a survey's `internal_id`. |
-| `notify(title, message, type, sticky=False)` | Fires a toast via `self.env.user._bus_send("simple_notification", ...)` — the **user** channel, not the partner channel, since the partner channel isn't reliably subscribed in Odoo v18 multi-worker production. `type` is one of `success`/`warning`/`danger`/`info`. Doesn't touch `self` as a record at all — safe to call even on an empty/non-existent recordset. |
+| `notify(title, message, notification_type, sticky=False)` | Fires a toast via `self.env.user._bus_send("simple_notification", ...)` — the **user** channel, not the partner channel, since the partner channel isn't reliably subscribed in Odoo v18 multi-worker production. `notification_type` is one of `success`/`warning`/`danger`/`info`. Doesn't touch `self` as a record at all — safe to call even on an empty/non-existent recordset. |
 | `chatter(message)` | `message_post(body=message, message_type='notification', subtype_xmlid='mail.mt_note')` — a plain log line in the record's chatter. Needs a real, persisted record (uses `self.id`). |
 | `chatter_exception(exception)` | Posts a red alert block with the exception message and full traceback, collapsed behind a `<details>` toggle. |
 | `build_html_list(items)` | Safe `<ul><li>...</li></ul>` from a list of plain strings, each HTML-escaped. Doesn't touch `self` as a record — callable even from a model that doesn't inherit `ems.base` via `self.env['ems.base'].build_html_list(items)` (see the wizards below, all plain `TransientModel`s). |
@@ -99,6 +99,13 @@ renamed `ems_base` → `EmsBase` (two direct class-level call sites in
 `base.ems_base.get_user_is_admin(self)` as an unbound method rather than instantiating the
 mixin — updated accordingly). Loop variables normalized (`rec`→`record` in `action_archive`,
 `e`→`employee` in `get_user_is_tutor`). Tabs → spaces.
+
+**Found by the Phase D lint sweep (2026-07-29):** `notify()`'s `type` parameter shadowed the
+Python builtin — the one finding from running `pylint --disable=all --enable=redefined-builtin
+models/` across the whole codebase (see CLAUDE.md's coding-standards section for how to
+re-run it). Renamed to `notification_type`; verified no caller anywhere in `models/` passes it
+as a keyword argument (`grep`'d for `type=` on every `.notify(...)` call site — none), so this
+was a safe, non-breaking rename.
 
 ## Tests
 

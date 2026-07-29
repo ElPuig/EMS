@@ -62,14 +62,14 @@ class EmsBase(models.AbstractModel):
                 record[field_name] = record.mapped(mapped_path)
 
     # To send a notification (won't be sent till a BBDD commit)
-    def notify(self, title, message, type, sticky=False):
-        # types: success; warning; danger; info
+    def notify(self, title, message, notification_type, sticky=False):
+        # notification_type: success; warning; danger; info
         # NOTE: uses _bus_send (user channel) instead of bus.bus._sendone (partner channel) — the partner
         # channel is not reliably subscribed in Odoo v18 multi-worker production environments.
         self.env.user._bus_send("simple_notification", {
             "title": title,
             "message": message,
-            "type": type,
+            "type": notification_type,
             "sticky": sticky
         })
 

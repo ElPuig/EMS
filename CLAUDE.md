@@ -99,6 +99,7 @@ Key rules applied in this project:
 - `from odoo import api, fields, models` — alphabetical order.
 - Model attribute order: private attrs (`_name`, `_description`, `_order`, `_sql_constraints`) → fields → compute/inverse/search methods → constraints/onchange → CRUD overrides → action methods → business methods.
 - Loop variable named after the model, not `rec` (`for level in self:`).
+- **No shadowed builtins** (`list`, `type`, `hash`, `bytes`, `id`, `date`, ...) as local variable or parameter names — this bug class was found by hand several times during the DTON rollout (`LimesurveyApi.count_participants`'s `list`, `ems.base.notify`'s `type` parameter, `datetime_utils`' `datetime` parameters). Check for it with `pylint --disable=all --enable=redefined-builtin models/` (installed via `apt install pylint`) — not wired into a blocking hook, run it by hand after any pass touching several files.
 - XML `<record>`: `id` attribute before `model`.
 - f-strings instead of `%s` formatting.
 - **DRY, both server (Python) and client (JS):** never duplicate code. Reuse existing methods, extend them, or extract a new shared method/RPC call instead of copy-pasting logic.

@@ -38,7 +38,19 @@ class EmsBase(models.AbstractModel):
         data_bytes = str(data).encode('utf-8')
         digest = hashlib.sha256(data_bytes)
         return digest.hexdigest()
-    
+
+    # Safe <ul><li>...</li></ul> from plain strings - each item is HTML-escaped by
+    # Markup(...).format(). Markup('').join(...) (not plain str.join) keeps the Markup type
+    # through the join, or the outer format() below would re-escape the already-escaped
+    # fragments and show literal &lt;li&gt; tags instead of a real list - the same subtle
+    # gotcha independently found and fixed in every wizard that builds this kind of HTML.
+    def build_html_list(self, items):
+        if not items:
+            return Markup("")
+        return Markup("<ul>{}</ul>").format(
+            Markup("").join(Markup("<li>{}</li>").format(item) for item in items)
+        )
+
     # To send a notification (won't be sent till a BBDD commit)
     def notify(self, title, message, type, sticky=False):
         # types: success; warning; danger; info

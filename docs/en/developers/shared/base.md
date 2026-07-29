@@ -36,8 +36,40 @@ or the `user_is_admin`/`user_is_tutor` computed flags used across many views' `i
 | `notify(title, message, type, sticky=False)` | Fires a toast via `self.env.user._bus_send("simple_notification", ...)` — the **user** channel, not the partner channel, since the partner channel isn't reliably subscribed in Odoo v18 multi-worker production. `type` is one of `success`/`warning`/`danger`/`info`. Doesn't touch `self` as a record at all — safe to call even on an empty/non-existent recordset. |
 | `chatter(message)` | `message_post(body=message, message_type='notification', subtype_xmlid='mail.mt_note')` — a plain log line in the record's chatter. Needs a real, persisted record (uses `self.id`). |
 | `chatter_exception(exception)` | Posts a red alert block with the exception message and full traceback, collapsed behind a `<details>` toggle. |
+| `build_html_list(items)` | Safe `<ul><li>...</li></ul>` from a list of plain strings, each HTML-escaped. Doesn't touch `self` as a record — callable even from a model that doesn't inherit `ems.base` via `self.env['ems.base'].build_html_list(items)` (see the wizards below, all plain `TransientModel`s). |
+| `compute_exclusion_ids(field_name, condition, mapped_path)` | Shared body for an "already in use, exclude from picker" `Many2many` compute: sets `field_name` to `False`, then to `record.mapped(mapped_path)` if `condition(record)` is truthy. The caller keeps its own `@api.depends(...)`-decorated method (Odoo requires the decorator on the concrete method) — only the body is one line. |
 
 ---
+
+## Extracted duplicated patterns (this pass, 2026-07-29)
+
+Both `build_html_list` and `compute_exclusion_ids` were extracted after the exact same code
+shape turned up, hand-written, in multiple unrelated files during the DTON rollout — in both
+cases the duplication had already independently caused (or risked) the same bug more than
+once:
+
+- **`build_html_list`** replaces the `Markup('').join(Markup('<li>{}</li>').format(x) for x in items)`
+  idiom previously hand-written in `models/contacts/student_import_wizard.py`,
+  `models/contacts/applicant_import_wizard.py`, and `models/grades/grade_import_wizard.py`'s
+  `_build_result_html` methods — each of the three needed the identical fix during this
+  rollout (a missing `Markup('')` on the `.join()` silently double-escapes and shows literal
+  `&lt;li&gt;` text). None of these three wizards inherit `ems.base` (they're plain
+  `TransientModel`s), so they call it via `self.env['ems.base'].build_html_list(...)` rather
+  than `self.build_html_list(...)`.
+- **`compute_exclusion_ids`** replaces the identical reset-then-conditionally-`.mapped()` body
+  duplicated across `models/attendance/attendance_session.py::_compute_inuse_student_ids`,
+  `models/contacts/enrollment.py::_compute_inuse_subject_ids`, and both
+  `EmsLimesurveyRecipient._compute_inuse_student_ids`/`EmsLimesurveyEnrollment._compute_inuse_subject_ids`
+  in `models/communications/limesurvey.py`. `models/employees/teaching.py::_compute_inuse_group_ids`
+  is a genuine variant (builds its list via a nested loop, not a single `.mapped()`) and was
+  deliberately left as-is rather than forced into this shape.
+
+## Tests
+
+`tests/test_shared_mixins.py::TestEmsBase` (13 tests) — `build_html_list`'s empty-input and
+per-item-escaping behavior tested directly; `compute_exclusion_ids` is covered indirectly
+through each consumer's own existing field-level tests (no behavior changed, only the
+implementation body moved).
 
 ## Fixed in this pass (2026-07-29)
 

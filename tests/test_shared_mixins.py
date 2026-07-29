@@ -67,6 +67,15 @@ class TestEmsBase(TransactionCase):
         self.assertNotIn("<script>alert('xss')</script>", body)
         self.assertIn("&lt;script&gt;", body)
 
+    def test_build_html_list_empty_returns_empty_markup(self):
+        self.assertEqual(self.env['ems.base'].build_html_list([]), "")
+
+    def test_build_html_list_escapes_each_item(self):
+        html = self.env['ems.base'].build_html_list(["plain", "<script>bad</script>"])
+        self.assertIn("<li>plain</li>", html)
+        self.assertIn("<li>&lt;script&gt;bad&lt;/script&gt;</li>", html)
+        self.assertNotIn("<script>bad</script>", html)
+
     def test_action_archive_deactivates(self):
         header = self.env['ems.limesurvey_header'].create({
             'name': 'archive_test', 'title': 'T', 'description': 'D',

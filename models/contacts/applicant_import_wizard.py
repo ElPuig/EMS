@@ -448,22 +448,19 @@ class EmsApplicantImportWizard(models.TransientModel):
     def _build_result_html(self, stats):
         errors_html = ''
         if stats['errors']:
-            items = Markup('').join(Markup('<li>{}</li>').format(e) for e in stats['errors'])
-            errors_html = Markup('<p><strong>{}</strong></p><ul>{}</ul>').format(
-                _("Errors (%(count)s):", count=len(stats['errors'])), items)
+            errors_html = Markup('<p><strong>{}</strong></p>{}').format(
+                _("Errors (%(count)s):", count=len(stats['errors'])),
+                self.env['ems.base'].build_html_list(stats['errors']),
+            )
 
         students_html = ''
         if stats['student_rows']:
-            items = Markup('').join(
-                Markup('<li>{} → {} ({})</li>').format(
-                    r['current_name'], r['assigned_study'], r['current_group'])
-                for r in stats['student_rows']
-            )
+            rows = [f"{r['current_name']} → {r['assigned_study']} ({r['current_group']})" for r in stats['student_rows']]
             students_html = Markup(
                 '<hr/>'
                 '<p>👤 <strong>{}</strong> {}</p>'
                 '<p style="color:#666;">{}</p>'
-                '<ul>{}</ul>'
+                '{}'
             ).format(
                 _("Already active students (destination recorded):"), stats['students'],
                 _("Internal continuers still enrolled (e.g. CFGM to CFGS before the "
@@ -471,7 +468,7 @@ class EmsApplicantImportWizard(models.TransientModel):
                   "shift and course are recorded on them: enroll them from the 'With "
                   "GEDAC assignment' filter of the enrollment proposals. Their data is "
                   "also in the 'active students' CSV below."),
-                items,
+                self.env['ems.base'].build_html_list(rows),
             )
         return Markup(
             '<p>✅ <strong>{}</strong> {}</p>'

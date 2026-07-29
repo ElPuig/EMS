@@ -353,20 +353,16 @@ class EmsGradeImportWizard(models.TransientModel):
 
     def _build_result_html(self, stats):
         # Warnings/errors can embed raw content from the uploaded file (e.g. idAlumne cell
-        # values in a "Student not found" error) — Markup(...).format() auto-escapes plain-str
-        # args, so this stays safe. Markup('').join(...) (not ''.join(...)) is required to keep
-        # the Markup type through the join, or the outer format() would re-escape the already-
-        # escaped fragments and show literal &lt;li&gt; tags instead of a real list.
+        # values in a "Student not found" error) — build_html_list() (ems.base) handles the
+        # escaping safely.
         warnings_html = Markup("")
         if stats["warnings"]:
-            items = Markup("").join(Markup("<li>{}</li>").format(w) for w in stats["warnings"])
-            warnings_html = Markup("<p><strong>{} ({}):</strong></p><ul>{}</ul>").format(
-                _("Warnings"), len(stats["warnings"]), items)
+            warnings_html = Markup("<p><strong>{} ({}):</strong></p>{}").format(
+                _("Warnings"), len(stats["warnings"]), self.env['ems.base'].build_html_list(stats["warnings"]))
         errors_html = Markup("")
         if stats["errors"]:
-            items = Markup("").join(Markup("<li>{}</li>").format(e) for e in stats["errors"])
-            errors_html = Markup("<p><strong>{} ({}):</strong></p><ul>{}</ul>").format(
-                _("Errors"), len(stats["errors"]), items)
+            errors_html = Markup("<p><strong>{} ({}):</strong></p>{}").format(
+                _("Errors"), len(stats["errors"]), self.env['ems.base'].build_html_list(stats["errors"]))
         return Markup(
             "<p>✅ <strong>{}:</strong> {}</p>"
             "<p>🏢 <strong>{}:</strong> {}</p>"

@@ -492,12 +492,10 @@ class EmsStudentImportWizard(models.TransientModel):
     def _build_result_html(self, stats):
         errors_html = ''
         if stats['errors']:
-            # Markup('').join (not the plain str.join) so the per-item escaping
-            # from Markup(...).format() below survives the join instead of being
-            # downgraded back to a plain str and re-escaped (visible raw tags).
-            items = Markup('').join(Markup('<li>{}</li>').format(e) for e in stats['errors'])
-            errors_html = Markup('<p><strong>{}</strong></p><ul>{}</ul>').format(
-                _("Errors (%(count)s):", count=len(stats['errors'])), items)
+            errors_html = Markup('<p><strong>{}</strong></p>{}').format(
+                _("Errors (%(count)s):", count=len(stats['errors'])),
+                self.env['ems.base'].build_html_list(stats['errors']),
+            )
         return Markup(
             '<p>✅ <strong>{created_label}</strong> {created}</p>'
             '<p>🔄 <strong>{updated_label}</strong> {updated}</p>'

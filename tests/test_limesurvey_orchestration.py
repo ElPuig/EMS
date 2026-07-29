@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from odoo.tests.common import TransactionCase
 
+from .common import make_synchronous_run_in_thread
 from odoo.addons.ems.models.communications.limesurvey import (
     _build_csv,
     _clean_trainer,
@@ -335,14 +336,7 @@ class TestRunAction(TransactionCase):
         persistent_data = {}
         compute = MagicMock()
 
-        def fake_run_in_thread(self_header, setup, compute_fn, store, callback, *a, **kw):
-            # autospec on a class-level patch passes `self` explicitly as the first arg.
-            setup(header)
-            compute_fn()
-            store(header)
-            callback(header)
-
-        with patch.object(type(header), 'run_in_thread', side_effect=fake_run_in_thread, autospec=True):
+        with patch.object(type(header), 'run_in_thread', side_effect=make_synchronous_run_in_thread(header), autospec=True):
             result = run_action(header, "Test action", "Test", "uploading", "uploaded", "computed", compute, persistent_data)
 
         self.assertTrue(result)

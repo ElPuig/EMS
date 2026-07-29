@@ -102,6 +102,7 @@ Technical reference for developers working on the EMS module.
 | [`ems.multithreading`](shared/multithreading.md) | The `run_in_thread()` setup/compute/store/callback engine behind the LimeSurvey integration's long-running actions |
 | [`ems.schedule_report_mixin`](shared/schedule_report_mixin.md) | Color-per-item and time-label helpers shared by the weekly-schedule PDF reports |
 | [`google.workspace.mixin`](shared/google_workspace_mixin.md) | The Directory API client, password policy, and text/phone normalization shared by the staff and student Google Workspace integrations |
+| [Shared test utilities](shared/testing.md) | `tests/common.py`: `create_level_study(_group)`, `mock_outgoing_email`, `make_synchronous_run_in_thread` — fixture/mock boilerplate extracted after it was found duplicated across dozens of test files |
 
 ---
 

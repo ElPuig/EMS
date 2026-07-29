@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import create_level_study_group, make_synchronous_run_in_thread
 
 
 class TestLimesurveyBlock(TransactionCase):
@@ -123,6 +123,10 @@ class TestLimesurveyRecipient(TransactionCase):
             'target': 'students', 'tsv_raw_text': "col\n{'TITLE'}", 'state': 'uploaded',
         })
 
+        # Can't use make_synchronous_run_in_thread() here: the recipient doesn't exist yet at
+        # patch-setup time (it's created by the mocked create() call below) - this closure
+        # uses the actual `self_recipient` autospec passes at call time instead of a
+        # pre-existing record.
         def fake_run_in_thread(self_recipient, setup, compute_fn, store, callback, *a, **kw):
             setup(self_recipient)
             compute_fn()
@@ -176,14 +180,8 @@ class TestLimesurveyRecipient(TransactionCase):
     def test_action_remind_calls_do_send_reminders(self):
         recipient = self._recipient(internal_id='RSURVEY', external_id='999')
 
-        def fake_run_in_thread(self_recipient, setup, compute_fn, store, callback, *a, **kw):
-            setup(self_recipient)
-            compute_fn()
-            store(self_recipient)
-            callback(self_recipient)
-
         with patch('odoo.addons.ems.models.communications.limesurvey.LimesurveyApi') as mock_api_cls, \
-                patch.object(self.env.registry['ems.limesurvey_recipient'], 'run_in_thread', side_effect=fake_run_in_thread, autospec=True):
+                patch.object(self.env.registry['ems.limesurvey_recipient'], 'run_in_thread', side_effect=make_synchronous_run_in_thread(recipient), autospec=True):
             mock_instance = MagicMock()
             mock_api_cls.return_value = mock_instance
             recipient.action_remind()
@@ -194,14 +192,8 @@ class TestLimesurveyRecipient(TransactionCase):
     def test_action_delete_calls_do_remove_recipients(self):
         recipient = self._recipient(internal_id='RSURVEY2', external_id='888', tid=5)
 
-        def fake_run_in_thread(self_recipient, setup, compute_fn, store, callback, *a, **kw):
-            setup(self_recipient)
-            compute_fn()
-            store(self_recipient)
-            callback(self_recipient)
-
         with patch('odoo.addons.ems.models.communications.limesurvey.LimesurveyApi') as mock_api_cls, \
-                patch.object(self.env.registry['ems.limesurvey_recipient'], 'run_in_thread', side_effect=fake_run_in_thread, autospec=True):
+                patch.object(self.env.registry['ems.limesurvey_recipient'], 'run_in_thread', side_effect=make_synchronous_run_in_thread(recipient), autospec=True):
             mock_instance = MagicMock()
             mock_instance.count_participants.return_value = 0
             mock_api_cls.return_value = mock_instance
@@ -218,14 +210,8 @@ class TestLimesurveyRecipient(TransactionCase):
         # any time load_persistent_data()/compute_survey_data() raises for this recipient.
         recipient = self._recipient()
 
-        def fake_run_in_thread(self_recipient, setup, compute_fn, store, callback, *a, **kw):
-            setup(self_recipient)
-            compute_fn()  # must not raise even though setup() failed
-            store(self_recipient)
-            callback(self_recipient)
-
         with patch('odoo.addons.ems.models.communications.limesurvey.load_persistent_data', side_effect=Exception("boom")), \
-                patch.object(self.env.registry['ems.limesurvey_recipient'], 'run_in_thread', side_effect=fake_run_in_thread, autospec=True):
+                patch.object(self.env.registry['ems.limesurvey_recipient'], 'run_in_thread', side_effect=make_synchronous_run_in_thread(recipient), autospec=True):
             recipient.action_remind()  # must not raise
 
         self.assertFalse(recipient.is_running)
@@ -233,14 +219,8 @@ class TestLimesurveyRecipient(TransactionCase):
     def test_action_delete_survives_failed_setup(self):
         recipient = self._recipient()
 
-        def fake_run_in_thread(self_recipient, setup, compute_fn, store, callback, *a, **kw):
-            setup(self_recipient)
-            compute_fn()  # must not raise even though setup() failed
-            store(self_recipient)
-            callback(self_recipient)
-
         with patch('odoo.addons.ems.models.communications.limesurvey.load_persistent_data', side_effect=Exception("boom")), \
-                patch.object(self.env.registry['ems.limesurvey_recipient'], 'run_in_thread', side_effect=fake_run_in_thread, autospec=True):
+                patch.object(self.env.registry['ems.limesurvey_recipient'], 'run_in_thread', side_effect=make_synchronous_run_in_thread(recipient), autospec=True):
             recipient.action_delete()  # must not raise
 
         self.assertFalse(recipient.is_running)

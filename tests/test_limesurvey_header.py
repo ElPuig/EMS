@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 from odoo.exceptions import RedirectWarning, UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import create_level_study_group, make_synchronous_run_in_thread
 
 
 class TestLimesurveyHeaderCore(TransactionCase):
@@ -180,14 +180,8 @@ class TestLimesurveyHeaderCore(TransactionCase):
         header.action_compute()
         self.env.company.limesurvey_gid = 1
 
-        def fake_run_in_thread(self_header, setup, compute_fn, store, callback, *a, **kw):
-            setup(header)
-            compute_fn()
-            store(header)
-            callback(header)
-
         with patch('odoo.addons.ems.models.communications.limesurvey.LimesurveyApi') as mock_api_cls, \
-                patch.object(type(header), 'run_in_thread', side_effect=fake_run_in_thread, autospec=True):
+                patch.object(type(header), 'run_in_thread', side_effect=make_synchronous_run_in_thread(header), autospec=True):
             mock_instance = MagicMock()
             mock_instance.create_survey.return_value = '111'
             mock_instance.add_participants.return_value = [

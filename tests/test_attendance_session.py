@@ -198,7 +198,13 @@ class TestAttendanceSessionHeader(TransactionCase):
 
 
 class TestAttendanceSessionLine(TransactionCase):
-    """ems.attendance_session_line — the per-student status row."""
+    """ems.attendance_session_line — the per-student status row.
+
+    status_is_notificable() (already covered by test_attendance_status.py),
+    absence_rate (test_attendance_reports.py), strike_count and
+    action_view_strikes() (test_strike.py) are deliberately not re-tested
+    here — found duplicated verbatim during the post-DTON test-redundancy
+    audit and trimmed to the file that already owns each concern."""
 
     @classmethod
     def setUpClass(cls):
@@ -254,20 +260,6 @@ class TestAttendanceSessionLine(TransactionCase):
     def _line(self):
         return self.session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student)
 
-    def test_status_is_notificable_reads_status_flag(self):
-        line = self._line()
-        line.status_id = self.env.ref('ems.attendance_status_attended')
-        self.assertFalse(line.status_is_notificable())
-        line.status_id = self.env.ref('ems.attendance_status_miss')
-        self.assertTrue(line.status_is_notificable())
-
-    def test_absence_rate_reflects_status_category(self):
-        line = self._line()
-        line.status_id = self.env.ref('ems.attendance_status_attended')
-        self.assertEqual(line.absence_rate, 0.0)
-        line.status_id = self.env.ref('ems.attendance_status_miss')
-        self.assertEqual(line.absence_rate, 100.0)
-
     def test_compute_display_name(self):
         line = self._line()
         self.assertIn(self.student.display_name, line.display_name)
@@ -275,15 +267,6 @@ class TestAttendanceSessionLine(TransactionCase):
     def test_inuse_student_ids_includes_all_session_students(self):
         line = self._line()
         self.assertIn(self.student, line.inuse_student_ids)
-
-    def test_strike_count_reflects_related_strikes(self):
-        line = self._line()
-        self.assertEqual(line.strike_count, 0)
-        self.env['ems.strike'].create({
-            'student_id': self.student.id, 'teacher_id': self.teacher.id,
-            'attendance_session_line_id': line.id,
-        })
-        self.assertEqual(line.strike_count, 1)
 
     def test_marking_miss_creates_issue_tracking_data_without_sending(self):
         """Verifies the notification *data* pipeline (issue_tutor/student/status
@@ -316,7 +299,3 @@ class TestAttendanceSessionLine(TransactionCase):
         if issue_tutor:
             self.assertFalse(issue_tutor.attendance_issue_student_ids)
 
-    def test_action_view_strikes_domain(self):
-        line = self._line()
-        action = line.action_view_strikes()
-        self.assertEqual(action['domain'], [('attendance_session_line_id', '=', line.id)])

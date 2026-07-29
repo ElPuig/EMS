@@ -3,6 +3,8 @@ from datetime import date
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestWorkingSchedule(TransactionCase):
 
@@ -22,14 +24,8 @@ class TestWorkingSchedule(TransactionCase):
         # role_secretary is unipersonal and may already be assigned to a real employee in the
         # working database; clear it so the tests below are self-contained.
         cls.env.ref('ems.role_secretary').sudo().write({'employee_ids': [(5, 0, 0)]})
-        cls.level = cls.env['ems.level'].create({'acronym': 'TWSL', 'name': 'Test Level (Working Schedule)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TWSL001',
-            'acronym': 'TWSL',
-            'name': 'Test Study (Working Schedule)',
-            'date': date.today(),
-            'deprecated': False,
-            'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TWSL', level={'name': 'Test Level (Working Schedule)'}, study={
+            'code': 'TWSL001', 'name': 'Test Study (Working Schedule)', 'date': date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TWSL001',

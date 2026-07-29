@@ -4,6 +4,8 @@ from unittest.mock import patch
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study_group
+
 
 class TestNotice(TransactionCase):
     """models/communications/notice.py — EmsNotice/EmsNoticeLine, a bulk email
@@ -27,14 +29,9 @@ class TestNotice(TransactionCase):
         mail_server_patcher.start()
         cls.addClassCleanup(mail_server_patcher.stop)
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'TNOT', 'name': 'Test Notice Level'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TNOT001', 'acronym': 'TNOT', 'name': 'Test Notice Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
-        })
-        cls.group = cls.env['ems.group'].create({
-            'course': 1, 'acronym': 'TNOT', 'level_id': cls.level.id, 'study_id': cls.study.id,
-        })
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TNOT', level={'name': 'Test Notice Level'}, study={
+            'code': 'TNOT001', 'name': 'Test Notice Study',
+        }, group={'acronym': 'TNOT'})
         cls.relation_father = cls.env.ref('ems.relation_type_father')
 
         cls.minor_student = cls.env['res.partner'].create({

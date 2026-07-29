@@ -1,6 +1,6 @@
-from datetime import date
-
 from odoo.tests.common import TransactionCase
+
+from .common import create_level_study
 
 
 class TestEnrollmentMailActivity(TransactionCase):
@@ -26,10 +26,8 @@ class TestEnrollmentMailActivity(TransactionCase):
 
         cls.course = cls.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1) \
             or cls.env['ems.course'].create({'start': 2098, 'end': 2099, 'is_enrollment_default': True})
-        cls.level = cls.env['ems.level'].create({'acronym': 'TMA', 'name': 'Test Mail Activity Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'TMA', level={'name': 'Test Mail Activity Level'}, study={
             'code': 'TMA001', 'acronym': 'TMAS', 'name': 'Test Mail Activity Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
         cls.student = cls.env['res.partner'].create({'name': 'Mail Activity Student', 'contact_type': 'student'})
         cls.order = cls.env['sale.order'].create({

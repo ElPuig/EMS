@@ -5,6 +5,8 @@ from datetime import date
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestAttendanceScheduleAccess(TransactionCase):
     """Focused regression coverage for the ir.rule fix in security/rules/attendance.xml:
@@ -22,10 +24,8 @@ class TestAttendanceScheduleAccess(TransactionCase):
         cls.group_teacher = cls.env.ref('ems.group_teacher')
         cls.group_academic_admin = cls.env.ref('ems.group_academic_admin')
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'TASC', 'name': 'Test Level (Attendance Schedule)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TASC001', 'acronym': 'TASC', 'name': 'Test Study (Attendance Schedule)',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TASC', level={'name': 'Test Level (Attendance Schedule)'}, study={
+            'code': 'TASC001', 'name': 'Test Study (Attendance Schedule)', 'date': date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TASC001', 'acronym': 'TASC', 'name': 'Test Subject (Attendance Schedule)',
@@ -137,10 +137,8 @@ class TestAttendanceScheduleLogic(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TASL', 'name': 'Test Level (Attendance Schedule Logic)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TASL001', 'acronym': 'TASL', 'name': 'Test Study (Attendance Schedule Logic)',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TASL', level={'name': 'Test Level (Attendance Schedule Logic)'}, study={
+            'code': 'TASL001', 'name': 'Test Study (Attendance Schedule Logic)', 'date': date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TASL001', 'acronym': 'TASL', 'name': 'Test Subject (Attendance Schedule Logic)',

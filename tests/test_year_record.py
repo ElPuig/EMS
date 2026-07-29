@@ -3,6 +3,8 @@ from datetime import date
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestYearRecord(TransactionCase):
 
@@ -44,10 +46,8 @@ class TestYearRecord(TransactionCase):
 
         # Curriculum: one study with two subjects. Subject 1 has a work placement
         # weight (90/10), subject 2 is internal-only (100/0).
-        cls.level = cls.env['ems.level'].create({'acronym': 'YRL', 'name': 'Year Record Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'YRL', level={'name': 'Year Record Level'}, study={
             'code': 'YRSTD1', 'acronym': 'YRS', 'name': 'Year Record Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
         cls.study_no_flow = cls.env['ems.study'].create({
             'code': 'YRSTD2', 'acronym': 'YRNF', 'name': 'Year Record Study No Flow',

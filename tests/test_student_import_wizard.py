@@ -4,6 +4,8 @@ from datetime import date, datetime
 
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study_group
+
 
 class TestStudentImportWizard(TransactionCase):
     """Focused coverage for _get_or_create_student: the dedup/reactivation
@@ -228,15 +230,9 @@ class TestStudentImportWizard(TransactionCase):
         return row, col_map
 
     def test_process_row_creates_student_with_group_and_documents(self):
-        level = self.env['ems.level'].create({'acronym': 'TSIW', 'name': 'Test Import Level'})
-        study = self.env['ems.study'].create({
-            'code': 'TSIW01', 'acronym': 'TSIW', 'name': 'Test Import Study',
-            'date': date.today(), 'deprecated': False, 'level_id': level.id,
-        })
-        group = self.env['ems.group'].create({
-            'course': 1, 'acronym': 'A', 'level_id': level.id, 'study_id': study.id,
-            'external_id': 'ESFERA-TSIW-A',
-        })
+        level, study, group = create_level_study_group(self, 'TSIW', level={'name': 'Test Import Level'}, study={
+            'code': 'TSIW01', 'name': 'Test Import Study',
+        }, group={'external_id': 'ESFERA-TSIW-A'})
         row, col_map = self._row_and_col_map({
             'Grup Classe': 'ESFERA-TSIW-A',
             'Nom': 'Imported',
@@ -392,15 +388,9 @@ class TestStudentImportWizard(TransactionCase):
         return base64.b64encode(buf.getvalue())
 
     def test_action_import_end_to_end_creates_student(self):
-        level = self.env['ems.level'].create({'acronym': 'TSIWE', 'name': 'Test Import E2E Level'})
-        study = self.env['ems.study'].create({
-            'code': 'TSIWE01', 'acronym': 'TSIWE', 'name': 'Test Import E2E Study',
-            'date': date.today(), 'deprecated': False, 'level_id': level.id,
-        })
-        group = self.env['ems.group'].create({
-            'course': 1, 'acronym': 'A', 'level_id': level.id, 'study_id': study.id,
-            'external_id': 'ESFERA-E2E-A',
-        })
+        level, study, group = create_level_study_group(self, 'TSIWE', level={'name': 'Test Import E2E Level'}, study={
+            'code': 'TSIWE01', 'name': 'Test Import E2E Study',
+        }, group={'external_id': 'ESFERA-E2E-A'})
         wizard_model = self.env['ems.student_import_wizard']
         headers = list(wizard_model._REQUIRED_COLUMNS)
         # Cover the trailing-space variant column too, and match all required headers.

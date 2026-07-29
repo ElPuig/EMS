@@ -1,8 +1,8 @@
-from datetime import date
-
 from odoo.exceptions import ValidationError
 from odoo.tests import Form
 from odoo.tests.common import TransactionCase
+
+from .common import create_level_study
 
 
 class TestEnrollmentLine(TransactionCase):
@@ -22,10 +22,8 @@ class TestEnrollmentLine(TransactionCase):
         Course = cls.env['ems.course']
         cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \
             or Course.create({'start': 2098, 'end': 2099, 'is_enrollment_default': True})
-        cls.level = cls.env['ems.level'].create({'acronym': 'TEL', 'name': 'Test Enrollment Line Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'TEL', level={'name': 'Test Enrollment Line Level'}, study={
             'code': 'TEL001', 'acronym': 'TELS', 'name': 'Test Enrollment Line Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
         cls.subject1 = cls.env['ems.subject'].create({
             'code': 'TELSUB1', 'acronym': 'TL1', 'name': 'Test Line Subject 1',

@@ -4,6 +4,8 @@ from datetime import date, datetime
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestAttendanceJustification(TransactionCase):
 
@@ -103,11 +105,9 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TAJ', 'name': 'Test Level (Attendance Justification)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TAJ001', 'acronym': 'TAJ', 'name': 'Test Study (Attendance Justification)',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
-        })
+        cls.level, cls.study = create_level_study(cls, 'TAJ', study={
+            'name': 'Test Study (Attendance Justification)', 'date': date.today(),
+        }, level={'name': 'Test Level (Attendance Justification)'})
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TAJ001', 'acronym': 'TAJ', 'name': 'Test Subject (Attendance Justification)',
             'study_ids': [(6, 0, [cls.study.id])],

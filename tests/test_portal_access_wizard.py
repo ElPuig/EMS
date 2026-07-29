@@ -5,6 +5,8 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study_group
+
 
 class TestPortalAccessWizard(TransactionCase):
     """ems.portal.access.wizard: bulk grant/revoke/resend of portal access for
@@ -46,15 +48,9 @@ class TestPortalAccessWizard(TransactionCase):
         })
         cls.other_teacher_employee.user_id = cls.other_teacher_user
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'TPW', 'name': 'Test Portal Wizard Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TPW', level={'name': 'Test Portal Wizard Level'}, study={
             'code': 'TPW001', 'acronym': 'TPWS', 'name': 'Test Portal Wizard Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
-        })
-        cls.group = cls.env['ems.group'].create({
-            'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id,
-            'tutor_id': cls.tutor_employee.id,
-        })
+        }, group={'tutor_id': cls.tutor_employee.id})
         cls.other_group = cls.env['ems.group'].create({
             'course': 1, 'acronym': 'B', 'level_id': cls.level.id, 'study_id': cls.study.id,
             'tutor_id': cls.other_teacher_employee.id,

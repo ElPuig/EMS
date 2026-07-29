@@ -1,10 +1,11 @@
 import base64
 import csv
 import io
-from datetime import date
 
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
+
+from .common import create_level_study_group
 
 
 # Subset of the real GEDAC "ASSIGNATS" export header, limited to the columns the
@@ -31,15 +32,10 @@ class TestApplicantImportWizard(TransactionCase):
 
         cls.env.company.center_code = '8028047'
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'AIWL', 'name': 'AIW Level'})
         # Unique code whose tail token (ZZ99) is what the GEDAC "Codi ensenyament
         # assignat" (e.g. 'CFPM    ZZ99') resolves against.
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'AIWL', study={
             'code': 'CFGM_ZZ99', 'acronym': 'ZZT', 'name': 'AIW Test Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
-        })
-        cls.group = cls.env['ems.group'].create({
-            'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id,
         })
 
     # --- helpers ---

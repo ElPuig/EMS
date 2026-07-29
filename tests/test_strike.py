@@ -6,6 +6,8 @@ from unittest.mock import patch
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study_group
+
 
 class TestStrike(TransactionCase):
 
@@ -97,19 +99,9 @@ class TestStrike(TransactionCase):
             'groups_id': [(4, cls.group_teacher.id), (4, cls.env.ref('base.group_user').id)],
         })
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'TSTK', 'name': 'Test Level (Strike)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TSTK001', 'acronym': 'TSTK', 'name': 'Test Study (Strike)',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
-        })
-        cls.group_record = cls.env['ems.group'].create({
-            'name': 'Test Group (Strike)',
-            'course': 1,
-            'acronym': 'A',
-            'level_id': cls.level.id,
-            'study_id': cls.study.id,
-            'tutor_id': cls.tutor_employee.id,
-        })
+        cls.level, cls.study, cls.group_record = create_level_study_group(cls, 'TSTK', level={'name': 'Test Level (Strike)'}, study={
+            'code': 'TSTK001', 'name': 'Test Study (Strike)',
+        }, group={'name': 'Test Group (Strike)', 'tutor_id': cls.tutor_employee.id})
 
         cls.reason_other = cls.env.ref('ems.strike_reason_other')
         cls.relation_type_family = cls.env.ref('ems.relation_type_father')

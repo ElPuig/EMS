@@ -3,6 +3,8 @@ from unittest.mock import patch
 
 from odoo.tests import tagged, HttpCase
 
+from .common import create_level_study
+
 
 @tagged('post_install', '-at_install')
 class TestStrikeTour(HttpCase):
@@ -21,10 +23,8 @@ class TestStrikeTour(HttpCase):
         cls.addClassCleanup(mail_server_patcher.stop)
 
     def _seed_session(self):
-        level = self.env['ems.level'].create({'acronym': 'TSTR', 'name': 'Test Level (Strike Tour)'})
-        study = self.env['ems.study'].create({
-            'code': 'TSTR001', 'acronym': 'TSTR', 'name': 'Test Study (Strike Tour)',
-            'date': date.today(), 'deprecated': False, 'level_id': level.id,
+        level, study = create_level_study(self, 'TSTR', level={'name': 'Test Level (Strike Tour)'}, study={
+            'code': 'TSTR001', 'name': 'Test Study (Strike Tour)', 'date': date.today(),
         })
         subject = self.env['ems.subject'].create({
             'code': 'TSTR001', 'acronym': 'TSTR', 'name': 'Test Subject (Strike Tour)',

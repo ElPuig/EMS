@@ -1,7 +1,7 @@
-from datetime import date
-
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
+
+from .common import create_level_study, create_level_study_group
 
 
 class TestPlanningAccess(TransactionCase):
@@ -19,13 +19,8 @@ class TestPlanningAccess(TransactionCase):
             'name': 'Test Teacher (Planning) Employee', 'user_id': cls.teacher_user.id, 'employee_type': 'teacher',
         })
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'TPL', 'name': 'Test Planning Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TPL', level={'name': 'Test Planning Level'}, study={
             'code': 'TPLSTD', 'acronym': 'TPS', 'name': 'Test Planning Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
-        })
-        cls.group = cls.env['ems.group'].create({
-            'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id,
         })
 
         cls.subject_taught = cls._make_subject('TPLSB1', 'TPB1', 'Taught Subject')
@@ -87,10 +82,8 @@ class TestPlanningLogic(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TPLL', 'name': 'Test Planning Logic Level'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TPLL001', 'acronym': 'TPLL', 'name': 'Test Planning Logic Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TPLL', level={'name': 'Test Planning Logic Level'}, study={
+            'code': 'TPLL001', 'name': 'Test Planning Logic Study',
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TPLLSUB', 'acronym': 'TPLS', 'name': 'Test Planning Logic Subject',

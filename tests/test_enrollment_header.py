@@ -4,6 +4,8 @@ from unittest.mock import patch
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestEnrollmentHeader(TransactionCase):
     """models/enrollment/enrollment.py — the sale.order extension that IS the
@@ -35,10 +37,8 @@ class TestEnrollmentHeader(TransactionCase):
         Course = cls.env['ems.course']
         cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \
             or Course.create({'start': 2098, 'end': 2099, 'is_enrollment_default': True})
-        cls.level = cls.env['ems.level'].create({'acronym': 'TEH', 'name': 'Test Enrollment Header Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'TEH', level={'name': 'Test Enrollment Header Level'}, study={
             'code': 'TEH001', 'acronym': 'TEHS', 'name': 'Test Enrollment Header Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
         cls.other_study = cls.env['ems.study'].create({
             'code': 'TEH002', 'acronym': 'TEHS2', 'name': 'Other Study',

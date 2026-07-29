@@ -4,6 +4,8 @@ from datetime import date
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 FAKE_PDF = base64.b64encode(b'%PDF-1.4 fake test content')
 
 
@@ -23,10 +25,8 @@ class TestAuthorizationTemplate(TransactionCase):
         Course = cls.env['ems.course']
         cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \
             or Course.create({'start': 2098, 'end': 2099, 'is_enrollment_default': True})
-        cls.level = cls.env['ems.level'].create({'acronym': 'TAT', 'name': 'Test Auth Template Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'TAT', level={'name': 'Test Auth Template Level'}, study={
             'code': 'TAT001', 'acronym': 'TATS', 'name': 'Test Auth Template Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
         cls.other_study = cls.env['ems.study'].create({
             'code': 'TAT002', 'acronym': 'TATS2', 'name': 'Other Auth Template Study',
@@ -148,10 +148,8 @@ class TestAuthorization(TransactionCase):
         Course = cls.env['ems.course']
         cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \
             or Course.create({'start': 2098, 'end': 2099, 'is_enrollment_default': True})
-        cls.level = cls.env['ems.level'].create({'acronym': 'TAU', 'name': 'Test Auth Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'TAU', level={'name': 'Test Auth Level'}, study={
             'code': 'TAU001', 'acronym': 'TAUS', 'name': 'Test Auth Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
         cls.student = cls.env['res.partner'].create({'name': 'Auth Response Student', 'contact_type': 'student'})
         cls.order = cls.env['sale.order'].create({

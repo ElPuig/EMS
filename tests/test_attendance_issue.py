@@ -3,6 +3,8 @@ from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestAttendanceIssue(TransactionCase):
     """models/attendance/attendance_issue.py — EmsAttendanceIssueTutor/
@@ -25,11 +27,9 @@ class TestAttendanceIssue(TransactionCase):
         mail_server_patcher.start()
         cls.addClassCleanup(mail_server_patcher.stop)
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'TAI', 'name': 'Test Level (Attendance Issue)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TAI001', 'acronym': 'TAI', 'name': 'Test Study (Attendance Issue)',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
-        })
+        cls.level, cls.study = create_level_study(cls, 'TAI', study={
+            'name': 'Test Study (Attendance Issue)', 'date': date.today(),
+        }, level={'name': 'Test Level (Attendance Issue)'})
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TAI001', 'acronym': 'TAI', 'name': 'Test Subject (Attendance Issue)',
             'study_ids': [(6, 0, [cls.study.id])],

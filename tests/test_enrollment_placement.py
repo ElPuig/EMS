@@ -3,6 +3,8 @@ from datetime import date
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestEnrollmentPlacement(TransactionCase):
     """Fase 4: destination group, applicant admission on confirm, placement helper
@@ -15,10 +17,9 @@ class TestEnrollmentPlacement(TransactionCase):
         Course = cls.env['ems.course']
         cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \
             or Course.create({'start': 2099, 'end': 2100, 'is_enrollment_default': True})
-        cls.level = cls.env['ems.level'].create({'acronym': 'PLV', 'name': 'Placement Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'PLV', level={'name': 'Placement Level'}, study={
             'code': 'PLC001', 'acronym': 'PLST', 'name': 'Placement Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id})
+        })
         # First-course groups (A and B morning, A afternoon) and a second-course A.
         cls.g1a = cls.env['ems.group'].create({
             'course': 1, 'acronym': 'A', 'shift': 'morning',

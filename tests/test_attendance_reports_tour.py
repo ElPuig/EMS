@@ -2,15 +2,15 @@ from datetime import date
 
 from odoo.tests import tagged, HttpCase
 
+from .common import create_level_study
+
 
 @tagged('post_install', '-at_install')
 class TestAttendanceReportsTour(HttpCase):
 
     def _seed_session(self):
-        level = self.env['ems.level'].create({'acronym': 'TART', 'name': 'Attendance Reports Tour Level'})
-        study = self.env['ems.study'].create({
-            'code': 'TART001', 'acronym': 'TART', 'name': 'Attendance Reports Tour Study',
-            'date': date.today(), 'deprecated': False, 'level_id': level.id,
+        level, study = create_level_study(self, 'TART', level={'name': 'Attendance Reports Tour Level'}, study={
+            'name': 'Attendance Reports Tour Study',
         })
         subject = self.env['ems.subject'].create({
             'code': 'TART001', 'acronym': 'TART', 'name': 'Attendance Reports Tour Subject',

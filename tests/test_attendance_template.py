@@ -3,20 +3,16 @@ from datetime import date
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestAttendanceTemplate(TransactionCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TSAT', 'name': 'Test Level (Attendance Template)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TSAT001',
-            'acronym': 'TSAT',
-            'name': 'Test Study (Attendance Template)',
-            'date': date.today(),
-            'deprecated': False,
-            'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TSAT', level={'name': 'Test Level (Attendance Template)'}, study={
+            'code': 'TSAT001', 'name': 'Test Study (Attendance Template)', 'date': date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TSAT001',
@@ -218,14 +214,8 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TATS', 'name': 'Test Level (Attendance Template Sync)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TATS001',
-            'acronym': 'TATS',
-            'name': 'Test Study (Attendance Template Sync)',
-            'date': date.today(),
-            'deprecated': False,
-            'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TATS', level={'name': 'Test Level (Attendance Template Sync)'}, study={
+            'code': 'TATS001', 'name': 'Test Study (Attendance Template Sync)', 'date': date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TATS001',

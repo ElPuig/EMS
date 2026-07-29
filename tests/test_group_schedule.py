@@ -2,6 +2,8 @@ from datetime import date
 
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestGroupSchedule(TransactionCase):
 
@@ -18,14 +20,8 @@ class TestGroupSchedule(TransactionCase):
             'login': 'test_secretary_for_group_schedule',
             'groups_id': [(4, cls.env.ref('base.group_user').id), (4, cls.env.ref('ems.group_secretary').id)],
         })
-        cls.level = cls.env['ems.level'].create({'acronym': 'TGSL', 'name': 'Test Level (Group Schedule)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TGSL001',
-            'acronym': 'TGSL',
-            'name': 'Test Study (Group Schedule)',
-            'date': date.today(),
-            'deprecated': False,
-            'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TGSL', level={'name': 'Test Level (Group Schedule)'}, study={
+            'code': 'TGSL001', 'name': 'Test Study (Group Schedule)', 'date': date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TGSL001',

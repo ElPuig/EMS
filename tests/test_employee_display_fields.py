@@ -1,5 +1,7 @@
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestEmployeeDisplayFields(TransactionCase):
     """Covers hr.employee.base fields not already exercised by
@@ -19,17 +21,8 @@ class TestEmployeeDisplayFields(TransactionCase):
             'name': 'Test Employee (Display Fields)',
             'employee_type': 'teacher',
         })
-        cls.test_level = cls.env['ems.level'].create({
-            'acronym': 'TSTD',
-            'name': 'Test Level (Display Fields)',
-        })
-        cls.test_study = cls.env['ems.study'].create({
-            'code': 'TSTD01',
-            'acronym': 'TSTD',
-            'name': 'Test Study (Display Fields)',
-            'date': '2026-01-01',
-            'deprecated': False,
-            'level_id': cls.test_level.id,
+        cls.test_level, cls.test_study = create_level_study(cls, 'TSTD', level={'name': 'Test Level (Display Fields)'}, study={
+            'code': 'TSTD01', 'name': 'Test Study (Display Fields)',
         })
 
     def test_read_only_false_for_admin(self):

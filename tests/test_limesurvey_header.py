@@ -5,17 +5,16 @@ from unittest.mock import MagicMock, patch
 from odoo.exceptions import RedirectWarning, UserError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study_group
+
 
 class TestLimesurveyHeaderCore(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TLM4', 'name': 'Test LimeSurvey Header Level'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TLM4-01', 'acronym': 'TLM4', 'name': 'Test LimeSurvey Header Study',
-            'date': '2026-01-01', 'deprecated': False, 'level_id': cls.level.id,
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TLM4', level={'name': 'Test LimeSurvey Header Level'}, study={
+            'name': 'Test LimeSurvey Header Study',
         })
-        cls.group = cls.env['ems.group'].create({'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id})
         cls.other_group = cls.env['ems.group'].create({'course': 1, 'acronym': 'B', 'level_id': cls.level.id, 'study_id': cls.study.id})
         cls.subject = cls.env['ems.subject'].create({'code': 'TLM4SUB', 'acronym': 'TLM4S', 'name': 'Test Subject'})
 
@@ -209,12 +208,9 @@ class TestComputeSurveyData(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TLM5', 'name': 'Test Compute Survey Data Level'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TLM5-01', 'acronym': 'TLM5', 'name': 'Test Compute Survey Data Study',
-            'date': '2026-01-01', 'deprecated': False, 'level_id': cls.level.id,
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TLM5', level={'name': 'Test Compute Survey Data Level'}, study={
+            'name': 'Test Compute Survey Data Study',
         })
-        cls.group = cls.env['ems.group'].create({'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id})
         cls.subject = cls.env['ems.subject'].create({'code': 'TLM5SUB', 'acronym': 'TLM5S', 'name': 'Test Subject'})
         cls.teacher = cls.env['hr.employee'].create({'name': 'Jane Doe (Test Teacher)', 'employee_type': 'teacher'})
         cls.env['ems.teaching'].create({'teacher_id': cls.teacher.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id})

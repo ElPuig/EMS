@@ -3,6 +3,8 @@ from datetime import date
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestStudy(TransactionCase):
 
@@ -19,16 +21,8 @@ class TestStudy(TransactionCase):
             'login': 'test_secretary_for_study',
             'groups_id': [(4, cls.env.ref('ems.group_secretary').id)],
         })
-        cls.test_level = cls.env['ems.level'].create({
-            'acronym': 'TSTL',
-            'name': 'Test Level for Study',
-        })
-        cls.test_study = cls.env['ems.study'].create({
-            'code': 'TST_STUDY_001',
-            'acronym': 'TSST',
-            'name': 'Test Study',
-            'date': date(2024, 9, 1),
-            'level_id': cls.test_level.id,
+        cls.test_level, cls.test_study = create_level_study(cls, 'TSTL', level={'name': 'Test Level for Study'}, study={
+            'code': 'TST_STUDY_001', 'acronym': 'TSST', 'name': 'Test Study', 'date': date(2024, 9, 1),
         })
 
     def test_create_valid(self):

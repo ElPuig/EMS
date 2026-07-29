@@ -3,20 +3,16 @@ from datetime import date
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestEnrollment(TransactionCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TENR', 'name': 'Test Level (Enrollment)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TENR001',
-            'acronym': 'TENR',
-            'name': 'Test Study (Enrollment)',
-            'date': date.today(),
-            'deprecated': False,
-            'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TENR', level={'name': 'Test Level (Enrollment)'}, study={
+            'code': 'TENR001', 'name': 'Test Study (Enrollment)', 'date': date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TENR001',

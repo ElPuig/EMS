@@ -5,6 +5,8 @@ from unittest.mock import patch
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestEnrollmentBenefit(TransactionCase):
     """Issue 352: benefits (bonification/exemption) vs confirmed enrollments.
@@ -32,10 +34,9 @@ class TestEnrollmentBenefit(TransactionCase):
         Course = cls.env['ems.course']
         cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \
             or Course.create({'start': 2099, 'end': 2100, 'is_enrollment_default': True})
-        cls.level = cls.env['ems.level'].create({'acronym': 'BNL', 'name': 'Benefit Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'BNL', level={'name': 'Benefit Level'}, study={
             'code': 'BNF001', 'acronym': 'BNST', 'name': 'Benefit Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id})
+        })
         cls.subject1 = cls.env['ems.subject'].create({
             'code': 'BNSUB1', 'acronym': 'BN1', 'name': 'Benefit Subject 1',
             'study_ids': [(6, 0, [cls.study.id])]})

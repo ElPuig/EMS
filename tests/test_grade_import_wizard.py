@@ -1,9 +1,10 @@
 import base64
 import io
-from datetime import date
 
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
+
+from .common import create_level_study
 
 
 class TestGradeImportWizard(TransactionCase):
@@ -24,10 +25,8 @@ class TestGradeImportWizard(TransactionCase):
             'name': 'GI Teacher Employee', 'user_id': cls.teacher_user.id, 'employee_type': 'teacher',
         })
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'GIL', 'name': 'GI Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'GIL', level={'name': 'GI Level'}, study={
             'code': 'GISTD', 'acronym': 'GIS', 'name': 'GI Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
         # Subject without work placement (external ponderation 0).
         cls.subj_no_em = cls.env['ems.subject'].create({

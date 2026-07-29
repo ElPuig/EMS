@@ -4,6 +4,8 @@ from datetime import date, timedelta
 
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestAttendanceReportWizards(TransactionCase):
     """Covers the unified attendance report wizard (ems.attendance_report_wizard): a single model
@@ -19,10 +21,8 @@ class TestAttendanceReportWizards(TransactionCase):
         cls.group_teacher = cls.env.ref('ems.group_teacher')
         cls.group_academic_admin = cls.env.ref('ems.group_academic_admin')
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'TARW', 'name': 'Test Level (Attendance Reports)'})
-        cls.study1 = cls.env['ems.study'].create({
+        cls.level, cls.study1 = create_level_study(cls, 'TARW', level={'name': 'Test Level (Attendance Reports)'}, study={
             'code': 'TARW001', 'acronym': 'TARW1', 'name': 'Test Study 1 (Attendance Reports)',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
         cls.study2 = cls.env['ems.study'].create({
             'code': 'TARW002', 'acronym': 'TARW2', 'name': 'Test Study 2 (Attendance Reports)',

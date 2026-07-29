@@ -2,6 +2,8 @@ from datetime import date
 
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestEnrollmentTemplate(TransactionCase):
     """sale.order.template extension (models/enrollment/enrollment_template.py):
@@ -12,10 +14,8 @@ class TestEnrollmentTemplate(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TET', 'name': 'Test Enrollment Template Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'TET', level={'name': 'Test Enrollment Template Level'}, study={
             'code': 'TET001', 'acronym': 'TETS', 'name': 'Test Enrollment Template Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
         cls.product1 = cls.env['product.template'].create({
             'name': 'Test Template Product 1', 'type': 'service',

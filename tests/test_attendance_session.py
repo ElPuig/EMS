@@ -3,6 +3,8 @@ from datetime import date, datetime
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestAttendanceSessionHeader(TransactionCase):
     """models/attendance/attendance_session.py — EmsAttendanceSessionHeader.
@@ -21,10 +23,8 @@ class TestAttendanceSessionHeader(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TAS', 'name': 'Test Level (Attendance Session)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TAS001', 'acronym': 'TAS', 'name': 'Test Study (Attendance Session)',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TAS', level={'name': 'Test Level (Attendance Session)'}, study={
+            'code': 'TAS001', 'name': 'Test Study (Attendance Session)', 'date': date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TAS001', 'acronym': 'TAS', 'name': 'Test Subject (Attendance Session)',
@@ -214,10 +214,8 @@ class TestAttendanceSessionLine(TransactionCase):
         mail_server_patcher.start()
         cls.addClassCleanup(mail_server_patcher.stop)
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'TASL2', 'name': 'Test Level (Attendance Session Line)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TASL2', 'acronym': 'TASL2', 'name': 'Test Study (Attendance Session Line)',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TASL2', level={'name': 'Test Level (Attendance Session Line)'}, study={
+            'code': 'TASL2', 'name': 'Test Study (Attendance Session Line)', 'date': date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TASL2', 'acronym': 'TASL2', 'name': 'Test Subject (Attendance Session Line)',

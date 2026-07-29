@@ -1,6 +1,8 @@
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study_group
+
 
 class TestTeaching(TransactionCase):
     """sync_from_schedule() is already covered by test_ems_teaching_sync.py — this file
@@ -25,14 +27,9 @@ class TestTeaching(TransactionCase):
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TST_TCH_SUBJ', 'acronym': 'TTS', 'name': 'Test Subject for Teaching',
         })
-        cls.level = cls.env['ems.level'].create({'acronym': 'TSTT', 'name': 'Test Level (Teaching)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TSTT01', 'acronym': 'TSTT', 'name': 'Test Study (Teaching)',
-            'date': '2026-01-01', 'deprecated': False, 'level_id': cls.level.id,
-        })
-        cls.group = cls.env['ems.group'].create({
-            'course': 1, 'acronym': 'TT1', 'level_id': cls.level.id, 'study_id': cls.study.id,
-        })
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TSTT', level={'name': 'Test Level (Teaching)'}, study={
+            'code': 'TSTT01', 'name': 'Test Study (Teaching)',
+        }, group={'acronym': 'TT1'})
         cls.test_teaching = cls.env['ems.teaching'].create({
             'teacher_id': cls.teacher.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id,
         })

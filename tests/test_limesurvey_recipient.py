@@ -4,6 +4,8 @@ from unittest.mock import MagicMock, patch
 
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study_group
+
 
 class TestLimesurveyBlock(TransactionCase):
     @classmethod
@@ -41,12 +43,9 @@ class TestLimesurveyRecipient(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TLM6', 'name': 'Test LimeSurvey Recipient Level'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TLM6-01', 'acronym': 'TLM6', 'name': 'Test LimeSurvey Recipient Study',
-            'date': '2026-01-01', 'deprecated': False, 'level_id': cls.level.id,
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TLM6', level={'name': 'Test LimeSurvey Recipient Level'}, study={
+            'name': 'Test LimeSurvey Recipient Study',
         })
-        cls.group = cls.env['ems.group'].create({'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id})
         cls.subject = cls.env['ems.subject'].create({'code': 'TLM6SUB', 'acronym': 'TLM6S', 'name': 'Test Subject'})
         cls.student = cls.env['res.partner'].create({
             'name': 'Recipient Test Student', 'contact_type': 'student', 'main_group_id': cls.group.id,
@@ -252,12 +251,9 @@ class TestLimesurveyEnrollment(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TLM7', 'name': 'Test LimeSurvey Enrollment Level'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TLM7-01', 'acronym': 'TLM7', 'name': 'Test LimeSurvey Enrollment Study',
-            'date': '2026-01-01', 'deprecated': False, 'level_id': cls.level.id,
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TLM7', level={'name': 'Test LimeSurvey Enrollment Level'}, study={
+            'name': 'Test LimeSurvey Enrollment Study',
         })
-        cls.group = cls.env['ems.group'].create({'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id})
         cls.subject = cls.env['ems.subject'].create({'code': 'TLM7SUB', 'acronym': 'TLM7S', 'name': 'Test Subject'})
         cls.student = cls.env['res.partner'].create({'name': 'Enrollment Test Student', 'contact_type': 'student'})
         cls.env['ems.enrollment'].create({'student_id': cls.student.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id})

@@ -5,6 +5,8 @@ from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study_group
+
 
 class TestExitManagement(TransactionCase):
     """Fase 3: graduation/withdrawal wizards, transition_status, uses_enrollment_flow."""
@@ -20,15 +22,12 @@ class TestExitManagement(TransactionCase):
         cls.next_course = Course.search([('is_enrollment_default', '=', True)], limit=1) \
             or Course.create({'start': 2099, 'end': 2100, 'is_enrollment_default': True})
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'EXM', 'name': 'Exit Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'EXM', level={'name': 'Exit Level'}, study={
             'code': 'EXM001', 'acronym': 'EXMS', 'name': 'Exit Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id})
+        })
         cls.study_no_flow = cls.env['ems.study'].create({
             'code': 'EXM002', 'acronym': 'EXNF', 'name': 'Exit Study No Flow',
             'date': date.today(), 'deprecated': False, 'level_id': cls.level.id})
-        cls.group = cls.env['ems.group'].create({
-            'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id})
         # Enrollment template makes cls.study a "flow" study.
         cls.template = cls.env['sale.order.template'].create({
             'name': 'Exit Enrollment Template', 'ems_study_id': cls.study.id})

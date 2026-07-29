@@ -4,6 +4,8 @@ from odoo import fields
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestWorkingSchedulesImportWizard(TransactionCase):
 
@@ -18,14 +20,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'employee_type': 'teacher',
             'work_email': 'test.wizard.teacher.import.wizard@example.com',
         })
-        cls.level = cls.env['ems.level'].create({'acronym': 'TWIW', 'name': 'Test Level (Import Wizard)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TWIW001',
-            'acronym': 'TWIW',
-            'name': 'Test Study (Import Wizard)',
-            'date': fields.Date.today(),
-            'deprecated': False,
-            'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TWIW', level={'name': 'Test Level (Import Wizard)'}, study={
+            'code': 'TWIW001', 'name': 'Test Study (Import Wizard)', 'date': fields.Date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TWIW001',

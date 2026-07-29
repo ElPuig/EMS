@@ -6,6 +6,8 @@ from dateutil.relativedelta import relativedelta
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study_group
+
 
 class TestContactLifecycle(TransactionCase):
     """Contact lifecycle categories: applicant -> student -> alumni/withdrawal."""
@@ -18,20 +20,8 @@ class TestContactLifecycle(TransactionCase):
         cls.cat_alumni = cls.env.ref('ems.partner_category_alumni')
         cls.cat_withdrawal = cls.env.ref('ems.partner_category_withdrawal')
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'LFC', 'name': 'Lifecycle Level'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'LFC001',
-            'acronym': 'LFCS',
-            'name': 'Lifecycle Study',
-            'date': date.today(),
-            'deprecated': False,
-            'level_id': cls.level.id,
-        })
-        cls.group = cls.env['ems.group'].create({
-            'course': 1,
-            'acronym': 'A',
-            'level_id': cls.level.id,
-            'study_id': cls.study.id,
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'LFC', level={'name': 'Lifecycle Level'}, study={
+            'code': 'LFC001', 'acronym': 'LFCS', 'name': 'Lifecycle Study',
         })
         cls.course = cls.env['ems.course'].create({'start': 2098, 'end': 2099})
 
@@ -169,13 +159,8 @@ class TestContactFields(TransactionCase):
         mail_server_patcher.start()
         cls.addClassCleanup(mail_server_patcher.stop)
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'TCF', 'name': 'Test Contact Fields Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TCF', level={'name': 'Test Contact Fields Level'}, study={
             'code': 'TCF001', 'acronym': 'TCFS', 'name': 'Test Contact Fields Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
-        })
-        cls.group = cls.env['ems.group'].create({
-            'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id,
         })
 
     # --- is_adult -------------------------------------------------------------

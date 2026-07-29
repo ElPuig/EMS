@@ -1,6 +1,8 @@
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study_group
+
 
 class TestGroup(TransactionCase):
 
@@ -22,23 +24,8 @@ class TestGroup(TransactionCase):
             'login': 'test_head_of_studies_for_group',
             'groups_id': [(4, cls.env.ref('ems.group_head_of_studies').id)],
         })
-        cls.test_level = cls.env['ems.level'].create({
-            'acronym': 'TSTG',
-            'name': 'Test Level (Group)',
-        })
-        cls.test_study = cls.env['ems.study'].create({
-            'code': 'TSTG01',
-            'acronym': 'TSTG',
-            'name': 'Test Study (Group)',
-            'date': '2026-01-01',
-            'deprecated': False,
-            'level_id': cls.test_level.id,
-        })
-        cls.test_group = cls.env['ems.group'].create({
-            'course': 1,
-            'acronym': 'A',
-            'level_id': cls.test_level.id,
-            'study_id': cls.test_study.id,
+        cls.test_level, cls.test_study, cls.test_group = create_level_study_group(cls, 'TSTG', level={'name': 'Test Level (Group)'}, study={
+            'code': 'TSTG01', 'name': 'Test Study (Group)',
         })
 
     def test_create_valid(self):

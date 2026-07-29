@@ -48,356 +48,364 @@ survey_target_selection = [("students", "Students"), ("teachers", "Teachers"), (
 
 
 # region DETACHED PUBLIC METHODS: DO NOT WORK WITH THE BBDD, JUST DICTIONARIES AND LS API CALLS. CALLED FROM HEAD AND RECIPIENTS
-def do_upload_survey(ls_api, survey):	
-	def code():
-		survey["external_id"] = ls_api.create_survey(survey["raw_tsv"])	
-	return _do(survey, code)	
+def do_upload_survey(ls_api, survey):
+    def code():
+        survey["external_id"] = ls_api.create_survey(survey["raw_tsv"])
+    return _do(survey, code)
 
-def do_remove_survey(ls_api, survey):	
-	def code():
-		ls_api.delete_survey(survey["external_id"])
-		for rec in survey["recipients"]:
-			rec["external_id"] = None
-			rec["internal_id"] = None
-			rec["tid"] = None
-			rec["token"] = None			
-			rec["state"] = "pending"	
-			rec["error"] = None
-	return _do(survey, code)	
+def do_remove_survey(ls_api, survey):
+    def code():
+        ls_api.delete_survey(survey["external_id"])
+        for rec in survey["recipients"]:
+            rec["external_id"] = None
+            rec["internal_id"] = None
+            rec["tid"] = None
+            rec["token"] = None
+            rec["state"] = "pending"
+            rec["error"] = None
+    return _do(survey, code)
 
 def do_upload_recipients(ls_api, survey):
-	def code():
-		# NOTE: must convert the limesurvey_recipient model to the list of API values
-		parts = []			
-		for r in survey["recipients"]:
-			parts.append({
-				"firstname": r["name"],
-				"email": "" if not r["email"] else r["email"],
-				"lastname": ""
-			})
-		
-		try:
-			success = True
-			result = ls_api.add_participants(survey["external_id"], parts)
-			# New data will come in the same order as sent
-			for index, row in enumerate(result):
-				rec = survey["recipients"][index]
-				rec["tid"] = row["tid"]
-				rec["token"] = row["token"]				
-				rec["internal_id"] = survey["internal_id"]
-				rec["external_id"] = survey["external_id"]
-				rec["state"] = "uploaded"				
-				
-				if "error" in row:
-					rec["error"] = row["error"]		
-				else:
-					rec["error"] = _email_not_empty(row["email"])				
-		except Exception:
-			survey["error"] = traceback.format_exc()
-			success = False		
-		return success		
-	return _do(survey, code)	
+    def code():
+        # NOTE: must convert the limesurvey_recipient model to the list of API values
+        parts = []
+        for r in survey["recipients"]:
+            parts.append({
+                "firstname": r["name"],
+                "email": "" if not r["email"] else r["email"],
+                "lastname": ""
+            })
+
+        try:
+            success = True
+            result = ls_api.add_participants(survey["external_id"], parts)
+            # New data will come in the same order as sent
+            for index, row in enumerate(result):
+                rec = survey["recipients"][index]
+                rec["tid"] = row["tid"]
+                rec["token"] = row["token"]
+                rec["internal_id"] = survey["internal_id"]
+                rec["external_id"] = survey["external_id"]
+                rec["state"] = "uploaded"
+
+                if "error" in row:
+                    rec["error"] = row["error"]
+                else:
+                    rec["error"] = _email_not_empty(row["email"])
+        except Exception:
+            survey["error"] = traceback.format_exc()
+            success = False
+        return success
+    return _do(survey, code)
 
 def do_open_survey(ls_api, survey):
-	def code():
-		sid = survey["external_id"]
-		ls_api.activate_survey(sid)
-		ls_api.invite_participants(sid)
-	return _do(survey, code)
+    def code():
+        sid = survey["external_id"]
+        ls_api.activate_survey(sid)
+        ls_api.invite_participants(sid)
+    return _do(survey, code)
 
 def do_close_survey(ls_api, survey):
-	def code():
-		sid = survey["external_id"]
-		ls_api.deactivate_survey(sid)
-		for rec in survey["recipients"]:
-			rec["error"] = None
-	return _do(survey, code)
+    def code():
+        sid = survey["external_id"]
+        ls_api.deactivate_survey(sid)
+        for rec in survey["recipients"]:
+            rec["error"] = None
+    return _do(survey, code)
 
 def do_reopen_survey(ls_api, survey):
-	def code():
-		sid = survey["external_id"]
-		ls_api.reactivate_survey(sid)
-		for rec in survey["recipients"]:
-			rec["error"] = None
-	return _do(survey, code)
+    def code():
+        sid = survey["external_id"]
+        ls_api.reactivate_survey(sid)
+        for rec in survey["recipients"]:
+            rec["error"] = None
+    return _do(survey, code)
 
 def do_download_survey(ls_api, survey):
-	def code():
-		sid = survey["external_id"]
-		survey["responses"] = ls_api.export_survey_responses(sid)
-		for rec in survey["recipients"]:
-			rec["error"] = None
-	return _do(survey, code)
+    def code():
+        sid = survey["external_id"]
+        survey["responses"] = ls_api.export_survey_responses(sid)
+        for rec in survey["recipients"]:
+            rec["error"] = None
+    return _do(survey, code)
 
 def do_send_invitations(ls_api, survey):
-	def code():		
-		sid = survey["external_id"]		
-		ls_api.invite_participants(sid)
-	return _do(survey, code)
+    def code():
+        sid = survey["external_id"]
+        ls_api.invite_participants(sid)
+    return _do(survey, code)
 
 def do_send_reminders(ls_api, survey):
-	def code():		
-		sid = survey["external_id"]		
-		ls_api.remind_participants(sid)
-	return _do(survey, code)
+    def code():
+        sid = survey["external_id"]
+        ls_api.remind_participants(sid)
+    return _do(survey, code)
 
 def do_remove_recipients(ls_api, survey):
-	def code():
-		# NOTE: The data that should be used is always within the recipients, not the survey.
-		#		The recipients should be all from the same survey, but better to be sure.
-		#		Also, could have no survey, in that case must be skipped
-		data = {}
-		success = True
-		for rec in survey["recipients"]:
-			if rec["external_id"]:
-				if rec["external_id"] not in data:
-					data[rec["external_id"]] = [rec]
-				else:
-					data[rec["external_id"]].append(rec)
+    def code():
+        # NOTE: The data that should be used is always within the recipients, not the survey.
+        #       The recipients should be all from the same survey, but better to be sure.
+        #       Also, could have no survey, in that case must be skipped
+        data = {}
+        success = True
+        for rec in survey["recipients"]:
+            if rec["external_id"]:
+                if rec["external_id"] not in data:
+                    data[rec["external_id"]] = [rec]
+                else:
+                    data[rec["external_id"]].append(rec)
 
-		for key in data:
-			try:
-				recs = data[key]
-				tids = [r["tid"] for r in recs]
-				ls_api.delete_participants(key, tids)
-			except Exception:
-				success = False
-				for r in recs:
-					r["error"] = traceback.format_exc()
-		return success
+        for key in data:
+            try:
+                recs = data[key]
+                tids = [r["tid"] for r in recs]
+                ls_api.delete_participants(key, tids)
+            except Exception:
+                success = False
+                for r in recs:
+                    r["error"] = traceback.format_exc()
+        return success
 
-	return _do(survey, code)	
+    return _do(survey, code)
 
 def do_remove_survey_if_empty(ls_api, survey):
-	def code():
-		# NOTE: The data that should be used is always within the recipients, not the survey.
-		#		The recipients should be all from the same survey, but better to be sure.
-		data = {}
-		success = True
-		for rec in survey["recipients"]:
-			if rec["external_id"]:
-				if rec["external_id"] not in data:
-					data[rec["external_id"]] = [rec]
-				else:
-					data[rec["external_id"]].append(rec)
+    def code():
+        # NOTE: The data that should be used is always within the recipients, not the survey.
+        #       The recipients should be all from the same survey, but better to be sure.
+        data = {}
+        success = True
+        for rec in survey["recipients"]:
+            if rec["external_id"]:
+                if rec["external_id"] not in data:
+                    data[rec["external_id"]] = [rec]
+                else:
+                    data[rec["external_id"]].append(rec)
 
-		for key in data:
-			try:
-				recs = data[key]
-				count = ls_api.count_participants(key)
-				if(count == 0): ls_api.delete_survey(key)
-			except Exception:
-				success = False
-				for r in recs:
-					r["error"] = traceback.format_exc()
-		return success
+        for key in data:
+            try:
+                recs = data[key]
+                count = ls_api.count_participants(key)
+                if count == 0: ls_api.delete_survey(key)
+            except Exception:
+                success = False
+                for r in recs:
+                    r["error"] = traceback.format_exc()
+        return success
 
-	return _do(survey, code)	
+    return _do(survey, code)
 
 def do_upload_recipient_changes(ls_api, survey):
-	def code():
-		# NOTE: just for a single participant, but can be adapted for a batch of them if needed.
-		#		Within survey: the NEW internal_id and external_id
-		#		Within survey["recipients"][0]: the CURRENT internal_id and external_id
-		#		If the internal_id are different, the recipient must be moved.
-		#		The survey's external_id will be None if must be created.
-		#		All this data has been computed in load_persistent_data().
+    def code():
+        # NOTE: just for a single participant, but can be adapted for a batch of them if needed.
+        #       Within survey: the NEW internal_id and external_id
+        #       Within survey["recipients"][0]: the CURRENT internal_id and external_id
+        #       If the internal_id are different, the recipient must be moved.
+        #       The survey's external_id will be None if must be created.
+        #       All this data has been computed in load_persistent_data().
 
-		success = True
-		rec = survey["recipients"][0]
-		existing = survey["external_id"] is not None
-		if existing and survey["internal_id"] == rec["internal_id"]:
-			# The recipient is in the correct survey, updating participant data.				
-			
-			empty = _email_not_empty(rec["email"])
-			if empty is None:
-				ls_api.update_participant_data(rec["external_id"], rec["tid"], {
-					"firstname": rec["name"],
-					"email": rec["email"]
-				})
-			else:
-				rec["error"] = empty
-				success = False
-		else:	
-			# The recipient is NOT in the correct survey
-			# Removing from the old one (the method does not remove if the recipient is not uploaded)			
-			success = do_remove_recipients(ls_api, survey)
-			if success: 
-				success = do_remove_survey_if_empty(ls_api, survey)
-				if success and existing: 
-					# The survey already exists, so the IDs must be updated manually
-					rec["internal_id"] = survey["internal_id"]
-					rec["external_id"] = survey["external_id"]
-				elif success:
-					# The survey must be created, the new IDs will be computed and set automatically					
-					success = do_upload_survey(ls_api, survey)
-					
-					# A student can be added when the surveys are already open, so the new survey should be also open
-					# if success and survey["state"] == 'open':
-					# 	success = do_open_survey(ls_api, survey)
-						
-				if success: 
-					success = do_upload_recipients(ls_api, survey)
-				
-				if success and survey["state"] == 'open':
-					# Surveys must be open always after adding the participants (sends also the invitations), otherwise just send reminders.
-					if existing: success = do_send_invitations(ls_api, survey)
-					else: success = do_open_survey(ls_api, survey)
-		return success		
-	return _do(survey, code)
+        success = True
+        rec = survey["recipients"][0]
+        existing = survey["external_id"] is not None
+        if existing and survey["internal_id"] == rec["internal_id"]:
+            # The recipient is in the correct survey, updating participant data.
+
+            empty = _email_not_empty(rec["email"])
+            if empty is None:
+                ls_api.update_participant_data(rec["external_id"], rec["tid"], {
+                    "firstname": rec["name"],
+                    "email": rec["email"]
+                })
+            else:
+                rec["error"] = empty
+                success = False
+        else:
+            # The recipient is NOT in the correct survey
+            # Removing from the old one (the method does not remove if the recipient is not uploaded)
+            success = do_remove_recipients(ls_api, survey)
+            if success:
+                success = do_remove_survey_if_empty(ls_api, survey)
+                if success and existing:
+                    # The survey already exists, so the IDs must be updated manually
+                    rec["internal_id"] = survey["internal_id"]
+                    rec["external_id"] = survey["external_id"]
+                elif success:
+                    # The survey must be created, the new IDs will be computed and set automatically
+                    success = do_upload_survey(ls_api, survey)
+
+                    # A student can be added when the surveys are already open, so the new survey should be also open
+                    # if success and survey["state"] == 'open':
+                    #     success = do_open_survey(ls_api, survey)
+
+                if success:
+                    success = do_upload_recipients(ls_api, survey)
+
+                if success and survey["state"] == 'open':
+                    # Surveys must be open always after adding the participants (sends also the invitations), otherwise just send reminders.
+                    if existing: success = do_send_invitations(ls_api, survey)
+                    else: success = do_open_survey(ls_api, survey)
+        return success
+    return _do(survey, code)
 # endregion
 
 # region ATTACHED & SHARED METHODS BETWEEN HEADER AND RECIPIENT
 def run_action(self, title, action, status_w, status_ok, status_ko, compute, persistent_data, compute_survey_data=False, post_setup=None, post_store=None):
-	self.ensure_one()
-	if not self.already_running():
-		def setup(self):			
-			persistent_data["success"] = True
-			persistent_data["ls_api"] = LimesurveyApi(self.env)
-			try:
-				# TODO: maybe is better to use diferent load_persistent_data methods for teachers or ASP...
-				persistent_data["surveys"] = load_persistent_data(self, compute_survey_data)
-				if post_setup is not None: post_setup(self)
-			except Exception:
-				persistent_data["success"] = False
-				persistent_data["error"] = traceback.format_exc()
-					
-		def store(self):
-			# Store: Moves data from persistent_data to Odoo objects in order to store changes in the BBDD.
-			# All actions must do this. Also it will be retried if commit fails.
-			# NOTE: "original" is an Odoo recipient entry, must be restores to the current BBDD env/context. 
-			for key in persistent_data.get("surveys", []):
-				survey = persistent_data["surveys"][key]
-				for rec in survey.get("recipients", []):
-					original = rec["original"].with_env(self.env)
-					original.write({
-						"tid": rec.get("tid", None),
-						"token": rec.get("token", None),
-						"error": rec.get("error", None),
-						"state": rec.get("state", None),
-						"internal_id": rec.get("internal_id", None),
-						"external_id": rec.get("external_id", None)				
-					})
-			if post_store is not None: post_store(self)
-						
-		def callback(self):
-			error = persistent_data.get("error", None)
-			success = error is None
-			message = f"{action}  {_('process successfully completed!')}" if success else (f"{action}  {_('process failed.')} {error}")
+    self.ensure_one()
+    if not self.already_running():
+        def setup(self):
+            persistent_data["success"] = True
+            persistent_data["ls_api"] = LimesurveyApi(self.env)
+            try:
+                # TODO: maybe is better to use diferent load_persistent_data methods for teachers or ASP...
+                persistent_data["surveys"] = load_persistent_data(self, compute_survey_data)
+                if post_setup is not None: post_setup(self)
+            except Exception:
+                persistent_data["success"] = False
+                persistent_data["error"] = traceback.format_exc()
 
-			if not success: self.chatter(message)
-			self.notify(title, message, "success" if success else "warning")
-			self.is_running = False
-			self.state = status_ok if success else status_ko
-			
-			if self._name == 'ems.limesurvey_recipient':
-				if error and not self.error: self.error = error
-				elif not error: self.error = False
-			self.reload_request()
-			
-		try:
-			self.is_running = True
-			self.state = status_w				
-			self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")												
-			self.run_in_thread(setup, compute, store, callback)
-		except Exception:
-			callback(self, traceback.format_exc())
-		finally:
-			return True		
-			
+        def store(self):
+            # Store: Moves data from persistent_data to Odoo objects in order to store changes in the BBDD.
+            # All actions must do this. Also it will be retried if commit fails.
+            # NOTE: "original" is an Odoo recipient entry, must be restores to the current BBDD env/context.
+            for key in persistent_data.get("surveys", []):
+                survey = persistent_data["surveys"][key]
+                for rec in survey.get("recipients", []):
+                    original = rec["original"].with_env(self.env)
+                    original.write({
+                        "tid": rec.get("tid", None),
+                        "token": rec.get("token", None),
+                        "error": rec.get("error", None),
+                        "state": rec.get("state", None),
+                        "internal_id": rec.get("internal_id", None),
+                        "external_id": rec.get("external_id", None)
+                    })
+            if post_store is not None: post_store(self)
+
+        def callback(self):
+            error = persistent_data.get("error", None)
+            success = error is None
+            message = f"{action}  {_('process successfully completed!')}" if success else (f"{action}  {_('process failed.')} {error}")
+
+            if not success: self.chatter(message)
+            self.notify(title, message, "success" if success else "warning")
+            self.is_running = False
+            self.state = status_ok if success else status_ko
+
+            if self._name == 'ems.limesurvey_recipient':
+                if error and not self.error: self.error = error
+                elif not error: self.error = False
+            self.reload_request()
+
+        try:
+            self.is_running = True
+            self.state = status_w
+            self.notify(title, _("Starting process in the background, you'll be notified on completion (it can take a while)."), "info")
+            self.run_in_thread(setup, compute, store, callback)
+        except Exception:
+            # NOTE: run_in_thread() itself rarely raises synchronously (only if the thread cannot even be
+            # started), but if it does, callback() must still be reachable with a valid error message -
+            # it only accepts `self`, so the failure is threaded through persistent_data like every other
+            # failure path in this function, instead of being passed as an extra positional argument.
+            persistent_data["success"] = False
+            persistent_data["error"] = traceback.format_exc()
+            callback(self)
+        finally:
+            return True
+    return True
+
 def load_persistent_data(self, compute_survey_data=True):
-	surveys = {}
-	def load_recipient(head, rec):
-		# NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
-		#		The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).		
-		internal_id = None
-		external_id = None
+    surveys = {}
+    def load_recipient(head, rec):
+        # NOTE: Computing just the key and then, if needed, the survey data, boosts the performance in about 81,3% (from an average of 1500ms to 280ms).
+        #       The same method is used in order to share the code (in order to compute the key, the same items used to compute the content are used in the same way).
+        internal_id = None
+        external_id = None
 
-		if compute_survey_data:
-			internal_id = head.compute_survey_data(rec, True)["internal_id"]
-			existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", internal_id)], limit=1) or False
-			if existing: external_id = existing["external_id"]	
-		else:
-			internal_id = rec.internal_id
-			external_id = rec.external_id
+        if compute_survey_data:
+            internal_id = head.compute_survey_data(rec, True)["internal_id"]
+            existing = self.env["ems.limesurvey_recipient"].search([("internal_id", "=", internal_id)], limit=1) or False
+            if existing: external_id = existing["external_id"]
+        else:
+            internal_id = rec.internal_id
+            external_id = rec.external_id
 
-		if internal_id in surveys: surveys[internal_id]["recipients"].append(rec.copy_data())
-		else: 
-			surveys[internal_id] = {
-				"internal_id": internal_id,
-				"external_id": external_id,
-				"recipients": [rec.copy_data()],
-				"raw_tsv": None if not compute_survey_data else head.compute_survey_data(rec, False)["raw_tsv"]
-			}
+        if internal_id in surveys: surveys[internal_id]["recipients"].append(rec.copy_data())
+        else:
+            surveys[internal_id] = {
+                "internal_id": internal_id,
+                "external_id": external_id,
+                "recipients": [rec.copy_data()],
+                "raw_tsv": None if not compute_survey_data else head.compute_survey_data(rec, False)["raw_tsv"]
+            }
 
-	if self._name == 'ems.limesurvey_recipient': 
-		load_recipient(self.limesurvey_header_id, self)
-	elif self._name == 'ems.limesurvey_header':
-		for rec in self.limesurvey_recipient_ids:
-			load_recipient(self, rec)
-	else: 
-		raise NotImplemented("This method only works for 'ems.limesurvey_recipient' and 'ems.limesurvey_header'")		
-	return surveys	
+    if self._name == 'ems.limesurvey_recipient':
+        load_recipient(self.limesurvey_header_id, self)
+    elif self._name == 'ems.limesurvey_header':
+        for rec in self.limesurvey_recipient_ids:
+            load_recipient(self, rec)
+    else:
+        raise NotImplementedError("This method only works for 'ems.limesurvey_recipient' and 'ems.limesurvey_header'")
+    return surveys
 # endregion
 
 # region DETACHED PRIVATE METHODS
 def _do(survey, code, *args, **kwargs):
-	# Ensures that all operations works in the same way (storing errors in recipients if needed).
-	try:
-		success = code(*args, **kwargs)
-	except Exception as e:
-		success = False
-		for rec in survey["recipients"]:
-			rec["error"] = traceback.format_exc()
-	return True if success is None else success
+    # Ensures that all operations works in the same way (storing errors in recipients if needed).
+    try:
+        success = code(*args, **kwargs)
+    except Exception:
+        success = False
+        for rec in survey["recipients"]:
+            rec["error"] = traceback.format_exc()
+    return True if success is None else success
 
 def _email_not_empty(email):
-	if not email or len(email) == 0:
-		return "Empty email address!"
-	else:
-		return None
+    if not email or len(email) == 0:
+        return "Empty email address!"
+    else:
+        return None
 
 def _clean_trainer(value):
-	if value and value.strip().lower().startswith("trainer:"):
-		return value[len("trainer:"):].strip()
-	return value or ""
+    if value and value.strip().lower().startswith("trainer:"):
+        return value[len("trainer:"):].strip()
+    return value or ""
 
 def _build_csv(env, all_responses):
-	year = env.company.current_course_id.end if env.company.current_course_id else ""
-	output = io.StringIO()
-	writer = csv.writer(output)
-	writer.writerow(["evaluation_id", "timestamp", "year", "level", "department", "degree", "group", "subject_code", "subject_name", "trainer", "topic", "question_sort", "question_type", "value"])
+    year = env.company.current_course_id.end if env.company.current_course_id else ""
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["evaluation_id", "timestamp", "year", "level", "department", "degree", "group", "subject_code", "subject_name", "trainer", "topic", "question_sort", "question_type", "value"])
 
-	evaluation_id = 0
-	for response in all_responses:
-		timestamp = response.get("submitdate", "")
+    evaluation_id = 0
+    for response in all_responses:
+        timestamp = response.get("submitdate", "")
 
-		prefixes = [re.match(r'^([A-Z]+\d*)level$', k).group(1)
-					for k in response if re.match(r'^([A-Z]+\d*)level$', k)]
+        prefixes = [re.match(r'^([A-Z]+\d*)level$', k).group(1)
+                    for k in response if re.match(r'^([A-Z]+\d*)level$', k)]
 
-		for prefix in prefixes:
-			evaluation_id += 1
-			level        = response.get(f"{prefix}level", "")
-			topic        = response.get(f"{prefix}topic", "")
-			subject_code = response.get(f"{prefix}subjectcode", "")
-			subject_name = response.get(f"{prefix}subjectname", "")
-			degree       = response.get(f"{prefix}degree", "")
-			group        = response.get(f"{prefix}group", "")
-			trainer      = _clean_trainer(response.get(f"{prefix}trainer", ""))
-			department   = "DEPARTMENT"
+        for prefix in prefixes:
+            evaluation_id += 1
+            level        = response.get(f"{prefix}level", "")
+            topic        = response.get(f"{prefix}topic", "")
+            subject_code = response.get(f"{prefix}subjectcode", "")
+            subject_name = response.get(f"{prefix}subjectname", "")
+            degree       = response.get(f"{prefix}degree", "")
+            group        = response.get(f"{prefix}group", "")
+            trainer      = _clean_trainer(response.get(f"{prefix}trainer", ""))
+            # TODO(gap): hardcoded, not read from the response - see plans/limesurvey_csv_department_placeholder.md
+            department   = "DEPARTMENT"
 
-			numeric_keys = sorted(
-				[k for k in response if re.match(rf'^{re.escape(prefix)}questions\[{re.escape(prefix)}\d+\]$', k)],
-				key=lambda k: int(re.search(r'\d+', k.split('[')[1]).group())
-			)
-			for sort, key in enumerate(numeric_keys, start=1):
-				writer.writerow([evaluation_id, timestamp, year, level, department, degree, group, subject_code, subject_name, trainer, topic, sort, "Numeric", response.get(key, "")])
+            numeric_keys = sorted(
+                [k for k in response if re.match(rf'^{re.escape(prefix)}questions\[{re.escape(prefix)}\d+\]$', k)],
+                key=lambda k: int(re.search(r'\d+', k.split('[')[1]).group())
+            )
+            for sort, key in enumerate(numeric_keys, start=1):
+                writer.writerow([evaluation_id, timestamp, year, level, department, degree, group, subject_code, subject_name, trainer, topic, sort, "Numeric", response.get(key, "")])
 
-			comment = response.get(f"{prefix}comments", "")
-			if comment:
-				writer.writerow([evaluation_id, timestamp, year, level, department, degree, group, subject_code, subject_name, trainer, topic, "", "Text", comment])
+            comment = response.get(f"{prefix}comments", "")
+            if comment:
+                writer.writerow([evaluation_id, timestamp, year, level, department, degree, group, subject_code, subject_name, trainer, topic, "", "Text", comment])
 
-	return output.getvalue()
+    return output.getvalue()
 # endregion
 class LimesurveyApi():
     """Thin wrapper around LimeSurvey's RemoteControl 2 JSON-RPC API. Every

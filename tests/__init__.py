@@ -96,3 +96,4 @@ from . import test_strike_reason
 from . import test_minute
 from . import test_notice
 from . import test_limesurvey_api
+from . import test_limesurvey_orchestration

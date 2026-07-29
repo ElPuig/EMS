@@ -122,9 +122,101 @@ trigger).
 
 ---
 
-## Blocks 3-5 (pending)
+## Block 3: module-level orchestration (`do_*`, `run_action`, `load_persistent_data`)
 
-Module-level orchestration (`do_*`, `run_action`, `load_persistent_data`),
-`ems.limesurvey_header`, and `ems.limesurvey_recipient`/`.block`/`.enrollment` are DTON'd in
+Two regions of plain module-level functions (not methods — they take `ls_api`/`self` as
+ordinary parameters, callable from either `ems.limesurvey_header` or
+`ems.limesurvey_recipient`) sit between `LimesurveyApi` and the models that use it:
+
+- **`do_*` functions** ("DETACHED PUBLIC METHODS" region): one function per user-facing
+  action (`do_upload_survey`, `do_open_survey`, `do_remove_recipients`, ...). Each wraps its
+  body in `_do()`, which normalizes the return contract (`True`/`False`) and, on any
+  exception, stamps `traceback.format_exc()` onto every recipient dict in `survey["recipients"]`
+  so the error surfaces per-row in the UI instead of only in the server log.
+- **`run_action` / `load_persistent_data`** ("ATTACHED & SHARED METHODS" region): the glue
+  between a model's `action_*` method and the `setup`/`compute`/`store`/`callback` skeleton
+  described above. `run_action` builds the four closures and hands them to
+  `self.run_in_thread(...)`; `load_persistent_data` walks either a header's
+  `limesurvey_recipient_ids` or a single recipient and groups them by `internal_id` into the
+  `surveys` dict that `compute()` and `do_*` operate on.
+
+```mermaid
+flowchart TD
+    A["action_upload() (header/recipient)"] --> B["run_action(self, title, ...,\ncompute, persistent_data)"]
+    B --> C{"already_running()?"}
+    C -- yes --> Z["notify 'already running', return True"]
+    C -- no --> D["is_running=True, state=status_w"]
+    D --> E["run_in_thread(setup, compute, store, callback)"]
+    E --> F["setup(): load_persistent_data()\ninto persistent_data['surveys']"]
+    F --> G["compute(): for each survey,\ndo_upload_survey() / do_upload_recipients() / ..."]
+    G --> H["store(): write persistent_data\nback onto the Odoo recipients"]
+    H --> I["callback(): notify, is_running=False,\nstate=status_ok or status_ko"]
+```
+
+### Fixed in this pass
+
+- **`run_action`'s synchronous-failure path was silently broken.** If `run_in_thread()` ever
+  raised *before* spawning its thread (the only realistic case: the OS refuses to create a
+  new thread), the `except Exception:` handler called `callback(self, traceback.format_exc())`
+  — but `callback` only accepts `self`. That raised a `TypeError` inside the handler, which
+  the immediately-following `finally: return True` then silently discarded (a `return` inside
+  `finally` unconditionally swallows any exception in flight). Net effect: the caller saw
+  `True` as if everything succeeded, `is_running` stayed `True` forever (blocking every future
+  action on that record via `already_running()`), and the user got no failure notification at
+  all. Fixed by threading the error through `persistent_data` — the same channel every other
+  failure path in this function already uses — before calling `callback(self)` with its real
+  signature. Covered by `test_run_action_recovers_when_run_in_thread_raises_synchronously`,
+  which forces `run_in_thread` to raise and asserts `is_running` correctly resets to `False`
+  and `state` correctly moves to `status_ko`.
+- **`run_action` returned `None`, not `True`, when `already_running()` was true.** Every other
+  path returns `True` (the `finally: return True` on the try/except covers both the success
+  and the exception-recovery cases); the `if not self.already_running():` guard skipping that
+  whole block left the function falling off the end with an implicit `None` instead. Harmless
+  in practice (Odoo button-triggered methods treat `None`/`True` the same — no action /
+  refresh), but inconsistent with the rest of the function's contract. Fixed with an explicit
+  `return True` after the guarded block.
+- **`load_persistent_data`'s guard clause raised the wrong thing.** `raise
+  NotImplemented("...")` — `NotImplemented` is the singleton sentinel object used for
+  `__eq__`-style protocol fallbacks, not an exception class, so calling it
+  (`NotImplemented("...")`) itself raises `TypeError: 'NotImplementedType' object is not
+  callable` before the intended message is ever seen. Verified this branch is otherwise
+  unreachable in the current codebase (only ever called with `self` being
+  `ems.limesurvey_header` or `ems.limesurvey_recipient`) — fixed to `raise
+  NotImplementedError("...")` regardless, since the wrong exception type would otherwise
+  confuse whoever eventually hits it.
+- `_do`'s `except Exception as e:` — `e` was unused; narrowed to `except Exception:`.
+- Tabs → spaces throughout both regions, matching this rollout's normalization convention.
+
+### Found, not fixed — logged as a gap
+
+`_build_csv()`'s `department` column is a hardcoded literal `"DEPARTMENT"`, not read from the
+survey response like every other column. See
+[`plans/limesurvey_csv_department_placeholder.md`](../../../../plans/limesurvey_csv_department_placeholder.md)
+— fixing it needs input on where the real value should come from (a survey question key, or a
+derived lookup), which is business knowledge, not a normalization call.
+
+### Tests
+
+`tests/test_limesurvey_orchestration.py` (new, 33 tests):
+- `TestDetachedHelpers` — `_do`, `_email_not_empty`, `_clean_trainer`, `_build_csv`, no DB or
+  API involved.
+- `TestDoFunctions` — every `do_*` function against a `MagicMock()` standing in for
+  `LimesurveyApi` (never the real class, let alone the real API), covering each function's
+  success and failure branches, including `do_upload_recipient_changes`'s three-way branch
+  (update in place / move to an existing survey / create a brand-new survey).
+- `TestLoadPersistentData` — real `ems.limesurvey_header`/`ems.limesurvey_recipient` records
+  (this shared infrastructure needs real Odoo recordsets, not mocks), covering both calling
+  conventions (header walking its recipients; a single recipient loading its own survey), the
+  grouping-by-`internal_id` behavior, and the `NotImplementedError` guard.
+- `TestRunAction` — real header record with `run_in_thread` patched (`autospec=True`) to run
+  the four closures synchronously, or to raise, isolating `run_action`'s own control flow from
+  actual threading. Covers the success path, the synchronous-failure regression above, and the
+  already-running guard.
+
+---
+
+## Blocks 4-5 (pending)
+
+`ems.limesurvey_header` and `ems.limesurvey_recipient`/`.block`/`.enrollment` are DTON'd in
 subsequent blocks of this same phase — see `project_dton_rollout_roadmap.md` for current
 status.

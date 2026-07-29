@@ -1,9 +1,8 @@
 from datetime import date
-from unittest.mock import patch
 
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study
+from .common import create_level_study, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -15,12 +14,7 @@ class TestStrikeTour(HttpCase):
         # See tests/test_strike.py: neutralize real SMTP delivery — this environment has
         # real, credentialed outgoing mail servers configured (AWS SES / Gmail), and the
         # tour issues a real ems.strike (force_send=True on create()).
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
     def _seed_session(self):
         level, study = create_level_study(self, 'TSTR', level={'name': 'Test Level (Strike Tour)'}, study={

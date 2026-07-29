@@ -1,10 +1,9 @@
 from datetime import date
-from unittest.mock import patch
 
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, mock_outgoing_email
 
 
 class TestEnrollmentHeader(TransactionCase):
@@ -27,12 +26,7 @@ class TestEnrollmentHeader(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         # action_send_enrollment_proposal() sends a real email (force_send=True).
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
         Course = cls.env['ems.course']
         cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \

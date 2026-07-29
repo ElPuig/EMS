@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date
-from unittest.mock import patch
 
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import create_level_study_group, mock_outgoing_email
 
 
 class TestStrike(TransactionCase):
@@ -17,12 +16,7 @@ class TestStrike(TransactionCase):
         # ems.strike sends real emails synchronously (force_send=True) on every create();
         # this environment has real, credentialed outgoing mail servers configured (AWS
         # SES / Gmail), so the actual SMTP call must be neutralized for tests.
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
         cls.group_teacher = cls.env.ref('ems.group_teacher')
         cls.group_tutor = cls.env.ref('ems.group_tutor')

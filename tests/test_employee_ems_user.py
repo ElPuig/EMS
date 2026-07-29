@@ -4,6 +4,8 @@ from unittest.mock import MagicMock, patch
 
 from odoo.tests.common import TransactionCase
 
+from .common import mock_outgoing_email
+
 
 class TestEmployeeEmsUser(TransactionCase):
     """Backend tests for the automatic EMS user (res.users) creation that follows
@@ -18,12 +20,7 @@ class TestEmployeeEmsUser(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        cls.mail_transport = mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        cls.mail_transport = mock_outgoing_email(cls)
 
         cls.company = cls.env.company
         cls.company.write({

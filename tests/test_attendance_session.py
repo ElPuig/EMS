@@ -3,7 +3,7 @@ from datetime import date, datetime
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, mock_outgoing_email
 
 
 class TestAttendanceSessionHeader(TransactionCase):
@@ -206,13 +206,7 @@ class TestAttendanceSessionLine(TransactionCase):
         # send_mail(force_send=True) can fire from _update_notification's queued job
         # if a test ever runs with queue_job__no_delay — none do here, but mock
         # regardless per CLAUDE.md's email-safety rule (defense in depth).
-        from unittest.mock import patch
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
         cls.level, cls.study = create_level_study(cls, 'TASL2', level={'name': 'Test Level (Attendance Session Line)'}, study={
             'code': 'TASL2', 'name': 'Test Study (Attendance Session Line)', 'date': date.today(),

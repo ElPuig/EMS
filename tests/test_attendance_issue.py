@@ -1,9 +1,8 @@
 from datetime import date
-from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, mock_outgoing_email
 
 
 class TestAttendanceIssue(TransactionCase):
@@ -20,12 +19,7 @@ class TestAttendanceIssue(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
         cls.level, cls.study = create_level_study(cls, 'TAI', study={
             'name': 'Test Study (Attendance Issue)', 'date': date.today(),

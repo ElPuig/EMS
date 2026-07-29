@@ -1,6 +1,6 @@
-from unittest.mock import patch
-
 from odoo.tests.common import TransactionCase
+
+from .common import mock_outgoing_email
 
 
 class TestStrikeReason(TransactionCase):
@@ -14,12 +14,7 @@ class TestStrikeReason(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         # ems.strike sends real emails synchronously on create() (see CLAUDE.md).
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
     def test_create_requires_name(self):
         with self.assertRaises(Exception):

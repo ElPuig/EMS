@@ -1,11 +1,10 @@
 from datetime import date
-from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import create_level_study_group, mock_outgoing_email
 
 
 class TestPortalAccessWizard(TransactionCase):
@@ -17,12 +16,7 @@ class TestPortalAccessWizard(TransactionCase):
         super().setUpClass()
         # action_grant_access()/action_invite_again() send a real portal-invitation
         # email (force_send=True) — neutralize real SMTP delivery (see CLAUDE.md).
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
         cls.admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Test Admin (Portal Wizard)', 'login': 'test_admin_portal_wizard',

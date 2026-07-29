@@ -1,11 +1,10 @@
 import base64
 from datetime import date
-from unittest.mock import patch
 
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, mock_outgoing_email
 
 
 class TestEnrollmentBenefit(TransactionCase):
@@ -25,11 +24,7 @@ class TestEnrollmentBenefit(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         # Never let a test reach a real SMTP server (see CLAUDE.md).
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
         Course = cls.env['ems.course']
         cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \

@@ -1,10 +1,9 @@
 from datetime import date
-from unittest.mock import patch
 
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import create_level_study_group, mock_outgoing_email
 
 
 class TestNotice(TransactionCase):
@@ -22,12 +21,7 @@ class TestNotice(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
         cls.level, cls.study, cls.group = create_level_study_group(cls, 'TNOT', level={'name': 'Test Notice Level'}, study={
             'code': 'TNOT001', 'name': 'Test Notice Study',
@@ -218,12 +212,7 @@ class TestNoticeLine(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
         cls.notice = cls.env['ems.notice'].create({
             'subject': 'Line Test Subject', 'message': '<p>Body</p>', 'recipient_type': 'students',

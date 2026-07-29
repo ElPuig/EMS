@@ -33,10 +33,15 @@ def create_level_study_group(cls, prefix, **overrides):
 
 def mock_outgoing_email(cls):
     """Neutralizes real SMTP delivery for the duration of the test class - see CLAUDE.md's
-    'Email safety in tests'. Call once from setUpClass."""
-    patcher = patch('odoo.addons.base.models.ir_mail_server.IrMailServer.send_email')
-    patcher.start()
+    'Email safety in tests'. Call once from setUpClass. Returns the mock (e.g. to later assert
+    on call count with cls.mail_transport.assert_not_called() / .reset_mock())."""
+    patcher = patch(
+        'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
+        return_value='test-message-id',
+    )
+    mock = patcher.start()
     cls.addClassCleanup(patcher.stop)
+    return mock
 
 
 def make_synchronous_run_in_thread(record):

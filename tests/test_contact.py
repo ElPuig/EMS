@@ -1,12 +1,11 @@
 from datetime import date
-from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
 
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import create_level_study_group, mock_outgoing_email
 
 
 class TestContactLifecycle(TransactionCase):
@@ -152,12 +151,7 @@ class TestContactFields(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         # ems.strike sends real emails synchronously on create() (see CLAUDE.md).
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
         cls.level, cls.study, cls.group = create_level_study_group(cls, 'TCF', level={'name': 'Test Contact Fields Level'}, study={
             'code': 'TCF001', 'acronym': 'TCFS', 'name': 'Test Contact Fields Study',

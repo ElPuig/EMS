@@ -51,6 +51,16 @@ class EmsBase(models.AbstractModel):
             Markup("").join(Markup("<li>{}</li>").format(item) for item in items)
         )
 
+    # Shared body for an "already in use, exclude from picker" Many2many compute: `False`
+    # unless `condition(record)` is truthy, in which case `record.mapped(mapped_path)`. The
+    # field's own @api.depends stays on the caller's concrete compute method - only the body
+    # is shared, since Odoo requires the decorator on the actual method that owns the field.
+    def compute_exclusion_ids(self, field_name, condition, mapped_path):
+        for record in self:
+            record[field_name] = False
+            if condition(record):
+                record[field_name] = record.mapped(mapped_path)
+
     # To send a notification (won't be sent till a BBDD commit)
     def notify(self, title, message, type, sticky=False):
         # types: success; warning; danger; info

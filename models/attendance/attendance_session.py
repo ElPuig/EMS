@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
+from ..shared import base
 from .attendance_schedule import EmsAttendanceSchedule
 from .attendance_justification import EmsAttendanceJustification
 from datetime import datetime, timedelta
@@ -674,10 +675,10 @@ class EmsAttendanceSessionLine(models.Model):
 
     @api.depends('attendance_session_id')
     def _compute_inuse_student_ids(self):
-        for line in self:
-            line.inuse_student_ids = False
-            if line.attendance_session_id:
-                line.inuse_student_ids = line.mapped('attendance_session_id.attendance_session_line_ids.student_id')
+        # EmsAttendanceSessionLine doesn't inherit ems.base, so this calls the helper
+        # unbound (same pattern as contact.py's get_user_is_admin/_is_tutor_readonly calls).
+        base.EmsBase.compute_exclusion_ids(self, 'inuse_student_ids', lambda line: line.attendance_session_id,
+                                            'attendance_session_id.attendance_session_line_ids.student_id')
 
     @api.depends('attendance_session_id', 'student_id')
     def _compute_display_name(self):

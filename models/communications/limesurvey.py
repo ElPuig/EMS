@@ -1244,10 +1244,8 @@ class EmsLimesurveyRecipient(models.Model):
     # region PRIVATE AUX METHODS
     @api.depends('state')
     def _compute_inuse_student_ids(self):
-        for recipient in self:
-            recipient.inuse_student_ids = False
-            if recipient.state == "manual":
-                recipient.inuse_student_ids = recipient.mapped('limesurvey_header_id.limesurvey_recipient_ids.student_id')
+        self.compute_exclusion_ids('inuse_student_ids', lambda recipient: recipient.state == "manual",
+                                    'limesurvey_header_id.limesurvey_recipient_ids.student_id')
     # endregion
 
 class EmsLimesurveyEnrollment(models.Model):
@@ -1264,7 +1262,5 @@ class EmsLimesurveyEnrollment(models.Model):
 
     @api.depends('student_id')
     def _compute_inuse_subject_ids(self):
-        for enrollment in self:
-            enrollment.inuse_subject_ids = False
-            if enrollment.student_id:
-                enrollment.inuse_subject_ids = enrollment.mapped('student_id.enrollment_ids.subject_id')
+        self.compute_exclusion_ids('inuse_subject_ids', lambda enrollment: enrollment.student_id,
+                                    'student_id.enrollment_ids.subject_id')

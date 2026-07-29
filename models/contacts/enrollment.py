@@ -33,10 +33,8 @@ class EmsEnrollment(models.Model):
 
     @api.depends('student_id')
     def _compute_inuse_subject_ids(self):
-        for enrollment in self:
-            enrollment.inuse_subject_ids = False
-            if enrollment.student_id:
-                enrollment.inuse_subject_ids = enrollment.mapped('student_id.enrollment_ids.subject_id')
+        self.compute_exclusion_ids('inuse_subject_ids', lambda enrollment: enrollment.student_id,
+                                    'student_id.enrollment_ids.subject_id')
 
     @api.depends('subject_id')
     def _compute_display_name(self):

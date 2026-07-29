@@ -303,7 +303,97 @@ that exercises this path patches `LimesurveyApi` at the module level
 
 ---
 
-## Block 5 (pending)
+## Block 5: `ems.limesurvey_recipient` / `.block` / `.enrollment`
 
-`ems.limesurvey_recipient`/`.block`/`.enrollment` — see `project_dton_rollout_roadmap.md` for
-current status.
+Three smaller satellite models:
+
+- **`ems.limesurvey_block`** — one content block within a header's TSV, with optional
+  `special_*` filters (course, WPI-enrollment, per-subject-enrollment, tutorship) consumed by
+  `compute_survey_data` (Block 4).
+- **`ems.limesurvey_recipient`** — one row per person invited to a survey; can be
+  auto-populated (`ems.limesurvey_header._compute_recipients_students`) or added manually
+  (`state='manual'` at create time, restored from the linked `student_id` via
+  `action_restore()`, then immediately flipped to `'pending'` — `'manual'` never survives as a
+  persisted value, it only exists to trigger the restore-and-normalize dance inside `create()`).
+  Its own `action_upload`/`action_remind`/`action_delete` mirror the header's actions
+  ([Block 3](#block-3-module-level-orchestration-do_-run_action-load_persistent_data)/
+  [Block 4](#block-4-emslimesurvey_header)) but operate on a single recipient.
+- **`ems.limesurvey_enrollment`** — a recipient-scoped *copy* of the student's real
+  `ems.enrollment` rows, editable independently so quality staff can tweak survey content
+  without touching the real enrollment data (only secretarial staff should do that).
+
+### Fixed in this pass
+
+- **Two real bugs found and fixed in `action_remind`/`action_delete`.** Unlike every other
+  `run_action`-based method in this file (`action_upload` here, and all six
+  `ems.limesurvey_header` actions), these two skipped the `success = persistent_data["success"]`
+  / `if success:` guard entirely and went straight to `for key in persistent_data["surveys"]:`.
+  If `setup()` ever failed (i.e. `load_persistent_data`/`compute_survey_data` raised for this
+  recipient — a realistic possibility given how much `compute_survey_data` does), `persistent_data["surveys"]`
+  is never populated, and this unconditional access raises `KeyError: 'surveys'` inside
+  `compute()`. In real (non-mocked) usage `compute()` runs inside `run_in_thread`'s background
+  thread, **outside** any try/except of `run_action`'s own (that only wraps the call that
+  *starts* the thread) — an uncaught exception there is silently swallowed by Python's default
+  thread exception handling, so the failure would never reach the user: the record would just
+  sit stuck in `is_running=True` forever with no notification, same class of symptom as the
+  `run_action` bug fixed in Block 3, but reachable through a different gap. Fixed by adding the
+  same `success = persistent_data["success"]` / `if success:` guard already used everywhere
+  else in this file. Regression-covered (within the practical limits of a synchronous-mock
+  test harness — see `test_action_remind_survives_failed_setup`/
+  `test_action_delete_survives_failed_setup`) by forcing `load_persistent_data` to raise and
+  confirming the call completes without raising.
+- **`create()`'s manual-recipient path crashed with `KeyError: 'student_id'`** if a `'manual'`
+  record was created without a `student_id` at all — `self.env["res.partner"].browse([v["student_id"]])`
+  used direct dict-bracket access instead of `.get()`. `action_restore()` (called right after)
+  already handles "no student" gracefully (`else: return False`), so the autofill block should
+  too. Fixed to `browse(v.get("student_id"))` (Odoo's `browse()` treats `None`/falsy as an
+  empty recordset, so `student.name`/`student.student_email` cleanly read as `False` when
+  absent — no behavior change for the normal case where `student_id` is provided, which the
+  UI's add-student popup always does).
+- Classes renamed `ems_limesurvey_block`/`ems_limesurvey_recipient`/`ems_limesurvey_enrollment`
+  → `EmsLimesurveyBlock`/`EmsLimesurveyRecipient`/`EmsLimesurveyEnrollment`. Loop variables
+  normalized (`rec` → `block`/`recipient`/`enrollment` per model). Tabs → spaces.
+
+### Found, not fixed — logged as a gap
+
+`ems.limesurvey_block._onchange_special`'s mutual-exclusion between `special_wpi_enrolled` and
+`special_subject_enrolled` only works in one direction (checking WPI clears Subject; checking
+Subject while WPI is already on silently reverts Subject with no feedback) — the `elif`
+branch can never fire with a `True` value to clear. Already flagged by a pre-existing TODO
+comment on that line questioning whether checkboxes are even the right widget here; picking a
+fix (symmetric onchange vs. converting to a radio-button `Selection` field) is a product
+decision. See
+[`plans/limesurvey_block_special_mutual_exclusion_asymmetry.md`](../../../../plans/limesurvey_block_special_mutual_exclusion_asymmetry.md).
+
+### Testing note
+
+Same rule as Block 4: `ems.limesurvey_recipient.create()`'s manual-add-to-an-already-uploaded-header
+path calls both a real `self.env.cr.commit()` (stubbed via `patch.object(self.env.cr, 'commit')`
+in tests — Odoo's `TransactionCase` forbids real commits) and `action_upload()` (which reaches
+`run_in_thread`/`LimesurveyApi` exactly like every other action — both mocked, same as
+elsewhere in this phase).
+
+### Tests
+
+`tests/test_limesurvey_recipient.py` (new, 19 tests): `TestLimesurveyBlock` (the onchange,
+including a test documenting the known asymmetry above), `TestLimesurveyRecipient`
+(`action_restore`, `create()`'s manual-state autofill and its two bugs above, `_compute_inuse_student_ids`
+— tested via `write()` since `'manual'` never survives `create()`, `open_error_popup`, and
+`action_remind`/`action_delete`'s happy path plus their failed-setup robustness), and
+`TestLimesurveyEnrollment` (`_compute_inuse_subject_ids`, the `related` fields).
+
+---
+
+## Phase summary
+
+All five blocks of this phase are complete. `limesurvey.py`'s full DTON pass: every class
+renamed to PascalCase, all tabs converted to spaces, loop variables normalized to their model,
+9 real bugs found and fixed (4 in `LimesurveyApi`, 2 in `run_action`, 1 in
+`load_persistent_data`, 1 in `compute_survey_data`, 1 in `_compute_recipients_teachers`/`_asp`,
+2 in `action_remind`/`action_delete` — see each block's section above for details), 2 gaps
+found and left for a product decision (the CSV `department` placeholder, the block
+special-fields mutual-exclusion asymmetry), and full test coverage added from zero
+(`tests/test_limesurvey_api.py`, `test_limesurvey_orchestration.py`, `test_limesurvey_header.py`,
+`test_limesurvey_recipient.py`) — every single test mocking the network/API layer, per the
+standing rule that no automated test in this codebase may ever call the real,
+production-connected LimeSurvey service.

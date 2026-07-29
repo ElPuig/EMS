@@ -1056,210 +1056,215 @@ class EmsLimesurveyHeader(models.Model):
 
         self.mapped('limesurvey_recipient_ids').unlink()
         return super().unlink()
-	# endregion
+    # endregion
 
-class ems_limesurvey_block(models.Model):
-	_name = "ems.limesurvey_block"
-	_description = "LimeSurvey block: contains the main data about a LimeSurvey's session block."
-	_order = 'sort, id'
-	_inherit = ['ems.base']
-	
-	name = fields.Char(string="Name", required=True)
-	tsv_raw_text = fields.Text(string="Block's content (tab separated)", required=True)
-	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header")
-	sort = fields.Integer(string="Sort", default=1)
-	special = fields.Boolean(string="Special behaviour", default=False)
-	special_course_filter = fields.Integer(string="Course", default=0)
-	special_wpi_enrolled = fields.Boolean(string="WorkPlace Intership (if enrolled)", default=False)
-	special_subject_enrolled = fields.Boolean(string="Subject (all enrolled)", default=False)
-	special_tutorship = fields.Boolean(string="Tutorship", default=False)
-	notes = fields.Text(string="Notes")	
+class EmsLimesurveyBlock(models.Model):
+    _name = "ems.limesurvey_block"
+    _description = "LimeSurvey block: contains the main data about a LimeSurvey's session block."
+    _order = 'sort, id'
+    _inherit = ['ems.base']
 
-	@api.onchange("special_wpi_enrolled", "special_subject_enrolled")
-	def _onchange_special(self):	
-		for rec in self:	
-			# TODO: mutually excluded, check if it's more appropiate to use radios instead of checkboxes.
-			if rec.special_wpi_enrolled: rec.special_subject_enrolled = False
-			elif rec.special_subject_enrolled: rec.special_wpi_enrolled = False
-class ems_limesurvey_recipient(models.Model):
-	_name = "ems.limesurvey_recipient"
-	_description = "LimeSurvey recipient: contains the relation between a recipient and its survey."
-	_inherit = ['ems.base', 'ems.multithreading']
-	
-	state = fields.Selection(string='State', selection=[
-		('manual', 'Manual'), 
-		('pending', 'Pending'), 
-		('uploaded', 'Uploaded'), 
-		('uploading', 'Uploading'), 
-		('reminding', 'Reminding'),
-		('deleting', 'Deleting')
-	], default='pending')
+    name = fields.Char(string="Name", required=True)
+    tsv_raw_text = fields.Text(string="Block's content (tab separated)", required=True)
+    limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header")
+    sort = fields.Integer(string="Sort", default=1)
+    special = fields.Boolean(string="Special behaviour", default=False)
+    special_course_filter = fields.Integer(string="Course", default=0)
+    special_wpi_enrolled = fields.Boolean(string="WorkPlace Intership (if enrolled)", default=False)
+    special_subject_enrolled = fields.Boolean(string="Subject (all enrolled)", default=False)
+    special_tutorship = fields.Boolean(string="Tutorship", default=False)
+    notes = fields.Text(string="Notes")
 
-	limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header", required=True)
-	header_state = fields.Selection(string="Header's sate", related="limesurvey_header_id.state", store=False)
-	level_id = fields.Many2one(string='Level', comodel_name='ems.level')  
-	name = fields.Char(string="Name", required=True)
-	email = fields.Char(string="Email")
-	external_id = fields.Char(string="Survey's ID (LimeSurvey)")
-	internal_id = fields.Char(string="Survey's ID (EMS)")
-	token = fields.Char(string="User's token (LimeSurvey)")
-	tid = fields.Integer(string="User's ID (LimeSurvey)")	
-	error = fields.Char(string="Error details")
-	is_running = fields.Boolean(string="Running", default=False)
+    @api.onchange("special_wpi_enrolled", "special_subject_enrolled")
+    def _onchange_special(self):
+        for block in self:
+            # TODO: mutually excluded, check if it's more appropiate to use radios instead of checkboxes.
+            if block.special_wpi_enrolled: block.special_subject_enrolled = False
+            elif block.special_subject_enrolled: block.special_wpi_enrolled = False
 
-	notes = fields.Text(string="Notes")	
+class EmsLimesurveyRecipient(models.Model):
+    _name = "ems.limesurvey_recipient"
+    _description = "LimeSurvey recipient: contains the relation between a recipient and its survey."
+    _inherit = ['ems.base', 'ems.multithreading']
 
-	# The recipients can be students (res_partner) or teachers/asp (hr.employee). Those are needed in order to refresh the data.
-	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
-	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
-	asp_id = fields.Many2one(string="ASP", comodel_name="hr.employee")
+    state = fields.Selection(string='State', selection=[
+        ('manual', 'Manual'),
+        ('pending', 'Pending'),
+        ('uploaded', 'Uploaded'),
+        ('uploading', 'Uploading'),
+        ('reminding', 'Reminding'),
+        ('deleting', 'Deleting')
+    ], default='pending')
 
-	# The following "inuse" fields are used to manually add recipients
-	inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False) 		
+    limesurvey_header_id = fields.Many2one(string="Survey", comodel_name="ems.limesurvey_header", required=True)
+    header_state = fields.Selection(string="Header's sate", related="limesurvey_header_id.state", store=False)
+    level_id = fields.Many2one(string='Level', comodel_name='ems.level')
+    name = fields.Char(string="Name", required=True)
+    email = fields.Char(string="Email")
+    external_id = fields.Char(string="Survey's ID (LimeSurvey)")
+    internal_id = fields.Char(string="Survey's ID (EMS)")
+    token = fields.Char(string="User's token (LimeSurvey)")
+    tid = fields.Integer(string="User's ID (LimeSurvey)")
+    error = fields.Char(string="Error details")
+    is_running = fields.Boolean(string="Running", default=False)
 
+    notes = fields.Text(string="Notes")
 
-	# This field is used to compute the enrollments and allow modification by an authorized user (independent of 'real' enrollments, which should be modified only by secretarial staff).
-	limesurvey_enrollment_ids = fields.One2many(string="Enrollments", comodel_name="ems.limesurvey_enrollment", inverse_name="limesurvey_recipient_id")
-	wpi_enrolled = fields.Boolean(string="WPI enrolled")
-	
-	# region MAIN ACTIONS	
-	def action_restore(self):
-		if self.student_id:
-			self.name = self.student_id.name
-			self.email = self.student_id.student_email
-			self.level_id = self.student_id.level_id
+    # The recipients can be students (res_partner) or teachers/asp (hr.employee). Those are needed in order to refresh the data.
+    student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
+    teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
+    asp_id = fields.Many2one(string="ASP", comodel_name="hr.employee")
 
-			enrollments = [[5]]
-			for enroll in self.student_id.enrollment_ids:
-				enrollments.append([0,0, {
-					"student_id": self.student_id.id,
-					"group_id": enroll.group_id.id,
-					"subject_id": enroll.subject_id.id
-				}])
-			self.limesurvey_enrollment_ids = enrollments
-		else:
-			return False		
+    # The following "inuse" fields are used to manually add recipients
+    inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False)
 
-	def action_upload(self):					
-		persistent_data = {}
+    # This field is used to compute the enrollments and allow modification by an authorized user (independent of 'real' enrollments, which should be modified only by secretarial staff).
+    limesurvey_enrollment_ids = fields.One2many(string="Enrollments", comodel_name="ems.limesurvey_enrollment", inverse_name="limesurvey_recipient_id")
+    wpi_enrolled = fields.Boolean(string="WPI enrolled")
 
-		def post_setup(self):
-			# This method runs post-setup, it will be used to computed extra data in order to know if the recipient must be moved to another survey			
-			(key, survey), = persistent_data["surveys"].items()
-			survey["state"] = self.limesurvey_header_id.state						
+    # region MAIN ACTIONS
+    def action_restore(self):
+        if self.student_id:
+            self.name = self.student_id.name
+            self.email = self.student_id.student_email
+            self.level_id = self.student_id.level_id
 
-		def compute():			
-			success = persistent_data["success"]
-			if success:
-				for key in persistent_data["surveys"]:
-					ls_api = persistent_data["ls_api"]
-					survey = persistent_data["surveys"][key]					
-					success = success and do_upload_recipient_changes(ls_api, survey)
-				if not success: persistent_data["error"] = _("Something failed when trying to upload the changes for a recipient, please check the recipient entries for more details.")
-				persistent_data["success"] = success
-		return run_action(self, _("LimeSurvey: upload changes"), _("Upload"), "uploading", self.state, self.state, compute, persistent_data, True, post_setup)
-	
-	def action_remind(self):					
-		persistent_data = {}		
-		def compute():						
-			for key in persistent_data["surveys"]:
-				ls_api = persistent_data["ls_api"]
-				survey = persistent_data["surveys"][key]					
-				success = do_send_reminders(ls_api, survey)
-			if not success: persistent_data["error"] = _("Something failed when trying to send a reminder to a recipient, please check the recipient entries for more details.")
-			persistent_data["success"] = success
-		return run_action(self, _("LimeSurvey: send reminder"), _("Remind"), "reminding", self.state, self.state, compute, persistent_data)
-	
-	def action_delete(self):					
-		persistent_data = {}		
-		def compute():						
-			for key in persistent_data["surveys"]:
-				ls_api = persistent_data["ls_api"]
-				survey = persistent_data["surveys"][key]					
-				success = do_remove_recipients(ls_api, survey)
-				if success: success = do_remove_survey_if_empty(ls_api, survey)
-			if not success: persistent_data["error"] = _("Something failed when trying to delete a recipient, please check the recipient entries for more details.")
-			persistent_data["success"] = success
-		
-		def post_store(self):
-			success = persistent_data.get("success", False)
-			if success: self.unlink()
+            enrollments = [[5]]
+            for enroll in self.student_id.enrollment_ids:
+                enrollments.append([0, 0, {
+                    "student_id": self.student_id.id,
+                    "group_id": enroll.group_id.id,
+                    "subject_id": enroll.subject_id.id
+                }])
+            self.limesurvey_enrollment_ids = enrollments
+        else:
+            return False
 
-		return run_action(self, _("LimeSurvey: delete reminder"), _("Delete"), "deleting", self.state, self.state, compute, persistent_data, post_store=post_store)
+    def action_upload(self):
+        persistent_data = {}
 
-	def action_none(self):
-		return True	
-	# endregion
+        def post_setup(self):
+            # This method runs post-setup, it will be used to computed extra data in order to know if the recipient must be moved to another survey
+            (key, survey), = persistent_data["surveys"].items()
+            survey["state"] = self.limesurvey_header_id.state
 
-	# region OTHER ACTIONS (POPUPS AND SO)
-	def open_error_popup(self):
-		self.ensure_one()
-		return {
-			'type': 'ir.actions.act_window',
-			'name': _('Error details'),
-			'res_model': self._name,
-			'res_id': self.id,
-			'view_mode': 'form',
-			'view_id': self.env.ref('ems.view_limesurvey_recipient_error_popup').id,
-			'target': 'new', 
-			'flags': {'mode': 'readonly'}
-		}
-	# endregion	
+        def compute():
+            success = persistent_data["success"]
+            if success:
+                for key in persistent_data["surveys"]:
+                    ls_api = persistent_data["ls_api"]
+                    survey = persistent_data["surveys"][key]
+                    success = success and do_upload_recipient_changes(ls_api, survey)
+                if not success: persistent_data["error"] = _("Something failed when trying to upload the changes for a recipient, please check the recipient entries for more details.")
+                persistent_data["success"] = success
+        return run_action(self, _("LimeSurvey: upload changes"), _("Upload"), "uploading", self.state, self.state, compute, persistent_data, True, post_setup)
 
-	# region PUBLIC DATA MANAGEMENT METHODS (CREATE / COPY / ETC)
-	@api.model_create_multi
-	def create(self, values):
-		for v in values:
-			if v.get("state", "pending") == "manual":
-				s = self.env["res.partner"].browse([v["student_id"]])
-				if not "name" in v:
-					v["name"] = s.name
-				if not "email" in v:
-					v["email"] = s.student_email
-		
-		recips = super().create(values)
-		for r in recips:
-			if r.state == "manual":
-				r.state = "pending"
-				r.action_restore()
+    def action_remind(self):
+        persistent_data = {}
+        def compute():
+            success = persistent_data["success"]
+            if success:
+                for key in persistent_data["surveys"]:
+                    ls_api = persistent_data["ls_api"]
+                    survey = persistent_data["surveys"][key]
+                    success = success and do_send_reminders(ls_api, survey)
+                if not success: persistent_data["error"] = _("Something failed when trying to send a reminder to a recipient, please check the recipient entries for more details.")
+                persistent_data["success"] = success
+        return run_action(self, _("LimeSurvey: send reminder"), _("Remind"), "reminding", self.state, self.state, compute, persistent_data)
 
-				if r.limesurvey_header_id.state in ("uploaded", "open"):
-					# NOTE: commit needed, otherwise the action cannot work properly
-					#		action_upload will also open the survey (if new and should be open), send the invitations (if needed), etc.
-					r.state = "uploaded"
-					self.env.cr.commit() 
-					r.action_upload()							
-		return recips
+    def action_delete(self):
+        persistent_data = {}
+        def compute():
+            success = persistent_data["success"]
+            if success:
+                for key in persistent_data["surveys"]:
+                    ls_api = persistent_data["ls_api"]
+                    survey = persistent_data["surveys"][key]
+                    success = do_remove_recipients(ls_api, survey)
+                    if success: success = do_remove_survey_if_empty(ls_api, survey)
+                if not success: persistent_data["error"] = _("Something failed when trying to delete a recipient, please check the recipient entries for more details.")
+                persistent_data["success"] = success
 
-	def copy_data(self):
-		data = self.read()[0]
-		data["original"] = self
-		return data		
-	# endregion
-	
-	# region PRIVATE AUX METHODS
-	@api.depends('state')
-	def _compute_inuse_student_ids(self):
-		for rec in self:
-			rec.inuse_student_ids = False
-			if rec.state == "manual":
-				rec.inuse_student_ids = rec.mapped('limesurvey_header_id.limesurvey_recipient_ids.student_id')	
-	# endregion
-class ems_limesurvey_enrollment(models.Model):
-	_name = "ems.limesurvey_enrollment"
-	_description = "LimeSurvey enrollment: contains a copy of the enrollment model for the related student, in order to allow changes on the fly when preparing the surveys (only secretarial staff should be allowed to modify the real enrollments)."
-	_inherit = ['ems.base']
+        def post_store(self):
+            success = persistent_data.get("success", False)
+            if success: self.unlink()
 
-	limesurvey_recipient_id = fields.Many2one(string="Recipient", comodel_name="ems.limesurvey_recipient", required=True, ondelete="cascade") # removing the recipient should remove all its enrollments
-	student_id = fields.Many2one(string="Student", related="limesurvey_recipient_id.student_id")
-	study_id = fields.Many2one(string="Study", related="student_id.study_id")
-	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
-	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
-	inuse_subject_ids = fields.Many2many('ems.subject', compute='_compute_inuse_subject_ids', store=False) 		
+        return run_action(self, _("LimeSurvey: delete reminder"), _("Delete"), "deleting", self.state, self.state, compute, persistent_data, post_store=post_store)
 
-	@api.depends('student_id')
-	def _compute_inuse_subject_ids(self):
-		for rec in self:
-			rec.inuse_subject_ids = False
-			if rec.student_id:
-				rec.inuse_subject_ids = rec.mapped('student_id.enrollment_ids.subject_id')
+    def action_none(self):
+        return True
+    # endregion
+
+    # region OTHER ACTIONS (POPUPS AND SO)
+    def open_error_popup(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Error details'),
+            'res_model': self._name,
+            'res_id': self.id,
+            'view_mode': 'form',
+            'view_id': self.env.ref('ems.view_limesurvey_recipient_error_popup').id,
+            'target': 'new',
+            'flags': {'mode': 'readonly'}
+        }
+    # endregion
+
+    # region PUBLIC DATA MANAGEMENT METHODS (CREATE / COPY / ETC)
+    @api.model_create_multi
+    def create(self, values):
+        for v in values:
+            if v.get("state", "pending") == "manual":
+                student = self.env["res.partner"].browse(v.get("student_id"))
+                if "name" not in v:
+                    v["name"] = student.name
+                if "email" not in v:
+                    v["email"] = student.student_email
+
+        recipients = super().create(values)
+        for recipient in recipients:
+            if recipient.state == "manual":
+                recipient.state = "pending"
+                recipient.action_restore()
+
+                if recipient.limesurvey_header_id.state in ("uploaded", "open"):
+                    # NOTE: commit needed, otherwise the action cannot work properly
+                    #       action_upload will also open the survey (if new and should be open), send the invitations (if needed), etc.
+                    recipient.state = "uploaded"
+                    self.env.cr.commit()
+                    recipient.action_upload()
+        return recipients
+
+    def copy_data(self):
+        data = self.read()[0]
+        data["original"] = self
+        return data
+    # endregion
+
+    # region PRIVATE AUX METHODS
+    @api.depends('state')
+    def _compute_inuse_student_ids(self):
+        for recipient in self:
+            recipient.inuse_student_ids = False
+            if recipient.state == "manual":
+                recipient.inuse_student_ids = recipient.mapped('limesurvey_header_id.limesurvey_recipient_ids.student_id')
+    # endregion
+
+class EmsLimesurveyEnrollment(models.Model):
+    _name = "ems.limesurvey_enrollment"
+    _description = "LimeSurvey enrollment: contains a copy of the enrollment model for the related student, in order to allow changes on the fly when preparing the surveys (only secretarial staff should be allowed to modify the real enrollments)."
+    _inherit = ['ems.base']
+
+    limesurvey_recipient_id = fields.Many2one(string="Recipient", comodel_name="ems.limesurvey_recipient", required=True, ondelete="cascade") # removing the recipient should remove all its enrollments
+    student_id = fields.Many2one(string="Student", related="limesurvey_recipient_id.student_id")
+    study_id = fields.Many2one(string="Study", related="student_id.study_id")
+    group_id = fields.Many2one(string="Group", comodel_name="ems.group")
+    subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
+    inuse_subject_ids = fields.Many2many('ems.subject', compute='_compute_inuse_subject_ids', store=False)
+
+    @api.depends('student_id')
+    def _compute_inuse_subject_ids(self):
+        for enrollment in self:
+            enrollment.inuse_subject_ids = False
+            if enrollment.student_id:
+                enrollment.inuse_subject_ids = enrollment.mapped('student_id.enrollment_ids.subject_id')

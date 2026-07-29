@@ -710,7 +710,7 @@ class ResPartner(models.Model):
             values["level_id"] = study.level_id.id
 
     def _get_read_only_user(self):
-        is_admin = base.ems_base.get_user_is_admin(self)
+        is_admin = base.EmsBase.get_user_is_admin(self)
         is_secretary = self.env.user.has_group('ems.group_secretary')
         return not (is_admin or is_secretary or self._user_is_tutor_of_record())
 
@@ -730,7 +730,7 @@ class ResPartner(models.Model):
         # True only when the user is a tutor of this student and NOT admin/secretary.
         # Used to make non-contact fields read-only for tutors while admin/secretary
         # keep full edit access.
-        is_admin = base.ems_base.get_user_is_admin(self)
+        is_admin = base.EmsBase.get_user_is_admin(self)
         is_secretary = self.env.user.has_group('ems.group_secretary')
         if is_admin or is_secretary:
             return False

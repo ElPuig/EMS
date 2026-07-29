@@ -3,7 +3,7 @@
 from odoo import models
 
 
-class ems_schedule_report_mixin(models.AbstractModel):
+class EmsScheduleReportMixin(models.AbstractModel):
     _name = 'ems.schedule_report_mixin'
     _description = "Shared coloring/time-formatting helpers for weekly schedule PDF reports."
 

@@ -16,7 +16,7 @@ lands.
 
 ---
 
-## Architecture: why multithreading (`models/shared/multithreading.py`)
+## Architecture: why multithreading ([`ems.multithreading`](../shared/multithreading.md))
 
 External API calls are slow, and Odoo times out long-running HTTP requests; the model group
 solves this with `run_in_thread()`'s four-stage pattern:

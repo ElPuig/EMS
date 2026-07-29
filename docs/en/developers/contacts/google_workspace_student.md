@@ -6,7 +6,8 @@ the staff sibling (below), students never get a separate `res.users` — there i
 login/OAuth-linking step here, so this file is noticeably smaller.
 
 Lives in `models/contacts/google_workspace_integration.py` (`ResPartnerGoogleWorkspace`,
-`_inherit = 'res.partner'`), with shared helpers in `models/shared/google_workspace_mixin.py`.
+`_inherit = 'res.partner'`), with shared helpers in
+[`google.workspace.mixin`](../shared/google_workspace_mixin.md).
 See [Google Workspace staff integration](../employees/google_workspace_staff.md) for the
 teacher/ASP sibling — same shared mixin, same overall shape, different account population
 and no EMS-user step.

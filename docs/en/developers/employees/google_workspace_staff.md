@@ -11,7 +11,7 @@ Automates the two accounts every staff member (teacher / ASP) needs:
 
 Both live in `models/employees/google_workspace_integration.py`
 (`HrEmployeeGoogleWorkspace`, `_inherit = 'hr.employee'`), with shared helpers in
-`models/shared/google_workspace_mixin.py`.
+[`google.workspace.mixin`](../shared/google_workspace_mixin.md).
 
 ## Flow
 

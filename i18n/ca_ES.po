@@ -2556,6 +2556,12 @@ msgstr ""
 "'Tancada'. Si l'enquesta està activa o en curs, tanca-la primer."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/limesurvey.py:0
+msgid "Coming soon..."
+msgstr "Properament..."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__car_plate
 #: model:ir.model.fields,field_description:ems.field_res_users__car_plate
 msgid "Car Plate"

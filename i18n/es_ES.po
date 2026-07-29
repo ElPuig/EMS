@@ -2561,6 +2561,12 @@ msgstr ""
 "'Cerrada'. Si la encuesta está activa o en curso, ciérrala primero."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/limesurvey.py:0
+msgid "Coming soon..."
+msgstr "Próximamente..."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__car_plate
 #: model:ir.model.fields,field_description:ems.field_res_users__car_plate
 msgid "Car Plate"

@@ -215,8 +215,95 @@ derived lookup), which is business knowledge, not a normalization call.
 
 ---
 
-## Blocks 4-5 (pending)
+## Block 4: `ems.limesurvey_header`
 
-`ems.limesurvey_header` and `ems.limesurvey_recipient`/`.block`/`.enrollment` are DTON'd in
-subsequent blocks of this same phase — see `project_dton_rollout_roadmap.md` for current
-status.
+The survey definition and the entry point for every action (`action_compute`,
+`action_upload`, `action_open`, `action_close`, `action_reopen`, `action_download`,
+`action_remind`, `action_draft`, `action_remove`) — each `action_*` (other than `action_compute`
+/`action_draft`, which are pure-DB and need no threading) builds a `compute()` closure that
+iterates `persistent_data["surveys"]` and calls the matching `do_*` function from
+[Block 3](#block-3-module-level-orchestration-do_-run_action-load_persistent_data), then hands
+it to `run_action()`.
+
+```mermaid
+flowchart TD
+    A["action_compute()"] --> B["_compute_recipients_students/teachers/asp()"]
+    B --> C["state = 'computed'"]
+    C --> D["action_upload() -> run_action(..., compute_survey_data=True)"]
+    D --> E["state = 'uploaded'"]
+    E --> F["action_open()"] --> G["state = 'open'"]
+    G --> H["action_remind() (repeatable)"]
+    G --> I["action_close()"] --> J["state = 'closed'"]
+    J --> K["action_reopen() -> back to 'open'"]
+    J --> L["action_download()"] --> M["state = 'closed', csv_data populated"]
+```
+
+`compute_survey_data(recipient, only_key)` builds each recipient's survey key (a SHA-256 hash
+of a `survey_name` string built from the header + its `limesurvey_block_ids`, so two
+recipients whose blocks resolve identically end up sharing one survey) and, when `only_key` is
+`False`, the actual TSV content sent to `create_survey`. Blocks can be **special** (filtered by
+course/WPI-enrollment/per-subject-enrollment) or plain; a `special_subject_enrolled` block is
+repeated once per non-tutorship subject enrollment on the recipient.
+
+### Fixed in this pass
+
+- **Significant bug in `compute_survey_data`'s per-subject-enrollment branch.** The line
+  deciding whether to append teacher names to a subject block's title read `if
+  len(teacher_name) > 0:` — but `teacher_name` (singular) is a *different* variable, only ever
+  assigned later in the method's `if append:` branch, which a `special_subject_enrolled` block
+  never reaches (`append` stays `False` for it). The correctly-computed value for *this*
+  iteration was `teachers_names` (plural, built two lines above from `ems.teaching` records for
+  the current enrollment's group+subject). Concretely, this meant: (a) if no earlier block in
+  the same `limesurvey_block_ids` loop had happened to set `teacher_name` yet — e.g. a
+  subject-enrolled block is the *first* block — the method raised `UnboundLocalError:
+  local variable 'teacher_name' referenced before assignment`, crashing survey generation
+  entirely; (b) otherwise, it silently used a **stale value left over from an unrelated
+  earlier block** to decide whether to show *this* subject's actual teachers, either dropping
+  real teacher names or (less likely) appending them based on the wrong condition. Fixed by
+  using `teachers_names` (the freshly-computed, correct value) in the condition. Regression-
+  covered by `TestComputeSurveyData.test_teacher_names_are_appended_to_subject_block_title`,
+  which deliberately makes the subject-enrolled block the *only* block on the header (so the
+  old code would have hit the `UnboundLocalError` path, not just the stale-value path).
+- **`_compute_recipients_teachers`/`_compute_recipients_asp`** — same `raise
+  NotImplemented("...")` mistake as Block 3's `load_persistent_data` (`NotImplemented` is the
+  singleton comparison-protocol sentinel, not an exception class — calling it raises `TypeError:
+  'NotImplementedType' object is not callable`). `action_compute`'s own `try/except Exception`
+  already caught whichever `TypeError` resulted, so this wasn't a hard crash, just a confusing
+  message ("...'NotImplementedType' object is not callable" instead of "...Coming soon...").
+  Fixed to `raise NotImplementedError(_("Coming soon..."))` — newly-wrapped literal, `.po`
+  entries added to `i18n/ca_ES.po`/`i18n/es_ES.po`.
+- Class renamed `ems_limesurvey_header` → `EmsLimesurveyHeader`; added `_order = "create_date
+  desc"` (matching `ems.notice`'s precedent — most-recent-first is the natural listing order
+  for a wizard-like record with no other obvious sort key). Loop variables normalized to match
+  their model (`rec` → `recipient`/`header`, `std`/`grp` → `study`/`group` in the two onchange
+  methods) per this rollout's convention. Tabs → spaces throughout.
+
+### Testing note: `unlink()` and `action_upload()` etc. can reach the real API directly
+
+Unlike `run_action()`'s callers (which go through `run_in_thread`, itself easy to patch),
+`unlink()` calls `LimesurveyApi(self.env).delete_survey(...)` **synchronously, inline**, for
+any recipient that still has an `external_id`. A test that deletes an "uploaded" header
+without mocking `LimesurveyApi` would silently attempt a real network call using whatever
+`env.company.limesurvey_api/_usr/_pwd/_gid` happens to be configured on this box. Every test
+that exercises this path patches `LimesurveyApi` at the module level
+(`odoo.addons.ems.models.communications.limesurvey.LimesurveyApi`) to a `MagicMock` first.
+
+### Tests
+
+`tests/test_limesurvey_header.py` (new, 21 tests):
+- `TestLimesurveyHeaderCore` — required fields, the two onchange cascades, `action_compute`'s
+  recipient-building (group/level/study filters, email fallback `student_email` → `email`,
+  enrollment sub-records, exclusion of students with no `main_group_id`), `action_draft`,
+  `unlink()`'s three state-gated branches (blocked / redirect-warning / allowed) plus the
+  API-touching branch (mocked), `action_get_csv`, `action_none`, and one representative
+  `action_upload()` run with both `LimesurveyApi` and `run_in_thread` mocked end-to-end to
+  prove the wiring works without ever touching the network.
+- `TestComputeSurveyData` — the regression test for the `teacher_name`/`teachers_names` bug
+  above, plus a smoke test of `only_key=True` mode.
+
+---
+
+## Block 5 (pending)
+
+`ems.limesurvey_recipient`/`.block`/`.enrollment` — see `project_dton_rollout_roadmap.md` for
+current status.

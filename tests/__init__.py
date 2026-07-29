@@ -97,3 +97,4 @@ from . import test_minute
 from . import test_notice
 from . import test_limesurvey_api
 from . import test_limesurvey_orchestration
+from . import test_limesurvey_header

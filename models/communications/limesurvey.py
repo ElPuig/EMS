@@ -624,437 +624,438 @@ class LimesurveyApi():
             "id": 1
         }
         requests.post(self.limesurvey_api, data=json.dumps(payload), headers=headers)
-class ems_limesurvey_header(models.Model):
-	_name = "ems.limesurvey_header"
-	_description = "LimeSurvey header: contains the survey's header and its content."
-	_inherit = ['ems.base', 'ems.multithreading']
-	
-	# NOTE: this field is used to track the wizard progress.
-	state = fields.Selection(string='State', selection=[
+class EmsLimesurveyHeader(models.Model):
+    _name = "ems.limesurvey_header"
+    _description = "LimeSurvey header: contains the survey's header and its content."
+    _order = "create_date desc"
+    _inherit = ['ems.base', 'ems.multithreading']
+
+    # NOTE: this field is used to track the wizard progress.
+    state = fields.Selection(string='State', selection=[
         ('draft', 'Draft'),
-		('computed', 'Recipients computed'),
-		('removing', 'Removing surveys'),
-		('uploading', 'Uploading surveys'),
+        ('computed', 'Recipients computed'),
+        ('removing', 'Removing surveys'),
+        ('uploading', 'Uploading surveys'),
         ('uploaded', 'Surveys uploaded'),
-		('opening', 'Opening surveys'),
+        ('opening', 'Opening surveys'),
         ('open', 'Surveys open'),
-		('reminding', 'Sending reminders'),
+        ('reminding', 'Sending reminders'),
         ('closing', 'Closing surveys'),
-		('closed', 'Surveys closed'),
-		('reopening', 'Re-opening surveys'),
-		('downloading', 'Downloading surveys'),
-		('downloaded', 'Data downloaded')
+        ('closed', 'Surveys closed'),
+        ('reopening', 'Re-opening surveys'),
+        ('downloading', 'Downloading surveys'),
+        ('downloaded', 'Data downloaded')
     ], default='draft', tracking=True)
 
-	name = fields.Char(string="Name", required=True)
-	title = fields.Char(string="Title", required=True)
-	description = fields.Char(string="Description", required=True)
-	target = fields.Selection(string="Target", selection=survey_target_selection, required=True)
-	level_ids = fields.Many2many(string="Level", comodel_name="ems.level")
-	study_ids = fields.Many2many(string="Studies", comodel_name="ems.study")
-	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
-	tsv_raw_text = fields.Text(string="Header's content (tab separated)", required=True)
-	limesurvey_block_ids = fields.One2many(string="Blocks", comodel_name="ems.limesurvey_block", inverse_name="limesurvey_header_id", copy=True)
-	limesurvey_recipient_ids = fields.One2many(string="Recipients", comodel_name="ems.limesurvey_recipient", inverse_name="limesurvey_header_id")	
-	is_running = fields.Boolean(string="Running", default=False)
-	notes = fields.Text(string="Notes")
-	csv_data = fields.Binary(string="Survey Results CSV", attachment=True)
-	csv_filename = fields.Char(string="CSV Filename")		
-	
-	# region MAIN ACTIONS (OVER A SET OF SURVEYS/RECIPIENTS)
-	def action_compute(self, title=None, message_ok=None, message_ko=None):
-		self.ensure_one()
+    name = fields.Char(string="Name", required=True)
+    title = fields.Char(string="Title", required=True)
+    description = fields.Char(string="Description", required=True)
+    target = fields.Selection(string="Target", selection=survey_target_selection, required=True)
+    level_ids = fields.Many2many(string="Level", comodel_name="ems.level")
+    study_ids = fields.Many2many(string="Studies", comodel_name="ems.study")
+    group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
+    tsv_raw_text = fields.Text(string="Header's content (tab separated)", required=True)
+    limesurvey_block_ids = fields.One2many(string="Blocks", comodel_name="ems.limesurvey_block", inverse_name="limesurvey_header_id", copy=True)
+    limesurvey_recipient_ids = fields.One2many(string="Recipients", comodel_name="ems.limesurvey_recipient", inverse_name="limesurvey_header_id")
+    is_running = fields.Boolean(string="Running", default=False)
+    notes = fields.Text(string="Notes")
+    csv_data = fields.Binary(string="Survey Results CSV", attachment=True)
+    csv_filename = fields.Char(string="CSV Filename")
 
-		# NOTE: there's no API integration when computing recipients, multithreading not needed
-		try:	
-			if title is None: title = _("LimeSurvey: compute recipients")
-			if message_ok is None: message_ok = _("Recipients successfully computed!")
-			if message_ko is None: message_ko =_('Recipients compute failed. ')
+    # region MAIN ACTIONS (OVER A SET OF SURVEYS/RECIPIENTS)
+    def action_compute(self, title=None, message_ok=None, message_ko=None):
+        self.ensure_one()
 
-			# Settings up the distinct types of surveys
-			if(self.target == "students"): self._compute_recipients_students()
-			elif(self.target == "teachers"): self._compute_recipients_teachers()
-			elif(self.target == "asp"): self._compute_recipients_asp()
-						
-			self.state = 'computed'
-			self.notify(title , message_ok, "success")			
-		except Exception as e:	
-			self.chatter_exception(e)
-			self.notify(title,  f"{message_ko} {e}", "warning")					
-			self.env.cr.commit() # To save the messages	(previous changes have been rollbacked).		
-		finally:
-			return True
+        # NOTE: there's no API integration when computing recipients, multithreading not needed
+        try:
+            if title is None: title = _("LimeSurvey: compute recipients")
+            if message_ok is None: message_ok = _("Recipients successfully computed!")
+            if message_ko is None: message_ko = _('Recipients compute failed. ')
 
-	def action_draft(self):
-		self.ensure_one()
+            # Settings up the distinct types of surveys
+            if self.target == "students": self._compute_recipients_students()
+            elif self.target == "teachers": self._compute_recipients_teachers()
+            elif self.target == "asp": self._compute_recipients_asp()
 
-		# NOTE: there's no API integration when computing recipients, multithreading not needed
-		try:	
-			title = _("LimeSurvey: return to draft")			
-			for rec in self.limesurvey_recipient_ids:
-				rec.unlink()					
-						
-			self.state = 'draft'
-			self.notify(title , _("Recipients successfully removed!"), "success")
-		except Exception as e:
-			self.chatter_exception(e)
-			self.notify(title, f"{_('Recipients remove failed. ')} {e}", "warning")			
-			self.env.cr.commit() # To save the messages	(previous changes have been rollbacked).		
-		finally:
-			return True
+            self.state = 'computed'
+            self.notify(title, message_ok, "success")
+        except Exception as e:
+            self.chatter_exception(e)
+            self.notify(title, f"{message_ko} {e}", "warning")
+            self.env.cr.commit() # To save the messages (previous changes have been rollbacked).
+        finally:
+            return True
 
-	def action_reload(self):
-		return self.action_compute(_("LimeSurvey: reload recipients"), _("Recipients successfully reloaded!"), _('Recipients reload failed. '))		
+    def action_draft(self):
+        self.ensure_one()
 
-	def action_upload(self):			
-		if not self.env.company.limesurvey_gid:
-			raise UserError(_("LimeSurvey's group ID not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, provide a valid group ID; the EMS will use this group in order to generate all the surveys within it."))		
-		
-		persistent_data = {}		
-		def compute():
-			# Compute: business login and LimeSurvey API calls. Time-consuming, so no BBDD cursor is open.
-			# Cannot work with Odoo objects: self don't provided (no BBDDD cursor!).
-			success = persistent_data["success"]
-			if success:
-				for key in persistent_data["surveys"]:
-					ls_api = persistent_data["ls_api"]
-					survey = persistent_data["surveys"][key]
-					success = success and do_upload_survey(ls_api, survey)
-					if success: success = success and do_upload_recipients(ls_api, survey)			
-				if not success: persistent_data["error"] = _("Something failed when trying to upload a survey or its recipients, please check the recipient entries for more details.")
-				persistent_data["success"] = success
-		return run_action(self, _("LimeSurvey: upload surveys"), _("Upload"), "uploading", "uploaded", "computed", compute, persistent_data, True)
+        # NOTE: there's no API integration when computing recipients, multithreading not needed
+        try:
+            title = _("LimeSurvey: return to draft")
+            for recipient in self.limesurvey_recipient_ids:
+                recipient.unlink()
 
-	def action_remove(self):
-		persistent_data = {}		
-		def compute():			
-			success = persistent_data["success"]
-			if success:
-				for key in persistent_data["surveys"]:
-					ls_api = persistent_data["ls_api"]
-					survey = persistent_data["surveys"][key]
+            self.state = 'draft'
+            self.notify(title, _("Recipients successfully removed!"), "success")
+        except Exception as e:
+            self.chatter_exception(e)
+            self.notify(title, f"{_('Recipients remove failed. ')} {e}", "warning")
+            self.env.cr.commit() # To save the messages (previous changes have been rollbacked).
+        finally:
+            return True
 
-					success = success and do_remove_survey(ls_api, survey)
-					if not success: persistent_data["error"] = _("Something failed when trying to remove a survey or its recipients, please check the recipient entries for more details.")
-				persistent_data["success"] = success		
-		return run_action(self, _("LimeSurvey: remove surveys"), _("Remove"), "removing", "computed", "uploaded", compute, persistent_data)				
-	
-	def action_open(self):	
-		persistent_data = {}		
-		def compute():			
-			success = persistent_data["success"]
-			if success:
-				for key in persistent_data["surveys"]:
-					ls_api = persistent_data["ls_api"]
-					survey = persistent_data["surveys"][key]
+    def action_reload(self):
+        return self.action_compute(_("LimeSurvey: reload recipients"), _("Recipients successfully reloaded!"), _('Recipients reload failed. '))
 
-					success = success and do_open_survey(ls_api, survey)
-					if not success: persistent_data["error"] = _("Something failed when trying to open a survey or send the invitations, please check the recipient entries for more details.")
-				persistent_data["success"] = success		
-		return run_action(self, _("LimeSurvey: open surveys"), _("Open surveys"), "opening", "open", "uploaded", compute, persistent_data)
+    def action_upload(self):
+        if not self.env.company.limesurvey_gid:
+            raise UserError(_("LimeSurvey's group ID not found. We're sorry, but the LimeSurvey API v6 does not allow to create survey groups. Please, provide a valid group ID; the EMS will use this group in order to generate all the surveys within it."))
 
-	def action_close(self):
-		persistent_data = {}
-		def compute():
-			success = persistent_data["success"]
-			if success:
-				for key in persistent_data["surveys"]:
-					ls_api = persistent_data["ls_api"]
-					survey = persistent_data["surveys"][key]
-					success = success and do_close_survey(ls_api, survey)
-					if not success: persistent_data["error"] = _("Something failed when trying to close a survey, please check the recipient entries for more details.")
-				persistent_data["success"] = success
-		return run_action(self, _("LimeSurvey: close surveys"), _("Close"), "closing", "closed", "open", compute, persistent_data)
+        persistent_data = {}
+        def compute():
+            # Compute: business login and LimeSurvey API calls. Time-consuming, so no BBDD cursor is open.
+            # Cannot work with Odoo objects: self don't provided (no BBDDD cursor!).
+            success = persistent_data["success"]
+            if success:
+                for key in persistent_data["surveys"]:
+                    ls_api = persistent_data["ls_api"]
+                    survey = persistent_data["surveys"][key]
+                    success = success and do_upload_survey(ls_api, survey)
+                    if success: success = success and do_upload_recipients(ls_api, survey)
+                if not success: persistent_data["error"] = _("Something failed when trying to upload a survey or its recipients, please check the recipient entries for more details.")
+                persistent_data["success"] = success
+        return run_action(self, _("LimeSurvey: upload surveys"), _("Upload"), "uploading", "uploaded", "computed", compute, persistent_data, True)
 
-	def action_reopen(self):
-		persistent_data = {}
-		def compute():
-			success = persistent_data["success"]
-			if success:
-				for key in persistent_data["surveys"]:
-					ls_api = persistent_data["ls_api"]
-					survey = persistent_data["surveys"][key]
-					success = success and do_reopen_survey(ls_api, survey)
-					if not success: persistent_data["error"] = _("Something failed when trying to reopen a survey, please check the recipient entries for more details.")
-				persistent_data["success"] = success
-		def post_store(self):
-			if persistent_data.get("success"):
-				self.csv_data = False
-				self.csv_filename = False
-		return run_action(self, _("LimeSurvey: reopen surveys"), _("Reopen"), "reopening", "open", "closed", compute, persistent_data, post_store=post_store)
+    def action_remove(self):
+        persistent_data = {}
+        def compute():
+            success = persistent_data["success"]
+            if success:
+                for key in persistent_data["surveys"]:
+                    ls_api = persistent_data["ls_api"]
+                    survey = persistent_data["surveys"][key]
 
-	def action_download(self):
-		persistent_data = {}
+                    success = success and do_remove_survey(ls_api, survey)
+                    if not success: persistent_data["error"] = _("Something failed when trying to remove a survey or its recipients, please check the recipient entries for more details.")
+                persistent_data["success"] = success
+        return run_action(self, _("LimeSurvey: remove surveys"), _("Remove"), "removing", "computed", "uploaded", compute, persistent_data)
 
-		def compute():
-			success = persistent_data["success"]
-			if success:
-				all_responses = []
-				for key in persistent_data["surveys"]:
-					ls_api = persistent_data["ls_api"]
-					survey = persistent_data["surveys"][key]
-					if not survey.get("external_id"): continue
-					success = success and do_download_survey(ls_api, survey)
-					if success:
-						all_responses.extend(survey.get("responses", []))
-					else:
-						persistent_data["error"] = _("Something failed when trying to download survey responses, please check the recipient entries for more details.")
-						break
-				persistent_data["success"] = success
-				persistent_data["all_responses"] = all_responses
+    def action_open(self):
+        persistent_data = {}
+        def compute():
+            success = persistent_data["success"]
+            if success:
+                for key in persistent_data["surveys"]:
+                    ls_api = persistent_data["ls_api"]
+                    survey = persistent_data["surveys"][key]
 
-		def post_store(self):
-			if persistent_data.get("success"):
-				csv_content = _build_csv(self.env, persistent_data.get("all_responses", []))
-				self.csv_data = base64.b64encode(csv_content.encode("utf-8")).decode("utf-8")
-				self.csv_filename = f"survey_results_{fields.Date.today()}.csv"
+                    success = success and do_open_survey(ls_api, survey)
+                    if not success: persistent_data["error"] = _("Something failed when trying to open a survey or send the invitations, please check the recipient entries for more details.")
+                persistent_data["success"] = success
+        return run_action(self, _("LimeSurvey: open surveys"), _("Open surveys"), "opening", "open", "uploaded", compute, persistent_data)
 
-		return run_action(self, _("LimeSurvey: download surveys"), _("Download"), "downloading", "closed", "closed", compute, persistent_data, post_store=post_store)
+    def action_close(self):
+        persistent_data = {}
+        def compute():
+            success = persistent_data["success"]
+            if success:
+                for key in persistent_data["surveys"]:
+                    ls_api = persistent_data["ls_api"]
+                    survey = persistent_data["surveys"][key]
+                    success = success and do_close_survey(ls_api, survey)
+                    if not success: persistent_data["error"] = _("Something failed when trying to close a survey, please check the recipient entries for more details.")
+                persistent_data["success"] = success
+        return run_action(self, _("LimeSurvey: close surveys"), _("Close"), "closing", "closed", "open", compute, persistent_data)
 
-	def action_get_csv(self):
-		self.ensure_one()
-		return {
-			'type': 'ir.actions.act_url',
-			'url': f'/web/content?model=ems.limesurvey_header&id={self.id}&field=csv_data&filename={self.csv_filename}&download=true',
-			'target': 'new',
-		}
+    def action_reopen(self):
+        persistent_data = {}
+        def compute():
+            success = persistent_data["success"]
+            if success:
+                for key in persistent_data["surveys"]:
+                    ls_api = persistent_data["ls_api"]
+                    survey = persistent_data["surveys"][key]
+                    success = success and do_reopen_survey(ls_api, survey)
+                    if not success: persistent_data["error"] = _("Something failed when trying to reopen a survey, please check the recipient entries for more details.")
+                persistent_data["success"] = success
+        def post_store(self):
+            if persistent_data.get("success"):
+                self.csv_data = False
+                self.csv_filename = False
+        return run_action(self, _("LimeSurvey: reopen surveys"), _("Reopen"), "reopening", "open", "closed", compute, persistent_data, post_store=post_store)
 
-	def action_remind(self):
-		persistent_data = {}		
-		def compute():			
-			success = persistent_data["success"]
-			if success:
-				for key in persistent_data["surveys"]:
-					ls_api = persistent_data["ls_api"]
-					survey = persistent_data["surveys"][key]
+    def action_download(self):
+        persistent_data = {}
 
-					success = success and do_send_reminders(ls_api, survey)
-					if not success: persistent_data["error"] = _("Something failed when trying to send reminders for a survey, please check the recipient entries for more details.")
-				persistent_data["success"] = success		
-		return run_action(self, _("LimeSurvey: sending reminders"), _("Remind"), "reminding", "open", "uploaded", compute, persistent_data)
-		
-	def action_none(self):
-		return True
-	# endregion
+        def compute():
+            success = persistent_data["success"]
+            if success:
+                all_responses = []
+                for key in persistent_data["surveys"]:
+                    ls_api = persistent_data["ls_api"]
+                    survey = persistent_data["surveys"][key]
+                    if not survey.get("external_id"): continue
+                    success = success and do_download_survey(ls_api, survey)
+                    if success:
+                        all_responses.extend(survey.get("responses", []))
+                    else:
+                        persistent_data["error"] = _("Something failed when trying to download survey responses, please check the recipient entries for more details.")
+                        break
+                persistent_data["success"] = success
+                persistent_data["all_responses"] = all_responses
 
-	# region OTHER ACTIONS (POPUPS AND SO)
-	def open_add_student_popup(self):
-		self.ensure_one()
-		return {
-			'type': 'ir.actions.act_window',
-			'name': _('Select the student to add'),
-			'res_model': 'ems.limesurvey_recipient',
-			'view_mode': 'form',
-			'view_id': self.env.ref('ems.view_limesurvey_recipient_add_student_popup').id,
-			'target': 'new'			
-		}
-	# endregion	
-	
-	# region PUBLIC COMPUTE / STORE METHODS		
-	def compute_survey_data(self, recipient, only_key):
-		survey_name = f"{self.name}_{recipient.level_id.acronym}"
-		if not only_key:
-			content = self.tsv_raw_text
-			#content = content.replace("{'SID'}", "str(key)") # it's better to set it automatically and relate it with our hash internally
-			#content = content.replace("{'GSID'}", str(gsid)) # ignored by the import engine using TSV... should we change to XML import?
-			content = content.replace("{'TITLE'}", self.title)
-			content = content.replace("{'DESCRIPTION'}", self.description)
+        def post_store(self):
+            if persistent_data.get("success"):
+                csv_content = _build_csv(self.env, persistent_data.get("all_responses", []))
+                self.csv_data = base64.b64encode(csv_content.encode("utf-8")).decode("utf-8")
+                self.csv_filename = f"survey_results_{fields.Date.today()}.csv"
 
-		def replace_block_content(content, b_name, l_acro, s_code, s_name, d_acro, g_acro, trainer=""):
-			content = content.replace("{'TITLE'}", b_name)
-			content = content.replace("{'TOPIC'}", b_name)
-			content = content.replace("{'LEVEL'}", l_acro)		
-			content = content.replace("{'S_CODE'}", s_code) # NOTE: this is not a mistake, the block name (topic) is used here also.
-			content = content.replace("{'S_NAME'}", s_name) # NOTE: this is not a mistake, the block name (topic) is used here also.
-			content = content.replace("{'DEGREE'}", d_acro)
-			content = content.replace("{'GROUP'}", g_acro)
-			content = content.replace("{'TRAINER'}", trainer)
-			
-			if recipient.student_id:
-				content = content.replace("{'RECIPIENT'}", "STUDENTS")
-			elif recipient.teacher_id:
-				content = content.replace("{'RECIPIENT'}", "TEACHERS")
-			elif recipient.asp_id:
-				content = content.replace("{'RECIPIENT'}", "ASP")
-			else:
-				content = content.replace("{'RECIPIENT'}", "UNKNOWN")
-			return content
+        return run_action(self, _("LimeSurvey: download surveys"), _("Download"), "downloading", "closed", "closed", compute, persistent_data, post_store=post_store)
 
-		# NOTE: real enrollment data is not used, because modifying the survey content should be allowed by someone without permissions, the recipient's one is used instead.
-		# TODO: check behaviour with teachers and ASP
-		for block in self.limesurvey_block_ids:
-			append = not block.special
-			if block.special:
-				if block.special_course_filter == 0 or (block.special_course_filter > 0 and recipient.student_id and block.special_course_filter == recipient.student_id.main_group_id.course):
-					# NOTE: special_course can be combined with WPI or Subject.
-					if not block.special_subject_enrolled and not block.special_wpi_enrolled: append = True	# Just course filter							
-					elif block.special_wpi_enrolled and recipient.student_id and recipient.wpi_enrolled: append = True
-					elif block.special_subject_enrolled and recipient.student_id:
-						# NOTE: Repeat the block for every enrolled subject. Each question must have a unique numerical id, for subject it should star with 4 (400, 4001, 4002...)
-						#		Warning: tutorship is a subject too and the student will be enrolled, but tutorship blocks works different, so tutorship-subjects will be ignored,
-						#		just regular subject will be taken in count. 
-						qID = 4
-						for enroll in recipient.limesurvey_enrollment_ids.filtered(lambda e: not e.subject_id.is_tutorship):
-							survey_name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.display_name}"
-							if not only_key:								
-								title = f"{enroll.subject_id.acronym}: {enroll.subject_id.name} | {enroll.group_id.display_name}"
-								
-								teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
-								teachers_names = "" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
-								if len(teacher_name) > 0: title += f" | {teachers_names}"
-								
-								tmp = replace_block_content(block.tsv_raw_text, title, recipient.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, recipient.student_id.study_id.acronym, enroll.student_id.main_group_id.display_name, teachers_names)
-								tmp = tmp.replace("{'X'}", str(qID))
-								content += tmp
-								qID += 1
-			if append:				
-				survey_name += f" | {block.name}"	
-				if not only_key:
-					std_id = recipient.student_id
-					
-					teacher_name = ""
-					if block.special_tutorship:						
-						teacher_name = "" if not std_id or not std_id.main_group_id or not std_id.main_group_id.tutor_id else std_id.main_group_id.tutor_id.display_name
-						survey_name += f" {std_id.main_group_id.display_name}"
+    def action_get_csv(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content?model=ems.limesurvey_header&id={self.id}&field=csv_data&filename={self.csv_filename}&download=true',
+            'target': 'new',
+        }
 
-					study = "NONE" if not std_id or not std_id.study_id else std_id.study_id.acronym
-					group = "NONE" if not std_id or not std_id.main_group_id else std_id.main_group_id.display_name
-					content += replace_block_content(block.tsv_raw_text, block.name, recipient.level_id.acronym, block.name, block.name, study, group, teacher_name)
+    def action_remind(self):
+        persistent_data = {}
+        def compute():
+            success = persistent_data["success"]
+            if success:
+                for key in persistent_data["surveys"]:
+                    ls_api = persistent_data["ls_api"]
+                    survey = persistent_data["surveys"][key]
 
-		return {
-			"internal_id": self.persistent_hash(survey_name), 
-			"raw_tsv": None if only_key else content
-		}
-			
-	def fill_recipients_data(self, recipients):
-		# NOTE: The limesurvey_recipient_ids entries will be reset if an exception occurs, but LS opps will be done and won't be repeated (execute_once).
-		#		So, it's important to store changes in a non-attached object, and do it even if the LS opps have been completed (commit retry support).
-		for rec in recipients:
-			original = rec["original"].with_env(self.env)
-			original.write({
-				"tid": rec.get("tid", None),
-				"token": rec.get("token", None),
-				"error": rec.get("error", None),
-				"state": rec.get("state", None),
-				"internal_id": rec.get("internal_id", None),
-				"external_id": rec.get("external_id", None)				
-			})			
-	# endregion
+                    success = success and do_send_reminders(ls_api, survey)
+                    if not success: persistent_data["error"] = _("Something failed when trying to send reminders for a survey, please check the recipient entries for more details.")
+                persistent_data["success"] = success
+        return run_action(self, _("LimeSurvey: sending reminders"), _("Remind"), "reminding", "open", "uploaded", compute, persistent_data)
 
-	# region PRIVATE COMPUTE METHODS	
-	def _compute_recipients_students(self):		
-		# NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).
-		# TODO: this will change with Juan's enrollment changes. 
-		domain = [("main_group_id", "!=", False)]
+    def action_none(self):
+        return True
+    # endregion
 
-		if self.level_ids:
-			domain.append(("level_id", "in", self.level_ids.ids))
-		
-		if self.study_ids:
-			domain.append(("study_id", "in", self.study_ids.ids))
+    # region OTHER ACTIONS (POPUPS AND SO)
+    def open_add_student_popup(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Select the student to add'),
+            'res_model': 'ems.limesurvey_recipient',
+            'view_mode': 'form',
+            'view_id': self.env.ref('ems.view_limesurvey_recipient_add_student_popup').id,
+            'target': 'new'
+        }
+    # endregion
 
-		if self.group_ids:
-			domain.append(("main_group_id", "in", self.group_ids.ids))
+    # region PUBLIC COMPUTE / STORE METHODS
+    def compute_survey_data(self, recipient, only_key):
+        survey_name = f"{self.name}_{recipient.level_id.acronym}"
+        if not only_key:
+            content = self.tsv_raw_text
+            #content = content.replace("{'SID'}", "str(key)") # it's better to set it automatically and relate it with our hash internally
+            #content = content.replace("{'GSID'}", str(gsid)) # ignored by the import engine using TSV... should we change to XML import?
+            content = content.replace("{'TITLE'}", self.title)
+            content = content.replace("{'DESCRIPTION'}", self.description)
 
-		rec_ids = []				
-		students = self.env["res.partner"].search(domain)
-		for student in students:
-			enrollments = []
-			for enroll in student.enrollment_ids:
-				enrollments.append([0,0, {
-					"student_id": student.id,
-					"group_id": enroll.group_id.id,
-					"subject_id": enroll.subject_id.id,
-				}])
-			
-			email = False 
-			if student.student_email: email = student.student_email
-			if not email: email = student.email
-			
-			rec_ids.append([0,0, {
-				"name": student.name,
-				"email": email,
-				"level_id": student.level_id.id,
-				"student_id": student.id,
-				"wpi_enrolled": student.wpi_enrolled,
-				"limesurvey_enrollment_ids": enrollments				
-			}])
-		
-		# NOTE: I don't know why [[5]] fails...
-		for rec in self.limesurvey_recipient_ids:
-			rec.unlink()	
+        def replace_block_content(content, b_name, l_acro, s_code, s_name, d_acro, g_acro, trainer=""):
+            content = content.replace("{'TITLE'}", b_name)
+            content = content.replace("{'TOPIC'}", b_name)
+            content = content.replace("{'LEVEL'}", l_acro)
+            content = content.replace("{'S_CODE'}", s_code) # NOTE: this is not a mistake, the block name (topic) is used here also.
+            content = content.replace("{'S_NAME'}", s_name) # NOTE: this is not a mistake, the block name (topic) is used here also.
+            content = content.replace("{'DEGREE'}", d_acro)
+            content = content.replace("{'GROUP'}", g_acro)
+            content = content.replace("{'TRAINER'}", trainer)
 
-		self.write({
-			"limesurvey_recipient_ids": rec_ids
-		})
-	
-	def _compute_recipients_teachers(self):
-		# TODO: WARNING: do not repeat teachers (for example, if the same teacher is in CFGM and CFGS). Which level should be used? The first one?
-		raise NotImplemented("Coming soon...")
+            if recipient.student_id:
+                content = content.replace("{'RECIPIENT'}", "STUDENTS")
+            elif recipient.teacher_id:
+                content = content.replace("{'RECIPIENT'}", "TEACHERS")
+            elif recipient.asp_id:
+                content = content.replace("{'RECIPIENT'}", "ASP")
+            else:
+                content = content.replace("{'RECIPIENT'}", "UNKNOWN")
+            return content
 
-	def _compute_recipients_asp(self):
-		raise NotImplemented("Coming soon...")		
+        # NOTE: real enrollment data is not used, because modifying the survey content should be allowed by someone without permissions, the recipient's one is used instead.
+        # TODO: check behaviour with teachers and ASP
+        for block in self.limesurvey_block_ids:
+            append = not block.special
+            if block.special:
+                if block.special_course_filter == 0 or (block.special_course_filter > 0 and recipient.student_id and block.special_course_filter == recipient.student_id.main_group_id.course):
+                    # NOTE: special_course can be combined with WPI or Subject.
+                    if not block.special_subject_enrolled and not block.special_wpi_enrolled: append = True # Just course filter
+                    elif block.special_wpi_enrolled and recipient.student_id and recipient.wpi_enrolled: append = True
+                    elif block.special_subject_enrolled and recipient.student_id:
+                        # NOTE: Repeat the block for every enrolled subject. Each question must have a unique numerical id, for subject it should star with 4 (400, 4001, 4002...)
+                        #       Warning: tutorship is a subject too and the student will be enrolled, but tutorship blocks works different, so tutorship-subjects will be ignored,
+                        #       just regular subject will be taken in count.
+                        qID = 4
+                        for enroll in recipient.limesurvey_enrollment_ids.filtered(lambda e: not e.subject_id.is_tutorship):
+                            survey_name += f" | {block.name}_{enroll.subject_id.code}_{enroll.group_id.display_name}"
+                            if not only_key:
+                                title = f"{enroll.subject_id.acronym}: {enroll.subject_id.name} | {enroll.group_id.display_name}"
 
-	# region PRIVATE ONCHANGE METHODS (JUST FOR VIEWS)
-	@api.onchange('level_ids')
-	def _onchange_level_ids(self):	
-		ids = []
-		for rec in self:
-			for std in self.study_ids:
-				if std.level_id.id in self.level_ids._origin.ids:
-					ids.append(std.id)
-			rec.study_ids = [Command.set(ids)]
+                                teachings = self.env["ems.teaching"].search([("group_id", "=", enroll.group_id.id), ("subject_id", "=", enroll.subject_id.id)], order="teacher_id asc") or False
+                                teachers_names = "" if not teachings else ", ".join(teachings.mapped("teacher_id.name"))
+                                if len(teachers_names) > 0: title += f" | {teachers_names}"
 
-	@api.onchange('study_ids')
-	def _onchange_study_ids(self):
-		ids = []
-		for rec in self:
-			for grp in self.group_ids:
-				if grp.study_id.id in self.study_ids._origin.ids:
-					ids.append(grp.id)
-			rec.group_ids = [Command.set(ids)]
-	# endregion
+                                tmp = replace_block_content(block.tsv_raw_text, title, recipient.level_id.acronym, enroll.subject_id.code, enroll.subject_id.name, recipient.student_id.study_id.acronym, enroll.student_id.main_group_id.display_name, teachers_names)
+                                tmp = tmp.replace("{'X'}", str(qID))
+                                content += tmp
+                                qID += 1
+            if append:
+                survey_name += f" | {block.name}"
+                if not only_key:
+                    std_id = recipient.student_id
 
-	# region DELETE
-	def unlink(self):
-		allowed = ('draft', 'computed', 'uploaded', 'closed')
-		blocked = self.filtered(lambda h: h.state not in allowed)
-		if blocked:
-			raise UserError(_(
-				"Cannot delete this survey in its current state. "
-				"Only surveys in 'Draft', 'Recipients computed', or 'Closed' state can be deleted. "
-				"If the survey is active or in progress, please close it first."
-			))
+                    teacher_name = ""
+                    if block.special_tutorship:
+                        teacher_name = "" if not std_id or not std_id.main_group_id or not std_id.main_group_id.tutor_id else std_id.main_group_id.tutor_id.display_name
+                        survey_name += f" {std_id.main_group_id.display_name}"
 
-		closed_no_flag = self.filtered(
-			lambda h: h.state == 'closed' and not self.env.context.get('force_delete_closed')
-		)
-		if closed_no_flag:
-			action = self.env.ref('ems.action_limesurvey_delete_closed_confirmed')
-			raise RedirectWarning(
-				_(
-					"This survey is CLOSED.\n\n"
-					"Deleting it will also permanently delete it from LimeSurvey. "
-					"If the response data has NOT been downloaded yet, "
-					"it will be lost FOREVER and cannot be recovered.\n\n"
-					"Are you sure you want to delete it?"
-				),
-				action.id,
-				_("Yes, delete permanently"),
-				{'active_ids': self.ids, 'active_model': 'ems.limesurvey_header'},
-			)
+                    study = "NONE" if not std_id or not std_id.study_id else std_id.study_id.acronym
+                    group = "NONE" if not std_id or not std_id.main_group_id else std_id.main_group_id.display_name
+                    content += replace_block_content(block.tsv_raw_text, block.name, recipient.level_id.acronym, block.name, block.name, study, group, teacher_name)
 
-		ls_api = None
-		for header in self:
-			ext_ids = {r.external_id for r in header.limesurvey_recipient_ids if r.external_id}
-			if ext_ids:
-				if ls_api is None:
-					ls_api = LimesurveyApi(self.env)
-				for ext_id in ext_ids:
-					ls_api.delete_survey(ext_id)
+        return {
+            "internal_id": self.persistent_hash(survey_name),
+            "raw_tsv": None if only_key else content
+        }
 
-		self.mapped('limesurvey_recipient_ids').unlink()
-		return super().unlink()
+    def fill_recipients_data(self, recipients):
+        # NOTE: The limesurvey_recipient_ids entries will be reset if an exception occurs, but LS opps will be done and won't be repeated (execute_once).
+        #       So, it's important to store changes in a non-attached object, and do it even if the LS opps have been completed (commit retry support).
+        for rec in recipients:
+            original = rec["original"].with_env(self.env)
+            original.write({
+                "tid": rec.get("tid", None),
+                "token": rec.get("token", None),
+                "error": rec.get("error", None),
+                "state": rec.get("state", None),
+                "internal_id": rec.get("internal_id", None),
+                "external_id": rec.get("external_id", None)
+            })
+    # endregion
+
+    # region PRIVATE COMPUTE METHODS
+    def _compute_recipients_students(self):
+        # NOTE: Students without main group should be skipped, because they're not already enrolled (or have been resgined).
+        # TODO: this will change with Juan's enrollment changes.
+        domain = [("main_group_id", "!=", False)]
+
+        if self.level_ids:
+            domain.append(("level_id", "in", self.level_ids.ids))
+
+        if self.study_ids:
+            domain.append(("study_id", "in", self.study_ids.ids))
+
+        if self.group_ids:
+            domain.append(("main_group_id", "in", self.group_ids.ids))
+
+        rec_ids = []
+        students = self.env["res.partner"].search(domain)
+        for student in students:
+            enrollments = []
+            for enroll in student.enrollment_ids:
+                enrollments.append([0, 0, {
+                    "student_id": student.id,
+                    "group_id": enroll.group_id.id,
+                    "subject_id": enroll.subject_id.id,
+                }])
+
+            email = False
+            if student.student_email: email = student.student_email
+            if not email: email = student.email
+
+            rec_ids.append([0, 0, {
+                "name": student.name,
+                "email": email,
+                "level_id": student.level_id.id,
+                "student_id": student.id,
+                "wpi_enrolled": student.wpi_enrolled,
+                "limesurvey_enrollment_ids": enrollments
+            }])
+
+        # NOTE: I don't know why [[5]] fails...
+        for recipient in self.limesurvey_recipient_ids:
+            recipient.unlink()
+
+        self.write({
+            "limesurvey_recipient_ids": rec_ids
+        })
+
+    def _compute_recipients_teachers(self):
+        # TODO: WARNING: do not repeat teachers (for example, if the same teacher is in CFGM and CFGS). Which level should be used? The first one?
+        raise NotImplementedError(_("Coming soon..."))
+
+    def _compute_recipients_asp(self):
+        raise NotImplementedError(_("Coming soon..."))
+
+    # region PRIVATE ONCHANGE METHODS (JUST FOR VIEWS)
+    @api.onchange('level_ids')
+    def _onchange_level_ids(self):
+        ids = []
+        for header in self:
+            for study in self.study_ids:
+                if study.level_id.id in self.level_ids._origin.ids:
+                    ids.append(study.id)
+            header.study_ids = [Command.set(ids)]
+
+    @api.onchange('study_ids')
+    def _onchange_study_ids(self):
+        ids = []
+        for header in self:
+            for group in self.group_ids:
+                if group.study_id.id in self.study_ids._origin.ids:
+                    ids.append(group.id)
+            header.group_ids = [Command.set(ids)]
+    # endregion
+
+    # region DELETE
+    def unlink(self):
+        allowed = ('draft', 'computed', 'uploaded', 'closed')
+        blocked = self.filtered(lambda h: h.state not in allowed)
+        if blocked:
+            raise UserError(_(
+                "Cannot delete this survey in its current state. "
+                "Only surveys in 'Draft', 'Recipients computed', or 'Closed' state can be deleted. "
+                "If the survey is active or in progress, please close it first."
+            ))
+
+        closed_no_flag = self.filtered(
+            lambda h: h.state == 'closed' and not self.env.context.get('force_delete_closed')
+        )
+        if closed_no_flag:
+            action = self.env.ref('ems.action_limesurvey_delete_closed_confirmed')
+            raise RedirectWarning(
+                _(
+                    "This survey is CLOSED.\n\n"
+                    "Deleting it will also permanently delete it from LimeSurvey. "
+                    "If the response data has NOT been downloaded yet, "
+                    "it will be lost FOREVER and cannot be recovered.\n\n"
+                    "Are you sure you want to delete it?"
+                ),
+                action.id,
+                _("Yes, delete permanently"),
+                {'active_ids': self.ids, 'active_model': 'ems.limesurvey_header'},
+            )
+
+        ls_api = None
+        for header in self:
+            ext_ids = {r.external_id for r in header.limesurvey_recipient_ids if r.external_id}
+            if ext_ids:
+                if ls_api is None:
+                    ls_api = LimesurveyApi(self.env)
+                for ext_id in ext_ids:
+                    ls_api.delete_survey(ext_id)
+
+        self.mapped('limesurvey_recipient_ids').unlink()
+        return super().unlink()
 	# endregion
 
 class ems_limesurvey_block(models.Model):

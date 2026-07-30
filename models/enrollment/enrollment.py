@@ -426,12 +426,23 @@ class SaleOrder(models.Model):
                 ))
 
     def _is_blocked_tutor(self):
-        return (
-            self.env.user.has_group('ems.group_teacher') and
-            not self.env.user.has_group('ems.group_tutor') and
-            not self.env.user.has_group('ems.group_academic_admin') and
-            not self.env.user.has_group('ems.group_secretary')
-        )
+        """True for a plain teacher (blocked outright), and for a tutor who isn't
+        genuinely *this* order's own tutor - checked via has_access('write') rather
+        than re-deriving rule_sale_order_tutor's own condition in Python, so this
+        never drifts out of sync with security/rules/contacts.xml (the same class of
+        duplication bug fixed for ems.authorization.template's matching semantics).
+        Gives both cases the same friendly ValidationError instead of a bare
+        AccessError for the wrong-student-tutor case. See
+        plans/enrollment_header_tutor_guard_gap.md (now resolved).
+        """
+        if not self.env.user.has_group('ems.group_teacher'):
+            return False
+        if self.env.user.has_group('ems.group_academic_admin') \
+                or self.env.user.has_group('ems.group_secretary'):
+            return False
+        if self.env.user.has_group('ems.group_tutor'):
+            return not self.has_access('write')
+        return True
 
     def action_cancel(self):
         if self._is_blocked_tutor():

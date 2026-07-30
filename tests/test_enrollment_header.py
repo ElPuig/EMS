@@ -242,6 +242,26 @@ class TestEnrollmentHeader(TransactionCase):
         order.with_user(self.tutor_user).action_cancel()
         self.assertEqual(order.state, 'cancel')
 
+    def test_tutor_can_confirm_own_tutored_student(self):
+        tutored_student = self.env['res.partner'].create({
+            'name': 'Tutored Confirm Student', 'contact_type': 'student',
+            'main_group_id': self.tutor_group.id,
+        })
+        order = self._order(partner=tutored_student)
+        order.order_line = [(0, 0, {'product_id': self.subject.product_id.id})]
+        order.with_user(self.tutor_user).action_confirm()
+        self.assertEqual(order.state, 'sale')
+
+    def test_tutor_of_a_different_student_gets_friendly_error(self):
+        # self.student (setUpClass) is not tutored by self.tutor_user - see
+        # plans/enrollment_header_tutor_guard_gap.md. Without the has_access()
+        # check, this used to fall through to a bare AccessError from
+        # rule_sale_order_tutor instead of the same friendly ValidationError a
+        # plain teacher gets.
+        order = self._order()
+        with self.assertRaises(ValidationError):
+            order.with_user(self.tutor_user).action_cancel()
+
     def test_secretary_can_confirm(self):
         order = self._order()
         order.order_line = [(0, 0, {'product_id': self.subject.product_id.id})]

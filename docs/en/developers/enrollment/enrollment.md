@@ -83,27 +83,38 @@ an active incident. See `plans/enrollment_header_unique_race_condition.md`.
 
 ## Tutor-blocking guards
 
-`_is_blocked_tutor()` returns `True` only for a *plain* teacher: member of
+`_is_blocked_tutor()` returns `True` for a *plain* teacher (member of
 `ems.group_teacher` but none of `ems.group_tutor`,
-`ems.group_academic_admin`, `ems.group_secretary`. It gates
-`action_cancel`, `action_quotation_sent`, `action_quotation_send`,
+`ems.group_academic_admin`, `ems.group_secretary`), **and**, since
+2026-07-30, for a tutor who isn't genuinely *this order's own* tutor. It
+gates `action_cancel`, `action_quotation_sent`, `action_quotation_send`,
 `action_send_enrollment_proposal` and `action_confirm` — each raises a
-`ValidationError` up front for a blocked plain teacher, before calling into
-the native action.
+`ValidationError` up front for a blocked caller, before calling into the
+native action.
 
-**Known gap:** this Python guard is not the only access-control layer — the
-underlying `ir.rule`s in `security/rules/contacts.xml`
+**Fixed (2026-07-30):** this Python guard used to only ask "is this a plain
+teacher?" — the underlying `ir.rule`s in `security/rules/contacts.xml`
 (`rule_sale_order_tutor` etc.) independently restrict write access for
 `ems.group_teacher` members to orders where
 `partner_id.tutor_id.user_id = user.id` (i.e. the caller is genuinely *that
 student's* group tutor, not just someone in `group_tutor`), further limited
-to `state == 'draft'`. `_is_blocked_tutor()` never checks either of these —
-it only asks "is this a plain teacher", so a tutor who is a `group_tutor`
-member but not *this particular student's* tutor sails past
-`_is_blocked_tutor()` and only gets stopped by the `ir.rule` layer (a bare
-`AccessError`, not the friendlier `ValidationError` the Python guard raises
-for plain teachers). Still open — see
-`plans/enrollment_header_tutor_guard_gap.md`.
+to `state == 'draft'` — so a tutor who is a `group_tutor` member but not
+*this particular student's* tutor used to sail past `_is_blocked_tutor()`
+and only get stopped by the `ir.rule` layer itself, with a bare
+`AccessError` instead of the friendlier `ValidationError` a plain teacher
+gets. Rather than re-deriving `rule_sale_order_tutor`'s own condition by
+hand in Python (which would drift out of sync with the XML rule over time —
+the same class of duplication bug just fixed for
+[`ems.authorization.template`'s matching semantics](authorization.md)),
+`_is_blocked_tutor()` now calls the record's own
+`has_access('write')` (Odoo v18's non-deprecated access-check API, which
+evaluates the real `ir.rule` domain) for a tutor: if it comes back `False`,
+they're blocked with the same friendly message. Tested in
+`tests/test_enrollment_header.py`
+(`test_tutor_of_a_different_student_gets_friendly_error`/
+`test_tutor_can_confirm_own_tutored_student`, the latter a regression guard
+proving a genuine tutor can still confirm their own student's draft
+enrollment).
 
 **Fixed (2026-07-30):** cross-study/cross-tutor placement restrictions during
 the enrollment *proposal* flow were enforced only in

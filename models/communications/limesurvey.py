@@ -391,7 +391,9 @@ def _build_csv(env, all_responses):
             degree       = response.get(f"{prefix}degree", "")
             group        = response.get(f"{prefix}group", "")
             trainer      = _clean_trainer(response.get(f"{prefix}trainer", ""))
-            # TODO(gap): hardcoded, not read from the response - see plans/limesurvey_csv_department_placeholder.md
+            # Deliberate legacy placeholder, kept intentionally (developer decision,
+            # 2026-07-30) - see docs/en/developers/communications/limesurvey.md's
+            # "department column" section for why this isn't wired to real data.
             department   = "DEPARTMENT"
 
             numeric_keys = sorted(

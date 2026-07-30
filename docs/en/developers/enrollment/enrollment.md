@@ -69,15 +69,41 @@ where the same student already has another non-cancelled order for the same
 `ems_course_id`. Cancelled orders (`state == 'cancel'`) are excluded, so a
 student can always get a fresh enrollment after a previous one was cancelled.
 
-**Known gap:** this is a Python-only `@api.constrains` check — there is no
-`_sql_constraints` (partial unique index) backing it. Two concurrent
-transactions can each pass the constraint's `search()` before either commits,
-producing two live enrollments for the same student/course (a race condition,
-not exercised by the test suite). **Checked empirically (2026-07-30):** a
-production query (`GROUP BY partner_id, ems_course_id HAVING count(*) > 1`,
-`state != 'cancel'`) found **0 real duplicates** — the race exists in theory
-but has never fired here, so it stays a known, low-priority gap rather than
-an active incident. See `plans/enrollment_header_unique_race_condition.md`.
+**Fixed (2026-07-30):** `_check_unique_enrollment_per_course` alone is a Python-only
+`search()`-then-raise check — two concurrent transactions could each pass it before either
+committed, producing two live enrollments for the same student/course. Confirmed empirically
+this race had never actually fired (0 duplicates in both this dev DB and a real production
+snapshot), so it stayed a known, low-priority gap rather than an active incident — but was
+closed anyway, as a defensive backstop, per the same "close it even if unreachable today"
+reasoning applied to [`ems.enrollment`'s duplicate-triple gap](../contacts/enrollment.md).
+
+A plain `_sql_constraints` unique can't express "unique except when cancelled", so
+`SaleOrder.init()` creates a **partial unique index** directly instead:
+```sql
+CREATE UNIQUE INDEX IF NOT EXISTS sale_order_unique_enrollment_per_course
+ON sale_order (partner_id, ems_course_id)
+WHERE state != 'cancel' AND partner_id IS NOT NULL AND ems_course_id IS NOT NULL
+```
+mirroring the Python constraint's own skip conditions exactly. `create()`/`write()` now
+catch the resulting `psycopg2.IntegrityError` (`_translate_enrollment_race_error`, matching
+the established pattern already used in `ems.grade_session.create()`) and re-raise the same
+friendly `ValidationError` message, so the rare race case reads the same as the common
+already-blocked case rather than surfacing a raw DB error.
+
+**Testing gotcha found while adding this:** unlike the `@api.constrains` check (which always
+flushes before its own `search()`), the raw DB index only sees writes actually flushed to
+PostgreSQL. A test that cancels one order and creates another for the same student/course
+*within the same transaction* needs an explicit `self.env.flush_all()` in between, or
+PostgreSQL still sees the pre-cancel row and incorrectly rejects the new one as a duplicate.
+Confirmed via a full-codebase grep that no real production code path does this same
+cancel-then-recreate sequence within a single transaction (real usage always spans separate
+requests, which are already fully flushed and committed by the time a later one runs) — so
+this is a test-only timing artifact, not a production behavior change. Tested in
+`tests/test_enrollment_header.py` (`test_unique_enrollment_index_exists`/
+`test_unique_enrollment_index_rejects_raw_duplicate_at_db_level`/
+`test_unique_enrollment_index_allows_raw_duplicate_when_cancelled`/
+`test_translate_enrollment_race_error_matching_index_raises_validation_error`/
+`test_translate_enrollment_race_error_other_constraint_reraises_unchanged`).
 
 ---
 

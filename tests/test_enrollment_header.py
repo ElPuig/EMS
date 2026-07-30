@@ -1,5 +1,7 @@
 from datetime import date
 
+from psycopg2 import IntegrityError
+
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -135,6 +137,12 @@ class TestEnrollmentHeader(TransactionCase):
     def test_cancelled_enrollment_does_not_block_a_new_one(self):
         first = self._order()
         first.action_cancel()
+        # The new partial unique index (see the "DB-level backstop" tests below) is
+        # enforced by PostgreSQL directly, which only sees flushed writes - unlike the
+        # @api.constrains check above, which always flushes before its own search().
+        # Real usage never hits this (a cancel and a later create are always separate
+        # requests/transactions, already fully flushed and committed by then).
+        self.env.flush_all()
         second = self._order()
         self.assertTrue(second.id)
 
@@ -148,6 +156,64 @@ class TestEnrollmentHeader(TransactionCase):
         self._order()
         second = self._order(partner=self.other_student)
         self.assertTrue(second.id)
+
+    # --- unique enrollment per course: DB-level backstop (race condition) -------------
+    # The @api.constrains above is a search()-then-raise check, not a DB constraint - two
+    # concurrent transactions could each pass it before either commits (see
+    # plans/enrollment_header_unique_race_condition.md, now resolved). A partial unique
+    # index (created in SaleOrder.init(), since a plain _sql_constraints unique can't
+    # express "unique except when cancelled") backstops it at the DB level.
+
+    def test_unique_enrollment_index_exists(self):
+        self.env.cr.execute(
+            "SELECT indexdef FROM pg_indexes WHERE indexname = 'sale_order_unique_enrollment_per_course'")
+        row = self.env.cr.fetchone()
+        self.assertTrue(row, "partial unique index must exist on sale_order")
+        self.assertIn('UNIQUE', row[0])
+        self.assertIn('WHERE', row[0])
+
+    def _raw_insert_order(self, order, name, state='draft'):
+        self.env.cr.execute(
+            "INSERT INTO sale_order "
+            "(company_id, partner_id, partner_invoice_id, partner_shipping_id, "
+            " ems_course_id, state, name, date_order) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, now())",
+            (order.company_id.id, order.partner_id.id, order.partner_id.id,
+             order.partner_id.id, order.ems_course_id.id, state, name))
+
+    def test_unique_enrollment_index_rejects_raw_duplicate_at_db_level(self):
+        # Raw SQL bypasses the ORM entirely (including the @api.constrains above), so this
+        # proves the DB-level index itself enforces uniqueness, independent of the Python
+        # check - i.e. the actual backstop the race condition needs.
+        order = self._order()
+        with self.assertRaises(Exception):
+            self._raw_insert_order(order, 'Raw Duplicate')
+
+    def test_unique_enrollment_index_allows_raw_duplicate_when_cancelled(self):
+        order = self._order()
+        order.action_cancel()
+        # Raw SQL only sees flushed writes - see test_cancelled_enrollment_does_not_block_a_new_one.
+        self.env.flush_all()
+        # No exception: a cancelled order never counts toward the partial index's WHERE
+        # clause, exactly like the Python constraint's own skip condition.
+        self._raw_insert_order(order, 'Raw Non-Duplicate')
+
+    def test_translate_enrollment_race_error_matching_index_raises_validation_error(self):
+        # A genuine cross-transaction race can't be reproduced inside a single
+        # TransactionCase (fixtures are never actually committed - see
+        # docs/en/developers/shared/multithreading.md for the same limitation elsewhere in
+        # this codebase), so this tests _translate_enrollment_race_error() directly rather
+        # than mocking deep into Odoo's create()/super() chain to simulate one end-to-end.
+        error = IntegrityError(
+            'duplicate key value violates unique constraint '
+            '"sale_order_unique_enrollment_per_course"')
+        with self.assertRaises(ValidationError):
+            self.env['sale.order']._translate_enrollment_race_error(error)
+
+    def test_translate_enrollment_race_error_other_constraint_reraises_unchanged(self):
+        error = IntegrityError('duplicate key value violates unique constraint "some_other_constraint"')
+        with self.assertRaises(IntegrityError):
+            self.env['sale.order']._translate_enrollment_race_error(error)
 
     # --- group/study consistency ------------------------------------------------
 

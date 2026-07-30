@@ -1,11 +1,27 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+
+from psycopg2 import IntegrityError
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.mail.tools.discuss import Store
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
+
+    def init(self):
+        """Partial unique index backstopping _check_unique_enrollment_per_course at the DB
+        level - a plain _sql_constraints unique can't express "unique except when
+        cancelled" (see plans/enrollment_header_unique_race_condition.md, now resolved).
+        Mirrors the Python constraint's own skip conditions (cancelled / no partner / no
+        course) exactly, so it only ever fires for the same cases the Python check does.
+        """
+        self.env.cr.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS sale_order_unique_enrollment_per_course
+            ON sale_order (partner_id, ems_course_id)
+            WHERE state != 'cancel' AND partner_id IS NOT NULL AND ems_course_id IS NOT NULL
+        """)
 
     def _get_default_course(self):
         """
@@ -184,6 +200,18 @@ class SaleOrder(models.Model):
             if order.state in ['draft', 'sent'] and order.ems_study_id:
                 order.name = order._get_dynamic_enrollment_name()
 
+    def _translate_enrollment_race_error(self, error):
+        """Re-raise a friendly ValidationError for the partial unique index created in
+        init() - a genuine cross-transaction race that slipped past
+        _check_unique_enrollment_per_course's own search()-then-raise check. Any other
+        IntegrityError is re-raised unchanged."""
+        if 'sale_order_unique_enrollment_per_course' not in str(error):
+            raise error
+        raise ValidationError(_(
+            "This student already has a pre-enrolment or active enrolment for this "
+            "academic year. Someone else may have just created one — please refresh "
+            "and check.")) from error
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -198,7 +226,10 @@ class SaleOrder(models.Model):
                 vals['name'] = 'Generating...'
         # 3. Call the native method to persist the records. Since 'name' is
         #    'Generating...', Odoo will not apply the S0000X sequence.
-        records = super(SaleOrder, self).create(vals_list)
+        try:
+            records = super(SaleOrder, self).create(vals_list)
+        except IntegrityError as e:
+            self._translate_enrollment_race_error(e)
         # 4. The records now exist and have their enrollment number saved:
         #    build the final name.
         for order in records:
@@ -216,7 +247,10 @@ class SaleOrder(models.Model):
                 lambda o: o.ems_study_id and o.state != 'sent'
             )
 
-        res = super(SaleOrder, self).write(vals)
+        try:
+            res = super(SaleOrder, self).write(vals)
+        except IntegrityError as e:
+            self._translate_enrollment_race_error(e)
 
         if handover_orders:
             handover_orders._ems_unfollow_teachers()

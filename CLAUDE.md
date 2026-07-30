@@ -286,9 +286,10 @@ Spanish conversation around it — this doesn't replace the "respond in Spanish"
 extra deliverable at the end. Keep bullets terse and user/reviewer-facing (what changed and
 why it matters), not a restatement of the implementation narrative already given in Spanish.
 Per-item formatting: use the item's own descriptive title directly as the `##` heading (no
-"Item 1:"/"Item 2:" prefix, despite the placeholder text in the template file) — and never
-use an em dash (—) inside that title as a separator; parentheses read better, e.g.
-`## Portal IBAN renewal (bank account never trusted)`.
+"Item 1:"/"Item 2:" prefix, despite the placeholder text in the template file), **ending
+that heading line with a colon** — and never use an em dash (—) inside the title as a
+separator; parentheses read better, e.g.
+`## Portal IBAN renewal (bank account never trusted):`.
 
 **Block layout — this has been gotten wrong 3 times already (2026-07-30), always the same
 way: putting the section name (`# Fixes:` etc.) *inside* the fenced block instead of before
@@ -313,18 +314,18 @@ under the developer's existing heading with no manual re-splitting.
 ~~~
 
 **Right** (section name is plain text outside the fence; the fence's first line is the `##`
-item title):
+item title, ending in a colon):
 
 **Fixes:**
 ```markdown
-## Item title here
+## Item title here:
 - detail
 - detail
 ```
 
 **Internal changes:**
 ```markdown
-## Another item title
+## Another item title:
 - detail
 ```
 

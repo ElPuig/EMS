@@ -187,13 +187,28 @@ flowchart TD
 - `_do`'s `except Exception as e:` — `e` was unused; narrowed to `except Exception:`.
 - Tabs → spaces throughout both regions, matching this rollout's normalization convention.
 
-### Found, not fixed — logged as a gap
+### Investigated and closed, no fix needed — the `department` column (2026-07-30)
 
-`_build_csv()`'s `department` column is a hardcoded literal `"DEPARTMENT"`, not read from the
-survey response like every other column. See
-[`plans/limesurvey_csv_department_placeholder.md`](../../../../plans/limesurvey_csv_department_placeholder.md)
-— fixing it needs input on where the real value should come from (a survey question key, or a
-derived lookup), which is business knowledge, not a normalization call.
+`_build_csv()`'s `department` column is a hardcoded literal `"DEPARTMENT"` for every row —
+unlike every other column (`level`, `topic`, `subject_code`, `subject_name`, `degree`,
+`group`, `trainer`), which is read from the actual survey response via a per-block `{prefix}`
+key (see [Block 4](#block-4-emslimesurvey_header-crud--action-methods) below for where those
+prefixed keys come from). Confirmed by reading `replace_block_content()` (the function that
+fills in a block's own placeholders when a survey is generated): there is no `{'DEPARTMENT'}`
+placeholder anywhere in the block-generation pipeline, unlike `{'LEVEL'}`/`{'S_CODE'}`/
+`{'DEGREE'}`/etc. — department is never generated as a per-block question code in the first
+place, so `_build_csv()` has no real value it could read even if it tried. `ems.subject` also
+has no department-like field to derive one from.
+
+**Developer's decision (2026-07-30):** leave as-is, deliberately. There is currently no clear
+way to relate a student to a department in EMS, so wiring this up for real isn't attempted.
+The literal `"DEPARTMENT"` string is a **legacy placeholder**: the exported CSV is fed into
+Metabase (an external BI tool, outside this codebase) for reporting, and the department
+column is filled in manually via a find-and-replace on the CSV before that import — this is
+an accepted, existing operational step, not a bug to fix in EMS. Once Metabase is retired in
+favor of doing this reporting directly from EMS (a future, not-yet-planned change), this
+column will likely be dropped entirely rather than wired to real data. Not tracked as an open
+plan — this is a closed, intentional decision, not a pending gap.
 
 ### Tests
 

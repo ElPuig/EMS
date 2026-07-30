@@ -10,8 +10,8 @@ name: Require changelog/ removed before merge
 # limitation with path-filtered required checks - avoided here by never filtering this
 # workflow's own trigger by path).
 #
-# Add "check" (this job's name) as a required status check in main's branch protection
-# rules, alongside "CI: Unit Testing"'s "ci" job.
+# Add "changelog-clean" (this job's name) as a required status check in main's branch
+# protection rules, alongside "CI: Unit Testing"'s "ci" job.
 
 on:
   pull_request:
@@ -19,7 +19,7 @@ on:
     branches: [main]
 
 jobs:
-  check:
+  changelog-clean:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout PR head

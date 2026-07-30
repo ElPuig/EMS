@@ -61,6 +61,9 @@
                                     <field name="delete_count"/>
                                 </group>
                             </group>
+                            <group invisible="has_blockers">
+                                <field name="backup_done"/>
+                            </group>
                             <field name="line_ids" nolabel="1" readonly="1">
                                 <list string="Preview" create="false" delete="false">
                                     <field name="student_id"/>
@@ -70,9 +73,6 @@
                                     <field name="destination_group_id"/>
                                 </list>
                             </field>
-                            <group invisible="has_blockers">
-                                <field name="backup_done"/>
-                            </group>
                         </div>
 
                         <div invisible="state != 'done'">

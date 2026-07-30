@@ -1,6 +1,6 @@
 # PLAN — Audit and fill missing browser tour coverage across EMS
 
-> **Status: flagged 2026-07-30, not started.** Requested by the developer after a concrete
+> **Status: in progress, started 2026-07-30.** Requested by the developer after a concrete
 > incident: a checkbox-to-radio widget change on `ems.limesurvey_block`'s form
 > (`plans`/memory: `limesurvey_block_special_mutual_exclusion_asymmetry`, now resolved) was
 > initially shipped with no tour, on the reasoning "no tour exists for this view" — which
@@ -77,6 +77,75 @@ not this rough count.
 4. Going forward, per the now-updated `CLAUDE.md` Development workflow: **any new change to a
    model with a UI surface gets a tour as part of that same change**, closing off new gaps
    from accumulating while this backlog is worked through.
+
+## Audit findings (Explore agent, 2026-07-30) and progress
+
+Full enumeration came back as: 25 tour files / 35 registered tours vs. 64 `ir.actions.act_window`
+records total, only 24 opened directly by a tour URL — roughly **~40 hard zero-coverage
+model/view surfaces**, ~6 soft/partial. Priority order agreed with the developer (highest-risk/
+highest-value first, custom widgets and daily-use screens ahead of reference/config data):
+
+1. ✅ **`ems.grade_session`** (`action_grade_session_tree`, custom `widget="grade_matrix"`) —
+   done 2026-07-30. `static/tests/tours/grade_matrix_tour.js` +
+   `tests/test_grade_matrix_tour.py`. Unlike the `ems.limesurvey_block` precedent, this pass did
+   **not** surface a pre-existing application bug — every failure hit while writing the tour
+   turned out to be a test-authoring mistake (an `HttpCase`-internal `self.session` naming
+   collision, `ems.group.name` being a silently-overwritten computed field, a CSS
+   `:first-of-type` misunderstanding, an empty-`<span>` visibility check, and OWL's async
+   DOM-patch timing after a raw `dblclick` needing a poll loop instead of one
+   `requestAnimationFrame`). It does positively confirm the grid's double-click → edit → Apply
+   → re-render flow works correctly in a real browser, which had never been verified before.
+2. ✅ **`ems.portal.access.wizard`** (`widget="radio"` on `mode`) — done 2026-07-30.
+   `static/tests/tours/portal_access_wizard_tour.js` + `tests/test_portal_access_wizard_tour.py`.
+   Drives the real UI path (select a student in the list, open the list's Actions/cog menu,
+   launch the wizard, switch the radio to "Revoke access", Apply), asserting the underlying
+   portal user is actually archived afterward. Found one genuine, non-trivial gotcha along the
+   way: Odoo's tour-engine `:contains()` is case-insensitive, so a menu-item selector text
+   ("Portal access") ambiguously matched both this action and the unrelated, native Odoo
+   action already on the same list ("Grant Portal Access") — fixed in the tour by matching on
+   a substring unique to this action's name ("students/families"). Also flagged (not fixed) as
+   a real UX finding: the same ambiguity exists for a human reading the Actions menu, not just
+   the tour's selector — two similarly-worded, unrelated portal-access entries sit side by
+   side on the same list.
+3. ✅ **`ems.grade_session_state_wizard`** (`widget="radio"` sibling of `grade_session_wizard`,
+   itself only ever smoke-tested) — done 2026-07-30.
+   `static/tests/tours/grade_session_state_wizard_tour.js` +
+   `tests/test_grade_session_state_wizard_tour.py`. Switches mode from the default "By study"
+   to "By level", picks a level via many2many_tags autocomplete, applies a real evaluation
+   state transition, verified against the DB. Found one real, reusable gotcha: a `target="new"`
+   dialog's own `<footer>` is a DOM sibling of `.o_form_view`, not nested under it — a
+   `.o_form_view footer ...` selector (fine on a directly-navigated page) silently never
+   matches inside a dialog; use `.modal footer ...` for any dialog-rendered form's footer
+   buttons instead.
+4. ✅ **`action_ems_enrollments`** (`sale.order`, the matrícula screen) — done 2026-07-30.
+   `static/tests/tours/enrollment_tour.js` + `tests/test_enrollment_tour.py`. Opens a seeded
+   draft enrollment, walks the three EMS-added tabs (Enrollment Items / Authorizations /
+   Payment) to confirm none crash despite the form's heavy xpath customization over native
+   Sales, and does a real edit-save (the `shift` field) verified against the DB. No pre-
+   existing bug found — confirms the form renders and saves correctly.
+5. ⬜ `ems.notice` (`action_communication_list`) — `widget="html"` + `statusbar` +
+   `many2many_tags`, zero coverage.
+6. ⬜ Attendance office screens (`ems.attendance_correction`/`_issue_*`/`_justification`) —
+   daily use, zero coverage.
+7. ⬜ File-upload wizards (`ems.working_schedules_import_wizard` `many2many_binary`,
+   `ems.applicant_import_wizard`/`student_import_wizard`/`student_update_wizard`
+   `binary`/`auto_download_binary`).
+8. ⬜ `res.config.settings`'s ~20 untested fields (Google Workspace, LimeSurvey credentials) —
+   admin-only, lower frequency but high blast-radius.
+9. ⬜ Lower priority (reference/config data, plain widgets, not yet individually ordered):
+   `hr.job`, `hr.work.location`, `hr.contract.type`, `ems.tracking`, `ems.minute`,
+   `ems.strike.reason`, `resource.calendar`, `product.template`/`sale.order.template`/
+   `ems.authorization.template`, `queue.job`, `account.move.line`, `mail.activity.type`,
+   filtered `res.partner` actions.
+
+Working the same one-gap-at-a-time cadence as the rest of this branch's DTON work — each item
+gated with `./upgrade.sh` + its own scoped `./test.sh TestClassName`, changelog entry appended
+per item, full unscoped `./test.sh` deferred until a batch is done rather than run after every
+single tour.
+
+**Batch gate, 2026-07-30 (items 1-4 above):** full unscoped `./test.sh` run —
+0 failed, 0 error(s) of 1359 tests. No regressions from any of the four tours added in this
+batch.
 
 ## Open questions
 

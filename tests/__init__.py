@@ -58,11 +58,13 @@ from . import test_student_import_wizard
 from . import test_student_update_wizard
 from . import test_planning
 from . import test_portal_access_wizard
+from . import test_portal_access_wizard_tour
 from . import test_portal_enrollment
 from . import test_data_custom_import_prefix
 from . import test_data_main_cat_prefix
 from . import test_security_group_references
 from . import test_grade_session_tour
+from . import test_grade_session_state_wizard_tour
 from . import test_employee_google_workspace
 from . import test_employee_google_workspace_tour
 from . import test_employee_ems_user
@@ -89,6 +91,7 @@ from . import test_enrollment_header
 from . import test_authorization
 from . import test_payment_term
 from . import test_enrollment_line
+from . import test_enrollment_tour
 from . import test_enrollment_product_extension
 from . import test_enrollment_mail_activity
 from . import test_attendance_session
@@ -102,3 +105,4 @@ from . import test_limesurvey_header
 from . import test_limesurvey_recipient
 from . import test_limesurvey_block_tour
 from . import test_shared_mixins
+from . import test_grade_matrix_tour

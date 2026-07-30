@@ -13618,3 +13618,55 @@ msgid ""
 "not use the enrollment flow, so that is the expected state until the "
 "September Esfer@ re-import: %s."
 msgstr "%s estudiantes no tienen matrícula para el curso entrante. Su estudio no usa el flujo de matrícula, así que es lo esperado hasta la reimportación de Esfer@ de septiembre: %s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "joining their group"
+msgstr "se incorporan a su grupo"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "graduating and leaving"
+msgstr "se gradúan y se van"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "graduating and continuing"
+msgstr "se gradúan y continúan"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "becoming applicants"
+msgstr "pasan a solicitantes"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid ""
+"Applying the transition: %(detail)s. %(records)s operational record(s) will "
+"be deleted. This can take several minutes — do not close this window."
+msgstr "Aplicando la transición: %(detail)s. Se borrarán %(records)s registros operativos. Puede tardar varios minutos — no cierres esta ventana."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "pending confirmation"
+msgstr "pendientes de confirmar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "with no enrollment"
+msgstr "sin matrícula"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
+msgid ""
+"The operational records of the outgoing course will be deleted and this "
+"cannot be undone. It can take several minutes: do not close the window while"
+" it runs. Apply the transition?"
+msgstr "Los registros operativos del curso saliente se borrarán y esto no se puede deshacer. Puede tardar varios minutos: no cierres la ventana mientras se ejecuta. ¿Aplicar la transición?"

@@ -13596,3 +13596,55 @@ msgid ""
 "not use the enrollment flow, so that is the expected state until the "
 "September Esfer@ re-import: %s."
 msgstr "%s estudiants no tenen matrícula per al curs entrant. El seu estudi no fa servir el flux de matrícula, així que és el que s'espera fins a la reimportació d'Esfer@ de setembre: %s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "joining their group"
+msgstr "s'incorporen al seu grup"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "graduating and leaving"
+msgstr "es graduen i marxen"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "graduating and continuing"
+msgstr "es graduen i continuen"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "becoming applicants"
+msgstr "passen a sol·licitants"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid ""
+"Applying the transition: %(detail)s. %(records)s operational record(s) will "
+"be deleted. This can take several minutes — do not close this window."
+msgstr "Aplicant la transició: %(detail)s. S'esborraran %(records)s registres operatius. Pot trigar diversos minuts — no tanquis aquesta finestra."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "pending confirmation"
+msgstr "pendents de confirmar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "with no enrollment"
+msgstr "sense matrícula"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
+msgid ""
+"The operational records of the outgoing course will be deleted and this "
+"cannot be undone. It can take several minutes: do not close the window while"
+" it runs. Apply the transition?"
+msgstr "Els registres operatius del curs sortint s'esborraran i això no es pot desfer. Pot trigar diversos minuts: no tanquis la finestra mentre s'executa. Voleu aplicar la transició?"

@@ -5,7 +5,7 @@
             <field name="name">ems.course_transition_wizard.form</field>
             <field name="model">ems.course_transition_wizard</field>
             <field name="arch" type="xml">
-                <form string="Set up the next course">
+                <form string="Set up the next course" js_class="ems_course_transition_form">
                     <sheet>
                         <field name="state" invisible="1"/>
                         <field name="has_blockers" invisible="1"/>
@@ -87,7 +87,7 @@
                                 class="btn-primary" invisible="state == 'done'"/>
                         <button name="action_apply" type="object" string="Apply the transition"
                                 class="btn-danger" invisible="state != 'preview' or has_blockers"
-                                confirm="The operational records of the outgoing course will be deleted and this cannot be undone. Apply the transition?"/>
+                                confirm="The operational records of the outgoing course will be deleted and this cannot be undone. It can take several minutes: do not close the window while it runs. Apply the transition?"/>
                         <button special="cancel" string="Close"/>
                     </footer>
                 </form>

@@ -134,6 +134,31 @@ def _backfill_attendance_status_id(cr):
             "and dropped the attendance_status_old backup column.")
 
 
+def _backfill_special_type(cr):
+    """Second half of the special_wpi_enrolled/special_subject_enrolled -> special_type
+    migration - see the matching _rename_old_special_columns() in pre-migrate.py. A row
+    with both old booleans True never actually occurred in production (confirmed via
+    ems_prod_snapshot, 2026-07-30), but 'wpi' wins if it ever did, matching the old
+    onchange's own precedence (its `if special_wpi_enrolled: ...` branch always checked
+    first). Plain Selection value, no xmlid lookup needed (unlike attendance_status_id).
+    """
+    if not _column_exists(cr, 'ems_limesurvey_block', 'special_wpi_enrolled_old'):
+        return
+    cr.execute("""
+        UPDATE ems_limesurvey_block SET special_type = CASE
+            WHEN special_wpi_enrolled_old THEN 'wpi'
+            WHEN special_subject_enrolled_old THEN 'subject'
+            ELSE NULL
+        END
+    """)
+    cr.execute("ALTER TABLE ems_limesurvey_block DROP COLUMN special_wpi_enrolled_old")
+    cr.execute("ALTER TABLE ems_limesurvey_block DROP COLUMN special_subject_enrolled_old")
+    _logger.info(
+        "Migration 18.0.0.22.0: backfilled ems_limesurvey_block.special_type (%d rows "
+        "checked) and dropped the special_wpi_enrolled_old/special_subject_enrolled_old "
+        "backup columns.", cr.rowcount)
+
+
 def _backfill_iban_trust(env):
     """Re-apply _apply_bank_account() for every already-approved IBAN document, so its
     underlying res.partner.bank ends up trusted (allow_out_payment=True) - see
@@ -164,4 +189,5 @@ def migrate(cr, _version):
     _archive_existing_ex_students(env)
     _backfill_google_ws_suspended(env)
     _backfill_attendance_status_id(cr)
+    _backfill_special_type(cr)
     _backfill_iban_trust(env)

@@ -8873,6 +8873,37 @@ msgid "Subject (all enrolled)"
 msgstr "Assignatura (tots els matriculats)"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_block__special_type__subject
+msgid "Subject (all enrolled)"
+msgstr "Assignatura (tots els matriculats)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_type
+msgid "Special Filter"
+msgstr "Filtre especial"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid "Special filter"
+msgstr "Filtre especial"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+msgid ""
+"'Subject': the block is generated once per enrolled subject. 'WorkPlace "
+"Internship': the block appears only for students enrolled in a WorkPlace "
+"Internship."
+msgstr ""
+"'Assignatura': el bloc es genera una vegada per cada assignatura "
+"matriculada. 'FCT': el bloc només apareix per a alumnes matriculats en "
+"Formació en Centres de Treball."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_block__special_type__wpi
+msgid "WorkPlace Internship (if enrolled)"
+msgstr "FCT (si està matriculat)"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_product_product__ems_subject_unit_cost
 #: model:ir.model.fields,field_description:ems.field_product_template__ems_subject_unit_cost
 msgid "Subject Unit Cost"

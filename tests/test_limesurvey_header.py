@@ -221,7 +221,7 @@ class TestComputeSurveyData(TransactionCase):
         cls.block = cls.env['ems.limesurvey_block'].create({
             'name': 'Subject block', 'limesurvey_header_id': cls.header.id,
             'tsv_raw_text': "col\n{'X'}\t{'TITLE'}",
-            'special': True, 'special_subject_enrolled': True, 'special_course_filter': 0,
+            'special': True, 'special_type': 'subject', 'special_course_filter': 0,
         })
         cls.recipient = cls.env['ems.limesurvey_recipient'].create({
             'limesurvey_header_id': cls.header.id, 'name': cls.student.name, 'email': 'porrino.fernando+compute@example.com',
@@ -242,3 +242,28 @@ class TestComputeSurveyData(TransactionCase):
         result = self.header.compute_survey_data(self.recipient, only_key=True)
         self.assertIsNone(result['raw_tsv'])
         self.assertTrue(result['internal_id'])
+
+    def test_special_type_wpi_appends_block_for_enrolled_student(self):
+        # No prior coverage of the special_type='wpi' branch existed before the
+        # special_wpi_enrolled/special_subject_enrolled -> special_type Selection fix
+        # (2026-07-30, see docs/en/developers/communications/limesurvey.md).
+        wpi_student = self.env['res.partner'].create({
+            'name': 'WPI Student', 'contact_type': 'student', 'main_group_id': self.group.id,
+            'level_id': self.level.id, 'study_id': self.study.id, 'wpi_enrolled': True,
+        })
+        wpi_block = self.env['ems.limesurvey_block'].create({
+            'name': 'WPI block', 'limesurvey_header_id': self.header.id,
+            'tsv_raw_text': "col\n{'TITLE'}",
+            'special': True, 'special_type': 'wpi', 'special_course_filter': 0,
+        })
+        wpi_recipient = self.env['ems.limesurvey_recipient'].create({
+            'limesurvey_header_id': self.header.id, 'name': wpi_student.name,
+            'email': 'porrino.fernando+wpi@example.com',
+            'level_id': self.level.id, 'student_id': wpi_student.id, 'state': 'pending',
+            # ems.limesurvey_recipient.wpi_enrolled is its own field, only populated from
+            # the student at real recipient-creation time (fill_recipients_data) - must be
+            # set explicitly here since this test creates the recipient directly.
+            'wpi_enrolled': True,
+        })
+        result = self.header.compute_survey_data(wpi_recipient, only_key=False)
+        self.assertIn(wpi_block.name, result['raw_tsv'])

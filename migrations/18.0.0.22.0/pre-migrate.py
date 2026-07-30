@@ -92,6 +92,24 @@ def _column_exists(cr, table, column):
     return bool(cr.fetchone())
 
 
+def _rename_old_special_columns(cr):
+    """ems_limesurvey_block.special_wpi_enrolled/special_subject_enrolled (both Boolean)
+    become a single special_type Selection in this version - see
+    plans/limesurvey_block_special_mutual_exclusion_asymmetry.md (now resolved). Same
+    rename-before-schema-sync gotcha as _rename_old_status_columns above: renaming here
+    (before the fields are removed from the model) keeps the old values reachable for the
+    post-migrate backfill, since Odoo's own field-removal cleanup would otherwise drop the
+    columns outright.
+    """
+    if _column_exists(cr, 'ems_limesurvey_block', 'special_wpi_enrolled'):
+        cr.execute("ALTER TABLE ems_limesurvey_block RENAME COLUMN special_wpi_enrolled TO special_wpi_enrolled_old")
+        _logger.info("Migration 18.0.0.22.0: preserved ems_limesurvey_block.special_wpi_enrolled as special_wpi_enrolled_old for the post-migrate backfill.")
+
+    if _column_exists(cr, 'ems_limesurvey_block', 'special_subject_enrolled'):
+        cr.execute("ALTER TABLE ems_limesurvey_block RENAME COLUMN special_subject_enrolled TO special_subject_enrolled_old")
+        _logger.info("Migration 18.0.0.22.0: preserved ems_limesurvey_block.special_subject_enrolled as special_subject_enrolled_old for the post-migrate backfill.")
+
+
 def _dedupe_ems_enrollment(cr):
     """ems.enrollment gets a new UNIQUE(student_id, group_id, subject_id) constraint in
     this version (see plans/enrollment_junction_duplicate_constraint.md) - the schema sync
@@ -123,4 +141,5 @@ def migrate(cr, _version):
     _migrate_role_color(cr)
     _migrate_attendance_template_color(cr)
     _rename_old_status_columns(cr)
+    _rename_old_special_columns(cr)
     _dedupe_ems_enrollment(cr)

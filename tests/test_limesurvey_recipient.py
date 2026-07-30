@@ -21,22 +21,16 @@ class TestLimesurveyBlock(TransactionCase):
         vals.update(overrides)
         return self.env['ems.limesurvey_block'].create(vals)
 
-    def test_onchange_special_wpi_clears_subject_enrolled(self):
-        block = self._block(special=True, special_subject_enrolled=True)
-        block.special_wpi_enrolled = True
-        block._onchange_special()
-        self.assertFalse(block.special_subject_enrolled)
-
-    def test_onchange_special_subject_enrolled_does_not_clear_wpi(self):
-        # Documents a known asymmetry (not fixed in this pass, see
-        # plans/limesurvey_block_special_mutual_exclusion_asymmetry.md): the elif branch can
-        # only run when special_wpi_enrolled is already falsy, so it never actually clears a
-        # True WPI value - mutual exclusion only works in the WPI-clears-Subject direction.
-        block = self._block(special=True, special_wpi_enrolled=True)
-        block.special_subject_enrolled = True
-        block._onchange_special()
-        self.assertFalse(block.special_subject_enrolled)  # reverted by the `if` branch, not the `elif`
-        self.assertTrue(block.special_wpi_enrolled)  # unaffected - the asymmetry
+    def test_special_type_selection_is_exclusive_by_construction(self):
+        # Fixed 2026-07-30 (see docs/en/developers/communications/limesurvey.md): the old
+        # special_wpi_enrolled/special_subject_enrolled Boolean pair relied on an asymmetric
+        # onchange to stay mutually exclusive (only worked in one direction). Replaced with a
+        # single Selection field, which can only ever hold one value - no onchange needed, and
+        # there is no asymmetry left to test.
+        block = self._block(special=True, special_type='wpi')
+        self.assertEqual(block.special_type, 'wpi')
+        block.special_type = 'subject'
+        self.assertEqual(block.special_type, 'subject')
 
 
 class TestLimesurveyRecipient(TransactionCase):

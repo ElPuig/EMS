@@ -242,7 +242,7 @@ flowchart TD
 of a `survey_name` string built from the header + its `limesurvey_block_ids`, so two
 recipients whose blocks resolve identically end up sharing one survey) and, when `only_key` is
 `False`, the actual TSV content sent to `create_survey`. Blocks can be **special** (filtered by
-course/WPI-enrollment/per-subject-enrollment) or plain; a `special_subject_enrolled` block is
+course/WPI-enrollment/per-subject-enrollment) or plain; a `special_type='subject'` block is
 repeated once per non-tutorship subject enrollment on the recipient.
 
 ### Fixed in this pass
@@ -250,7 +250,7 @@ repeated once per non-tutorship subject enrollment on the recipient.
 - **Significant bug in `compute_survey_data`'s per-subject-enrollment branch.** The line
   deciding whether to append teacher names to a subject block's title read `if
   len(teacher_name) > 0:` — but `teacher_name` (singular) is a *different* variable, only ever
-  assigned later in the method's `if append:` branch, which a `special_subject_enrolled` block
+  assigned later in the method's `if append:` branch, which a `special_type='subject'` block
   never reaches (`append` stays `False` for it). The correctly-computed value for *this*
   iteration was `teachers_names` (plural, built two lines above from `ems.teaching` records for
   the current enrollment's group+subject). Concretely, this meant: (a) if no earlier block in
@@ -354,16 +354,33 @@ Three smaller satellite models:
   → `EmsLimesurveyBlock`/`EmsLimesurveyRecipient`/`EmsLimesurveyEnrollment`. Loop variables
   normalized (`rec` → `block`/`recipient`/`enrollment` per model). Tabs → spaces.
 
-### Found, not fixed — logged as a gap
+### Fixed 2026-07-30: `special_wpi_enrolled`/`special_subject_enrolled` → `special_type`
 
-`ems.limesurvey_block._onchange_special`'s mutual-exclusion between `special_wpi_enrolled` and
-`special_subject_enrolled` only works in one direction (checking WPI clears Subject; checking
-Subject while WPI is already on silently reverts Subject with no feedback) — the `elif`
-branch can never fire with a `True` value to clear. Already flagged by a pre-existing TODO
-comment on that line questioning whether checkboxes are even the right widget here; picking a
-fix (symmetric onchange vs. converting to a radio-button `Selection` field) is a product
-decision. See
-[`plans/limesurvey_block_special_mutual_exclusion_asymmetry.md`](../../../../plans/limesurvey_block_special_mutual_exclusion_asymmetry.md).
+The two mutually-exclusive Booleans (`special_wpi_enrolled`, `special_subject_enrolled`) were
+kept in sync by `_onchange_special`, but the exclusion only worked in one direction (checking
+WPI cleared Subject; checking Subject while WPI was already on silently reverted Subject with
+no feedback) — the `elif` branch could never fire with a `True` value to clear. A pre-existing
+TODO comment on that line already questioned whether checkboxes were the right widget; the
+developer chose the radio-button redesign over patching the onchange asymmetry, for clarity to
+the end user (mutual exclusion becomes structurally guaranteed, not logic-enforced).
+
+Replaced both Booleans with a single `special_type` `Selection(['wpi', 'subject'])` field
+(`widget="radio"` in the view) — `_onchange_special` is gone entirely, nothing to keep in
+sync. `compute_survey_data`'s branch (line ~891) now checks `block.special_type` instead of
+the two booleans. `special_tutorship` (a third, independent Boolean also on this model) was
+**not** folded in — it's checked in a separate, unconditional branch further down
+`compute_survey_data` and was never part of the WPI/Subject exclusion.
+
+**Migration:** existing data (25 `wpi` + 25 `subject` + 100 neither, confirmed against both
+this dev DB and a real production snapshot) is preserved via
+`migrations/18.0.0.22.0/{pre,post}-migrate.py` (`_rename_old_special_columns`/
+`_backfill_special_type`), following the same rename-before-schema-sync pattern already used
+for the `attendance_status` migration in the same version.
+
+Tested in `tests/test_limesurvey_recipient.py::test_special_type_selection_is_exclusive_by_construction`
+and `tests/test_limesurvey_header.py::test_special_type_wpi_appends_block_for_enrolled_student`
+(the latter closing a pre-existing coverage gap — no test had exercised the WPI branch of
+`compute_survey_data` before this change).
 
 ### Testing note
 

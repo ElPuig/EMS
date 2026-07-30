@@ -888,9 +888,9 @@ class EmsLimesurveyHeader(models.Model):
             if block.special:
                 if block.special_course_filter == 0 or (block.special_course_filter > 0 and recipient.student_id and block.special_course_filter == recipient.student_id.main_group_id.course):
                     # NOTE: special_course can be combined with WPI or Subject.
-                    if not block.special_subject_enrolled and not block.special_wpi_enrolled: append = True # Just course filter
-                    elif block.special_wpi_enrolled and recipient.student_id and recipient.wpi_enrolled: append = True
-                    elif block.special_subject_enrolled and recipient.student_id:
+                    if not block.special_type: append = True # Just course filter
+                    elif block.special_type == 'wpi' and recipient.student_id and recipient.wpi_enrolled: append = True
+                    elif block.special_type == 'subject' and recipient.student_id:
                         # NOTE: Repeat the block for every enrolled subject. Each question must have a unique numerical id, for subject it should star with 4 (400, 4001, 4002...)
                         #       Warning: tutorship is a subject too and the student will be enrolled, but tutorship blocks works different, so tutorship-subjects will be ignored,
                         #       just regular subject will be taken in count.
@@ -1070,17 +1070,12 @@ class EmsLimesurveyBlock(models.Model):
     sort = fields.Integer(string="Sort", default=1)
     special = fields.Boolean(string="Special behaviour", default=False)
     special_course_filter = fields.Integer(string="Course", default=0)
-    special_wpi_enrolled = fields.Boolean(string="WorkPlace Intership (if enrolled)", default=False)
-    special_subject_enrolled = fields.Boolean(string="Subject (all enrolled)", default=False)
+    special_type = fields.Selection([
+        ('wpi', 'WorkPlace Internship (if enrolled)'),
+        ('subject', 'Subject (all enrolled)'),
+    ], string="Special Filter")
     special_tutorship = fields.Boolean(string="Tutorship", default=False)
     notes = fields.Text(string="Notes")
-
-    @api.onchange("special_wpi_enrolled", "special_subject_enrolled")
-    def _onchange_special(self):
-        for block in self:
-            # TODO: mutually excluded, check if it's more appropiate to use radios instead of checkboxes.
-            if block.special_wpi_enrolled: block.special_subject_enrolled = False
-            elif block.special_subject_enrolled: block.special_wpi_enrolled = False
 
 class EmsLimesurveyRecipient(models.Model):
     _name = "ems.limesurvey_recipient"

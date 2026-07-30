@@ -290,14 +290,30 @@ Per-item formatting: use the item's own descriptive title directly as the `##` h
 use an em dash (—) inside that title as a separator; parentheses read better, e.g.
 `## Portal IBAN renewal (bank account never trusted)`.
 
-**Block layout:** the developer already has the `# Fixes:` / `# Internal changes:` / etc.
-headings in place on GitHub and only needs to paste each section's items under the matching
-existing heading — so give **one separate fenced ```markdown block per template section**,
-not one block spanning multiple `#` sections. Write the section name as plain text right
-before its block (not inside the block, and not as a `#` heading inside it), so clicking that
-code block's own copy button grabs only that section's items, ready to drop under the
-developer's existing heading with no manual re-splitting. Example shape (two sections, two
-separate blocks):
+**Block layout — this has been gotten wrong 3 times already (2026-07-30), always the same
+way: putting the section name (`# Fixes:` etc.) *inside* the fenced block instead of before
+it. Before sending any PR changelog, explicitly re-check each block against this rule — don't
+just pattern-match from habit.** The developer already has the `# Fixes:` / `# Internal
+changes:` / etc. headings in place on GitHub and only needs to paste each section's items
+under the matching existing heading — so give **one separate fenced ```markdown block per
+template section**, not one block spanning multiple `#` sections. Write the section name as
+plain text right before its block (not inside the block, and not as a `#` heading inside it),
+so clicking that code block's own copy button grabs only that section's items, ready to drop
+under the developer's existing heading with no manual re-splitting.
+
+**Wrong** (the recurring mistake — section name leaks inside the fence):
+~~~
+**Fixes:**
+```markdown
+# Fixes:
+
+## Item title here
+- detail
+```
+~~~
+
+**Right** (section name is plain text outside the fence; the fence's first line is the `##`
+item title):
 
 **Fixes:**
 ```markdown
@@ -311,3 +327,7 @@ separate blocks):
 ## Another item title
 - detail
 ```
+
+**Self-check before sending, every time:** look at the first line inside each fence — if it
+starts with a single `#` (a section name like `# Fixes:`), that block is wrong; delete that
+line and move the section name outside, in front of the fence, as plain bold text.

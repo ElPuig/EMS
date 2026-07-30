@@ -1,0 +1,108 @@
+name: Clean changelog/ (manual)
+
+# Comment "/clean-changelog" on a PR to remove the changelog/ folder (working-draft PR notes
+# - see CLAUDE.md's "PR changelog" section) from that PR's own branch via an automated
+# commit, meant to be run once, right before merging. Deliberately does NOT use a
+# "[skip ci]"-style commit message: that would skip every workflow for this commit, including
+# require-changelog-clean.yml (the required check this whole thing exists to satisfy) and
+# ci-unit-testing.yml (whose own changelog-only-push detection is what keeps this fast,
+# instead of skipping it outright and risking a required check stuck pending forever).
+#
+# Same authorization pattern as deploy-check.yml: requires the repo secret TEAM_READ_TOKEN
+# to verify the commenter belongs to the "Integrators" team before pushing anything.
+#
+# Only works for PRs from a branch in this same repository (not a fork) - the default
+# GITHUB_TOKEN cannot push to a fork's branch.
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  authorize:
+    if: github.event.issue.pull_request && github.event.comment.body == '/clean-changelog'
+    runs-on: ubuntu-latest
+    outputs:
+      is_member: ${{ steps.check.outputs.is_member }}
+    steps:
+      - name: Check Integrators team membership
+        id: check
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.TEAM_READ_TOKEN }}
+          script: |
+            const username = context.payload.comment.user.login;
+            try {
+              const res = await github.rest.teams.getMembershipForUserInOrg({
+                org: context.repo.owner,
+                team_slug: 'integrators',
+                username,
+              });
+              const isMember = res.data.state === 'active';
+              core.setOutput('is_member', isMember ? 'true' : 'false');
+              core.info(`${username} membership state: ${res.data.state}`);
+            } catch (err) {
+              core.setOutput('is_member', 'false');
+              core.info(`${username} is not a member of Integrators (${err.message})`);
+            }
+
+  clean:
+    needs: authorize
+    if: needs.authorize.outputs.is_member == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Resolve PR head branch
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner, repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+            if (pr.data.head.repo.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
+              core.setFailed('This PR is from a fork - cannot push the cleanup commit back to it.');
+              return;
+            }
+            core.setOutput('ref', pr.data.head.ref);
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.pr.outputs.ref }}
+
+      - name: Remove changelog/
+        id: remove
+        run: |
+          if [ -d changelog ] && [ -n "$(ls -A changelog 2>/dev/null)" ]; then
+            git rm -r changelog
+            echo "removed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changelog/ is already empty or absent - nothing to do."
+            echo "removed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push
+        if: steps.remove.outputs.removed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: remove changelog/ before merge"
+          git push origin HEAD:${{ steps.pr.outputs.ref }}
+
+      - name: Comment result
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const removed = '${{ steps.remove.outputs.removed }}' === 'true';
+            const body = removed
+              ? '🧹 `changelog/` removed and pushed to this branch.'
+              : '`changelog/` was already empty - nothing to remove.';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

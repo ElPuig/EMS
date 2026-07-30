@@ -28,8 +28,36 @@ jobs:
     steps:
       - name: Checkout EMS
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      # This required check must always run and record a real result (never be skipped by
+      # GitHub's own path filtering), or it risks getting stuck "pending" forever and
+      # blocking merges even when everything is fine - see require-changelog-clean.yml's own
+      # comment for the same gotcha. So instead of filtering this workflow's trigger, detect
+      # here whether the push that triggered this specific run only touched changelog/
+      # (the working-draft PR notes folder - see CLAUDE.md's "PR changelog" section, cleaned
+      # up via the "/clean-changelog" comment command right before merging) and skip the
+      # expensive steps below for that one case, while still letting the job succeed.
+      - name: Detect changelog-only push
+        id: diff
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+          elif git rev-parse HEAD~1 >/dev/null 2>&1; then
+            CHANGED=$(git diff --name-only HEAD~1 HEAD)
+            if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qv '^changelog/'; then
+              echo "changelog_only=true" >> "$GITHUB_OUTPUT"
+              echo "This push only touches changelog/ - skipping the full test suite for this run."
+            else
+              echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Install system dependencies
+        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y wget gnupg python3-pip \
@@ -39,6 +67,7 @@ jobs:
       # environments" section of README.md, so CI exercises the same tours a developer
       # would run locally instead of silently skipping them for missing dependencies.
       - name: Install browser test dependencies (websocket-client, Chrome)
+        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           sudo pip install --break-system-packages websocket-client
           sudo mkdir -p /etc/apt/keyrings
@@ -56,9 +85,11 @@ jobs:
       # tour test then times out waiting for the devtools port. See
       # https://github.com/actions/runner-images/issues/9491.
       - name: Allow unprivileged user namespaces for Chrome sandboxing
+        if: steps.diff.outputs.changelog_only != 'true'
         run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
 
       - name: Install Odoo v18 from official repository
+        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           wget -q -O - https://nightly.odoo.com/odoo.key \
             | sudo gpg --dearmor -o /usr/share/keyrings/odoo-archive-keyring.gpg
@@ -68,17 +99,20 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y odoo
 
       - name: Stop and disable Odoo system service
+        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           sudo systemctl stop odoo || true
           sudo systemctl disable odoo || true
 
       - name: Copy EMS module and set permissions
+        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           sudo mkdir -p /opt/modules
           sudo cp -r "$GITHUB_WORKSPACE" /opt/modules/ems
           sudo chown -R odoo:odoo /opt/modules
 
       - name: Configure Odoo
+        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           sudo tee /etc/odoo/odoo.conf > /dev/null <<'EOF'
           [options]
@@ -91,20 +125,24 @@ jobs:
           EOF
 
       - name: Install EMS module
+        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           set -o pipefail
           sudo /opt/modules/ems/install.sh 2>&1 | tee /tmp/odoo-install.log
 
       - name: Update external dependencies
+        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           sudo /opt/modules/ems/update.sh
 
       - name: Upgrade EMS module
+        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           set -o pipefail
           sudo /opt/modules/ems/upgrade.sh 2>&1 | tee /tmp/odoo-upgrade.log
 
       - name: Run EMS tests
+        if: steps.diff.outputs.changelog_only != 'true'
         env:
           # Raises Chrome's own internal log verbosity (odoo/tests/common.py passes this as
           # --v=<level> to the browser). Level 0 (Odoo's default) only logs the last gasp before
@@ -119,7 +157,7 @@ jobs:
           sudo /opt/modules/ems/test.sh 2>&1 | tee /tmp/odoo-test.log
 
       - name: Collect Chrome/system logs for failed tour tests
-        if: always()
+        if: always() && steps.diff.outputs.changelog_only != 'true'
         run: |
           # odoo/tests/common.py's ChromeBrowser.stop() already saves the browser's own
           # chrome_debug.log (odoo.tools.config['screenshots'], defaulting to /tmp/odoo_tests)
@@ -135,7 +173,7 @@ jobs:
           sudo dmesg --time-format iso 2>/dev/null | tail -300 > /tmp/dmesg-tail.log || true
 
       - name: Upload logs
-        if: always()
+        if: always() && steps.diff.outputs.changelog_only != 'true'
         uses: actions/upload-artifact@v7
         with:
           name: odoo-logs

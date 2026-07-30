@@ -1,0 +1,34 @@
+name: Require changelog/ removed before merge
+
+# Lightweight, always-fast required check: fails while changelog/ still has content in the
+# PR, passes once it has been removed (via the "/clean-changelog" comment command - see
+# clean-changelog.yml). Deliberately its own tiny workflow, not folded into
+# ci-unit-testing.yml's job, so it always gets a fresh result recorded on every push
+# regardless of whether the expensive test suite actually runs that time - a required check
+# that sometimes doesn't run at all for a given commit can get stuck "pending" forever and
+# block merging even when everything is actually fine (a documented GitHub Actions
+# limitation with path-filtered required checks - avoided here by never filtering this
+# workflow's own trigger by path).
+#
+# Add "check" (this job's name) as a required status check in main's branch protection
+# rules, alongside "CI: Unit Testing"'s "ci" job.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v7
+
+      - name: Verify changelog/ has been removed
+        run: |
+          if [ -d changelog ] && [ -n "$(ls -A changelog 2>/dev/null)" ]; then
+            echo "::error::changelog/ still has content - comment /clean-changelog on this PR to remove it before merging."
+            exit 1
+          fi
+          echo "changelog/ is clean."

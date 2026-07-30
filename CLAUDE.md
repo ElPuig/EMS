@@ -338,3 +338,17 @@ git** (not gitignored) so it survives a branch switch/pull-from. **Delete the en
 `changelog/` folder as the very last step before merging into `main`** (its contents are a
 working draft, not permanent documentation — same lifecycle as a `plans/` file) once they've
 been copied into the actual GitHub PR description.
+
+**This deletion step is enforced and automated, not left to memory** (2026-07-30) — three
+CI pieces work together:
+- `.github/workflows/require-changelog-clean.yml`: a required status check on PRs targeting
+  `main` that fails while `changelog/` still has any content, blocking the merge button.
+- `.github/workflows/clean-changelog.yml`: comment `/clean-changelog` on the PR (same
+  Integrators-team authorization as `/deploy-check`) to remove `changelog/` via an automated
+  commit pushed to the PR's own branch, right before merging.
+- `.github/workflows/ci-unit-testing.yml`: detects when a push only touched `changelog/` (the
+  cleanup commit above) and skips its own expensive install/test steps for that run, so the
+  cleanup doesn't trigger a full ~6-minute re-run — while still actually running (fast) and
+  reporting a real result, deliberately not using `[skip ci]` or a path-filtered trigger for
+  this, both of which risk GitHub leaving a required check stuck "pending" forever instead of
+  passing.

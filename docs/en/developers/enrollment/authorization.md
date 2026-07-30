@@ -28,7 +28,7 @@ sharing information with family, etc:
 | `ems.authorization.template` | `is_required` | If pending and required, blocks `sale.order.action_confirm()` (see [`enrollment.md`](enrollment.md#authorization-sync)). |
 | | `acceptance_only` | If set, `ems.authorization.write()` rejects any attempt to set `status='no'` on its responses. |
 | | `auth_type` | `image`/`trip`/`health`/`share`/`other` — drives `res.partner.auth_image`/`auth_trip`/`auth_healt`/`auth_share` (see below), not read anywhere else. |
-| | `ems_level_ids` / `ems_study_ids` | Scope. Empty on both = applies to every enrollment. See [Known gap](#known-gap-two-different-matching-semantics) below — this template's own two sync methods use **different** combination logic than `sale.order`'s. |
+| | `ems_level_ids` / `ems_study_ids` | Scope. Empty on both = applies to every enrollment; when both are set, an enrollment must match **both** (AND-of-scopes — see [`_matches_scope()`](#keeping-authorizations-in-sync-with-open-enrollments) below). |
 | `ems.authorization` | `status` | `pending` → `yes`/`no`. Drives the confirm-blocking check and `res.partner`'s auth booleans. |
 | | `legal_text_rendered` | Computed, `sanitize=False` — `template_id.legal_text` with `{{student_name}}`/`{{academic_year}}`/`{{study_name}}` placeholders substituted. Feeds both the portal response page and `report_authorization_certificate`. |
 | | `signed_document` / `signed_document_name` | For an internal (staff) response, required before the status can leave `pending` (enforced in `write()`). For a portal response, the controller generates and attaches the certificate PDF itself right after the write — see [Portal response flow](#portal-response-flow) below. |
@@ -40,41 +40,43 @@ sharing information with family, etc:
 ## Keeping authorizations in sync with open enrollments
 
 Two entry points keep `ems.authorization` rows in step with which templates
-apply to which enrollment, and they run at different times with **different
-matching logic**:
+apply to which enrollment, and they run at different times — both now share
+the same matching rule via `ems.authorization.template._matches_scope(level,
+study)`:
 
 ```mermaid
 flowchart TD
     subgraph "Template-driven (this file)"
-        A["ems.authorization.template.create()"] --> B["action_apply_to_open_enrollments()\nAND-of-scopes: level AND study\nmust both match, when both are set"]
+        A["ems.authorization.template.create()"] --> B["action_apply_to_open_enrollments()"]
         C["action_remove_from_open_enrollments()\n(called manually, e.g. template\nretired/rescoped)"] --> D["delete pending rows on\ndraft/sent enrollments only\n— answered rows always protected"]
     end
     subgraph "Enrollment-driven (enrollment.py)"
-        E["sale.order onchange\nems_level_id / ems_study_id\nor apply_authorizations()"] --> F["_get_authorization_commands()\nOR-of-scopes: level match OR\nstudy match OR neither restricted"]
+        E["sale.order onchange\nems_level_id / ems_study_id\nor apply_authorizations()"] --> F["_get_authorization_commands()"]
     end
+    B --> G["_matches_scope(level, study)\nAND-of-scopes: an empty ems_level_ids/\nems_study_ids applies to everything;\na set one requires the given value\nto be among it"]
+    F --> G
 ```
 
-### Known gap: two different matching semantics
+### Fixed (2026-07-30): unified AND-of-scopes matching
 
-`action_apply_to_open_enrollments` (this file) requires an enrollment's
-level **and** study to both match a template's `ems_level_ids`/
-`ems_study_ids` when both are set on the template — an AND-of-scopes. But
-`sale.order._get_authorization_commands()` (`enrollment.py`, the method
-driving the live onchange sync and `apply_authorizations()`) matches on
-level **or** study — an OR-of-scopes: a template scoped to
-`ems_level_ids=[A]` and `ems_study_ids=[B]` (a different study) will attach
-to an order whose level is `A` even if its study isn't `B`, via the
-enrollment-driven path, but the exact same template would **not** have
-attached to that same order via the template-driven retroactive-apply path.
+Previously, `action_apply_to_open_enrollments` (this file) used an AND-of-scopes
+(level *and* study must both match, when both are set on the template), while
+`sale.order._get_authorization_commands()` (`enrollment.py`, driving the live
+onchange sync and `apply_authorizations()`) used an OR-of-scopes instead — the
+same template, applied to the same enrollment, could gain or lose the
+authorization depending purely on which code path last touched it. Confirmed
+against production data that no existing template used both scoping
+dimensions at once, so this was a latent inconsistency, not an active bug —
+but the developer decided both paths should use AND, matching the
+template-driven side, ahead of ever needing a template scoped to both a level
+and a specific study within it.
 
-In practice this rarely bites because most templates in this codebase are
-scoped to level *or* study, never both — but a template that legitimately
-needs both dimensions restricted will behave inconsistently depending on
-which code path last touched the enrollment (retroactive apply at template
-creation vs. a later level/study change on the order). Flagged here,
-**not fixed in this pass** — resolving it means picking one semantics and
-is a business-logic decision (which existing templates, if any, currently
-rely on the AND behavior), not a normalization change. See also the
+Fixed by extracting the shared `_matches_scope(level, study)` predicate onto
+`ems.authorization.template` (see the diagram above) — both directions now
+call it instead of hand-rolling their own domain, so they can't drift apart
+again. Tested in `tests/test_authorization.py` (template → matching
+enrollments) and `tests/test_enrollment_header.py` (enrollment → matching
+templates), both exercising the same both-scopes-set case. See also the
 [`enrollment.md`](enrollment.md#authorization-sync) side of this coupling.
 
 ---

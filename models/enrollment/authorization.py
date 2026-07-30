@@ -47,25 +47,32 @@ class EmsAuthorizationTemplate(models.Model):
             template.action_apply_to_open_enrollments()
         return templates
 
-    def action_apply_to_open_enrollments(self):
-        """Attach this template's authorization to every still-open (draft/sent)
-        enrollment matching its level/study scope, skipping enrollments that
-        already have it.
-
-        Matches on level AND study when both are set on the template (an
-        AND-of-scopes) — this differs from ``sale.order._get_authorization_commands``,
-        which uses OR-of-scopes for the live onchange sync. See
-        docs/en/developers/enrollment/authorization.md, "Known gap: two
-        different matching semantics" for the details of that inconsistency.
+    def _matches_scope(self, level, study):
+        """AND-of-scopes: this template applies to a given level/study pair unless a
+        scope it restricts on (ems_level_ids/ems_study_ids) is set and doesn't contain
+        the given value. An empty scope field applies to everything on that dimension.
+        Shared by action_apply_to_open_enrollments() (template -> matching enrollments)
+        and sale.order._get_authorization_commands() (enrollment -> matching templates)
+        so both directions can never drift apart again - see
+        docs/en/developers/enrollment/authorization.md.
         """
         self.ensure_one()
-        domain = [('state', 'in', ['draft', 'sent'])]
-        if self.ems_level_ids:
-            domain.append(('ems_level_id', 'in', self.ems_level_ids.ids))
-        if self.ems_study_ids:
-            domain.append(('ems_study_id', 'in', self.ems_study_ids.ids))
+        if self.ems_level_ids and level not in self.ems_level_ids:
+            return False
+        if self.ems_study_ids and study not in self.ems_study_ids:
+            return False
+        return True
 
-        open_enrollments = self.env['sale.order'].search(domain)
+    def action_apply_to_open_enrollments(self):
+        """Attach this template's authorization to every still-open (draft/sent)
+        enrollment matching its level/study scope (AND-of-scopes, see
+        _matches_scope()), skipping enrollments that already have it.
+        """
+        self.ensure_one()
+        open_enrollments = self.env['sale.order'].search(
+            [('state', 'in', ['draft', 'sent'])]
+        ).filtered(lambda enrollment: self._matches_scope(
+            enrollment.ems_level_id, enrollment.ems_study_id))
         auths_to_create = []
         for enrollment in open_enrollments:
             existing = enrollment.ems_authorization_ids.filtered(lambda a: a.template_id == self)

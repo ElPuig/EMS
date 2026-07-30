@@ -139,15 +139,14 @@ user:
 ```mermaid
 flowchart TD
     A["onchange ems_level_id / ems_study_id\n(_onchange_ems_level_study_for_authorizations)\nor explicit apply_authorizations()"] --> B["_get_authorization_commands()"]
-    B --> C["search ems.authorization.template\nwhere (level in ems_level_id OR study in ems_study_id)\nOR (no level AND no study restriction at all)"]
+    B --> C["filter ems.authorization.template by\n_matches_scope(ems_level_id, ems_study_id)\nAND-of-scopes"]
     C --> D["remove ems_authorization_ids\nwhose template no longer matches"]
     C --> E["add a pending ems.authorization\nfor each newly-matching template\nwithout one yet"]
 ```
 
-This OR-of-scopes matching differs from `ems.authorization.template`'s own
-retroactive apply/remove methods (AND-of-scopes) — see
-[`authorization.md`](authorization.md#known-gap-two-different-matching-semantics)
-for the details of that inconsistency.
+This shares the same AND-of-scopes matching as `ems.authorization.template`'s
+own retroactive apply/remove methods, via the shared `_matches_scope()`
+predicate — see [`authorization.md`](authorization.md#fixed-2026-07-30-unified-and-of-scopes-matching).
 
 `action_confirm` then blocks on any authorization still `pending` whose
 template is `is_required`:

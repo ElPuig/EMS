@@ -40,10 +40,11 @@ a deliberate, tested change — not a silent behavior shift.
 
 ### Open questions
 
-1. How common are documentless tutor rows in real Esfera exports for this centre? If rare,
-   urgency is low; if common, this could already be producing a meaningful number of
-   duplicate family contacts in production — worth a query counting family-type partners
-   with no `document_id`/`passport_id` and near-duplicate names/phones.
+1. ~~How common are documentless tutor rows in real Esfera exports for this centre?~~
+   **Checked against real production data (2026-07-30, via `ems_prod_snapshot`):** only 2 of
+   1168 family contacts have no `document_id`/`passport_id`, and there are 0 name-based
+   near-duplicates among them. Very low incidence — low urgency confirmed with real data,
+   not just the dev DB (which showed the same 2/1164).
 2. If a fallback match is added, what should it match on — exact name + phone? Name +
    email? Any fallback risks **false-positive merges** (two different people who happen to
    share a name), which is arguably worse than a duplicate contact. Needs a real decision on
@@ -73,6 +74,10 @@ top-level result summary (what a secretary actually reads) won't flag anything w
 
 ### Open questions
 
+0. **Real-world incidence, checked against production data (2026-07-30, via
+   `ems_prod_snapshot`):** 0 students in production currently carry the unmatched-group note
+   in `comment`. Hasn't materialized in real data either (matches the dev DB's 0). Low
+   urgency, but the underlying silent-fallback behavior is still real.
 1. Was this intentional — i.e. is "import the student anyway, note the mismatch for later
    manual placement" the desired behavior, given that not every group may exist in EMS yet
    at import time? Or should an unmatched group code be a hard error/warning surfaced in

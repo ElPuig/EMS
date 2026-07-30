@@ -12,11 +12,10 @@ FAKE_PDF = base64.b64encode(b'%PDF-1.4 fake test content')
 class TestAuthorizationTemplate(TransactionCase):
     """models/enrollment/authorization.py — EmsAuthorizationTemplate.
 
-    See docs/en/developers/enrollment/authorization.md for the two
-    different level/study matching semantics this class covers: this
-    template's own retroactive apply/remove (AND-of-scopes) vs
-    sale.order._get_authorization_commands' live onchange sync
-    (OR-of-scopes, tested in tests/test_enrollment_header.py).
+    Level/study matching (AND-of-scopes) lives in _matches_scope(), shared with
+    sale.order._get_authorization_commands' live onchange sync (tested in
+    tests/test_enrollment_header.py) — see
+    docs/en/developers/enrollment/authorization.md.
     """
 
     @classmethod
@@ -83,10 +82,10 @@ class TestAuthorizationTemplate(TransactionCase):
         self.assertNotIn(template, order_other.ems_authorization_ids.mapped('template_id'))
 
     def test_create_with_both_level_and_study_requires_both_to_match(self):
-        """Known gap: this is AND-of-scopes, unlike the OR-of-scopes used by
-        sale.order._get_authorization_commands for the live onchange sync
-        (test_enrollment_header.py::test_apply_authorizations_adds_matching_template
-        exercises the OR side of the same scoping fields)."""
+        """AND-of-scopes, shared via _matches_scope() with
+        sale.order._get_authorization_commands' live onchange sync (see
+        test_enrollment_header.py::test_get_authorization_commands_with_both_level_and_study_requires_both
+        for the same rule exercised from the enrollment side)."""
         order = self._order(self.student1, study=self.other_study)
         template = self.env['ems.authorization.template'].create({
             'name': 'Level+Study-scoped Auth', 'legal_text': '<p>Text</p>',

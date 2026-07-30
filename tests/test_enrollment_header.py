@@ -311,6 +311,25 @@ class TestEnrollmentHeader(TransactionCase):
         order = self._order()
         self.assertFalse(order._get_authorization_commands())
 
+    def test_get_authorization_commands_with_both_level_and_study_requires_both(self):
+        # Same AND-of-scopes rule as
+        # test_authorization.py::test_create_with_both_level_and_study_requires_both_to_match
+        # - both sides of the scoping must now agree (see
+        # docs/en/developers/enrollment/authorization.md).
+        template = self.env['ems.authorization.template'].create({
+            'name': 'Level+Study Auth', 'legal_text': '<p>Text</p>',
+            'ems_level_ids': [(6, 0, [self.level.id])],
+            'ems_study_ids': [(6, 0, [self.study.id])],
+        })
+        # order's level matches (self.other_study shares self.level) but its
+        # study doesn't -> AND semantics means no match.
+        order = self._order(ems_study_id=self.other_study.id)
+        self.assertFalse(order._get_authorization_commands())
+
+        order.ems_study_id = self.study.id
+        order.apply_authorizations()
+        self.assertIn(template, order.ems_authorization_ids.mapped('template_id'))
+
     # --- action_send_enrollment_proposal ------------------------------------------
 
     def test_send_enrollment_proposal_marks_drafts_sent(self):

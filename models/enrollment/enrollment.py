@@ -350,15 +350,11 @@ class SaleOrder(models.Model):
 
     def _get_authorization_commands(self):
         """Return the ORM commands to sync authorizations with the current
-        level/study selection."""
+        level/study selection (AND-of-scopes, see
+        ems.authorization.template._matches_scope())."""
         self.ensure_one()
-        domain = ['&', ('ems_level_ids', '=', False), ('ems_study_ids', '=', False)]
-        if self.ems_level_id:
-            domain = ['|', ('ems_level_ids', 'in', self.ems_level_id.id)] + domain
-        if self.ems_study_id:
-            domain = ['|', ('ems_study_ids', 'in', self.ems_study_id.id)] + domain
-
-        templates = self.env['ems.authorization.template'].search(domain)
+        templates = self.env['ems.authorization.template'].search([]).filtered(
+            lambda template: template._matches_scope(self.ems_level_id, self.ems_study_id))
         commands = []
         to_remove = self.ems_authorization_ids.filtered(
             lambda a: a.template_id not in templates

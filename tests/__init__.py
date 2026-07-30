@@ -100,4 +100,5 @@ from . import test_limesurvey_api
 from . import test_limesurvey_orchestration
 from . import test_limesurvey_header
 from . import test_limesurvey_recipient
+from . import test_limesurvey_block_tour
 from . import test_shared_mixins

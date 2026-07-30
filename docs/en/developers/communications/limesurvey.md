@@ -382,6 +382,24 @@ and `tests/test_limesurvey_header.py::test_special_type_wpi_appends_block_for_en
 (the latter closing a pre-existing coverage gap — no test had exercised the WPI branch of
 `compute_survey_data` before this change).
 
+**Tour added (2026-07-30), prompted by the developer asking whether the view change itself
+had actually been verified in a browser** — it hadn't; `static/tests/tours/limesurvey_block_tour.js`
++ `tests/test_limesurvey_block_tour.py` is the first tour for this model, covering the
+"form within a form" path (the header's non-editable `limesurvey_block_ids` one2many list
+opens the block's own registered form in a modal dialog): create a header, add a block,
+toggle `special` on, pick the `special_type` radio option, save, reopen to confirm it
+persisted. Building it caught two real, pre-existing (not new) bugs unrelated to this
+specific change — see `plans/missing_tour_coverage_audit.md`, the backlog item this
+prompted for the rest of the module:
+- Odoo's `SelectionField` JSON-stringifies the option `value` HTML attribute, so
+  `run: "select students"` on the header's own `target` field silently selects nothing —
+  `run: "selectByLabel Students"` is the correct action for a plain `<select>`.
+- `widget="code"` (`tsv_raw_text`, both header and block forms) renders via the Ace editor
+  library; its real input is a deliberately invisible textarea the tour engine's generic
+  `edit` action can't drive — needs `ace.edit(anchor).setValue(text, -1)` in a custom
+  `run()`, following the same pattern Odoo core's own tours use
+  (`addons/test_website/static/tests/tours/reset_views.js`).
+
 ### Testing note
 
 Same rule as Block 4: `ems.limesurvey_recipient.create()`'s manual-add-to-an-already-uploaded-header

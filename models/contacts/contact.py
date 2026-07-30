@@ -259,18 +259,14 @@ class ems_contact(models.Model):
             student.auth_healt = health
             student.auth_share = share        
 
+    @api.depends('sale_order_ids.ems_course_id', 'sale_order_ids.state',
+                 'sale_order_ids.ems_authorization_ids')
     def _compute_ems_authorization_ids(self):
-        current_course = self.env['ems.course'].search([
-            ('is_current', '=', True)
-        ], limit=1)
-
+        # Same enrollment the flags above read, so the Secretary tab cannot show an
+        # empty list next to a green badge: both come from _ems_enrollment_in_force().
         for partner in self:
-            # Buscamos las matrículas (sale.order) de este alumno y sacamos sus autorizaciones
-            enrollments = self.env['sale.order'].search([
-                ('partner_id', '=', partner.id),
-                ('ems_course_id', '=', current_course.id if current_course else False),
-            ])
-            partner.ems_authorization_ids = enrollments.mapped('ems_authorization_ids')
+            partner.ems_authorization_ids = \
+                partner._ems_enrollment_in_force().ems_authorization_ids
 
     def _search_current_enrollment(self, operator, value):
         return [('sale_order_ids.name', operator, value)]

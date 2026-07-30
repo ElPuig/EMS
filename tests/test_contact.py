@@ -98,6 +98,16 @@ class TestContactLifecycle(TransactionCase):
         student.invalidate_recordset(['auth_image'])
         self.assertTrue(student.auth_image)
 
+    def test_the_authorization_list_matches_the_flags(self):
+        """The Secretary tab shows the list next to the badges: if they disagree the
+        operator sees a green 'Yes' above an empty table, which is what happened —
+        only the flags were fixed, the list kept filtering by the current course."""
+        incoming = self._incoming_course()
+        self.env.company.current_course_id = self.course     # outgoing still current
+        student, order = self._enrolled('LFC Auth List', incoming, 'image')
+        self.assertTrue(student.auth_image)
+        self.assertEqual(student.ems_authorization_ids, order.ems_authorization_ids)
+
     def test_auth_flags_are_false_without_an_enrollment(self):
         student = self.env['res.partner'].create({
             'name': 'LFC Auth None', 'contact_type': 'student',

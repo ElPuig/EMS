@@ -50,21 +50,26 @@ export class CourseTransitionFormController extends FormController {
     /** The preview counters, read back from the record the operator is looking at. */
     transitionMessage() {
         const data = this.model.root.data;
-        const parts = [
-            [data.place_count, _t("joining their group")],
-            [data.graduate_count, _t("graduating and leaving")],
-            [data.graduate_continue_count, _t("graduating and continuing")],
-            [data.graduate_pending_count, _t("becoming applicants")],
-            [data.pending_count, _t("pending confirmation")],
-            [data.missing_count, _t("with no enrollment")],
+        const lines = [
+            [data.place_count, _t("join their group")],
+            [data.graduate_count, _t("graduate and leave")],
+            [data.graduate_continue_count, _t("graduate and continue")],
+            [data.graduate_pending_count, _t("become applicants")],
+            [data.pending_count, _t("are pending confirmation")],
+            [data.missing_count, _t("have no enrollment")],
         ]
             .filter(([count]) => count)
             .map(([count, label]) => `${count} ${label}`);
-        return _t(
-            "Applying the transition: %(detail)s. %(records)s operational record(s) will be " +
-                "deleted. This can take several minutes — do not close this window.",
-            { detail: parts.join(" · "), records: data.delete_count }
-        );
+        // Newlines only render because our CSS puts white-space: pre-line on the
+        // BlockUI message, which escapes HTML.
+        return [
+            _t("Applying the transition…"),
+            "",
+            ...lines,
+            "",
+            _t("%s operational record(s) will be deleted.", data.delete_count),
+            _t("This can take several minutes — do not close this window."),
+        ].join("\n");
     }
 }
 

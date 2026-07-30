@@ -538,6 +538,36 @@ class TestCourseTransition(TransactionCase):
         self.assertEqual(record.group_id, self.group2)
         self.assertTrue(record.subject_record_ids)
 
+    def test_a_destination_outside_the_run_is_not_promised(self):
+        """Each run only places into its OWN studies (_incoming_orders filters by
+        study_ids), so showing the destination group of a student heading elsewhere
+        promised a move this run never makes — and step 4b then detaches them."""
+        graduate = self._graduate('CTW Cross Promise')
+        order = self.env['sale.order'].create({
+            'partner_id': graduate.id, 'ems_study_id': self.study_other.id,
+            'ems_course_id': self.target_course.id, 'ems_group_id': self.group_other.id,
+            'shift': 'morning'})
+        order.order_line = [(0, 0, {'product_id': self.subject_int.product_id.id})]
+        order.action_confirm()
+        wizard = self._wizard(studies=self.study)
+        wizard.action_preview()
+        line = wizard.line_ids.filtered(lambda line: line.student_id == graduate)
+        self.assertEqual(line.action, 'graduate_continue')
+        self.assertFalse(line.destination_group_id)
+        self.assertIn(graduate.display_name, wizard.warning_html)
+        wizard.backup_done = True
+        wizard.action_apply()
+        self.assertFalse(graduate.main_group_id)
+        self.assertEqual(graduate.contact_type, 'student')
+
+    def test_a_destination_inside_the_run_is_still_promised(self):
+        graduate = self._graduate('CTW Same Study Promise')
+        self._order(graduate, self.group1, state='sale')
+        wizard = self._wizard()
+        wizard.action_preview()
+        line = wizard.line_ids.filtered(lambda line: line.student_id == graduate)
+        self.assertEqual(line.destination_group_id, self.group1)
+
     def test_apply_still_archives_a_graduate_with_no_enrollment(self):
         graduate = self._graduate('CTW Leaving Archived')
         self._applied()

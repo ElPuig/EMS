@@ -285,6 +285,18 @@ It is not hypothetical: `ems.withdrawal_wizard.action_apply()` regenerates on ev
 
 The guard lives in `_generate_one()` rather than in the withdrawal wizard: three callers reach it (the transition, the withdrawal wizard and `freeze_on_leaving`), and a fourth would reintroduce the bug. An explicit `group=` argument still refreshes normally, which is what `freeze_on_leaving()` relies on.
 
+### The preview only promises what THIS run will do (D19)
+
+`_incoming_orders()` filters by `study_ids`, so a run places into its own studies and nothing else. A CFGM graduate moving up to a CFGS the centre has not transitioned yet is therefore **not** placed by the CFGM run — their destination study's run will do it — and step 4b detaches them in the meantime.
+
+The preview showed the destination group anyway. On the first real SMX run all 22 `graduate_continue` lines promised ASIX1A / DAM1A / DAW1A / GA1C, and afterwards those 22 students had no group and no subject enrollments: correct behaviour, wrongly announced, on screen and in the audit CSV alike.
+
+`_destination_of(order)` now returns the group only when the order's study is in scope **and** the order is confirmed; otherwise the column stays empty, which is what it already means for `graduate` and `missing`. A warning names them so the information is not lost:
+
+> *N student(s) are heading to a study this run is not transitioning, so they are not placed here: they keep their enrollment and join their group when that study transitions. Meanwhile they are left with no group.*
+
+Same defect class as `place_count` announcing 138 and moving 122 (D-pending): the preview is a promise, and every number in it has to be one the apply keeps.
+
 ### Conditional flip (step 5)
 
 ```mermaid

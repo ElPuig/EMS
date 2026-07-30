@@ -326,7 +326,7 @@ class ems_course_transition_wizard(models.TransientModel):
         for student in self._scope_students():
             order = order_index.get(student.id)
             if student in continuing:
-                action, group = 'graduate_continue', order.ems_group_id
+                action, group = 'graduate_continue', self._destination_of(order)
             elif student in pending:
                 action, group = 'graduate_pending', self.env['ems.group']
             elif student in graduates:
@@ -340,7 +340,7 @@ class ems_course_transition_wizard(models.TransientModel):
                 # through _ems_admit_student() the day they confirm.
                 action, group = 'pending', self.env['ems.group']
             elif order.ems_group_id:
-                action, group = 'place', order.ems_group_id
+                action, group = 'place', self._destination_of(order)
             else:
                 action, group = 'unplaced', self.env['ems.group']
             seen |= student
@@ -366,6 +366,21 @@ class ems_course_transition_wizard(models.TransientModel):
                 'destination_group_id': order.ems_group_id.id,
             })
         return vals_list
+
+    def _destination_of(self, order):
+        """The group THIS run will move the student into, empty when it will not.
+
+        Every run only places into its own studies (_incoming_orders filters by
+        study_ids), so a student heading elsewhere — a CFGM graduate going up to a
+        CFGS the centre has not transitioned yet — is not moved here: their own
+        study's run will do it, and step 4b detaches them in the meantime. Showing
+        the group anyway promised a move that never happened, both on screen and in
+        the audit CSV. The warning names them so the information is not lost.
+        """
+        self.ensure_one()
+        if order.ems_study_id in self.study_ids and order.state == 'sale':
+            return order.ems_group_id
+        return self.env['ems.group']
 
     def _pending_studies(self):
         """Studies that would stay active after this run — what holds the flip back."""
@@ -393,6 +408,15 @@ class ems_course_transition_wizard(models.TransientModel):
                               "become applicants and keep their portal access, so they can still "
                               "confirm it. They are not archived: %s.")
                             % (self.graduate_pending_count, ", ".join(names)))
+        elsewhere = self.line_ids.filtered(
+            lambda line: line.action in ('place', 'graduate_continue')
+            and not line.destination_group_id)
+        if elsewhere:
+            warnings.append(_("%s student(s) are heading to a study this run is not transitioning, "
+                              "so they are not placed here: they keep their enrollment and join "
+                              "their group when that study transitions. Meanwhile they are left "
+                              "with no group: %s.")
+                            % (len(elsewhere), ", ".join(elsewhere.mapped('student_id.display_name')[:10])))
         # The ones whose study DOES use the flow are a blocker, not a warning.
         expected = self.line_ids.filtered(
             lambda line: line.action == 'missing' and not line.study_id.uses_enrollment_flow)

@@ -13650,3 +13650,66 @@ msgid ""
 "cannot be undone. It can take several minutes: do not close the window while"
 " it runs. Apply the transition?"
 msgstr "Els registres operatius del curs sortint s'esborraran i això no es pot desfer. Pot trigar diversos minuts: no tanquis la finestra mentre s'executa. Voleu aplicar la transició?"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "Applying the transition…"
+msgstr "Aplicant la transició…"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "join their group"
+msgstr "s'incorporen al seu grup"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "graduate and leave"
+msgstr "es graduen i marxen"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "graduate and continue"
+msgstr "es graduen i continuen"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "become applicants"
+msgstr "passen a sol·licitants"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "are pending confirmation"
+msgstr "estan pendents de confirmar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "have no enrollment"
+msgstr "no tenen matrícula"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "%s operational record(s) will be deleted."
+msgstr "S'esborraran %s registres operatius."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/course_transition_form.js:0
+msgid "This can take several minutes — do not close this window."
+msgstr "Pot trigar diversos minuts — no tanquis aquesta finestra."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s student(s) are heading to a study this run is not transitioning, so they "
+"are not placed here: they keep their enrollment and join their group when "
+"that study transitions. Meanwhile they are left with no group: %s."
+msgstr "%s estudiants van a un estudi que aquesta execució no transiciona, així que aquí no es col·loquen: conserven la matrícula i s'incorporaran al seu grup quan aquell estudi transicioni. Mentrestant es queden sense grup: %s."

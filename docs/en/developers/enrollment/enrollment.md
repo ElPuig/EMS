@@ -73,7 +73,11 @@ student can always get a fresh enrollment after a previous one was cancelled.
 `_sql_constraints` (partial unique index) backing it. Two concurrent
 transactions can each pass the constraint's `search()` before either commits,
 producing two live enrollments for the same student/course (a race condition,
-not exercised by the test suite — flagged here, not fixed in this pass).
+not exercised by the test suite). **Checked empirically (2026-07-30):** a
+production query (`GROUP BY partner_id, ems_course_id HAVING count(*) > 1`,
+`state != 'cancel'`) found **0 real duplicates** — the race exists in theory
+but has never fired here, so it stays a known, low-priority gap rather than
+an active incident. See `plans/enrollment_header_unique_race_condition.md`.
 
 ---
 
@@ -94,20 +98,35 @@ underlying `ir.rule`s in `security/rules/contacts.xml`
 `partner_id.tutor_id.user_id = user.id` (i.e. the caller is genuinely *that
 student's* group tutor, not just someone in `group_tutor`), further limited
 to `state == 'draft'`. `_is_blocked_tutor()` never checks either of these —
-it only asks "is this a plain teacher", so:
-- A tutor who is a `group_tutor` member but not *this particular student's*
-  tutor sails past `_is_blocked_tutor()` and only gets stopped by the
-  `ir.rule` layer (a bare `AccessError`, not the friendlier `ValidationError`
-  the Python guard raises for plain teachers).
-- Cross-study/cross-tutor placement restrictions during the enrollment
-  *proposal* flow are enforced only in
-  [`ems.enrollment_proposal_wizard`](enrollment_proposal_wizard.md), not
-  here — `enrollment.py` itself has no `@api.constrains` guarding
-  `ems_group_id`/`ems_study_id` against a tutor's own scope.
+it only asks "is this a plain teacher", so a tutor who is a `group_tutor`
+member but not *this particular student's* tutor sails past
+`_is_blocked_tutor()` and only gets stopped by the `ir.rule` layer (a bare
+`AccessError`, not the friendlier `ValidationError` the Python guard raises
+for plain teachers). Still open — see
+`plans/enrollment_header_tutor_guard_gap.md`.
 
-Neither gap is exercised by production data today; both are flagged for a
-future pass rather than fixed here, per this session's convention of not
-silently changing security-adjacent behavior mid-DTON-pass.
+**Fixed (2026-07-30):** cross-study/cross-tutor placement restrictions during
+the enrollment *proposal* flow were enforced only in
+[`ems.enrollment_proposal_wizard`](enrollment_proposal_wizard.md) — a tutor
+editing an existing `draft` order's form directly (not through the wizard)
+could set `ems_group_id` to a group belonging to a different study than
+`ems_study_id`, since the client-side `@api.onchange` guards
+(`_onchange_ems_study_id`/`_onchange_ems_group_id`) don't run on a direct
+`write()`/RPC call and no `@api.constrains` backed them. Closed with
+`_check_group_matches_study` (`@api.constrains('ems_group_id',
+'ems_study_id')`), which raises a `ValidationError` whenever
+`ems_group_id` is set and `ems_group_id.study_id != ems_study_id` — including
+when `ems_study_id` is empty: a destination group always implies a study, by
+every real writer of the field (the wizard sets both together; the model's
+own `_ems_suggest_group()` refuses to suggest a group at all while
+`ems_study_id` is empty; the form view marks `ems_study_id` `required="1"`).
+A first version of the fix relaxed the check to allow "group set, study
+empty," on the unverified assumption that this was a legitimate case — it
+wasn't; only a direct ORM bypass (a test fixture) could reach that state, as
+confirmed by auditing every real write path for `ems_group_id`. Tested in
+`tests/test_enrollment_header.py`
+(`test_group_from_another_study_raises`/`test_group_from_same_study_is_allowed`/
+`test_clearing_group_is_allowed`/`test_group_without_study_raises`).
 
 ---
 

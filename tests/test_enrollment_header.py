@@ -149,6 +149,44 @@ class TestEnrollmentHeader(TransactionCase):
         second = self._order(partner=self.other_student)
         self.assertTrue(second.id)
 
+    # --- group/study consistency ------------------------------------------------
+
+    def test_group_from_another_study_raises(self):
+        # ems_group_id.study_id must match ems_study_id - the onchange only
+        # enforces this client-side (test_onchange_study_clears_mismatched_group
+        # above), so a direct write (e.g. a tutor editing the form directly
+        # instead of going through ems.enrollment_proposal_wizard) must be
+        # blocked server-side too. See plans/enrollment_header_tutor_guard_gap.md.
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'OG', 'level_id': self.level.id,
+            'study_id': self.other_study.id,
+        })
+        order = self._order()
+        with self.assertRaises(ValidationError):
+            order.write({'ems_group_id': other_group.id})
+
+    def test_group_from_same_study_is_allowed(self):
+        order = self._order()
+        order.write({'ems_group_id': self.tutor_group.id})
+        self.assertEqual(order.ems_group_id, self.tutor_group)
+
+    def test_clearing_group_is_allowed(self):
+        order = self._order(ems_group_id=self.tutor_group.id)
+        order.write({'ems_group_id': False})
+        self.assertFalse(order.ems_group_id)
+
+    def test_group_without_study_raises(self):
+        # A destination group always implies a study - every real writer of
+        # ems_group_id (the enrollment proposal wizard, _ems_suggest_group) sets or
+        # requires ems_study_id too, and the view marks it required="1". Confirmed via
+        # a code audit (2026-07-30) that no real path leaves ems_group_id set while
+        # ems_study_id is empty - only a direct ORM bypass like this test can.
+        with self.assertRaises(ValidationError):
+            self.env['sale.order'].create({
+                'partner_id': self.student.id, 'ems_course_id': self.course.id,
+                'ems_group_id': self.tutor_group.id,
+            })
+
     # --- fee / installment computes --------------------------------------------
 
     def test_fee_and_installment_computes(self):

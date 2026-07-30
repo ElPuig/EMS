@@ -92,7 +92,35 @@ def _column_exists(cr, table, column):
     return bool(cr.fetchone())
 
 
+def _dedupe_ems_enrollment(cr):
+    """ems.enrollment gets a new UNIQUE(student_id, group_id, subject_id) constraint in
+    this version (see plans/enrollment_junction_duplicate_constraint.md) - the schema sync
+    right after pre-migrate would fail to create it while duplicate rows still exist. All
+    42 duplicate rows found in production (21 triples) were confirmed field-identical
+    within their pair (only id/timestamps differ), so keeping the lowest id per triple and
+    dropping the rest loses no information. Deleted directly via SQL, not ORM unlink() -
+    unlink()'s _ems_sync_grade_session_remove has no still-enrolled guard (unlike its
+    sibling _ems_sync_attendance_template_remove - see
+    plans/grade_session_remove_missing_still_enrolled_guard.md), so going through the ORM
+    here would risk wiping the surviving student's grade lines for an open session.
+    """
+    cr.execute("""
+        DELETE FROM ems_enrollment a
+        USING ems_enrollment b
+        WHERE a.student_id = b.student_id
+          AND a.group_id = b.group_id
+          AND a.subject_id = b.subject_id
+          AND a.id > b.id
+    """)
+    if cr.rowcount:
+        _logger.info(
+            "Migration 18.0.0.22.0: removed %d duplicate ems_enrollment row(s) "
+            "(student_id, group_id, subject_id) ahead of the new unique constraint.",
+            cr.rowcount)
+
+
 def migrate(cr, _version):
     _migrate_role_color(cr)
     _migrate_attendance_template_color(cr)
     _rename_old_status_columns(cr)
+    _dedupe_ems_enrollment(cr)

@@ -223,3 +223,17 @@ class TestEnrollment(TransactionCase):
     def test_display_name_is_subject_name(self):
         enrollment = self._create_enrollment()
         self.assertEqual(enrollment.display_name, self.subject.display_name)
+
+    # -- unique (student, group, subject) --------------------------------------
+
+    def test_duplicate_student_group_subject_raises(self):
+        # See plans/enrollment_junction_duplicate_constraint.md - 21 duplicate
+        # triples were found in production before this constraint existed.
+        self._create_enrollment()
+        with self.assertRaises(Exception):
+            self._create_enrollment()
+
+    def test_same_student_different_group_is_allowed(self):
+        self._create_enrollment(group=self.group)
+        second = self._create_enrollment(group=self.other_group)
+        self.assertTrue(second.id)

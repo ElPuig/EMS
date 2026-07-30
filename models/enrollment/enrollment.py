@@ -411,6 +411,24 @@ class SaleOrder(models.Model):
                     student=order.partner_id.name, course=order.ems_course_id.display_name,
                 ))
 
+    @api.constrains('ems_group_id', 'ems_study_id')
+    def _check_group_matches_study(self):
+        """ems_group_id.study_id must match ems_study_id - a destination group always
+        implies a study, both by the view (ems_study_id required="1") and by every real
+        writer of ems_group_id (ems.enrollment_proposal_wizard.action_create_enrollments
+        always sets both together; _ems_suggest_group refuses to suggest a group at all
+        while ems_study_id is empty). The onchanges (above) only enforce this client-side;
+        a direct write (e.g. a tutor editing the form directly instead of going through
+        the wizard) needs the same guard server-side. See
+        plans/enrollment_header_tutor_guard_gap.md."""
+        for order in self:
+            if order.ems_group_id and order.ems_group_id.study_id != order.ems_study_id:
+                raise ValidationError(_(
+                    "The destination group %(group)s does not belong to the "
+                    "study selected for this enrollment.",
+                    group=order.ems_group_id.display_name,
+                ))
+
     def _is_blocked_tutor(self):
         return (
             self.env.user.has_group('ems.group_teacher') and

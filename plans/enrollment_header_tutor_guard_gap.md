@@ -103,14 +103,26 @@ from (and narrower than) the "wrong student's tutor" scenario question 1 below i
    `ir.rule`'s per-student-tutor condition only gates *who* can write to the record, not
    *what values* they can write into `ems_group_id`/`ems_study_id`. Remaining question is
    just the fix shape (see 3 below), not whether the gap exists.
-3. If a fix is warranted: does it belong in `_is_blocked_tutor()` (Python-level, friendlier
-   errors, question 1's concern), as a new `@api.constrains('ems_group_id')` checking
-   `ems_group_id.study_id == ems_study_id` (closes the cross-study hole confirmed above,
-   regardless of entry point), or both? The `@api.constrains` seems like the clear, low-risk
-   fix for the confirmed hole specifically — narrow, mirrors an invariant the onchange
-   already assumes should always hold, doesn't touch the separate "friendlier error message"
-   question. Recommend doing that piece; the `_is_blocked_tutor()` UX question (1) is
-   independent and can wait for a separate decision.
+3. ~~If a fix is warranted...~~ **Fixed 2026-07-30.** Added
+   `_check_group_matches_study` (`@api.constrains('ems_group_id', 'ems_study_id')`) to
+   `models/enrollment/enrollment.py`, raising a `ValidationError` whenever `ems_group_id` is
+   set and `ems_group_id.study_id != ems_study_id` (including when `ems_study_id` is empty —
+   a destination group always implies a study) — closes the cross-study hole regardless of
+   entry point (direct form edit, RPC, or the wizard). A first version relaxed the check to
+   allow "group set, study empty" on an unverified assumption that this was a legitimate
+   case (it broke an unrelated existing test); a full audit of every real `ems_group_id`
+   write path, prompted by the developer questioning the assumption, showed no real path can
+   produce that state, so the stricter version was restored and the test's fixture fixed
+   instead — see `feedback_full_scenario_exploration_before_fixing` in memory. TDD cycle:
+   Red/Green tests in `tests/test_enrollment_header.py`
+   (`test_group_from_another_study_raises`/`test_group_from_same_study_is_allowed`/
+   `test_clearing_group_is_allowed`/`test_group_without_study_raises`), `./test.sh
+   TestEnrollmentHeader` (31 tests, 0 failed), `pylint --disable=all --enable=redefined-builtin`
+   clean. Documented in `docs/en/developers/enrollment/enrollment.md`.
+
+**Only question 1 remains open** — this plan file stays until that's decided (or explicitly
+closed as "the `ir.rule` layer is sufficient, `_is_blocked_tutor()` is UX-only for the plain-
+teacher case").
 
 ## Where this is also documented
 

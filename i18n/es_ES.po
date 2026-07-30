@@ -9371,6 +9371,16 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment.py:0
 msgid ""
+"The destination group %(group)s does not belong to the "
+"study selected for this enrollment."
+msgstr ""
+"El grupo de destino %(group)s no pertenece al estudio "
+"seleccionado para esta matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid ""
 "Cannot confirm enrollment '%(name)s'. The following required "
 "authorizations are still pending:\n"
 "%(names)s"

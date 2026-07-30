@@ -62,10 +62,12 @@ class TestExitManagement(TransactionCase):
 
     def test_transition_status_enrolled(self):
         student = self._student('TS Enrolled')
-        # Enrolled *with* a destination group -> fully placed.
+        # Enrolled *with* a destination group -> fully placed. ems_study_id is required
+        # alongside ems_group_id (sale.order._check_group_matches_study): a destination
+        # group always implies the study it belongs to.
         self.env['sale.order'].create({
             'partner_id': student.id, 'ems_course_id': self.next_course.id,
-            'ems_group_id': self.group.id})
+            'ems_study_id': self.study.id, 'ems_group_id': self.group.id})
         self.assertEqual(student.transition_status, 'enrolled')
 
     def test_transition_status_unplaced(self):

@@ -9,6 +9,10 @@ class EmsEnrollment(models.Model):
     _description = "Enrollment: ternary relation between student-group-uf."
     _order = 'student_id, subject_id, group_id'
     _inherit = ['ems.base']
+    _sql_constraints = [
+        ('unique_student_group_subject', 'UNIQUE(student_id, group_id, subject_id)',
+         'This student is already enrolled in this subject for this group.'),
+    ]
 
     student_id = fields.Many2one(string="Student", comodel_name="res.partner", required=True, ondelete='cascade', domain="[('contact_type', '=', 'student')]")
     group_id = fields.Many2one(string="Group", comodel_name="ems.group", ondelete='cascade', required=True)

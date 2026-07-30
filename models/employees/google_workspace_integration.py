@@ -150,7 +150,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
 
     def _gw_email_full_candidates(self):
         """Full corporate email candidates (with domain) not yet used in EMS."""
-        domain = self.env.company.google_ws_domain or 'elpuig.xeill.net'
+        domain = self._gw()._gw_domain()
         candidates = ['%s@%s' % (p, domain) for p in self._gw_login_candidates()]
         return [e for e in candidates if not self._gw_email_used_in_ems(e)]
 
@@ -257,7 +257,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
             return
 
         emp = self.sudo()
-        domain = company.google_ws_domain or 'elpuig.xeill.net'
+        domain = self._gw()._gw_domain()
 
         # Already has a work email: adopt if corporate, warn otherwise.
         if emp.work_email:
@@ -482,7 +482,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
         self.ensure_one()
         emp = self.sudo()
         Users = self.env['res.users'].sudo()
-        domain = emp.company_id.google_ws_domain or 'elpuig.xeill.net'
+        domain = self._gw()._gw_domain()
         if (emp.employee_type not in ('teacher', 'asp') or not emp.work_email
                 or not emp.work_email.endswith('@%s' % domain)):
             return Users

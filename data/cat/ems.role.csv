@@ -1,17 +1,17 @@
-id,name,color,employee_type,unipersonal
-"ems.role_hos","Head of studies",#C6672F,teacher,true
-"ems.role_dhos","Deputy head of studies",#C6A02F,teacher,true
-"ems.role_seminar","Seminar leader",#412FC6,teacher,false
-"ems.role_quality","Quality coordinator",#B3C62F,teacher,true
-"ems.role_secretary","Secretary",#7A2FC6,teacher,true
-"ems.role_tutor","Tutor",#2FC68D,teacher,false
-"ems.role_dchieff","Department chieff",#2FC654,teacher,false
-"ems.role_catskills","CatSkills coordinator",#2F54C6,teacher,true
-"ems.role_director","Director",#C62F2F,teacher,true
-"ems.role_coexistence","Coexistence coordinator",#7AC62F,teacher,false
-"ems.role_orc","Occupational risk coordinator",#41C62F,teacher,true
-"ems.role_erasmus","Erasmus coordinator",#B32FC6,teacher,true
-"ems.role_vetcoord","VET coordinator",#C62FA0,teacher,true
-"ems.role_schieff","Secretary chieff",#2FC6C6,asp,true
-"ems.role_cchieff","Concierje chieff",#2F8DC6,asp,true
-"ems.role_secretary_admin","Secretary Administrator",#C62F67,asp,true
+id,name,color,employee_type,unipersonal,group_id/id
+"ems.role_hos","Head of studies",#C6672F,teacher,true,ems.group_head_of_studies
+"ems.role_dhos","Deputy head of studies",#C6A02F,teacher,true,ems.group_head_of_studies
+"ems.role_seminar","Seminar leader",#412FC6,teacher,false,ems.group_department_chief
+"ems.role_quality","Quality coordinator",#B3C62F,teacher,true,ems.group_quality_admin
+"ems.role_secretary","Secretary",#7A2FC6,teacher,true,ems.group_secretary
+"ems.role_tutor","Tutor",#2FC68D,teacher,false,ems.group_tutor
+"ems.role_dchieff","Department chieff",#2FC654,teacher,false,ems.group_department_chief
+"ems.role_catskills","CatSkills coordinator",#2F54C6,teacher,true,
+"ems.role_director","Director",#C62F2F,teacher,true,ems.group_director
+"ems.role_coexistence","Coexistence coordinator",#7AC62F,teacher,false,ems.group_coexistence
+"ems.role_orc","Occupational risk coordinator",#41C62F,teacher,true,
+"ems.role_erasmus","Erasmus coordinator",#B32FC6,teacher,true,
+"ems.role_vetcoord","VET coordinator",#C62FA0,teacher,true,
+"ems.role_schieff","Secretary chieff",#2FC6C6,asp,true,
+"ems.role_cchieff","Concierje chieff",#2F8DC6,asp,true,
+"ems.role_secretary_admin","Secretary Administrator",#C62F67,asp,true,ems.group_secretary_admin

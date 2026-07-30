@@ -1,0 +1,7 @@
+id,name
+ems.partner_category_student,Student
+ems.partner_category_family,Family
+ems.partner_category_provider,Provider
+ems.partner_category_applicant,Applicant
+ems.partner_category_alumni,Alumni
+ems.partner_category_withdrawal,Withdrawal

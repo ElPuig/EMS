@@ -201,7 +201,30 @@ These two exceptions are the only cases where a non-`__import__.` prefix in `dat
 
 **Why `__import__`?** When Odoo stores a record with a fully-qualified ID whose module part is `__import__`, it is not associated with any installable module. This means removing the corresponding line from the manifest — or upgrading EMS — will never cause Odoo to delete that record. This is the same behaviour as data imported via the Odoo UI CSV importer, which also assigns `__import__.*` IDs.
 
-**Hard limitation — `__import__.` only works in CSV, not XML `<record>` tags:** Odoo's XML data loader (`odoo/tools/convert.py::_test_xml_id`) unconditionally rejects any `<record id="module.name">` whose module isn't an *actually installed* Odoo module, and `__import__` never is — this raises `AssertionError: The ID "__import__.xxx" refers to an uninstalled module` and aborts the entire file's load. `__import__` is only accepted by the CSV/`load()` import path (`odoo/models.py`), which is why the UI CSV importer and CSV data files can use it but a `data/custom/*.xml` file cannot. There is no XML-side workaround — a `data/custom/` model currently declared via XML (e.g. `ems.planning`, `ems.authorization.template`, `ems.course`) can only get real `__import__.` ids by converting that file to CSV (straightforward for flat models; needs a separate related CSV file, not inline `eval=`, for one2many data like `ems.planning`'s `planning_outcome_ids`). Don't attempt `id="__import__.xxx"` in a `<record>` tag — verify with `./upgrade.sh` after any id-prefix change in `data/custom/`.
+**Precise mechanism, verified empirically 2026-07-30 (removed a row from an already-`__import__.`-prefixed CSV, ran `./upgrade.sh`, confirmed the DB record survived untouched; re-added the row, confirmed it re-linked to the same record, no duplicate) and by reading `odoo/addons/base/models/ir_model.py::_process_end`** — the method Odoo calls at the end of every module load to delete records whose xmlid vanished from the reloaded data:
+```sql
+SELECT ... FROM ir_model_data
+WHERE module IN %(modules_being_processed)s AND COALESCE(noupdate, false) != true ...
+```
+Two independent conditions gate deletion, both need to hold: **(1)** the record's `ir_model_data.module` must be one of the modules actually being installed/updated in this run (e.g. `('ems',)`) — `__import__` is never in that set, so a `__import__`-owned record is never even a *candidate* for this cleanup, full stop, regardless of `noupdate`; **(2)** even for a module-owned record, `noupdate=True` also independently exempts it from deletion. This means deletion-safety and update-safety are two genuinely separate mechanisms that happen to both be governed by columns on the same `ir_model_data` row: `module='__import__'` is what makes a `data/custom/` record here survive being removed from its CSV file entirely; `noupdate` (deliberately `False` for `data/custom/`, see above) is what makes its *field values* keep tracking the file while the record itself still exists. **Removing a row from a `data/custom/` CSV and running `./upgrade.sh` does *not* delete the corresponding record — it just stops that field data from being pushed to it going forward.** If a record genuinely needs to be deleted, that has to be done explicitly (a migration script, or by hand) — the file alone can't do it once a record is `__import__`-owned.
+
+**Rule — author new `data/` records as CSV, not XML, wherever the model allows it.** This is what makes the `__import__.` prefix rule above achievable at all (see the hard limitation below) — an XML `<record>` in `data/custom/` can *never* get a real `__import__.` id, so starting a new centre-specific dataset in XML guarantees this exact gap has to be paid down again later. Applies to teammates too, not just AI-assisted changes. CSV is only unusable for a genuine, confirmed technical reason (see the two confirmed blockers just below) — if in doubt whether a new dataset hits one of them, check first rather than defaulting to XML out of habit.
+
+**Hard limitation #1 — `__import__.` only works in CSV, not XML `<record>` tags:** Odoo's XML data loader (`odoo/tools/convert.py::_test_xml_id`) unconditionally rejects any `<record id="module.name">` whose module isn't an *actually installed* Odoo module, and `__import__` never is — this raises `AssertionError: The ID "__import__.xxx" refers to an uninstalled module` and aborts the entire file's load. `__import__` is only accepted by the CSV/`load()` import path (`odoo/models.py`), which is why the UI CSV importer and CSV data files can use it but a `data/custom/*.xml` file cannot. There is no XML-side workaround for this one — a one2many populated inline via `eval="[(0, 0, {...})]"` (e.g. `ems.planning`'s `planning_outcome_ids`) needs a **separate related CSV file** (one row per child record, referencing its parent by id) instead of a 1:1 XML→CSV transliteration; CSV's `load()` path has no inline-eval equivalent. Don't attempt `id="__import__.xxx"` in a `<record>` tag — verify with `./upgrade.sh` after any id-prefix change in `data/custom/`.
+
+**Confirmed real, remaining CSV-incompatible case — a field resolved via `search=`, not a static `ref=`.** `<field name="..." search="[(...)]"/>` runs an arbitrary domain lookup at load time to resolve a many2one that has no external id of its own (e.g. `data/custom/ccff/ems_enrollment_template_opt.xml`'s `product_id`, resolved via `[('product_tmpl_id.ems_subject_ids', '=', ref('__import__.subject_OPTn'))]` because the `product.product` variant is auto-generated by `ems.subject` and never gets its own xmlid). CSV's `load()` only supports a static `field/id` external-id reference or a plain value — there's no domain-search equivalent, and minting a brand-new xmlid for the resolved record doesn't fully work around it either: that new xmlid would have to exist *before* this CSV loads (it's what the row references), but it can only be created by code that itself needs the earlier-loaded data already in place — a chicken-and-egg ordering problem with no clean fix via `post_init_hook` (which runs after all data, too late for a file that references the id it would create). Files that only use `search=` for this reason stay in XML, without a `__import__.` id, as a deliberate, confirmed exception — not a gap to keep re-litigating; a real fix would need product-level changes (e.g. `ems.subject`'s own create() logic assigning its generated product an xmlid at creation time), out of scope for a `data/` format conversion.
+
+**`data/custom/` is versioned config, not runtime state — embrace `noupdate=False`, matching `data/cat/`.** CSV loaded via the manifest's plain `data` key is always `noupdate=False` — every upgrade re-syncs the record's fields to match the file. This is deliberate and desired for `data/custom/`, exactly like `data/cat/` already works today (100% `noupdate=False`, whether CSV or the handful of XML files there): each centre's `data/custom/` is that centre's own versioned configuration (planning ponderations, authorization templates, course setup, etc.), the CSV file is its single source of truth, and re-applying it every upgrade is what lets one centre adopt another's fork by patching these files and running an upgrade — the same workflow already used for EMS's own shared `data/cat/` content. An admin's in-app edit to a `data/custom/`-backed record (e.g. editing a planning's ponderations from its form view) is expected to be reverted on the next upgrade unless it's also committed to the CSV — that's the contract, not a bug.
+
+**CSV cannot actually be marked `noupdate=True` in this Odoo version — that's exclusive to XML.** An earlier version of this note claimed the deprecated `init_xml` manifest key gives a CSV file `noupdate=True`; that was wrong and has been corrected after a live test (2026-07-30, `data/custom/res.partner.category-<probe>.csv` listed under `'init_xml': [...]`, ran `./upgrade.sh`) showed the file never even loaded — no "loading ems/..." log line, record never created. Root cause, confirmed by reading the actual installed `odoo/modules/loading.py::load_data._get_files_of_kind`: `keys = ['init_xml', 'update_xml', 'data']` is set inside an `elif kind == 'data':` branch, but the very next line, `if isinstance(kind, str): keys = [kind]`, is a **separate, unconditional `if`, not an `elif`** — since `kind` is always a plain string, this second `if` always fires and silently overwrites `keys` back down to just `['data']`, discarding the `init_xml`/`update_xml` merge entirely. Files listed under `init_xml`/`update_xml` are therefore never read at all during the normal 'data' load phase in this Odoo build, regardless of noupdate — apparent dead code, not a working (if deprecated) mechanism. The only manifest key that actually produces `noupdate=True` is `demo` — semantically wrong for real config (demo data is optional, skipped entirely with `--without-demo`, and conceptually sample data, not a centre's real configuration). **Practical conclusion: if a `data/custom/` (or any EMS) CSV record genuinely needs `noupdate=True` protection, there is no clean file-based way to get it — the only options are (a) keep it XML, or (b) set `ir_model_data.noupdate=True` directly via a migration script**, bypassing the file-loading mechanism's noupdate handling entirely (not something to reach for casually, since it also means the file's own content stops being an honest description of what the record actually does on upgrade).
+
+**Critical, easy-to-miss detail when converting an existing `noupdate="1"` XML file to CSV: the file's load-time `noupdate` context is not what decides whether an *already-existing* record gets updated — `ir_model_data.noupdate`, a value stored per-record at the time it was first created, is.** Confirmed empirically 2026-07-30 (edited a value in an already-`__import__.`-renamed CSV row and ran a plain `./upgrade.sh`; nothing changed) and by reading `odoo/models.py::_load_records`: `if not (update and d_noupdate): to_update.append(data)` reads `d_noupdate` from the **existing** `ir_model_data` row, not from the noupdate the calling file was loaded with. A record originally created under `<data noupdate="1">` XML has `True` permanently baked into that stored column — converting its file to CSV and even renaming its `module` to `__import__` changes nothing about whether it gets updated, because the stored flag still says "don't touch me." **A rename migration must explicitly clear it**: `UPDATE ir_model_data SET module = '__import__', noupdate = FALSE WHERE ...` — not just the module column (see `migrations/18.0.0.22.0/pre-migrate.py::_rename_data_custom_xmlid_ownership` for the fixed pattern; the earlier `18.0.0.19.1` rename for `ems.group`/`crm.team` didn't need this because those files were always plain CSV, never noupdate=1 XML, so their stored flag was already `False`). Verify with the same empirical test used here — change a value in the converted CSV, run a plain `./upgrade.sh` (no version forcing), confirm the DB actually picked it up — rather than trusting that "it's CSV now" is sufficient on its own.
+
+**Gotcha confirmed while converting `ems.course.xml`: a legacy NULL boolean can't self-heal via CSV resync.** A Boolean field added to a model *after* some rows already existed leaves those rows' column raw SQL NULL forever, unless something explicitly backfills it — Odoo's own `Boolean.convert_to_cache` does `bool(None) == False`, so the ORM (including the CSV loader's own read-current-value-before-deciding-to-write step) can never tell a legacy NULL apart from a real `False`. Converting the file from `noupdate="1"` XML to `noupdate=False` CSV does **not** fix this on its own: the loader sees "current value False (really NULL), desired value False" as no change and skips the `write()`, so the NULL survives every future upgrade untouched — confirmed on `ems_course.is_enrollment_default` (one legacy row, backfilled explicitly via `migrations/18.0.0.22.0/post-migrate.py::_backfill_null_course_enrollment_default`, not something the format conversion itself could resolve). Before converting any `noupdate="1"` file whose model has Boolean fields, spot-check `col IS NULL` (not just the ORM-friendly `SELECT col`, which masks it) on the existing production data and add an explicit one-time SQL backfill in the same migration if any legacy NULLs turn up.
+
+**The one real exception: fields that are live application state, not configuration.** A field a running EMS instance mutates itself as part of normal operation (not a one-off admin edit) must **not** be a synced CSV column at all, or every upgrade breaks that operation — e.g. `ems.course.is_current`/`is_enrollment_default`, flipped by `res.company._sync_current_course_flag()` whenever the "Current course" setting changes, or `ir.sequence.number_next_actual` (never a data-file column in the first place, for the same reason). Leave such fields out of the CSV entirely — the record still gets `__import__.`-prefixed and survives upgrades/module removal like every other `data/custom/` row, it just isn't re-seeded from the file after its first creation for that specific field. Seed the field's actual initial value (if not the model's plain default) via a one-time `post_init_hook`/migration write instead, same pattern as any other one-time backfill (see "Migrations" below). This is a narrow, field-level carve-out, not a reason to keep a whole record/file in XML or under a different noupdate policy.
+
+**Deciding `noupdate=True` vs `False` for `data/main/`/`data/cat/` (EMS's own data, not `data/custom/`'s centre config): default to `False` — EMS owns its data and should keep improving it. `noupdate=True` is the exception, earned per record, not a default courtesy** — and being Odoo-native vs EMS-authored has no bearing on the decision either way (Odoo's own official docs leave this entirely to each module's judgment, and Odoo core itself is inconsistent about it). The actual test, and worked examples (`ems.schedule_framework_default.xml` genuinely earns `noupdate=True`; `ems.mail_activity_type.xml`/`res.partner.category.xml` don't): see `docs/en/developers/shared/data_loading.md`'s "Deciding `noupdate=True` vs `False`" section.
 
 **Load order:** within `data/custom/`, always list files so that referenced records are declared before the files that reference them (e.g. `ems.subject.csv` before `ems.study.csv`).
 
@@ -273,62 +296,45 @@ whether Spec/Red start from a blank file or a diff:
 6. **Gate:** `./upgrade.sh` and `./test.sh TestClassName` after each Red-Green-Refactor-Normalize cycle (see "The full test suite is slow" above — don't reach for the unscoped `./test.sh` here).
 7. **Close — D:** For every role identified in the Spec step, fill in (or update) the three language versions of that role's user doc (`docs/{en,ca,es}/<role>/<model>.md`) — this is a mandatory deliverable of every change with a user-facing effect, not an optional extra to be requested separately; skipping it because the change "isn't for admins" is the most common way this step gets missed. Also update the role's `index.md` to link the manual if it's new. Add the new/changed strings' real Catalan/Spanish translations to `i18n/ca_ES.po` and `i18n/es_ES.po` (see "All literals must be translatable" above — wrapping in `_()`/`_t()` during Green/Refactor is not enough on its own), and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle. Finish by running the full, unscoped `./test.sh` exactly once, as the final gate for the whole change. Then deliver the PR changelog summary described below — it's part of Close, not a separate ask.
 
-## PR changelog summary (English, every time something is finished)
+## PR changelog: persist silently, deliver only on request
 
 The developer keeps the chat in Spanish but writes their GitHub PR description in English,
 using `.github/pull_request_template.md`'s sections (`Breaking changes` / `What's new` /
-`Changes` / `Fixes` / `Internal changes` / `Related with`). Whenever a piece of work is
-finished — a gap fix, a migration, a DTON cycle, anything the developer would want to paste
-into that PR body — give a short **English-language** summary formatted as ready-to-paste
-bullets under the matching template section(s) (skip sections that don't apply; most fixes
-in this repo land under `Fixes` and/or `Internal changes`), *in addition to* the normal
-Spanish conversation around it — this doesn't replace the "respond in Spanish" rule, it's an
-extra deliverable at the end. Keep bullets terse and user/reviewer-facing (what changed and
-why it matters), not a restatement of the implementation narrative already given in Spanish.
-Per-item formatting: use the item's own descriptive title directly as the `##` heading (no
-"Item 1:"/"Item 2:" prefix, despite the placeholder text in the template file), **ending
-that heading line with a colon** — and never use an em dash (—) inside the title as a
-separator; parentheses read better, e.g.
-`## Portal IBAN renewal (bank account never trusted):`.
+`Changes` / `Fixes` / `Internal changes` / `Related with`).
 
-**Block layout — this has been gotten wrong 3 times already (2026-07-30), always the same
-way: putting the section name (`# Fixes:` etc.) *inside* the fenced block instead of before
-it. Before sending any PR changelog, explicitly re-check each block against this rule — don't
-just pattern-match from habit.** The developer already has the `# Fixes:` / `# Internal
-changes:` / etc. headings in place on GitHub and only needs to paste each section's items
-under the matching existing heading — so give **one separate fenced ```markdown block per
-template section**, not one block spanning multiple `#` sections. Write the section name as
-plain text right before its block (not inside the block, and not as a `#` heading inside it),
-so clicking that code block's own copy button grabs only that section's items, ready to drop
-under the developer's existing heading with no manual re-splitting.
+**No automatic chat delivery per task (retired 2026-07-30 — an earlier version of this rule
+had the agent post an English block after every finished task; the developer simplified it
+away since the persisted file below makes that unnecessary).** Instead: whenever a piece of
+work finishes — a gap fix, a migration, a DTON cycle, anything the developer would want in the
+PR body — silently append it to `changelog/<current-branch-name>.md` (e.g.
+`changelog/284-dton-....md`; create the file, with real `#` section headings matching
+`.github/pull_request_template.md`, if it doesn't exist yet). No chat output for this at task
+completion — just the file write. (The separate "notify when a task finishes" bridge in
+`/mnt/claude-notify/`, described elsewhere in this doc, is unrelated and unaffected — that
+notification still fires normally.)
 
-**Wrong** (the recurring mistake — section name leaks inside the fence):
-~~~
-**Fixes:**
-```markdown
-# Fixes:
+**Per-item formatting when writing to the file:** the item's own descriptive title directly as
+the `##` heading (no "Item 1:"/"Item 2:" prefix, despite the template file's own placeholder
+text), **ending that heading line with a colon**, no em dash (—) in the title as a separator
+(parentheses instead) — e.g. `## Portal IBAN renewal (bank account never trusted):`. Group
+items under their matching section (`# Fixes`, `# Internal changes`, etc.); a later item under
+a section already present is appended under that existing heading, not a new one. Plain
+markdown throughout, no code fences — the file is meant to be copied as a whole.
 
-## Item title here
-- detail
-```
-~~~
+**Deliver in chat only when explicitly asked** — trigger phrases like "dame el texto/los
+detalles para la PR" or similar (ask for clarification if genuinely ambiguous, don't guess).
+When asked: read **every** file currently under `changelog/` (not just the current branch's
+own — after pulling in a colleague's branch there may be several) and paste their combined
+content directly into chat as plain markdown, exactly as stored, ready for the developer to
+copy the whole thing as the PR body in one shot. This can be asked at any point, not only right
+before publishing — always return whatever has accumulated so far.
 
-**Right** (section name is plain text outside the fence; the fence's first line is the `##`
-item title, ending in a colon):
-
-**Fixes:**
-```markdown
-## Item title here:
-- detail
-- detail
-```
-
-**Internal changes:**
-```markdown
-## Another item title:
-- detail
-```
-
-**Self-check before sending, every time:** look at the first line inside each fence — if it
-starts with a single `#` (a section name like `# Fixes:`), that block is wrong; delete that
-line and move the section name outside, in front of the fence, as plain bold text.
+**One file per branch, not one shared file** — deliberate, not just tidiness: every developer's
+own Claude session does the same on their own branch, so `changelog/` ends up with multiple
+independently-named files (one per contributor). A single shared file would conflict on every
+merge between two branches that both touched it; separate, uniquely-named files never collide,
+and simply accumulate side by side when branches are combined. **This folder must be tracked by
+git** (not gitignored) so it survives a branch switch/pull-from. **Delete the entire
+`changelog/` folder as the very last step before merging into `main`** (its contents are a
+working draft, not permanent documentation — same lifecycle as a `plans/` file) once they've
+been copied into the actual GitHub PR description.

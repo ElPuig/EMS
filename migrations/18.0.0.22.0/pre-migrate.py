@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
+import csv
+import glob
 import logging
+import os
 
 _logger = logging.getLogger(__name__)
+
+MODULE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 DEFAULT_COLOR = "#3A8DDE"
 
@@ -137,9 +142,176 @@ def _dedupe_ems_enrollment(cr):
             cr.rowcount)
 
 
+# (model, name) pairs whose data/custom/ record gained the __import__. prefix in this
+# version by converting from XML to CSV (see CLAUDE.md's "Data folder conventions" - the
+# ems.planning, ems.authorization.template, ems.course and ir.sequence files that were the
+# last data/custom/ holdouts still declared via XML <record> tags). These xmlids already
+# exist in production under module='ems' - repoint their ownership to '__import__' in
+# place, same as 18.0.0.19.1 did for ems.group/crm.team (no res_id changes).
+FLAT_RENAMED_XMLIDS = [
+    ('ems.course', 'ems_course_25_26'),
+    ('ems.course', 'ems_course_26_27'),
+    ('ems.course', 'ems_course_27_28'),
+    ('ems.course', 'ems_course_28_29'),
+    ('ir.sequence', 'seq_ems_enrollment_number'),
+    ('ems.authorization.template', 'auth_template_image_and_sound'),
+    ('ems.authorization.template', 'auth_template_carta_compromis'),
+    ('ems.authorization.template', 'auth_template_data_protection'),
+    ('ems.authorization.template', 'auth_template_excursions'),
+    ('ems.authorization.template', 'auth_template_comunicacio_families'),
+]
+
+
+def _read_custom_csv(filename):
+    path = os.path.join(MODULE_ROOT, 'data', 'custom', 'ccff', filename)
+    with open(path, encoding='utf-8', newline='') as csv_file:
+        return list(csv.DictReader(csv_file))
+
+
+def _split_xmlid(xmlid):
+    module, _, name = xmlid.rpartition('.')
+    return module or 'ems', name
+
+
+def _rename_data_custom_xmlid_ownership(cr):
+    """Also clears the stored ir_model_data.noupdate flag, not just the module - confirmed
+    empirically (2026-07-30, changing ir.sequence-enrollment_number.csv's padding and running
+    a plain ./upgrade.sh) that odoo/models.py::_load_records decides whether to update an
+    EXISTING record by checking `d_noupdate` read from the ir_model_data row itself
+    (`if not (update and d_noupdate): to_update.append(data)`), not the noupdate context the
+    calling file's load() was invoked with. These xmlids were all originally created under the
+    old <data noupdate="1"> XML files, so their stored flag is True; renaming only the module
+    (as 18.0.0.19.1 did for ems.group/crm.team, which were always noupdate=False CSV and never
+    had this problem) would silently leave every one of these records frozen forever, exactly
+    the noupdate=1 XML behavior data/custom/ is deliberately moving away from (see CLAUDE.md's
+    Data folder conventions) - the new CSV files would load without error but never actually
+    resync a changed value into an already-existing row.
+    """
+    renamed = list(FLAT_RENAMED_XMLIDS)
+    for path in sorted(glob.glob(os.path.join(MODULE_ROOT, 'data', 'custom', 'ccff', 'ems.planning-*.csv'))):
+        for row in csv.DictReader(open(path, encoding='utf-8', newline='')):
+            renamed.append(('ems.planning', _split_xmlid(row['id'])[1]))
+
+    for model, name in renamed:
+        cr.execute(
+            "UPDATE ir_model_data SET module = '__import__', noupdate = FALSE "
+            "WHERE module = 'ems' AND model = %s AND name = %s",
+            (model, name),
+        )
+        if cr.rowcount:
+            _logger.info(
+                "Migration 18.0.0.22.0: rescoped xml_id 'ems.%s' (%s) -> '__import__.%s' "
+                "and cleared its noupdate flag.",
+                name, model, name,
+            )
+
+
+def _resolve_xmlid(cr, xmlid):
+    module, name = _split_xmlid(xmlid)
+    cr.execute(
+        "SELECT res_id FROM ir_model_data WHERE module = %s AND name = %s",
+        (module, name),
+    )
+    row = cr.fetchone()
+    return row[0] if row else None
+
+
+def _reconcile_planning_outcome_xmlids(cr):
+    """ems.planning_outcome children were created inline (eval="[(0, 0, {...})]") in the old
+    XML, so production has live rows with no xml_id of their own at all - only their parent
+    ems.planning row had one. The new data/custom/ccff/ems.planning_outcome.*.csv files mint
+    a real per-child __import__. id for each one, matched here to its existing live row by
+    (planning_id, outcome_id) - the same reconcile-before-reload approach 18.0.0.19.1 used for
+    orphaned ems.planning xml_ids. Must run after _rename_data_custom_xmlid_ownership (needs
+    the ems.planning ids already resolvable) so this file's migrate() calls it second.
+    """
+    for path in sorted(glob.glob(os.path.join(MODULE_ROOT, 'data', 'custom', 'ccff', 'ems.planning_outcome-*.csv'))):
+        for row in csv.DictReader(open(path, encoding='utf-8', newline='')):
+            new_module, new_name = _split_xmlid(row['id'])
+            planning_id = _resolve_xmlid(cr, row['planning_id/id'])
+            outcome_id = _resolve_xmlid(cr, row['outcome_id/id'])
+            if planning_id is None or outcome_id is None:
+                _logger.warning(
+                    "Migration 18.0.0.22.0: could not resolve planning_id/outcome_id for "
+                    "'%s' (planning=%s, outcome=%s); skipping.",
+                    row['id'], row['planning_id/id'], row['outcome_id/id'],
+                )
+                continue
+
+            cr.execute(
+                "SELECT id FROM ems_planning_outcome WHERE planning_id = %s AND outcome_id = %s",
+                (planning_id, outcome_id),
+            )
+            candidates = cr.fetchall()
+            if len(candidates) != 1:
+                if candidates:
+                    _logger.warning(
+                        "Migration 18.0.0.22.0: %d ems_planning_outcome candidates found for "
+                        "'%s' (planning_id=%s, outcome_id=%s); skipping, needs manual review.",
+                        len(candidates), row['id'], planning_id, outcome_id,
+                    )
+                continue
+
+            live_id = candidates[0][0]
+            cr.execute(
+                "SELECT 1 FROM ir_model_data WHERE model = 'ems.planning_outcome' AND res_id = %s",
+                (live_id,),
+            )
+            if cr.fetchone():
+                continue  # already linked to an xml_id, nothing to do
+
+            cr.execute(
+                """
+                INSERT INTO ir_model_data (module, name, model, res_id, noupdate)
+                VALUES (%s, %s, 'ems.planning_outcome', %s, FALSE)
+                """,
+                (new_module, new_name, live_id),
+            )
+            _logger.info(
+                "Migration 18.0.0.22.0: linked new xml_id '%s.%s' -> ems_planning_outcome.id=%s.",
+                new_module, new_name, live_id,
+            )
+
+
+# (model, name) pairs converted from noupdate="1" XML to noupdate=False CSV in this version -
+# see docs/en/developers/shared/data_loading.md's "Deciding noupdate=True vs False" for why
+# (EMS owns its own cosmetic/business-label data by default; noupdate=1 is reserved for
+# genuine "EMS can't know this" gaps, which neither of these had). Both stay module='ems' -
+# no ownership rename needed, only the stored noupdate flag changes.
+NOUPDATE_CLEARED_XMLIDS = [
+    ('mail.activity.type', 'mail_activity_enrollment_comment'),
+    ('mail.activity.type', 'mail_activity_student_document_review'),
+    ('mail.activity.type', 'mail_activity_attendance_correction'),
+    ('res.partner.category', 'partner_category_student'),
+    ('res.partner.category', 'partner_category_family'),
+    ('res.partner.category', 'partner_category_provider'),
+    ('res.partner.category', 'partner_category_applicant'),
+    ('res.partner.category', 'partner_category_alumni'),
+    ('res.partner.category', 'partner_category_withdrawal'),
+]
+
+
+def _clear_noupdate_for_ems_owned_xmlids(cr):
+    for model, name in NOUPDATE_CLEARED_XMLIDS:
+        cr.execute(
+            "UPDATE ir_model_data SET noupdate = FALSE "
+            "WHERE module = 'ems' AND model = %s AND name = %s AND noupdate = TRUE",
+            (model, name),
+        )
+        if cr.rowcount:
+            _logger.info(
+                "Migration 18.0.0.22.0: cleared noupdate for xml_id 'ems.%s' (%s), "
+                "now tracking the CSV file.",
+                name, model,
+            )
+
+
 def migrate(cr, _version):
     _migrate_role_color(cr)
     _migrate_attendance_template_color(cr)
     _rename_old_status_columns(cr)
     _rename_old_special_columns(cr)
     _dedupe_ems_enrollment(cr)
+    _rename_data_custom_xmlid_ownership(cr)
+    _reconcile_planning_outcome_xmlids(cr)
+    _clear_noupdate_for_ems_owned_xmlids(cr)

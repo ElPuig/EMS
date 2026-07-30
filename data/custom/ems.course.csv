@@ -1,0 +1,5 @@
+id,start,end,is_enrollment_default
+__import__.ems_course_25_26,2025,2026,False
+__import__.ems_course_26_27,2026,2027,True
+__import__.ems_course_27_28,2027,2028,False
+__import__.ems_course_28_29,2028,2029,False

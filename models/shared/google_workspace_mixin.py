@@ -81,6 +81,17 @@ class GoogleWorkspaceMixin(models.AbstractModel):
         return build('admin', 'directory_v1', credentials=creds, cache_discovery=False)
 
     @api.model
+    def _gw_domain(self):
+        """The centre's configured Google Workspace domain (res.company.google_ws_domain),
+        raising if it hasn't been set - every account/email flow needs a real domain, so
+        there's no sensible literal to silently fall back to (data/main ships EMS-generic
+        content, not any one centre's own domain)."""
+        domain = self.env.company.google_ws_domain
+        if not domain:
+            raise UserError(_("Google Workspace domain is not configured (Settings > Company)."))
+        return domain
+
+    @api.model
     def _gw_format_phone(self, raw):
         """Return the given phone number in E.164 (+34...) or False."""
         if not raw:

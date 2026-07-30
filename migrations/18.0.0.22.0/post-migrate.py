@@ -171,7 +171,15 @@ def _backfill_iban_trust(env):
     (base_iban-normalized search) rather than risk a raw acc_number string mismatch.
     Idempotent - documents whose bank is already trusted are simply re-confirmed as a no-op.
     """
-    documents = env['ems.student.document'].search([
+    # install_mode=True: matches the context Odoo's own data-file loader always applies
+    # (odoo/models.py's _load_records) - res_partner_bank's write() override refuses to
+    # trust/untrust an account for SUPERUSER_ID unless install_mode is set (account's own
+    # anti-cron safeguard), so calling _apply_bank_account() here plainly (no install_mode)
+    # raises UserError("You do not have the rights to trust or un-trust accounts."). Only
+    # caught because a real ./upgrade.sh run (no test_enable) exercises this path for real;
+    # the original test coverage ran this migration under test_enable=True, which the same
+    # check special-cases, and masked the bug.
+    documents = env['ems.student.document'].with_context(install_mode=True).search([
         ('doc_type', '=', 'iban'), ('status', '=', 'approved'), ('doc_value', '!=', False),
     ])
     for document in documents:
@@ -183,6 +191,25 @@ def _backfill_iban_trust(env):
             len(documents))
 
 
+def _backfill_null_course_enrollment_default(cr):
+    """ems_course.is_enrollment_default was added to the model after ems_course_25_26 (the
+    oldest row, created 2026-02-12, before ems.course.xml even declared this field) already
+    existed, so its column was never backfilled and is raw SQL NULL - the only one of the 4
+    courses in this state (confirmed via 'SELECT ... IS NULL'). This is invisible through the
+    ORM (Boolean.convert_to_cache does bool(None) == False, same as a real False), which is
+    exactly why converting data/custom/ems.course.xml to CSV in this version (noupdate=False,
+    reapplied every upgrade - see CLAUDE.md's Data folder conventions) couldn't fix it on its
+    own: the loader reads the current value as False through the ORM, sees the CSV's False
+    matches, and skips issuing a write() - the raw NULL survives untouched forever. A one-time
+    SQL backfill is the only way to actually correct it.
+    """
+    cr.execute("UPDATE ems_course SET is_enrollment_default = false WHERE is_enrollment_default IS NULL")
+    if cr.rowcount:
+        _logger.info(
+            "Migration 18.0.0.22.0: backfilled %d ems_course row(s) with a legacy NULL "
+            "is_enrollment_default to False.", cr.rowcount)
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _enable_unaccent(cr)
@@ -191,3 +218,4 @@ def migrate(cr, _version):
     _backfill_attendance_status_id(cr)
     _backfill_special_type(cr)
     _backfill_iban_trust(env)
+    _backfill_null_course_enrollment_default(cr)

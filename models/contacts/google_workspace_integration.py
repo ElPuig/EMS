@@ -108,7 +108,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         returns 403 (not 404). Existence in Google is handled on insert() via the
         409 conflict, trying the next candidate.
         """
-        domain = self.env.company.google_ws_domain or 'elpuig.xeill.net'
+        domain = self._gw()._gw_domain()
         candidates = ['%s@%s' % (p, domain) for p in self._gw_email_candidates()]
         return [e for e in candidates if not self._gw_email_used_in_ems(e)]
 

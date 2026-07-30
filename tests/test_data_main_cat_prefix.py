@@ -1,3 +1,4 @@
+import csv
 import os
 
 from odoo.tests.common import TransactionCase, tagged
@@ -30,10 +31,10 @@ class TestDataMainCatPrefix(TransactionCase):
                     if not filename.endswith('.csv'):
                         continue
                     path = os.path.join(dirpath, filename)
-                    with open(path, encoding='utf-8') as csv_file:
-                        lines = csv_file.read().splitlines()
-                    for line in lines[1:]:
-                        record_id = line.split(',', 1)[0].strip('"')
+                    with open(path, encoding='utf-8', newline='') as csv_file:
+                        rows = list(csv.reader(csv_file))
+                    for row in rows[1:]:
+                        record_id = row[0] if row else ''
                         if not record_id:
                             continue
                         if record_id.startswith('ems.') or '.' not in record_id:

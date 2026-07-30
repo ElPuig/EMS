@@ -1,3 +1,4 @@
+import base64
 from datetime import date
 
 from odoo.tests.common import TransactionCase
@@ -30,6 +31,95 @@ class TestContactLifecycle(TransactionCase):
             'study_id': cls.study.id,
         })
         cls.course = cls.env['ems.course'].create({'start': 2098, 'end': 2099})
+
+    # --- authorization flags read the student's own enrollment ---------------
+
+    def _incoming_course(self):
+        """The course students are enrolling into. Only one may carry the flag, and
+        this database already has one, so the existing holder is cleared first."""
+        self.env['ems.course'].search([('is_enrollment_default', '=', True)]).write(
+            {'is_enrollment_default': False})
+        return self.env['ems.course'].create({
+            'start': 2099, 'end': 2100, 'is_enrollment_default': True})
+
+    def _auth_template(self, auth_type):
+        return self.env['ems.authorization.template'].create({
+            'name': 'LFC %s' % auth_type, 'auth_type': auth_type,
+            'legal_text': '<p>text</p>'})
+
+    def _enrolled(self, name, course, auth_type=None, status='yes', state='sale'):
+        """A student holding an enrollment for 'course', with one authorization."""
+        student = self.env['res.partner'].create({
+            'name': name, 'contact_type': 'student', 'main_group_id': self.group.id})
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study.id,
+            'ems_course_id': course.id, 'shift': 'morning'})
+        order.state = state
+        if auth_type:
+            self.env['ems.authorization'].create({
+                'enrollment_id': order.id,
+                'template_id': self._auth_template(auth_type).id,
+                'status': status})
+        return student, order
+
+    def test_auth_flags_read_the_enrollment_course_not_the_current_one(self):
+        """During the summer the student's enrollment is already the incoming
+        course while 'current' is still the outgoing one. Keying on 'current' left
+        every signed authorization invisible: 122 of 122 SMX students after the
+        first real transition."""
+        incoming = self._incoming_course()
+        self.env.company.current_course_id = self.course     # outgoing still current
+        student, _order = self._enrolled('LFC Auth Incoming', incoming, 'image')
+        self.assertTrue(student.auth_image)
+
+    def test_auth_flags_survive_the_course_flip(self):
+        """After the flip the enrollment default is cleared and the same course
+        becomes current, so the fallback has to resolve to the very same order."""
+        incoming = self._incoming_course()
+        student, order = self._enrolled('LFC Auth Flip', incoming, 'trip')
+        self.assertTrue(student.auth_trip)
+        incoming.is_enrollment_default = False
+        self.env.company.current_course_id = incoming
+        student.invalidate_recordset(['auth_trip'])
+        self.assertTrue(student.auth_trip)
+
+    def test_auth_flags_prefer_the_running_course_over_the_one_being_enrolled(self):
+        """Once the next year opens for enrolment halfway through this one, the flags
+        must keep reading the year being taught — not a draft nobody has signed."""
+        running = self.course
+        self.env.company.current_course_id = running
+        student, _running_order = self._enrolled('LFC Auth Running', running, 'image')
+        self.assertTrue(student.auth_image)
+        # The centre starts enrolling for the year after: a draft, nothing signed.
+        future = self._incoming_course()
+        self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study.id,
+            'ems_course_id': future.id, 'shift': 'morning'})
+        student.invalidate_recordset(['auth_image'])
+        self.assertTrue(student.auth_image)
+
+    def test_auth_flags_are_false_without_an_enrollment(self):
+        student = self.env['res.partner'].create({
+            'name': 'LFC Auth None', 'contact_type': 'student',
+            'main_group_id': self.group.id})
+        self.assertFalse(student.auth_image)
+        self.assertFalse(student.auth_trip)
+
+    def test_auth_flags_ignore_a_rejected_authorization(self):
+        incoming = self._incoming_course()
+        student, _o = self._enrolled('LFC Auth No', incoming, 'health', status='no')
+        self.assertFalse(student.auth_healt)
+
+    def test_auth_flags_recompute_when_the_authorization_is_accepted(self):
+        """The value is stored, so the depends have to cover the whole chain."""
+        incoming = self._incoming_course()
+        student, order = self._enrolled('LFC Auth Later', incoming, 'share', status='pending')
+        self.assertFalse(student.auth_share)
+        # Staff may only change the status with the signed PDF attached (see
+        # ems.authorization.write); the portal path writes both at once too.
+        order.ems_authorization_ids.write({
+            'status': 'yes', 'signed_document': base64.b64encode(b'signed')})
+        self.assertTrue(student.auth_share)
 
     # --- creation of the new categories -------------------------------------
 

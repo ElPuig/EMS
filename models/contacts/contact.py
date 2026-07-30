@@ -206,20 +206,44 @@ class ems_contact(models.Model):
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
     is_tutor_readonly = fields.Boolean(default=lambda self:self._get_is_tutor_readonly(), store=False)
 
+    def _ems_enrollment_in_force(self):
+        """The student's enrollment that governs what may be done with them now.
+
+        What rules an authorization is the year being TAUGHT, not the one being
+        enrolled into, so the running course comes first. The fallback exists for the
+        one window where that yields nothing: between transitioning a study and the
+        global flip, the student has already been moved into the incoming course and
+        holds no enrollment for the outgoing one — which is exactly what left 122 of
+        122 SMX students showing every signed authorization as unsigned.
+
+        Preferring the enrollment-default course instead would break later on: once
+        27-28 is opened for enrolment halfway through 26-27, the flags would start
+        reading a draft enrollment nobody has signed yet and fall back to false in
+        the middle of the school year.
+
+        Shared with ems_current_enrollment_id so the two cannot drift apart, which is
+        how the discrepancy arose in the first place.
+        """
+        self.ensure_one()
+        Course = self.env['ems.course']
+        running = Course.search([('is_current', '=', True)], limit=1)
+        orders = self.sale_order_ids.filtered(
+            lambda order: order.state in ('draft', 'sent', 'sale'))
+        in_force = orders.filtered(lambda order: order.ems_course_id == running)
+        if in_force:
+            return in_force[0]
+        enrolling = Course.search([('is_enrollment_default', '=', True)], limit=1)
+        return orders.filtered(lambda order: order.ems_course_id == enrolling)[:1]
+
     @api.depends(
+    'sale_order_ids.ems_course_id',
     'sale_order_ids.ems_authorization_ids.status',
     'sale_order_ids.ems_authorization_ids.template_id.auth_type',
     )
     def _compute_auth_booleans(self):
-        current_course = self.env['ems.course'].search([
-            ('is_current', '=', True)
-        ], limit=1)
-
         for student in self:
             image, trip, health, share = False, False, False, False
-            for order in student.sale_order_ids.filtered(
-                lambda o: o.ems_course_id == current_course
-            ):
+            for order in student._ems_enrollment_in_force():
                 for auth in order.ems_authorization_ids:
                     if auth.status == 'yes':
                         if auth.template_id.auth_type == 'image':
@@ -252,20 +276,8 @@ class ems_contact(models.Model):
         return [('sale_order_ids.name', operator, value)]
 
     def _compute_current_enrollment(self):
-        current_course = self.env['ems.course'].search([
-            ('is_enrollment_default', '=', True)
-        ], limit=1)
-        if not current_course:
-            current_course = self.env['ems.course'].search([
-                ('is_current', '=', True)
-            ], limit=1)
         for partner in self:
-            enrollment = self.env['sale.order'].search([
-                ('partner_id', '=', partner.id),
-                ('ems_course_id', '=', current_course.id if current_course else False),
-                ('state', 'in', ['draft', 'sent', 'sale']),
-            ], limit=1)
-            partner.ems_current_enrollment_id = enrollment
+            partner.ems_current_enrollment_id = partner._ems_enrollment_in_force()
 
     def action_open_current_enrollment(self):
         self.ensure_one()

@@ -752,12 +752,24 @@ class SaleOrder(models.Model):
         if order.ems_payment_method == 'direct_debit':
             bank = order.partner_id.bank_ids[:1]
             if bank:
-                # Accounts predating the document-approval flow (e.g. CSV
-                # imports) may not be trusted yet: without allow_out_payment,
-                # posting raises for regular users and silently drops the
-                # bank data for the superuser (portal confirmation).
+                # Do not try to self-grant trust here: Odoo's own anti-fraud check
+                # (res.partner.bank._user_can_trust()) exists specifically to stop an
+                # automated/portal context from trusting a bank account on its own,
+                # and silently attempting it anyway (the previous approach) does not
+                # reliably work - confirmed against production data, 2026-07-30: 332
+                # already-posted invoices ended up with no bank reference at all,
+                # because Odoo's own account.move validation strips an untrusted
+                # partner_bank_id under sudo/portal contexts regardless. An IBAN must
+                # be genuinely approved first (action_approve(), or the portal renewal
+                # flow, both of which set allow_out_payment) - see
+                # plans/student_document_iban_renewal_allow_out_payment.md.
                 if not bank.allow_out_payment:
-                    bank.sudo().allow_out_payment = True
+                    raise ValidationError(_(
+                        "Cannot generate a direct-debit invoice for '%(name)s': the "
+                        "destination bank account is not approved yet. Approve the "
+                        "student's IBAN document before confirming this enrollment.",
+                        name=order.name,
+                    ))
                 vals['partner_bank_id'] = bank.id
 
         inv.write(vals)

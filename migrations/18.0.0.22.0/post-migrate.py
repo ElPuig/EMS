@@ -134,9 +134,34 @@ def _backfill_attendance_status_id(cr):
             "and dropped the attendance_status_old backup column.")
 
 
+def _backfill_iban_trust(env):
+    """Re-apply _apply_bank_account() for every already-approved IBAN document, so its
+    underlying res.partner.bank ends up trusted (allow_out_payment=True) - see
+    plans/student_document_iban_renewal_allow_out_payment.md. Before this version, the
+    portal IBAN renewal route (controllers/portal_enrollment.py) could mark a document
+    'approved' without ever touching allow_out_payment, unlike action_approve(). Confirmed
+    against production data (2026-07-30): 332 already-posted direct-debit invoices ended up
+    with no bank reference as a result, out of 408 students in this same inconsistent state.
+    Uses the ORM (not raw SQL) to reuse _apply_bank_account()'s own IBAN-matching logic
+    (base_iban-normalized search) rather than risk a raw acc_number string mismatch.
+    Idempotent - documents whose bank is already trusted are simply re-confirmed as a no-op.
+    """
+    documents = env['ems.student.document'].search([
+        ('doc_type', '=', 'iban'), ('status', '=', 'approved'), ('doc_value', '!=', False),
+    ])
+    for document in documents:
+        document._apply_bank_account()
+    if documents:
+        _logger.info(
+            "Migration 18.0.0.22.0: re-applied trust for %d already-approved IBAN "
+            "document(s), so their bank account has allow_out_payment=True.",
+            len(documents))
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _enable_unaccent(cr)
     _archive_existing_ex_students(env)
     _backfill_google_ws_suspended(env)
     _backfill_attendance_status_id(cr)
+    _backfill_iban_trust(env)

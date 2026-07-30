@@ -9,6 +9,29 @@ An open-source Odoo v18 module for managing an educational centre. Developed by 
 - **Database:** PostgreSQL — database name is `ems`
 - **Official reference:** https://www.odoo.com/documentation/18.0/ (always consult before making technical decisions)
 
+## This environment is development, not production
+
+The `ems` PostgreSQL database on this box — the one `psql -d ems`, `./upgrade.sh` and
+`./test.sh` all operate on — is a **development/sandbox database. It is not production**,
+regardless of how plausible its data looks (real-looking student names, hundreds of rows,
+counts that seem too specific to be fake). There is no direct access to the real production
+database from this environment.
+
+**How to apply:** never phrase a finding from a local `psql -d ems` query as a fact about
+"production" — phrase it as a fact about this dev database (e.g. "0 rows in this dev DB",
+not "0 rows in production"). If a finding needs confirming against real production data
+before it can inform a decision (an incident report, a data-quality question, an urgency
+call), **ask the developer** — either for the specific query results run directly against
+prod, or for an unimported backup dump left somewhere readable, which can be restored into a
+**new, separate** database (the `odoo` OS/Postgres role has `CREATEDB`; use
+`sudo -u odoo createdb <name>` + `pg_restore`/`psql -d <name>`, mirroring the
+`sudo -u odoo psql ...` pattern `upgrade.sh` already uses for privileged writes) — never
+restore over the existing `ems` dev database, which the running Odoo instance and the test
+suite both depend on staying intact. See `feedback_dont_conflate_sandbox_with_prod` in
+memory for the incident this rule comes from, and a second, broader one from 2026-07-30
+where dev-DB findings were repeatedly mislabeled "production" across an entire session
+before being caught.
+
 ## Module structure
 
 ```

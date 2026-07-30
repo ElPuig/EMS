@@ -210,16 +210,20 @@ invoice:
   respectively. Only triggered when the order's `payment_term_id` already
   has more than one line *and* there's a non-zero second installment.
 - **Direct debit:** attaches the student's first bank account
-  (`partner_bank_id`) to the invoice. If that account isn't trusted yet
-  (`allow_out_payment` is `False` — e.g. a CSV-imported account that never
-  went through the document-approval flow), this method force-trusts it
-  (`bank.sudo().allow_out_payment = True`) rather than failing the invoice
-  post. This is the same flag `ems.student.document._apply_bank_account()`
-  sets on document approval — see
-  `plans/student_document_iban_renewal_allow_out_payment.md` for the open
-  question of whether this fallback should exist at all, or whether an
-  untrusted account should instead block direct-debit invoicing until a
-  document is actually approved.
+  (`partner_bank_id`) to the invoice — but only if it's already trusted
+  (`allow_out_payment = True`). **Fixed 2026-07-30:** this method used to try
+  to silently force-trust an untrusted account
+  (`bank.sudo().allow_out_payment = True`) right here, but that doesn't
+  reliably work — Odoo's own `account_move` validation (an anti-fraud check)
+  strips an untrusted bank reference from the invoice under sudo/portal
+  contexts regardless, which is exactly what caused 332 of 363 posted
+  direct-debit invoices in production to end up with no bank account
+  attached. Rather than keep fighting that check, an untrusted bank now
+  raises a clear `ValidationError` instead — the real fix is making sure the
+  account is trusted *before* invoicing is attempted (see
+  `student_document.md`'s IBAN-approval flow, and
+  `plans/student_document_iban_renewal_allow_out_payment.md` for the full
+  investigation).
 
 `action_ems_reapply_benefits()` is the explicit re-entry point for a
 confirmed order whose benefit status changed after confirmation (confirmed

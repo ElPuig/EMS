@@ -431,6 +431,12 @@ class EMSPortalController(CustomerPortal):
 
         if iban_doc:
             iban_doc.sudo().write({'expiry_date': new_expiry})
+            # Re-apply regardless of prior state: an already-approved document must
+            # always mean a trusted bank account (see
+            # plans/student_document_iban_renewal_allow_out_payment.md - a document
+            # approved through an older version of this route could still be missing
+            # allow_out_payment even though its status already reads 'approved').
+            iban_doc.sudo()._apply_bank_account()
             iban_doc.sudo().message_post(
                 body=Markup('<b>IBAN renewed by %s via portal.</b> New expiry: %s') % (
                     escape(request.env.user.partner_id.name),
@@ -444,7 +450,7 @@ class EMSPortalController(CustomerPortal):
             bank = student.bank_ids.filtered(lambda b: b.active)[:1]
             if not bank:
                 return request.redirect('/my/documentacion')
-            request.env['ems.student.document'].sudo().create({
+            new_doc = request.env['ems.student.document'].sudo().create({
                 'partner_id': student.id,
                 'doc_type': 'iban',
                 'doc_value': bank.acc_number,
@@ -452,6 +458,10 @@ class EMSPortalController(CustomerPortal):
                 'expiry_date': new_expiry,
                 'status': 'approved',
             })
+            # Same reasoning as the branch above: an approved IBAN document must
+            # always trust the underlying bank account, exactly like action_approve()
+            # does for the review-queue path.
+            new_doc._apply_bank_account()
 
         return request.redirect('/my/documentacion?renewed=1')
 

@@ -1,4 +1,6 @@
 import base64
+import importlib.util
+import os
 
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
@@ -129,6 +131,46 @@ class TestStudentDocument(TransactionCase):
         new.action_approve()
         self.assertFalse(old.exists())
         self.assertEqual(new.status, 'approved')
+
+    # --- migration: backfill IBAN trust (18.0.0.22.0) ---------------------------
+
+    @classmethod
+    def _load_post_migrate_module(cls):
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            'migrations', '18.0.0.22.0', 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_22_0', path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_migration_backfills_trust_for_approved_iban_document(self):
+        # Simulates a document approved through the pre-fix portal renewal route:
+        # status='approved' but the bank was never actually trusted.
+        bank = self.env['res.partner.bank'].create({
+            'acc_number': 'ES9121000418450200051332', 'partner_id': self.student.id,
+        })
+        document = self._create(
+            doc_type='iban', doc_value='ES9121000418450200051332',
+            doc_value2='Migration Holder', status='approved')
+        self.assertFalse(bank.allow_out_payment)
+
+        migration = self._load_post_migrate_module()
+        migration._backfill_iban_trust(self.env)
+        bank.invalidate_recordset()
+
+        self.assertTrue(bank.allow_out_payment)
+
+    def test_migration_ignores_non_iban_and_pending_documents(self):
+        pending_iban = self._create(doc_type='iban', doc_value='ES1000000000000000000001')
+        other_type = self._create(doc_type='dni', status='approved')
+
+        migration = self._load_post_migrate_module()
+        # Must not raise for documents with no bank to touch.
+        migration._backfill_iban_trust(self.env)
+
+        self.assertEqual(pending_iban.status, 'pending')
+        self.assertEqual(other_type.status, 'approved')
 
     # --- action_approve / _apply_benefit ---------------------------------------
 

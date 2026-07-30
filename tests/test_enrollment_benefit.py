@@ -169,9 +169,12 @@ class TestEnrollmentBenefit(TransactionCase):
         self.assertEqual(fee.discount, 100.0)
         self.assertEqual(fee.price_subtotal, 0.0)
 
-    def test_direct_debit_invoice_trusts_bank_account(self):
-        # An untrusted debtor account must not block posting (regular user)
-        # nor be silently dropped from the invoice (superuser).
+    def test_direct_debit_invoice_raises_when_bank_not_approved(self):
+        # Self-granting trust at invoicing time used to be attempted silently, but it
+        # doesn't reliably work (confirmed against production data, 2026-07-30: 332
+        # already-posted invoices ended up with no bank reference at all) - an
+        # unapproved bank must now raise a clear error instead. See
+        # plans/student_document_iban_renewal_allow_out_payment.md.
         bank = self.env['res.partner.bank'].create({
             'acc_number': 'ES9121000418450200051332',
             'partner_id': self.student.id,
@@ -181,9 +184,23 @@ class TestEnrollmentBenefit(TransactionCase):
         order.write({'state': 'sale', 'ems_payment_method': 'direct_debit'})
         self.env.flush_all()
 
+        with self.assertRaises(ValidationError):
+            order._ems_generate_enrollment_invoice()
+
+    def test_direct_debit_invoice_uses_already_approved_bank_account(self):
+        # A bank account approved beforehand (action_approve() or the portal renewal
+        # flow, both of which set allow_out_payment) is used normally.
+        bank = self.env['res.partner.bank'].create({
+            'acc_number': 'ES9121000418450200051332',
+            'partner_id': self.student.id,
+            'allow_out_payment': True,
+        })
+        order = self._order()
+        order.write({'state': 'sale', 'ems_payment_method': 'direct_debit'})
+        self.env.flush_all()
+
         invoice = order._ems_generate_enrollment_invoice()
         self.assertEqual(invoice.partner_bank_id, bank)
-        self.assertTrue(bank.allow_out_payment)
 
     def test_reapply_requires_confirmed_order(self):
         order = self._order()

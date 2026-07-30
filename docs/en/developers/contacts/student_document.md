@@ -94,9 +94,16 @@ Domain: `partner_id in [self, parent, children]` — a portal user can only ever
 
 ---
 
-## A known, deliberately-not-fixed gap
+## Fixed (2026-07-30): portal IBAN renewal now always trusts the bank account
 
-`controllers/portal_enrollment.py`'s `/my/documentacion/renew-iban` route can create an **already-`approved`** `ems.student.document` directly (for a student whose IBAN was originally imported via CSV, not submitted through this review flow) without going through `_apply_bank_account()`. In that specific case the existing `res.partner.bank` row is left as-is — including its `allow_out_payment` flag, which a first-time IBAN *approval* always sets to `True` but this renewal path does not touch. Whether an IBAN imported via CSV should already carry `allow_out_payment=True` is a data/business decision outside a documentation-and-testing DTON pass — flagged here rather than silently changed.
+**Root cause, confirmed against a real production backup** (see `plans/student_document_iban_renewal_allow_out_payment.md` for the full investigation — plan file kept until the migration has run in production): `controllers/portal_enrollment.py`'s `/my/documentacion/renew-iban` route could create/renew an **already-`approved`** `ems.student.document` without ever calling `_apply_bank_account()` — unlike `action_approve()` (the review-queue path), which always sets `allow_out_payment=True` on the resulting `res.partner.bank`. The confirm-matrícula portal gate only checks the *document's* `status == 'approved'`, not the bank's trust flag, so a family could satisfy "IBAN vàlid registrat" and confirm their enrollment while the bank stayed untrusted underneath. 100% of the 332 already-posted direct-debit invoices found affected in production went through this exact renewal path, never through `action_approve()`.
+
+A second, independent attempt (`enrollment.py`'s invoicing-time fallback, force-setting `allow_out_payment=True` right before posting) does not reliably work — Odoo's own `account_move` validation (an anti-fraud check, `res.partner.bank._user_can_trust()`) strips an untrusted bank reference from the invoice under certain sudo/portal contexts regardless. Relying on it was fighting against a deliberate Odoo security check rather than a real fix.
+
+**Three-part fix:**
+1. `portal_documentation_renew_iban` now calls `_apply_bank_account()` in both branches (new document, and bumping the expiry of an existing one) — an approved IBAN document via the portal now always trusts its bank, exactly like the review-queue path. Tested in `tests/test_portal_enrollment.py` (a genuine `HttpCase` hitting the real route).
+2. `migrations/18.0.0.22.0/post-migrate.py::_backfill_iban_trust` re-applies `_apply_bank_account()` for every already-approved IBAN document, fixing the historical gap (408 students in production were in this inconsistent state). Tested in `tests/test_student_document.py`.
+3. `enrollment.py`'s invoicing-time fallback no longer attempts to silently self-grant trust — it now raises a clear `ValidationError` if the bank isn't approved yet, since points 1-2 mean this should no longer be reachable through normal use; if it is, the actual approval step was skipped and that should be surfaced, not papered over. See the "Billing" section of `enrollment.md`.
 
 ---
 

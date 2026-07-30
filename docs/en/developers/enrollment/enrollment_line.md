@@ -61,16 +61,28 @@ too. `tests/test_enrollment_line.py::test_fee_line_name_includes_subject_count`
 calls `self.env.flush_all()` before asserting to force the same settling
 any fresh transaction would naturally have.
 
-In practice this is unlikely to be user-visible: normal UI usage creates
-lines and confirms the order in separate requests, and Odoo flushes all
-pending computes before a transaction commits — so by the time any *later*
-transaction reads the row, both fields are already consistent. The risk is
-narrow: any code path that creates enrollment lines and reads `line.name`
-**in the same transaction**, before `price_unit` is read/recomputed, could
-see a stale subject count in the name. Not fixed in this pass — the correct
-fix (making `name` a real `@api.depends`-tracked field, or an editable
-compute like `product.template.ems_study_ids`) changes the field's public
-contract and wasn't attempted here.
+**Investigated and closed, no fix needed (2026-07-30):** the theoretical risk is any code
+path that creates enrollment lines and reads `line.name` **in the same transaction**, before
+`price_unit` is read/recomputed. Every real writer/reader of `order_line`/`.name` in this
+codebase was traced (not assumed) to confirm whether this is actually reachable:
+- `ems.enrollment_proposal_wizard.action_create_enrollments()` populates `order_line` (via
+  `_onchange_sale_order_template_id()`) but never reads `.name` or calls `action_confirm()`
+  in that same wizard action.
+- `sale.order.action_confirm()` (native button, and
+  `controllers/portal_enrollment.py`'s portal confirm flow) always operates on lines that
+  were created in an earlier, already-committed request — never lines created in the same
+  transaction as the confirm.
+- `action_ems_reapply_benefits()` doesn't create new lines, and explicitly calls
+  `lines._compute_price_unit()` before regenerating the invoice, so `.name` is always fresh
+  regardless.
+- No cron/`queue_job` touches `order_line` or `.name` at all.
+
+No real path combines line creation and a same-transaction `.name` read, so the theoretical
+staleness window is confirmed unreachable in practice, not just presumed unlikely. Left as a
+documented, permanent characteristic of the field (option (c) from the original plan) rather
+than changing `name`'s contract to a tracked compute for a risk that doesn't materialize
+anywhere. `tests/test_enrollment_line.py::test_fee_line_name_includes_subject_count` keeps its
+`self.env.flush_all()` call, since it is directly testing this side-effect behavior.
 
 ---
 

@@ -58,6 +58,7 @@ from . import test_student_import_wizard
 from . import test_student_update_wizard
 from . import test_planning
 from . import test_portal_access_wizard
+from . import test_portal_enrollment
 from . import test_data_custom_import_prefix
 from . import test_data_main_cat_prefix
 from . import test_security_group_references

@@ -9366,6 +9366,18 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment.py:0
 msgid ""
+"Cannot generate a direct-debit invoice for '%(name)s': the "
+"destination bank account is not approved yet. Approve the "
+"student's IBAN document before confirming this enrollment."
+msgstr ""
+"No es pot generar la factura per domiciliació de '%(name)s': el "
+"compte bancari de destinació encara no està aprovat. Aprova el "
+"document IBAN de l'alumne/a abans de confirmar aquesta matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid ""
 "Cannot confirm enrollment '%(name)s'. The following required "
 "authorizations are still pending:\n"
 "%(names)s"

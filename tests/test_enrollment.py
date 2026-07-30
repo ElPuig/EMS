@@ -61,11 +61,11 @@ class TestEnrollment(TransactionCase):
             'end_date': date(2026, 6, 30),
         })
 
-    def _create_session(self, group=None, round="1"):
+    def _create_session(self, group=None, round_no="1"):
         return self.env['ems.grade_session'].create({
             'group_id': (group or self.group).id,
             'subject_id': self.subject.id,
-            'round': round,
+            'round': round_no,
             'teacher_id': self.teacher.id,
         })
 
@@ -181,6 +181,44 @@ class TestEnrollment(TransactionCase):
 
         lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student)
         self.assertTrue(lines)
+
+    def test_sync_grade_session_remove_keeps_lines_if_still_enrolled(self):
+        # _ems_sync_grade_session_remove() is keyed by (student_id, group_id, subject_id),
+        # not by the deleted row's own id - unlike its sibling
+        # _ems_sync_attendance_template_remove(), it used to have no guard against a
+        # still-enrolled student (see plans/grade_session_remove_missing_still_enrolled_guard.md).
+        # The unique(student_id, group_id, subject_id) constraint on ems.enrollment now makes
+        # the real trigger (a duplicate row for the exact same triple) unreachable via the
+        # ORM, so this calls the sync method directly rather than through unlink() - a
+        # white-box test of the guard itself, added for defensive symmetry with the
+        # attendance-template sibling and to protect any future caller of this method.
+        session = self._create_session()
+        enrollment = self._create_enrollment()
+        lines_before = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student)
+        self.assertTrue(lines_before)
+
+        self.env['ems.enrollment']._ems_sync_grade_session_remove(
+            self.student.id, self.group.id, self.subject.id)
+
+        lines_after = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student)
+        self.assertEqual(lines_before, lines_after)
+        self.assertTrue(enrollment.exists())
+
+    # -- _ems_still_enrolled (shared by both unlink() sync hooks above) --------------
+
+    def test_still_enrolled_true_when_a_matching_row_exists(self):
+        self._create_enrollment()
+        self.assertTrue(self.env['ems.enrollment']._ems_still_enrolled(
+            self.student.id, self.subject.id, [self.group.id]))
+
+    def test_still_enrolled_false_without_a_matching_row(self):
+        self.assertFalse(self.env['ems.enrollment']._ems_still_enrolled(
+            self.student.id, self.subject.id, [self.group.id]))
+
+    def test_still_enrolled_checks_any_of_several_groups(self):
+        self._create_enrollment(group=self.other_group)
+        self.assertTrue(self.env['ems.enrollment']._ems_still_enrolled(
+            self.student.id, self.subject.id, [self.group.id, self.other_group.id]))
 
     # -- default_get admin guard --
 

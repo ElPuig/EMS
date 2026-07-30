@@ -74,6 +74,18 @@ class EmsEnrollment(models.Model):
             ('group_ids', 'in', group_id),
         ])
 
+    @api.model
+    def _ems_still_enrolled(self, student_id, subject_id, group_ids):
+        """True if an ems.enrollment row still exists for this student+subject in any
+        of the given group_ids. Shared by both unlink() sync hooks below (and any
+        future caller needing the same "does a sibling enrollment still cover this
+        student" check) so they can't drift apart on what "still enrolled" means."""
+        return bool(self.search_count([
+            ('student_id', '=', student_id),
+            ('subject_id', '=', subject_id),
+            ('group_id', 'in', group_ids),
+        ]))
+
     def _ems_sync_attendance_template_add(self):
         self.ensure_one()
         for template in self._ems_matching_attendance_templates(self.subject_id.id, self.group_id.id):
@@ -84,12 +96,7 @@ class EmsEnrollment(models.Model):
         for template in self._ems_matching_attendance_templates(subject_id, group_id):
             # A template can cover several 'group_ids' (co-teaching): only drop the student if no
             # other remaining enrollment still keeps them within this same template's scope.
-            still_enrolled = self.search_count([
-                ('student_id', '=', student_id),
-                ('subject_id', '=', template.subject_id.id),
-                ('group_id', 'in', template.group_ids.ids),
-            ])
-            if not still_enrolled:
+            if not self._ems_still_enrolled(student_id, template.subject_id.id, template.group_ids.ids):
                 template.student_ids = [(3, student_id)]
 
     def _ems_sync_grade_session_add(self):
@@ -104,6 +111,10 @@ class EmsEnrollment(models.Model):
 
     @api.model
     def _ems_sync_grade_session_remove(self, student_id, group_id, subject_id):
+        # Mirrors _ems_sync_attendance_template_remove's guard - see
+        # plans/grade_session_remove_missing_still_enrolled_guard.md.
+        if self._ems_still_enrolled(student_id, subject_id, [group_id]):
+            return
         sessions = self.env['ems.grade_session'].search([
             ('group_id', '=', group_id),
             ('subject_id', '=', subject_id),

@@ -17,9 +17,12 @@ class TestStudentImportWizard(TransactionCase):
             'file': base64.b64encode(b'placeholder'), 'file_name': 'esfera.xlsx',
         })
 
+    def _stats(self):
+        return {'created': 0, 'updated': 0, 'errors': [], 'warnings': [], 'log': []}
+
     def test_creates_new_student(self):
         wizard = self._wizard()
-        stats = {'created': 0, 'updated': 0, 'errors': [], 'log': []}
+        stats = self._stats()
         student = wizard._get_or_create_student('8000001', {
             'name': 'Brand New', 'contact_type': 'student',
             'student_id': '8000001', 'active': True,
@@ -32,7 +35,7 @@ class TestStudentImportWizard(TransactionCase):
         existing = self.env['res.partner'].create({
             'name': 'Old Name', 'contact_type': 'student', 'student_id': '8000002'})
         wizard = self._wizard()
-        stats = {'created': 0, 'updated': 0, 'errors': [], 'log': []}
+        stats = self._stats()
         student = wizard._get_or_create_student('8000002', {
             'name': 'New Name', 'contact_type': 'student',
             'student_id': '8000002', 'active': True,
@@ -49,7 +52,7 @@ class TestStudentImportWizard(TransactionCase):
             'name': 'Old Name', 'contact_type': 'withdrawal', 'student_id': '8000003'})
         withdrawn.write({'active': False})
         wizard = self._wizard()
-        stats = {'created': 0, 'updated': 0, 'errors': [], 'log': []}
+        stats = self._stats()
         student = wizard._get_or_create_student('8000003', {
             'name': 'New Name', 'contact_type': 'student',
             'student_id': '8000003', 'active': True,
@@ -200,10 +203,13 @@ class TestStudentImportWizard(TransactionCase):
         self.assertEqual(family.email, 'family@example.com')
 
     def test_get_or_create_family_without_document_always_creates_new(self):
-        # KNOWN LIMITATION (documented in the model + student_import_wizard.md):
-        # a tutor with no document number can never be matched on re-import —
-        # this test locks in that current behavior so a future fix is a
-        # deliberate decision, not an accidental change caught by surprise.
+        # KNOWN LIMITATION, kept intentionally (see plans/student_import_wizard_data_quality_gaps.md,
+        # now resolved): a tutor with no document number can never be matched on
+        # re-import — a fuzzier name/phone fallback was rejected due to
+        # false-positive merge risk. Now surfaced via stats['warnings'] instead
+        # (test_process_tutor_without_document_adds_warning) rather than fixed
+        # here. This test locks in the matching behavior itself so a future
+        # change to it is deliberate, not an accidental change caught by surprise.
         wizard = self._wizard()
         first, accio1 = wizard._get_or_create_family(
             'Undocumented Tutor', None, '612345678', None, None, {})
@@ -248,7 +254,7 @@ class TestStudentImportWizard(TransactionCase):
             'Correu electrònic': 'student.import@example.com',
         })
         wizard = self._wizard()
-        stats = {'created': 0, 'updated': 0, 'errors': [], 'log': []}
+        stats = self._stats()
         wizard._process_row(row, col_map, stats)
 
         student = self.env['res.partner'].search([('student_id', '=', '9000001')])
@@ -261,7 +267,11 @@ class TestStudentImportWizard(TransactionCase):
         self.assertEqual(student.birth_date, date(2008, 5, 10))
         self.assertEqual(stats['created'], 1)
 
-    def test_process_row_missing_group_adds_note_without_erroring(self):
+    def test_process_row_missing_group_adds_note_and_warning(self):
+        # Intentional behavior (import anyway, note for later manual placement) - but
+        # now also surfaced in stats['warnings'], visible in the result summary a
+        # secretary actually reviews, not just buried in the student's comment field.
+        # See plans/student_import_wizard_data_quality_gaps.md (now resolved).
         row, col_map = self._row_and_col_map({
             'Grup Classe': 'NO-SUCH-GROUP-CODE',
             'Nom': 'Groupless',
@@ -270,7 +280,7 @@ class TestStudentImportWizard(TransactionCase):
             'Identificador de l\'alumne/a': '9000002',
         })
         wizard = self._wizard()
-        stats = {'created': 0, 'updated': 0, 'errors': [], 'log': []}
+        stats = self._stats()
         wizard._process_row(row, col_map, stats)
 
         student = self.env['res.partner'].search([('student_id', '=', '9000002')])
@@ -278,13 +288,30 @@ class TestStudentImportWizard(TransactionCase):
         self.assertFalse(student.main_group_id)
         self.assertIn('NO-SUCH-GROUP-CODE', student.comment)
         self.assertEqual(stats['errors'], [])
+        self.assertEqual(len(stats['warnings']), 1)
+        self.assertIn('Groupless Student', stats['warnings'][0])
+        self.assertIn('NO-SUCH-GROUP-CODE', stats['warnings'][0])
+
+    def test_process_row_matching_group_adds_no_warning(self):
+        level, study, group = create_level_study_group(self, 'TSIWG', level={'name': 'Test Import Warn Level'}, study={
+            'code': 'TSIWG01', 'name': 'Test Import Warn Study',
+        }, group={'external_id': 'ESFERA-TSIWG-A'})
+        row, col_map = self._row_and_col_map({
+            'Grup Classe': 'ESFERA-TSIWG-A',
+            'Nom': 'Grouped', 'Primer Cognom': 'Student', 'Segon Cognom': '',
+            'Identificador de l\'alumne/a': '9000005',
+        })
+        wizard = self._wizard()
+        stats = self._stats()
+        wizard._process_row(row, col_map, stats)
+        self.assertEqual(stats['warnings'], [])
 
     def test_process_row_without_name_is_noop(self):
         row, col_map = self._row_and_col_map({
             'Grup Classe': 'SOME-CODE', 'Nom': '', 'Primer Cognom': '', 'Segon Cognom': '',
         })
         wizard = self._wizard()
-        stats = {'created': 0, 'updated': 0, 'errors': [], 'log': []}
+        stats = self._stats()
         wizard._process_row(row, col_map, stats)
         self.assertEqual(stats['created'], 0)
         self.assertEqual(stats['updated'], 0)
@@ -300,7 +327,7 @@ class TestStudentImportWizard(TransactionCase):
             'Contacte 1er tutor alumne - Observacions': 'Mare',
         })
         wizard = self._wizard()
-        stats = {'created': 0, 'updated': 0, 'errors': [], 'log': []}
+        stats = self._stats()
         wizard._process_tutor(row, col_map, 'Tutor 1', student, stats)
 
         family = self.env['res.partner'].search([('document_id', '=', '87654321B')])
@@ -325,7 +352,7 @@ class TestStudentImportWizard(TransactionCase):
             'Contacte 2on tutor alumne - Observacions': 'Cangur habitual',
         })
         wizard = self._wizard()
-        stats = {'created': 0, 'updated': 0, 'errors': [], 'log': []}
+        stats = self._stats()
         wizard._process_tutor(row, col_map, 'Tutor 2', student, stats)
         self.assertIn('Cangur habitual', student.comment)
         self.assertIn('Tutor per defecte', student.comment)
@@ -334,9 +361,37 @@ class TestStudentImportWizard(TransactionCase):
         student = self.env['res.partner'].create({'name': 'No Tutor Student', 'contact_type': 'student'})
         row, col_map = self._row_and_col_map({'Tutor 1 - nom': ''})
         wizard = self._wizard()
-        stats = {'created': 0, 'updated': 0, 'errors': [], 'log': []}
+        stats = self._stats()
         wizard._process_tutor(row, col_map, 'Tutor 1', student, stats)
         self.assertEqual(stats['log'], [])
+
+    def test_process_tutor_without_document_adds_warning(self):
+        # Gap 1 decision (see plans/student_import_wizard_data_quality_gaps.md, now
+        # resolved): keep the doc-number-only dedup as-is (no fuzzier name/phone
+        # fallback - false-positive merge risk), but surface it in stats['warnings']
+        # so it's visible in the result summary instead of only discoverable by
+        # noticing an extra family contact after the fact.
+        student = self.env['res.partner'].create({'name': 'Undocumented Tutor Student', 'contact_type': 'student'})
+        row, col_map = self._row_and_col_map({
+            'Tutor 1 - nom': 'Sense', 'Tutor 1 - 1r cognom ': 'Document',
+        })
+        wizard = self._wizard()
+        stats = self._stats()
+        wizard._process_tutor(row, col_map, 'Tutor 1', student, stats)
+        self.assertEqual(len(stats['warnings']), 1)
+        self.assertIn('Sense Document', stats['warnings'][0])
+        self.assertIn('Undocumented Tutor Student', stats['warnings'][0])
+
+    def test_process_tutor_with_document_adds_no_warning(self):
+        student = self.env['res.partner'].create({'name': 'Documented Tutor Student', 'contact_type': 'student'})
+        row, col_map = self._row_and_col_map({
+            'Tutor 1 - nom': 'Amb', 'Tutor 1 - 1r cognom ': 'Document',
+            'Tutor 1 - doc. identitat': '99999999Z',
+        })
+        wizard = self._wizard()
+        stats = self._stats()
+        wizard._process_tutor(row, col_map, 'Tutor 1', student, stats)
+        self.assertEqual(stats['warnings'], [])
 
     # --- _build_log_csv / _build_result_html --------------------------------------
 
@@ -366,6 +421,20 @@ class TestStudentImportWizard(TransactionCase):
         wizard = self._wizard()
         html = wizard._build_result_html({'created': 0, 'updated': 0, 'errors': []})
         self.assertNotIn('Errors', html)
+
+    def test_build_result_html_escapes_warning_content(self):
+        wizard = self._wizard()
+        html = wizard._build_result_html({
+            'created': 1, 'updated': 0, 'errors': [],
+            'warnings': ['<script>alert(1)</script>'],
+        })
+        self.assertIn('&lt;script&gt;', html)
+        self.assertNotIn('<script>alert(1)</script>', html)
+
+    def test_build_result_html_no_warnings_omits_warning_block(self):
+        wizard = self._wizard()
+        html = wizard._build_result_html({'created': 0, 'updated': 0, 'errors': []})
+        self.assertNotIn('Warnings', html)
 
     # --- action_import end-to-end (real xlsx) --------------------------------------
 

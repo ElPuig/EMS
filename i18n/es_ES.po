@@ -11118,6 +11118,34 @@ msgid "Errors (%(count)s):"
 msgstr "Errores (%(count)s):"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "Warnings (%(count)s):"
+msgstr "Avisos (%(count)s):"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid ""
+"%(name)s: no group found for Esfera code '%(code)s' — imported "
+"without a group, needs manual placement."
+msgstr ""
+"%(name)s: no se ha encontrado grupo para el código Esfera '%(code)s' — "
+"se ha importado sin grupo, necesita colocación manual."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid ""
+"%(student)s: tutor '%(tutor)s' has no document number — dedup "
+"skipped, a new family contact may have been created even if one "
+"already exists."
+msgstr ""
+"%(student)s: el tutor/a '%(tutor)s' no tiene número de documento — se "
+"ha omitido la deduplicación, puede haberse creado un contacto de "
+"familia nuevo aunque ya existiera uno."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__round
 msgid "Evaluation"
 msgstr "Evaluación"

@@ -44,10 +44,18 @@ Up to 2 tutors per row (`Tutor 1`/`Tutor 2` column prefixes). For each: parse na
 
 ## Known limitations (flagged, not fixed in this pass)
 
-- **Family dedup only matches by document number.** `_get_or_create_family` searches existing `family` contacts by `document_id`/`passport_id` only; a tutor row with **no document number** always creates a new partner. Re-importing the same file for an undocumented tutor creates one duplicate family contact per run. Locked in by `test_get_or_create_family_without_document_always_creates_new` so a future fix is a deliberate decision, not an accidental behavior change caught by surprise.
-- **A group code that doesn't match any `ems.group.external_id` fails silently** into the student's `comment` notes (`"Grup Classe (SAGA): <code>"`) rather than into `stats['errors']` — the row still succeeds (student created/updated without a group), so a renamed/typo'd Esfera group code is only visible if someone reads the notes field afterward, not from the import summary counts.
+- **Family dedup only matches by document number.** `_get_or_create_family` searches existing `family` contacts by `document_id`/`passport_id` only; a tutor row with **no document number** always creates a new partner. Re-importing the same file for an undocumented tutor creates one duplicate family contact per run. This is a deliberate, kept decision (2026-07-30): a fuzzier name/phone/email fallback was rejected — the false-positive-merge risk (two different people sharing a name) outweighs a duplicate contact. Locked in by `test_get_or_create_family_without_document_always_creates_new`. **Now surfaced in the result summary** (see below) instead of being silently discoverable only after the fact.
 - **Country/state matching is `ilike` on the translated name** (`_find_country`/`_find_state`, forced `lang='ca_ES'`), `limit=1` with no disambiguation — fragile against accents/synonyms and could in principle match the wrong same-named state across different countries (mitigated for state by the `country_id` filter, not for country itself).
 - **`_deduce_relation_type` resolves `env.ref` without `raise_if_not_found=False`** — if any of the 7 `ems.relation_type_*` XML IDs were ever renamed, every tutor row would raise. Degrades gracefully today only because the outer `action_import` loop already catches per-row exceptions — not a crash, just an unusually large error list.
+
+## Fixed 2026-07-30: `stats['warnings']` — soft issues now visible in the result summary
+
+Two data-quality issues used to be discoverable only by opening individual student/family records after the fact — both are now also collected into a new `stats['warnings']` list and rendered as their own block in `_build_result_html` (same `build_html_list`/`Markup` escaping pattern as `stats['errors']`, just a distinct, non-alarming label), so a secretary sees them in the import result screen without having to know to look elsewhere:
+
+- **Group code with no matching `ems.group.external_id`** (`_process_row`): still imports the student without a group and still writes the `"Grup Classe (SAGA): <code>"` comment note (both are intentional — not every group may exist in EMS yet at import time) — but now also appends a warning naming the student and the unmatched code.
+- **Tutor row with no document number** (`_process_tutor`): the dedup-skip behavior above is unchanged (still creates a new family contact every time) — but now also appends a warning naming the student and the tutor, so it's flagged for manual review instead of silently accumulating duplicates.
+
+Tested in `tests/test_student_import_wizard.py`: `test_process_row_missing_group_adds_note_and_warning`/`test_process_row_matching_group_adds_no_warning`, `test_process_tutor_without_document_adds_warning`/`test_process_tutor_with_document_adds_no_warning`, `test_build_result_html_escapes_warning_content`/`test_build_result_html_no_warnings_omits_warning_block`.
 
 ## Fixed in this pass (2026-07-28)
 

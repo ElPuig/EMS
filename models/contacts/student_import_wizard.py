@@ -45,7 +45,7 @@ class EmsStudentImportWizard(models.TransientModel):
                 columns="\n• ".join(missing),
             ))
 
-        stats = {'created': 0, 'updated': 0, 'errors': [], 'log': []}
+        stats = {'created': 0, 'updated': 0, 'errors': [], 'warnings': [], 'log': []}
 
         for row in ws.iter_rows(min_row=header_row_idx + 1, values_only=True):
             if not any(row):
@@ -185,6 +185,15 @@ class EmsStudentImportWizard(models.TransientModel):
 
         # Extra notes
         comment = self._build_student_notes(get, esfera_code, group)
+        if not group:
+            # Intentional (not every group may exist in EMS yet at import time), but
+            # surfaced in the result summary too, not just the comment note above —
+            # see plans/student_import_wizard_data_quality_gaps.md (now resolved).
+            stats['warnings'].append(_(
+                "%(name)s: no group found for Esfera code '%(code)s' — imported "
+                "without a group, needs manual placement.",
+                name=name, code=esfera_code,
+            ))
 
         student_data = {
             'name': name,
@@ -320,6 +329,19 @@ class EmsStudentImportWizard(models.TransientModel):
         )
         if not family:
             return
+        if not doc_num:
+            # KNOWN LIMITATION, kept intentionally (see
+            # plans/student_import_wizard_data_quality_gaps.md, now resolved):
+            # dedup only matches on document number, so a documentless tutor always
+            # creates a new family contact. A fuzzier name/phone fallback was
+            # rejected (false-positive merge risk) - surfaced as a warning instead,
+            # so it's visible in the result summary for manual review.
+            stats['warnings'].append(_(
+                "%(student)s: tutor '%(tutor)s' has no document number — dedup "
+                "skipped, a new family contact may have been created even if one "
+                "already exists.",
+                student=student.name, tutor=full_name,
+            ))
         stats['log'].append({'tipus': 'Familiar', 'accio': accio, 'partner_id': family.id, 'ts': datetime.now()})
 
         relation_type, is_fallback = self._deduce_relation_type(observacio)
@@ -332,11 +354,12 @@ class EmsStudentImportWizard(models.TransientModel):
     def _get_or_create_family(self, name, doc_num, phone, mobile, email, address_data):
         """Find or create the family contact for a tutor row.
 
-        KNOWN LIMITATION: dedup only matches on doc_num (document_id/passport_id).
-        A tutor row with no document number always creates a new family partner —
-        there is no name/phone/email fallback match, so re-importing the same file
-        for a documentless tutor creates one duplicate family contact per import
-        run. Flagged, not fixed, in this DTON pass — see student_import_wizard.md.
+        KNOWN LIMITATION, kept intentionally (see student_import_wizard.md): dedup
+        only matches on doc_num (document_id/passport_id). A tutor row with no
+        document number always creates a new family partner — there is no
+        name/phone/email fallback match (rejected: false-positive merge risk is
+        worse than a duplicate contact). The caller (_process_tutor) surfaces this
+        in stats['warnings'] instead, so it's visible for manual review.
         """
         if not name:
             return False, None
@@ -496,12 +519,21 @@ class EmsStudentImportWizard(models.TransientModel):
                 _("Errors (%(count)s):", count=len(stats['errors'])),
                 self.env['ems.base'].build_html_list(stats['errors']),
             )
+        warnings = stats.get('warnings', [])
+        warnings_html = ''
+        if warnings:
+            warnings_html = Markup('<p><strong>{}</strong></p>{}').format(
+                _("Warnings (%(count)s):", count=len(warnings)),
+                self.env['ems.base'].build_html_list(warnings),
+            )
         return Markup(
             '<p>✅ <strong>{created_label}</strong> {created}</p>'
             '<p>🔄 <strong>{updated_label}</strong> {updated}</p>'
+            '{warnings_html}'
             '{errors_html}'
         ).format(
             created_label=_("Students created:"), created=stats['created'],
             updated_label=_("Students updated:"), updated=stats['updated'],
+            warnings_html=warnings_html,
             errors_html=errors_html,
         )

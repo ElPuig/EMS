@@ -79,9 +79,9 @@ The **Create Google account** button, at the top of the record, lets you force t
 
 ## Special Cases
 
-- **The teacher already had a corporate email:** if the work email field already contained an `@elpuig.xeill.net` address, the system adopts it as-is and does not create a new one. If that teacher has no EMS user yet, the **Create Google account** button (still visible in this case) creates and links it.
+- **The teacher already had a corporate email:** if the work email field already contained an `@elpuig.xeill.net` address, the system adopts it as-is and does not create a new one. If that teacher has no EMS user yet, a **Create EMS User** button appears at the top of the record instead of **Create Google account** — it only links/creates the EMS user, without touching the Google account.
 - **The teacher has a work email from another domain:** the system does not overwrite it automatically; a notice is posted in the record's message log for manual review.
-- **Manual email assignment:** the **Assign corporate email manually** checkbox, on the teacher's record, lets Human Resources enter the work email by hand, for exceptional cases. **When checked, the system does not generate any account automatically.** After typing a corporate address, the **Create Google account** button creates/links the EMS user for it.
+- **Manual email assignment:** the **Assign corporate email manually** checkbox, on the teacher's record, lets Human Resources enter the work email by hand, for exceptional cases. **When checked, the system does not generate any account automatically.** After typing a corporate address, the **Create EMS User** button appears to create/link the EMS user for it.
 - **Departure (archiving the record):** besides suspending the Google account, archiving the employee **immediately deactivates their EMS user**, so they can no longer sign in. Unarchiving restores both.
 
 ---

@@ -12,24 +12,30 @@
 
                 <xpath expr="//sheet" position="before">
                     <header>
-                        <field name="google_ws_suspended" invisible="1"/>
-                        <!-- Also shown when a corporate email already exists but no EMS
-                             user is linked yet (adopt path: manual email, pre-integration
-                             staff), so pressing it creates/links the res.users. -->
+                        <field name="google_ws_state" invisible="1"/>
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
                                 class="btn-secondary"
-                                invisible="employee_type not in ('teacher', 'asp') or (work_email and user_id) or (google_ws_manual_email and not work_email)"
+                                invisible="google_ws_state != 'none'"
+                                groups="ems.group_academic_admin,hr.group_hr_user"/>
+                        <!-- Corporate email already exists but no EMS user is linked yet
+                             (adopt path: manual email, pre-integration staff, or a
+                             migration gap) - only links/creates the res.users, no Google
+                             Workspace API call. -->
+                        <button name="action_create_ems_user" type="object"
+                                string="Create EMS User"
+                                class="btn-secondary"
+                                invisible="google_ws_state != 'pending_user'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
                                 class="btn-secondary"
-                                invisible="employee_type not in ('teacher', 'asp') or not work_email or google_ws_suspended"
+                                invisible="google_ws_state != 'active'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_reactivate_google_account" type="object"
                                 string="Reactivate Google account"
                                 class="btn-secondary"
-                                invisible="employee_type not in ('teacher', 'asp') or not work_email or not google_ws_suspended"
+                                invisible="google_ws_state != 'suspended'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                     </header>
                 </xpath>
@@ -110,13 +116,18 @@
                     <field name="job_id" placeholder="Job Position" />
                 </field>
 
-                <field name="category_ids" position="replace">                    
-                    <field name="role_ids" placeholder="Roles" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" />          
-                </field>        
+                <field name="category_ids" position="replace">
+                    <field name="role_ids" placeholder="Roles" widget="role_color_tags" options="{'color_field': 'color', 'no_create_edit': True}" />
+                </field>
 
                 <field name="coach_id" position="attributes">
                    <attribute name="invisible">True</attribute>
-                </field>                          
+                </field>
+
+                <field name="parent_id" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                    <attribute name="help">Set automatically from the employee's department (Department Chief / Seminar Chief). Edit it from the Departments form instead.</attribute>
+                </field>
 
                 <field name="employee_type" position="after">
                     <field name="contract_type_id" />
@@ -165,6 +176,11 @@
                     <page string="Teaching" invisible="employee_type == 'asp'">
                         <group string="Tutorships">
                             <field name="tutorship_ids" widget="many2many_tags" nolabel="1" />
+                        </group>
+
+                        <group string="Coordination">
+                            <field name="headed_department_ids" widget="many2many_tags" nolabel="1" readonly="1"/>
+                            <field name="seminar_department_ids" widget="many2many_tags" nolabel="1" readonly="1"/>
                         </group>
 
                         <group string="Subjects">

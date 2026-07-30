@@ -317,10 +317,10 @@ class TestYearRecord(TransactionCase):
             'attendance_schedule_id': schedule.id, 'date': date.today(),
             'mode': 'manual', 'session_teacher_id': self.tutor_employee.id,
         })
-        for status in ('a_attended', 'a_delayed', 'a_issue', 'm_miss'):
+        for xmlid in ('attendance_status_attended', 'attendance_status_delayed', 'attendance_status_issue', 'attendance_status_miss'):
             self.env['ems.attendance_session_line'].create({
                 'attendance_session_id': session.id, 'student_id': student.id,
-                'status': status})
+                'status_id': self.env.ref(f'ems.{xmlid}').id})
         self.env['ems.attendance_issue_student'].create({'student_id': student.id})
         record = self._generate(student)
         # 3 of 4 lines count as assistance ('a_' prefix).

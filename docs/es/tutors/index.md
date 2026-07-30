@@ -18,6 +18,7 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | [Cómo generar propuestas de matrícula](propostes-matricula.md) | Proponer la matrícula del curso siguiente para los alumnos aprobados, incluyendo matrículas especiales |
 | [Cómo gestionar el acceso al portal](acces-portal.md) | Dar de alta, dar de baja o reenviar las invitaciones de acceso al portal para alumnos y familias |
 | [Strikes: consultar los registros de tu grupo](strike.md) | Consultar los strikes puestos a tus alumnos tutorizados y los que has puesto tú mismo/a |
+| [Informes de asistencia](attendance-reports.md) | Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos tú mismo con la pantalla de Análisis de asistencia |
 | [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |
 
 ---

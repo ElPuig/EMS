@@ -18,6 +18,7 @@ This section contains the manuals for **group tutors**.
 | [How to generate enrollment proposals](propostes-matricula.md) | Propose the enrollment for the next course for approved students, including special enrollments |
 | [How to manage portal access](acces-portal.md) | Grant, revoke or resend portal access invitations for students and families |
 | [Strikes: Consulting Your Group's Records](strike.md) | Consult the strikes issued to your tutees and the ones you issued yourself |
+| [Attendance Reports](attendance-reports.md) | Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data yourself with the Attendance analysis pivot/graph screen |
 | [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |
 
 ---

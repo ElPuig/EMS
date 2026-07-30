@@ -15,7 +15,7 @@ Como tutor/a de grupo, recibes una notificación por correo electrónico cada ve
 - **Convivencia → Strikes** muestra todos los strikes que has puesto tú mismo/a, más todos los strikes puestos a cualquier alumno de tu grupo — independientemente de qué profesor lo haya puesto.
 - En la ficha del propio alumno, aparece un botón de **Strikes** en la cabecera (solo cuando el alumno tiene alguno) que muestra el recuento acumulado — haz clic en él para ver el historial completo de ese alumno.
 
-No hace falta que hagas nada más: el correo de notificación que recibes en cada strike ya te indica quién lo ha puesto, cuándo y por qué.
+No hace falta que hagas nada más: el correo de notificación que recibes en cada strike ya te indica quién lo ha puesto, cuándo, por qué y si el alumno fue expulsado de clase o no.
 
 ---
 

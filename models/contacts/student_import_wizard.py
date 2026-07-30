@@ -194,6 +194,9 @@ class ems_student_import_wizard(models.TransientModel):
             'citizenship_id': citizenship.id if citizenship else False,
             'birth_country_id': birth_country.id if birth_country else False,
             'comment': comment or False,
+            # Re-admits an ex-student (alumni/withdrawal) archived on exit: without
+            # this, an existing-but-inactive match is written but stays archived.
+            'active': True,
         }
         if group:
             student_data['main_group_id'] = group.id
@@ -231,7 +234,8 @@ class ems_student_import_wizard(models.TransientModel):
     def _get_or_create_student(self, ralc, data, stats):
         existing = False
         if ralc:
-            existing = self.env['res.partner'].search([('student_id', '=', ralc)], limit=1)
+            existing = self.env['res.partner'].with_context(active_test=False).search(
+                [('student_id', '=', ralc)], limit=1)
         if existing:
             existing.write(data)
             stats['updated'] += 1

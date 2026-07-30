@@ -9,7 +9,6 @@
                         <group>
                             <field name="name"/>
                             <field name="sequence"/>
-                            <field name="active"/>
                         </group>
                     </sheet>
                 </form>

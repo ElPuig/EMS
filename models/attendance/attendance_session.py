@@ -7,10 +7,6 @@ from datetime import datetime, timedelta
 from odoo.exceptions import ValidationError, UserError, AccessError
 from psycopg2 import IntegrityError
 
-# NOTE: In order to allow customization (like adding new status types), status starting with 'a_' will be 
-#		computed as an 'attendance' snd starting with 'm_' as a 'm_miss' when reporting summary data.
-attendance_status_selection = [("a_attended", "Attended"), ("a_delayed", "Delayed"), ("m_miss", "Miss"), ("m_justified", "Justified Miss"), ("a_issue", "Issue")]
-
 class ems_attendance_session_header(models.Model):
 	_name = "ems.attendance_session_header"
 	_description = "Attendance session header: contains the main data about an attendance session."
@@ -153,7 +149,7 @@ class ems_attendance_session_header(models.Model):
 			issue_status = repo.create({				
 				'attendance_issue_student_id': issue_student.id,
 				'attendance_session_line_id': attendance_session_line,
-				'attendance_status': as_id.status,
+				'attendance_status_id': as_id.status_id.id,
 				'rectification': rectification,
 				'notes': as_id.notes,
 				'send_to': send_to,				
@@ -214,25 +210,29 @@ class ems_attendance_session_header(models.Model):
 			'notification_id': job.id
 		})
 	
-	def _setup_new_line_data(self, student_id, status="a_attended", notes=None):
+	def _setup_new_line_data(self, student_id, status_id=None, notes=None):
 		return  {
 			"student_id": student_id,
-			"status": status,
+			"status_id": status_id or self.env.ref("ems.attendance_status_attended").id,
 			"notes": notes,
 			"is_auto_generated" : True
 		}
-	
+
 	def _setup_next_session_line_data(self, previous):
-		if previous.status == "m_justified":
+		justified = self.env.ref("ems.attendance_status_justified")
+		delayed = self.env.ref("ems.attendance_status_delayed")
+		attended = self.env.ref("ems.attendance_status_attended")
+		miss = self.env.ref("ems.attendance_status_miss")
+		if previous.status_id == justified:
 			return {
 				"student_id": previous.student_id,
-				"status": "m_miss",
+				"status_id": miss.id,
 				"notes": None,
 				"is_auto_generated": True,
 			}
 		return {
 			"student_id": previous.student_id,
-			"status": "a_attended" if previous.status == "a_delayed" else previous.status,
+			"status_id": attended.id if previous.status_id == delayed else previous.status_id.id,
 			"notes": previous.notes,
 			"is_auto_generated": True,
 		}
@@ -324,7 +324,7 @@ class ems_attendance_session_header(models.Model):
 					if p.student_id == student:
 						line = p.perform_justification(self._setup_new_line_data(student), True)
 				if line is None:
-					line = self._setup_new_line_data(student, "a_attended")
+					line = self._setup_new_line_data(student)
 				lines.append(line)
 
 		if lines:
@@ -549,8 +549,10 @@ class ems_attendance_session_line(models.Model):
 	_name = "ems.attendance_session_line"
 	_description = "Attendance status line: information about a status per student within an attendance session."
 	
-	# TODO: should status be renamed to value? 
-	status = fields.Selection(string="Status", default="a_attended", required=True, selection=attendance_status_selection)
+	status_id = fields.Many2one(
+		string="Status", comodel_name="ems.attendance_status", required=True,
+		default=lambda self: self.env.ref("ems.attendance_status_attended", raise_if_not_found=False),
+	)
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
 	image_1920 = fields.Binary(string="Image", related='student_id.image_1920')
 	attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session_header", ondelete="cascade")
@@ -564,15 +566,30 @@ class ems_attendance_session_line(models.Model):
 	template_teacher_ids = fields.Many2many(string="Template's teachers", related="attendance_session_id.template_teacher_ids", store=False)
 	session_teacher_id = fields.Many2one(string="Session's teacher", related="attendance_session_id.session_teacher_id", store=False)
 
+	# Stored so the 'Attendance analysis' pivot/graph view can group by them efficiently.
+	date = fields.Date(string="Date", related="attendance_session_id.date", store=True)
+	level_id = fields.Many2one(string="Level", comodel_name="ems.level", related="attendance_session_id.level_id", store=True)
+	study_id = fields.Many2one(string="Study", comodel_name="ems.study", related="attendance_session_id.study_id", store=True)
+	group_ids = fields.Many2many(
+		string="Groups", comodel_name="ems.group", related="attendance_session_id.group_ids", store=True,
+		relation="ems_attendance_session_line_group_rel", column1="attendance_session_line_id", column2="group_id",
+	)
+	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", related="attendance_session_id.subject_id", store=True)
+
+	# 0/100 rather than a boolean so the 'Attendance reports' graph's default measure (avg,
+	# grouped by subject) resolves directly to a percentage of absence.
+	absence_rate = fields.Float(string="Absence rate", compute="_compute_absence_rate", store=True, aggregator="avg")
+
 	# Used to know if the student can be chosen manually or not (should be disabled, otherwise a justified student can be swaped for another).
 	is_auto_generated = fields.Boolean(default=False)
 	notes = fields.Text("Notes")
 	strike_ids = fields.One2many(string="Strikes", comodel_name="ems.strike", inverse_name="attendance_session_line_id")
+	# store=True so it can be used as a pivot/graph measure (the 'Attendance reports' screen).
+	strike_count = fields.Integer(string="Strike count", compute="_compute_strike_count", store=True)
 
 	def status_is_notificable(self):
-		# TODO: load from EMS settings.
 		# TODO: we want to notify also a justified miss? Maybe to prevent falsification (inform about a preveision? But if legit, will be also notified...)
-		return self.status in ['m_miss', 'a_issue']    
+		return bool(self.status_id.notifiable)
 	
 	@api.model_create_multi
 	def create(self, vals_list):
@@ -646,7 +663,7 @@ class ems_attendance_session_line(models.Model):
 				else:
 					# 2.1. If not notified yet, update the notification data.
 					previous_issue_status.write({
-						"attendance_status": self.status,
+						"attendance_status_id": self.status_id.id,
 						"notes": self.notes
 					})
 		elif self.status_is_notificable():
@@ -672,8 +689,25 @@ class ems_attendance_session_line(models.Model):
 				rec.inuse_student_ids = rec.mapped('attendance_session_id.attendance_session_line_ids.student_id')   
 
 	@api.depends('attendance_session_id', 'student_id')
-	def _compute_display_name(self):              
+	def _compute_display_name(self):
 		for rec in self:
 			rec.display_name = "%s | %s" % (rec.attendance_session_id.display_name, rec.student_id.display_name)
+
+	@api.depends('strike_ids')
+	def _compute_strike_count(self):
+		for rec in self:
+			rec.strike_count = len(rec.strike_ids)
+
+	@api.depends('status_id')
+	def _compute_absence_rate(self):
+		for rec in self:
+			rec.absence_rate = 100.0 if rec.status_id.category == 'absence' else 0.0
+
+	def action_view_strikes(self):
+		self.ensure_one()
+		action = self.env['ir.actions.act_window']._for_xml_id('ems.action_strike_list')
+		action['domain'] = [('attendance_session_line_id', '=', self.id)]
+		action['context'] = {}
+		return action
 
 	

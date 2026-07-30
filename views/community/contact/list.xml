@@ -5,6 +5,16 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_tree"/>
             <field name="arch" type="xml">
+                <xpath expr="//list" position="attributes">
+                    <attribute name="js_class">student_list</attribute>
+                </xpath>
+
+                <!-- Not shown as a column, only read: StudentListController needs it per-record
+                     to decide whether archiving can skip the generic confirmation dialog. -->
+                <xpath expr="//field[@name='complete_name']" position="before">
+                    <field name="contact_type" column_invisible="1"/>
+                </xpath>
+
                 <xpath expr="//field[@name='complete_name']" position="after">
                     <field name="document_id" column_invisible="context.get('default_contact_type') == 'student'"/>
                 </xpath>

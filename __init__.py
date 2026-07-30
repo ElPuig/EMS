@@ -23,6 +23,7 @@ def post_init_hook(env):
           )
     """)
     _backfill_default_schedule_framework(env)
+    _enable_unaccent_extension(env)
 
 
 def _backfill_default_schedule_framework(env):
@@ -40,3 +41,13 @@ def _backfill_default_schedule_framework(env):
     env['res.company'].search([('default_schedule_framework_id', '=', False)]).write({
         'default_schedule_framework_id': framework.id,
     })
+
+
+def _enable_unaccent_extension(env):
+    """Once the PostgreSQL 'unaccent' extension is present, Odoo core automatically wraps
+    every ilike/like search domain (list/kanban search bars, name_search, filters...) with
+    the SQL unaccent() function, for every model, with no EMS code changes needed (see
+    odoo/modules/db.py::has_unaccent and odoo/modules/registry.py). Fresh installs get it
+    here; existing installs upgrading to this version get it via
+    migrations/18.0.0.22.0/post-migrate.py."""
+    env.cr.execute("CREATE EXTENSION IF NOT EXISTS unaccent;")

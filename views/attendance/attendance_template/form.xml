@@ -19,7 +19,7 @@
                             <field name="active" invisible="1"/>
 
                             <group colspan="6">
-                                <field name="color" widget="color_picker" readonly="read_only_user"/>
+                                <field name="color" widget="color" class="ems_color_swatch" readonly="read_only_user"/>
                             </group>
                             
                             <group colspan="2">

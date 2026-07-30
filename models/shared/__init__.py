@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
 from ..settings import course
-from . import (base, datetime_utils, attachment, multithreading, google_workspace_mixin, mail_activity_type, schedule_report_mixin)
+from . import (base, datetime_utils, attachment, multithreading, google_workspace_mixin, mail_activity_type, schedule_report_mixin, hex_color_mixin)

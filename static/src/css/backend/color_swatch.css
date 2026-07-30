@@ -1,0 +1,19 @@
+/* Native color widget (widget="color"): the raw <input type="color"> is kept invisible
+   (opacity-0, core web.ColorField template) and only the wrapping div's inline background
+   shows through - without an explicit size that div inherits the input's native OS size,
+   which on some platforms renders as a large round swatch. Pin it down to a small square,
+   closer to the old fixed-palette color_picker widget. Scoped to fields carrying the
+   "ems_color_swatch" class (ems.role, ems.attendance_template, hr.department's custom_color),
+   not Odoo's global "color" widget used elsewhere in the app. */
+.ems_color_swatch .o_field_color {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
+.ems_color_swatch .o_field_color input[type="color"] {
+    cursor: pointer;
+}

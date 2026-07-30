@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.21.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.22.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -124,6 +124,8 @@
             'views/community/department/menu.xml',
             'views/community/department/list.xml',
             'views/community/department/search.xml',
+            'views/community/department/form.xml',
+            'views/community/department/kanban.xml',
                         
             'views/community/work_location/menu.xml',
             'views/community/employmenttypes/menu.xml',        
@@ -201,6 +203,10 @@
         'views/attendance/menu.xml',
             'views/attendance/configuration/menu.xml',
 
+            'views/attendance/attendance_status/menu.xml',
+            'views/attendance/attendance_status/list.xml',
+            'views/attendance/attendance_status/form.xml',
+
             'views/attendance/attendance_template/menu.xml',
             'views/attendance/attendance_template/list.xml',
             'views/attendance/attendance_template/form.xml',
@@ -231,10 +237,9 @@
             'views/attendance/attendance_notification/menu.xml',  
             'views/attendance/attendance_notification/list.xml',               
 
+            'views/attendance/attendance_reports/analysis_views.xml',
             'views/attendance/attendance_reports/menu.xml',
-            'views/attendance/attendance_reports/student_wizard.xml', 
-            'views/attendance/attendance_reports/subject_wizard.xml', 
-            'views/attendance/attendance_reports/group_wizard.xml', 
+            'views/attendance/attendance_reports/wizard.xml',
 
             'views/communications/notice/list.xml',
             'views/communications/notice/form.xml',
@@ -309,8 +314,9 @@
         'mails/enrollment/enrollment_send.xml',
 
         ### Reports templates ###
-        'reports/attendance/templates/sumary_table.xml', 
-        'reports/attendance/templates/details_table.xml', 
+        'reports/attendance/templates/sumary_table.xml',
+        'reports/attendance/templates/details_table.xml',
+        'reports/attendance/templates/detail_section.xml',
 
         ### Reports entries ###
         'reports/attendance/session.xml', 
@@ -327,6 +333,7 @@
         'data/main/ems.mail_activity_type.xml',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
+        'data/main/ems.attendance_status.csv',
         'data/main/ems.non_teaching_type.csv',
         'data/main/ems.schedule_framework_default.xml',
 

@@ -48,6 +48,10 @@ registry.category("web_tour.tours").add("ems_strike_issue", {
             content: "Default reason is preselected",
         },
         {
+            trigger: ".ems-av-strike-kickout-option:has(.ems-av-strike-kickout-radio-warning:checked)",
+            content: "'Attention notice' is the default kick-out option",
+        },
+        {
             trigger: ".ems-av-strike-send-btn",
             content: "Send the strike with no extra notes",
             run: "click",
@@ -60,6 +64,20 @@ registry.category("web_tour.tours").add("ems_strike_issue", {
             trigger: ".ems-av-strike-btn",
             content: "Click the strike button again for a second strike",
             run: "click",
+        },
+        {
+            trigger: ".ems-av-strike-kickout-option:has(.ems-av-strike-kickout-radio-expelled)",
+            content: "Mark this second strike as a class kick-out",
+            run: "click",
+        },
+        {
+            trigger: ".ems-av-strike-kickout-option:has(.ems-av-strike-kickout-radio-expelled:checked)",
+            content: "'Kicked out of class' is now the selected option",
+        },
+        {
+            trigger: ".ems-av-strike-notes-textarea",
+            content: "Add distinguishing notes so this strike can be found later in the list",
+            run: "edit Kicked out of class for disruption",
         },
         {
             trigger: ".ems-av-strike-send-btn",
@@ -75,7 +93,9 @@ registry.category("web_tour.tours").add("ems_strike_issue", {
 
 // Second leg of the flow: confirm the strike created above shows up in the
 // Convivencia list (verified in the list view, not by re-reading the dialog's
-// local state, per this repo's tour-testing conventions).
+// local state, per this repo's tour-testing conventions), and that the
+// "Kicked out of class" flag set in the dialog is visible on the record's own
+// Coexistence form.
 registry.category("web_tour.tours").add("ems_strike_consult", {
     test: true,
     url: "/odoo/action-ems.action_strike_list",
@@ -87,6 +107,50 @@ registry.category("web_tour.tours").add("ems_strike_consult", {
         {
             trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Strike Tour Student')",
             content: "The issued strike is listed for the student",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td[name='notes']:contains('Kicked out of class for disruption')",
+            content: "Open the kicked-out strike's own form",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='kicked_out'] input:checked",
+            content: "The 'Kicked out of class' checkbox is shown, checked, on the Coexistence strike form",
+        },
+    ],
+});
+
+// Third leg: the two strikes issued above must also be visible from the session's own
+// entry in Attendance > History — this used to show nothing at all for the student row.
+registry.category("web_tour.tours").add("ems_strike_session_history", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_session_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view",
+            content: "Attendance session history list loaded",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td[name='group_ids']:contains('Strike Tour Group')",
+            content: "Open the seeded session",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='attendance_session_line_ids'] .o_data_row td[name='student_id']:contains('Strike Tour Student')",
+            content: "Student row loaded in the session's Statuses list",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='attendance_session_line_ids'] .o_data_row td[name='strike_count']:contains('2')",
+            content: "The two strikes issued during this session are now visible in the Statuses list",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='attendance_session_line_ids'] .o_data_row button[name='action_view_strikes']",
+            content: "Click through to the full strike details for this student",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Strike Tour Student')",
+            content: "The strike-details list opened by the button shows the strikes for this student",
         },
     ],
 });

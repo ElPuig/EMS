@@ -91,10 +91,10 @@ class ems_attendance_justification(models.Model):
 				# 		(already justified will fail due overlapping check).
 				statuses = self.env["ems.attendance_session_line"].search([
 					'|',
-					("status", "=", "m_miss"),
-					("status", "=", "m_justified"), 
-					("student_id", "=", rec.student_id.id), 
-					("attendance_session_id.date", ">=", rec.start_date), 
+					("status_id", "=", self.env.ref("ems.attendance_status_miss").id),
+					("status_id", "=", self.env.ref("ems.attendance_status_justified").id),
+					("student_id", "=", rec.student_id.id),
+					("attendance_session_id.date", ">=", rec.start_date),
 					("attendance_session_id.date", "<=", rec.end_date)
 				]) or False
 
@@ -155,7 +155,7 @@ class ems_attendance_justification(models.Model):
 		notes = "" if vals["notes"] is None or vals["notes"] == False else vals["notes"] + "\n"
 		
 		# Must ensure that no field is beeing removed, just edited, otherwise line creation could fail if called from attendance_session.
-		vals["status"] = "m_justified"
+		vals["status_id"] = self.env.ref("ems.attendance_status_justified").id
 		vals["notes"] = notes + text + self.teacher_id.display_name
 		vals["attendance_prevision_id" if prevision else "attendance_justification_id"] = self
 		return vals	
@@ -164,11 +164,11 @@ class ems_attendance_justification(models.Model):
 		# Given an attendance_session_line, changes the values to remove a justification (does not write).
 		# NOTE: this method uses always line as a model, removing a justification always work with already existing lines.
 		return {
-			"status": "m_miss",
+			"status_id": self.env.ref("ems.attendance_status_miss").id,
 			"notes": False,
 			"attendance_justification_id": None,
 			"attendance_prevision_id": None
-		}	
+		}
 	
 	@api.model_create_multi
 	def create(self, values):	
@@ -178,8 +178,8 @@ class ems_attendance_justification(models.Model):
 			if not just._check_permissions():
 				raise ValidationError(_("Only the student's tutor can justify its attendances."))
 						
-			for line in just.attendance_session_line_ids:	
-				if line.status == "m_miss":	
+			for line in just.attendance_session_line_ids:
+				if line.status_id == self.env.ref("ems.attendance_status_miss"):
 					line.write(just.perform_justification(line))
 		return records
 	
@@ -216,8 +216,8 @@ class ems_attendance_justification(models.Model):
 			raise UserError(_("Only the student's tutor can remove its attendance justifications."))
 		
 		for rec in self:
-			for line in rec.attendance_session_line_ids:	
-				if line.status == "m_justified":
+			for line in rec.attendance_session_line_ids:
+				if line.status_id == self.env.ref("ems.attendance_status_justified"):
 					line.write(rec.remove_justification(line))
 
 		return super().unlink()	

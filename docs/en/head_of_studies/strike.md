@@ -16,7 +16,7 @@ If you hold the Coexistence role, **Convivencia → Strikes** shows every strike
 
 Head of Studies, Deputy Head of Studies and Director see strikes according to the same rules as teachers/tutors (their own issued strikes and their tutees'), unless they also hold the Coexistence role.
 
-From a student's own form, a **Strikes** button appears in the header showing their accumulated count.
+From a student's own form, a **Strikes** button appears in the header showing their accumulated count. Opening any individual strike record shows a **Kicked out of class** checkbox, so you can tell at a glance whether that incident ended with the student being sent out of the classroom.
 
 ---
 

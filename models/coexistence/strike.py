@@ -15,6 +15,7 @@ class ems_strike(models.Model):
     reason_id = fields.Many2one(string="Reason", comodel_name="ems.strike.reason", required=True, default=lambda self: self.env.ref("ems.strike_reason_other", raise_if_not_found=False))
     date = fields.Datetime(string="Date and time", default=fields.Datetime.now, required=True)
     notes = fields.Text(string="Details")
+    kicked_out = fields.Boolean(string="Kicked out of class", default=False)
     send_to = fields.Char(string="Sent to", readonly=True, copy=False)
     strike_count = fields.Integer(string="Strike count", compute="_compute_strike_count")
 

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_attendance_report_analysis_pivot" model="ir.ui.view">
+            <field name="name">ems.attendance_session_line.analysis.pivot</field>
+            <field name="model">ems.attendance_session_line</field>
+            <field name="arch" type="xml">
+                <pivot string="Attendance reports">
+                    <field name="subject_id" type="row"/>
+                    <field name="student_id" type="row"/>
+                    <field name="absence_rate" type="measure"/>
+                    <field name="strike_count" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="view_attendance_report_analysis_graph" model="ir.ui.view">
+            <field name="name">ems.attendance_session_line.analysis.graph</field>
+            <field name="model">ems.attendance_session_line</field>
+            <field name="arch" type="xml">
+                <graph string="Attendance reports" type="bar">
+                    <field name="subject_id"/>
+                    <!-- Odoo's graph arch parser defaults to the LAST type="measure" field
+                         declared here (see web/static/src/views/graph/graph_arch_parser.js) — keep
+                         absence_rate last so it stays the default measure, regardless of the
+                         graph_measure context set in action_attendance_reports_open. -->
+                    <field name="strike_count" type="measure"/>
+                    <field name="absence_rate" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <record id="view_attendance_report_analysis_search" model="ir.ui.view">
+            <field name="name">ems.attendance_session_line.analysis.search</field>
+            <field name="model">ems.attendance_session_line</field>
+            <field name="arch" type="xml">
+                <search string="Attendance reports">
+                    <field name="student_id"/>
+                    <field name="group_ids"/>
+                    <field name="subject_id"/>
+                    <field name="status_id"/>
+                    <filter string="Date" name="filter_date" date="date"/>
+                    <group string="Group By">
+                        <filter string="Group" name="group_by_group" context="{'group_by': 'group_ids'}"/>
+                        <filter string="Subject" name="group_by_subject" context="{'group_by': 'subject_id'}"/>
+                        <filter string="Student" name="group_by_student" context="{'group_by': 'student_id'}"/>
+                        <filter string="Status" name="group_by_status" context="{'group_by': 'status_id'}"/>
+                        <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

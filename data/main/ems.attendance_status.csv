@@ -1,0 +1,6 @@
+id,name,sequence,category,notifiable,color,active
+"ems.attendance_status_attended","Attended",10,"assistance",0,"#28A745",1
+"ems.attendance_status_delayed","Delayed",20,"assistance",0,"#FD7E14",1
+"ems.attendance_status_miss","Miss",30,"absence",1,"#DC3545",1
+"ems.attendance_status_justified","Justified Miss",40,"absence",0,"#3A8DDE",1
+"ems.attendance_status_issue","Issue",50,"assistance",1,"#6F42C1",0

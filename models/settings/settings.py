@@ -21,6 +21,8 @@ class ems_settings(models.TransientModel):
    # ir.default-setting field (requires a 'default_model' attribute), not a plain related field.
    schedule_framework_id = fields.Many2one(comodel_name="resource.calendar", related="company_id.default_schedule_framework_id", readonly=False, domain="[('is_framework', '=', True)]")
 
+   director_id = fields.Many2one(comodel_name="hr.employee", related="company_id.director_id", readonly=False)
+
    secretariat_email = fields.Char(related="company_id.secretariat_email", readonly=False)
    center_code = fields.Char(related="company_id.center_code", readonly=False)
 

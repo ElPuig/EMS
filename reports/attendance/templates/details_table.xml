@@ -11,7 +11,7 @@
             </thead>
             <tbody> 
                 <t t-foreach="entries" t-as="c">
-                    <tr>                         
+                    <tr style="page-break-inside: avoid;">
                         <t t-foreach="rows" t-as="e">
                             <td t-att-style="e['style']" t-esc="c.report_eval(e['value'])"/>
                         </t>

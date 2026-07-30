@@ -1,0 +1,60 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_report_wizard">
+            <field name="name">ems.attendance_report.wizard</field>
+            <field name="model">ems.attendance_report_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Attendance report">
+                    <field name="detail_status_warning" invisible="1" />
+                    <group col="2">
+                        <group colspan="2">
+                            <field name="report_type" widget="radio" options="{'horizontal': true}" />
+                        </group>
+
+                        <!-- Selection field: exactly one is shown, according to report_type. -->
+                        <group invisible="report_type != 'group'">
+                            <field name="group_id" required="report_type == 'group'" domain="[('id','in', allowed_group_ids)]" />
+                        </group>
+                        <group invisible="report_type != 'student'">
+                            <field name="student_id" required="report_type == 'student'" domain="[('id','in', allowed_student_ids)]" />
+                        </group>
+                        <group invisible="report_type != 'subject'">
+                            <field name="subject_id" required="report_type == 'subject'" domain="[('id','in', allowed_subject_ids)]" />
+                        </group>
+                        <group>
+                            <field name="tutor_ids" widget="many2many_tags" readonly="1" />
+                        </group>
+
+                        <!-- Groups picker: by-subject only (every group teaching the subject, removable). -->
+                        <group colspan="2" invisible="report_type != 'subject'">
+                            <field name="group_ids" widget="many2many_tags" domain="[('id','in', allowed_group_ids)]" />
+                        </group>
+
+                        <group>
+                            <field name="detail_status_ids" widget="many2many_tags" />
+                        </group>
+                        <group>
+                            <field name="include_strikes" />
+                        </group>
+
+                        <div class="alert alert-warning" role="alert" name="alert-detail-status-warning" colspan="2" invisible="not detail_status_warning">
+                            <strong>The report may become very large.</strong> Adding statuses beyond the default absence ones makes the per-student detail section grow with every session, not just the absences — for a subject taught in several large groups over a long period, this can be slow to generate or fail outright.
+                        </div>
+
+                        <group>
+                            <field name="from_date" />
+                        </group>
+                        <group>
+                            <field name="to_date" />
+                        </group>
+                    </group>
+
+                    <footer>
+                        <button name="print" string="Print" type="object" class="btn-primary" icon="fa-print" />
+                        <button name="cancel" string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

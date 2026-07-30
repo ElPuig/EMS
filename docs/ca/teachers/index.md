@@ -18,6 +18,7 @@ Aquesta secció conté els manuals per als **professors**.
 | [Strikes: notificar una incidència disciplinària](strike.md) | Posar un strike des de la vista de passar llista quan cal deixar constància del comportament d'un alumne |
 | [El teu horari setmanal](working-schedules.md) | Consultar les teves assignatures, grups, aules, patis i reunions al teu horari setmanal |
 | [Desactivar la teva foto de perfil](photo-visibility.md) | Activar o desactivar la teva foto de perfil |
+| [Informes d'assistència](attendance-reports.md) | Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades tu mateix amb la pantalla d'Anàlisi d'assistència |
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
 
 ## Temes previstos

@@ -18,26 +18,21 @@
 
                 <xpath expr="//sheet" position="before">
                     <header>
-                        <field name="google_ws_suspended" invisible="1"/>
+                        <field name="google_ws_state" invisible="1"/>
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
                                 class="btn-secondary"
-                                invisible="contact_type != 'student' or student_email"
+                                invisible="google_ws_state != 'none'"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
                                 class="btn-secondary"
-                                invisible="contact_type != 'student' or not student_email or google_ws_suspended"
+                                invisible="google_ws_state != 'active'"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
                         <button name="action_reactivate_google_account" type="object"
                                 string="Reactivate Google account"
                                 class="btn-secondary"
-                                invisible="contact_type != 'student' or not student_email or not google_ws_suspended"
-                                groups="ems.group_secretary,ems.group_academic_admin"/>
-                        <button name="action_withdrawal_wizard" type="object"
-                                string="Withdrawal"
-                                class="btn-secondary"
-                                invisible="contact_type != 'student'"
+                                invisible="google_ws_state != 'suspended'"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
                     </header>
                 </xpath>

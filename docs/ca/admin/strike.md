@@ -10,11 +10,11 @@
 
 ## Gestionar els motius de strike
 
-Els motius entre els quals trien els professors en posar un strike es configuren a **Convivència → Configuració → Motius de strike**.
+Els motius entre els quals trien els professors en posar un strike es configuren a **Convivència → Configuració → Strikes → Motius**.
 
 - Cada motiu té un **Nom** (traduïble) i una **Seqüència** (arrossega per reordenar — el primer de la llista és el que s'utilitza com a motiu preseleccionat per defecte al diàleg de passar llista).
-- Desmarca **Actiu** per retirar un motiu sense esborrar-lo (els strikes existents el continuen referenciant).
-- El motiu inicial "Other / General" (`ems.strike_reason_other`) és el valor per defecte del sistema — mantén-lo actiu, ja que és el que preselecciona el diàleg de passar llista.
+- Fes servir l'acció estàndard **Arxivar** (menú ⚙ al formulari, o selecciona files a la llista i fes servir el mateix menú) per retirar un motiu sense esborrar-lo — els strikes existents el continuen referenciant correctament. Els motius arxivats queden amagats per defecte; fes servir **Filtres → Arxivat** a la llista per tornar-los a veure, o per desarxivar-ne un.
+- El motiu inicial "Other / General" (`ems.strike_reason_other`) és el valor per defecte del sistema — mantén-lo actiu (no arxivat), ja que és el que preselecciona el diàleg de passar llista.
 
 ---
 

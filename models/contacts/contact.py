@@ -332,6 +332,7 @@ class ems_contact(models.Model):
             'name': _('Withdrawal'),
             'res_model': 'ems.withdrawal_wizard',
             'view_mode': 'form',
+            'views': [[False, 'form']],
             'target': 'new',
             'context': {'active_ids': students.ids},
         }
@@ -501,6 +502,26 @@ class ems_contact(models.Model):
                 self._gw_enqueue_suspend()
 
         return contact
+
+    def toggle_active(self):
+        """Archiving one or several students opens the withdrawal wizard instead
+        of archiving directly, mirroring hr.employee (archiving asks for a reason
+        via hr.departure.wizard) — from the list (single or multi-selection) or
+        from the form, same as the "Withdrawal" button. Unlike the employee flow
+        — which archives first and only then attaches an optional reason — the
+        student is archived by the wizard itself once confirmed (see
+        EmsWithdrawalWizard.action_apply): withdrawal already changes more state
+        atomically (contact_type, operational records, portal) than a bare
+        active flip, so none of it may run before the reason is captured, and
+        nothing should happen at all if the wizard is cancelled.
+        """
+        students = self.filtered(lambda p: p.contact_type == 'student' and p.active)
+        if students and not self.env.context.get('no_wizard'):
+            others = self - students
+            if others:
+                others.toggle_active()
+            return students.action_withdrawal_wizard()
+        return super().toggle_active()
 
     @api.onchange('email')
     def _onchange_email_portal_warning(self):

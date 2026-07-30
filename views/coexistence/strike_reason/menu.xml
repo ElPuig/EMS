@@ -2,13 +2,14 @@
 <odoo>
     <data>
         <record model="ir.actions.act_window" id="action_strike_reason_list">
-            <field name="name">Strike reasons</field>
+            <field name="name">Reasons</field>
             <field name="res_model">ems.strike.reason</field>
             <field name="view_mode">list,form</field>
         </record>
 
         <menuitem name="Configuration" sequence="10" id="menu_coexistence_config" parent="menu_coexistence"/>
-        <menuitem name="Strike reasons" sequence="1" id="menu_coexistence_strike_reasons"
-                  parent="menu_coexistence_config" action="action_strike_reason_list"/>
+        <menuitem name="Strikes" sequence="1" id="menu_coexistence_config_strikes" parent="menu_coexistence_config"/>
+        <menuitem name="Reasons" sequence="1" id="menu_coexistence_strike_reasons"
+                  parent="menu_coexistence_config_strikes" action="action_strike_reason_list"/>
     </data>
 </odoo>

@@ -482,6 +482,9 @@ class ems_course_transition_wizard(models.TransientModel):
         })
         return {
             'type': 'ir.actions.act_window',
+            # Without a name the dialog falls back to the generic "Odoo" title: the
+            # act_window record carries one, but these dicts replace it on every step.
+            'name': _("Set up the next course"),
             'res_model': self._name,
             'res_id': self.id,
             'view_mode': 'form',
@@ -787,6 +790,9 @@ class ems_course_transition_wizard(models.TransientModel):
         self.state = 'done'
         return {
             'type': 'ir.actions.act_window',
+            # Without a name the dialog falls back to the generic "Odoo" title: the
+            # act_window record carries one, but these dicts replace it on every step.
+            'name': _("Set up the next course"),
             'res_model': self._name,
             'res_id': self.id,
             'view_mode': 'form',

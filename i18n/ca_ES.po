@@ -13027,6 +13027,8 @@ msgstr ""
 "beneficis actual de l'estudiant."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
 #: model:ir.actions.act_window,name:ems.action_course_transition_wizard
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 #: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form

@@ -172,11 +172,33 @@ highest-value first, custom widgets and daily-use screens ahead of reference/con
    macro's own JS execution context — no following step can reliably observe anything after
    it (confirmed empirically via two different race/timeout failures before landing on
    Discard instead). That's core Odoo behavior, not an EMS-specific gap.
-9. ⬜ Lower priority (reference/config data, plain widgets, not yet individually ordered):
-   `hr.job`, `hr.work.location`, `hr.contract.type`, `ems.tracking`, `ems.minute`,
-   `ems.strike.reason`, `resource.calendar`, `product.template`/`sale.order.template`/
-   `ems.authorization.template`, `queue.job`, `account.move.line`, `mail.activity.type`,
-   filtered `res.partner` actions.
+9. Lower priority (reference/config data, plain widgets):
+   - ⏭️ **`ems.tracking`/`ems.minute` — skipped, 2026-07-31**, developer's explicit call.
+     Both have zero reachable UI entry point today: `ems.tracking`'s standalone action has no
+     menuitem anywhere and its own `ems.study.follow_ids` One2many is never embedded in any
+     view; `ems.minute`'s menuitem is commented out in `views/documentation/minutes/menu.xml`.
+     Writing a tour for a screen no real user can reach isn't a meaningful coverage gap to
+     close - if either is ever wired up (or confirmed dead like `ems.record` was), revisit.
+   - ✅ **`hr.job`, `hr.work.location`, `hr.contract.type`, `ems.strike.reason`,
+     `resource.calendar` (Schedule Frameworks), `product.template` (enrollment items),
+     `sale.order.template` (enrollment templates), `ems.authorization.template`, `queue.job`
+     (attendance notifications), `account.move.line` (enrollment collections),
+     `mail.activity.type` (task assignment), and the "Families" filtered `res.partner`
+     screen** — done 2026-07-31, all twelve as plain create/edit or render-only smoke tours
+     (`job_tour.js`, `work_location_tour.js`, `employment_type_tour.js`,
+     `strike_reason_tour.js`, `schedule_framework_tour.js`, `enrollment_items_tour.js`,
+     `enrollment_template_tour.js`, `authorization_template_tour.js`,
+     `attendance_notification_tour.js`, `enrollment_collections_tour.js`,
+     `task_assignment_tour.js`, `family_tour.js`, each with a matching `tests/test_*_tour.py`).
+     One real, non-tour-specific finding along the way: `hr.job`'s EMS-added
+     `employee_type`/`group_id` fields turned out unreachable through the form (sit inside
+     native hr.job's hardcoded-`invisible="1"` "Recruitment" page) — confirmed CSV-only by
+     design via `data/cat/hr.job.csv`, not a bug, tour scoped down accordingly. Several
+     reusable gotchas: `hr.job` and `product.template`'s native `name` fields (and one of
+     `res.partner`'s two conditional name fields) render via `widget="text"` (a `<textarea>`),
+     not a plain Char `<input>`; EMS's own `res.partner` form splits name into separate
+     `firstname`/`lastname` inputs (the `partner_firstname` convention); Odoo's list view
+     binds its row-open click handler to a data cell, not the bare `<tr>`.
 
 Working the same one-gap-at-a-time cadence as the rest of this branch's DTON work — each item
 gated with `./upgrade.sh` + its own scoped `./test.sh TestClassName`, changelog entry appended
@@ -191,6 +213,21 @@ batch.
 unscoped `./test.sh` run — 0 failed, 0 error(s) of 1368 tests. No regressions from any of the
 tours added in this second batch (`ems.notice`, the three attendance office screens, the four
 file-upload wizards, and `res.config.settings`).
+
+**Batch gate, 2026-07-31 (item 9 — the entire audit backlog is now complete except the two
+explicitly-skipped orphaned models):** full unscoped `./test.sh` run — 0 failed, 0 error(s) of
+1380 tests. No regressions from any of the twelve tours added in this final batch.
+
+**Status: audit complete, 2026-07-31.** Every identified hard-zero-coverage model/view surface
+now has a tour, except `ems.tracking`/`ems.minute` (explicitly skipped — see item 9, no
+reachable UI entry point today) and two deliberately-deferred sub-scopes noted inline above
+(a full successful Esfera-xlsx student import in item 7's `student_import_wizard_tour.js`,
+and creating a brand-new `ems.attendance_justification` via its `widget="daterange"` field in
+item 6's `attendance_justification_tour.js`) — both left as documented, non-blocking gaps for
+a future pass rather than reasons to hold up this branch. Per this plan's own "Design plans"
+lifecycle (see `CLAUDE.md`), this file should be deleted once its content is folded into
+durable documentation (or the developer confirms the working notes above are no longer
+needed) — not yet done as of this entry.
 
 ## Open questions
 

@@ -31,6 +31,13 @@ from . import test_employee_tour
 from . import test_workgroup
 from . import test_workgroup_tour
 from . import test_job
+from . import test_job_tour
+from . import test_work_location_tour
+from . import test_employment_type_tour
+from . import test_strike_reason_tour
+from . import test_schedule_framework_tour
+from . import test_enrollment_items_tour
+from . import test_enrollment_template_tour
 from . import test_teaching
 from . import test_teaching_tour
 from . import test_tracking
@@ -97,6 +104,11 @@ from . import test_attendance_template_color_tour
 from . import test_withdrawal_tour
 from . import test_enrollment_header
 from . import test_authorization
+from . import test_authorization_template_tour
+from . import test_attendance_notification_tour
+from . import test_enrollment_collections_tour
+from . import test_task_assignment_tour
+from . import test_family_tour
 from . import test_payment_term
 from . import test_enrollment_line
 from . import test_enrollment_tour

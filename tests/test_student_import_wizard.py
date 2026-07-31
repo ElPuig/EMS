@@ -511,6 +511,71 @@ class TestStudentImportWizard(TransactionCase):
         with self.assertRaises(UserError):
             wizard.action_import()
 
+    def test_action_import_tolerates_full_real_column_set(self):
+        # The real Esfera/SAGA export has 86 columns, not just the 35 _REQUIRED_COLUMNS this
+        # wizard actually reads (confirmed against a real, anonymized export - see
+        # plans/student_import_wizard_esfera_gaps.md). Never verified before that the ~50
+        # extra columns it doesn't use (address sub-fields, tutor legal/notification flags,
+        # a second "Contacte propis alumne" block, etc.) don't break parsing.
+        FULL_REAL_COLUMNS = [
+            "Grup Classe", "Número de document d'identitat", "Tipus de document d'identitat",
+            'Data naixement', 'Nacionalitat', 'País naixement', 'Província naixement',
+            'Municipi naixement', 'Alumne tutelat legalment', 'Tipus de via',
+            'Alumne emancipat legalment', "Identificador de l'alumne/a", 'Telèfon',
+            'Localitat de residència', 'Municipi de residència', 'Província de residència',
+            'País de residència', 'Codi postal', 'Correu electrònic', 'Número',
+            'Alumne amb custòdia compartida en dos domicilis', 'Bloc', 'Escala', 'Planta',
+            'Porta', "Resta de dades de l'adreça", 'Observacions',
+            'Contacte alumne - Correu electrònic', 'Nom', 'Primer Cognom', 'Segon Cognom',
+            'Nom via', 'Tutor 1 - nom', 'Tutor 2 - nom', 'Tutor 1 - doc. identitat',
+            'Tutor 1 - nom via', 'Tutor 1 - localitat', 'Tutor 1 - municipi',
+            'Tutor 1 - provincia', 'Tutor 1 - país', 'Tutor 1 - CP', 'Tutor 2 - doc. identitat',
+            'Tutor 2 - nom via', 'Tutor 2 - localitat', 'Tutor 2 - municipi',
+            'Tutor 2 - provincia', 'Tutor 2 - país', 'Tutor 2 - CP', 'Tutor 1 - 1r cognom',
+            'Tutor 1 - 2n cognom', 'Tutor 1 - tipus via', 'Tutor 1 - número', 'Tutor 1 - bloc',
+            'Tutor 1 - escala', 'Tutor 1 - planta', 'Tutor 1 - porta',
+            "Tutor 1 - resta de dades de l'adreça", 'Tutor 1 - destinatari correspondència',
+            'Tutor 2 - 1r cognom', 'Tutor 2 - 2n cognom', 'Tutor 2 - tipus via',
+            'Tutor 2 - número', 'Tutor 2 - bloc', 'Tutor 2 - escala', 'Tutor 2 - planta',
+            'Tutor 2 - porta', "Tutor 2 - resta de dades de l'adreça",
+            'Tutor 2 - tipus doc. Identitat', 'Tutors comparteixen domicili',
+            'Tutor 1 - tipus doc. Identitat', 'Tutor 1 - persona jurídica',
+            'Tutor 1 - contactes: rebre notificacions',
+            'Tutor 2 - contactes: rebre notificacions', 'Contacte alumne - Telèfon',
+            'Contacte altres alumne - Tipus', 'Contacte altres alumne - Valor',
+            'Contacte altres alumne - Observacions', 'Contacte 1er tutor alumne - Tipus',
+            'Contacte 1er tutor alumne - Valor', 'Contacte 1er tutor alumne - Observacions',
+            'Contacte 2on tutor alumne - Tipus', 'Contacte 2on tutor alumne - Valor',
+            'Contacte 2on tutor alumne - Observacions', 'Contacte propis alumne - Tipus',
+            'Contacte propis alumne - Valor', 'Contacte propis alumne - Observacions',
+        ]
+        level, study, group = create_level_study_group(self, 'TSIWF', level={'name': 'Test Import Full Level'}, study={
+            'code': 'TSIWF01', 'name': 'Test Import Full Study',
+        }, group={'external_id': 'ESFERA-FULL-A'})
+        values_by_header = {
+            'Grup Classe': 'ESFERA-FULL-A',
+            'Nom': 'Full',
+            'Primer Cognom': 'Column',
+            'Segon Cognom': 'Set',
+            "Identificador de l'alumne/a": '9300001',
+            "Número de document d'identitat": '11111111X',
+            "Tipus de document d'identitat": 'DNI',
+            'Data naixement': '01/01/2010',
+            'Telèfon': '600000001',
+            'Correu electrònic': 'full.columns@example.com',
+        }
+        data_row = [values_by_header.get(h, '') for h in FULL_REAL_COLUMNS]
+        wizard = self.env['ems.student_import_wizard'].create({
+            'file': self._build_xlsx_b64(FULL_REAL_COLUMNS, data_row),
+            'file_name': 'esfera_full.xlsx',
+        })
+        wizard.action_import()
+
+        student = self.env['res.partner'].search([('student_id', '=', '9300001')])
+        self.assertTrue(student)
+        self.assertEqual(student.main_group_id, group)
+        self.assertIn('Students created:', wizard.result_html)
+
     def test_action_import_raises_when_header_row_not_found(self):
         from odoo.exceptions import UserError
         wizard = self.env['ems.student_import_wizard'].create({

@@ -267,6 +267,26 @@ class TestStudentImportWizard(TransactionCase):
         self.assertEqual(student.birth_date, date(2008, 5, 10))
         self.assertEqual(stats['created'], 1)
 
+    def test_process_row_tis_document_type_maps_to_medical_id(self):
+        # 'TIS' (Targeta d'Identificació Sanitària) is a real document type Esfera exports
+        # alongside DNI/NIE/PASS - confirmed handled (docs.get('TIS') -> medical_id), just
+        # never had an explicit test locking it in. Also covers the multi-document case: a
+        # student can have both a DNI and a TIS in the same row (' - '-joined).
+        row, col_map = self._row_and_col_map({
+            'Grup Classe': 'SOME-CODE', 'Nom': 'Tis', 'Primer Cognom': 'Student', 'Segon Cognom': '',
+            'Identificador de l\'alumne/a': '9000006',
+            'Número de document d\'identitat': '12345678A - AB1234567',
+            'Tipus de document d\'identitat': 'DNI - TIS',
+        })
+        wizard = self._wizard()
+        stats = self._stats()
+        wizard._process_row(row, col_map, stats)
+
+        student = self.env['res.partner'].search([('student_id', '=', '9000006')])
+        self.assertTrue(student)
+        self.assertEqual(student.document_id, '12345678A')
+        self.assertEqual(student.medical_id, 'AB1234567')
+
     def test_process_row_missing_group_adds_note_and_warning(self):
         # Intentional behavior (import anyway, note for later manual placement) - but
         # now also surfaced in stats['warnings'], visible in the result summary a

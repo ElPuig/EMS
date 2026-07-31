@@ -154,3 +154,51 @@ registry.category("web_tour.tours").add("ems_strike_session_history", {
         },
     ],
 });
+
+// Fourth leg: the student's own contact form (views/community/contact/form.xml) has a twin
+// "Strikes" stat button in its button box (res.partner.action_view_strikes) - a different
+// method than the session-line one tested above, only visible once strike_count > 0. Never
+// clicked from a real browser before this tour.
+registry.category("web_tour.tours").add("ems_strike_partner_stat_button", {
+    test: true,
+    url: "/odoo/action-ems.action_student_kanban",
+    steps: () => [
+        { trigger: ".o_control_panel", content: "Educational Community loaded" },
+        {
+            trigger: ".o_switch_view.o_list",
+            content: "Switch to list view",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view",
+            content: "List view rendered",
+        },
+        // 1111+ students in this dev DB, sorted alphabetically and paginated 80/page (see
+        // portal_access_wizard_tour.js for the same gotcha) - must be searched for, not
+        // assumed visible on page 1.
+        {
+            trigger: ".o_searchview_input",
+            content: "Search for the seeded student by name",
+            run: "edit Strike Tour Student",
+        },
+        {
+            trigger: ".o_searchview_input",
+            content: "Submit the search",
+            run: "press Enter",
+        },
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell:contains('Strike Tour Student')",
+            content: "Open the seeded student",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view button[name='action_view_strikes'] .o_stat_value:contains('2')",
+            content: "The Strikes stat button shows the count of 2 issued earlier in the flow",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Strike Tour Student')",
+            content: "The strike-details list opened by the stat button shows the strikes for this student",
+        },
+    ],
+});

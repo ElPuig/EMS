@@ -236,3 +236,36 @@ Remaining, explicitly non-blocking (documented, not scheduled): Tier 4 (cog-menu
 target wizard is already tested via direct URL) and Tier 5 (isolated popups/buttons) from the
 original tiering above, plus the still-standing Esfera-xlsx full-import gap from the previous
 audit round.
+
+## Update, 2026-07-31 (later same day) — Tier 4 closed, Tier 5 partially closed
+
+Developer said "vale, ponte con eso" (go ahead) after this file's own "documented, not
+scheduled" framing for Tier 4/5. Worked through both:
+
+**Tier 4 (3 cog-menu click paths) — closed.** Extended
+`applicant_import_wizard_tour.js`/`student_import_wizard_tour.js`/
+`student_update_wizard_tour.js` in place: each now opens its wizard via the real cog-menu
+click (`.dropdown-item:contains('...')` — a raw `<DropdownItem>` renders Bootstrap's own
+class, not Odoo's `.o_menu_item`, same gotcha as `working_schedules_import_wizard_tour.js`)
+instead of a direct URL to the wizard's own action. All three passed first try.
+
+**Tier 5 — 1 of 4 items closed, 3 left as documented/not-scheduled (matches this file's own
+stated bar: isolated button/dialog failures are acceptable).** Added a fourth leg to
+`strike_tour.js` (`ems_strike_partner_stat_button`) covering the `res.partner`-side
+`action_view_strikes` stat button (`views/community/contact/form.xml`) — the
+`attendance_session_header`-side twin was already tested, this one wasn't. Hit and fixed a
+genuine tour-authoring bug along the way, not an app bug: after `.o_switch_view.o_list`, the
+search box must not be touched until an explicit `.o_list_view` wait step confirms the
+kanban→list transition finished — typing into the search input immediately after the click
+races the search bar's own remount and the typed text is silently lost (compare
+`portal_access_wizard_tour.js`, which already has this wait step; my first attempt omitted it
+and the search silently no-opped, 1111+ real students in this dev DB meant the un-searched
+target was never on page 1). Left **not scheduled**, matching this file's own tiering
+rationale: `open_exception_popup` (attendance_issue/notice forms — would need constructing a
+`queue.job` fixture with `exc_info` set, disproportionate effort for an isolated error-detail
+popup), `open_error_popup` (limesurvey recipient, same shape), `action_limesurvey_delete_closed_confirmed`
+(exercises Odoo core's own generic `RedirectWarning` dialog mechanism, not EMS view code).
+
+Gate: `pylint --disable=all --enable=redefined-builtin` clean, `./upgrade.sh` clean, each
+touched test class passed scoped, full unscoped `./test.sh` run as the final gate for this
+update (see changelog for the result).

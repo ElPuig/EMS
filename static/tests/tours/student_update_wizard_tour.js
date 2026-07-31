@@ -12,10 +12,25 @@ function csvContent() {
 // coverage. This tour drives the whole flow: upload, "Load columns", pick the IDALU and Nom
 // columns via their many2one autocompletes, "Update students", verifying the underlying
 // student's name actually changed afterward.
+// Opened via the Students list's own cog-menu entry (update_student_cog_menu.js), the real
+// path a user takes - not a direct URL to the wizard's own action, which only ever proved the
+// wizard form itself works, never that the cog-menu click (a raw <DropdownItem>, not Odoo's
+// own .o_menu_item wrapper) actually opens it.
 registry.category("web_tour.tours").add("ems_student_update_wizard_apply", {
     test: true,
-    url: "/odoo/action-ems.action_student_update_wizard",
+    url: "/odoo/action-ems.action_student_kanban",
     steps: () => [
+        { trigger: ".o_control_panel", content: "Educational Community loaded" },
+        {
+            trigger: ".o_cp_action_menus button",
+            content: "Open the list's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-item:contains('Update students from CSV')",
+            content: "Click 'Update students from CSV'",
+            run: "click",
+        },
         {
             trigger: ".o_form_view .o_field_widget[name='file']",
             content: "Update wizard loaded",

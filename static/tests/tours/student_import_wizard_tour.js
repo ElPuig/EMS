@@ -22,10 +22,25 @@ function base64ToFile(b64, name, type) {
     return new File([bytes], name, { type });
 }
 
+// Opened via the Students list's own cog-menu entry (import_student_cog_menu.js), the real
+// path a user takes - not a direct URL to the wizard's own action, which only ever proved the
+// wizard form itself works, never that the cog-menu click (a raw <DropdownItem>, not Odoo's
+// own .o_menu_item wrapper) actually opens it.
 registry.category("web_tour.tours").add("ems_student_import_wizard_missing_columns", {
     test: true,
-    url: "/odoo/action-ems.action_student_import_wizard",
+    url: "/odoo/action-ems.action_student_kanban",
     steps: () => [
+        { trigger: ".o_control_panel", content: "Educational Community loaded" },
+        {
+            trigger: ".o_cp_action_menus button",
+            content: "Open the list's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-item:contains('Import from Esfera')",
+            content: "Click 'Import from Esfera'",
+            run: "click",
+        },
         {
             trigger: ".o_form_view .o_field_widget[name='file']",
             content: "Import wizard loaded",

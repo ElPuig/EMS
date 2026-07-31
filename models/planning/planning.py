@@ -24,6 +24,13 @@ class EmsPlanning(models.Model):
 
     @api.constrains("planning_outcome_ids", "internal_ponderation", "external_ponderation")
     def check_ponderation(self):
+        # A data file's planning_outcome_ids can only be populated via a separate CSV (CSV has
+        # no inline one2many eval, unlike XML), so the parent row's own create() always fires
+        # this constraint first, with no children yet - install_mode=True is the context Odoo's
+        # own data-file loader always applies (odoo/models.py::_load_records), so this only
+        # skips the check while more files may still be loading, never for a real UI edit.
+        if self.env.context.get("install_mode"):
+            return
         for planning in self:
             total = sum(outcome_line.ponderation for outcome_line in planning.planning_outcome_ids)
             if round(total, 2) != 100:

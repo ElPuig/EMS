@@ -10925,17 +10925,29 @@ msgid ""
 "                                • Store the module final grade (MP) as an override for subjects without work placement.<br/>\n"
 "                                • Overwrite any previous grade, including outcomes locked from earlier evaluations.<br/>\n"
 "                                <br/>\n"
+"                                Optionally, \"Create missing enrollments\" enrolls a student who is graded in a module\n"
+"                                they are not enrolled in, so that grade is imported instead of being discarded. Any\n"
+"                                informed grade counts, numeric or textual (PDT, NP, CV...); a module left entirely\n"
+"                                blank and modules without an evaluation session are never enrolled, and an optional\n"
+"                                module only when the group has a single optional subject.<br/>\n"
+"                                <br/>\n"
 "                                Select the evaluation and the xlsx file, then click \"Import grades\"."
 msgstr ""
 "<strong>Procés d'importació:</strong><br/>\n"
 "                                Aquest assistent importa les notes exportades d'Esfera per a l'avaluació d'un grup.\n"
-"                                Les sessions d'avaluació d'aquest grup, assignatures i avaluació han d'existir prèviament\n"
+"                                Les sessions d'avaluació d'aquell grup, aquelles assignatures i aquella avaluació ja han d'existir\n"
 "                                (crea-les abans amb \"Crear sessions d'avaluació\"). La importació:<br/>\n"
-"                                • Actualitza les notes dels RA i la nota d'empresa (EM).<br/>\n"
-"                                • Desa la nota final del mòdul (MP) com a sobreescriptura per a les assignatures sense empresa.<br/>\n"
-"                                • Sobreescriu qualsevol nota prèvia, inclosos els RA bloquejats d'avaluacions anteriors.<br/>\n"
+"                                • Actualitzarà les notes dels resultats d'aprenentatge (RA) i la nota de l'estada a l'empresa (EM).<br/>\n"
+"                                • Desarà la nota final del mòdul (MP) com a sobreescriptura a les assignatures sense estada a l'empresa.<br/>\n"
+"                                • Sobreescriurà qualsevol nota anterior, inclosos els RA bloquejats d'avaluacions anteriors.<br/>\n"
 "                                <br/>\n"
-"                                Selecciona l'avaluació i el fitxer xlsx, i prem \"Importar notes\"."
+"                                Opcionalment, \"Crear les matrícules que faltin\" matricula l'alumne/a que té nota en un mòdul\n"
+"                                on no consta matriculat, perquè aquella nota s'importi en comptes de descartar-se. Compta\n"
+"                                qualsevol nota informada, numèrica o de text (PDT, NP, CV...); mai no es matricula en un mòdul\n"
+"                                completament en blanc ni en mòduls sense sessió d'avaluació, i en un mòdul optatiu només si\n"
+"                                el grup té una única assignatura optativa.<br/>\n"
+"                                <br/>\n"
+"                                Selecciona l'avaluació i el fitxer xlsx, i fes clic a \"Importar notes\"."
 
 #. module: ems
 #. odoo-python
@@ -14207,3 +14219,41 @@ msgstr "Color de visualització lliure per a aquest departament (no el camp 'Col
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is already assigned to another one."
 msgstr "Aquest rol ja està assignat a una altra persona."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__create_missing_enrollments
+msgid "Create missing enrollments"
+msgstr "Crear les matrícules que faltin"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_import_wizard__create_missing_enrollments
+msgid ""
+"Enroll students that are graded in a module they are not enrolled in, so the"
+" grade can be imported instead of being discarded. Any informed grade "
+"counts, numeric or textual (PDT, NP, CV...); a module left entirely blank "
+"and modules without an evaluation session are never enrolled, and an "
+"optional module only when the group has a single optional subject, since "
+"otherwise there is no way to tell which."
+msgstr "Matricula l'alumne/a que té nota en un mòdul on no consta matriculat, perquè la nota es pugui importar en comptes de descartar-se. Compta qualsevol nota informada, numèrica o de text (PDT, NP, CV...); mai no es matricula en un mòdul completament en blanc ni en mòduls sense sessió d'avaluació, i en un mòdul optatiu només si el grup té una única assignatura optativa, ja que altrament no hi ha manera de saber quina és."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "Missing enrollments created"
+msgstr "Matrícules creades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid ""
+"%s is graded in '%s' with group %s but is enrolled in group %s: enrollment "
+"left untouched."
+msgstr "%s té nota a '%s' amb el grup %s però està matriculat al grup %s: la matrícula no s'ha modificat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid ""
+"%s is graded in optional module '%s', but group %s has %d optional subjects:"
+" cannot tell which one to enroll them in."
+msgstr "%s té nota al mòdul optatiu '%s', però el grup %s té %d assignatures optatives: no es pot saber en quina matricular-lo/la."

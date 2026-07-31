@@ -10938,17 +10938,29 @@ msgid ""
 "                                • Store the module final grade (MP) as an override for subjects without work placement.<br/>\n"
 "                                • Overwrite any previous grade, including outcomes locked from earlier evaluations.<br/>\n"
 "                                <br/>\n"
+"                                Optionally, \"Create missing enrollments\" enrolls a student who is graded in a module\n"
+"                                they are not enrolled in, so that grade is imported instead of being discarded. Any\n"
+"                                informed grade counts, numeric or textual (PDT, NP, CV...); a module left entirely\n"
+"                                blank and modules without an evaluation session are never enrolled, and an optional\n"
+"                                module only when the group has a single optional subject.<br/>\n"
+"                                <br/>\n"
 "                                Select the evaluation and the xlsx file, then click \"Import grades\"."
 msgstr ""
 "<strong>Proceso de importación:</strong><br/>\n"
 "                                Este asistente importa las notas exportadas de Esfera para la evaluación de un grupo.\n"
-"                                Las sesiones de evaluación de ese grupo, asignaturas y evaluación deben existir previamente\n"
+"                                Las sesiones de evaluación de ese grupo, esas asignaturas y esa evaluación ya deben existir\n"
 "                                (créalas antes con \"Crear sesiones de evaluación\"). La importación:<br/>\n"
-"                                • Actualiza las notas de los RA y la nota de empresa (EM).<br/>\n"
-"                                • Guarda la nota final del módulo (MP) como sobreescritura para las asignaturas sin empresa.<br/>\n"
-"                                • Sobrescribe cualquier nota previa, incluidos los RA bloqueados de evaluaciones anteriores.<br/>\n"
+"                                • Actualizará las notas de los resultados de aprendizaje (RA) y la nota de la estancia en la empresa (EM).<br/>\n"
+"                                • Guardará la nota final del módulo (MP) como sobrescritura en las asignaturas sin estancia en la empresa.<br/>\n"
+"                                • Sobrescribirá cualquier nota anterior, incluidos los RA bloqueados de evaluaciones anteriores.<br/>\n"
 "                                <br/>\n"
-"                                Selecciona la evaluación y el fichero xlsx, y pulsa \"Importar notas\"."
+"                                Opcionalmente, \"Crear las matrículas que falten\" matricula al alumno/a que tiene nota en un\n"
+"                                módulo en el que no consta matriculado, para que esa nota se importe en lugar de descartarse.\n"
+"                                Cuenta cualquier nota informada, numérica o de texto (PDT, NP, CV...); nunca se matricula en\n"
+"                                un módulo completamente en blanco ni en módulos sin sesión de evaluación, y en un módulo\n"
+"                                optativo solo si el grupo tiene una única asignatura optativa.<br/>\n"
+"                                <br/>\n"
+"                                Selecciona la evaluación y el fichero xlsx, y haz clic en \"Importar notas\"."
 
 #. module: ems
 #. odoo-python
@@ -14231,3 +14243,41 @@ msgstr "Color de visualización libre para este departamento (no el campo 'Color
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is already assigned to another one."
 msgstr "Este rol ya está asignado a otra persona."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__create_missing_enrollments
+msgid "Create missing enrollments"
+msgstr "Crear las matrículas que falten"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_import_wizard__create_missing_enrollments
+msgid ""
+"Enroll students that are graded in a module they are not enrolled in, so the"
+" grade can be imported instead of being discarded. Any informed grade "
+"counts, numeric or textual (PDT, NP, CV...); a module left entirely blank "
+"and modules without an evaluation session are never enrolled, and an "
+"optional module only when the group has a single optional subject, since "
+"otherwise there is no way to tell which."
+msgstr "Matricula al alumno/a que tiene nota en un módulo en el que no consta matriculado, para que la nota se pueda importar en lugar de descartarse. Cuenta cualquier nota informada, numérica o de texto (PDT, NP, CV...); nunca se matricula en un módulo completamente en blanco ni en módulos sin sesión de evaluación, y en un módulo optativo solo si el grupo tiene una única asignatura optativa, ya que de lo contrario no hay forma de saber cuál es."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid "Missing enrollments created"
+msgstr "Matrículas creadas"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid ""
+"%s is graded in '%s' with group %s but is enrolled in group %s: enrollment "
+"left untouched."
+msgstr "%s tiene nota en '%s' con el grupo %s pero está matriculado en el grupo %s: la matrícula no se ha modificado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid ""
+"%s is graded in optional module '%s', but group %s has %d optional subjects:"
+" cannot tell which one to enroll them in."
+msgstr "%s tiene nota en el módulo optativo '%s', pero el grupo %s tiene %d asignaturas optativas: no se puede saber en cuál matricularlo/a."

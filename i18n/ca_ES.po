@@ -11054,6 +11054,17 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid ""
+"%s is enrolled in module '%s' in several groups (%s): the grade may be "
+"written to any of their sessions. Leave a single enrollment per module."
+msgstr ""
+"%s està matriculat/ada del mòdul '%s' en diversos grups (%s): la nota es "
+"pot escriure a qualsevol de les seves sessions. Deixa una sola matrícula per "
+"mòdul."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
 msgid "Student not found (idAlumne %s)."
 msgstr "Alumne no trobat (idAlumne %s)."
 

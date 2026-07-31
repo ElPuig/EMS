@@ -53,6 +53,19 @@ Every enrollment created is counted in the result and appears in the CSV log mar
 
 ---
 
+## Modules Taught in Another Group
+
+A student does not always take every module with their own group. Two situations are routine:
+
+- **Split groups** — the group is divided for some modules and the second half is a group of its own (`AIF1B` alongside `AIF1A`).
+- **Repeaters** — a second-year student retaking a first-year module attends it, and is graded, with the first-year group.
+
+The import follows the **enrollment** to find where each grade belongs, so these grades land in the right session without you having to do anything. You can import a single group's file and its students' grades from other groups will still be placed correctly.
+
+**If a student appears enrolled in the same module in two groups**, the import warns you, naming the student, the module and the groups. It does not stop, but that grade could end up in either of the two sessions, so it is worth resolving: a module is attended in one group, and the extra enrollment should be removed.
+
+---
+
 ## What Gets Overwritten
 
 The file is the official record, so the import takes precedence over what is in EMS:

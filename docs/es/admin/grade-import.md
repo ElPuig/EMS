@@ -53,6 +53,19 @@ Cada matrícula creada se cuenta en el resultado y aparece en el registro CSV ma
 
 ---
 
+## Módulos que se cursan en otro grupo
+
+Un alumno no siempre cursa todos los módulos con su propio grupo. Hay dos situaciones habituales:
+
+- **Desdobles** — el grupo se divide para algunos módulos y la segunda mitad es un grupo aparte (`AIF1B` junto a `AIF1A`).
+- **Repetidores** — un alumno de 2.º que vuelve a cursar un módulo de 1.º lo asiste, y se le evalúa, con el grupo de 1.º.
+
+La importación sigue la **matrícula** para saber dónde va cada nota, de modo que esas notas llegan a la sesión correcta sin que tengas que hacer nada. Puedes importar el fichero de un solo grupo y las notas que sus alumnos tengan en otros grupos se colocarán igualmente.
+
+**Si un alumno consta matriculado del mismo módulo en dos grupos**, la importación te avisa e indica el alumno, el módulo y los grupos. No se detiene, pero esa nota podría acabar en cualquiera de las dos sesiones, así que conviene resolverlo: un módulo se cursa en un grupo, y la matrícula sobrante debería eliminarse.
+
+---
+
 ## Qué se sobrescribe
 
 El fichero es el registro oficial, así que la importación prevalece sobre lo que hay en EMS:

@@ -53,6 +53,19 @@ Cada matrícula creada es compta al resultat i apareix al registre CSV marcada c
 
 ---
 
+## Mòduls que es cursen en un altre grup
+
+Un alumne no sempre cursa tots els mòduls amb el seu propi grup. Hi ha dues situacions habituals:
+
+- **Desdoblaments** — el grup es divideix per a alguns mòduls i la segona meitat és un grup a part (`AIF1B` al costat d'`AIF1A`).
+- **Repetidors** — un alumne de 2n que torna a cursar un mòdul de 1r l'assisteix, i se l'avalua, amb el grup de 1r.
+
+La importació segueix la **matrícula** per saber on va cada nota, de manera que aquestes notes arriben a la sessió correcta sense que hagis de fer res. Pots importar el fitxer d'un sol grup i les notes que els seus alumnes tinguin en altres grups s'hi col·locaran igualment.
+
+**Si un alumne consta matriculat del mateix mòdul en dos grups**, la importació t'avisa i n'indica l'alumne, el mòdul i els grups. No s'atura, però aquella nota podria acabar en qualsevol de les dues sessions, així que val la pena resoldre-ho: un mòdul es cursa en un grup, i la matrícula sobrera s'hauria d'eliminar.
+
+---
+
 ## Què se sobreescriu
 
 El fitxer és el registre oficial, així que la importació preval sobre el que hi ha a l'EMS:

@@ -1,4 +1,4 @@
-name: Require changelog/ removed before merge
+name: "/clean-changelog (comment this in the PR before close, it's required to remove the 'changelog' folder before merging."
 
 # Lightweight, always-fast required check: fails while changelog/ still has content in the
 # PR, passes once it has been removed (via the "/clean-changelog" comment command - see
@@ -9,6 +9,13 @@ name: Require changelog/ removed before merge
 # block merging even when everything is actually fine (a documented GitHub Actions
 # limitation with path-filtered required checks - avoided here by never filtering this
 # workflow's own trigger by path).
+#
+# The "(comment /clean-changelog to fix)" suffix on this workflow's own `name:` is
+# deliberate, not decorative: GitHub's PR checks list renders "<workflow name> / <job name>
+# (<event>)", so this is what makes the manual command visible right in that one-line
+# summary without having to click into the check's log first. Safe to reword freely - the
+# job id below ("changelog-clean") is the string branch protection actually matches on for
+# the required-status-check rule, not this workflow-level name.
 #
 # Add "changelog-clean" (this job's name) as a required status check in main's branch
 # protection rules, alongside "CI: Unit Testing"'s "ci" job.

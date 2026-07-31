@@ -25,6 +25,7 @@ from . import test_course
 from . import test_course_tour
 from . import test_company_settings
 from . import test_settings
+from . import test_settings_tour
 from . import test_employee_display_fields
 from . import test_employee_tour
 from . import test_workgroup
@@ -46,16 +47,22 @@ from . import test_attendance_schedule
 from . import test_attendance_status
 from . import test_attendance_status_tour
 from . import test_attendance_justification
+from . import test_attendance_justification_tour
 from . import test_employee_role_group_sync
 from . import test_employee_photo_visibility
 from . import test_attendance_correction
+from . import test_attendance_correction_tour
 from . import test_attendance_reports
 from . import test_attendance_reports_tour
+from . import test_attendance_issue_tour
 from . import test_grade_session
 from . import test_grade_import_wizard
 from . import test_applicant_import_wizard
+from . import test_applicant_import_wizard_tour
 from . import test_student_import_wizard
+from . import test_student_import_wizard_tour
 from . import test_student_update_wizard
+from . import test_student_update_wizard_tour
 from . import test_planning
 from . import test_portal_access_wizard
 from . import test_portal_access_wizard_tour
@@ -74,6 +81,7 @@ from . import test_working_schedule
 from . import test_ems_teaching_sync
 from . import test_employee_schedule_lifecycle
 from . import test_working_schedules_import_wizard
+from . import test_working_schedules_import_wizard_tour
 from . import test_task_assignment
 from . import test_year_record
 from . import test_non_teaching_type
@@ -99,6 +107,7 @@ from . import test_attendance_issue
 from . import test_strike_reason
 from . import test_minute
 from . import test_notice
+from . import test_notice_tour
 from . import test_limesurvey_api
 from . import test_limesurvey_orchestration
 from . import test_limesurvey_header

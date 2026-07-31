@@ -123,15 +123,55 @@ highest-value first, custom widgets and daily-use screens ahead of reference/con
    Payment) to confirm none crash despite the form's heavy xpath customization over native
    Sales, and does a real edit-save (the `shift` field) verified against the DB. No pre-
    existing bug found — confirms the form renders and saves correctly.
-5. ⬜ `ems.notice` (`action_communication_list`) — `widget="html"` + `statusbar` +
-   `many2many_tags`, zero coverage.
-6. ⬜ Attendance office screens (`ems.attendance_correction`/`_issue_*`/`_justification`) —
-   daily use, zero coverage.
-7. ⬜ File-upload wizards (`ems.working_schedules_import_wizard` `many2many_binary`,
-   `ems.applicant_import_wizard`/`student_import_wizard`/`student_update_wizard`
-   `binary`/`auto_download_binary`).
-8. ⬜ `res.config.settings`'s ~20 untested fields (Google Workspace, LimeSurvey credentials) —
-   admin-only, lower frequency but high blast-radius.
+5. ✅ **`ems.notice`** (`action_communication_list`, `widget="html"` + `statusbar` +
+   `many2many_tags`) — done 2026-07-31. `static/tests/tours/notice_tour.js` +
+   `tests/test_notice_tour.py`. Creates a real notice end-to-end (group selection, auto-
+   populated recipient list, rich-text message, save, "Send now" through to a real `state`
+   transition), verified against the DB. Never risks a real send — `with_delay()` only queues
+   a `queue.job` row in a normal test run. Found one reusable gotcha: the tour engine's generic
+   `edit` action can't fill a `widget="html"` contenteditable div (`isEditable()` only
+   recognizes `<input>`/`<textarea>`) — Odoo's own tour engine has a dedicated
+   `run: "editor <text>"` action for exactly this (see `mail`'s composer tours), used here
+   instead.
+6. ✅ **Attendance office screens** (`ems.attendance_correction`/`_issue_*`/`_justification`)
+   — done 2026-07-31. Three tours: `static/tests/tours/attendance_correction_tour.js` +
+   `tests/test_attendance_correction_tour.py` (opens a pending request, accepts it, verifies
+   the underlying `hr.attendance` was corrected); `attendance_justification_tour.js` +
+   `test_attendance_justification_tour.py` (walks all three read-only tabs of a seeded
+   justification, edits+saves Notes — creating a NEW one via UI needs `widget="daterange"`,
+   deliberately left for a future pass); `attendance_issue_tour.js` +
+   `test_attendance_issue_tour.py` (pure render smoke test, tutor level + drill into
+   student/session detail — every view here is read-only by design). Two reusable gotchas
+   found: the arch's `<header>` tag compiles to `.o_form_statusbar`, not a literal `<header>`
+   element (`.o_form_view header ...` silently never matches); and the `HttpCase`-internal
+   `self.session` naming collision (see item 1) recurred with a fixture also named
+   `cls.session`.
+7. ✅ **File-upload wizards** (`ems.working_schedules_import_wizard` `many2many_binary`,
+   `ems.applicant_import_wizard`/`student_import_wizard`/`student_update_wizard` `binary`) —
+   done 2026-07-31. Four tours using Odoo's `inputFiles()` test helper (the generic tour
+   `edit` action can't drive a file `<input>` at all): `applicant_import_wizard_tour.js`
+   (real CSV upload, full successful import verified against the DB);
+   `working_schedules_import_wizard_tour.js` (XML upload via the cog-menu entry, verifies
+   the unknown-teacher blocking-error path); `student_import_wizard_tour.js` (a minimal but
+   structurally real xlsx, embedded as base64 since a valid xlsx is a zip container that
+   can't be hand-authored as a plain string, deterministically hits the "missing required
+   columns" error dialog — a full successful Esfera-format import deliberately left for a
+   future pass, same judgment call as the daterange widget in item 6);
+   `student_update_wizard_tour.js` (CSV upload + column mapping + real student update).
+   Reusable gotchas found: OWL doesn't sync an `<input>`'s live value to its HTML `value`
+   attribute (use hoot-dom's `:value()` pseudo-class, not `[value=...]`); a custom cog-menu
+   item built directly from `<DropdownItem>` renders as `.dropdown-item`, not the standard
+   `.o_menu_item`; a tour that leaves a dialog open in edition mode must explicitly close it.
+8. ✅ **`res.config.settings`'s EMS Management tab** (~20 fields: Google Workspace, LimeSurvey
+   credentials, course/attendance/strike settings) — done 2026-07-31.
+   `static/tests/tours/settings_tour.js` + `tests/test_settings_tour.py`. Switches to the EMS
+   tab, edits one representative field per block (proving the tab renders and its fields are
+   genuinely interactive), then Discards rather than Saves. Deliberately does not exercise
+   Odoo's Save/reload mechanism: `res.config.settings.execute()` returns a real browser
+   navigation (`{'type': 'ir.actions.client', 'tag': 'reload'}`), which destroys the tour
+   macro's own JS execution context — no following step can reliably observe anything after
+   it (confirmed empirically via two different race/timeout failures before landing on
+   Discard instead). That's core Odoo behavior, not an EMS-specific gap.
 9. ⬜ Lower priority (reference/config data, plain widgets, not yet individually ordered):
    `hr.job`, `hr.work.location`, `hr.contract.type`, `ems.tracking`, `ems.minute`,
    `ems.strike.reason`, `resource.calendar`, `product.template`/`sale.order.template`/
@@ -146,6 +186,11 @@ single tour.
 **Batch gate, 2026-07-30 (items 1-4 above):** full unscoped `./test.sh` run —
 0 failed, 0 error(s) of 1359 tests. No regressions from any of the four tours added in this
 batch.
+
+**Batch gate, 2026-07-31 (items 5-8 above — the full priority list is now complete):** full
+unscoped `./test.sh` run — 0 failed, 0 error(s) of 1368 tests. No regressions from any of the
+tours added in this second batch (`ems.notice`, the three attendance office screens, the four
+file-upload wizards, and `res.config.settings`).
 
 ## Open questions
 

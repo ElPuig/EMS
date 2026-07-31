@@ -361,6 +361,13 @@ class HrEmployeeGoogleWorkspace(models.Model):
             'mail': _("; sent by email to %s") % recovery_email if emailed else _("; no personal email on file"),
         })
 
+        if emp.schedule_import_code:
+            self.message_post(body=_(
+                "Identity confirmed: this employee was created as a pending-identification "
+                "placeholder from schedule-import code '%s'."
+            ) % emp.schedule_import_code)
+            emp.write({'schedule_import_code': False})
+
     def _gw_deliver_credentials(self, email, password):
         """Generate the credentials PDF (attachment) and send the welcome email (if any).
 

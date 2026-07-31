@@ -132,6 +132,26 @@ If you have several planner export files to import in one go (each file can alre
 
 ---
 
+## Teachers Not Yet Hired (Pending Identification)
+
+New timetables sometimes arrive before every post is staffed — your planner tool names those rows with a placeholder code (`X1`, `X2`...) instead of a real teacher's e-mail. Importing such a file (via either the per-teacher or the general importer above) no longer fails on those rows:
+
+1. Attach the file as usual. Rows with a placeholder code produce a blue, non-blocking notice ("N teacher(s) pending identification will be created: ...") instead of an error — the **Import** button stays available.
+2. Click **Import**. A new employee record is created for each not-yet-identified code, already named e.g. "Pending teacher (X1)", with **their schedule, subjects and attendance lists already set up** exactly as if they were a known teacher.
+3. These records show a **"Pending identification"** badge in the Teachers list/kanban and a ribbon on their own form, so they're easy to find (use the **Pending identification** filter/group-by in the Teachers list) and easy to tell apart from a real, already-identified teacher.
+
+When the post is filled:
+
+1. Open the pending teacher's employee record.
+2. Replace the placeholder **Name** with the real teacher's name, and fill in their **Personal email**.
+3. Click **Generate Google account**, exactly as you would for any new teacher.
+
+That single click both creates the teacher's Google Workspace account/EMS login **and** confirms their identity — the "Pending identification" badge disappears, and nothing about their already-imported schedule, subjects or attendance lists needs to be redone.
+
+Re-importing an updated file for a post that's still unstaffed (same placeholder code) updates that same pending teacher's schedule in place, the same way re-importing an already-identified teacher's file does — it never creates a second, duplicate record for the same code.
+
+---
+
 ## Start a Teacher's Schedule From a Framework or From Another Teacher
 
 Use this to reset a teacher onto a different framework (e.g. they now teach a different level), or to set up a **substitute** with the same schedule as the teacher they're covering for:

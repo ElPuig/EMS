@@ -148,6 +148,34 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
             teacher.action_create_google_account()
         self.assertEqual(teacher.work_email, 'alovelace@elpuig.xeill.net')
 
+    def test_create_google_account_clears_pending_identification(self):
+        teacher = self.env['hr.employee'].create({
+            'name': 'Pending teacher (X9)',
+            'employee_type': 'teacher',
+            'schedule_import_code': 'X9',
+        })
+        self.assertTrue(teacher.pending_identification)
+
+        teacher.write({'name': 'Ada Lovelace King', 'private_email': 'ada@example.com'})
+        with patch.object(type(teacher), '_gw_deliver_credentials', return_value=(True, True)):
+            teacher.action_create_google_account()
+
+        self.assertFalse(teacher.schedule_import_code)
+        self.assertFalse(teacher.pending_identification)
+        self.assertTrue(any(
+            'X9' in body for body in teacher.message_ids.mapped('body')
+        ))
+
+    def test_missing_personal_email_still_raises_for_pending_identification(self):
+        teacher = self.env['hr.employee'].create({
+            'name': 'Pending teacher (X10)',
+            'employee_type': 'teacher',
+            'schedule_import_code': 'X10',
+        })
+        with self.assertRaises(UserError):
+            teacher.action_create_google_account()
+        self.assertTrue(teacher.pending_identification)
+
     def test_adopt_existing_corporate_email_does_nothing(self):
         teacher = self._new_teacher(
             private_email='ada@example.com', work_email='ada.existing@elpuig.xeill.net')

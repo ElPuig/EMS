@@ -132,6 +132,26 @@ Si tens diversos fitxers d'exportació de la planificació per importar d'una ve
 
 ---
 
+## Docents encara no contractats (pendents d'identificar)
+
+De vegades arriben horaris nous abans que tots els llocs estiguin coberts — la teva eina de planificació anomena aquestes files amb un codi provisional (`X1`, `X2`...) en lloc del correu real d'un docent. Importar un fitxer així (tant amb l'importador per docent com amb el general, més amunt) ja no falla en aquestes files:
+
+1. Adjunta el fitxer com sempre. Les files amb un codi provisional mostren un avís blau, no bloquejant ("Es crearan N professor(s) pendent(s) d'identificar: ...") en lloc d'un error — el botó **Importa** segueix disponible.
+2. Fes clic a **Importa**. Es crea un nou registre d'empleat per a cada codi encara no identificat, ja anomenat p. ex. "Professor pendent (X1)", amb **el seu horari, assignatures i llistes d'assistència ja configurats** exactament com si fos un docent conegut.
+3. Aquests registres mostren una etiqueta **"Pendent d'identificar"** a la llista/kanban de docents i una cinta al seu propi formulari, perquè siguin fàcils de trobar (fes servir el filtre/agrupació **Pendent d'identificar** a la llista de docents) i fàcils de distingir d'un docent real ja identificat.
+
+Quan es cobreix el lloc:
+
+1. Obre la fitxa de l'empleat pendent.
+2. Substitueix el **Nom** provisional pel nom real del docent, i omple el seu **Correu personal**.
+3. Fes clic a **Generar compte Google**, exactament igual que per a qualsevol docent nou.
+
+Aquest únic clic crea el compte Google Workspace/l'accés a EMS del docent **i** confirma la seva identitat — l'etiqueta "Pendent d'identificar" desapareix, i no cal refer res de l'horari, les assignatures o les llistes d'assistència ja importats.
+
+Reimportar un fitxer actualitzat per a un lloc encara no cobert (el mateix codi provisional) actualitza l'horari d'aquest mateix docent pendent en el mateix registre, igual que reimportar el fitxer d'un docent ja identificat — mai crea un segon registre duplicat per al mateix codi.
+
+---
+
 ## Començar l'horari d'un docent a partir d'un marc o d'un altre docent
 
 Fes servir això per reiniciar un docent amb un marc diferent (p. ex. ara imparteix un altre nivell), o per configurar un **substitut** amb el mateix horari que el docent que està cobrint:

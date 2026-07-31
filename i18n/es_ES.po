@@ -10667,3 +10667,50 @@ msgstr "Este rol ya está asignado a otra persona."
 #: code:addons/ems/models/shared/google_workspace_mixin.py:0
 msgid "Google Workspace domain is not configured (Settings > Company)."
 msgstr "El dominio de Google Workspace no está configurado (Ajustes > Compañía)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__schedule_import_code
+msgid "Schedule import code"
+msgstr "Código de importación del horario"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__schedule_import_code
+msgid "Raw placeholder code (e.g. 'X1') from a working-schedule import, kept only while the teacher's real identity is still unknown."
+msgstr "Código provisional (p. ej. 'X1') procedente de una importación de horarios, que se mantiene solo mientras no se conoce la identidad real del profesor."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__pending_identification
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_kanban
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_search
+msgid "Pending identification"
+msgstr "Pendiente de identificar"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__pending_identification
+msgid "A schedule was imported for this teacher before their real identity was known."
+msgstr "Se importó un horario para este profesor antes de conocer su identidad real."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Teacher with email '%s' not found."
+msgstr "No se ha encontrado ningún profesor con el correo '%s'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%(count)d teacher(s) pending identification will be created: %(codes)s."
+msgstr "Se crearán %(count)d profesor(es) pendiente(s) de identificar: %(codes)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Pending teacher (%s)"
+msgstr "Profesor pendiente (%s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Identity confirmed: this employee was created as a pending-identification placeholder from schedule-import code '%s'."
+msgstr "Identidad confirmada: este empleado se creó como marcador de posición pendiente de identificar a partir del código de importación de horario '%s'."

@@ -161,6 +161,25 @@ is granted explicitly.
 | Google account creation | `name`, `private_email` (recovery + credentials email); phone/NIF optional |
 | EMS user creation | corporate `work_email` (produced by the previous step) |
 
+## Interplay with pending-identification placeholders
+
+A teacher created by the working-schedule importer from a not-yet-staffed post's code
+(`hr.employee.schedule_import_code` set, `pending_identification` computed `True` — see
+`docs/en/developers/employees/working_schedule.md`'s "Pending-identification teachers"
+section) is just a normal `employee_type='teacher'` record with `name`/`private_email`
+still blank. `_gw_missing_fields()` already requires both, so `action_create_google_account()`
+raises its existing `UserError` for a still-unidentified placeholder exactly like it would
+for any other incomplete employee — **no special-casing was needed for this integration
+itself.**
+
+The only addition, at the very end of `action_create_google_account()`'s success path: if
+`schedule_import_code` is set, post a chatter note naming the original code, then clear it
+(`emp.write({'schedule_import_code': False})`). This is what lets an admin's normal flow —
+open the placeholder record, fill in the real `name` + `private_email`, click **Generate
+Google account** — double as the "confirm this teacher's real identity" step, with no
+separate action needed. The schedule/`ems.teaching`/`ems.attendance_template` rows created
+at import time are untouched; they were already attached to this same `hr.employee` id.
+
 ## Pitfalls (native hr v18)
 
 - `work_email` is a stored compute on `work_contact_id.email`, and writing

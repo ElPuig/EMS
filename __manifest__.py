@@ -78,10 +78,11 @@
         'views/community/menu.xml',  
             'views/community/configuration/menu.xml',            
 
-            'views/community/employee/menu.xml', 
-            'views/community/employee/kanban.xml',        
+            'views/community/employee/menu.xml',
+            'views/community/employee/kanban.xml',
             'views/community/employee/list.xml',
-            'views/community/employee/form.xml',                                      
+            'views/community/employee/search.xml',
+            'views/community/employee/form.xml',
 
             'views/community/workgroup/list.xml',
             'views/community/workgroup/form.xml',  

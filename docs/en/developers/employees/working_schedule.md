@@ -158,6 +158,27 @@ Two upload modes, switched by whether `teacher_id` is set (the form shows one or
 - **Scoped** (per-employee "Import" button, `default_teacher_id` in context): single `file` (`Many2one` `attachment_id` + related `Binary`), the file's one node maps directly to that employee.
 - **General** (the "Working Schedules" list's cog menu, `import_planner_cog_menu.js` — no `teacher_id`): `attachment_ids`, a `Many2many` to `ir.attachment` rendered with the native `many2many_binary` widget, so **several files can be attached at once**, each one still free to describe **several teachers** by e-mail (unchanged from before). `create()`'s `_collect_xml_contents()` decodes every source given (`file` and/or each `attachment_ids` record) and processes all of them through the same per-node import loop; `_onchange_attachment_ids` mirrors `_onchange_file`'s already-has-a-schedule warning, checking every node in every attached file.
 
+### Pending-identification teachers (a code with no `@`)
+
+New timetables sometimes arrive before every teaching post is staffed — the external planner names those rows with a placeholder code (`X1`, `X2`...) instead of a real e-mail. `_is_email_like(value)` (`"@" in value`) is the only thing that tells the two apart, in both the **general** path's `create()` loop and `_onchange_attachment_ids`'s preview — the **scoped** (per-employee) path never does an e-mail lookup at all, so it's unaffected.
+
+```mermaid
+flowchart TD
+    N["TeacherNode name attribute"] --> D{"contains '@'?"}
+    D -->|yes| L["search hr.employee.work_email"]
+    L -->|found| OK["use that employee"]
+    L -->|not found| ERR["ValidationError: real typo/unknown address — import fails"]
+    D -->|no: e.g. 'X1'| C["search hr.employee.schedule_import_code = code"]
+    C -->|found| OK
+    C -->|not found| CREATE["create(name=_('Pending teacher (%s)') % code, employee_type='teacher', schedule_import_code=code)"]
+    CREATE --> OK
+```
+
+- A code match is **idempotent across re-imports**: the same code (`X1`) always resolves back to the same placeholder `hr.employee` record, so re-uploading an updated file for the same still-unstaffed post updates that teacher's schedule/`ems.teaching`/`ems.attendance_template` in place instead of creating a duplicate.
+- `hr.employee.pending_identification` (`models/employees/employee.py`, computed+stored, `@api.depends("schedule_import_code")`) is the single derived flag driving the "Pending identification" indicator across `views/community/employee/{list,kanban,form,search}.xml` (list column, kanban badge, form ribbon, search filter/group-by) — `schedule_import_code` is the only stored source of truth, kept in sync automatically rather than as a second field that could drift.
+- The onchange preview (`_onchange_attachment_ids`) never creates anything — a not-yet-matched code is only collected into a non-blocking `info_message` (blue banner, distinct from the red `blocking_error_message` used for a genuine unmatched e-mail) so the **Import** button stays enabled. The real get-or-create only happens in `create()`.
+- **Resolution reuses the existing Google Workspace button, no separate "confirm identity" action.** Once an admin fills in the real `name` + `private_email` and calls `action_create_google_account()` (`models/employees/google_workspace_integration.py`), its existing missing-fields gate already blocks a still-unidentified placeholder (no `private_email` yet) exactly like it blocks any other incomplete employee — no change needed there. On success, the method additionally posts a chatter note with the original code and clears `schedule_import_code` (`emp.write({'schedule_import_code': False})`), which flips `pending_identification` back to `False` via the compute. The schedule, `ems.teaching` rows and `ems.attendance_template`/`ems.attendance_schedule` rows created at import time are untouched by this — they were already attached to this same employee record from the moment the placeholder was created.
+
 ## Reinforcement groups (`ems.group.group_type`)
 
 An `ems.group` (`models/contacts/group.py`) is one of two kinds, distinguished by `group_type`:

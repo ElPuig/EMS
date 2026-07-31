@@ -145,6 +145,16 @@
                     <attribute name="invisible">True</attribute>
                 </xpath>
 
+                <xpath expr="//div[hasclass('oe_title')]" position="before">
+                    <widget name="web_ribbon" title="Pending identification" bg_color="text-bg-warning"
+                            invisible="not pending_identification"/>
+                </xpath>
+
+                <xpath expr="//div[hasclass('oe_title')]" position="after">
+                    <field name="pending_identification" invisible="1"/>
+                    <field name="schedule_import_code" readonly="1" invisible="not pending_identification"/>
+                </xpath>
+
                 <field name="work_location_id" position="after">
                     <field name="tz" position="move"/>
                 </field>

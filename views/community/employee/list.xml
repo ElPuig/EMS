@@ -7,7 +7,12 @@
             <field name="arch" type="xml">                        
                 <xpath expr="//field[@name='coach_id']" position="attributes">
                     <attribute name="column_invisible">True</attribute>
-                </xpath>   
+                </xpath>
+
+                <xpath expr="//field[@name='coach_id']" position="after">
+                    <field name="pending_identification" optional="show"
+                        decoration-warning="pending_identification"/>
+                </xpath>
 
                 <!-- <xpath expr="//field[@name='coach_id']" position="after">
                     <field name="employee_type" invisible="true" groups="base.group_system,hr.group_hr_user,ems.group_teacher" />

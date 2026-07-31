@@ -132,6 +132,26 @@ Si tienes varios archivos de exportación de la planificación para importar de 
 
 ---
 
+## Docentes aún no contratados (pendientes de identificar)
+
+A veces llegan horarios nuevos antes de que todos los puestos estén cubiertos — tu herramienta de planificación nombra esas filas con un código provisional (`X1`, `X2`...) en lugar del correo real de un docente. Importar un archivo así (tanto con el importador por docente como con el general, más arriba) ya no falla en esas filas:
+
+1. Adjunta el archivo como siempre. Las filas con un código provisional muestran un aviso azul, no bloqueante ("Se crearán N profesor(es) pendiente(s) de identificar: ...") en lugar de un error — el botón **Importar** sigue disponible.
+2. Haz clic en **Importar**. Se crea un nuevo registro de empleado para cada código aún no identificado, ya nombrado p. ej. "Profesor pendiente (X1)", con **su horario, asignaturas y listas de asistencia ya configurados** exactamente como si fuera un docente conocido.
+3. Estos registros muestran una etiqueta **"Pendiente de identificar"** en la lista/kanban de docentes y una cinta en su propia ficha, para que sean fáciles de encontrar (usa el filtro/agrupación **Pendiente de identificar** en la lista de docentes) y fáciles de distinguir de un docente real ya identificado.
+
+Cuando se cubre el puesto:
+
+1. Abre la ficha del empleado pendiente.
+2. Sustituye el **Nombre** provisional por el nombre real del docente, y rellena su **Correo personal**.
+3. Haz clic en **Generar cuenta Google**, exactamente igual que para cualquier docente nuevo.
+
+Ese único clic crea la cuenta Google Workspace/el acceso a EMS del docente **y** confirma su identidad — la etiqueta "Pendiente de identificar" desaparece, y no hace falta rehacer nada del horario, las asignaturas o las listas de asistencia ya importados.
+
+Reimportar un archivo actualizado para un puesto todavía sin cubrir (el mismo código provisional) actualiza el horario de ese mismo docente pendiente en el mismo registro, igual que reimportar el archivo de un docente ya identificado — nunca crea un segundo registro duplicado para el mismo código.
+
+---
+
 ## Empezar el horario de un docente a partir de un marco o de otro docente
 
 Usa esto para reiniciar a un docente con un marco distinto (p. ej. ahora imparte otro nivel), o para configurar un **sustituto** con el mismo horario que el docente al que está cubriendo:

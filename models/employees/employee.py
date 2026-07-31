@@ -455,6 +455,19 @@ class ems_employee(models.AbstractModel):
     activity_type_id = fields.Many2one(groups="hr.group_hr_user,ems.group_teacher")
     activity_type_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
 
+    schedule_import_code = fields.Char(
+        string="Schedule import code", copy=False,
+        help="Raw placeholder code (e.g. 'X1') from a working-schedule import, kept only "
+             "while the teacher's real identity is still unknown.")
+    pending_identification = fields.Boolean(
+        string="Pending identification", compute="_compute_pending_identification", store=True,
+        help="A schedule was imported for this teacher before their real identity was known.")
+
+    @api.depends("schedule_import_code")
+    def _compute_pending_identification(self):
+        for employee in self:
+            employee.pending_identification = bool(employee.schedule_import_code)
+
     def _personal_calendar_name(self):
         self.ensure_one()
         course = self.company_id.current_course_id

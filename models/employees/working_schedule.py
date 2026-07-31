@@ -222,6 +222,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# Blocking (red banner, hides the 'Import' button): too many teachers in a scoped file, or an
 	# unknown teacher e-mail in the general importer's files.
 	blocking_error_message = fields.Char(store=False)
+	# Non-blocking (blue banner): general importer only — codes with no '@' (e.g. "X1") don't match any
+	# employee by e-mail, but aren't an error either; a pending-identification teacher will be created
+	# for each one on import. Never hides the 'Import' button (see 'blocking_error_message' for that).
+	info_message = fields.Char(store=False)
 	# Non-blocking (extra yellow banner, alongside 'overrided_teachers_html'): the scoped file's single
 	# teacher node has a different e-mail than the employee this wizard was opened for — the import
 	# still goes ahead against 'teacher_id', the e-mail in the file is only ever used for the general importer.
@@ -229,6 +233,12 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# NOTE: set via context (default_teacher_id) when opened from an employee's 'Schedule' tab "Import"
 	# button — the file is then assumed to describe that single teacher, skipping the email lookup below.
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
+
+	@staticmethod
+	def _is_email_like(value):
+		"""True for a real e-mail address; False for a schedule-import placeholder code (e.g. 'X1') —
+		the only thing that distinguishes the two in the planner XML."""
+		return "@" in (value or "")
 
 	def _bullet_html(self, lines):
 		"""A readonly <ul><li> list from plain-text lines (escaped), or False for none — used to
@@ -332,18 +342,24 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	def _onchange_attachment_ids(self):
 		for rec in self:
 			rec.blocking_error_message = False
-			overrided, unknown_emails, teacher_entries = [], [], []
+			rec.info_message = False
+			overrided, unknown_emails, pending_codes, teacher_entries = [], [], [], []
 			for attachment in rec.attachment_ids:
 				xml_content = base64.b64decode(attachment.datas)
 				tree = ET.ElementTree(ET.fromstring(xml_content))
 
 				for teacherNode in tree.getroot():
 					email = teacherNode.attrib['name'].split(' ')[0]
-					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
-
-					if not teacher:
-						unknown_emails.append(_("unknown e-mail '%s' in '%s'") % (email, attachment.name))
-						continue
+					if rec._is_email_like(email):
+						teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
+						if not teacher:
+							unknown_emails.append(_("unknown e-mail '%s' in '%s'") % (email, attachment.name))
+							continue
+					else:
+						teacher = self.env["hr.employee"].search([("schedule_import_code", "=", email)]) or False
+						if not teacher:
+							pending_codes.append(email)
+							continue
 
 					if teacher.resource_calendar_id.id:
 						overrided.append(teacher.display_name)
@@ -357,6 +373,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				) % ", ".join(missing_space.mapped('name')))
 
 			rec.blocking_error_message = ", ".join(unknown_emails) if unknown_emails else False
+			if pending_codes:
+				rec.info_message = _(
+					"%(count)d teacher(s) pending identification will be created: %(codes)s."
+				) % {'count': len(pending_codes), 'codes': ", ".join(pending_codes)}
 			rec.overrided_teachers_html = rec._bullet_html(overrided)
 			conflicts = self.env['ems.attendance_template'].find_external_conflicts(teacher_entries) if not missing_space else self.env['ems.attendance_schedule']
 			rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
@@ -397,8 +417,18 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					nodes = []
 					for node in root:
 						email = node.attrib['name'].split(' ')[0]
-						teacher = self.env["hr.employee"].search([("work_email", "=", email)])
-						if not teacher.id: raise ValidationError("Teacher with email '%s' not found." % email)
+						if self._is_email_like(email):
+							teacher = self.env["hr.employee"].search([("work_email", "=", email)])
+							if not teacher.id:
+								raise ValidationError(_("Teacher with email '%s' not found.") % email)
+						else:
+							teacher = self.env["hr.employee"].search([("schedule_import_code", "=", email)])
+							if not teacher.id:
+								teacher = self.env["hr.employee"].create({
+									"name": _("Pending teacher (%s)") % email,
+									"employee_type": "teacher",
+									"schedule_import_code": email,
+								})
 						nodes.append((node, teacher))
 
 				for node, teacher in nodes:

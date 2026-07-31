@@ -25,14 +25,18 @@
                 <xpath expr="//kanban" position="inside">
                     <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
                     <field name="tutorships"/>
-                </xpath>                
+                    <field name="pending_identification"/>
+                </xpath>
 
                 <field name="job_title" position="after">
                     <span t-if="record.tutorships.value != ''">
                         <!-- TODO: this text should be translated, check how to do it -->
                         Tutorship: <t t-esc="record.tutorships.value"/>
-                    </span>                   
-                </field>                                 
+                    </span>
+                    <span t-if="record.pending_identification.value" class="badge rounded-pill text-bg-warning" title="Pending identification">
+                        Pending identification
+                    </span>
+                </field>
 
                 <field name="category_ids" position="attributes">
                     <attribute name="name">role_ids</attribute>

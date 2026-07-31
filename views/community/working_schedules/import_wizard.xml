@@ -7,11 +7,15 @@
                 <form string="Session">
                     <field name="teacher_id" invisible="1"/>
                     <field name="blocking_error_message" invisible="1"/>
+                    <field name="info_message" invisible="1"/>
                     <field name="email_mismatch_warning" invisible="1"/>
                     <field name="overrided_teachers_html" invisible="1"/>
                     <field name="external_conflicts_html" invisible="1"/>
                     <div class="alert alert-danger" role="alert" name="alert-danger" invisible="not blocking_error_message">
                         <field name="blocking_error_message" readonly="1" class="oe_inline"/>
+                    </div>
+                    <div class="alert alert-info" role="alert" name="alert-info" invisible="not info_message">
+                        <field name="info_message" readonly="1" class="oe_inline"/>
                     </div>
                     <div class="alert alert-warning" role="alert" name="alert-warning-email-mismatch" invisible="not email_mismatch_warning">
                         <field name="email_mismatch_warning" readonly="1" class="oe_inline"/>

@@ -148,6 +148,44 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
                 'file': self._xml_file('unknown.import.wizard@example.com Someone'),
             })
 
+    def test_import_placeholder_code_creates_pending_teacher(self):
+        # A code with no '@' (e.g. "X1") isn't a real e-mail typo: the external planner uses it for a
+        # not-yet-staffed post, so a pending-identification teacher is created instead of raising.
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file_with_hour_node(
+                'X1 Pending',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+        })
+
+        teacher = self.env['hr.employee'].search([('schedule_import_code', '=', 'X1')])
+        self.assertTrue(teacher)
+        self.assertEqual(teacher.employee_type, 'teacher')
+        self.assertTrue(teacher.pending_identification)
+        attendance = teacher.resource_calendar_id.attendance_ids
+        self.assertTrue(attendance)
+        self.assertEqual(attendance.subject_id, self.subject)
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertTrue(template)
+
+    def test_import_placeholder_code_reuses_same_employee_on_reimport(self):
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file('X2 Pending'),
+        })
+        teacher = self.env['hr.employee'].search([('schedule_import_code', '=', 'X2')])
+
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file('X2 Pending'),
+        })
+
+        self.assertEqual(
+            self.env['hr.employee'].search_count([('schedule_import_code', '=', 'X2')]), 1
+        )
+        self.assertEqual(teacher, self.env['hr.employee'].search([('schedule_import_code', '=', 'X2')]))
+
     def test_import_with_no_file_raises(self):
         with self.assertRaises(ValidationError):
             self.env['ems.working_schedules_import_wizard'].create({})
@@ -371,6 +409,22 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertTrue(wizard.blocking_error_message)
         self.assertIn('unknown.import.wizard@example.com', wizard.blocking_error_message)
         self.assertIn('planner_unknown.xml', wizard.blocking_error_message)
+        self.assertFalse(wizard.info_message)
+
+    def test_onchange_attachment_ids_placeholder_code_sets_info_message_not_blocking(self):
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_pending.xml',
+            'datas': self._xml_file('X3 Pending'),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+
+        wizard._onchange_attachment_ids()
+
+        self.assertFalse(wizard.blocking_error_message)
+        self.assertTrue(wizard.info_message)
+        self.assertIn('X3', wizard.info_message)
 
     def test_onchange_attachment_ids_known_email_no_blocking_error(self):
         attachment = self.env['ir.attachment'].create({

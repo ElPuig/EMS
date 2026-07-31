@@ -51,6 +51,16 @@ registry.category("web_tour.tours").add("ems_level_crud", {
             content: "Open level to edit",
             run: "click",
         },
+        // The "Studies" embedded list tab (study_ids) had never been rendered by any tour.
+        {
+            trigger: ".o_notebook .nav-link:contains('Studies')",
+            content: "Open the Studies tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='study_ids']",
+            content: "The (empty) studies list renders without crashing",
+        },
         // Edit the name
         {
             trigger: ".o_form_view .o_field_widget[name='name'] input",

@@ -14,20 +14,21 @@ registry.category("web_tour.tours").add("ems_applicant_form_and_proposal", {
     url: "/odoo/action-ems.action_ems_applicants",
     steps: () => [
         { trigger: ".o_list_view", content: "Preinscription list loaded" },
+        // The action's own context defaults to two nested grouping levels (shift then course,
+        // see applicants.xml) - drop them so the row is a flat .o_data_row, the same pattern
+        // already used by subject_tour.js/content_tour.js/outcome_tour.js/criteria_tour.js for
+        // their own default "Group By: Studies" facet.
+        {
+            trigger: ".o_searchview .o_facet_remove",
+            content: "Remove the default 'Shift > Course' grouping facet",
+            run: "click",
+        },
         {
             trigger: ".o_searchview_input",
             content: "Search for the seeded applicant",
             run: "edit Preinscription Tour Applicant",
         },
         { trigger: ".o_searchview_input", content: "Confirm the search", run: "press Enter" },
-        // The action's own context defaults to grouping by shift then course (see
-        // applicants.xml) - the seeded applicant has neither set, so it starts collapsed
-        // inside a "None" group header, not a flat .o_data_row.
-        {
-            trigger: ".o_list_view .o_group_header:contains('None')",
-            content: "Expand the seeded applicant's (ungrouped) group",
-            run: "click",
-        },
         {
             trigger: ".o_list_view .o_data_cell:contains('Preinscription Tour Applicant')",
             content: "Open the applicant's own form",
@@ -43,16 +44,16 @@ registry.category("web_tour.tours").add("ems_applicant_form_and_proposal", {
             run: "click",
         },
         {
+            trigger: ".o_searchview .o_facet_remove",
+            content: "Remove the grouping facet again (a fresh list load re-applies it)",
+            run: "click",
+        },
+        {
             trigger: ".o_searchview_input",
-            content: "Search again (breadcrumb navigation resets the list)",
+            content: "Search again",
             run: "edit Preinscription Tour Applicant",
         },
         { trigger: ".o_searchview_input", content: "Confirm the search", run: "press Enter" },
-        {
-            trigger: ".o_list_view .o_group_header:contains('None')",
-            content: "Expand the group again (a fresh list load re-collapses it)",
-            run: "click",
-        },
         {
             trigger:
                 ".o_data_row:has(.o_data_cell:contains('Preinscription Tour Applicant')) .o_list_record_selector",

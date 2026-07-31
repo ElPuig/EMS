@@ -55,6 +55,18 @@ registry.category("web_tour.tours").add("ems_archive_action_single_opens_wizard"
             trigger: ".o_form_view .ribbon span:contains('Archived')",
             content: "Back on the student form — the Archived ribbon confirms active=False",
         },
+        // action_apply() converts contact_type to 'withdrawal' immediately (not deferred), so
+        // the "Former student" tab (invisible for contact_type='student') is now reachable on
+        // this same form - never rendered by any tour before.
+        {
+            trigger: ".o_notebook .nav-link:contains('Former student')",
+            content: "Open the Former student tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='exit_reason']",
+            content: "The Former student tab rendered without crashing",
+        },
     ],
 });
 

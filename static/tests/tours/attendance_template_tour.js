@@ -93,6 +93,15 @@ registry.category("web_tour.tours").add("ems_attendance_template_crud", {
             run: "edit 12/31/2030",
         },
         {
+            trigger: ".o_notebook .nav-link:contains('Students')",
+            content: "Open the Students tab (student_ids, separate from Sessions, never rendered before)",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='student_ids']",
+            content: "The (empty) students list renders without crashing",
+        },
+        {
             trigger: ".o_notebook .nav-link:contains('Sessions')",
             content: "Open the Sessions tab",
             run: "click",

@@ -91,6 +91,18 @@ registry.category("web_tour.tours").add("ems_group_form_tabs_and_reinforcement_c
             content: "Save",
             run: "click",
         },
+        // The reinforcement-type "Students" page (reinforcement_student_ids) is a SEPARATE
+        // <page> from the main-type one already checked above (same tab label, different
+        // visibility condition) - never rendered by any tour before.
+        {
+            trigger: ".o_form_view .o_notebook .nav-link:contains('Students')",
+            content: "Open the reinforcement group's own Students tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='reinforcement_student_ids']",
+            content: "The reinforcement Students tab rendered without crashing",
+        },
         {
             trigger: ".o_breadcrumb a",
             content: "Navigate back to the list",

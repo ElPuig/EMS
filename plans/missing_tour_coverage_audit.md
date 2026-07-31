@@ -1,9 +1,17 @@
 # Full UI-coverage re-audit (v2) — every screen must render without crashing
 
-**Status: current as of 2026-07-31. Supersedes the "audit complete" declarations from earlier
-today in this same file's history (see git log) — those were wrong, twice, and this file was
-rewritten from scratch after a proper mechanical re-audit rather than another manual
-enumeration pass.**
+**Status: ✅ CLOSED, 2026-07-31.** Every item in the "Proposed order" below is now done —
+Tier 1, Tier 2, Tier 3, and the portal — and the full unscoped `./test.sh` is green (**0
+failed, 0 error(s) of 1411 tests**, confirmed on a second full run after fixing one
+full-suite-only flake found in the first run). This section is kept as the historical record
+of why the previous "audit complete" declarations weren't trustworthy; per this plan's own
+lifecycle rule (see `CLAUDE.md`'s "Design plans" section), this file should be deleted once its
+still-useful content (the reusable gotchas, mainly) is confirmed folded elsewhere or the
+developer confirms it's no longer needed — not done automatically here.
+
+Supersedes the "audit complete" declarations from earlier today in this same file's history
+(see git log) — those were wrong, twice, and this file was rewritten from scratch after a
+proper mechanical re-audit rather than another manual enumeration pass.
 
 ## Why this got redone
 
@@ -72,7 +80,7 @@ a tour actually opens.**
 | 6 | **Plannings** | `action_planning_tree` (`ems.planning`) | Ponderations config; has `TransactionCase` coverage (`test_planning.py`) but no tour — embedded `planning_outcome_ids` also unrendered. |
 | 7 | **Import grades** | `action_grade_import_wizard` | Wizard form + `_build_result_html` (the shared-helper HTML list) never rendered in a browser. |
 | 8 | **Work placement evaluation (EM)** | `action_em_grading_wizard` | Own form + embedded `line_ids`/`student_line_ids`. |
-| 9 | **Minutes** | `action_minute_tree` (`ems.minute`) | The model that replaced the deleted `ems.record` — never got a tour. |
+| ~~9~~ | ~~Minutes~~ | ~~`action_minute_tree`~~ | **Not a gap, verified 2026-07-31**: its `<menuitem>` (`views/documentation/minutes/menu.xml`) has been commented out since the module's very first commit (`44bf088`), same for a whole notebook section in its form — deliberately unexposed, not a missed tour target. Skipped, per the developer's reminder to check for intentional hiding before treating something as a bug. |
 | 10 | **Providers** | `action_provider_kanban` (res.partner) | Distinct action/domain from the well-tested Students/Families kanbans. |
 | 11 | **Enrollments** (config) | `action_enrollment_tree` (`ems.enrollment`, Community > Configuration > Students) | Distinct from the well-tested `action_ems_enrollments` (`sale.order`) — different model, same-sounding name, easy to conflate (this is likely *why* it got missed before). |
 | 12 | **Surveys → Recipients tab** | `ems.limesurvey_header`'s `limesurvey_recipient_ids` tab, plus `ems.limesurvey_recipient`'s own 3 views (main form, add-student popup, error popup) | `limesurvey_block_tour.js` only ever opens the "Blocks" tab on the same header form. |
@@ -172,3 +180,59 @@ Each item follows the same gate as every tour added today: `pylint --disable=all
 --enable=redefined-builtin`, `./upgrade.sh`, scoped `./test.sh TestClassName`, one full
 unscoped `./test.sh` at the end of the whole pass (not per item), changelog entry per item, this
 file updated as items close.
+
+## Execution log, 2026-07-31 — all items closed
+
+Worked through the full order above in one pass (developer: "Sigue con todo, sin parar"),
+pausing only once mid-pass when the developer flagged that some menus in this codebase are
+deliberately hidden and asked to check before assuming a gap is a bug — see the
+`menu_work_locations` finding below, confirmed via git history to be a genuine bug (existed
+since the module's first commit, no deliberate-hiding marker anywhere), and the separate
+`ems.minute`/Minutes finding, which turned out to be the deliberate-hiding case the developer
+was right to ask about (its `<menuitem>` has been commented out since day one).
+
+**Navigation bugs fixed (unrelated to tour coverage, found during the enumeration):**
+1. `menu_work_locations` id collision — "Work locations" had no menu entry at all (silently
+   overwritten by "Working schedules" due to manifest load order); renamed to
+   `menu_hr_work_locations`.
+2. `ems.action_student_form` xmlid collision — a dead, hardcoded `res_id=57` duplicate deleted;
+   confirmed empirically that Odoo's data loader doesn't reset a field just because a later
+   definition omits it (needed an explicit `eval="False"`).
+
+**Tier 1 (13 whole screens) — 12 closed, 1 confirmed not a gap:**
+`ems.grade_tutor_matrix`, the enrollment-proposal/graduation cluster, Preinscription,
+Students without destination, Academic history (+ nested subject/outcome + partner tab),
+Plannings, Import grades, Work placement evaluation (EM), Providers, Enrollments (config),
+LimeSurvey Recipients tab, native `hr.attendance` form's EMS buttons — all now have tours.
+**Minutes** (`action_minute_tree`) turned out to be deliberately unexposed (see above) — no
+tour added, correctly skipped.
+
+**Tier 2 (ASP secondary actions) — closed:** `ems_asp_crud`/`ems_asp_role_crud`. Found a real
+EMS validation rule the hard way (`.o_field_invalid` DOM probe, since the save silently
+no-opped with no visible dialog): `private_email` is required for a new teacher/ASP employee,
+on a tab that isn't the default one.
+
+**Tier 3 (6 never-clicked tabs on already-covered forms) — closed:** extended
+`level_tour.js`/`study_tour.js`/`authorization_template_tour.js`/`group_tour.js`/
+`withdrawal_tour.js`/`attendance_template_tour.js` in place rather than adding new tours.
+
+**Portal (previously out of scope, added back in at the developer's request) — closed:**
+5 page-rendering routes now have real browser tours logged in as a portal student user
+(`portal_tour.js`); confirmed Odoo's tour-test JS loads on portal/website pages the same way
+it does on the backend. Found this dev DB's portal users default to Catalan, so English-text
+`:contains()` triggers silently never match — switched to structural (icon/class) selectors,
+same discipline already used for language-independent backend status buttons. The remaining
+~10 state-changing action routes got `url_open`-based checks (`test_portal_actions.py`)
+instead of full tours, matching the plan's own stated bar (a page render deserves a tour, a
+pure POST/GET action endpoint doesn't).
+
+**Final gate:** full unscoped `./test.sh` — first run found one genuine flake
+(`ems_em_grading_wizard_apply`, visible only under full-suite load: ending the tour immediately
+after "Apply changes" could race the matrix's own DB reload, tripping Odoo's "form left in
+edition mode" check). Fixed by waiting for the applied value to be confirmed post-reload before
+ending the tour. Second full run: **0 failed, 0 error(s) of 1411 tests.**
+
+Remaining, explicitly non-blocking (documented, not scheduled): Tier 4 (cog-menu buttons whose
+target wizard is already tested via direct URL) and Tier 5 (isolated popups/buttons) from the
+original tiering above, plus the still-standing Esfera-xlsx full-import gap from the previous
+audit round.

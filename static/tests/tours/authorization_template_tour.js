@@ -29,6 +29,15 @@ registry.category("web_tour.tours").add("ems_authorization_template_crud", {
             run: "editor Tour legal text",
         },
         {
+            trigger: ".o_notebook .nav-link:contains('Data Fields')",
+            content: "Open the Data Fields tab (field_ids, never rendered by any tour before)",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='field_ids']",
+            content: "The (empty) fields list renders without crashing",
+        },
+        {
             trigger: ".o_form_button_save",
             content: "Save",
             run: "click",

@@ -61,6 +61,27 @@ registry.category("web_tour.tours").add("ems_study_crud", {
             content: "Open study to edit",
             run: "click",
         },
+        // The "Subjects" and "Attached files" embedded list tabs had never been rendered by
+        // any tour (outcome_tour.js/criteria_tour.js/content_tour.js all reach the Subject's
+        // own tabs, not the Study form's).
+        {
+            trigger: ".o_notebook .nav-link:contains('Subjects')",
+            content: "Open the Subjects tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='subject_ids']",
+            content: "The (empty) subjects list renders without crashing",
+        },
+        {
+            trigger: ".o_notebook .nav-link:contains('Attached files')",
+            content: "Open the Attached files tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='attachment_ids']",
+            content: "The (empty) attachments list renders without crashing",
+        },
         // Edit the name
         {
             trigger: ".o_form_view .o_field_widget[name='name'] input",

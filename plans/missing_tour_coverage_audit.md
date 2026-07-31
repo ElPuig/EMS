@@ -218,16 +218,70 @@ file-upload wizards, and `res.config.settings`).
 explicitly-skipped orphaned models):** full unscoped `./test.sh` run — 0 failed, 0 error(s) of
 1380 tests. No regressions from any of the twelve tours added in this final batch.
 
+**Addendum, 2026-07-31 (post "audit complete"):** the developer asked specifically whether
+student attendance — described as the module's single most-used area — was actually fully
+covered. It was not: `ems_attendance_session_view` (the "Current" roll-call client action,
+bound to the app's own root menu) had its strike-issuing flow covered via `strike_tour.js`,
+but never its actual core action — marking a student's attendance status — nor starting a new
+session from a planned schedule slot. ✅ **Closed** via
+`static/tests/tours/attendance_passlist_tour.js` +
+`tests/test_attendance_passlist_tour.py`: opens a planned schedule, starts the session,
+marks a status (by DOM column position, since status buttons only expose a translated name,
+no stable id), adds a note, all verified against the DB. Along the way, confirmed with the
+developer (not a bug, expected): `create_scheduled_session()` derives `session_teacher_id`
+from whoever clicks "Start session" rather than the schedule's actual assigned teacher, so a
+non-teacher account (e.g. a pure admin) gets a hard "mandatory field not set" error — the
+tour logs in as a seeded teacher user instead of admin, matching real usage. This is a
+reminder that this plan's own "hard zero-coverage" enumeration (Explore agent, 2026-07-30)
+was a one-time snapshot, not guaranteed exhaustive — worth spot-checking the highest-traffic
+areas specifically before considering the audit truly done, rather than trusting the original
+count alone.
+
+**Addendum, 2026-07-31 (second gap found during the same attendance spot-check):** while
+closing the roll-call gap above, found that `ems.attendance_template` (the weekly recurring
+class schedule setup screen the roll-call depends on) also had no real coverage beyond a
+shallow color-widget smoke test — its own "Sessions" embedded one2many tab and its
+`widget="daterange"` `start_date`/`end_date` fields had never been driven end-to-end. The
+developer said "Sigue" to close this one too rather than leave it deferred. ✅ **Closed** via
+`static/tests/tours/attendance_template_tour.js` + `tests/test_attendance_template_tour.py`:
+fills every field of a new template, adds a schedule line in the embedded list, saves, and
+verifies both the template and its schedule against the DB. This also **resolves the
+`widget="daterange"` open question** noted below and in `attendance_justification_tour.js`'s
+own deferral comment — the widget works correctly with a plain tour `edit` action on
+`input[data-field='start_date'/'end_date']`, no special handling needed; it's built on the
+standard `DateTimeField` component. The stale in-code
+`TODO: not working, check how its solven at justification form` comment on this field
+(`views/attendance/attendance_template/form.xml`) is now confirmed outdated.
+
+**Batch gate, 2026-07-31 (both attendance addenda above):** full unscoped `./test.sh` run —
+0 failed, 0 error(s) of 1382 tests. No regressions from either of the two tours added in this
+attendance-focused sub-batch (`attendance_passlist_tour.js`, `attendance_template_tour.js`).
+
+**Addendum, 2026-07-31 (third gap, closed same day):** since `widget="daterange"` was now
+confirmed working, the developer chose to also close `ems.attendance_justification`'s own
+still-deferred "create new" flow rather than leave it pending. ✅ **Closed** via a new
+`ems_attendance_justification_create` tour appended to the existing
+`attendance_justification_tour.js` (+ a matching test method in
+`tests/test_attendance_justification_tour.py`): fills `teacher_id` (whose onchange populates
+the `student_id` domain), `student_id`, and the date range, then saves, verified against the
+DB. Found a second daterange variant along the way — this form puts `widget="daterange"` only
+on `start_date` (with `options="{'end_date_field': 'end_date'}'"`), so *both* date inputs
+render inside that one field's own widget container rather than as two separate field widgets
+like `ems.attendance_template` — and that the typed value is stored exactly as typed in UTC,
+regardless of the logged-in user's own `res.partner.tz`, since the headless test browser's own
+(UTC) system timezone is what the client-side parsing actually uses.
+
+**Batch gate, 2026-07-31 (this third addendum):** full unscoped `./test.sh` run — 0 failed,
+0 error(s) of 1383 tests.
+
 **Status: audit complete, 2026-07-31.** Every identified hard-zero-coverage model/view surface
 now has a tour, except `ems.tracking`/`ems.minute` (explicitly skipped — see item 9, no
-reachable UI entry point today) and two deliberately-deferred sub-scopes noted inline above
-(a full successful Esfera-xlsx student import in item 7's `student_import_wizard_tour.js`,
-and creating a brand-new `ems.attendance_justification` via its `widget="daterange"` field in
-item 6's `attendance_justification_tour.js`) — both left as documented, non-blocking gaps for
-a future pass rather than reasons to hold up this branch. Per this plan's own "Design plans"
-lifecycle (see `CLAUDE.md`), this file should be deleted once its content is folded into
-durable documentation (or the developer confirms the working notes above are no longer
-needed) — not yet done as of this entry.
+reachable UI entry point today) and one remaining deliberately-deferred sub-scope (a full
+successful Esfera-xlsx student import in item 7's `student_import_wizard_tour.js`) — left as a
+documented, non-blocking gap for a future pass rather than a reason to hold up this branch. Per
+this plan's own "Design plans" lifecycle (see `CLAUDE.md`), this file should be deleted once
+its content is folded into durable documentation (or the developer confirms the working notes
+above are no longer needed) — not yet done as of this entry.
 
 ## Open questions
 

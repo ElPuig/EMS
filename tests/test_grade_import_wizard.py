@@ -389,6 +389,48 @@ class TestGradeImportWizard(TransactionCase):
         self.assertEqual(self._enrollment_count(student, subj_opt2), 0)
         self.assertIn('optional subjects', wizard.result_html)
 
+    def _other_group_session(self, subject, acronym='B', round="1"):
+        """A session of 'subject' in another group, with the student enrolled there.
+
+        Models both real cases: a split group, and a repeater taking a lower-year module with
+        that year's group. The student keeps their main group; only the enrollment moves.
+        """
+        other = self.env['ems.group'].create({
+            'course': 1, 'acronym': acronym, 'level_id': self.level.id, 'study_id': self.study.id,
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': self.student.id, 'group_id': other.id, 'subject_id': subject.id,
+        })
+        session = self.env['ems.grade_session'].create({
+            'group_id': other.id, 'subject_id': subject.id, 'round': round,
+            'teacher_id': self.teacher_employee.id,
+        })
+        session.fill_students()
+        return session
+
+    def test_grade_written_to_the_session_of_the_enrolled_group(self):
+        # The module is taught in another group, so the grade line lives in THAT group's session.
+        # Looking sessions up by the main group alone would miss it and drop every grade.
+        self.env['ems.enrollment'].search([
+            ('student_id', '=', self.student.id), ('subject_id', '=', self.subj_no_em.id),
+        ]).unlink()
+        session = self._other_group_session(self.subj_no_em)
+        file = self._flat_xlsx([('9990001', 'GI01', 'GI01_01RA', 'RA', '01', 7)])
+        wizard = self._run(file)
+        line = session.grade_outcome_line_ids.filtered(
+            lambda l: l.student_id == self.student and l.outcome_id == self.o1)
+        self.assertEqual((line.score, line.is_scored), (7, True))
+        self.assertNotIn('ERROR', wizard.result_html)
+
+    def test_same_module_in_two_groups_warns(self):
+        # Enrolled in the same module twice: the grade has two possible destinations and the line
+        # index keeps only one, so the ambiguity has to surface instead of being resolved at random.
+        self._session(self.subj_no_em)
+        self._other_group_session(self.subj_no_em)
+        file = self._flat_xlsx([('9990001', 'GI01', 'GI01_01RA', 'RA', '01', 7)])
+        wizard = self._run(file)
+        self.assertIn('several groups', wizard.result_html)
+
     def test_access_restricted_to_admin(self):
         s_no = self._session(self.subj_no_em)
         file = self._flat_xlsx([('9990001', 'GI01', 'GI01_01RA', 'RA', '01', 8)])

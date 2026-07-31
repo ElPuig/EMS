@@ -1,4 +1,4 @@
-name: "/clean-changelog (comment this in the PR before close, it's required to remove the 'changelog' folder before merging."
+name: "clean-changelog"
 
 # Lightweight, always-fast required check: fails while changelog/ still has content in the
 # PR, passes once it has been removed (via the "/clean-changelog" comment command - see

@@ -23,12 +23,23 @@ throttled, CPU contention between concurrently-running Chrome instances can stil
 occasionally push one past the tour engine's fixed step timeout - a real, if rare, resource
 ceiling, not a script bug (see chat history 2026-07-31: the identical shard split always runs
 clean sequentially, and CI never hits this at all since every one of its shards gets its own
-dedicated runner). A failed shard is therefore retried once, fresh, before being reported as a
-real failure - deliberately a LOCAL-ONLY leniency the developer explicitly asked for (dev
+dedicated runner).
+
+A failed shard escalates through up to 3 attempts before being reported as a real failure -
+each level trading a bit more time for a bit more isolation, since a failed shard retried
+under the exact same contention that caused it has no particular reason to fare better:
+  1. First pass - all shards at the resource-based concurrency limit (max_concurrent_chrome_
+     shards()), tuned for speed.
+  2. Retry - only the shards that failed pass 1, all launched together with NO throttling
+     (there's real spare CPU/RAM now that most of the first pass has already finished).
+  3. Second retry - anything that still failed runs one at a time, fully serial - the same
+     isolation a sequential run gets, so this level is expected to always succeed baring a
+     genuine bug (not a resource one).
+This is deliberately a LOCAL-ONLY leniency the developer explicitly asked for (dev
 environment, not CI: "esas cosas se pueden asumir [...] pero en GitHub, ahí sí que debería
-funcionar bien a la primera" - CI's own workflow never retries, a first-try CI failure is
-always a real signal). Never silent: a shard that only passed after a retry is always called
-out by name in the final summary.
+funcionar bien a la primera" - CI's own workflow never retries, a first-try CI failure there
+is always a real signal). Never silent: which level a shard finally passed at is always
+called out by name in the final summary.
 """
 import os
 import re
@@ -44,22 +55,28 @@ FILESTORE_ROOT = Path("/var/lib/odoo/.local/share/Odoo/filestore")
 BASE_HTTP_PORT = 18069
 RESULT_RE = re.compile(r"odoo\.tests\.result: (\d+) failed, (\d+) error\(s\) of (\d+) tests")
 
-# Empirically found 2026-07-31 on a 12-core/14GB machine: 4 concurrent Chrome-driven (tour)
-# shards produced real, non-deterministic tour-step failures ("TIMEOUT step failed to complete
-# within 10000 ms.", both "element not visible yet" and "element not found yet" flavors) - CPU
-# contention between browsers slowing rendering/navigation past the tour engine's fixed 10s
-# step timeout, not a script bug (the identical shard split runs clean sequentially, and CI
-# never hits this since every one of its shards gets its own dedicated runner). Dropping
-# concurrency further (3, then 2) measurably reduced but never fully eliminated the flakiness
-# on this one machine, and each drop also cost real wall-clock time (more total shards means
-# more clone overhead and less real parallelism) - hence the retry-once policy above instead of
-# chasing a concurrency value that may not exist on every machine. These ratios are being tuned
-# empirically here, not a generally proven formula - tune down further if flakiness still shows
-# up on a given machine, or up if it comfortably handles more (worth re-testing before trusting
-# a higher value blindly - this box may be more resource-contended than typical dev hardware,
-# being a shared/virtualized container rather than dedicated physical cores).
-CORES_PER_CHROME_SHARD = 6
-GB_PER_CHROME_SHARD = 3
+# Empirically found 2026-07-31 on a 12-core/~13GB-available machine: level-1 concurrency drives
+# the failure rate NON-linearly, not gently - 2 concurrent Chrome-driven (tour) shards produced
+# 1-2 flaky failures out of 8-9 shards, but 4 concurrent produced 6 (mostly the same class of
+# "TIMEOUT step failed to complete within 10000 ms." tour-step failure, CPU/RAM contention
+# between browsers, not a script bug - the identical shard split always runs clean sequentially,
+# and CI never hits this at all since every shard there gets its own dedicated runner). Since
+# every level-1 failure gets fully redone at level 2, a high level-1 failure rate roughly
+# doubles the work for those shards - so level 1 is deliberately tuned CONSERVATIVE (favor most
+# shards passing first try) rather than aggressive-with-retry-as-safety-net; the latter measured
+# strictly worse in wall-clock terms (20m45s vs. 10m19s for an otherwise-equal 2-concurrent run
+# with a simpler single retry) despite the 3-level escalation itself working exactly as
+# intended (every shard eventually passed, none needed level 3).
+#
+# RAM is the deliberately dominant factor here (developer's explicit request 2026-07-31), with
+# CPU cores only as a looser backstop - each concurrent Chrome+Odoo pair's realistic memory
+# footprint matters more directly than raw core count for how many can safely coexist. Tune
+# both ratios based on observed flakiness on a given machine: raise GB_PER_CHROME_SHARD /
+# CORES_PER_CHROME_SHARD if flaky failures keep showing up even at level 1 (more headroom per
+# shard, fewer concurrent), lower them if level 1 comfortably passes clean and finishes with
+# spare capacity to spend.
+CORES_PER_CHROME_SHARD = 2
+GB_PER_CHROME_SHARD = 6
 
 
 def available_ram_gb():
@@ -179,53 +196,69 @@ def shard_passed(shard_run):
     return ok, text, match
 
 
+# (limit, level label, description) for each escalation level - see the module docstring.
+# Level 1's limit is computed at runtime from actual CPU/RAM; levels 2/3 are fixed policies
+# (no throttling, then fully serial) rather than resource-based, since by the time either
+# runs there are only a handful of shards left and the goal shifts from "fast" to "isolated".
+LEVEL_NAMES = {1: "first attempt", 2: "retry (loosened)", 3: "retry (serial)"}
+
+
 def main():
     shards = compute_shards()
     chrome_shard_count = sum(1 for s in shards if s['needs_chrome'])
-    limit, cpu, ram_gb = max_concurrent_chrome_shards(chrome_shard_count)
+    level1_limit, cpu, ram_gb = max_concurrent_chrome_shards(chrome_shard_count)
 
     print(f"Detected {cpu} CPU core(s), {ram_gb:.1f} GB available RAM.")
-    print(f"Running {len(shards) - chrome_shard_count} non-browser shard(s) immediately, plus "
-          f"up to {limit} of {chrome_shard_count} browser-tour shard(s) at a time.")
+    print(f"Level 1: running {len(shards) - chrome_shard_count} non-browser shard(s) "
+          f"immediately, plus up to {level1_limit} of {chrome_shard_count} "
+          f"browser-tour shard(s) at a time.")
 
     work_dir = Path(tempfile.mkdtemp(prefix="ems_test_shards_"))
     runner = ShardBatchRunner(work_dir)
     try:
-        results = {}  # name -> (ok, text, match, retried)
-        for shard_run in runner.run(shards, limit):
-            ok, text, match = shard_passed(shard_run)
-            results[shard_run.shard['name']] = (ok, text, match, False)
+        results = {}  # name -> (ok, text, match, level)
+        pending = list(shards)
+        level = 1
+        level_limit = level1_limit
 
-        failed_shards = [s for s in shards if not results[s['name']][0]]
-        if failed_shards:
-            names = ', '.join(s['name'] for s in failed_shards)
-            print(f"\n{len(failed_shards)} shard(s) failed on the first attempt: {names}")
-            print("Retrying them once, fresh - local runs tolerate a resource-contention "
-                  "flake retried clean; CI never retries, a first-try CI failure is real.")
-            for shard_run in runner.run(failed_shards, limit):
+        while pending:
+            for shard_run in runner.run(pending, level_limit):
                 ok, text, match = shard_passed(shard_run)
-                results[shard_run.shard['name']] = (ok, text, match, True)
+                results[shard_run.shard['name']] = (ok, text, match, level)
+
+            pending = [s for s in pending if not results[s['name']][0]]
+            if not pending:
+                break
+
+            level += 1
+            if level > 3:
+                break
+            level_limit = len(pending) if level == 2 else 1  # 2: all together, unthrottled; 3: serial
+            names = ', '.join(s['name'] for s in pending)
+            print(f"\n{len(pending)} shard(s) still failing, escalating to level {level} "
+                  f"({LEVEL_NAMES[level]}, {level_limit} at a time): {names}")
 
         overall_ok = True
-        retried_but_passed = []
+        escalated = []
         for shard in shards:
-            ok, text, match, retried = results[shard['name']]
-            print(f"\n===== shard: {shard['name']}{' (retry)' if retried else ''} =====")
+            ok, text, match, level_reached = results[shard['name']]
+            suffix = f" ({LEVEL_NAMES[level_reached]})" if level_reached > 1 else ""
+            print(f"\n===== shard: {shard['name']}{suffix} =====")
             print(text)
             if ok:
-                if retried:
-                    retried_but_passed.append(shard['name'])
+                if level_reached > 1:
+                    escalated.append(f"{shard['name']} (level {level_reached})")
                 continue
             overall_ok = False
             label = ("no clean result line found" if not match else
                      f"{match.group(1)} failed, {match.group(2)} error(s)")
-            attempts = "after a retry" if retried else "on the first attempt"
-            print(f"===== shard {shard['name']}: FAILED {attempts} ({label}) =====")
+            print(f"===== shard {shard['name']}: FAILED even at level {level_reached} "
+                  f"({label}) - this is no longer presumed to be resource contention =====")
 
-        if retried_but_passed:
-            print(f"\nNOTE: {', '.join(retried_but_passed)} only passed after a retry - "
-                  "if this keeps happening, this machine's CORES_PER_CHROME_SHARD/"
-                  "GB_PER_CHROME_SHARD (run_sharded_tests.py) may need to be more conservative.")
+        if escalated:
+            print(f"\nNOTE: needed escalation to pass: {', '.join(escalated)} - if this keeps "
+                  "happening, this machine's CORES_PER_CHROME_SHARD/GB_PER_CHROME_SHARD "
+                  "(run_sharded_tests.py) may need to be more conservative.")
 
         return 0 if overall_ok else 1
     finally:

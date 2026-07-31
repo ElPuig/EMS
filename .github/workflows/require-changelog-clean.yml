@@ -1,8 +1,8 @@
-name: "clean-changelog"
+name: "changelog-clean"
 
 # Lightweight, always-fast required check: fails while changelog/ still has content in the
-# PR, passes once it has been removed (via the "/clean-changelog" comment command - see
-# clean-changelog.yml). Deliberately its own tiny workflow, not folded into
+# PR, passes once it has been removed (via the "/changelog-clean" comment command - see
+# changelog-clean.yml). Deliberately its own tiny workflow, not folded into
 # ci-unit-testing.yml's job, so it always gets a fresh result recorded on every push
 # regardless of whether the expensive test suite actually runs that time - a required check
 # that sometimes doesn't run at all for a given commit can get stuck "pending" forever and
@@ -10,15 +10,14 @@ name: "clean-changelog"
 # limitation with path-filtered required checks - avoided here by never filtering this
 # workflow's own trigger by path).
 #
-# The "(comment /clean-changelog to fix)" suffix on this workflow's own `name:` is
-# deliberate, not decorative: GitHub's PR checks list renders "<workflow name> / <job name>
-# (<event>)", so this is what makes the manual command visible right in that one-line
-# summary without having to click into the check's log first. Safe to reword freely - the
-# job id below ("changelog-clean") is the string branch protection actually matches on for
-# the required-status-check rule, not this workflow-level name.
-#
-# Add "changelog-clean" (this job's name) as a required status check in main's branch
-# protection rules, alongside "CI: Unit Testing"'s "ci" job.
+# Posts a plain commit status (not a check-run) - deliberate (developer feedback 2026-07-31:
+# wanted this to show as a single clean "changelog-clean" string in the PR checks list, same
+# as "deploy-check" already does, instead of a check-run's unavoidable "<workflow name> /
+# <job name> (<event>)" composite - GitHub renders every check-run that way regardless of how
+# the workflow/job names are chosen, so the only way to get a single string is this same
+# commit-status mechanism deploy-check.yml already uses). The "context" string posted below
+# ("changelog-clean") is exactly what branch protection's required-status-check rule matches
+# on - unchanged by this conversion, since it was already this literal string.
 
 on:
   pull_request:
@@ -32,10 +31,44 @@ jobs:
       - name: Checkout PR head
         uses: actions/checkout@v7
 
+      - name: Mark status as pending
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner, repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha, state: 'pending',
+              context: 'changelog-clean',
+              description: 'Checking changelog/ has been removed...',
+            });
+
       - name: Verify changelog/ has been removed
+        id: verify
         run: |
           if [ -d changelog ] && [ -n "$(ls -A changelog 2>/dev/null)" ]; then
-            echo "::error::changelog/ still has content - comment /clean-changelog on this PR to remove it before merging."
-            exit 1
+            echo "clean=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "clean=true" >> "$GITHUB_OUTPUT"
           fi
-          echo "changelog/ is clean."
+
+      - name: Report result on the commit
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const clean = '${{ steps.verify.outputs.clean }}' === 'true';
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner, repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: clean ? 'success' : 'failure',
+              context: 'changelog-clean',
+              description: clean
+                ? 'changelog/ is clean.'
+                : 'changelog/ still has content - comment /changelog-clean to remove it.',
+            });
+
+      - name: Fail the job if changelog/ still has content
+        if: steps.verify.outputs.clean == 'false'
+        run: |
+          echo "::error::changelog/ still has content - comment /changelog-clean on this PR to remove it before merging."
+          exit 1

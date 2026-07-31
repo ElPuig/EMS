@@ -343,7 +343,7 @@ been copied into the actual GitHub PR description.
 CI pieces work together:
 - `.github/workflows/require-changelog-clean.yml`: a required status check on PRs targeting
   `main` that fails while `changelog/` still has any content, blocking the merge button.
-- `.github/workflows/clean-changelog.yml`: comment `/clean-changelog` on the PR (same
+- `.github/workflows/changelog-clean.yml`: comment `/changelog-clean` on the PR (same
   Integrators-team authorization as `/deploy-check`) to remove `changelog/` via an automated
   commit pushed to the PR's own branch, right before merging.
 - `.github/workflows/ci-unit-testing.yml`: detects when a push only touched `changelog/` (the

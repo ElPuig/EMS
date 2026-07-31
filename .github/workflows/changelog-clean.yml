@@ -1,10 +1,13 @@
 name: Clean changelog/ (manual)
 
-# Comment "/clean-changelog" on a PR to remove the changelog/ folder (working-draft PR notes
+# Comment "/changelog-clean" on a PR to remove the changelog/ folder (working-draft PR notes
 # - see CLAUDE.md's "PR changelog" section) from that PR's own branch via an automated
-# commit, meant to be run once, right before merging. Deliberately does NOT use a
-# "[skip ci]"-style commit message: that would skip every workflow for this commit, including
-# require-changelog-clean.yml (the required check this whole thing exists to satisfy) and
+# commit, meant to be run once, right before merging. Named (file and command both) to match
+# require-changelog-clean.yml's "changelog-clean" job/required-check name exactly - renamed
+# from the original "/clean-changelog" 2026-07-31 so what you type matches what you see in
+# the PR checks list, without needing to touch branch protection's required-check config
+# (that string was already "changelog-clean"). Deliberately does NOT use a "[skip ci]"-style
+# commit message: that would skip every workflow for this commit, including
 # ci-unit-testing.yml (whose own changelog-only-push detection is what keeps this fast,
 # instead of skipping it outright and risking a required check stuck pending forever).
 #
@@ -20,7 +23,7 @@ on:
 
 jobs:
   authorize:
-    if: github.event.issue.pull_request && github.event.comment.body == '/clean-changelog'
+    if: github.event.issue.pull_request && github.event.comment.body == '/changelog-clean'
     runs-on: ubuntu-latest
     outputs:
       is_member: ${{ steps.check.outputs.is_member }}

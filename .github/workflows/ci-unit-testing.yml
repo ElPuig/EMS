@@ -28,7 +28,7 @@ jobs:
       # comment for the same gotcha. So instead of filtering this workflow's trigger, detect
       # here whether the push that triggered this specific run only touched changelog/
       # (the working-draft PR notes folder - see CLAUDE.md's "PR changelog" section, cleaned
-      # up via the "/clean-changelog" comment command right before merging) and skip the
+      # up via the "/changelog-clean" comment command right before merging) and skip the
       # expensive steps below for that one case, while still letting every job succeed.
       - name: Detect changelog-only push
         id: diff

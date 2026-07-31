@@ -1,12 +1,5 @@
 <odoo>
     <data>
-        <record model="ir.actions.act_window" id="action_student_form">
-            <field name="name">Students</field>
-            <field name="res_model">res.partner</field>
-            <field name="res_id">57</field>    
-            <field name="view_mode">form</field>    
-        </record>  
-
         <record model="ir.ui.view" id="view_group_form">
             <field name="name">ems.group.form</field>
             <field name="model">ems.group</field>

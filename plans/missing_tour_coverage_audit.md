@@ -1,299 +1,174 @@
-# PLAN — Audit and fill missing browser tour coverage across EMS
+# Full UI-coverage re-audit (v2) — every screen must render without crashing
 
-> **Status: in progress, started 2026-07-30.** Requested by the developer after a concrete
-> incident: a checkbox-to-radio widget change on `ems.limesurvey_block`'s form
-> (`plans`/memory: `limesurvey_block_special_mutual_exclusion_asymmetry`, now resolved) was
-> initially shipped with no tour, on the reasoning "no tour exists for this view" — which
-> is itself the gap, not a reason to skip verification. Adding the tour afterward (per the
-> developer's explicit ask) caught two real, non-trivial browser-only bugs that no amount of
-> `./upgrade.sh`/`TransactionCase` testing would ever have surfaced (see below). This plan is
-> the systematic follow-up: how many other views are in the same unverified state, and what
-> order to close them in.
->
-> Lives under `plans/` per `CLAUDE.md`'s "Design plans" convention — delete once the audit is
-> complete and either every gap is closed or explicitly triaged/deferred with reasoning
-> recorded somewhere durable (this file, or the relevant model's dev doc).
+**Status: current as of 2026-07-31. Supersedes the "audit complete" declarations from earlier
+today in this same file's history (see git log) — those were wrong, twice, and this file was
+rewritten from scratch after a proper mechanical re-audit rather than another manual
+enumeration pass.**
 
-## Why this matters (not just a coverage-percentage nit)
+## Why this got redone
 
-`./upgrade.sh` succeeding only proves a view's XML is structurally valid — every field
-referenced exists on the model, every widget is compatible with its field's type (Odoo
-validates this on every module load/upgrade, not just in test mode). It proves **nothing**
-about whether the page actually renders correctly in a browser, or whether an interaction a
-user would actually perform (click, type, select) works. `TransactionCase` tests never touch
-the browser/OWL layer at all. Only an `HttpCase` tour, run through Odoo's real headless-Chrome
-test harness, catches that class of bug.
+Earlier today this plan was declared "complete" after a large batch of tours were added, then
+had to be reopened twice in the same day because the developer's own spot-checks found real
+gaps the "complete" declaration had missed (the daily roll-call screen's core action, then the
+attendance-template creation flow, then the attendance-justification creation flow). The
+developer then asked directly: **has anyone actually verified every EMS screen renders without
+crashing, or are we still trusting an incomplete manual enumeration?** Fair question — the
+previous passes were done by reading `views/` and comparing against `static/tests/tours/`
+manually/from memory, which is exactly the kind of exhaustive-enumeration task a human (or an
+LLM working from partial context) reliably under-counts.
 
-**Concrete proof this isn't theoretical:** writing the first tour for `ems.limesurvey_block`
-(2026-07-30) immediately caught two bugs that had shipped invisibly:
-1. `run: "select students"` on a plain Selection `<select>` silently failed to select
-   anything — Odoo's `SelectionField` widget JSON-stringifies the option `value` attribute
-   (`stringify(option[0])`), so the raw selection key never matches. The **existing, already-
-   shipped** `target` field on this exact form has had this same widget type since before this
-   pass — meaning the header form's Target field may have been just as fragile to certain
-   interactions, just never actually driven by anything that would have revealed it.
-2. `tsv_raw_text` (`widget="code"`, used on both the header and block forms, and potentially
-   elsewhere) renders via the Ace editor library — its real input element is a deliberately
-   invisible textarea that the tour engine's generic `edit` action can't drive at all;
-   filling it requires calling into the global `ace` object directly.
+This pass instead did a **mechanical, two-sided enumeration**:
+1. Every UI-reachable screen: `<menuitem>` actions, `ir.actions.act_window`/`ir.actions.client`
+   records, buttons that open another screen (`type="object"`/`type="action"`), cog-menu/list
+   context-menu wizards (including 5 that are pure-JS with no `binding_model_id` in XML at
+   all — these would be invisible to a grep for that attribute), and every embedded
+   one2many/many2many sub-view rendered inline inside another model's form.
+2. Every existing tour's actual reach: which action it opens, whether it ever gets past the
+   list into a form, which notebook tabs it clicks, which embedded sub-views/dialogs it
+   touches.
 
-Neither of these is specific to the `special_type` change — they're pre-existing
-characteristics of widgets used **elsewhere in the module** too. Any other view using
-`widget="code"` or being driven through a `<select>` in a not-yet-written tour is an unknown
-until it's actually tested.
+Then cross-referenced by hand (not delegated) to find genuine gaps. Both enumeration passes and
+the cross-reference were independently spot-checked against the actual XML/JS (not trusted at
+face value) — see "Verified findings" below.
 
-## Rough scope (quick count, 2026-07-30 — not a precise audit)
+**Numbers:** 64 `ir.actions.act_window` + 2 `ir.actions.client` + 7 cog-menu/list-context-menu
+wizards = ~73 distinct top-level screens. 63 tours exist across 53 files (zero orphaned, zero
+dangling `start_tour` calls — the JS/Python pairing itself is solid). The gap is entirely in
+**which of the 73 screens (and which notebook tabs/embedded sub-views within the covered ones)
+a tour actually opens.**
 
-- 26 tour files currently exist (`static/tests/tours/*.js`).
-- 72 distinct `ir.actions.act_window` ids are defined across `views/`.
-- 52 files under `views/` contain at least one `<form>`.
+## Two real navigation bugs found along the way (unrelated to tour coverage, fix regardless)
 
-Even accounting for actions that share a tour, or models genuinely covered indirectly through
-another model's tour (e.g. an embedded one2many form, like `ems.limesurvey_block` itself used
-to be before 2026-07-30), this suggests a large fraction of the module's form/list/kanban
-surface has never been driven by a real browser. The exact list needs the actual audit below,
-not this rough count.
+1. **`menu_work_locations` id collision — "Work locations" menu entry is currently invisible.**
+   `views/community/work_location/menu.xml` and `views/community/working_schedules/menu.xml`
+   both declare `<menuitem id="menu_work_locations">` with different names/actions/parents.
+   Manifest load order (`work_location/menu.xml` before `working_schedules/menu.xml`) means the
+   second silently overwrites the first — "Work locations" (`hr.work.location`,
+   `action_work_location_tree`) has had **no menu entry at all** since whenever these two files
+   started colliding, even though the action/views themselves work fine (confirmed:
+   `work_location_tour.js` reaches it directly by URL, bypassing the broken menu). An admin
+   clicking through "Community > Configuration > Human resources" today only ever sees
+   "Working schedules" twice in effect — "Work locations" doesn't exist to them. Fix: rename one
+   of the two `<menuitem id="...">`.
+2. **`action_student_form` xmlid collision — dormant but a landmine.** Declared twice with the
+   identical id `ems.action_student_form`: once properly (in `contact/menu.xml`, domain +
+   search view), once with a hardcoded `res_id="57"` and no domain (in `group/form.xml`, load
+   order makes this one win). Not currently referenced by any button/menu, so no user hits it
+   today — but the first person who does (or the first environment where partner id 57 isn't a
+   real student) gets a broken screen. Fix: rename the accidental duplicate in `group/form.xml`
+   or remove it if it's genuinely dead.
 
-## Proposed approach
+## Verified gaps, grouped by risk tier
 
-1. **Enumerate real gaps**, not just a file-count mismatch: for every model with a view
-   (`grep` `<form>`/`<list>`/`<kanban>` under `views/`), check whether it's reachable from an
-   *existing* tour — either as the tour's own primary target, or embedded inside another
-   model's form (matching the "secondary/embedded view" requirement already in `CLAUDE.md`'s
-   Development workflow). Produce a concrete list of models/views with **zero** tour coverage
-   today — this is real, non-trivial exploration work, likely worth delegating to an `Explore`
-   agent given the breadth (many files, cross-referencing views against tour files).
-2. **Triage, don't blanket-fix**: not every gap is equally worth closing immediately — a
-   rarely-touched admin config screen is lower priority than a screen teachers/families use
-   daily. Group the findings by rough priority (role-facing frequency, complexity of the view,
-   whether it's read-only/reference data vs. something users actively edit) rather than
-   working through them alphabetically.
-3. **Fix incrementally**, one model/view at a time, each as its own small Red-Green cycle
-   (write the tour, confirm it currently would have nothing to catch since the view isn't
-   changing, but still run it to prove the view itself renders and basic interactions work) —
-   not as one giant PR. Reuse the two gotchas found above (`selectByLabel` for plain
-   `<select>`s, `ace.edit(anchor).setValue(...)` for `widget="code"`) rather than
-   rediscovering them per file.
-4. Going forward, per the now-updated `CLAUDE.md` Development workflow: **any new change to a
-   model with a UI surface gets a tour as part of that same change**, closing off new gaps
-   from accumulating while this backlog is worked through.
+### Tier 1 — whole screens with ZERO tour coverage (the exact failure mode the developer is worried about)
 
-## Audit findings (Explore agent, 2026-07-30) and progress
+| # | Screen | Action / model | Notes |
+|---|---|---|---|
+| 1 | **Evaluation for tutors** | `action_grade_tutor_matrix` (`ir.actions.client`, bespoke OWL widget) | Same *category* of risk as the daily roll-call screen (`ems_attendance_session_view`) that turned out to be the actual gap earlier today — a custom client action, not a standard form, with genuinely zero tour driving it. Teacher-facing. Highest priority. |
+| 2 | **Enrollment proposal** | `ems.action_student_group_enrollment` (server action) → `act_window_student_group_enrollment` (res.partner) | Launches `ems.graduation_wizard` via a header button — that wizard form (with its embedded `line_ids`) is also untested. |
+| 3 | **Preinscription** | `action_ems_applicants` (res.partner, applicant domain) | Also launches `ems.enrollment_proposal_wizard` (own form + embedded `student_ids`, zero coverage) and its cog-menu import-GEDAC button (the wizard it opens IS tested, but only via direct URL — the cog-menu click path itself is unverified). Also the only path to `res.partner`'s "Applicant data" notebook tab. |
+| 4 | **Students without destination** | `action_students_no_destination` (res.partner) | Also launches `ems.enrollment_proposal_wizard` (see #3). |
+| 5 | **Academic history** | `action_year_record_list` (`ems.student.year_record`) | Also the only path to `res.partner`'s "Academic history" tab (`year_record_ids`) and to the nested `ems.student.year_record.subject` → `outcome_record_ids` hierarchy — a full 3-level model chain with zero rendering evidence. |
+| 6 | **Plannings** | `action_planning_tree` (`ems.planning`) | Ponderations config; has `TransactionCase` coverage (`test_planning.py`) but no tour — embedded `planning_outcome_ids` also unrendered. |
+| 7 | **Import grades** | `action_grade_import_wizard` | Wizard form + `_build_result_html` (the shared-helper HTML list) never rendered in a browser. |
+| 8 | **Work placement evaluation (EM)** | `action_em_grading_wizard` | Own form + embedded `line_ids`/`student_line_ids`. |
+| 9 | **Minutes** | `action_minute_tree` (`ems.minute`) | The model that replaced the deleted `ems.record` — never got a tour. |
+| 10 | **Providers** | `action_provider_kanban` (res.partner) | Distinct action/domain from the well-tested Students/Families kanbans. |
+| 11 | **Enrollments** (config) | `action_enrollment_tree` (`ems.enrollment`, Community > Configuration > Students) | Distinct from the well-tested `action_ems_enrollments` (`sale.order`) — different model, same-sounding name, easy to conflate (this is likely *why* it got missed before). |
+| 12 | **Surveys → Recipients tab** | `ems.limesurvey_header`'s `limesurvey_recipient_ids` tab, plus `ems.limesurvey_recipient`'s own 3 views (main form, add-student popup, error popup) | `limesurvey_block_tour.js` only ever opens the "Blocks" tab on the same header form. |
+| 13 | **Employee Attendances (native) form's EMS additions** | `hr.attendance` xpath — adds `action_view_corrections`/`%(ems.action_attendance_correction_new)d` buttons | No EMS tour ever opens the native check-in/check-out form at all, so these EMS-injected buttons (and the "new correction request" flow they lead to) have zero coverage. |
 
-Full enumeration came back as: 25 tour files / 35 registered tours vs. 64 `ir.actions.act_window`
-records total, only 24 opened directly by a tour URL — roughly **~40 hard zero-coverage
-model/view surfaces**, ~6 soft/partial. Priority order agreed with the developer (highest-risk/
-highest-value first, custom widgets and daily-use screens ahead of reference/config data):
+### Tier 2 — secondary/alternate actions on an already-covered model (lower risk: the view *architecture* is proven by the primary action, only the specific action+domain is new)
 
-1. ✅ **`ems.grade_session`** (`action_grade_session_tree`, custom `widget="grade_matrix"`) —
-   done 2026-07-30. `static/tests/tours/grade_matrix_tour.js` +
-   `tests/test_grade_matrix_tour.py`. Unlike the `ems.limesurvey_block` precedent, this pass did
-   **not** surface a pre-existing application bug — every failure hit while writing the tour
-   turned out to be a test-authoring mistake (an `HttpCase`-internal `self.session` naming
-   collision, `ems.group.name` being a silently-overwritten computed field, a CSS
-   `:first-of-type` misunderstanding, an empty-`<span>` visibility check, and OWL's async
-   DOM-patch timing after a raw `dblclick` needing a poll loop instead of one
-   `requestAnimationFrame`). It does positively confirm the grid's double-click → edit → Apply
-   → re-render flow works correctly in a real browser, which had never been verified before.
-2. ✅ **`ems.portal.access.wizard`** (`widget="radio"` on `mode`) — done 2026-07-30.
-   `static/tests/tours/portal_access_wizard_tour.js` + `tests/test_portal_access_wizard_tour.py`.
-   Drives the real UI path (select a student in the list, open the list's Actions/cog menu,
-   launch the wizard, switch the radio to "Revoke access", Apply), asserting the underlying
-   portal user is actually archived afterward. Found one genuine, non-trivial gotcha along the
-   way: Odoo's tour-engine `:contains()` is case-insensitive, so a menu-item selector text
-   ("Portal access") ambiguously matched both this action and the unrelated, native Odoo
-   action already on the same list ("Grant Portal Access") — fixed in the tour by matching on
-   a substring unique to this action's name ("students/families"). Also flagged (not fixed) as
-   a real UX finding: the same ambiguity exists for a human reading the Actions menu, not just
-   the tour's selector — two similarly-worded, unrelated portal-access entries sit side by
-   side on the same list.
-3. ✅ **`ems.grade_session_state_wizard`** (`widget="radio"` sibling of `grade_session_wizard`,
-   itself only ever smoke-tested) — done 2026-07-30.
-   `static/tests/tours/grade_session_state_wizard_tour.js` +
-   `tests/test_grade_session_state_wizard_tour.py`. Switches mode from the default "By study"
-   to "By level", picks a level via many2many_tags autocomplete, applies a real evaluation
-   state transition, verified against the DB. Found one real, reusable gotcha: a `target="new"`
-   dialog's own `<footer>` is a DOM sibling of `.o_form_view`, not nested under it — a
-   `.o_form_view footer ...` selector (fine on a directly-navigated page) silently never
-   matches inside a dialog; use `.modal footer ...` for any dialog-rendered form's footer
-   buttons instead.
-4. ✅ **`action_ems_enrollments`** (`sale.order`, the matrícula screen) — done 2026-07-30.
-   `static/tests/tours/enrollment_tour.js` + `tests/test_enrollment_tour.py`. Opens a seeded
-   draft enrollment, walks the three EMS-added tabs (Enrollment Items / Authorizations /
-   Payment) to confirm none crash despite the form's heavy xpath customization over native
-   Sales, and does a real edit-save (the `shift` field) verified against the DB. No pre-
-   existing bug found — confirms the form renders and saves correctly.
-5. ✅ **`ems.notice`** (`action_communication_list`, `widget="html"` + `statusbar` +
-   `many2many_tags`) — done 2026-07-31. `static/tests/tours/notice_tour.js` +
-   `tests/test_notice_tour.py`. Creates a real notice end-to-end (group selection, auto-
-   populated recipient list, rich-text message, save, "Send now" through to a real `state`
-   transition), verified against the DB. Never risks a real send — `with_delay()` only queues
-   a `queue.job` row in a normal test run. Found one reusable gotcha: the tour engine's generic
-   `edit` action can't fill a `widget="html"` contenteditable div (`isEditable()` only
-   recognizes `<input>`/`<textarea>`) — Odoo's own tour engine has a dedicated
-   `run: "editor <text>"` action for exactly this (see `mail`'s composer tours), used here
-   instead.
-6. ✅ **Attendance office screens** (`ems.attendance_correction`/`_issue_*`/`_justification`)
-   — done 2026-07-31. Three tours: `static/tests/tours/attendance_correction_tour.js` +
-   `tests/test_attendance_correction_tour.py` (opens a pending request, accepts it, verifies
-   the underlying `hr.attendance` was corrected); `attendance_justification_tour.js` +
-   `test_attendance_justification_tour.py` (walks all three read-only tabs of a seeded
-   justification, edits+saves Notes — creating a NEW one via UI needs `widget="daterange"`,
-   deliberately left for a future pass); `attendance_issue_tour.js` +
-   `test_attendance_issue_tour.py` (pure render smoke test, tutor level + drill into
-   student/session detail — every view here is read-only by design). Two reusable gotchas
-   found: the arch's `<header>` tag compiles to `.o_form_statusbar`, not a literal `<header>`
-   element (`.o_form_view header ...` silently never matches); and the `HttpCase`-internal
-   `self.session` naming collision (see item 1) recurred with a fixture also named
-   `cls.session`.
-7. ✅ **File-upload wizards** (`ems.working_schedules_import_wizard` `many2many_binary`,
-   `ems.applicant_import_wizard`/`student_import_wizard`/`student_update_wizard` `binary`) —
-   done 2026-07-31. Four tours using Odoo's `inputFiles()` test helper (the generic tour
-   `edit` action can't drive a file `<input>` at all): `applicant_import_wizard_tour.js`
-   (real CSV upload, full successful import verified against the DB);
-   `working_schedules_import_wizard_tour.js` (XML upload via the cog-menu entry, verifies
-   the unknown-teacher blocking-error path); `student_import_wizard_tour.js` (a minimal but
-   structurally real xlsx, embedded as base64 since a valid xlsx is a zip container that
-   can't be hand-authored as a plain string, deterministically hits the "missing required
-   columns" error dialog — a full successful Esfera-format import deliberately left for a
-   future pass, same judgment call as the daterange widget in item 6);
-   `student_update_wizard_tour.js` (CSV upload + column mapping + real student update).
-   Reusable gotchas found: OWL doesn't sync an `<input>`'s live value to its HTML `value`
-   attribute (use hoot-dom's `:value()` pseudo-class, not `[value=...]`); a custom cog-menu
-   item built directly from `<DropdownItem>` renders as `.dropdown-item`, not the standard
-   `.o_menu_item`; a tour that leaves a dialog open in edition mode must explicitly close it.
-8. ✅ **`res.config.settings`'s EMS Management tab** (~20 fields: Google Workspace, LimeSurvey
-   credentials, course/attendance/strike settings) — done 2026-07-31.
-   `static/tests/tours/settings_tour.js` + `tests/test_settings_tour.py`. Switches to the EMS
-   tab, edits one representative field per block (proving the tab renders and its fields are
-   genuinely interactive), then Discards rather than Saves. Deliberately does not exercise
-   Odoo's Save/reload mechanism: `res.config.settings.execute()` returns a real browser
-   navigation (`{'type': 'ir.actions.client', 'tag': 'reload'}`), which destroys the tour
-   macro's own JS execution context — no following step can reliably observe anything after
-   it (confirmed empirically via two different race/timeout failures before landing on
-   Discard instead). That's core Odoo behavior, not an EMS-specific gap.
-9. Lower priority (reference/config data, plain widgets):
-   - ⏭️ **`ems.tracking`/`ems.minute` — skipped, 2026-07-31**, developer's explicit call.
-     Both have zero reachable UI entry point today: `ems.tracking`'s standalone action has no
-     menuitem anywhere and its own `ems.study.follow_ids` One2many is never embedded in any
-     view; `ems.minute`'s menuitem is commented out in `views/documentation/minutes/menu.xml`.
-     Writing a tour for a screen no real user can reach isn't a meaningful coverage gap to
-     close - if either is ever wired up (or confirmed dead like `ems.record` was), revisit.
-   - ✅ **`hr.job`, `hr.work.location`, `hr.contract.type`, `ems.strike.reason`,
-     `resource.calendar` (Schedule Frameworks), `product.template` (enrollment items),
-     `sale.order.template` (enrollment templates), `ems.authorization.template`, `queue.job`
-     (attendance notifications), `account.move.line` (enrollment collections),
-     `mail.activity.type` (task assignment), and the "Families" filtered `res.partner`
-     screen** — done 2026-07-31, all twelve as plain create/edit or render-only smoke tours
-     (`job_tour.js`, `work_location_tour.js`, `employment_type_tour.js`,
-     `strike_reason_tour.js`, `schedule_framework_tour.js`, `enrollment_items_tour.js`,
-     `enrollment_template_tour.js`, `authorization_template_tour.js`,
-     `attendance_notification_tour.js`, `enrollment_collections_tour.js`,
-     `task_assignment_tour.js`, `family_tour.js`, each with a matching `tests/test_*_tour.py`).
-     One real, non-tour-specific finding along the way: `hr.job`'s EMS-added
-     `employee_type`/`group_id` fields turned out unreachable through the form (sit inside
-     native hr.job's hardcoded-`invisible="1"` "Recruitment" page) — confirmed CSV-only by
-     design via `data/cat/hr.job.csv`, not a bug, tour scoped down accordingly. Several
-     reusable gotchas: `hr.job` and `product.template`'s native `name` fields (and one of
-     `res.partner`'s two conditional name fields) render via `widget="text"` (a `<textarea>`),
-     not a plain Char `<input>`; EMS's own `res.partner` form splits name into separate
-     `firstname`/`lastname` inputs (the `partner_firstname` convention); Odoo's list view
-     binds its row-open click handler to a data cell, not the bare `<tr>`.
+- **ASP** (`action_asp_kanban`, hr.employee) — Teachers kanban is heavily tested; ASP domain isn't.
+- **ASP roles** (`action_asp_role_tree`, ems.role) — same relationship to the well-tested Teachers-roles action.
 
-Working the same one-gap-at-a-time cadence as the rest of this branch's DTON work — each item
-gated with `./upgrade.sh` + its own scoped `./test.sh TestClassName`, changelog entry appended
-per item, full unscoped `./test.sh` deferred until a batch is done rather than run after every
-single tour.
+### Tier 3 — notebook tabs / embedded sub-views on an otherwise-covered screen, never clicked
 
-**Batch gate, 2026-07-30 (items 1-4 above):** full unscoped `./test.sh` run —
-0 failed, 0 error(s) of 1359 tests. No regressions from any of the four tours added in this
-batch.
+Verified directly against each form's XML (not assumed):
 
-**Batch gate, 2026-07-31 (items 5-8 above — the full priority list is now complete):** full
-unscoped `./test.sh` run — 0 failed, 0 error(s) of 1368 tests. No regressions from any of the
-tours added in this second batch (`ems.notice`, the three attendance office screens, the four
-file-upload wizards, and `res.config.settings`).
+- `ems.level` form → **"Studies"** tab (`study_ids`) — `level_tour.js` never opens a single tab.
+- `ems.study` form → **"Subjects"** and **"Attached files"** tabs — `study_tour.js` never opens a tab either.
+- `ems.authorization.template` form → **"Fields"** tab (`field_ids`) — `authorization_template_tour.js` only touches `name`/`legal_text`.
+- `ems.group` form → the **reinforcement-type "Students"** page (a second, separate `<page>` distinct from the main-type one already covered) — `group_tour.js` creates a reinforcement group but never opens its Students tab.
+- `res.partner` form → **"Former student"** tab — no tour opens an already-withdrawn student's own form afterward.
+- `ems.attendance_template` form → **"Students"** tab (`student_ids`, separate from the already-covered "Sessions" tab).
 
-**Batch gate, 2026-07-31 (item 9 — the entire audit backlog is now complete except the two
-explicitly-skipped orphaned models):** full unscoped `./test.sh` run — 0 failed, 0 error(s) of
-1380 tests. No regressions from any of the twelve tours added in this final batch.
+(`res.partner`'s "Studies"/"Secretary" tabs, despite hosting `enrollment_ids`/`ems_authorization_ids`,
+ARE already covered — `contact_tour.js` clicks both. Verified directly to avoid a false positive.)
 
-**Addendum, 2026-07-31 (post "audit complete"):** the developer asked specifically whether
-student attendance — described as the module's single most-used area — was actually fully
-covered. It was not: `ems_attendance_session_view` (the "Current" roll-call client action,
-bound to the app's own root menu) had its strike-issuing flow covered via `strike_tour.js`,
-but never its actual core action — marking a student's attendance status — nor starting a new
-session from a planned schedule slot. ✅ **Closed** via
-`static/tests/tours/attendance_passlist_tour.js` +
-`tests/test_attendance_passlist_tour.py`: opens a planned schedule, starts the session,
-marks a status (by DOM column position, since status buttons only expose a translated name,
-no stable id), adds a note, all verified against the DB. Along the way, confirmed with the
-developer (not a bug, expected): `create_scheduled_session()` derives `session_teacher_id`
-from whoever clicks "Start session" rather than the schedule's actual assigned teacher, so a
-non-teacher account (e.g. a pure admin) gets a hard "mandatory field not set" error — the
-tour logs in as a seeded teacher user instead of admin, matching real usage. This is a
-reminder that this plan's own "hard zero-coverage" enumeration (Explore agent, 2026-07-30)
-was a one-time snapshot, not guaranteed exhaustive — worth spot-checking the highest-traffic
-areas specifically before considering the audit truly done, rather than trusting the original
-count alone.
+### Tier 4 — cog-menu buttons that exist but are never actually *clicked* (the wizard they open IS tested, just via direct URL, not via the real click path)
 
-**Addendum, 2026-07-31 (second gap found during the same attendance spot-check):** while
-closing the roll-call gap above, found that `ems.attendance_template` (the weekly recurring
-class schedule setup screen the roll-call depends on) also had no real coverage beyond a
-shallow color-widget smoke test — its own "Sessions" embedded one2many tab and its
-`widget="daterange"` `start_date`/`end_date` fields had never been driven end-to-end. The
-developer said "Sigue" to close this one too rather than leave it deferred. ✅ **Closed** via
-`static/tests/tours/attendance_template_tour.js` + `tests/test_attendance_template_tour.py`:
-fills every field of a new template, adds a schedule line in the embedded list, saves, and
-verifies both the template and its schedule against the DB. This also **resolves the
-`widget="daterange"` open question** noted below and in `attendance_justification_tour.js`'s
-own deferral comment — the widget works correctly with a plain tour `edit` action on
-`input[data-field='start_date'/'end_date']`, no special handling needed; it's built on the
-standard `DateTimeField` component. The stale in-code
-`TODO: not working, check how its solven at justification form` comment on this field
-(`views/attendance/attendance_template/form.xml`) is now confirmed outdated.
+`import-gedac-cog-menu`, `import-student-cog-menu`, `update-student-cog-menu` — lower risk since
+the target screen's own render is proven; only the button's registration/click-wiring on the
+list toolbar is unverified.
 
-**Batch gate, 2026-07-31 (both attendance addenda above):** full unscoped `./test.sh` run —
-0 failed, 0 error(s) of 1382 tests. No regressions from either of the two tours added in this
-attendance-focused sub-batch (`attendance_passlist_tour.js`, `attendance_template_tour.js`).
+### Tier 5 — isolated popups/buttons (matches the "un botón concreto, lo asumo" tolerance the developer stated — listed for completeness, not proposed for active work)
 
-**Addendum, 2026-07-31 (third gap, closed same day):** since `widget="daterange"` was now
-confirmed working, the developer chose to also close `ems.attendance_justification`'s own
-still-deferred "create new" flow rather than leave it pending. ✅ **Closed** via a new
-`ems_attendance_justification_create` tour appended to the existing
-`attendance_justification_tour.js` (+ a matching test method in
-`tests/test_attendance_justification_tour.py`): fills `teacher_id` (whose onchange populates
-the `student_id` domain), `student_id`, and the date range, then saves, verified against the
-DB. Found a second daterange variant along the way — this form puts `widget="daterange"` only
-on `start_date` (with `options="{'end_date_field': 'end_date'}'"`), so *both* date inputs
-render inside that one field's own widget container rather than as two separate field widgets
-like `ems.attendance_template` — and that the typed value is stored exactly as typed in UTC,
-regardless of the logged-in user's own `res.partner.tz`, since the headless test browser's own
-(UTC) system timezone is what the client-side parsing actually uses.
+`open_exception_popup` (attendance_issue/notice forms), `open_error_popup` (limesurvey
+recipient), the `res.partner`-side `action_view_strikes` stat button (the
+`attendance_session_header`-side twin is already tested), `action_limesurvey_delete_closed_confirmed`
+(delete-confirmation redirect for closed surveys).
 
-**Batch gate, 2026-07-31 (this third addendum):** full unscoped `./test.sh` run — 0 failed,
-0 error(s) of 1383 tests.
+### Tier 0.5 — Portal frontend (customer-facing, reached via `@http.route`, not `ir.actions`)
 
-**Status: audit complete, 2026-07-31.** Every identified hard-zero-coverage model/view surface
-now has a tour, except `ems.tracking`/`ems.minute` (explicitly skipped — see item 9, no
-reachable UI entry point today) and one remaining deliberately-deferred sub-scope (a full
-successful Esfera-xlsx student import in item 7's `student_import_wizard_tour.js`) — left as a
-documented, non-blocking gap for a future pass rather than a reason to hold up this branch. Per
-this plan's own "Design plans" lifecycle (see `CLAUDE.md`), this file should be deleted once
-its content is folded into durable documentation (or the developer confirms the working notes
-above are no longer needed) — not yet done as of this entry.
+A second, separate mechanical enumeration (2026-07-31, developer explicitly asked for this
+scope to be included) of `controllers/*.py` found the **entire portal frontend has
+effectively zero test coverage** — this is a different reachability mechanism than the
+menu/action-based backend audit above (Odoo routes + QWeb templates under `views/portal/`,
+not `ir.actions.act_window`/menuitems), so it needed its own pass. `static/tests/tours/*.js`
+has zero references to any `/my/*` path — every one of the 63 existing tours targets `/odoo`
+(backend) only.
 
-## Open questions
+**5 page-rendering routes, all with zero coverage of any kind:**
 
-1. Should this be one large sweep, or folded opportunistically into whatever model each future
-   session happens to be touching anyway (mirroring how the original DTON rollout worked
-   model-by-model)? The DTON rollout precedent suggests the latter is more sustainable, but
-   the developer may want a dedicated push instead.
-2. Is there a way to make "view has no tour" mechanically checkable (e.g. a script comparing
-   `views/` against `static/tests/tours/`) so this doesn't silently regress again, or is manual
-   vigilance (now reinforced in `CLAUDE.md`) enough?
+| Route | Renders | Purpose |
+|---|---|---|
+| `/my/gestion-matriculas` | `ems.portal_enrollment_confirmed` or `ems.portal_enrollment_process` (state-dependent) | The core student/family enrollment workflow — authorizations, items, payment term/method, comments. Highest-complexity controller logic in the whole module, entirely unrendered by any test. |
+| `/my/documentacion` | `ems.portal_documentation` | Document center: submitted docs, bank info, benefit records, upload modals. |
+| `/my/comunicaciones` (+ `/page/<int>`) | `ems.portal_communications` | Paginated communications history. |
+| `/my/account` | `portal.portal_my_details` (EMS-overridden read-only) | Portal user's own profile page. |
+| `/my/asistencia`, `/my/calificaciones` | `ems.portal_under_construction_page` | Placeholder pages. Lowest risk (trivial template) but still zero coverage. |
 
-## Where this is also documented
+**~10 state-changing POST/GET action routes**, all zero coverage except one: `select_student`,
+`portal_enrollment_authorize`, `portal_enrollment_confirm`, `portal_authorization_document`
+(PDF serve), `portal_documentation_submit`, `portal_documentation_cancel`,
+`portal_documentation_download` (file serve) — all **NONE**. `portal_documentation_renew_iban`
+has partial coverage: `tests/test_portal_enrollment.py::TestPortalEnrollmentRenewIban` hits it
+via plain `HttpCase.url_open()` (checks HTTP status + DB side effects, not rendered HTML) — the
+closest thing to portal coverage anywhere in the suite today, and a reasonable pattern to
+extend for the POST-only action routes; the page-rendering routes need genuine `start_tour()`
+coverage (logged in as a portal user, not admin) to prove the page actually renders in a
+browser, matching the same bar as the backend tours above.
 
-Not yet documented elsewhere — this plan is the only record until the audit produces
-per-model findings worth folding into individual dev docs.
+This is materially new territory (no existing portal tour to copy conventions from) and
+sizeable on its own (5 pages + ~10 actions) — treated as its own phase, not folded silently
+into Tier 1/3 line items above.
+
+### Out of scope for this pass
+
+Nothing currently — backend (menus/actions/buttons/cog-menus/embedded views) and portal
+(`@http.route`) are both now covered by this enumeration.
+
+## Proposed order
+
+1. **Fix the two navigation bugs** (menu id collision, xmlid collision) — cheap, unrelated to
+   tours, currently-shipping defects.
+2. **Tier 1**, in the order listed (client-action risk first, then the interlinked
+   enrollment-proposal/applicants/no-destination cluster together since they share
+   `ems.enrollment_proposal_wizard`, then the rest).
+3. **Tier 0.5 (Portal)** — the 5 page-rendering routes first (proves each page renders at all
+   for a real portal user), then the action routes, then extend the existing
+   `renew-iban`-style `url_open` pattern to the other POST-only actions where a full browser
+   tour isn't needed to prove no-crash (a page render deserves `start_tour`; a pure
+   state-mutation endpoint can reasonably stay at the `url_open` bar, matching what already
+   exists for `renew-iban`).
+4. **Tier 2** (ASP secondary actions).
+5. **Tier 3** (embedded tabs on already-covered forms).
+6. Tier 4/5 left documented but not scheduled, matching the developer's own stated bar (isolated
+   button/dialog failures are acceptable; whole-section failures are not).
+
+Each item follows the same gate as every tour added today: `pylint --disable=all
+--enable=redefined-builtin`, `./upgrade.sh`, scoped `./test.sh TestClassName`, one full
+unscoped `./test.sh` at the end of the whole pass (not per item), changelog entry per item, this
+file updated as items close.

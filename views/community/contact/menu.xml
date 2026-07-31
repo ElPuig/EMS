@@ -15,7 +15,8 @@
         <record model="ir.actions.act_window" id="action_student_form">
             <field name="name">Student</field>
             <field name="res_model">res.partner</field>
-            <field name="view_mode">form</field>    
+            <field name="res_id" eval="False"/>
+            <field name="view_mode">form</field>
             <field name="search_view_id" ref="ems.view_provider_search"/>                        
             <field name="domain"> [('contact_type', '=', 'student')] </field>
             <field name="context"> {'default_contact_type': 'student'} </field>

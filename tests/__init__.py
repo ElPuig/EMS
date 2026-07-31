@@ -112,6 +112,8 @@ from . import test_family_tour
 from . import test_payment_term
 from . import test_enrollment_line
 from . import test_enrollment_tour
+from . import test_enrollment_proposal_tour
+from . import test_applicant_tour
 from . import test_enrollment_product_extension
 from . import test_enrollment_mail_activity
 from . import test_attendance_session
@@ -129,3 +131,4 @@ from . import test_limesurvey_recipient
 from . import test_limesurvey_block_tour
 from . import test_shared_mixins
 from . import test_grade_matrix_tour
+from . import test_grade_tutor_matrix_tour

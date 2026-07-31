@@ -37,3 +37,11 @@ class TestNoticeTour(HttpCase):
         self.assertIn('Tour message body', notice.message)
         self.assertEqual(len(notice.notice_line_ids), 1)
         self.assertTrue(notice.notice_line_ids.notification_id)
+
+    def test_notice_exception_popup_tour(self):
+        self.start_tour("/odoo", "ems_notice_create_and_send", login="admin")
+        notice = self.env['ems.notice'].search([('subject', '=', 'Tour Notice Subject')])
+        notice.notice_line_ids.notification_id.write({
+            'state': 'failed', 'exc_info': 'Notice delivery failed (tour fixture).',
+        })
+        self.start_tour("/odoo", "ems_notice_exception_popup", login="admin")

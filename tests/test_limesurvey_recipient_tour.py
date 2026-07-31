@@ -26,3 +26,18 @@ class TestLimesurveyRecipientTour(HttpCase):
             ('limesurvey_header_id', '=', self.header.id), ('student_id', '=', self.student.id),
         ])
         self.assertEqual(len(recipient), 1)
+
+    def test_limesurvey_recipient_error_popup_tour(self):
+        header = self.env['ems.limesurvey_header'].create({
+            'name': 'LimeSurvey Recipient Error Tour Header', 'title': 'LimeSurvey Recipient Error Tour Header',
+            'description': 'LimeSurvey Recipient Error Tour Header', 'target': 'students',
+            'tsv_raw_text': 'placeholder', 'state': 'computed',
+        })
+        student = self.env['res.partner'].create({
+            'name': 'LimeSurvey Recipient Error Tour Student', 'contact_type': 'student',
+        })
+        self.env['ems.limesurvey_recipient'].create({
+            'limesurvey_header_id': header.id, 'student_id': student.id,
+            'name': student.name, 'error': 'Something went wrong.',
+        })
+        self.start_tour("/odoo", "ems_limesurvey_recipient_error_popup", login="admin")

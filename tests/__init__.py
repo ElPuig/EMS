@@ -122,6 +122,7 @@ from . import test_em_grading_wizard_tour
 from . import test_provider_tour
 from . import test_enrollment_config_tour
 from . import test_limesurvey_recipient_tour
+from . import test_limesurvey_header_tour
 from . import test_attendance_correction_request_tour
 from . import test_asp_tour
 from . import test_portal_tour

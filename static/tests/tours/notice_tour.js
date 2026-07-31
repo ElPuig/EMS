@@ -82,3 +82,37 @@ registry.category("web_tour.tours").add("ems_notice_create_and_send", {
         },
     ],
 });
+
+// The "Open error details" button on a notice line (invisible="not exception") had zero
+// coverage - its popup view (ems.view_notice_line_exception_popup) had never been rendered.
+// Reuses the notice created by ems_notice_create_and_send above (run first, in the same test
+// method) - its line's real notification_id (queued by "Send now") is forced into a failed
+// state with exc_info set directly in Python, since making a queue.job actually fail would
+// need real async execution, which --test-enable never does.
+registry.category("web_tour.tours").add("ems_notice_exception_popup", {
+    test: true,
+    url: "/odoo/action-ems.action_communication_list",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Notices list loaded" },
+        {
+            trigger: ".o_list_view .o_data_cell:contains('Tour Notice Subject')",
+            content: "Open the seeded (already sent) notice",
+            run: "click",
+        },
+        {
+            trigger:
+                ".o_field_widget[name='notice_line_ids'] .o_data_row:has(.o_data_cell:contains('notice.tour.student@example.com')) button[name='open_exception_popup']",
+            content: "Open the error-details popup for the failed notification",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='exception']:contains('Notice delivery failed (tour fixture).')",
+            content: "The exception text is shown in the readonly popup",
+        },
+        {
+            trigger: ".modal footer button:contains('Close')",
+            content: "Close the popup",
+            run: "click",
+        },
+    ],
+});

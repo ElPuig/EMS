@@ -36,3 +36,42 @@ registry.category("web_tour.tours").add("ems_attendance_issue_drill_down", {
         },
     ],
 });
+
+// The "Open error details" button (invisible="not exception") on the status-level list had
+// zero coverage - its popup view (ems.view_attendance_issue_status_exception_popup) had never
+// been rendered. The seeded status's own notification_id (a real queue.job created by
+// _update_notification()'s with_delay(), see setUpClass) is forced into a failed state with
+// exc_info set directly in Python (out of scope here: actually making a job fail requires
+// real async execution, which --test-enable never does).
+registry.category("web_tour.tours").add("ems_attendance_issue_exception_popup", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_issue_tree",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Daily issues list loaded" },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Attendance Issue Tour Tutor')",
+            content: "Open the seeded tutor report",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='attendance_issue_student_ids'] .o_data_row td:contains('Attendance Issue Tour Student')",
+            content: "Drill into the seeded student row",
+            run: "click",
+        },
+        {
+            trigger:
+                ".modal .o_field_widget[name='attendance_issue_status_ids'] .o_data_row:has(td:contains('Test Subject (Attendance Issue Tour)')) button[name='open_exception_popup']",
+            content: "Open the error-details popup for the failed notification",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='exception']:contains('Notification delivery failed (tour fixture).')",
+            content: "The exception text is shown in the readonly popup",
+        },
+        {
+            trigger: ".modal footer button:contains('Close')",
+            content: "Close the popup",
+            run: "click",
+        },
+    ],
+});

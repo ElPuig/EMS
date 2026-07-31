@@ -64,3 +64,12 @@ class TestAttendanceIssueTour(HttpCase):
 
     def test_attendance_issue_drill_down_tour(self):
         self.start_tour("/odoo", "ems_attendance_issue_drill_down", login="admin")
+
+    def test_attendance_issue_exception_popup_tour(self):
+        issue_status = self.env['ems.attendance_issue_status'].search([
+            ('attendance_issue_student_id.student_id', '=', self.student.id),
+        ], limit=1)
+        issue_status.notification_id.write({
+            'state': 'failed', 'exc_info': 'Notification delivery failed (tour fixture).',
+        })
+        self.start_tour("/odoo", "ems_attendance_issue_exception_popup", login="admin")

@@ -226,16 +226,16 @@ jobs:
   # lightweight aggregator exists so there's a single, stable check reflecting "did the whole
   # matrix pass," with the real work split into parallel shards underneath it.
   #
-  # CORRECTION 2026-07-31 (read via gh api with admin access, first time this could actually
-  # be verified): an earlier version of this comment claimed branch protection's existing
-  # required check was already named "ci" - that was never verified and turned out to be
-  # WRONG. The real required context was "Install and test on Ubuntu 24.04" - the *job name*
-  # (not id) of this workflow's single job before it was split into this matrix. That string
-  # is now permanently orphaned (nothing reports it anymore) and needs to be replaced in
-  # branch protection with "ci" (this job's actual name) - a GitHub-side config change, not a
-  # file change; see chat history 2026-07-31 for the exact API call.
+  # Named "Test (all)" (job id stays "ci" - only the reported `name:` matters for display and
+  # for what branch protection's required-status-check rule matches on) so it reads as one of
+  # the "Test (...)" family above instead of an unrelated one-word outlier (developer feedback
+  # 2026-07-31). Renamed from the earlier "ci" - a required-check rename, so branch
+  # protection's required context needs the matching GitHub-side update in the same breath
+  # (see chat history 2026-07-31 for the exact API call) or the old "ci" string orphans
+  # permanently, same class of mistake as the "Install and test on Ubuntu 24.04" orphan found
+  # and fixed earlier this session.
   ci:
-    name: ci
+    name: "Test (all)"
     needs: test
     if: always()
     runs-on: ubuntu-24.04

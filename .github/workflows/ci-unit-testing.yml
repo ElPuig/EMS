@@ -6,8 +6,66 @@ on:
   workflow_dispatch:
 
 jobs:
-  ci:
-    name: Install and test on Ubuntu 24.04
+  # Computes two things once, shared by every shard below: whether this push only touched
+  # changelog/ (see the "Detect changelog-only push" step) and the dynamic test-shard matrix
+  # (.github/scripts/compute_test_shards.py - self-maintaining, discovers tests/*_tour.py at
+  # run time so a new tour file is picked up automatically, no workflow edit needed).
+  plan:
+    name: Plan test shards
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.shards.outputs.matrix }}
+      changelog_only: ${{ steps.diff.outputs.changelog_only }}
+    steps:
+      - name: Checkout EMS
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      # This required check must always run and record a real result (never be skipped by
+      # GitHub's own path filtering), or it risks getting stuck "pending" forever and
+      # blocking merges even when everything is fine - see require-changelog-clean.yml's own
+      # comment for the same gotcha. So instead of filtering this workflow's trigger, detect
+      # here whether the push that triggered this specific run only touched changelog/
+      # (the working-draft PR notes folder - see CLAUDE.md's "PR changelog" section, cleaned
+      # up via the "/clean-changelog" comment command right before merging) and skip the
+      # expensive steps below for that one case, while still letting every job succeed.
+      - name: Detect changelog-only push
+        id: diff
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+          elif git rev-parse HEAD~1 >/dev/null 2>&1; then
+            CHANGED=$(git diff --name-only HEAD~1 HEAD)
+            if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qv '^changelog/'; then
+              echo "changelog_only=true" >> "$GITHUB_OUTPUT"
+              echo "This push only touches changelog/ - skipping the full test suite for this run."
+            else
+              echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compute test shards
+        id: shards
+        run: echo "matrix=$(python3 .github/scripts/compute_test_shards.py)" >> "$GITHUB_OUTPUT"
+
+  # One shard = one full "install Odoo + EMS" runner running a subset of test classes, in
+  # parallel with every other shard - see .github/scripts/compute_test_shards.py for how the
+  # subsets are chosen (one "fast" shard with everything except browser tours, split evenly
+  # across N "tour-*" shards). Each shard duplicates the install/setup cost (unavoidable on
+  # GitHub-hosted runners without a shared filesystem between jobs), but that cost runs
+  # concurrently across shards instead of stacking sequentially - this repo's GitHub repo is
+  # public, so the extra Actions minutes this duplication uses are free (see CLAUDE.md/chat
+  # history 2026-07-31), only wall-clock time is what's actually being optimized here.
+  test:
+    name: "Test (${{ matrix.name }})"
+    needs: plan
+    if: needs.plan.outputs.changelog_only != 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     runs-on: ubuntu-24.04
 
     services:
@@ -28,36 +86,8 @@ jobs:
     steps:
       - name: Checkout EMS
         uses: actions/checkout@v7
-        with:
-          fetch-depth: 2
-
-      # This required check must always run and record a real result (never be skipped by
-      # GitHub's own path filtering), or it risks getting stuck "pending" forever and
-      # blocking merges even when everything is fine - see require-changelog-clean.yml's own
-      # comment for the same gotcha. So instead of filtering this workflow's trigger, detect
-      # here whether the push that triggered this specific run only touched changelog/
-      # (the working-draft PR notes folder - see CLAUDE.md's "PR changelog" section, cleaned
-      # up via the "/clean-changelog" comment command right before merging) and skip the
-      # expensive steps below for that one case, while still letting the job succeed.
-      - name: Detect changelog-only push
-        id: diff
-        run: |
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
-          elif git rev-parse HEAD~1 >/dev/null 2>&1; then
-            CHANGED=$(git diff --name-only HEAD~1 HEAD)
-            if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qv '^changelog/'; then
-              echo "changelog_only=true" >> "$GITHUB_OUTPUT"
-              echo "This push only touches changelog/ - skipping the full test suite for this run."
-            else
-              echo "changelog_only=false" >> "$GITHUB_OUTPUT"
-            fi
-          else
-            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Install system dependencies
-        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y wget gnupg python3-pip \
@@ -65,9 +95,13 @@ jobs:
 
       # Required to run the browser (tour) tests — mirrors the "Only under development
       # environments" section of README.md, so CI exercises the same tours a developer
-      # would run locally instead of silently skipping them for missing dependencies.
+      # would run locally instead of silently skipping them for missing dependencies. Skipped
+      # entirely for the "fast" shard, which runs zero tour/HttpCase tests and so never
+      # touches a browser - a real, if modest, extra speedup this matrix split makes possible
+      # that the old single-job workflow couldn't have (every test used to share one process,
+      # so Chrome always had to be installed regardless of which tests actually needed it).
       - name: Install browser test dependencies (websocket-client, Chrome)
-        if: steps.diff.outputs.changelog_only != 'true'
+        if: matrix.needs_chrome
         run: |
           sudo pip install --break-system-packages websocket-client
           sudo mkdir -p /etc/apt/keyrings
@@ -85,11 +119,10 @@ jobs:
       # tour test then times out waiting for the devtools port. See
       # https://github.com/actions/runner-images/issues/9491.
       - name: Allow unprivileged user namespaces for Chrome sandboxing
-        if: steps.diff.outputs.changelog_only != 'true'
+        if: matrix.needs_chrome
         run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
 
       - name: Install Odoo v18 from official repository
-        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           wget -q -O - https://nightly.odoo.com/odoo.key \
             | sudo gpg --dearmor -o /usr/share/keyrings/odoo-archive-keyring.gpg
@@ -99,20 +132,17 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y odoo
 
       - name: Stop and disable Odoo system service
-        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           sudo systemctl stop odoo || true
           sudo systemctl disable odoo || true
 
       - name: Copy EMS module and set permissions
-        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           sudo mkdir -p /opt/modules
           sudo cp -r "$GITHUB_WORKSPACE" /opt/modules/ems
           sudo chown -R odoo:odoo /opt/modules
 
       - name: Configure Odoo
-        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           sudo tee /etc/odoo/odoo.conf > /dev/null <<'EOF'
           [options]
@@ -125,24 +155,20 @@ jobs:
           EOF
 
       - name: Install EMS module
-        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           set -o pipefail
           sudo /opt/modules/ems/install.sh 2>&1 | tee /tmp/odoo-install.log
 
       - name: Update external dependencies
-        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           sudo /opt/modules/ems/update.sh
 
       - name: Upgrade EMS module
-        if: steps.diff.outputs.changelog_only != 'true'
         run: |
           set -o pipefail
           sudo /opt/modules/ems/upgrade.sh 2>&1 | tee /tmp/odoo-upgrade.log
 
-      - name: Run EMS tests
-        if: steps.diff.outputs.changelog_only != 'true'
+      - name: Run EMS tests (${{ matrix.name }})
         env:
           # Raises Chrome's own internal log verbosity (odoo/tests/common.py passes this as
           # --v=<level> to the browser). Level 0 (Odoo's default) only logs the last gasp before
@@ -154,10 +180,10 @@ jobs:
           ODOO_BROWSER_LOG_VERBOSITY: "1"
         run: |
           set -o pipefail
-          sudo /opt/modules/ems/test.sh 2>&1 | tee /tmp/odoo-test.log
+          sudo /opt/modules/ems/test.sh "${{ matrix.tags }}" 2>&1 | tee /tmp/odoo-test.log
 
       - name: Collect Chrome/system logs for failed tour tests
-        if: always() && steps.diff.outputs.changelog_only != 'true'
+        if: always() && matrix.needs_chrome
         run: |
           # odoo/tests/common.py's ChromeBrowser.stop() already saves the browser's own
           # chrome_debug.log (odoo.tools.config['screenshots'], defaulting to /tmp/odoo_tests)
@@ -173,10 +199,10 @@ jobs:
           sudo dmesg --time-format iso 2>/dev/null | tail -300 > /tmp/dmesg-tail.log || true
 
       - name: Upload logs
-        if: always() && steps.diff.outputs.changelog_only != 'true'
+        if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: odoo-logs
+          name: odoo-logs-${{ matrix.name }}
           path: |
             /tmp/odoo-install.log
             /tmp/odoo-upgrade.log
@@ -184,3 +210,25 @@ jobs:
             /tmp/odoo-chrome-logs
             /tmp/dmesg-tail.log
           if-no-files-found: ignore
+
+  # Deliberately named "ci" (unchanged from before this shard split) - this is the exact
+  # required-status-check name main's branch protection already expects (see
+  # require-changelog-clean.yml's own comment: "...alongside 'CI: Unit Testing''s 'ci' job").
+  # A matrix job's own check name changes per matrix value (e.g. "Test (tour-2)"), which
+  # branch protection would treat as a brand-new, never-configured check - this lightweight
+  # aggregator exists purely so the required check GitHub already knows about keeps working
+  # unchanged, with the real work now split into parallel shards underneath it.
+  ci:
+    name: ci
+    needs: test
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check all shards passed
+        run: |
+          result="${{ needs.test.result }}"
+          if [ "$result" != "success" ] && [ "$result" != "skipped" ]; then
+            echo "::error::One or more test shards failed (aggregate result: $result) - see the 'Test (...)' jobs above."
+            exit 1
+          fi
+          echo "All test shards passed (aggregate result: $result)."

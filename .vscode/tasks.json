@@ -6,22 +6,22 @@
       {
        "label": "install-demo",
         "type": "shell",
-        "command": "./demo.sh && echo && ./wait_for_debugger.sh",        
+        "command": "./demo.sh && echo && ./.vscode/wait_for_debugger.sh",        
       },
       {
         "label": "install-no-demo",
          "type": "shell",
-         "command": "./install.sh && echo && ./wait_for_debugger.sh",        
+         "command": "./install.sh && echo && ./.vscode/wait_for_debugger.sh",        
        },
        {
         "label": "update",
          "type": "shell",
-         "command": "./upgrade.sh && echo && ./wait_for_debugger.sh",        
+         "command": "./upgrade.sh && echo && ./.vscode/wait_for_debugger.sh",        
        },
        {
         "label": "attach",
          "type": "shell",
-         "command": "./wait_for_debugger.sh",        
+         "command": "./.vscode/wait_for_debugger.sh",        
        }
     ]
   }

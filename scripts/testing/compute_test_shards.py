@@ -7,12 +7,14 @@ Self-maintaining by design: tour classes are discovered from tests/*_tour.py at 
 hardcoded here. Adding a new *_tour.py file with new test classes is automatically picked up
 on the next CI run, no workflow/script edit needed.
 
-Used by two consumers, both from the repo root:
-- CI (ci-unit-testing.yml): `python3 compute_test_shards.py` prints a single JSON line,
-  `{"include": [{"name": ..., "tags": ..., "needs_chrome": bool}, ...]}`, for GitHub Actions'
-  `strategy.matrix: ${{ fromJson(...) }}`.
-- Local dev (test.sh's no-argument "run everything" form, via run_sharded_tests.py): imports
-  `compute_shards()` directly to drive the same split against local database clones.
+Used by two consumers, both invoked with the repo root as the working directory (the
+`tests/*_tour.py` glob below is relative to that, not to this file's own location):
+- CI (ci-unit-testing.yml): `python3 scripts/testing/compute_test_shards.py` prints a single
+  JSON line, `{"include": [{"name": ..., "tags": ..., "needs_chrome": bool}, ...]}`, for
+  GitHub Actions' `strategy.matrix: ${{ fromJson(...) }}`.
+- Local dev (test.sh's no-argument "run everything" form, via run_sharded_tests.py, which
+  lives alongside this file): imports `compute_shards()` directly to drive the same split
+  against local database clones.
 """
 import glob
 import json

@@ -8,7 +8,7 @@ on:
 jobs:
   # Computes two things once, shared by every shard below: whether this push only touched
   # changelog/ (see the "Detect changelog-only push" step) and the dynamic test-shard matrix
-  # (compute_test_shards.py - self-maintaining, discovers tests/*_tour.py at
+  # (scripts/testing/compute_test_shards.py - self-maintaining, discovers tests/*_tour.py at
   # run time so a new tour file is picked up automatically, no workflow edit needed).
   plan:
     name: Plan test shards
@@ -49,10 +49,10 @@ jobs:
 
       - name: Compute test shards
         id: shards
-        run: echo "matrix=$(python3 compute_test_shards.py)" >> "$GITHUB_OUTPUT"
+        run: echo "matrix=$(python3 scripts/testing/compute_test_shards.py)" >> "$GITHUB_OUTPUT"
 
   # One shard = one full "install Odoo + EMS" runner running a subset of test classes, in
-  # parallel with every other shard - see compute_test_shards.py for how the
+  # parallel with every other shard - see scripts/testing/compute_test_shards.py for how the
   # subsets are chosen (one "fast" shard with everything except browser tours, split evenly
   # across N "tour-*" shards). Each shard duplicates the install/setup cost (unavoidable on
   # GitHub-hosted runners without a shared filesystem between jobs), but that cost runs

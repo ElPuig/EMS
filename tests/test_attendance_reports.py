@@ -18,6 +18,19 @@ class TestAttendanceReportWizards(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Native Odoo intercepts an admin's *first ever* report_action() call with a "configure
+        # your document layout" wizard instead of the real report action whenever
+        # company.external_report_layout_id is unset (see
+        # ir.actions.report.report_action()/_action_configure_external_report_layout in Odoo
+        # core) - print()'s result then has neither 'data' nor 'report_name', breaking every
+        # assertion below. A long-lived dev database has this already configured (someone
+        # clicked through it once); a genuinely fresh install never has, so this only ever
+        # surfaced on a real clean-install CI run (confirmed 2026-07-31), never locally. Not an
+        # EMS bug to "fix" in production - this is standard Odoo onboarding UX every real
+        # company goes through once - just needs to be pre-configured here so the test exercises
+        # the report dispatch itself, not Odoo's one-time layout prompt.
+        cls.env.company.external_report_layout_id = cls.env.ref('web.external_layout_standard')
+
         cls.group_teacher = cls.env.ref('ems.group_teacher')
         cls.group_academic_admin = cls.env.ref('ems.group_academic_admin')
 

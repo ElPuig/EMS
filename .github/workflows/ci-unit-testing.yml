@@ -144,7 +144,16 @@ jobs:
 
       - name: Configure Odoo
         run: |
-          sudo tee /etc/odoo/odoo.conf > /dev/null <<'EOF'
+          # 'secret' is required by EmsCompany._get_fernet_key() (models/settings/company.py)
+          # to encrypt/decrypt company-level credentials (LimeSurvey password, Google
+          # Workspace service account JSON) - any test touching those fields raises
+          # "Unable to locate a 'secret' value within odoo.conf" without it (confirmed via a
+          # real CI run, 2026-07-31 - TestCompanySettings and TestLimesurveyApi's whole
+          # setUpClass both failed on this). A fresh random Fernet key is fine here since
+          # this database is thrown away at the end of the job - it only needs to stay the
+          # same *within* this one run, not match production's or persist across runs.
+          SECRET=$(python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          sudo tee /etc/odoo/odoo.conf > /dev/null <<EOF
           [options]
           addons_path = /usr/lib/python3/dist-packages/odoo/addons,/opt/modules,/opt/modules/queue,/opt/modules/partner-contact
           db_host = localhost
@@ -152,6 +161,7 @@ jobs:
           db_user = odoo
           db_password = odoo
           server_wide_modules = web,queue_job
+          secret = ${SECRET}
           EOF
 
       - name: Install EMS module
@@ -211,13 +221,19 @@ jobs:
             /tmp/dmesg-tail.log
           if-no-files-found: ignore
 
-  # Deliberately named "ci" (unchanged from before this shard split) - this is the exact
-  # required-status-check name main's branch protection already expects (see
-  # require-changelog-clean.yml's own comment: "...alongside 'CI: Unit Testing''s 'ci' job").
   # A matrix job's own check name changes per matrix value (e.g. "Test (tour-2)"), which
-  # branch protection would treat as a brand-new, never-configured check - this lightweight
-  # aggregator exists purely so the required check GitHub already knows about keeps working
-  # unchanged, with the real work now split into parallel shards underneath it.
+  # branch protection would treat as a brand-new, never-configured check per shard - this
+  # lightweight aggregator exists so there's a single, stable check reflecting "did the whole
+  # matrix pass," with the real work split into parallel shards underneath it.
+  #
+  # CORRECTION 2026-07-31 (read via gh api with admin access, first time this could actually
+  # be verified): an earlier version of this comment claimed branch protection's existing
+  # required check was already named "ci" - that was never verified and turned out to be
+  # WRONG. The real required context was "Install and test on Ubuntu 24.04" - the *job name*
+  # (not id) of this workflow's single job before it was split into this matrix. That string
+  # is now permanently orphaned (nothing reports it anymore) and needs to be replaced in
+  # branch protection with "ci" (this job's actual name) - a GitHub-side config change, not a
+  # file change; see chat history 2026-07-31 for the exact API call.
   ci:
     name: ci
     needs: test

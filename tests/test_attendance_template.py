@@ -264,10 +264,10 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
             'employee_type': 'teacher',
         })
 
-    def _entry(self, hour_from=9, hour_to=10, dayofweek='0', subject=None, group=None):
+    def _entry(self, hour_from=9, hour_to=10, dayofweek='0', subject=None, group=None, group_ids=None):
         return {
             'subject_id': (subject or self.subject).id,
-            'group_ids': [(group or self.group).id],
+            'group_ids': group_ids if group_ids is not None else [(group or self.group).id],
             'hour_from': hour_from,
             'hour_to': hour_to,
             'dayofweek': dayofweek,
@@ -285,6 +285,41 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.assertEqual(template.start_date, date(2026, 2, 1))
         self.assertEqual(len(template.attendance_schedule_ids), 1)
         self.assertRegex(template.color, r'^#[0-9A-Fa-f]{6}$')
+
+    def test_sync_covers_both_groups_when_two_main_groups_share_one_session(self):
+        # Real scenario: a level split into two official groups (e.g. a "desdoblament") that share
+        # the same classroom but are taught as two distinct ems.group records - not a reinforcement
+        # group. group_ids is a plain Many2many precisely to support this: one template, one set of
+        # attendance_schedule_ids, covering both groups at once.
+        self.env['ems.attendance_template'].sync_from_schedule(
+            self.teacher, [self._entry(group_ids=[self.group.id, self.other_group.id])])
+
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(template.group_ids, self.group | self.other_group)
+        # Documented simplification (see docs/en/developers/attendance/attendance_template.md):
+        # space_id/level_id/study_id are all derived from the FIRST group only. Safe as long as
+        # every combined group shares the same classroom - not validated/warned otherwise.
+        self.assertEqual(template.space_id, self.space)
+
+    def test_fill_students_pulls_students_from_every_shared_group(self):
+        student_a = self.env['res.partner'].create({
+            'name': 'Student Group A (Attendance Template Sync)', 'contact_type': 'student'})
+        student_b = self.env['res.partner'].create({
+            'name': 'Student Group B (Attendance Template Sync)', 'contact_type': 'student'})
+        self.env['ems.enrollment'].create({
+            'student_id': student_a.id, 'group_id': self.group.id, 'subject_id': self.subject.id})
+        self.env['ems.enrollment'].create({
+            'student_id': student_b.id, 'group_id': self.other_group.id, 'subject_id': self.subject.id})
+
+        self.env['ems.attendance_template'].sync_from_schedule(
+            self.teacher, [self._entry(group_ids=[self.group.id, self.other_group.id])])
+
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(template.student_ids, student_a | student_b)
 
     def test_consecutive_syncs_get_different_colors(self):
         # Regression guard: color used to be based on position within the current sync batch,

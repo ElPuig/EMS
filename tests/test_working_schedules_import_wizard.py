@@ -244,6 +244,27 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(attendance.subject_id, self.subject)
         self.assertEqual(attendance.group_ids, self.group)
 
+    def test_import_two_main_groups_share_one_session(self):
+        # Real scenario: a level split into two official groups sharing the same classroom (a
+        # "desdoblament") - distinct from a reinforcement group. The planner file lists them as two
+        # separate <Students> nodes under the same hour; both must end up in the same attendance row.
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>'
+                f'<Students name="{self.single_group.name} Group"/>',
+            ),
+        })
+
+        attendance = self.teacher.resource_calendar_id.attendance_ids
+        self.assertEqual(attendance.group_ids, self.group | self.single_group)
+
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(template.group_ids, self.group | self.single_group)
+
     def test_import_reinforcement_group_resolved_by_exact_name(self):
         # A reinforcement group's name is free-form and can contain spaces (e.g. "Reforç Programació"),
         # and the real planner export never appends anything to it (unlike 'main' groups' " Group"

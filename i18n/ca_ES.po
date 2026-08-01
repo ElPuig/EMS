@@ -11564,6 +11564,25 @@ msgstr "Professor pendent (%s)"
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Room conflict: this import wants the same space and time as %s."
+msgstr "Conflicte d'aula: aquesta importació vol el mateix espai i horari que %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid ""
+"These existing sessions occupy the same space and time as what you're importing, "
+"for a different group/subject - fix the room conflict and try again: %s"
+msgstr "Aquestes sessions existents ocupen el mateix espai i horari que el que esteu important, per a un grup/assignatura diferent - solucioneu el conflicte d'aula i torneu-ho a provar: %s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Attention please: the following existing sessions belong to teachers NOT included in this file, but overlap in classroom, time, subject and group with what you're importing - this looks like co-teaching. If that's not intended, fix the group/subject and try again:"
+msgstr "Atenció: les següents sessions existents pertanyen a professors NO inclosos en aquest fitxer, però coincideixen en aula, horari, assignatura i grup amb el que esteu important - això sembla codocència. Si no és el que es pretenia, corregiu el grup/assignatura i torneu-ho a provar:"
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 msgid "Identity confirmed: this employee was created as a pending-identification placeholder from schedule-import code '%s'."
 msgstr "Identitat confirmada: aquest empleat es va crear com a marcador de posició pendent d'identificar a partir del codi d'importació d'horari '%s'."

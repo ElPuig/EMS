@@ -464,21 +464,6 @@ export class ScheduleGridField extends Component {
         });
     }
 
-    // ── Import (opens the XML importer already scoped to this teacher) ───────
-
-    async onImportClick() {
-        await this.actionService.doAction(
-            {
-                type: "ir.actions.act_window",
-                res_model: "ems.working_schedules_import_wizard",
-                views: [[false, "form"]],
-                target: "new",
-                context: { default_teacher_id: this.props.record.resId },
-            },
-            { onClose: () => this.props.record.load() }
-        );
-    }
-
     // ── New (blank framework or copy from another teacher) ───────────────────
 
     async openNewPanel() {

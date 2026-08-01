@@ -229,19 +229,29 @@ class EmsAttendanceTemplate(models.Model):
 				merged.append((self.env['hr.employee'].browse(teacher_ids), slot_entries))
 		return merged, vacated
 
-	def find_external_conflicts(self, teacher_entries):
+	def classify_external_conflicts(self, teacher_entries):
 		"""Given [(teacher, entries), ...] (same shape as sync_from_schedule_batch), find every
-		currently active ems.attendance_schedule belonging ONLY to teachers NOT part of this batch —
-		that would collide (same space, weekday, overlapping time) with one of the new entries. A batch
-		only ever cleans up its own teachers' stale data (see '_archive_stale_schedule_sync'); a
-		teacher who simply isn't in this particular file can still be left with an old schedule line in
-		a classroom the new import now also wants at an overlapping time. Used both to preview what the
-		import wizard is about to archive (before the user confirms) and, at actual import time, to
-		archive those lines so the fresh ones can be written without a false check_overlap() — the
-		returned lines, not their whole templates, since the rest of that external teacher's schedule is
-		presumably still correct."""
+		currently active ems.attendance_schedule belonging to a teacher NOT part of this batch that
+		overlaps (same space, weekday, time) with one of the new entries, and split the results into
+		(co_teaching, space_conflicts):
+
+		- co_teaching: same subject, sharing at least one group with the new entry (see
+		  ems.attendance_schedule.is_co_teaching_with) — the SAME class session, now taught by more
+		  than one teacher. Not an error: the batch importer leaves these alone and lets
+		  sync_from_schedule_batch's own reconciliation (_reconcile_teacher_groups) fold the new
+		  teacher into the same shared template, since it already merges any (subject, group-set)
+		  combination touched by a submitting teacher against the full current DB state.
+		- space_conflicts: anything else sharing the same space/time — a genuine double-booking the
+		  importer cannot resolve on its own; the caller must stop and surface it instead of guessing.
+
+		The XML importer never writes on top of an already-populated schedule for its own scope (see
+		docs/en/developers/employees/working_schedule.md — groups are reused across academic years,
+		but their attendance templates are archived by the course transition wizard before the next
+		import), so an external overlap found here is always either legitimate co-teaching or a real
+		problem to resolve, never something to archive automatically."""
 		teacher_ids = {teacher.id for teacher, _entries in teacher_entries}
-		conflicts = self.env['ems.attendance_schedule']
+		co_teaching = self.env['ems.attendance_schedule']
+		space_conflicts = self.env['ems.attendance_schedule']
 		for _teacher, entries in teacher_entries:
 			for entry in entries:
 				if not entry.get('group_ids'):
@@ -252,19 +262,20 @@ class EmsAttendanceTemplate(models.Model):
 					('space_id', '=', space_id),
 					('attendance_template_id.teacher_ids', 'not in', list(teacher_ids)),
 				])
-				conflicts |= candidates.filtered(
-					lambda candidate, entry=entry: (
-						candidate.ranges_overlap(candidate.start_time, candidate.end_time, entry['hour_from'], entry['hour_to'])
-						# NOTE: same subject, sharing at least one group — the SAME class session
-						# co-taught by another teacher (see ems.attendance_schedule.is_co_teaching_with),
-						# not a genuine room double-booking to archive.
-						and not (
-							candidate.attendance_template_id.subject_id.id == entry.get('subject_id')
-							and set(candidate.attendance_template_id.group_ids.ids) & set(entry.get('group_ids') or [])
-						)
-					)
+				overlapping = candidates.filtered(
+					lambda candidate, entry=entry: candidate.ranges_overlap(
+						candidate.start_time, candidate.end_time, entry['hour_from'], entry['hour_to'])
 				)
-		return conflicts
+				for candidate in overlapping:
+					same_subject_group = (
+						candidate.attendance_template_id.subject_id.id == entry.get('subject_id')
+						and set(candidate.attendance_template_id.group_ids.ids) & set(entry.get('group_ids') or [])
+					)
+					if same_subject_group:
+						co_teaching |= candidate
+					else:
+						space_conflicts |= candidate
+		return co_teaching, space_conflicts
 
 	def _plan_schedule_sync(self, teachers, entries, start_date=None):
 		"""Compute what a sync means for a single (teachers, entries) reconciled group without writing

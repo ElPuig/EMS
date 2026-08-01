@@ -12,9 +12,6 @@
                             <button type="button" class="btn btn-sm btn-secondary" t-on-click="() => this.startEdit()">
                                 <i class="fa fa-pencil me-1"/>Edit
                             </button>
-                            <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.onImportClick()">
-                                <i class="fa fa-upload me-1"/>Import
-                            </button>
                             <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.openNewPanel()">
                                 <i class="fa fa-plus me-1"/>New
                             </button>

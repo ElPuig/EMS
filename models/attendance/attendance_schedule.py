@@ -122,8 +122,8 @@ class EmsAttendanceSchedule(models.Model):
         """True if 'self' and 'other' represent the SAME class session co-taught by more than one
         teacher — same subject, sharing at least one group — rather than two unrelated sessions that
         happen to double-book the same room. Used by 'check_overlap' (here) and
-        'ems.attendance_template.find_external_conflicts' (which mirrors this same logic against a
-        not-yet-created entry dict, since one side isn't a record yet)."""
+        'ems.attendance_template.classify_external_conflicts' (which mirrors this same logic against
+        a not-yet-created entry dict, since one side isn't a record yet)."""
         self.ensure_one()
         other.ensure_one()
         template, other_template = self.attendance_template_id, other.attendance_template_id

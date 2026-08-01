@@ -475,33 +475,36 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.assertEqual(active_templates.attendance_schedule_ids.mapped('start_time'), [17])
         self.assertIn(active_templates, primary | duplicate)
 
-    def test_find_external_conflicts_detects_overlapping_room_from_teacher_outside_batch(self):
+    def test_classify_external_conflicts_detects_overlapping_room_from_teacher_outside_batch(self):
         # 'other_teacher' is NOT part of the batch being imported — a real-world case where a teacher
         # simply isn't included in the file being (re)imported, but their stale schedule still occupies
-        # a room the new import now also wants at an overlapping time.
+        # a room the new import now also wants at an overlapping time. Different subject/group: a
+        # genuine space conflict, not co-teaching.
         self.env['ems.attendance_template'].sync_from_schedule(
             self.other_teacher, [self._entry(17, 18, '0', subject=self.other_subject, group=self.group)]
         )
 
-        conflicts = self.env['ems.attendance_template'].find_external_conflicts([
+        co_teaching, space_conflicts = self.env['ems.attendance_template'].classify_external_conflicts([
             (self.teacher, [self._entry(17, 18, '0')]),  # same room (self.group's space), overlapping time
         ])
 
-        self.assertEqual(len(conflicts), 1)
-        self.assertEqual(conflicts.attendance_template_id.teacher_ids, self.other_teacher)
+        self.assertFalse(co_teaching)
+        self.assertEqual(len(space_conflicts), 1)
+        self.assertEqual(space_conflicts.attendance_template_id.teacher_ids, self.other_teacher)
 
-    def test_find_external_conflicts_ignores_non_overlapping_time(self):
+    def test_classify_external_conflicts_ignores_non_overlapping_time(self):
         self.env['ems.attendance_template'].sync_from_schedule(
             self.other_teacher, [self._entry(17, 18, '0', subject=self.other_subject, group=self.group)]
         )
 
-        conflicts = self.env['ems.attendance_template'].find_external_conflicts([
+        co_teaching, space_conflicts = self.env['ems.attendance_template'].classify_external_conflicts([
             (self.teacher, [self._entry(9, 10, '0')]),  # same room, but no time overlap
         ])
 
-        self.assertFalse(conflicts)
+        self.assertFalse(co_teaching)
+        self.assertFalse(space_conflicts)
 
-    def test_find_external_conflicts_ignores_teacher_already_in_batch(self):
+    def test_classify_external_conflicts_ignores_teacher_already_in_batch(self):
         # A teacher sharing a room with themselves (or with someone else already in the same batch) is
         # NOT an "external" conflict — sync_from_schedule_batch's own archive-then-write pass already
         # handles that case.
@@ -509,25 +512,29 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
             self.other_teacher, [self._entry(17, 18, '0', subject=self.other_subject, group=self.group)]
         )
 
-        conflicts = self.env['ems.attendance_template'].find_external_conflicts([
+        co_teaching, space_conflicts = self.env['ems.attendance_template'].classify_external_conflicts([
             (self.teacher, [self._entry(17, 18, '0')]),
             (self.other_teacher, [self._entry(17, 18, '0', subject=self.other_subject, group=self.group)]),
         ])
 
-        self.assertFalse(conflicts)
+        self.assertFalse(co_teaching)
+        self.assertFalse(space_conflicts)
 
-    def test_find_external_conflicts_ignores_co_teaching(self):
+    def test_classify_external_conflicts_reports_co_teaching_separately(self):
         # 'other_teacher' co-teaches the SAME subject+group as 'self.teacher' — a legitimate setup, not
-        # a conflict to archive, even though 'other_teacher' isn't part of this batch.
+        # a conflict to archive, even though 'other_teacher' isn't part of this batch. Reported as
+        # co-teaching, not as a space conflict.
         self.env['ems.attendance_template'].sync_from_schedule(
             self.other_teacher, [self._entry(17, 18, '0', subject=self.subject, group=self.group)]
         )
 
-        conflicts = self.env['ems.attendance_template'].find_external_conflicts([
+        co_teaching, space_conflicts = self.env['ems.attendance_template'].classify_external_conflicts([
             (self.teacher, [self._entry(17, 18, '0')]),
         ])
 
-        self.assertFalse(conflicts)
+        self.assertEqual(len(co_teaching), 1)
+        self.assertEqual(co_teaching.attendance_template_id.teacher_ids, self.other_teacher)
+        self.assertFalse(space_conflicts)
 
     def test_resync_frees_up_stale_slot_for_new_subject(self):
         # Reproduces the reported bug: a persisting subject+group's stale time slot must not collide

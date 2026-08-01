@@ -1,5 +1,12 @@
 # What's new:
 
+## Working-schedule import wizard simplified (no more per-teacher file upload, no more silent auto-archiving):
+- Removed the per-employee scoped file upload (`teacher_id`/`file` fields, the Schedule tab's "Import" button) — a teacher joining mid-year now gets their schedule via the tab's own existing "New" panel (blank framework or copy from another teacher) or by hand, never a single-file XML upload. The batch importer (`attachment_ids`, the "Working Schedules" list's cog menu) is the only way in.
+- A conflicting active session found during import (same space/day/time, different subject or group) is no longer silently archived: it now **blocks** the import with a clear error naming the conflicting session, in both the onchange preview and `create()`. Legitimate co-teaching (same subject, sharing a group) is left alone and surfaced as a non-blocking confirmation banner instead.
+- This was possible because groups are permanent and reused across academic years (confirmed via `353-add-course-transition-wizard-setup-next-course`, merged in this branch) — the course transition wizard archives a study's outgoing attendance templates before its groups are ever reimported, so a fresh import genuinely never writes on top of already-populated data for its own scope; any active overlap it finds is always either co-teaching or a real problem, never something to guess-and-archive.
+- `ems.attendance_template.find_external_conflicts` renamed to `classify_external_conflicts`, now returning `(co_teaching, space_conflicts)` instead of a single recordset to silently archive.
+- See `docs/en/developers/employees/working_schedule.md` for the full design; `plans/working_schedule_import_redesign.md` tracks what's left (a group/teacher correction dropdown for unresolved codes is designed but not yet implemented).
+
 ## Reason-aware "Archived" ribbon for students and teachers, plus a new student Expulsion outcome:
 - Archived students now show **why** at a glance instead of a generic "Archived": a green **Alumni** ribbon (graduated), an orange **Withdrawal** ribbon, or a red **Expelled** ribbon — on both the form and the kanban card.
 - Archived teachers show their actual departure reason the same way (**Retired**, **Resigned**, a new **Transfer** reason for teachers reassigned to a different centre, or **Fired**), also on both form and kanban — teachers' kanban previously showed nothing at all for an archived employee.
@@ -75,6 +82,12 @@
 - Admin docs (`docs/{en,ca,es}/admin/groups.md`) and the technical reference (`docs/en/developers/contacts/group.md`) updated; new tests in `test_group.py` + a new browser tour (`ems_group_reactivate_archived_duplicate`) covering both the accept and decline paths.
 
 # Internal changes:
+
+## Merged in the course-transition wizard (`353-add-course-transition-wizard-setup-next-course`):
+- Resolved conflicts in `i18n/{ca,es}_ES.po` (reference-list merges, plus one genuine duplicate msgid split across two unrelated strings), `migrations/18.0.0.22.0/post-migrate.py` (combined both branches' new backfill functions into one `migrate()`), `models/contacts/contact.py` (kept the incoming branch's `_ems_enrollment_in_force()`-based authorization-flags fix over this branch's own stale current-course-based query), `models/enrollment/enrollment.py` and `tests/__init__.py`.
+- While validating the merge, also found and fixed a pre-existing duplicate `msgid` ("Subject (all enrolled)") in both `.po` files, unrelated to this merge - two distinct source strings had ended up as separate blocks instead of one shared one.
+- Fixed `tests/test_course_transition.py::test_transition_state_is_not_copied`, which hit `ems.study`'s `unique_code` constraint (added on this branch, absent on the merged-in one, so the two never interacted until now) via a bare `.copy()` call - passes an explicit `code` override now, since the test is about `transition_state`, not code uniqueness.
+- Found (not fixed) a related, pre-existing gap while investigating that failure: six `curriculum` models have a unique `code` constraint but no `copy()` override, so Odoo's native "Duplicate" action would fail the same way for a real user - documented in `plans/curriculum_unique_code_duplicate_action.md`.
 
 ## Employee model:
 - `hr.employee` gains `schedule_import_code` (Char) and computed `pending_identification` (Boolean), added to `ems_employee` in `models/employees/employee.py`.

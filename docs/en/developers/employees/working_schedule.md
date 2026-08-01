@@ -106,8 +106,7 @@ A **framework** is just a `resource.calendar` with `is_framework=True` and an op
 
 - **Per-subject/activity colour, not one flat colour for everything.** `schedule_grid_geometry.js` exports `REPORT_COLOR_PALETTE` (mirrors the identically-named Python constant in `ems.schedule_report_mixin` — kept in sync by hand, cross-language) and `buildColorMap(items)`, which assigns each distinct `items[].key` its own colour from that palette, reused every time the same key reappears, in first-seen `(dayofweek, hour_from)` order — the exact same "same subject always gets the same colour" rule `resource.calendar.get_schedule_report_lines()`/`ems.group.get_schedule_report_lines()` already use for the PDF. Both widgets build a `colorByKey` getter from their own currently-displayed entries only (a schedule with 3 subjects gets (at most) 3 colours, not one slot per subject that exists in the whole catalogue) and read it back per entry/block (`entryColor()`/`blockColor()`), appending `background-color` to the block's own inline `style` — the CSS classes (`.o_schedule_grid_entry`'s flat blue, the old flat grey on `.o_schedule_grid_entry_nonteaching`) now only serve as a fallback for the rare case nothing computed a colour. A break opts out of this (its `_colorKey`/`blockColor` equivalent returns `null`) since it already has its own fixed, deliberately-different brown/stripe look.
 - **Edit mode** (`Edit`, or after `New`): rows are the **distinct real periods** found in the merged baseline+real buffer (see "The empty-slot rule"), not a fixed hourly grid — each row shows its own exact `HH:MM–HH:MM`, editable via two `<input type="time">` (moving the start shifts the end too, preserving duration, so a block can't accidentally balloon across the day), plus a subject+group dropdown pair (or a non-teaching reason) per (day, period) cell. `Add period`/the trash icon let an admin introduce or remove a period the loaded source didn't have — this is how a teacher who genuinely mixes two levels' bell schedules (e.g. an English teacher covering both ESO and CFGS classes) gets a slot at a time neither framework defines.
-- **Import**: opens `ems.working_schedules_import_wizard` as a dialog, pre-scoped to the current employee (`context: {default_teacher_id}`) — the wizard then skips its usual by-email matching and takes the file's first (only) teacher node directly.
-- **New**: choose a schedule framework (blank baseline) or another teacher (their real schedule as the overlay, plus *their* reference framework as the baseline too — a substitute inherits the same future gaps) — entirely replaces the buffer, but nothing is written until `Save`.
+- **New**: choose a schedule framework (blank baseline) or another teacher (their real schedule as the overlay, plus *their* reference framework as the baseline too — a substitute inherits the same future gaps) — entirely replaces the buffer, but nothing is written until `Save`. This is also how a teacher joining mid-year gets their schedule (see "Import wizard" below — there is no per-employee file upload any more, deliberately).
 - **PDF**: calls `this.actionService.doAction("ems.action_report_working_schedule", { additionalContext: { active_ids: [this.props.record.resId] } })` — downloads the printable weekly schedule for the currently open employee (see "PDF report" below). No buffer/dirty-state interaction; available in both view and edit mode.
 - **Hours summary** (below the grid, view mode only, hidden while editing): `resource.calendar.get_schedule_hours_summary()` returns two columns — mirrors the real external schedules this data is modelled on:
   - **"Weekly teaching hours"**: rows grouped by `ems.group.level_id` (teaching periods) — or, for a reinforcement group, one row per group (see "Reinforcement groups" below) — plus any non-teaching activity that isn't fixed or a Wednesday coordination meeting.
@@ -146,19 +145,57 @@ Slots are then grouped by their final teacher set. A template whose **current** 
 
 This is what lets a **solo** live edit correctly reclassify another teacher's data: if A already has a Monday+Wednesday template and B (submitting alone) starts teaching that exact Wednesday slot, Wednesday splits out of A's template into a new shared A+B template, while Monday stays solo-A, untouched — without any special-casing between the live editor and the batch importer.
 
-`find_external_conflicts` (room-collision detection against teachers **outside** the current batch) and `check_overlap`'s `same_teacher` check (`ems.attendance_schedule.py`) both moved from equality to **set intersection** on `teacher_ids` for the same reason.
+`ems.attendance_template.classify_external_conflicts` (room-collision detection against teachers **outside** the current batch) and `check_overlap`'s `same_teacher` check (`ems.attendance_schedule.py`) both moved from equality to **set intersection** on `teacher_ids` for the same reason.
 
 ## Import wizard (`ems.working_schedules_import_wizard`)
 
-Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_create_schedule()`, then calls the same `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule` used by the widget's save path. A `teacher_id` field (set via context from the widget's "Import" button) makes the by-email loop in both `_onchange_file` and `create()` a no-op — the file's single node is used directly for that employee.
+**Redesigned 2026-08-01** to remove complexity that only existed to reconcile against an
+already-populated, still-current schedule. The key fact that makes this possible: `ems.group`
+records are **permanent and reused across academic years** — a course transition (see
+`models/settings/course_transition_wizard.py`) never recreates them, it only archives the
+*outgoing* `ems.attendance_template`s for the studies it transitions (per-study/department, not
+all at once). So by the time a study's groups are due for a fresh import, there is genuinely
+nothing active left to reconcile against for that scope — an active overlap found during import
+is always either legitimate co-teaching or a real problem, never something to silently resolve.
+
+Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_create_schedule()`, then calls the same `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule_batch` used by the widget's save path.
 
 **Teaching vs. non-teaching is decided by code, not by tag or by the `Students` sibling:** both `<Subject>` and `<NonTeaching>` are accepted as the hour's activity node; whichever one is present, its `name` attribute's leading code is looked up against `ems.non_teaching_type.code` — a hit means the hour is non-teaching (`NonTeaching` is only kept for older exports; some planner apps outside our control send non-teaching hours as a `<Subject>` node too, whose only observable difference from a real subject is the missing `<Students>` sibling). A miss falls through to the `ems.subject` lookup by code. `<Students>` is unrelated to this decision — it's always just a third, independent sibling that attaches `group_ids` when present, regardless of which activity node it sits next to. An unrecognized code (neither a known `ems.non_teaching_type.code` nor an `ems.subject.code`) raises a `ValidationError` — the fix, when the planner introduces a genuinely new non-teaching activity, is adding it once from **Configuration → Teachers → Non-teaching types**, not a code change.
 
-Two upload modes, switched by whether `teacher_id` is set (the form shows one or the other via `invisible="teacher_id"`/`invisible="not teacher_id"`):
-- **Scoped** (per-employee "Import" button, `default_teacher_id` in context): single `file` (`Many2one` `attachment_id` + related `Binary`), the file's one node maps directly to that employee.
-- **General** (the "Working Schedules" list's cog menu, `import_planner_cog_menu.js` — no `teacher_id`): `attachment_ids`, a `Many2many` to `ir.attachment` rendered with the native `many2many_binary` widget, so **several files can be attached at once**, each one still free to describe **several teachers** by e-mail (unchanged from before). `create()`'s `_collect_xml_contents()` decodes every source given (`file` and/or each `attachment_ids` record) and processes all of them through the same per-node import loop; `_onchange_attachment_ids` mirrors `_onchange_file`'s already-has-a-schedule warning, checking every node in every attached file.
+**Batch import only — no per-employee file upload.** `attachment_ids` (a `Many2many` to
+`ir.attachment`, the "Working Schedules" list's cog menu, `import_planner_cog_menu.js`) is the
+only way in: **several files can be attached at once**, each one free to describe **several
+teachers** by e-mail. A teacher joining mid-year gets their schedule via the Schedule tab's own
+`New` panel (blank framework or copy from another teacher) or by hand — a single-file upload
+scoped to one employee used to exist (`teacher_id`/`file` fields, skipping the e-mail lookup) and
+was removed: onboarding one person doesn't need a file format built for a whole department, and
+dropping it also removed the `email_mismatch_warning`/scoped-specific-error code paths entirely.
 
-**Loading feedback:** both fields use custom widgets (`ems_blocking_binary`/`ems_blocking_many2many_binary`, `static/src/js/backend/working_schedule_import_blocking_upload.js`) instead of the plain `binary`/`many2many_binary` ones — thin subclasses that wrap the upload's `update()`/`onFileUploaded()` call with Odoo's own `env.services.ui.block()`/`.unblock()`. The onchange this triggers (`_onchange_file`/`_onchange_attachment_ids`) parses the whole XML server-side and was slow enough, with zero visual feedback otherwise, to look hung (reported 2026-08-01). No bespoke spinner: `ui.block()` is the same reference-counted overlay Odoo already uses for long button actions, just wired to the file input instead.
+**Overlap handling — three cases, `ems.attendance_template.classify_external_conflicts`:**
+
+```mermaid
+flowchart TD
+    E["New entry overlaps an active session (same space, day, time)"] --> Q{"same subject AND shares a group?"}
+    Q -->|yes| CT["Co-teaching - left alone, sync_from_schedule_batch's own\nreconciliation folds the new teacher into the shared template.\nSurfaced as a non-blocking banner (co_teaching_html) to confirm intent."]
+    Q -->|no| SC["Genuine room conflict - blocking\n(blocking_issues_html in the onchange preview, ValidationError from create())."]
+```
+
+There is no third, automatic case for "same subject + same group but a different space": since a
+session's space is always derived from its group's own `space_id` (one room per group, never a
+per-subject override — a known, separately-tracked limitation, not something this wizard tries to
+detect), this specific combination cannot arise from a single import batch; if the group's room
+changed since a previous sync, `_write_schedule_sync`
+already re-derives the template's `space_id` from the group's current one when it refreshes an
+existing template in place.
+
+**Loading feedback:** the `attachment_ids` field uses a custom widget
+(`ems_blocking_many2many_binary`, `static/src/js/backend/working_schedule_import_blocking_upload.js`)
+instead of the plain `many2many_binary` one — a thin subclass wrapping the upload's
+`onFileUploaded()` call with Odoo's own `env.services.ui.block()`/`.unblock()`. The onchange this
+triggers (`_onchange_attachment_ids`) parses the whole XML server-side and was slow enough, with
+zero visual feedback otherwise, to look hung (reported 2026-08-01). No bespoke spinner: `ui.block()`
+is the same reference-counted overlay Odoo already uses for long button actions, just wired to the
+file input instead.
 
 ### Pending-identification teachers (a code with no `@`)
 

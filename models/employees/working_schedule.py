@@ -291,6 +291,15 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			for line in self._conflict_lines(conflicts)
 		]
 
+	def _self_conflict_lines(self, conflicts):
+		"""One line per ems.attendance_template.find_self_conflicts() result - a teacher imported in
+		this same batch double-booked against their own, already-existing schedule for a different
+		subject/group (e.g. two departments scheduling them at the same time in separate files)."""
+		return [
+			_("Schedule conflict: this teacher already has an overlapping session, %s.") % line
+			for line in self._conflict_lines(conflicts)
+		]
+
 	def _groups_without_space(self, teacher_entries):
 		"""Every distinct ems.group referenced by a teaching entry (group_ids present — non-teaching
 		entries carry none) that has no classroom (space_id) assigned. ems.group.space_id is optional,
@@ -358,6 +367,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				co_teaching, space_conflicts = self.env['ems.attendance_template'].classify_external_conflicts(teacher_entries)
 				rec.co_teaching_html = rec._bullet_html(rec._conflict_lines(co_teaching))
 				blocking_issues += rec._space_conflict_lines(space_conflicts)
+				self_conflicts = self.env['ems.attendance_template'].find_self_conflicts(teacher_entries)
+				blocking_issues += rec._self_conflict_lines(self_conflicts)
 
 			rec.blocking_issues_html = rec._bullet_html(blocking_issues)
 			rec.info_html = rec._bullet_html(pending_codes)
@@ -440,6 +451,17 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					"These existing sessions occupy the same space and time as what you're importing, "
 					"for a different group/subject - fix the room conflict and try again: %s"
 				) % "; ".join(self._conflict_lines(space_conflicts)))
+
+			# NOTE: a teacher double-booked against their OWN existing schedule (e.g. two departments'
+			# files scheduling them at the same time) is never caught above - classify_external_conflicts
+			# only ever looks for OTHER teachers sharing the same space. Checked here too (not just in
+			# the onchange preview) as the safety net for a direct create() call that skipped it.
+			self_conflicts = self.env['ems.attendance_template'].find_self_conflicts(teacher_entries)
+			if self_conflicts:
+				raise ValidationError(_(
+					"This teacher already has an overlapping session for a different subject/group - "
+					"fix the schedule conflict and try again: %s"
+				) % "; ".join(self._conflict_lines(self_conflicts)))
 			self.env['ems.attendance_template'].sync_from_schedule_batch_fresh_import(teacher_entries)
 
 		return super(models.Model, self).create(values)

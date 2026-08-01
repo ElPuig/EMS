@@ -11571,6 +11571,22 @@ msgstr "Conflicto de aula: esta importación quiere el mismo espacio y horario q
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Schedule conflict: this teacher already has an overlapping session, %s."
+msgstr "Conflicto de horario: este profesor ya tiene una sesión solapada, %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid ""
+"This teacher already has an overlapping session for a different subject/"
+"group - fix the schedule conflict and try again: %s"
+msgstr ""
+"Este profesor ya tiene una sesión solapada para una asignatura/grupo "
+"diferente - corrige el conflicto de horario y vuelve a intentarlo: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
 msgid ""
 "These existing sessions occupy the same space and time as what you're importing, "
 "for a different group/subject - fix the room conflict and try again: %s"

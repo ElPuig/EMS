@@ -403,6 +403,49 @@ class EmsAttendanceTemplate(models.Model):
 						space_conflicts |= candidate
 		return co_teaching, space_conflicts
 
+	def find_self_conflicts(self, teacher_entries):
+		"""Given [(teacher, entries), ...], find every currently active ems.attendance_schedule
+		belonging to one of THESE SAME teachers that overlaps in weekday/time with one of their own
+		new entries, but for a DIFFERENT (subject, group-set) combination - i.e. that one teacher
+		double-booked across two separate imports (e.g. scheduled at the same time by two different
+		departments' files). 'classify_external_conflicts' cannot see this: it only ever searches for
+		OTHER teachers occupying the same space, and a self double-booking can happen in any two
+		spaces, not necessarily the same one.
+
+		A candidate sharing the (subject, group-set) combination with one of this same teacher's own
+		submitted entries is never a conflict, however its time or space differs - that is just this
+		exact combination being moved/updated in place, which '_reconcile_fresh_import' already
+		handles correctly by refreshing the existing template's schedule lines.
+
+		Note: this only catches conflicts against already-written DB data, i.e. across separate
+		imports - it does not catch two overlapping entries for the same teacher within the single
+		batch being submitted right now (a malformed source file), which still surfaces as a raw
+		check_overlap ValidationError at write time."""
+		conflicts = self.env['ems.attendance_schedule']
+		for teacher, entries in teacher_entries:
+			submitted_combos = {
+				(entry['subject_id'], tuple(sorted(entry['group_ids'])))
+				for entry in entries if entry.get('group_ids')
+			}
+			for entry in entries:
+				if not entry.get('group_ids'):
+					continue
+				candidates = self.env['ems.attendance_schedule'].search([
+					('weekday', '=', entry['dayofweek']),
+					('attendance_template_id.teacher_ids', 'in', teacher.id),
+				])
+				overlapping = candidates.filtered(
+					lambda candidate, entry=entry: candidate.ranges_overlap(
+						candidate.start_time, candidate.end_time, entry['hour_from'], entry['hour_to'])
+				)
+				conflicts |= overlapping.filtered(
+					lambda candidate: (
+						candidate.attendance_template_id.subject_id.id,
+						tuple(sorted(candidate.attendance_template_id.group_ids.ids)),
+					) not in submitted_combos
+				)
+		return conflicts
+
 	def _plan_schedule_sync(self, teachers, entries, start_date=None):
 		"""Compute what a sync means for a single (teachers, entries) reconciled group without writing
 		anything yet: which currently active templates sharing this exact (subject, group-set,

@@ -147,6 +147,30 @@ This is what lets a **solo** live edit correctly reclassify another teacher's da
 
 `ems.attendance_template.classify_external_conflicts` (room-collision detection against teachers **outside** the current batch) and `check_overlap`'s `same_teacher` check (`ems.attendance_schedule.py`) both moved from equality to **set intersection** on `teacher_ids` for the same reason.
 
+**`_reconcile_teacher_groups` is only correct when `entries` is the teacher's ENTIRE current
+schedule** (the live editor's own assumption, baked into its `touched_templates` step: any of a
+submitting teacher's existing active templates *not* re-submitted this call is treated as
+deliberately dropped and folded/archived accordingly). The XML importer's `entries` is never
+that — a file only ever describes **one slice** of the centre's schedule (e.g. one department),
+imported incrementally alongside other files over time. Reusing `_reconcile_teacher_groups` (via
+`sync_from_schedule_batch`) for the importer was tried and found (2026-08-01) to silently archive
+a shared teacher's already-imported *other* department the moment a second department's file
+mentioning that same teacher was imported — zero error raised, pure data loss, since from
+`touched_templates`' point of view the first department's combo simply "wasn't resubmitted this
+call" and was there for the taking.
+
+**Fix: `_reconcile_fresh_import` + `sync_from_schedule_batch_fresh_import`** — the importer's own
+entry point, structurally identical to `_reconcile_teacher_groups`/`sync_from_schedule_batch` but
+**without** the `touched_templates` pre-scan: it only ever reconciles a `(subject, group-set)` key
+that is actually present in the batch's own submitted entries, never a submitting teacher's
+untouched other combos. `vacated` is still computed (needed for a co-teaching merge to correctly
+archive an external teacher's now-superseded solo template), but scoped to those same keys only.
+The identical "full replace" assumption was independently found in `ems.teaching.sync_from_
+schedule` too (it unconditionally unlinked any teaching pair not in `entries`) — fixed by adding a
+`replace` parameter: `True` (default) for the live editor, `False` for the importer's `create()`.
+`sync_from_schedule_batch`/`_reconcile_teacher_groups` themselves are untouched — the live editor
+keeps relying on their "this call = the whole schedule" semantics, which is correct there.
+
 ## Import wizard (`ems.working_schedules_import_wizard`)
 
 **Redesigned 2026-08-01** to remove complexity that only existed to reconcile against an
@@ -158,7 +182,7 @@ all at once). So by the time a study's groups are due for a fresh import, there 
 nothing active left to reconcile against for that scope — an active overlap found during import
 is always either legitimate co-teaching or a real problem, never something to silently resolve.
 
-Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_create_schedule()`, then calls the same `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule_batch` used by the widget's save path.
+Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_create_schedule()`, then calls `ems.teaching.sync_from_schedule(..., replace=False)`/`ems.attendance_template.sync_from_schedule_batch_fresh_import` — the importer's own entry points, **not** the ones the Schedule tab's grid widget uses to save a live edit (see "Reconciliation" above for why the importer needs its own).
 
 **Teaching vs. non-teaching is decided by code, not by tag or by the `Students` sibling:** both `<Subject>` and `<NonTeaching>` are accepted as the hour's activity node; whichever one is present, its `name` attribute's leading code is looked up against `ems.non_teaching_type.code` — a hit means the hour is non-teaching (`NonTeaching` is only kept for older exports; some planner apps outside our control send non-teaching hours as a `<Subject>` node too, whose only observable difference from a real subject is the missing `<Students>` sibling). A miss falls through to the `ems.subject` lookup by code. `<Students>` is unrelated to this decision — it's always just a third, independent sibling that attaches `group_ids` when present, regardless of which activity node it sits next to. An unrecognized code (neither a known `ems.non_teaching_type.code` nor an `ems.subject.code`) raises a `ValidationError` — the fix, when the planner introduces a genuinely new non-teaching activity, is adding it once from **Configuration → Teachers → Non-teaching types**, not a code change.
 
@@ -171,12 +195,15 @@ scoped to one employee used to exist (`teacher_id`/`file` fields, skipping the e
 was removed: onboarding one person doesn't need a file format built for a whole department, and
 dropping it also removed the `email_mismatch_warning`/scoped-specific-error code paths entirely.
 
-**Overlap handling — three cases, `ems.attendance_template.classify_external_conflicts`:**
+**Overlap handling — two independent checks:**
+
+`ems.attendance_template.classify_external_conflicts` looks for **other** teachers (outside the
+current batch) occupying the same space/day/time as a new entry:
 
 ```mermaid
 flowchart TD
-    E["New entry overlaps an active session (same space, day, time)"] --> Q{"same subject AND shares a group?"}
-    Q -->|yes| CT["Co-teaching - left alone, sync_from_schedule_batch's own\nreconciliation folds the new teacher into the shared template.\nSurfaced as a non-blocking banner (co_teaching_html) to confirm intent."]
+    E["New entry overlaps an active session (same space, day, time),\nbelonging to a teacher NOT in this batch"] --> Q{"same subject AND shares a group?"}
+    Q -->|yes| CT["Co-teaching - left alone, sync_from_schedule_batch_fresh_import's own\nreconciliation folds the new teacher into the shared template.\nSurfaced as a non-blocking banner (co_teaching_html) to confirm intent."]
     Q -->|no| SC["Genuine room conflict - blocking\n(blocking_issues_html in the onchange preview, ValidationError from create())."]
 ```
 
@@ -187,6 +214,23 @@ detect), this specific combination cannot arise from a single import batch; if t
 changed since a previous sync, `_write_schedule_sync`
 already re-derives the template's `space_id` from the group's current one when it refreshes an
 existing template in place.
+
+`ems.attendance_template.find_self_conflicts` catches a different, complementary case:
+**the same teacher**, submitted in this batch, double-booked against **their own** already-active
+schedule for a genuinely different `(subject, group-set)` combination — e.g. two departments'
+files, imported separately over time, both scheduling that one teacher Monday 09:00, in two
+different rooms. `classify_external_conflicts` cannot see this at all (it only ever searches for
+*other* teachers sharing the *same* space); left unchecked, this surfaced only as Odoo's raw
+`check_overlap` `ValidationError` (`same_teacher` set-intersection check on
+`ems.attendance_schedule`) — correct in that it stopped the import (no data loss), but with none
+of the wizard's own naming/formatting. A candidate sharing a `(subject, group-set)` with one of
+that same teacher's own submitted entries is never flagged — that's just this exact combination
+being moved/updated in place, which `_reconcile_fresh_import` already handles by refreshing the
+existing template rather than creating a conflicting new one. Known limitation: this only compares
+new entries against already-written DB data (i.e. across separate imports) — two overlapping
+entries for the same teacher **within the single file/batch being submitted right now** (a
+malformed source export) still falls through to the raw `check_overlap` error instead of a named
+banner.
 
 **Loading feedback:** the `attachment_ids` field uses a custom widget
 (`ems_blocking_many2many_binary`, `static/src/js/backend/working_schedule_import_blocking_upload.js`)

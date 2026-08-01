@@ -9,6 +9,23 @@ Verified: backend tests (`TestWorkingSchedulesImportWizard`, `TestAttendanceTemp
 own browser tour, and `TestEmployeeTour` (Schedule tab still renders without the Import button) all
 green; docs/i18n/changelog updated.
 
+**Also done, found while verifying #2 against the real incremental (department-by-department)
+workflow:** reusing `sync_from_schedule_batch`/`_reconcile_teacher_groups` for the importer's own
+write path silently archived a shared teacher's already-imported *other* department schedule the
+moment a second department's file mentioned that same teacher again - zero error, pure data loss.
+Fixed with `_reconcile_fresh_import`/`sync_from_schedule_batch_fresh_import` (importer-only, no
+`touched_templates` pre-scan) and `ems.teaching.sync_from_schedule(..., replace=False)` for the
+importer's call. Same session also added `ems.attendance_template.find_self_conflicts` - a teacher
+imported in this batch, double-booked against their own already-active schedule for a genuinely
+different subject/group (e.g. two departments scheduling them at the same time) - surfaced as its
+own named `blocking_issues_html` line / `ValidationError`, instead of falling through to the raw,
+unworded `check_overlap` constraint error. See
+`docs/en/developers/employees/working_schedule.md`'s "Reconciliation"/"Overlap handling" sections
+for the full detail. Known, accepted limitation: `find_self_conflicts` only compares against
+already-written DB data (across separate imports) - two overlapping entries for the same teacher
+*within* the single file/batch being submitted right now (a malformed source export) still
+surfaces as the raw `check_overlap` error, not a named banner.
+
 **Not done:** #3, the group/teacher correction dropdown for unresolved codes - a separate, sizable
 UI feature (new child transient model(s), editable list view, re-triggering the onchange chain).
 Check with the developer before starting this piece.

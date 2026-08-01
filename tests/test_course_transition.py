@@ -164,7 +164,9 @@ class TestCourseTransition(TransactionCase):
         the transitioned mark of the study it was copied from."""
         self.assertFalse(self.env['ems.study']._fields['transition_state'].copy)
         self.study.transition_state = 'transitioned'
-        self.assertEqual(self.study.copy().transition_state, 'active')
+        # 'code' is unique - override it so this copy doesn't collide with the
+        # original; not what this test is about, just what copy() needs here.
+        self.assertEqual(self.study.copy({'code': 'CTW001-COPY'}).transition_state, 'active')
 
     # --- latecomer branch of _ems_admit_student() ---------------------------
 

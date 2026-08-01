@@ -219,9 +219,16 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# schedule line collides with the import and will be archived — see
 	# ems.attendance_template.find_external_conflicts.
 	external_conflicts_html = fields.Html(readonly=True, store=False)
-	# Blocking (red banner, hides the 'Import' button): too many teachers in a scoped file, or an
-	# unknown teacher e-mail in the general importer's files.
+	# Blocking (red banner, hides the 'Import' button): a single, self-contained structural problem
+	# with the file itself (e.g. a scoped file describing more than one teacher) — not a per-item
+	# problem, so a bullet list wouldn't add anything here. See 'blocking_issues_html' for the
+	# enumerable case (unknown e-mails, unresolved groups/subjects, missing classrooms...).
 	blocking_error_message = fields.Char(store=False)
+	# Blocking (red banner, hides the 'Import' button): bullet list of specific problems that each
+	# prevent the import from continuing (unknown teacher e-mail, unresolved group/subject code,
+	# missing classroom...). Html (not Char) so several problems render as a real list instead of
+	# one long comma sentence — same reasoning as 'overrided_teachers_html'.
+	blocking_issues_html = fields.Html(readonly=True, store=False)
 	# Non-blocking (blue banner): general importer only — codes with no '@' (e.g. "X1") don't match any
 	# employee by e-mail, but aren't an error either; a pending-identification teacher will be created
 	# for each one on import. Never hides the 'Import' button (see 'blocking_error_message' for that).
@@ -230,6 +237,14 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# teacher node has a different e-mail than the employee this wizard was opened for — the import
 	# still goes ahead against 'teacher_id', the e-mail in the file is only ever used for the general importer.
 	email_mismatch_warning = fields.Char(store=False)
+	# Gates the 'Import' button. Deliberately fail-closed (starts False, only this onchange ever sets
+	# it True) instead of fail-open (hide only once a problem is confirmed) - a file upload's own async
+	# work finishes before the onchange RPC that validates its content does, and with a fail-open
+	# design (hide only when blocking_error_message/blocking_issues_html is set) the button was
+	# visible and clickable during that whole gap, since those fields simply hadn't been computed yet.
+	# Fail-closed means there is no gap: the button cannot render enabled before this onchange has
+	# actually finished confirming there is nothing wrong.
+	ready_to_import = fields.Boolean(store=False)
 	# NOTE: set via context (default_teacher_id) when opened from an employee's 'Schedule' tab "Import"
 	# button — the file is then assumed to describe that single teacher, skipping the email lookup below.
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
@@ -275,13 +290,20 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			return self.env['ems.group']
 		return self.env['ems.group'].browse(group_ids).filtered(lambda group: not group.space_id)
 
+	def _missing_space_lines(self, missing_space):
+		"""One bullet line per group missing a classroom — shared by every onchange handler so the
+		message is worded identically wherever it appears."""
+		return [_("Group '%s' has no classroom assigned.") % group.name for group in missing_space]
+
 	@api.onchange("file")
 	def _onchange_file(self):
 		for rec in self:
 			rec.blocking_error_message = False
+			rec.blocking_issues_html = False
 			rec.email_mismatch_warning = False
 			rec.overrided_teachers_html = False
 			rec.external_conflicts_html = False
+			rec.ready_to_import = False
 			if rec.file:
 				xml_content = base64.b64decode(rec.file)
 				tree = ET.ElementTree(ET.fromstring(xml_content))
@@ -303,19 +325,22 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					if rec.teacher_id.resource_calendar_id.id:
 						rec.overrided_teachers_html = rec._bullet_html([rec.teacher_id.display_name])
 
-					entries = [e for e in rec._parse_schedule_entries(root[0])[0] if not e["non_teaching"]]
+					try:
+						entries = [e for e in rec._parse_schedule_entries(root[0])[0] if not e["non_teaching"]]
+					except ValidationError as error:
+						rec.blocking_issues_html = rec._bullet_html([str(error)])
+						continue
 					missing_space = rec._groups_without_space([(rec.teacher_id, entries)])
 					if missing_space:
-						rec.blocking_error_message = _(
-							"These groups have no classroom assigned, so their schedule cannot be imported: %s"
-						) % ", ".join(missing_space.mapped('name'))
+						rec.blocking_issues_html = rec._bullet_html(rec._missing_space_lines(missing_space))
 						continue
 
 					conflicts = self.env['ems.attendance_template'].find_external_conflicts([(rec.teacher_id, entries)])
 					rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
+					rec.ready_to_import = True
 					continue
 
-				overrided, teacher_entries = [], []
+				overrided, blocking_issues, teacher_entries = [], [], []
 				for teacherNode in root:
 					email = teacherNode.attrib['name'].split(' ')[0]
 					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
@@ -324,26 +349,32 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 					if teacher.resource_calendar_id.id:
 						overrided.append(teacher.display_name)
-					entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
+					try:
+						entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
+					except ValidationError as error:
+						blocking_issues.append(str(error))
+						continue
 					teacher_entries.append((teacher, entries))
 
 				missing_space = rec._groups_without_space(teacher_entries)
-				if missing_space:
-					rec.blocking_error_message = _(
-						"These groups have no classroom assigned, so their schedule cannot be imported: %s"
-					) % ", ".join(missing_space.mapped('name'))
+				blocking_issues += rec._missing_space_lines(missing_space)
+				if blocking_issues:
+					rec.blocking_issues_html = rec._bullet_html(blocking_issues)
 					continue
 
 				rec.overrided_teachers_html = rec._bullet_html(overrided)
 				conflicts = self.env['ems.attendance_template'].find_external_conflicts(teacher_entries)
 				rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
+				rec.ready_to_import = True
 
 	@api.onchange("attachment_ids")
 	def _onchange_attachment_ids(self):
 		for rec in self:
 			rec.blocking_error_message = False
+			rec.blocking_issues_html = False
 			rec.info_message = False
-			overrided, unknown_emails, pending_codes, teacher_entries = [], [], [], []
+			rec.ready_to_import = False
+			overrided, blocking_issues, pending_codes, teacher_entries = [], [], [], []
 			for attachment in rec.attachment_ids:
 				xml_content = base64.b64decode(attachment.datas)
 				tree = ET.ElementTree(ET.fromstring(xml_content))
@@ -353,7 +384,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					if rec._is_email_like(email):
 						teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
 						if not teacher:
-							unknown_emails.append(_("unknown e-mail '%s' in '%s'") % (email, attachment.name))
+							blocking_issues.append(_("unknown e-mail '%s' in '%s'") % (email, attachment.name))
 							continue
 					else:
 						teacher = self.env["hr.employee"].search([("schedule_import_code", "=", email)]) or False
@@ -363,16 +394,17 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 					if teacher.resource_calendar_id.id:
 						overrided.append(teacher.display_name)
-					entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
+					try:
+						entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
+					except ValidationError as error:
+						blocking_issues.append(str(error))
+						continue
 					teacher_entries.append((teacher, entries))
 
 			missing_space = rec._groups_without_space(teacher_entries)
-			if missing_space:
-				unknown_emails.append(_(
-					"These groups have no classroom assigned, so their schedule cannot be imported: %s"
-				) % ", ".join(missing_space.mapped('name')))
+			blocking_issues += rec._missing_space_lines(missing_space)
 
-			rec.blocking_error_message = ", ".join(unknown_emails) if unknown_emails else False
+			rec.blocking_issues_html = rec._bullet_html(blocking_issues)
 			if pending_codes:
 				rec.info_message = _(
 					"%(count)d teacher(s) pending identification will be created: %(codes)s."
@@ -380,6 +412,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			rec.overrided_teachers_html = rec._bullet_html(overrided)
 			conflicts = self.env['ems.attendance_template'].find_external_conflicts(teacher_entries) if not missing_space else self.env['ems.attendance_schedule']
 			rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
+			rec.ready_to_import = bool(rec.attachment_ids) and not blocking_issues
 
 	def import_planner_data(self):
 		return {

@@ -62,4 +62,24 @@ Selecciona'l a la llista i usa el menú **Acció** (⚙) → **Suprimeix**. Es b
 
 ---
 
+## Arxivar un grup (en lloc d'eliminar-lo)
+
+Si un grup simplement no funciona aquest curs però podria tornar en un curs futur (un cicle que
+es salta un any, un torn que se suspèn temporalment...), **arxiva'l** en lloc d'eliminar-lo —
+arxivar-lo conserva el seu historial (tutor, aula, alumnes/horari anteriors) perquè puguis
+recuperar-lo exactament com era, en lloc d'haver-lo de recrear des de zero més endavant.
+
+1. Selecciona el grup a la llista.
+2. Usa el menú **Acció** (⚙) → **Arxiva**.
+3. Desapareix de la llista normal. Per tornar-lo a trobar més endavant: obre el menú **Filtres**
+   de la barra de cerca i activa **Arxivat**.
+
+**Si intentes crear un grup nou amb exactament el mateix nom que un ja arxivat** (p. ex.,
+recrear `DAM1A` a mà en lloc de reactivar-lo), l'EMS t'atura i t'ofereix un botó **Reactivar**
+directament en aquest missatge — un sol clic restaura el grup existent (amb tot el seu
+historial) en lloc de crear un duplicat confús. Si no vols reactivar-lo, simplement tanca el
+missatge: no s'haurà creat res.
+
+---
+
 [← Tornar a l'índex d'Administrador](index.md)

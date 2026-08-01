@@ -62,4 +62,25 @@ Selecciónalo en la lista y usa el menú **Acción** (⚙) → **Eliminar**. Se 
 
 ---
 
+## Archivar un grupo (en lugar de eliminarlo)
+
+Si un grupo simplemente no funciona este curso pero podría volver en un curso futuro (un ciclo
+que se salta un año, un turno que se suspende temporalmente...), **archívalo** en lugar de
+eliminarlo — archivarlo conserva su historial (tutor, aula, alumnos/horario anteriores) para
+poder recuperarlo exactamente como estaba, en lugar de tener que recrearlo desde cero más
+adelante.
+
+1. Selecciona el grupo en la lista.
+2. Usa el menú **Acción** (⚙) → **Archivar**.
+3. Desaparece de la lista normal. Para volver a encontrarlo más adelante: abre el menú
+   **Filtros** de la barra de búsqueda y activa **Archivado**.
+
+**Si intentas crear un grupo nuevo con exactamente el mismo nombre que uno ya archivado** (p.
+ej., recrear `DAM1A` a mano en lugar de reactivarlo), el EMS te detiene y te ofrece un botón
+**Reactivar** directamente en ese mensaje — un solo clic restaura el grupo existente (con todo
+su historial) en lugar de crear un duplicado confuso. Si no quieres reactivarlo, simplemente
+cierra el mensaje: no se habrá creado nada.
+
+---
+
 [← Volver al índice de Administrador](index.md)

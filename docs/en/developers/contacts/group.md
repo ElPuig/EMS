@@ -25,6 +25,7 @@ graph TD
 
 | Field | Type | Required | Stored | Description |
 |-------|------|----------|--------|-------------|
+| `active` | `Boolean`, default `True` | — | Yes | Standard Odoo archive mechanism — see "Archiving and reactivation" below |
 | `group_type` | `Selection` (`main`/`reinforcement`), default `main` | Yes | Yes | See above |
 | `course` | `Integer` | `main` only | Yes | e.g. `1` = first year |
 | `acronym` | `Char` | `main` only | Yes | e.g. `A` |
@@ -63,6 +64,50 @@ flowchart TD
 - **`_onchange_group_type`** (form-only): clears the group's own now-irrelevant fields the moment the radio is toggled, purely so the user sees them clear before Save.
 - **`_sanitize_group_type_vals`** (called from both `create()` and `write()`): the actual guarantee — the onchange never runs for a `write()` that doesn't go through this exact form (RPC, batch action, an import), so this re-does the same clearing at the ORM level, right before `_check_group_type_fields` would otherwise reject the switch.
 - **`_check_group_type_fields`** (`@api.constrains`): the hard validation — `main` requires level+study+course+acronym; `reinforcement` must have none of level/study/tutor/delegate, and blocks the switch entirely if the group still has `main_student_ids` enrolled (they'd otherwise be silently orphaned).
+
+### Archiving and reactivation
+
+A group's `name` (e.g. `DAM1A`, `GA2C`) is confirmed unique in real-world use. A group that
+won't run this course but may come back in a future one (a cycle skipping a year, a shift
+being suspended temporarily...) should be **archived** (standard Odoo `active = False`, via the
+Action menu's Archive/Unarchive, or the "Archived" filter to find it again) rather than
+deleted — deleting loses the record's history (tutor, space, past enrollments/schedule), and
+recreating it from scratch the day it returns risks a duplicate `name`.
+
+`_raise_if_archived_duplicate()` is the safety net for that duplicate risk: called from both
+`create()` and `write()` (the latter only when a name-affecting field — `name`, `course`,
+`acronym`, `study_id`, `group_type`, `external_id` — is actually part of the written vals, to
+avoid a pointless search on every unrelated edit). If the resulting `name` collides with an
+existing **archived** group, it raises `RedirectWarning` — a modal with the offending name and
+a "Reactivate" button — instead of letting the duplicate persist.
+
+```mermaid
+flowchart TD
+    A["create() / write() touches a name-affecting field"] --> B["with self.env.cr.savepoint():\nsuper().create()/write()"]
+    B --> C{"An ARCHIVED group already\nhas this exact name?"}
+    C -- No --> D[Savepoint released - proceed normally]
+    C -- Yes --> E["raise RedirectWarning\n(savepoint auto-rolls back:\nnothing persists)"]
+    E --> F["User clicks 'Reactivate' in the dialog"]
+    F --> G["ir.actions.server 'action_server_group_reactivate'\nruns action_reactivate() on the archived record"]
+    G --> H["active = True; opens that record's form"]
+```
+
+Both `create()` and `write()` run the actual mutation **inside `self.env.cr.savepoint()`**: if
+`_raise_if_archived_duplicate()` raises, Odoo rolls back to that savepoint automatically (see
+`odoo/sql_db.py`'s `Savepoint`/`_FlushingSavepoint`), so the newly-created record or the
+renamed field values never persist — deterministically, regardless of whether the caller is a
+real form Save, a direct ORM call, or a test (unlike relying on the HTTP layer's own
+per-request rollback, which only covers the real-browser-Save case). `RedirectWarning`'s
+`action` param points to `action_server_group_reactivate` (`views/community/group/menu.xml`),
+an `ir.actions.server` (`state='code'`) running `records.action_reactivate()` — Odoo's standard
+mechanism for "warn, but offer a one-click way to resolve it instead" (see `RedirectWarning`
+usage across Odoo core, e.g. `account_move.py`, `res_partner.py`). `additional_context` carries
+`active_id`/`active_ids` so the server action's `records` resolves to the archived group.
+
+Regression tests: `test_group.py::test_create_with_archived_duplicate_name_raises_and_creates_nothing`,
+`::test_write_rename_into_archived_duplicate_name_raises_and_reverts`,
+`::test_action_reactivate_sets_active_and_returns_form_action`. Browser tour:
+`ems_group_reactivate_archived_duplicate` (`group_tour.js`) exercises the actual dialog/button.
 
 ### Tutor role sync — `create()`/`write()` share `_sync_tutor_role()`
 

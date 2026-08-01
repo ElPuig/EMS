@@ -393,6 +393,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         self.assertTrue(wizard.blocking_error_message)
         self.assertFalse(wizard.email_mismatch_warning)
+        self.assertFalse(wizard.ready_to_import)
 
     def test_onchange_file_scoped_email_mismatch_sets_warning_not_blocking(self):
         wizard = self.env['ems.working_schedules_import_wizard'].new({
@@ -404,6 +405,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         self.assertTrue(wizard.email_mismatch_warning)
         self.assertFalse(wizard.blocking_error_message)
+        self.assertTrue(wizard.ready_to_import)
 
     def test_onchange_file_scoped_matching_email_no_warning(self):
         wizard = self.env['ems.working_schedules_import_wizard'].new({
@@ -415,6 +417,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         self.assertFalse(wizard.email_mismatch_warning)
         self.assertFalse(wizard.blocking_error_message)
+        self.assertTrue(wizard.ready_to_import)
 
     def test_onchange_attachment_ids_unknown_email_sets_blocking_error(self):
         attachment = self.env['ir.attachment'].create({
@@ -427,10 +430,11 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         wizard._onchange_attachment_ids()
 
-        self.assertTrue(wizard.blocking_error_message)
-        self.assertIn('unknown.import.wizard@example.com', wizard.blocking_error_message)
-        self.assertIn('planner_unknown.xml', wizard.blocking_error_message)
+        self.assertTrue(wizard.blocking_issues_html)
+        self.assertIn('unknown.import.wizard@example.com', wizard.blocking_issues_html)
+        self.assertIn('planner_unknown.xml', wizard.blocking_issues_html)
         self.assertFalse(wizard.info_message)
+        self.assertFalse(wizard.ready_to_import)
 
     def test_onchange_attachment_ids_placeholder_code_sets_info_message_not_blocking(self):
         attachment = self.env['ir.attachment'].create({
@@ -443,9 +447,10 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         wizard._onchange_attachment_ids()
 
-        self.assertFalse(wizard.blocking_error_message)
+        self.assertFalse(wizard.blocking_issues_html)
         self.assertTrue(wizard.info_message)
         self.assertIn('X3', wizard.info_message)
+        self.assertTrue(wizard.ready_to_import)
 
     def test_onchange_attachment_ids_known_email_no_blocking_error(self):
         attachment = self.env['ir.attachment'].create({
@@ -458,7 +463,42 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         wizard._onchange_attachment_ids()
 
-        self.assertFalse(wizard.blocking_error_message)
+        self.assertFalse(wizard.blocking_issues_html)
+        self.assertTrue(wizard.ready_to_import)
+
+    def test_ready_to_import_false_before_onchange_file_runs(self):
+        # Regression guard for the race the developer found manually: attaching a file makes
+        # 'attachment_ids'/'file' truthy immediately, but the onchange that actually validates the
+        # content is a separate RPC that finishes slightly later - if the Import button were gated
+        # on the ABSENCE of a blocking field (the old design), it would render enabled during that
+        # whole gap, since those fields simply hadn't been computed yet. Gating on this field
+        # instead (only ever set True by a successful onchange) closes the gap: before the onchange
+        # runs, it must still read as its Python default (False), same as a brand new record.
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'teacher_id': self.teacher.id,
+            'file': self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+        })
+
+        self.assertFalse(wizard.ready_to_import)
+
+        wizard._onchange_file()
+
+        self.assertTrue(wizard.ready_to_import)
+
+    def test_ready_to_import_false_before_onchange_attachment_ids_runs(self):
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_known.xml',
+            'datas': self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+
+        self.assertFalse(wizard.ready_to_import)
+
+        wizard._onchange_attachment_ids()
+
+        self.assertTrue(wizard.ready_to_import)
 
     def _xml_teacher_subject_then_gap(self, email_and_name, hour1, subject, group, hour2):
         return (
@@ -691,8 +731,9 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         wizard._onchange_file()
 
-        self.assertTrue(wizard.blocking_error_message)
-        self.assertIn(self.spaceless_group.name, wizard.blocking_error_message)
+        self.assertTrue(wizard.blocking_issues_html)
+        self.assertIn(self.spaceless_group.name, wizard.blocking_issues_html)
+        self.assertFalse(wizard.ready_to_import)
 
     def test_onchange_attachment_ids_sets_blocking_error_for_group_without_space(self):
         attachment = self.env['ir.attachment'].create({
@@ -709,5 +750,108 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         wizard._onchange_attachment_ids()
 
-        self.assertTrue(wizard.blocking_error_message)
-        self.assertIn(self.spaceless_group.name, wizard.blocking_error_message)
+        self.assertTrue(wizard.blocking_issues_html)
+        self.assertIn(self.spaceless_group.name, wizard.blocking_issues_html)
+        self.assertFalse(wizard.ready_to_import)
+
+    def test_onchange_file_scoped_unknown_group_does_not_raise(self):
+        # Real-world bug: an unresolvable group name raised ValidationError from deep inside
+        # _parse_schedule_entries, escaping the onchange uncaught - Odoo showed it as a generic
+        # error modal instead of the graceful red blocking_issues_html banner every other
+        # validation problem here uses (unknown e-mail, missing space...).
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'teacher_id': self.teacher.id,
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                '<Students name="TWIWNOTAREALGROUP Group"/>',
+            ),
+        })
+
+        wizard._onchange_file()
+
+        self.assertTrue(wizard.blocking_issues_html)
+        self.assertIn('TWIWNOTAREALGROUP', wizard.blocking_issues_html)
+        self.assertFalse(wizard.ready_to_import)
+
+    def test_onchange_attachment_ids_unknown_group_does_not_raise(self):
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_unknown_group.xml',
+            'datas': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                '<Students name="TWIWNOTAREALGROUP Group"/>',
+            ),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+
+        wizard._onchange_attachment_ids()
+
+        self.assertTrue(wizard.blocking_issues_html)
+        self.assertIn('TWIWNOTAREALGROUP', wizard.blocking_issues_html)
+        self.assertFalse(wizard.ready_to_import)
+
+    def test_onchange_file_scoped_unknown_subject_code_does_not_raise(self):
+        # Same bug class as the unknown-group case above, one raise site earlier in
+        # _parse_schedule_entries (subject code lookup instead of group lookup).
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'teacher_id': self.teacher.id,
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                '<Subject name="ZZZZ Unknown subject"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+        })
+
+        wizard._onchange_file()
+
+        self.assertTrue(wizard.blocking_issues_html)
+        self.assertIn('ZZZZ', wizard.blocking_issues_html)
+        self.assertFalse(wizard.ready_to_import)
+
+    def test_onchange_attachment_ids_unknown_subject_code_does_not_raise(self):
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_unknown_subject.xml',
+            'datas': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                '<Subject name="ZZZZ Unknown subject"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+
+        wizard._onchange_attachment_ids()
+
+        self.assertTrue(wizard.blocking_issues_html)
+        self.assertIn('ZZZZ', wizard.blocking_issues_html)
+        self.assertFalse(wizard.ready_to_import)
+
+    def test_onchange_attachment_ids_combines_multiple_blocking_issues_into_one_list(self):
+        # Several distinct problems across different files must render as separate bullet points
+        # in the same banner, not get silently dropped/overwritten by whichever ran last.
+        attachment_unknown = self.env['ir.attachment'].create({
+            'name': 'planner_unknown.xml',
+            'datas': self._xml_file('unknown.import.wizard@example.com Someone'),
+        })
+        attachment_no_space = self.env['ir.attachment'].create({
+            'name': 'planner_no_space.xml',
+            'datas': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.spaceless_group.name} Group"/>',
+            ),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'attachment_ids': [(6, 0, [attachment_unknown.id, attachment_no_space.id])],
+        })
+
+        wizard._onchange_attachment_ids()
+
+        self.assertIn('unknown.import.wizard@example.com', wizard.blocking_issues_html)
+        self.assertIn(self.spaceless_group.name, wizard.blocking_issues_html)
+        self.assertEqual(wizard.blocking_issues_html.count('<li>'), 2)
+        self.assertFalse(wizard.ready_to_import)

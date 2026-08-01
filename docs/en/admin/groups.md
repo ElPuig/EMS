@@ -62,4 +62,24 @@ Select it in the list and use the **Action** menu (⚙) → **Delete**. Blocked 
 
 ---
 
+## Archive a Group (instead of deleting it)
+
+If a group simply isn't running this course but might come back in a future one (a cycle
+skipping a year, a shift being suspended temporarily...), **archive** it rather than deleting
+it — archiving keeps its history (tutor, classroom, past students/schedule) so you can bring it
+back exactly as it was, instead of recreating it from scratch later.
+
+1. Select the group in the list.
+2. Use the **Action** menu (⚙) → **Archive**.
+3. It disappears from the normal list. To find it again later: open the **Filters** menu in the
+   search bar and enable **Archived**.
+
+**If you try to create a new group with the exact same name as an already-archived one** (e.g.
+recreating `DAM1A` by hand instead of reactivating it), EMS stops you and offers a **Reactivate**
+button right in that message — one click restores the existing group (with all its history)
+instead of creating a confusing duplicate. If you don't want to reactivate it, just close that
+message: nothing will have been created.
+
+---
+
 [← Back to Administrator index](index.md)

@@ -29,14 +29,25 @@
                 </xpath>
 
                 <field name="job_title" position="after">
-                    <span t-if="record.tutorships.value != ''">
+                    <span t-if="record.tutorships.raw_value != ''">
                         <!-- TODO: this text should be translated, check how to do it -->
                         Tutorship: <t t-esc="record.tutorships.value"/>
                     </span>
-                    <span t-if="record.pending_identification.value" class="badge rounded-pill text-bg-warning" title="Pending identification">
-                        Pending identification
-                    </span>
                 </field>
+
+                <!-- Placed right after the name (not after job_title, like tutorships above)
+                so it always renders on its own line directly below the name, regardless of
+                whether job_title is set. record.<field>.value is the FORMATTED value (for a
+                Boolean field, an HTML checkbox markup string - always truthy); .raw_value is
+                the actual boolean and is what a t-if must use, matching the convention already
+                used everywhere else in this arch and its hr.hr_kanban_view_employees parent. -->
+                <xpath expr="//field[@name='name']/.." position="after">
+                    <div t-if="record.pending_identification.raw_value">
+                        <span class="badge rounded-pill text-bg-warning" title="Pending identification">
+                            Pending identification
+                        </span>
+                    </div>
+                </xpath>
 
                 <field name="category_ids" position="attributes">
                     <attribute name="name">role_ids</attribute>

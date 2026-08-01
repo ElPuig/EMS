@@ -1,4 +1,4 @@
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import AccessError, RedirectWarning, ValidationError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group
@@ -206,6 +206,50 @@ class TestGroup(TransactionCase):
         return self.env['ems.subject'].create({
             'code': f'TSTG-ENR{suffix}', 'acronym': f'TGE{suffix}', 'name': f'Test Enrollment Subject {suffix}',
         })
+
+    def test_active_defaults_true(self):
+        self.assertTrue(self.test_group.active)
+
+    def test_can_archive_group(self):
+        self.test_group.active = False
+        self.assertFalse(self.test_group.active)
+
+    def test_create_with_archived_duplicate_name_raises_and_creates_nothing(self):
+        # A group not running this course may come back in a future one - archiving it (instead
+        # of deleting it) must mean re-creating the exact same name later offers to reactivate
+        # it, rather than silently creating a second record with the same name.
+        name = self.test_group.name
+        self.test_group.active = False
+        with self.assertRaises(RedirectWarning):
+            self.env['ems.group'].create({
+                'course': 1, 'acronym': 'A',
+                'level_id': self.test_level.id, 'study_id': self.test_study.id,
+            })
+        self.assertEqual(
+            self.env['ems.group'].with_context(active_test=False).search_count([('name', '=', name)]), 1,
+        )
+
+    def test_write_rename_into_archived_duplicate_name_raises_and_reverts(self):
+        # Renaming an existing active group (via course/acronym, which 'name' is computed from)
+        # into an archived group's name is the same duplicate-by-rename risk as create() above -
+        # the write() must be rolled back entirely, not leave the rename half-applied.
+        other = self.env['ems.group'].create({
+            'course': 9, 'acronym': 'Z',
+            'level_id': self.test_level.id, 'study_id': self.test_study.id,
+        })
+        other.active = False
+        with self.assertRaises(RedirectWarning):
+            self.test_group.write({'course': 9, 'acronym': 'Z'})
+        self.assertEqual(self.test_group.course, 1)
+        self.assertEqual(self.test_group.acronym, 'A')
+
+    def test_action_reactivate_sets_active_and_returns_form_action(self):
+        self.test_group.active = False
+        action = self.test_group.action_reactivate()
+        self.assertTrue(self.test_group.active)
+        self.assertEqual(action['res_model'], 'ems.group')
+        self.assertEqual(action['res_id'], self.test_group.id)
+        self.assertEqual(action['type'], 'ir.actions.act_window')
 
     def test_compute_name_leaves_blank_for_incomplete_main_group(self):
         # Regression test: '_compute_name' used to build "%s%s%s" % (study_id.acronym, course, acronym)

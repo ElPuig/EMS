@@ -146,3 +146,127 @@ registry.category("web_tour.tours").add("ems_group_form_tabs_and_reinforcement_c
         },
     ],
 });
+
+// Exercises the RedirectWarning-based duplicate-name guard added to ems.group's create()/write()
+// (models/contacts/group.py::_raise_if_archived_duplicate): creating a group whose name matches
+// an already-ARCHIVED group must not silently create a duplicate - it should offer to reactivate
+// the archived one instead. Two archived reinforcement groups are seeded via the ORM in
+// TestGroupTour.test_group_reactivate_archived_duplicate_tour; this tour proves both outcomes of
+// the dialog actually work in the browser: accepting reactivates and navigates there, cancelling
+// leaves everything untouched (no duplicate, original still archived).
+registry.category("web_tour.tours").add("ems_group_reactivate_archived_duplicate", {
+    test: true,
+    url: "/odoo/action-ems.action_group_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view",
+            content: "Groups list loaded",
+        },
+        // --- Accept path: click "Reactivate" ---
+        {
+            trigger: ".o_list_button_add",
+            content: "Click New",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='group_type'] label:contains('Reinforcement')",
+            content: "Switch to Reinforcement",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='name'] input",
+            content: "Type the archived group's exact name",
+            run: "edit Tour Archived Reinforcement Reactivate",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save - this should collide with the archived group of the same name",
+            run: "click",
+        },
+        {
+            // A Save failing from a form view is shown by Odoo's generic "Oh snap!"
+            // FormErrorDialog (web.FormErrorDialog), not the plain RedirectWarningDialog used
+            // for other error entry points - our custom "Reactivate" label ends up on its own
+            // btn-secondary button (redirectBtnLabel), alongside the dialog's own built-in
+            // "Stay here"/"Discard changes" buttons.
+            trigger: ".modal .btn-secondary:contains('Reactivate')",
+            content: "The error dialog offers our custom 'Reactivate' action",
+        },
+        {
+            trigger: ".modal .btn-secondary:contains('Reactivate')",
+            content: "Accept - reactivate it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_breadcrumb:contains('Tour Archived Reinforcement Reactivate')",
+            content: "Landed on the (now reactivated) group's own form",
+        },
+        {
+            trigger: ".o_breadcrumb a",
+            content: "Back to the list",
+            run: "click",
+        },
+        {
+            trigger:
+                ".o_list_view .o_data_row td:contains('Tour Archived Reinforcement Reactivate')",
+            content: "The reactivated group shows up in the plain (non-archived) list - proof it is active again, not just navigated to while still archived",
+        },
+        // --- Cancel path: close the dialog instead ---
+        {
+            trigger: ".o_list_button_add",
+            content: "Click New again",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='group_type'] label:contains('Reinforcement')",
+            content: "Switch to Reinforcement",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='name'] input",
+            content: "Type the OTHER archived group's exact name",
+            run: "edit Tour Archived Reinforcement Cancel",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save - collides with the second archived group",
+            run: "click",
+        },
+        {
+            // "Discard changes" both closes the dialog and discards the still-unsaved new-group
+            // form in one action - nothing should have been created.
+            trigger: ".modal .btn-secondary:contains('Discard changes')",
+            content: "Decline - discard instead of reactivating",
+            run: "click",
+        },
+        {
+            // Whether "Discard changes" lands back on the list directly or leaves the (now
+            // reset) new-record form in place depends on internal FormController behaviour not
+            // worth pinning down here - explicitly getting back to the list either way.
+            trigger: ".o_list_view, .o_breadcrumb a",
+            content: "Back in the list (navigating there explicitly if needed)",
+            run: () => {
+                document.querySelector(".o_breadcrumb a")?.click();
+            },
+        },
+        {
+            trigger: ".o_searchview_input",
+            content: "Search for the second archived group's name",
+            run: "edit Tour Archived Reinforcement Cancel",
+        },
+        {
+            trigger: ".o_searchview_input",
+            content: "Confirm the search",
+            run: "press Enter",
+        },
+        {
+            // Proves the whole point of this cancel path: no duplicate was created. Whether
+            // exactly one archived record with this name still exists is already asserted at
+            // the ORM level by test_group.py's own regression tests - no need to also drive the
+            // search Filters menu here just to re-check the same invariant less precisely.
+            trigger:
+                ".o_list_view:not(:has(.o_data_row td:contains('Tour Archived Reinforcement Cancel')))",
+            content: "Not in the plain list - no duplicate was created, and the archived one still isn't shown",
+        },
+    ],
+});

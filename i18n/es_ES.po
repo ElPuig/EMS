@@ -1317,9 +1317,31 @@ msgid "Action Needed"
 msgstr "Acción Necesária"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__active model:ir.model.fields,field_description:ems.field_ems_attendance_justification__active model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__active model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__active model:ir.model.fields,field_description:ems.field_ems_attendance_template__active model:ir.model.fields,field_description:ems.field_ems_base__active model:ir.model.fields,field_description:ems.field_ems_enrollment__active model:ir.model.fields,field_description:ems.field_ems_grade_session__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__active model:ir.model.fields,field_description:ems.field_ems_notice__active model:ir.model.fields,field_description:ems.field_ems_notice_line__active model:ir.model.fields,field_description:ems.field_ems_strike__active model:ir.model.fields,field_description:ems.field_ems_strike_reason__active model:ir.model.fields,field_description:ems.field_ems_teaching__active model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active model:ir.model.fields,field_description:ems.field_ems_attendance_status__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__active model:ir.model.fields,field_description:ems.field_ems_attendance_justification__active model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__active model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__active model:ir.model.fields,field_description:ems.field_ems_attendance_template__active model:ir.model.fields,field_description:ems.field_ems_base__active model:ir.model.fields,field_description:ems.field_ems_enrollment__active model:ir.model.fields,field_description:ems.field_ems_grade_session__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__active model:ir.model.fields,field_description:ems.field_ems_notice__active model:ir.model.fields,field_description:ems.field_ems_notice_line__active model:ir.model.fields,field_description:ems.field_ems_strike__active model:ir.model.fields,field_description:ems.field_ems_strike_reason__active model:ir.model.fields,field_description:ems.field_ems_teaching__active model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active model:ir.model.fields,field_description:ems.field_ems_attendance_status__active model:ir.model.fields,field_description:ems.field_ems_group__active
 msgid "Active"
 msgstr "Activo"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__active
+msgid "A group that won't be used this course but may come back in a future one (e.g. a cycle not running this year) should be archived instead of deleted, so it can be reactivated later instead of being recreated as a duplicate."
+msgstr "Un grupo que no se utilizará este curso pero que podría volver en un curso futuro (p. ej., un ciclo que se salta un año) debería archivarse en lugar de eliminarlo, para poder reactivarlo más adelante en lugar de volver a crearlo como un duplicado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "A group named \"%s\" already exists but is archived. Reactivate it instead of creating a duplicate?"
+msgstr "Ya existe un grupo llamado \"%s\" pero está archivado. ¿Quieres reactivarlo en lugar de crear un duplicado?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "Reactivate"
+msgstr "Reactivar"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_server_group_reactivate
+msgid "Reactivate archived group"
+msgstr "Reactivar grupo archivado"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_ids model:ir.model.fields,field_description:ems.field_ems_base__activity_ids model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_ids model:ir.model.fields,field_description:ems.field_ems_grade_session__activity_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_ids model:ir.model.fields,field_description:ems.field_ems_notice__activity_ids model:ir.model.fields,field_description:ems.field_ems_notice_line__activity_ids model:ir.model.fields,field_description:ems.field_ems_student_document__activity_ids model:ir.model.fields,field_description:ems.field_ems_teaching__activity_ids model:ir.model.fields,field_description:ems.field_hr_employee__activity_ids

@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import RedirectWarning, ValidationError
 
 class EmsGroup(models.Model):
 	_name = "ems.group"
 	_description = "Groups: Where the students are assigned to."
 	_order = "name"
 
+	active = fields.Boolean(default=True, help="A group that won't be used this course but may come back in a "
+		"future one (e.g. a cycle not running this year) should be archived instead of deleted, so it can be "
+		"reactivated later instead of being recreated as a duplicate.")
 	group_type = fields.Selection(
 		selection=[('main', 'Main'), ('reinforcement', 'Reinforcement')],
 		string="Group Type", required=True, default="main",
@@ -127,18 +130,43 @@ class EmsGroup(models.Model):
 		employees.update_tutor_role()
 		employees._sync_security_groups()
 
+	def _raise_if_archived_duplicate(self, groups):
+		# 'name' (e.g. 'DAM1A') is the group's real-world identity and is confirmed unique in
+		# practice: a group not running this course may well come back in a future one, so the
+		# right move is to reactivate the existing (archived) record, not create a second one
+		# with the same name. Raised from inside a savepoint (see create()/write() below), so
+		# the offending create/rename never actually persists once this propagates out.
+		for group in groups:
+			archived = self.with_context(active_test=False).search([
+				("name", "=", group.name), ("active", "=", False), ("id", "!=", group.id),
+			], limit=1)
+			if archived:
+				raise RedirectWarning(
+					_("A group named \"%s\" already exists but is archived. Reactivate it instead "
+						"of creating a duplicate?") % group.name,
+					self.env.ref("ems.action_server_group_reactivate").id,
+					_("Reactivate"),
+					{"active_model": self._name, "active_id": archived.id, "active_ids": archived.ids},
+				)
+
 	@api.model_create_multi
 	def create(self, vals_list):
 		for vals in vals_list:
 			self._sanitize_group_type_vals(vals)
-		groups = super().create(vals_list)
+		with self.env.cr.savepoint():
+			groups = super().create(vals_list)
+			self._raise_if_archived_duplicate(groups)
 		self._sync_tutor_role(groups.mapped('tutor_id'))
 		return groups
 
 	def write(self, vals):
 		self._sanitize_group_type_vals(vals)
 		old_tutor = self.tutor_id
-		res = super(EmsGroup, self).write(vals)
+		name_affecting = vals.keys() & {"name", "course", "acronym", "study_id", "group_type", "external_id"}
+		with self.env.cr.savepoint():
+			res = super(EmsGroup, self).write(vals)
+			if name_affecting:
+				self._raise_if_archived_duplicate(self)
 		new_tutor = self.tutor_id
 
 		if 'tutor_id' in vals:
@@ -146,6 +174,17 @@ class EmsGroup(models.Model):
 			# should be updated and must be done from here once changed.
 			self._sync_tutor_role(old_tutor | new_tutor)
 		return res
+
+	def action_reactivate(self):
+		self.ensure_one()
+		self.active = True
+		return {
+			"type": "ir.actions.act_window",
+			"res_model": self._name,
+			"res_id": self.id,
+			"view_mode": "form",
+			"target": "current",
+		}
 
 
 class EmsEnrollmentView(models.TransientModel):

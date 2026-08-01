@@ -49,8 +49,8 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_unknown_te
             content: "File attached",
         },
         {
-            trigger: ".modal [name='alert-danger']:contains('unknown.tour.teacher@example.com')",
-            content: "The onchange correctly flags the unknown teacher e-mail as a blocking error",
+            trigger: ".modal [name='alert-danger-issues']:contains('unknown.tour.teacher@example.com')",
+            content: "The onchange correctly flags the unknown teacher e-mail as a blocking error, listed under the shared 'these problems prevent the import' banner",
         },
         {
             trigger: ".modal footer:not(:has(button[name='import_planner_data']))",
@@ -137,6 +137,18 @@ registry.category("web_tour.tours").add("ems_employee_pending_identification_ind
         {
             trigger: ".o_control_panel",
             content: "Teachers loaded",
+        },
+        {
+            trigger:
+                ".o_kanban_view .o_kanban_record:contains('Tour Pending Teacher')"
+                + " .badge:contains('Pending identification')",
+            content: "The pending-identification teacher's kanban card shows the badge",
+        },
+        {
+            trigger:
+                ".o_kanban_view .o_kanban_record:contains('Tour Confirmed Teacher')"
+                + ":not(:has(.badge:contains('Pending identification')))",
+            content: "A confirmed-identity teacher's kanban card does NOT show the badge",
         },
         {
             trigger: ".o_switch_view.o_list",

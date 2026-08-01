@@ -36,10 +36,10 @@
                     </div>
 
                     <group invisible="not teacher_id">
-                         <field name="file" readonly="False" options="{'accepted_file_extensions': '.xml'}"/>
+                         <field name="file" readonly="False" widget="ems_blocking_binary" options="{'accepted_file_extensions': '.xml'}"/>
                     </group>
                     <group invisible="teacher_id">
-                         <field name="attachment_ids" widget="many2many_binary" options="{'accepted_file_extensions': '.xml'}"/>
+                         <field name="attachment_ids" widget="ems_blocking_many2many_binary" options="{'accepted_file_extensions': '.xml'}"/>
                     </group>
 
                     <footer>

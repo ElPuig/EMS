@@ -44,10 +44,16 @@ export const archivedReasonRibbonField = {
     extractProps: ({ options }) => ({
         colorField: options.color_field,
     }),
-    // Ensures the color field is fetched even though it's never declared as its own <field/>
-    // in the view - same mechanism already used by role_color_tags_field.js's "color_field"
-    // option, avoids the "must separately declare every field a kanban template touches" trap
-    // hit earlier in this same view family (hr.employee's kanban badge work).
+    // NOTE (bug found 2026-08-01, confirmed empirically - every ribbon rendered the fallback
+    // red regardless of the intended color): unlike Many2many field widgets (e.g.
+    // role_color_tags_field.js's "color_field" option), this "relatedFields" declaration does
+    // NOT actually get the color field fetched for a plain scalar field like this one - reading
+    // web/static/src/views/fields/field.js confirms its `relatedFields` mechanism only ever
+    // runs for X2M_TYPES / many2one_reference fields, never for a Char field's own widget. Kept
+    // here as documentation of intent (and it's harmless - simply never consumed), but the
+    // color field MUST also be explicitly declared as its own <field name="..." invisible="1"/>
+    // in every view that uses this widget (see contact/form.xml, contact/kanban.xml,
+    // employee/{form,kanban}.xml) for it to actually reach record.data.
     relatedFields: ({ options }) => {
         const relatedFields = [];
         if (options.color_field) {

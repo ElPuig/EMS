@@ -36,6 +36,14 @@ registry.category("web_tour.tours").add("ems_employee_archived_reason_indicator"
             content: "The 'Retired' ribbon shows on the archived teacher's kanban card",
         },
         {
+            // Regression check (2026-08-01): see withdrawal_tour.js's own comment on the same
+            // bug - archived_reason_color wasn't reaching the widget at all, so every ribbon
+            // silently fell back to the default red. Retired's real color is blue (#2E6C8E).
+            trigger:
+                ".o_kanban_view .o_kanban_record:contains('Tour Retired Teacher') .ribbon span[style*='#2E6C8E']",
+            content: "The kanban ribbon's actual color is Retired's blue, not the default red fallback",
+        },
+        {
             trigger: ".o_switch_view.o_list",
             content: "Switch to list view",
             run: "click",
@@ -48,6 +56,10 @@ registry.category("web_tour.tours").add("ems_employee_archived_reason_indicator"
         {
             trigger: ".o_form_view .ribbon span:contains('Retired')",
             content: "The same ribbon shows on the form",
+        },
+        {
+            trigger: ".o_form_view .ribbon span[style*='#2E6C8E']",
+            content: "The form ribbon's color is also correct",
         },
     ],
 });

@@ -12,10 +12,14 @@
 - Importing a working-schedule file (per-teacher or the general cog-menu importer) no longer fails when a row names a not-yet-hired post with a placeholder code (e.g. `X1`, `X2`) instead of a real e-mail.
 - A "Pending teacher (X1)" employee is created automatically, with the schedule/subjects/attendance lists already assigned — no manual setup needed.
 - Re-importing an updated file for the same still-unstaffed post (same code) updates that same employee in place, never creating a duplicate.
-- These employees show a "Pending identification" indicator (Teachers list column, kanban badge, form ribbon), with a matching search filter/group-by.
+- These employees show a "Pending identification" indicator (Teachers list column, kanban + form ribbon in a soft, non-garish yellow), with a matching search filter/group-by. The kanban indicator started as a badge under the name; changed to a ribbon (2026-08-01) to match the other reason-aware ribbons added to that same kanban right after it.
 - Resolving a pending teacher's real identity reuses the existing "Generate Google account" button: fill in the real name + personal email, click the button — no separate confirmation step.
 
 # Fixes:
+
+## Every reason-aware ribbon showed the default red, never the actual color:
+- `archived_reason_color` (Alumni's green, Withdrawal's orange, a departure reason's own color...) was only ever referenced through the `ems_archived_reason_ribbon` widget's own `color_field` option, never as its own declared `<field/>` in the view - and, unlike Many2many field widgets, this field registry's `relatedFields` mechanism turns out to only auto-fetch for x2many/many2one_reference field types in this Odoo version (confirmed by reading `web/static/src/views/fields/field.js`), never for a plain `Char` like this one. The color value was therefore never actually reaching the client, and the widget's own default-red fallback showed every time, regardless of the real color.
+- Fixed by explicitly declaring `<field name="archived_reason_color" invisible="1"/>` alongside the ribbon field in all four views (`contact/{form,kanban}.xml`, `employee/{form,kanban}.xml`). New tour steps assert the actual rendered color (not just the text) to catch this specific regression going forward.
 
 ## Working-schedule import wizard showed a generic error popup instead of the usual red banner:
 - An unresolvable group name or subject code in an uploaded schedule file raised uncaught from inside the onchange preview, so Odoo displayed it as a blocking modal dialog instead of the same in-form banner (with the Import button disabled) used for every other validation problem in this wizard (unknown teacher e-mail, missing classroom...).

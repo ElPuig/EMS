@@ -124,12 +124,14 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
     ],
 });
 
-// Renders the "Pending identification" indicator (list badge column + form ribbon) added to
-// views/community/employee/{list,kanban,form}.xml for a teacher created from a schedule-import
-// placeholder code. The employee is seeded directly via the ORM in
+// Renders the "Pending identification" indicator (list badge column, kanban + form ribbon)
+// added to views/community/employee/{list,kanban,form}.xml for a teacher created from a
+// schedule-import placeholder code. The employee is seeded directly via the ORM in
 // TestWorkingSchedulesImportWizardTour.test_employee_pending_identification_indicator_tour -
 // this tour is only about proving the VIEW renders correctly, not re-testing the importer
-// (covered above and by TestWorkingSchedulesImportWizard's backend tests).
+// (covered above and by TestWorkingSchedulesImportWizard's backend tests). The kanban indicator
+// used to be a badge under the name; changed to a ribbon (2026-08-01) for visual consistency
+// with the "Archived"/reason-aware ribbons added to this same kanban right before it.
 registry.category("web_tour.tours").add("ems_employee_pending_identification_indicator", {
     test: true,
     url: "/odoo/action-ems.action_employee_kanban",
@@ -141,14 +143,14 @@ registry.category("web_tour.tours").add("ems_employee_pending_identification_ind
         {
             trigger:
                 ".o_kanban_view .o_kanban_record:contains('Tour Pending Teacher')"
-                + " .badge:contains('Pending identification')",
-            content: "The pending-identification teacher's kanban card shows the badge",
+                + " .ribbon:contains('Pending identification')",
+            content: "The pending-identification teacher's kanban card shows the ribbon",
         },
         {
             trigger:
                 ".o_kanban_view .o_kanban_record:contains('Tour Confirmed Teacher')"
-                + ":not(:has(.badge:contains('Pending identification')))",
-            content: "A confirmed-identity teacher's kanban card does NOT show the badge",
+                + ":not(:has(.ribbon:contains('Pending identification')))",
+            content: "A confirmed-identity teacher's kanban card does NOT show the ribbon",
         },
         {
             trigger: ".o_switch_view.o_list",

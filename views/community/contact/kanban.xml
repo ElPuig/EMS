@@ -28,6 +28,9 @@
                     <attribute name="invisible">active or archived_reason_label</attribute>
                 </xpath>
                 <xpath expr="//widget[@name='web_ribbon']" position="after">
+                    <!-- Must be its own declared field, not just referenced via the widget's
+                    "color_field" option - see contact/form.xml's own comment on this. -->
+                    <field name="archived_reason_color" invisible="1"/>
                     <field name="archived_reason_label" widget="ems_archived_reason_ribbon"
                            options="{'color_field': 'archived_reason_color'}"
                            invisible="active or not archived_reason_label"/>

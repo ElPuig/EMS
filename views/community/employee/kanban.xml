@@ -33,11 +33,24 @@
                 comment) - this kanban has no native ribbon at all to inherit/adjust, unlike
                 res.partner's, so both the fallback generic one and the field-widget one are
                 added fresh here. Mutually exclusive with "Pending identification" below, same
-                reasoning as the form. -->
+                reasoning as the form. "Pending identification" itself moved here too (used to
+                be a badge under the name, in a separate xpath now removed) - a plain ribbon,
+                same as the form already had, for visual consistency between the two now that
+                this kanban has ribbons at all (requested 2026-08-01, right after adding the
+                other two). Custom soft-yellow class (static/src/css/backend/ems.css) - plain
+                Bootstrap bg-warning was too bright for this. -->
                 <xpath expr="//aside[hasclass('o_kanban_aside_full')]" position="before">
+                    <widget name="web_ribbon" title="Pending identification"
+                            bg_color="ems-ribbon-pending-identification"
+                            invisible="not pending_identification"/>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
                             groups="hr.group_hr_user,ems.group_teacher"
                             invisible="active or pending_identification or archived_reason_label"/>
+                    <!-- Must declare archived_reason_color as its own field, not just
+                    reference it via the widget's "color_field" option - see
+                    contact/form.xml's own comment on why. -->
+                    <field name="archived_reason_color" invisible="1"
+                           groups="hr.group_hr_user,ems.group_teacher"/>
                     <field name="archived_reason_label" widget="ems_archived_reason_ribbon"
                            groups="hr.group_hr_user,ems.group_teacher"
                            options="{'color_field': 'archived_reason_color'}"
@@ -50,20 +63,6 @@
                         Tutorship: <t t-esc="record.tutorships.value"/>
                     </span>
                 </field>
-
-                <!-- Placed right after the name (not after job_title, like tutorships above)
-                so it always renders on its own line directly below the name, regardless of
-                whether job_title is set. record.<field>.value is the FORMATTED value (for a
-                Boolean field, an HTML checkbox markup string - always truthy); .raw_value is
-                the actual boolean and is what a t-if must use, matching the convention already
-                used everywhere else in this arch and its hr.hr_kanban_view_employees parent. -->
-                <xpath expr="//field[@name='name']/.." position="after">
-                    <div t-if="record.pending_identification.raw_value">
-                        <span class="badge rounded-pill text-bg-warning" title="Pending identification">
-                            Pending identification
-                        </span>
-                    </div>
-                </xpath>
 
                 <field name="category_ids" position="attributes">
                     <attribute name="name">role_ids</attribute>

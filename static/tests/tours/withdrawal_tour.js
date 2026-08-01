@@ -58,6 +58,16 @@ registry.category("web_tour.tours").add("ems_archive_action_single_opens_wizard"
             trigger: ".o_form_view .ribbon span:contains('Withdrawal')",
             content: "Back on the student form — the reason-aware ribbon confirms active=False",
         },
+        {
+            // Regression check (2026-08-01): archived_reason_color wasn't actually reaching the
+            // widget (only declared via the widget's own "color_field" option, which this field
+            // registry doesn't auto-fetch for a plain Char - every ribbon silently fell back to
+            // the default red regardless of the intended color until archived_reason_color was
+            // also explicitly declared as its own <field/> in the view). Withdrawal's real color
+            // is orange (#C97B3D), never red, so this specifically catches that regression.
+            trigger: ".o_form_view .ribbon span[style*='#C97B3D']",
+            content: "The ribbon's actual color is Withdrawal's orange, not the default red fallback",
+        },
         // action_apply() converts contact_type to 'withdrawal' immediately (not deferred), so
         // the "Former student" tab (invisible for contact_type='student') is now reachable on
         // this same form - never rendered by any tour before.

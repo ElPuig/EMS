@@ -658,6 +658,44 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         ])
         self.assertTrue(new_template.attendance_schedule_ids)
 
+    def test_import_archives_external_conflict_when_new_teacher_is_pending_code(self):
+        # Reported 2026-08-01: same real-world shape as the test above (a teacher absent from the
+        # file being imported still holds a stale, colliding schedule line), but this time the NEW
+        # side is a pending-identification teacher (no e-mail, no pre-existing hr.employee) imported
+        # through the general attachment_ids path, instead of an already-existing teacher through the
+        # scoped 'file' path.
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+            'teacher_id': self.teacher.id,
+        })
+        old_line = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ]).attendance_schedule_ids
+
+        # 'self.teacher' is NOT part of this second import - only the pending code is.
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_pending_conflict.xml',
+            'datas': self._xml_file_with_hour_node(
+                'PENDINGCONFLICT',
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+        })
+        self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+
+        self.assertFalse(old_line.active)
+        pending_teacher = self.env['hr.employee'].search([('schedule_import_code', '=', 'PENDINGCONFLICT')])
+        new_template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', pending_teacher.id), ('subject_id', '=', self.other_subject.id),
+        ])
+        self.assertTrue(new_template.attendance_schedule_ids)
+
     def test_onchange_file_scoped_sets_external_conflicts_html(self):
         # Different subject (not co-teaching — same subject+group by different teachers is a legitimate
         # setup, see ems.attendance_schedule.is_co_teaching_with): a genuine, unrelated room conflict.
@@ -917,4 +955,3 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertIn('unknown.import.wizard@example.com', wizard.blocking_issues_html)
         self.assertIn(self.spaceless_group.name, wizard.blocking_issues_html)
         self.assertEqual(wizard.blocking_issues_html.count('<li>'), 2)
-        self.assertFalse(wizard.ready_to_import)

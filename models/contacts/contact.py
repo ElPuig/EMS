@@ -110,9 +110,10 @@ class ResPartner(models.Model):
              "type B (specially disadvantaged socio-economic or socio-cultural "
              "situation). Leave empty for ordinary students.")
     # Contact lifecycle: applicant -> student -> alumni (graduated at least once)
-    #                                         \-> withdrawal (never graduated).
+    #                                         \-> withdrawal (never graduated)
+    #                                         \-> expelled (permanently expelled).
     # The ~25 domains filtering by contact_type == 'student' exclude applicant,
-    # alumni and withdrawal automatically (no changes needed elsewhere).
+    # alumni, withdrawal and expelled automatically (no changes needed elsewhere).
     contact_type = fields.Selection(string='Contact Type', selection=[
         ('provider', 'Provider'),
         ('student', 'Student'),
@@ -120,15 +121,17 @@ class ResPartner(models.Model):
         ('applicant', 'Applicant'),
         ('alumni', 'Alumni'),
         ('withdrawal', 'Withdrawal'),
+        ('expelled', 'Expelled'),
     ])
     # Permanent graduation mark: set to True when the graduation is registered and
     # never reset to False. It is the key that decides alumni vs withdrawal in
-    # _ems_convert_to_ex_student().
+    # _ems_convert_to_ex_student() (an explicit 'expulsion' kind overrides both).
     has_graduated = fields.Boolean(string="Has graduated", default=False)
     # Exit metadata (written by the graduation/withdrawal wizards).
     exit_type = fields.Selection([
         ('graduation', 'Graduation'),
         ('withdrawal', 'Withdrawal'),
+        ('expulsion', 'Expulsion'),
     ], string="Exit type")
     exit_course_id = fields.Many2one('ems.course', string="Exit course")
     exit_date = fields.Date(string="Exit date")
@@ -146,6 +149,12 @@ class ResPartner(models.Model):
         ('missing', 'No destination'),
     ], string="Transition status", compute='_compute_transition_status',
         search='_search_transition_status', store=False)
+    # Feeds the shared 'ems_archived_reason_ribbon' field widget (form + kanban, same widget
+    # used by hr.employee's departure_reason_id - see static/src/js/backend/
+    # archived_reason_ribbon_field.js). Empty/False when there's nothing specific to show
+    # (not archived, or archived with no specific lifecycle reason - family/provider/applicant).
+    archived_reason_label = fields.Char(string="Archived reason", compute='_compute_archived_reason')
+    archived_reason_color = fields.Char(string="Archived reason color", compute='_compute_archived_reason')
     family_relation = fields.Char(string="Family relation")
     document_id = fields.Char(string="Document ID")
     passport_id = fields.Char(string="Passport")
@@ -366,7 +375,7 @@ class ResPartner(models.Model):
     def _compute_transition_status(self):
         next_course = self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
         for partner in self:
-            if partner.contact_type in ('alumni', 'withdrawal'):
+            if partner.contact_type in ('alumni', 'withdrawal', 'expelled'):
                 partner.transition_status = 'former'
             elif partner.exit_type == 'graduation':
                 # A still-active student with a graduation mark is a pending graduate
@@ -390,11 +399,29 @@ class ResPartner(models.Model):
         if operator not in ('=', '!='):
             raise NotImplementedError(_("Unsupported search on transition_status"))
         # Only lifecycle contacts can have a transition status.
-        candidates = self.search([('contact_type', 'in', ['student', 'alumni', 'withdrawal'])])
+        candidates = self.search([('contact_type', 'in', ['student', 'alumni', 'withdrawal', 'expelled'])])
         matching = candidates.filtered(lambda p: p.transition_status == value)
         positive = (operator == '=')
         return [('id', 'in' if positive else 'not in', matching.ids)]
-    
+
+    @api.depends('contact_type')
+    def _compute_archived_reason(self):
+        # Fixed color constants (confirmed with the developer 2026-08-01) - 'expelled' is
+        # deliberately left with no color, falling back to the widget's own default red, same
+        # reasoning as leaving hr.departure.reason's "Fired" record uncolored (see
+        # docs/en/developers/contacts/contact.md). Labels use _() directly rather than reading
+        # contact_type's own selection metadata, since that isn't translated by plain attribute
+        # access (only _description_selection(env) is) - simpler to just translate here.
+        reasons = {
+            'alumni': (_("Alumni"), '#4C7A5D'),
+            'withdrawal': (_("Withdrawal"), '#C97B3D'),
+            'expelled': (_("Expelled"), False),
+        }
+        for partner in self:
+            label, color = reasons.get(partner.contact_type, (False, False))
+            partner.archived_reason_label = label
+            partner.archived_reason_color = color
+
     @api.depends('benefit_ids', 'benefit_ids.category')
     def _compute_benefit_status(self):
         for partner in self:
@@ -606,17 +633,24 @@ class ResPartner(models.Model):
             'exit_reason': False,
         })
 
-    def _ems_convert_to_ex_student(self):
-        """Convert students into alumni or withdrawals depending on has_graduated.
+    def _ems_convert_to_ex_student(self, kind=None):
+        """Convert students into alumni, withdrawal or expelled.
 
-        A partner who has graduated from any study at least once is alumni
-        forever; one who never graduated becomes a withdrawal. In both cases the
-        student is detached from its group/level/study so it no longer occupies a
-        place. Used by the withdrawal wizard (immediate) and the transition wizard.
+        With no explicit `kind`, a partner who has graduated from any study at least
+        once becomes alumni forever; one who never graduated becomes a withdrawal
+        (unchanged, existing behaviour for every caller that doesn't pass `kind`).
+        Passing `kind='expulsion'` overrides that entirely - an expelled student is
+        never alumni regardless of has_graduated. In every case the student is
+        detached from its group/level/study so it no longer occupies a place. Used
+        by the withdrawal wizard (immediate) and the transition wizard.
         """
         for partner in self:
+            if kind == 'expulsion':
+                new_contact_type = 'expelled'
+            else:
+                new_contact_type = 'alumni' if partner.has_graduated else 'withdrawal'
             partner.write({
-                'contact_type': 'alumni' if partner.has_graduated else 'withdrawal',
+                'contact_type': new_contact_type,
                 'main_group_id': False,
                 'level_id': False,
                 'study_id': False,
@@ -681,6 +715,7 @@ class ResPartner(models.Model):
             'applicant': student | self.env.ref('ems.partner_category_applicant'),
             'alumni': student | self.env.ref('ems.partner_category_alumni'),
             'withdrawal': student | self.env.ref('ems.partner_category_withdrawal'),
+            'expelled': student | self.env.ref('ems.partner_category_expelled'),
         }
         all_managed = self.env['res.partner.category']
         for categories in category_map.values():
@@ -695,7 +730,7 @@ class ResPartner(models.Model):
         """Re-tag applicants and ex-students so they carry the shared student
         category the family-relation conditions rely on. Idempotent; invoked from a
         data <function> on upgrade to heal partners created before the shared marker."""
-        partners = self.search([('contact_type', 'in', ('applicant', 'alumni', 'withdrawal'))])
+        partners = self.search([('contact_type', 'in', ('applicant', 'alumni', 'withdrawal', 'expelled'))])
         partners._sync_category()
 
     def _compute_group_data(self, values):

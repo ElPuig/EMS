@@ -29,3 +29,9 @@ class TestWithdrawalTour(HttpCase):
         self.start_tour("/odoo", "ems_archive_action_single_opens_wizard", login="admin", step_delay=300)
         self.start_tour("/odoo", "ems_archive_action_bulk_opens_wizard", login="admin", step_delay=300)
         self.start_tour("/odoo", "ems_archive_action_shows_in_list", login="admin", step_delay=300)
+
+    def test_generic_archive_action_expulsion_tour(self):
+        # To observe this tour in a real browser during development:
+        #   self.start_tour("/odoo", "ems_archive_action_expulsion_opens_wizard", login="admin", watch=True)
+        self._seed_student('Archive Action Tour Expulsion')
+        self.start_tour("/odoo", "ems_archive_action_expulsion_opens_wizard", login="admin", step_delay=300)

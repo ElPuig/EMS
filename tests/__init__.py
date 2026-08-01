@@ -27,6 +27,7 @@ from . import test_company_settings
 from . import test_settings
 from . import test_settings_tour
 from . import test_employee_display_fields
+from . import test_employee_archived_reason_tour
 from . import test_employee_tour
 from . import test_workgroup
 from . import test_workgroup_tour
@@ -96,6 +97,7 @@ from . import test_group
 from . import test_group_schedule
 from . import test_em_grading_wizard
 from . import test_department
+from . import test_departure_reason
 from . import test_company_director
 from . import test_role
 from . import test_role_color_tour

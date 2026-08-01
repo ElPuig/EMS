@@ -20,20 +20,28 @@ stateDiagram-v2
     [*] --> applicant: preinscription (GEDAC import)
     applicant --> student: admission (sale.order confirmed)
     student --> alumni: graduation (has_graduated=True)
-    student --> withdrawal: withdrawal (never graduated)
+    student --> withdrawal: withdrawal wizard, exit_kind='withdrawal'
+    student --> expelled: withdrawal wizard, exit_kind='expulsion'
     alumni --> student: re-enrolment (_ems_convert_to_student)
     withdrawal --> student: re-enrolment (_ems_convert_to_student)
+    expelled --> student: re-enrolment (_ems_convert_to_student)
     [*] --> family: parent_id of a student
     [*] --> provider: parent_id of a provider
 ```
 
 `contact_type` also has two lifecycle-independent values not shown above: `family` and `provider`, auto-assigned in `create()` from the parent contact's own `contact_type` whenever `parent_id` is set (a child contact of a student becomes `family`; of a provider, `provider` — see `create()`'s inline note on why this can't rely on the value arriving from the popup form).
 
-`has_graduated` is a **permanent** mark, set once by the graduation wizard and never cleared — it is what `_ems_convert_to_ex_student()` uses to decide `alumni` vs `withdrawal` on exit, even after a later re-enrolment.
+`has_graduated` is a **permanent** mark, set once by the graduation wizard and never cleared — it is what `_ems_convert_to_ex_student()` uses to decide `alumni` vs `withdrawal` on exit, even after a later re-enrolment. **`expelled` (added 2026-08-01) overrides this entirely**: `_ems_convert_to_ex_student(kind='expulsion')`, called only by the withdrawal wizard when the admin picks "Expulsion", always produces `contact_type = 'expelled'` regardless of `has_graduated` — see [Graduation & withdrawal wizards](exit_wizards.md#exit_kind--withdrawal-vs-expulsion-added-2026-08-01) for the full `exit_kind` design (and why it required a full audit of every place `contact_type` was filtered/branched on before adding the new value).
 
 ### `_sync_category()`
 
-Every lifecycle transition re-tags `category_id` via a fixed map (`contact_type` → `res.partner.category` XML ID). `student`, `applicant`, `alumni` and `withdrawal` all additionally carry the shared `ems.partner_category_student` marker — this is what keeps family-relation domains (which pin the right-hand side to `partner_category_student`) valid across the whole lifecycle, not just while `contact_type == 'student'`. `_ems_resync_lifecycle_categories()` is a `@api.model` idempotent heal, invoked from a data `<function>` on upgrade, for partners created before this shared marker existed.
+Every lifecycle transition re-tags `category_id` via a fixed map (`contact_type` → `res.partner.category` XML ID). `student`, `applicant`, `alumni`, `withdrawal` and `expelled` all additionally carry the shared `ems.partner_category_student` marker — this is what keeps family-relation domains (which pin the right-hand side to `partner_category_student`) valid across the whole lifecycle, not just while `contact_type == 'student'`. `_ems_resync_lifecycle_categories()` is a `@api.model` idempotent heal, invoked from a data `<function>` on upgrade, for partners created before this shared marker existed.
+
+### `archived_reason_label` / `archived_reason_color`
+
+Feed the shared `ems_archived_reason_ribbon` field widget (`static/src/js/backend/archived_reason_ribbon_field.js`, also used by `hr.employee` — see [`employee.md`](../employees/employee.md)) on both `views/community/contact/{form,kanban}.xml`: `_compute_archived_reason()` (`@api.depends('contact_type')`) returns `(_("Alumni"), '#4C7A5D')` / `(_("Withdrawal"), '#C97B3D')` / `(_("Expelled"), False)` for the three lifecycle-exit values, `(False, False)` for anything else (`student`/`family`/`provider`/`applicant`) — the native "Archived" ribbon (`base.view_partner_form`) is adjusted, not replaced, to only show for that last group (`invisible="active or archived_reason_label"`).
+
+This **must be a real compute, not a plain `related=`**, unlike `hr.employee`'s equivalent (see [`employee.md`](../employees/employee.md)): `contact_type` has six possible values and only three are ribbon-worthy, so something has to decide which — a `related=` field always mirrors its target 1:1, with no way to express "but only for these values, otherwise nothing." `expelled`'s color is deliberately `False` (falls back to the widget's own default red, `#dc3545`) — same reasoning as leaving `hr.departure.reason`'s "Fired" record uncolored: severity that's already self-evident doesn't need a bespoke color to make the point.
 
 ---
 
@@ -62,6 +70,7 @@ Every lifecycle transition re-tags `category_id` via a fixed map (`contact_type`
 | `ems_authorization_ids` | (not stored) | Current-course authorizations across the student's `sale.order`s — feeds the badges above |
 | `ems_current_enrollment_id` | (not stored) | The student's `sale.order` for the enrollment-default (or else current) course, in `draft/sent/sale` state |
 | `benefit_status` | `benefit_ids`, `benefit_ids.category` | See `ems.student.benefit` above |
+| `archived_reason_label` / `archived_reason_color` | `contact_type` | Feeds the `ems_archived_reason_ribbon` field widget (form + kanban) — see "Contact lifecycle" above |
 
 > `ems_authorization_ids`/`ems_current_enrollment_id`/`auth_*` sit at the boundary with [`ems.authorization*`](../enrollment/authorization.md) (`models/enrollment/authorization.py`). `_compute_ems_authorization_ids` was missing its `@api.depends` entirely (a real bug — a non-stored compute field with no dependencies never gets invalidated by later writes in the same transaction) — found and fixed during that model group's own DTON pass, not this one; see that doc's "res.partner auth booleans" section.
 

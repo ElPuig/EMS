@@ -10,17 +10,19 @@
                 </xpath>
 
                 <!-- The native ribbon (base.view_partner_form) always says "Archived"; for a
-                student it's clearer to say WHY they left - "Alumni" (graduated) or "Withdrawal"
-                - instead, matching contact_type's own selection labels. Non-student archived
-                partners (family, provider, applicant) keep the native generic ribbon. -->
+                student it's clearer to say WHY they left - Alumni/Withdrawal/Expelled - via the
+                shared 'ems_archived_reason_ribbon' field widget (archived_reason_label/_color,
+                computed in contact.py). Non-student archived partners (family, provider,
+                applicant) - or a student somehow archived with no matching reason - keep the
+                native generic ribbon, which is why its own condition is simply "is there a
+                specific label to show instead", not an explicit contact_type enumeration. -->
                 <xpath expr="//widget[@name='web_ribbon']" position="attributes">
-                    <attribute name="invisible">active or contact_type in ('alumni', 'withdrawal')</attribute>
+                    <attribute name="invisible">active or archived_reason_label</attribute>
                 </xpath>
                 <xpath expr="//widget[@name='web_ribbon']" position="after">
-                    <widget name="web_ribbon" title="Alumni" bg_color="text-bg-secondary"
-                            invisible="active or contact_type != 'alumni'"/>
-                    <widget name="web_ribbon" title="Withdrawal" bg_color="text-bg-danger"
-                            invisible="active or contact_type != 'withdrawal'"/>
+                    <field name="archived_reason_label" widget="ems_archived_reason_ribbon"
+                           options="{'color_field': 'archived_reason_color'}"
+                           invisible="active or not archived_reason_label"/>
                 </xpath>
 
                 <xpath expr="//div[@name='button_box']" position="inside">
@@ -322,11 +324,11 @@
                     </page>
                 </xpath>
 
-                <!-- Former student data (alumni / withdrawals). The active-student
+                <!-- Former student data (alumni / withdrawals / expelled). The active-student
                      pages hide themselves via invisible="contact_type != 'student'". -->
                 <xpath expr="//page[@name='documentation']" position="after">
                     <page name="former_student" string="Former student"
-                          invisible="contact_type not in ['alumni', 'withdrawal']">
+                          invisible="contact_type not in ['alumni', 'withdrawal', 'expelled']">
                         <group cols="2">
                             <group>
                                 <field name="exit_type"/>
@@ -341,9 +343,9 @@
                     </page>
                     <!-- Frozen per-course academic history (ems.student.year_record):
                          unlike the operational pages above, it stays visible for
-                         alumni/withdrawals — it is their permanent record. -->
+                         alumni/withdrawals/expelled — it is their permanent record. -->
                     <page name="academic_history" string="Academic history"
-                          invisible="contact_type not in ['student', 'alumni', 'withdrawal']">
+                          invisible="contact_type not in ['student', 'alumni', 'withdrawal', 'expelled']">
                         <field name="year_record_ids" readonly="1">
                             <list default_order="study_name asc, course_id asc">
                                 <field name="course_id"/>

@@ -43,6 +43,7 @@ class EmsStudentYearRecord(models.Model):
     exit_type = fields.Selection(string="Exit type", selection=[
         ('graduation', 'Graduation'),
         ('withdrawal', 'Withdrawal'),
+        ('expulsion', 'Expulsion'),
     ])
     exit_date = fields.Date(string="Exit date")
     # Written by the generator (not computed): admin/secretary may adjust it by hand.
@@ -211,7 +212,7 @@ class EmsStudentYearRecord(models.Model):
         """(academic_result, title_obtained) per the transition plan rules. The
         destination enrollment (confirmed sale.order for the enrollment-default
         course) decides promotion vs repetition; the grades decide full vs partial."""
-        if student.exit_type == 'withdrawal' and student.exit_course_id == course:
+        if student.exit_type in ('withdrawal', 'expulsion') and student.exit_course_id == course:
             return 'withdrawn', False
         if student.has_graduated and student.exit_type == 'graduation' \
                 and student.exit_course_id == course:

@@ -39,12 +39,13 @@
                 <form string="Withdrawal">
                     <sheet>
                         <div class="alert alert-warning" role="alert">
-                            Immediate effect: the selected students are withdrawn now — converted to
-                            alumni/withdrawal, detached from group/level/study, removed from active
+                            Immediate effect: the selected students leave now — converted to
+                            alumni/withdrawal/expelled, detached from group/level/study, removed from active
                             attendance templates, pending enrolments cancelled and portal access revoked
                             (family access kept if another child is still enrolled).
                         </div>
                         <group>
+                            <field name="exit_kind" widget="radio" options="{'horizontal': true}"/>
                             <field name="exit_date"/>
                             <field name="exit_reason"/>
                         </group>
@@ -57,7 +58,11 @@
                     </sheet>
                     <footer>
                         <button name="action_apply" type="object" string="Withdraw" class="btn-danger"
+                                invisible="exit_kind != 'withdrawal'"
                                 confirm="This withdraws the selected students immediately. Continue?"/>
+                        <button name="action_apply" type="object" string="Expel" class="btn-danger"
+                                invisible="exit_kind != 'expulsion'"
+                                confirm="This expels the selected students immediately. Continue?"/>
                         <button special="cancel" string="Cancel"/>
                     </footer>
                 </form>

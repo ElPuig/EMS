@@ -145,15 +145,30 @@
                     <attribute name="invisible">True</attribute>
                 </xpath>
 
+                <!-- hr.view_employee_form (native, inherited here) already ships its own
+                generic "Archived" ribbon (invisible="active") - adjust it in place instead of
+                adding a second, duplicate one (an earlier version of this view did add a
+                separate ribbon here, which would have stacked on top of the native one; caught
+                before shipping by re-reading hr_employee_views.xml). -->
+                <xpath expr="//widget[@name='web_ribbon']" position="attributes">
+                    <attribute name="invisible">active or pending_identification or archived_reason_label</attribute>
+                    <attribute name="groups">hr.group_hr_user,ems.group_teacher</attribute>
+                </xpath>
+
                 <xpath expr="//div[hasclass('oe_title')]" position="before">
                     <widget name="web_ribbon" title="Pending identification" bg_color="text-bg-warning"
                             invisible="not pending_identification"/>
-                    <!-- 'active' is already declared by the native hr.employee form (hr_employee_views.xml)
-                    this view inherits, so no need to re-declare it here. Mutually exclusive with the
-                    ribbon above to avoid both showing stacked on a pending-identification employee
-                    who also happens to be archived. -->
-                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
-                            invisible="active or pending_identification"/>
+                    <!-- Same reason-aware pattern as res.partner (see contact/form.xml): the
+                    shared 'ems_archived_reason_ribbon' field widget shows the actual departure
+                    reason (archived_reason_label/_color, related to departure_reason_id in
+                    employee.py); the native ribbon above (adjusted) only remains for the edge
+                    case of an employee archived with no departure reason set at all (e.g.
+                    archived directly via the ORM, bypassing hr's departure wizard). Mutually
+                    exclusive with "Pending identification" too. -->
+                    <field name="archived_reason_label" widget="ems_archived_reason_ribbon"
+                           groups="hr.group_hr_user,ems.group_teacher"
+                           options="{'color_field': 'archived_reason_color'}"
+                           invisible="active or pending_identification or not archived_reason_label"/>
                 </xpath>
 
                 <xpath expr="//div[hasclass('oe_title')]" position="after">

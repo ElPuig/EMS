@@ -30,18 +30,30 @@ Solo se puede marcar al alumnado que está en el **último curso de su estudio**
 
 ¿Has marcado a un alumno por error? **Desmarcar** lo revierte — excepto el registro interno "se ha graduado al menos una vez", que es permanente y es lo que decide si será extitulado o baja si ese alumno deja el centro más adelante. Desmarcar nunca deshace eso.
 
-## Tramitar una baja
+## Tramitar una baja (o una expulsión)
 
-Solo secretaría y admin pueden tramitar una baja. Se te pedirá la **fecha de baja** y, opcionalmente, un **motivo** — después confirmas. Una vez aplicada, no se puede deshacer desde el propio asistente.
+Solo secretaría y admin pueden tramitarlo. Se te pedirá elegir entre **Baja** y **Expulsión**,
+la **fecha de salida** y, opcionalmente, un **motivo** — después confirmas. Una vez aplicado, no
+se puede deshacer desde el propio asistente.
 
-Dar de baja a un alumno desde la acción genérica de Archivar (lista o ficha) abre automáticamente este mismo asistente — no hay ningún camino de "solo archivar" para un alumno activo; la baja es lo que significa archivar para un alumno.
+- La **Baja** cubre que el alumno se vaya por su cuenta, tanto si es decisión propia como
+  decisión administrativa del centro ("de oficio") — no hay una opción separada para esa
+  distinción, simplemente anota las circunstancias concretas en el campo de motivo.
+- La **Expulsión** es para un alumno expulsado permanentemente del centro. Pasa exactamente por
+  los mismos pasos de abajo que una baja (mismas cancelaciones, misma congelación del histórico,
+  misma revocación del portal), la única diferencia es el resultado final: **Expulsado/a** en
+  lugar de **Baja** — se muestra como un rótulo rojo en la ficha del alumno, de un vistazo,
+  junto a Graduado/a (verde) y Baja (naranja) para el resto de exalumnos.
+- El texto del botón de confirmación cambia según tu elección ("Dar de baja" o "Expulsar").
 
-## Qué hace una baja, paso a paso
+Archivar a un alumno desde la acción genérica de Archivar (lista o ficha) abre automáticamente este mismo asistente — no hay ningún camino de "solo archivar" para un alumno activo; este asistente es lo que significa archivar para un alumno.
+
+## Qué hace una baja (o una expulsión), paso a paso
 
 1. Cualquier **matrícula pendiente** (borrador o enviada, aún no confirmada) de ese alumno se cancela.
 2. Su [histórico académico](academic-history.md) se congela **en ese momento exacto** — todo lo hecho hasta ese día (asignaturas, notas, asistencia) se conserva permanentemente, con el resultado **Baja**.
 3. Se le elimina de todo lo operativo: matrículas de asignaturas, sesiones de evaluación en curso, hojas y plantillas de asistencia, y el rol de delegado/a del grupo si lo tenía.
-4. Pasa a ser **extitulado** si en algún momento fue marcado como graduado (aunque fuera hace tiempo), o **baja** en caso contrario.
+4. Si elegiste **Expulsión**, pasa a ser **Expulsado/a** — siempre, independientemente de cualquier marca de graduación anterior. Si no, pasa a ser **extitulado** si en algún momento fue marcado como graduado (aunque fuera hace tiempo), o **baja** en caso contrario.
 5. Se le revoca el acceso al portal — y también al de su familia, **salvo que** algún miembro de la familia tenga todavía otro hijo/a matriculado/a activamente en el centro (un hermano/a mantiene el acceso de la familia funcionando).
 6. La ficha del alumno se archiva.
 

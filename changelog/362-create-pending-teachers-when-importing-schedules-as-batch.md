@@ -1,5 +1,13 @@
 # What's new:
 
+## Reason-aware "Archived" ribbon for students and teachers, plus a new student Expulsion outcome:
+- Archived students now show **why** at a glance instead of a generic "Archived": a green **Alumni** ribbon (graduated), an orange **Withdrawal** ribbon, or a red **Expelled** ribbon — on both the form and the kanban card.
+- Archived teachers show their actual departure reason the same way (**Retired**, **Resigned**, a new **Transfer** reason for teachers reassigned to a different centre, or **Fired**), also on both form and kanban — teachers' kanban previously showed nothing at all for an archived employee.
+- A single reusable field widget (`ems_archived_reason_ribbon`) drives all of this for both models, reading a plain label + hex color pair (`archived_reason_label`/`archived_reason_color`) computed per model — see `docs/en/developers/contacts/contact.md` and `docs/en/developers/employees/employee.md`.
+- `hr.departure.reason` gains a `color` field (same hex color-picker widget already used for `ems.attendance_status`/`ems.role`), so an admin can pick the ribbon color for each departure reason, including any new ones added later.
+- New: the withdrawal wizard now asks the admin to choose between **Withdrawal** and **Expulsion** when archiving a student (voluntary vs. administrative withdrawal stays a free-text note, not a separate option). The confirm button's label adapts to the choice ("Withdraw"/"Expel"). Expulsion always results in `contact_type = 'expelled'`, even for a student who had already graduated once.
+- A full audit of every place `contact_type`/`exit_type` was filtered or branched on (menu domains, search filters, `transition_status`, Google Workspace account suspension, `_academic_result()`, category sync) was done before adding the new `expelled`/`expulsion` values, to make sure none of them silently missed the new case.
+
 ## Pending-identification teachers from schedule imports:
 - Importing a working-schedule file (per-teacher or the general cog-menu importer) no longer fails when a row names a not-yet-hired post with a placeholder code (e.g. `X1`, `X2`) instead of a real e-mail.
 - A "Pending teacher (X1)" employee is created automatically, with the schedule/subjects/attendance lists already assigned — no manual setup needed.
@@ -48,3 +56,12 @@
 ## Employee model:
 - `hr.employee` gains `schedule_import_code` (Char) and computed `pending_identification` (Boolean), added to `ems_employee` in `models/employees/employee.py`.
 - New `views/community/employee/search.xml` (this model had no EMS-owned search view before).
+
+## Migration:
+- `migrations/18.0.0.22.0/pre-migrate.py`: clears the stored `noupdate` flag on `hr.departure.reason`'s three native records (`hr.departure_fired/resigned/retired`) so `data/main/hr.departure.reason.csv`'s new `color` values can actually reach them on upgrade — confirmed empirically that they were silently ignored otherwise (native `hr` module data ships `noupdate="1"`).
+- New `hr.departure.reason` record `ems.departure_reason_transfer` ("Transfer").
+
+## New files:
+- `models/employees/departure_reason.py` (`hr.departure.reason` `color` field), `views/community/employee/departure_reason.xml` (color widget on the native list/form).
+- `static/src/js/backend/archived_reason_ribbon_field.js` + `static/src/xml/backend/archived_reason_ribbon_field.xml` (the shared `ems_archived_reason_ribbon` field widget).
+- `tests/test_departure_reason.py`, `tests/test_employee_archived_reason_tour.py` + `static/tests/tours/employee_archived_reason_tour.js`.

@@ -1,0 +1,4 @@
+id,name,color
+"hr.departure_retired","Retired","#2E6C8E"
+"hr.departure_resigned","Resigned","#C97B3D"
+"ems.departure_reason_transfer","Transfer","#B8A1D9"

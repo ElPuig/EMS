@@ -180,7 +180,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         if not self.env.company.google_ws_enabled:
             return
         for rec in self.filtered(
-            lambda r: r.contact_type in ('student', 'alumni', 'withdrawal')
+            lambda r: r.contact_type in ('student', 'alumni', 'withdrawal', 'expelled')
             and r.student_email and not r.google_ws_suspended
         ):
             rec.with_delay(
@@ -347,7 +347,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         company = self.env.company
         if not company.google_ws_enabled:
             return
-        if self.contact_type not in ('student', 'alumni', 'withdrawal') or not self.student_email:
+        if self.contact_type not in ('student', 'alumni', 'withdrawal', 'expelled') or not self.student_email:
             return
         if self.google_ws_suspended:
             return
@@ -470,7 +470,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         # once this method returns. Mirrors HrEmployeeGoogleWorkspace.unlink().
         if self.env.company.google_ws_enabled:
             for partner in self.filtered(
-                lambda p: p.contact_type in ('student', 'alumni', 'withdrawal')
+                lambda p: p.contact_type in ('student', 'alumni', 'withdrawal', 'expelled')
                 and p.student_email and not p.google_ws_suspended
             ):
                 try:

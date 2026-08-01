@@ -28,6 +28,30 @@ class TestEmployeeDisplayFields(TransactionCase):
     def test_read_only_false_for_admin(self):
         self.assertFalse(self.employee.read_only)
 
+    # --- archived_reason_label / archived_reason_color (ems_archived_reason_ribbon widget) ---
+    # Plain related=('departure_reason_id.name'/'.color') fields - every hr.departure.reason
+    # is ribbon-worthy (no filtering needed, unlike res.partner.contact_type's compute), so
+    # these just mirror whatever is set on the departure reason.
+
+    def test_archived_reason_blank_without_departure_reason(self):
+        self.assertFalse(self.employee.archived_reason_label)
+        self.assertFalse(self.employee.archived_reason_color)
+
+    def test_archived_reason_mirrors_departure_reason_with_color(self):
+        reason = self.env.ref('hr.departure_retired')
+        self.employee.departure_reason_id = reason
+        self.assertEqual(self.employee.archived_reason_label, reason.name)
+        self.assertEqual(self.employee.archived_reason_color, reason.color)
+        self.assertTrue(self.employee.archived_reason_color)
+
+    def test_archived_reason_blank_color_for_uncolored_reason(self):
+        # "Fired" is deliberately left with no color (see data/main/hr.departure.reason.csv) -
+        # the widget's own default red is what shows, not a color from this field.
+        reason = self.env.ref('hr.departure_fired')
+        self.employee.departure_reason_id = reason
+        self.assertEqual(self.employee.archived_reason_label, reason.name)
+        self.assertFalse(self.employee.archived_reason_color)
+
     def test_read_only_true_for_teacher(self):
         employee = self.employee.with_user(self.teacher_user)
         self.assertTrue(employee.read_only)

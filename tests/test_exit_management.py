@@ -55,6 +55,10 @@ class TestExitManagement(TransactionCase):
         alumni = self._student('TS Alumni', contact_type='alumni')
         self.assertEqual(alumni.transition_status, 'former')
 
+    def test_transition_status_former_includes_expelled(self):
+        expelled = self._student('TS Expelled', contact_type='expelled')
+        self.assertEqual(expelled.transition_status, 'former')
+
     def test_transition_status_graduated(self):
         grad = self._student('TS Grad', exit_type='graduation',
                              exit_course_id=self.current_course.id)
@@ -157,6 +161,37 @@ class TestExitManagement(TransactionCase):
             active_ids=student.ids).create({})
         wizard.action_apply()
         self.assertEqual(student.contact_type, 'alumni')
+
+    def test_withdrawal_wizard_expulsion_converts_to_expelled(self):
+        student = self._student('WW Expelled')
+        wizard = self.env['ems.withdrawal_wizard'].with_context(
+            active_ids=student.ids).create({'exit_kind': 'expulsion'})
+        wizard.action_apply()
+        self.assertEqual(student.contact_type, 'expelled')
+        self.assertEqual(student.exit_type, 'expulsion')
+        self.assertFalse(student.main_group_id)
+
+    def test_withdrawal_wizard_expulsion_overrides_has_graduated(self):
+        # Even a student who already graduated once ends up 'expelled', not 'alumni',
+        # when the admin explicitly picks Expulsion - unlike the default Withdrawal path,
+        # which defers entirely to has_graduated.
+        student = self._student('WW Expelled Grad', has_graduated=True)
+        wizard = self.env['ems.withdrawal_wizard'].with_context(
+            active_ids=student.ids).create({'exit_kind': 'expulsion'})
+        wizard.action_apply()
+        self.assertEqual(student.contact_type, 'expelled')
+
+    def test_withdrawal_wizard_expulsion_archives_student(self):
+        student = self._student('WW Expelled Archive')
+        wizard = self.env['ems.withdrawal_wizard'].with_context(
+            active_ids=student.ids).create({'exit_kind': 'expulsion'})
+        wizard.action_apply()
+        self.assertFalse(student.active)
+
+    def test_withdrawal_wizard_defaults_to_withdrawal_kind(self):
+        wizard = self.env['ems.withdrawal_wizard'].with_context(
+            active_ids=self._student('WW Default Kind').ids).create({})
+        self.assertEqual(wizard.exit_kind, 'withdrawal')
 
     def test_withdrawal_wizard_archives_student(self):
         # Withdrawal now archives the student too, mirroring how an employee's

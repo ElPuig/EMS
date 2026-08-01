@@ -44,6 +44,42 @@ class TestContactLifecycle(TransactionCase):
             'name': 'Fresh Student', 'contact_type': 'student'})
         self.assertFalse(student.has_graduated)
 
+    # --- archived_reason_label / archived_reason_color (ems_archived_reason_ribbon widget) ---
+
+    def test_archived_reason_blank_for_active_student(self):
+        student = self.env['res.partner'].create({
+            'name': 'Active Student (Archived Reason)', 'contact_type': 'student'})
+        self.assertFalse(student.archived_reason_label)
+        self.assertFalse(student.archived_reason_color)
+
+    def test_archived_reason_alumni(self):
+        alumni = self.env['res.partner'].create({
+            'name': 'Alumni (Archived Reason)', 'contact_type': 'alumni'})
+        self.assertEqual(alumni.archived_reason_label, 'Alumni')
+        self.assertEqual(alumni.archived_reason_color, '#4C7A5D')
+
+    def test_archived_reason_withdrawal(self):
+        withdrawal = self.env['res.partner'].create({
+            'name': 'Withdrawal (Archived Reason)', 'contact_type': 'withdrawal'})
+        self.assertEqual(withdrawal.archived_reason_label, 'Withdrawal')
+        self.assertEqual(withdrawal.archived_reason_color, '#C97B3D')
+
+    def test_archived_reason_expelled_has_label_but_no_color(self):
+        # No color constant on purpose - the widget falls back to its own default red,
+        # the same severity-signalling reasoning as leaving hr.departure.reason's "Fired"
+        # record uncolored (see docs/en/developers/contacts/contact.md).
+        expelled = self.env['res.partner'].create({
+            'name': 'Expelled (Archived Reason)', 'contact_type': 'expelled'})
+        self.assertEqual(expelled.archived_reason_label, 'Expelled')
+        self.assertFalse(expelled.archived_reason_color)
+
+    def test_archived_reason_blank_for_family(self):
+        # Not a lifecycle-ribbon-worthy contact_type - keeps the native generic "Archived"
+        # ribbon instead (see contact/form.xml's own comment).
+        family = self.env['res.partner'].create({
+            'name': 'Family (Archived Reason)', 'contact_type': 'family'})
+        self.assertFalse(family.archived_reason_label)
+
     # --- category sync ------------------------------------------------------
 
     def test_sync_category_on_create(self):
@@ -85,6 +121,17 @@ class TestContactLifecycle(TransactionCase):
         self.assertEqual(student.contact_type, 'withdrawal')
         self.assertFalse(student.main_group_id)
         self.assertIn(self.cat_withdrawal, student.category_id)
+
+    def test_convert_to_ex_student_expulsion_kind_overrides_has_graduated(self):
+        # Expulsion is never alumni, even for a student who already graduated once -
+        # unlike the default (no kind) path, which defers entirely to has_graduated.
+        student = self.env['res.partner'].create({
+            'name': 'Expelled Graduate', 'contact_type': 'student',
+            'has_graduated': True, 'main_group_id': self.group.id})
+        student._ems_convert_to_ex_student(kind='expulsion')
+        self.assertEqual(student.contact_type, 'expelled')
+        self.assertFalse(student.main_group_id)
+        self.assertIn(self.env.ref('ems.partner_category_expelled'), student.category_id)
 
     # --- _ems_convert_to_student --------------------------------------------
 

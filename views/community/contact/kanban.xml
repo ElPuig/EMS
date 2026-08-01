@@ -21,6 +21,18 @@
                     <attribute name="invisible">True</attribute>
                 </xpath>
 
+                <!-- Same reason-aware ribbon as the form (see form.xml's own comment): the
+                native ribbon (already declared by base.res_partner_kanban_view, 'active' field
+                included) only covers "archived with no specific reason to show". -->
+                <xpath expr="//widget[@name='web_ribbon']" position="attributes">
+                    <attribute name="invisible">active or archived_reason_label</attribute>
+                </xpath>
+                <xpath expr="//widget[@name='web_ribbon']" position="after">
+                    <field name="archived_reason_label" widget="ems_archived_reason_ribbon"
+                           options="{'color_field': 'archived_reason_color'}"
+                           invisible="active or not archived_reason_label"/>
+                </xpath>
+
                 <xpath expr="//kanban//main/footer" position="before">
                     <span class="text-truncate" t-if="record.main_group_id.raw_value > 0">
                         <div class="ems-kanban-label">

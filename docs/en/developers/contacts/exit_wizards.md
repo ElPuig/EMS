@@ -31,16 +31,53 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["action_apply()"] --> B["write exit_type='withdrawal',\nexit_date, exit_reason"]
+    A["action_apply()"] --> K{"exit_kind"}
+    K -- withdrawal --> B["write exit_type='withdrawal',\nexit_date, exit_reason"]
+    K -- expulsion --> B2["write exit_type='expulsion',\nexit_date, exit_reason"]
     B --> C["cancel pending (draft/sent)\nsale.order enrolments"]
+    B2 --> C
     C --> D["ems.student.year_record\n.generate_for_students()\n— freeze history NOW,\nwhile still in the group"]
     D --> E["_ems_clear_operational_records()\n— delete enrollments, grade lines,\nattendance lines/templates,\ngroup delegate"]
-    E --> F["_ems_convert_to_ex_student()\n— alumni if has_graduated,\notherwise withdrawal;\nclears group/level/study"]
+    E --> F["_ems_convert_to_ex_student(kind=exit_kind)\n— expulsion: always 'expelled';\notherwise alumni if has_graduated,\nelse withdrawal; clears group/level/study"]
     F --> G["_ems_revoke_student_portal()\n— student + family,\nsibling check"]
     G --> H{"portal user\nstill active?"}
     H -- yes, revoke failed --> I["log issue,\nSKIP archiving"]
     H -- no --> J["write active=False"]
 ```
+
+### `exit_kind` — Withdrawal vs. Expulsion (added 2026-08-01)
+
+The wizard's form now asks the admin to pick between two mutually-exclusive outcomes via a
+`Selection` field, `exit_kind` (`[('withdrawal', 'Withdrawal'), ('expulsion', 'Expulsion')]`,
+default `'withdrawal'`, `widget="radio"`). **Voluntary vs. administrative ("de oficio")
+withdrawal is deliberately *not* a separate field or state** — both are the same `exit_kind`,
+distinguished only in the free-text `exit_reason`, per an explicit developer decision (adding a
+fourth combination there would be over-modelling a distinction nobody needs to query on).
+
+`_ems_convert_to_ex_student()` (`contact.py`) gained an optional `kind` parameter for this:
+called with no `kind` (every pre-existing caller, e.g. the not-yet-built transition wizard),
+behaviour is **unchanged** — alumni if `has_graduated` else withdrawal. Called with
+`kind='expulsion'` (only this wizard, when `exit_kind == 'expulsion'`), the result is always
+`contact_type = 'expelled'`, regardless of `has_graduated` — an expelled student is never
+"alumni" even if they'd already graduated once before.
+
+**The confirm button's label can't be a dynamically-bound string** — Odoo's `<button
+string="...">` is a static attribute, there's no per-record expression for it (same limitation
+already documented for `web_ribbon`'s `title` — see [`group.md`](group.md)). The view
+(`exit_wizards.xml`) instead declares **two buttons**, both `name="action_apply"`, each
+`invisible` on the opposite `exit_kind` value ("Withdraw" / "Expel") — the same pattern already
+used elsewhere in this codebase for state-dependent button labels (e.g.
+`ems.attendance_correction`'s Accept/Reject).
+
+`contact_type`'s `expelled` value and `exit_type`'s `expulsion` value (mirrored on
+`ems.student.year_record.exit_type` — see [`year_record.md`](../grades/year_record.md) if it
+exists, or `models/grades/year_record.py`) needed a full audit of every place `contact_type`/
+`exit_type` was filtered or branched on before adding them (menu domains, search filters,
+`transition_status`, Google Workspace suspend gating, `_academic_result()`'s withdrawal-specific
+branch, `res.partner.category` sync) — see the model docstrings and `_ARCHIVED_REASON_COLORS`/
+`category_map` in `contact.py` for the resulting list. `_academic_result()` treats `expulsion`
+identically to `withdrawal` (`'withdrawn'`, no title) — leaving school by force is not a "full"
+or "partial" pass either way, same reasoning as a voluntary withdrawal.
 
 **Order matters and is deliberate** — each step depends on state the previous one has not yet destroyed:
 1. **History freeze before cleanup**: the transition wizard captures history by `main_group_id`, so freezing must happen while the student is still attached to their group — a mid-course withdrawal that skipped this step would never get a year record at all.
@@ -55,7 +92,7 @@ Not part of this file, but exclusively used by it (plus a `18.0.0.22.0` migratio
 
 ### Result notification
 
-Both wizards return a `display_notification` client action (matching the pattern in [`portal_access_wizard.md`](portal_access_wizard.md#action_apply--the-wizards-main-entry)): counts of what happened, `type: 'warning'`/`sticky: True` only if `issues` is non-empty. `_("%(done)s student(s) withdrawn", done=done)`-style **named placeholders** are the project convention for these — plain `%s` positional formatting was fixed to this style during this DTON pass (2026-07-28), since a translator reordering words in `ca_ES`/`es_ES` can't reorder a bare `%s`.
+Both wizards return a `display_notification` client action (matching the pattern in [`portal_access_wizard.md`](portal_access_wizard.md#action_apply--the-wizards-main-entry)): counts of what happened, `type: 'warning'`/`sticky: True` only if `issues` is non-empty. `_("%(done)s student(s) withdrawn", done=done)`-style **named placeholders** are the project convention for these — plain `%s` positional formatting was fixed to this style during this DTON pass (2026-07-28), since a translator reordering words in `ca_ES`/`es_ES` can't reorder a bare `%s`. The withdrawal wizard's summary and title now also adapt to `exit_kind`: `_("%(done)s student(s) %(summary_label)s", summary_label=_("expelled") if expulsion else _("withdrawn"))` and a `title` of `_("Expulsion")`/`_("Withdrawal")`.
 
 ---
 

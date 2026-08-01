@@ -61,6 +61,49 @@ One display line per `role_ids` entry for the working-schedule PDF header, appen
 
 Found while writing the `roles`/`tutorships` tests: creating an `ems.group` with `tutor_id` set **at creation time** did not add `ems.role_tutor` to the employee — only a later `write({'tutor_id': ...})` on an *existing* group did (`ems.group.write()` explicitly called `update_tutor_role()`/`_sync_security_groups()`; `create()` did not). Initially left for `ems.group`'s own DTON pass to avoid a drive-by change to a model that hadn't had its D/T/O/N cycle yet — but per the project's own DTON trigger rule (apply Testing at minimum when a change is requested to an un-DTON'd model, rather than deferring), the user asked for it to be fixed immediately once the gap was confirmed. Both `create()` and `write()` now share a `_sync_tutor_role()` helper (`models/contacts/group.py`); full D/O/N for the rest of that model — it doesn't have its own dev doc yet — still waits for its own DTON phase.
 
+### `archived_reason_label` / `archived_reason_color` — added 2026-08-01
+
+Feed the shared `ems_archived_reason_ribbon` field widget (`static/src/js/backend/
+archived_reason_ribbon_field.js`, also used by `res.partner` — see [`contact.md`](../contacts/
+contact.md)) on both `views/community/employee/{form,kanban}.xml`. Unlike `res.partner`'s
+equivalent (a real compute, since only 3 of 6 `contact_type` values are ribbon-worthy), these
+are **plain one-line `related=` fields** —
+
+```python
+archived_reason_label = fields.Char(related="departure_reason_id.name",
+    groups="hr.group_hr_user,ems.group_teacher")
+archived_reason_color = fields.Char(related="departure_reason_id.color",
+    groups="hr.group_hr_user,ems.group_teacher")
+```
+
+— because *every* `hr.departure.reason` is ribbon-worthy here: there's no subset to filter down
+to the way `contact_type` needs. `color` (`models/employees/departure_reason.py`, `_inherit =
+["hr.departure.reason", "ems.hex_color_mixin"]`) is a new EMS addition to the native model, using
+the same hex color-picker widget already established for `ems.attendance_status`/`ems.role`
+(`widget="color" class="ems_color_swatch"`, added to `hr.departure.reason`'s own native list/form
+via `views/community/employee/departure_reason.xml`).
+
+**`groups=` matters here in a way it doesn't for `res.partner`**: the native
+`departure_reason_id` field is itself restricted to `hr.group_hr_user` (`hr/models/
+hr_employee.py`), and Odoo's own view-loading validation (`ir_ui_view.py`) raises an "Access
+Rights Inconsistency" warning if a widget/field references a group-restricted field in its
+`invisible=` condition without matching that same restriction — confirmed empirically
+(2026-08-01: the warning appeared in `./upgrade.sh`'s log the first time these fields were added
+without matching `groups=` on the ribbon elements themselves). Fixed by mirroring the exact
+`groups="hr.group_hr_user,ems.group_teacher"` pattern this file already uses elsewhere (e.g.
+`employee_type`, `activity_ids`) on both the field and the (adjusted, not duplicated) native
+"Archived" ribbon.
+
+**The native `hr.view_employee_form` already ships its own generic "Archived" ribbon**
+(`hr_employee_views.xml`, `invisible="active"`) — this was missed on a first pass (assumed no
+ribbon existed there, by analogy with the kanban, which genuinely has none), which would have
+stacked two "Archived" ribbons on an archived employee with no departure reason set. Fixed by
+adjusting the native ribbon's `invisible` condition in place (`invisible="active or
+pending_identification or archived_reason_label"`) via `<xpath expr="//widget[@name='web_ribbon']"
+position="attributes">`, the same "adjust, don't duplicate" approach `res.partner`'s form already
+uses — always re-check the *native* base view for an existing ribbon before adding a new one,
+not just this addon's own inherited views.
+
 ---
 
 ## Views

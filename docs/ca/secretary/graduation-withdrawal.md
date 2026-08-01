@@ -30,18 +30,30 @@ Només es pot marcar l'alumnat que està al **darrer curs del seu estudi** (per 
 
 Heu marcat un alumne per error? **Desmarcar** ho reverteix — excepte el registre intern "s'ha graduat almenys una vegada", que és permanent i és el que decideix si serà extitulat o baixa si aquell alumne deixa el centre més endavant. Desmarcar mai no desfà això.
 
-## Tramitar una baixa
+## Tramitar una baixa (o una expulsió)
 
-Només secretaria i admin poden tramitar una baixa. Se us demanarà la **data de baixa** i, opcionalment, un **motiu** — després confirmeu. Un cop aplicada, no es pot desfer des del propi assistent.
+Només secretaria i admin poden tramitar-ho. Se us demanarà triar entre **Baixa** i
+**Expulsió**, la **data de sortida** i, opcionalment, un **motiu** — després confirmeu. Un cop
+aplicat, no es pot desfer des del propi assistent.
 
-Donar de baixa un alumne des de l'acció genèrica d'Arxivar (llista o fitxa) obre automàticament aquest mateix assistent — no hi ha cap camí de "només arxivar" per a un alumne actiu; la baixa és el que significa arxivar per a un alumne.
+- La **Baixa** cobreix que l'alumne marxi pel seu compte, tant si és decisió pròpia com decisió
+  administrativa del centre ("d'ofici") — no hi ha una opció separada per a aquesta distinció,
+  simplement anoteu les circumstàncies concretes al camp de motiu.
+- L'**Expulsió** és per a un alumne expulsat permanentment del centre. Passa exactament pels
+  mateixos passos de sota que una baixa (mateixes cancel·lacions, mateixa congelació de
+  l'històric, mateixa revocació del portal), l'única diferència és el resultat final:
+  **Expulsat/da** en lloc de **Baixa** — es mostra com un rètol vermell a la fitxa de l'alumne,
+  d'un cop d'ull, al costat de Graduat/da (verd) i Baixa (taronja) per a la resta d'exalumnes.
+- El text del botó de confirmació canvia segons la vostra elecció ("Donar de baixa" o "Expulsar").
 
-## Què fa una baixa, pas a pas
+Arxivar un alumne des de l'acció genèrica d'Arxivar (llista o fitxa) obre automàticament aquest mateix assistent — no hi ha cap camí de "només arxivar" per a un alumne actiu; aquest assistent és el que significa arxivar per a un alumne.
+
+## Què fa una baixa (o una expulsió), pas a pas
 
 1. Qualsevol **matrícula pendent** (esborrany o enviada, encara no confirmada) d'aquest alumne es cancel·la.
 2. El seu [històric acadèmic](academic-history.md) es congela **en aquell moment exacte** — tot el que s'ha fet fins aquell dia (mòduls, notes, assistència) es conserva permanentment, amb el resultat **Baixa**.
 3. S'elimina de tot allò operatiu: matrícules d'assignatures, sessions d'avaluació en curs, fulls i plantilles d'assistència, i el rol de delegat/da del grup si el tenia.
-4. Passa a ser **extitulat** si en algun moment va ser marcat com a graduat (encara que fos fa temps), o **baixa** en cas contrari.
+4. Si heu triat **Expulsió**, passa a ser **Expulsat/da** — sempre, independentment de qualsevol marca de graduació anterior. Si no, passa a ser **extitulat** si en algun moment va ser marcat com a graduat (encara que fos fa temps), o **baixa** en cas contrari.
 5. Se li revoca l'accés al portal — i també al de la seva família, **tret que** algun membre de la família encara tingui un altre fill/a matriculat/da activament al centre (un germà/na manté l'accés de la família funcionant).
 6. La fitxa de l'alumne s'arxiva.
 

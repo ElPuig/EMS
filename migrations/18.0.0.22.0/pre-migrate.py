@@ -306,6 +306,36 @@ def _clear_noupdate_for_ems_owned_xmlids(cr):
             )
 
 
+# hr.departure.reason records are owned by the native 'hr' module (hr/data/hr_data.xml,
+# <data noupdate="1">), not 'ems' - a different case from NOUPDATE_CLEARED_XMLIDS above (which
+# only ever targets EMS's own module='ems' records). data/main/hr.departure.reason.csv adds a
+# 'color' field to these three EXISTING reasons (see models/employees/departure_reason.py); left
+# untouched, their stored noupdate=True (confirmed empirically 2026-08-01: color stayed NULL
+# after a plain ./upgrade.sh with the CSV in place) would silently swallow that CSV's color
+# values forever, same underlying mechanism as _rename_data_custom_xmlid_ownership above - only
+# the owning module differs, so module is NOT rewritten here (these stay hr's own records).
+HR_OWNED_NOUPDATE_CLEARED_XMLIDS = [
+    ('hr.departure.reason', 'departure_fired'),
+    ('hr.departure.reason', 'departure_resigned'),
+    ('hr.departure.reason', 'departure_retired'),
+]
+
+
+def _clear_noupdate_for_hr_owned_xmlids(cr):
+    for model, name in HR_OWNED_NOUPDATE_CLEARED_XMLIDS:
+        cr.execute(
+            "UPDATE ir_model_data SET noupdate = FALSE "
+            "WHERE module = 'hr' AND model = %s AND name = %s AND noupdate = TRUE",
+            (model, name),
+        )
+        if cr.rowcount:
+            _logger.info(
+                "Migration 18.0.0.22.0: cleared noupdate for xml_id 'hr.%s' (%s), "
+                "so data/main/hr.departure.reason.csv's color can now reach it.",
+                name, model,
+            )
+
+
 def migrate(cr, _version):
     _migrate_role_color(cr)
     _migrate_attendance_template_color(cr)
@@ -315,3 +345,4 @@ def migrate(cr, _version):
     _rename_data_custom_xmlid_ownership(cr)
     _reconcile_planning_outcome_xmlids(cr)
     _clear_noupdate_for_ems_owned_xmlids(cr)
+    _clear_noupdate_for_hr_owned_xmlids(cr)

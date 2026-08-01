@@ -83,6 +83,7 @@
             'views/community/employee/list.xml',
             'views/community/employee/search.xml',
             'views/community/employee/form.xml',
+            'views/community/employee/departure_reason.xml',
 
             'views/community/workgroup/list.xml',
             'views/community/workgroup/form.xml',  
@@ -325,6 +326,7 @@
         'data/main/resync_lifecycle_categories.xml',
         'data/main/ems.space_type.csv',
         'data/main/hr.work.location.csv',
+        'data/main/hr.departure.reason.csv',
         'data/main/res.partner.relation.type.csv',
         'data/main/mail.activity.type.csv',
         'data/main/mail.template-google_welcome.csv',

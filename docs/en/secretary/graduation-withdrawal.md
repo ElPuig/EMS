@@ -30,18 +30,30 @@ Only students in the **last course of their study** can be marked (e.g. 2nd of C
 
 Marked a student by mistake? **Unmark** reverses it — except the internal "has graduated at least once" record, which is permanent and is what decides alumni-vs-withdrawal if that student ever leaves later on. Unmarking never undoes that.
 
-## Registering a withdrawal
+## Registering a withdrawal (or an expulsion)
 
-Only secretary and admin can register a withdrawal. You'll be asked for the **exit date** and, optionally, a **reason** — then confirm. This cannot be undone from the wizard itself once applied.
+Only secretary and admin can register one. You'll be asked to choose between **Withdrawal** and
+**Expulsion**, the **exit date** and, optionally, a **reason** — then confirm. This cannot be
+undone from the wizard itself once applied.
 
-Archiving a student from the generic Archive action (list or form) opens this same wizard automatically — there is no separate "just archive" path for an active student; withdrawal is what archiving means for a student.
+- **Withdrawal** covers the student leaving on their own, whether that's their own decision or
+  the school's administrative decision ("de oficio") — there's no separate option for that
+  distinction, just note the specific circumstances in the reason field.
+- **Expulsion** is for a student permanently expelled from the centre. It goes through the exact
+  same steps below as a withdrawal (same cancellations, same history freeze, same portal
+  revoke), the only difference is the final result: **Expelled** instead of **Withdrawal** —
+  shown as a red ribbon on the student's record, at a glance, alongside Alumni (green) and
+  Withdrawal (orange) for every other former student.
+- The confirm button's label changes to match your choice ("Withdraw" or "Expel").
 
-## What a withdrawal does, step by step
+Archiving a student from the generic Archive action (list or form) opens this same wizard automatically — there is no separate "just archive" path for an active student; this wizard is what archiving means for a student.
+
+## What a withdrawal (or expulsion) does, step by step
 
 1. Any **pending enrolment** (draft or sent, not yet confirmed) for that student is cancelled.
 2. Their [academic history](academic-history.md) is frozen **at that exact moment** — everything done up to that day (subjects, grades, attendance) is kept permanently, with the result **Withdrawn**.
 3. They are removed from everything operational: subject enrollments, live grading sessions, attendance sheets and templates, and the group's delegate role if they held it.
-4. They become **alumni** if they had ever been marked as graduated (even long ago), or **withdrawal** otherwise.
+4. If you chose **Expulsion**, they become **Expelled** — always, regardless of any earlier graduation mark. Otherwise, they become **alumni** if they had ever been marked as graduated (even long ago), or **withdrawal** otherwise.
 5. Their portal access is revoked — and their family's too, **unless** a family member still has another child actively enrolled at the school (a sibling keeps the family's access working).
 6. The student's record is archived.
 

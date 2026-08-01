@@ -52,8 +52,11 @@ registry.category("web_tour.tours").add("ems_archive_action_single_opens_wizard"
             run: "click",
         },
         {
-            trigger: ".o_form_view .ribbon span:contains('Archived')",
-            content: "Back on the student form — the Archived ribbon confirms active=False",
+            // The reason-aware ribbon (ems_archived_reason_ribbon field widget) now shows the
+            // specific reason - "Withdrawal" for this default (non-expulsion) path - instead of
+            // the generic "Archived" text, confirming active=False just as before.
+            trigger: ".o_form_view .ribbon span:contains('Withdrawal')",
+            content: "Back on the student form — the reason-aware ribbon confirms active=False",
         },
         // action_apply() converts contact_type to 'withdrawal' immediately (not deferred), so
         // the "Former student" tab (invisible for contact_type='student') is now reachable on
@@ -133,6 +136,111 @@ registry.category("web_tour.tours").add("ems_archive_action_bulk_opens_wizard", 
             trigger:
                 ".o_list_view:not(:has(.o_data_cell:contains('Archive Action Tour Bulk A')))",
             content: "Both withdrawn students no longer show under the default Students filter",
+        },
+    ],
+});
+
+// Exercises the new exit_kind choice (Withdrawal/Expulsion) added to the same wizard: picking
+// "Expulsion" swaps the confirm button's label from "Withdraw" to "Expel" (two mutually
+// invisible buttons, not a dynamically-bound string= - Odoo buttons can't do that), and the
+// resulting student shows the "Expelled" ribbon (ems_archived_reason_ribbon field widget,
+// archived_reason_label/_color in contact.py) rather than a plain "Archived" one.
+registry.category("web_tour.tours").add("ems_archive_action_expulsion_opens_wizard", {
+    test: true,
+    url: "/odoo/action-ems.action_student_kanban",
+    steps: () => [
+        {
+            trigger: ".o_control_panel",
+            content: "Educational Community loaded",
+        },
+        {
+            trigger: ".o_switch_view.o_list",
+            content: "Switch to list view",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell:contains('Archive Action Tour Expulsion')",
+            content: "Open the seeded student",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_cp_action_menus button",
+            content: "Open the form's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_item:contains('Archive')",
+            content: "Click Archive",
+            run: "click",
+        },
+        {
+            // The radio widget renders <input>/<label> as siblings, not nested (see
+            // web.RadioField's template) - data-value is the robust selector, not label text.
+            trigger: ".modal .o_field_widget[name='exit_kind'] input[data-value='expulsion']",
+            content: "The wizard defaults to Withdrawal - switch to Expulsion",
+            run: "click",
+        },
+        {
+            trigger: ".modal-footer button[name='action_apply']:contains('Expel')",
+            content: "The confirm button now reads 'Expel', not 'Withdraw'",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='exit_reason'] textarea",
+            content: "Fill in the exit reason",
+            run: "edit Tour: expelled via the wizard's Expulsion option",
+        },
+        {
+            trigger: ".modal-footer button[name='action_apply']:contains('Expel')",
+            content: "Confirm the expulsion",
+            run: "click",
+        },
+        {
+            trigger: ".modal-footer .btn-primary",
+            content: "Confirm the 'immediately' warning dialog",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .ribbon span:contains('Expelled')",
+            content: "Back on the student form - the reason-aware ribbon says 'Expelled', not the plain generic 'Archived'",
+        },
+        // The same widget on the KANBAN card - never rendered by any tour before (form-only
+        // above and in the reactivate/archive-confirmation tours for other models).
+        {
+            trigger: ".o_breadcrumb a",
+            content: "Back to the list",
+            run: "click",
+        },
+        {
+            trigger: ".o_switch_view.o_kanban",
+            content: "Switch to kanban view",
+            run: "click",
+        },
+        {
+            trigger: ".o_searchview_facet .o_facet_remove",
+            content: "Remove the default 'Students' filter",
+            run: async () => {
+                for (let attempt = 0; attempt < 20; attempt++) {
+                    const removeBtn = document.querySelector(".o_searchview_facet .o_facet_remove");
+                    if (!removeBtn) break;
+                    removeBtn.click();
+                    await new Promise((resolve) => setTimeout(resolve, 200));
+                }
+            },
+        },
+        {
+            trigger: ".o_searchview_input",
+            content: "Search for the expelled student",
+            run: "edit Archive Action Tour Expulsion",
+        },
+        {
+            trigger: ".o_searchview_input",
+            content: "Confirm the search",
+            run: "press Enter",
+        },
+        {
+            trigger:
+                ".o_kanban_view .o_kanban_record:contains('Archive Action Tour Expulsion') .ribbon span:contains('Expelled')",
+            content: "The 'Expelled' ribbon renders on the kanban card too",
         },
     ],
 });

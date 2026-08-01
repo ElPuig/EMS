@@ -8607,15 +8607,85 @@ msgid "Applicant"
 msgstr "Sol·licitant"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__alumni model:res.partner.category,name:ems.partner_category_alumni model_terms:ir.ui.view,arch_db:ems.view_student_search
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0 model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__alumni model:res.partner.category,name:ems.partner_category_alumni model_terms:ir.ui.view,arch_db:ems.view_student_search
 msgid "Alumni"
 msgstr "Graduats/des"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0 code:addons/ems/models/contacts/graduation_wizard.py:0 model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__withdrawal model:ir.model.fields.selection,name:ems.selection__res_partner__exit_type__withdrawal model:res.partner.category,name:ems.partner_category_withdrawal model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__exit_type__withdrawal
+#: code:addons/ems/models/contacts/contact.py:0 code:addons/ems/models/contacts/graduation_wizard.py:0 model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__withdrawal model:ir.model.fields.selection,name:ems.selection__res_partner__exit_type__withdrawal model:ir.model.fields.selection,name:ems.selection__ems_withdrawal_wizard__exit_kind__withdrawal model:res.partner.category,name:ems.partner_category_withdrawal model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__exit_type__withdrawal
 msgid "Withdrawal"
 msgstr "Baixa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0 model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__expelled model:res.partner.category,name:ems.partner_category_expelled model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Expelled"
+msgstr "Expulsat/da"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0 model:ir.model.fields.selection,name:ems.selection__res_partner__exit_type__expulsion model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__exit_type__expulsion model:ir.model.fields.selection,name:ems.selection__ems_withdrawal_wizard__exit_kind__expulsion
+msgid "Expulsion"
+msgstr "Expulsió"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
+msgid "Expel"
+msgstr "Expulsar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
+msgid "This expels the selected students immediately. Continue?"
+msgstr "Això expulsa immediatament els estudiants seleccionats. Vols continuar?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__exit_kind
+msgid "Kind"
+msgstr "Tipus"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_withdrawal_wizard__exit_kind
+msgid "Withdrawal: the student leaves, voluntarily or de oficio (administrative) - either way, note the specific circumstances in the exit reason below. Expulsion: the student is permanently expelled from the centre."
+msgstr "Baixa: l'estudiant marxa, voluntàriament o d'ofici (administrativa) - en tot cas, anota les circumstàncies concretes al motiu de sortida de sota. Expulsió: l'estudiant queda expulsat permanentment del centre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "expelled"
+msgstr "expulsats/des"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "withdrawn"
+msgstr "donats/des de baixa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/graduation_wizard.py:0
+msgid "%(done)s student(s) %(summary_label)s"
+msgstr "%(done)s estudiant(s) %(summary_label)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
+msgid ""
+"Immediate effect: the selected students leave now — converted to\n"
+"                            alumni/withdrawal/expelled, detached from group/level/study, removed from active\n"
+"                            attendance templates, pending enrolments cancelled and portal access revoked\n"
+"                            (family access kept if another child is still enrolled)."
+msgstr "Efecte immediat: els estudiants seleccionats marxen ara — es converteixen a graduat/baixa/expulsió, es desvinculen de grup/nivell/estudis, es treuen de les plantilles d'assistència actives, es cancel·len les matrícules pendents i es revoca l'accés al portal (l'accés de la família es conserva si un altre fill/a continua matriculat/da)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_departure_reason__color
+msgid "Feeds the 'Archived' ribbon shown on the employee's kanban card and form (see the shared 'ems_archived_reason_ribbon' field widget) - leave empty to fall back to the widget's own default red."
+msgstr "Alimenta el rètol «Arxivat» que es mostra a la targeta kanban i a la fitxa de l'empleat (vegeu el widget de camp compartit «ems_archived_reason_ribbon») - deixa'l buit per utilitzar el vermell per defecte del widget."
+
+#. module: ems
+#: model:hr.departure.reason,name:ems.departure_reason_transfer
+msgid "Transfer"
+msgstr "Trasllat"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search

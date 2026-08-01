@@ -463,6 +463,18 @@ class ems_employee(models.AbstractModel):
         string="Pending identification", compute="_compute_pending_identification", store=True,
         help="A schedule was imported for this teacher before their real identity was known.")
 
+    # Feeds the shared 'ems_archived_reason_ribbon' field widget (form + kanban, same widget
+    # used by res.partner - see static/src/js/backend/archived_reason_ribbon_field.js). Every
+    # departure reason is ribbon-worthy here (unlike res.partner.contact_type, which needs its
+    # own compute to filter down to just alumni/withdrawal/expelled), so a plain related=
+    # suffices - see docs/en/developers/employees/employee.md.
+    archived_reason_label = fields.Char(
+        string="Archived reason", related="departure_reason_id.name",
+        groups="hr.group_hr_user,ems.group_teacher")
+    archived_reason_color = fields.Char(
+        string="Archived reason color", related="departure_reason_id.color",
+        groups="hr.group_hr_user,ems.group_teacher")
+
     @api.depends("schedule_import_code")
     def _compute_pending_identification(self):
         for employee in self:

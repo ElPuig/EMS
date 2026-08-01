@@ -134,6 +134,13 @@ class EmsWithdrawalWizard(models.TransientModel):
     _name = 'ems.withdrawal_wizard'
     _description = 'Withdrawal wizard (immediate exit)'
 
+    exit_kind = fields.Selection([
+        ('withdrawal', 'Withdrawal'),
+        ('expulsion', 'Expulsion'),
+    ], string='Kind', required=True, default='withdrawal',
+        help="Withdrawal: the student leaves, voluntarily or de oficio (administrative) - "
+             "either way, note the specific circumstances in the exit reason below. "
+             "Expulsion: the student is permanently expelled from the centre.")
     exit_date = fields.Date(string='Exit date', required=True,
                             default=fields.Date.context_today)
     exit_reason = fields.Text(string='Exit reason')
@@ -166,7 +173,7 @@ class EmsWithdrawalWizard(models.TransientModel):
         return {'student_id': student.id, 'note': note}
 
     def action_apply(self):
-        """Immediate effect: writes the exit metadata, converts to alumni/withdrawal,
+        """Immediate effect: writes the exit metadata, converts to alumni/withdrawal/expelled,
         cleans active attendance templates, cancels pending enrolments and revokes
         the portal (with sibling check)."""
         self.ensure_one()
@@ -181,7 +188,7 @@ class EmsWithdrawalWizard(models.TransientModel):
             if student.contact_type != 'student':
                 continue
             student.write({
-                'exit_type': 'withdrawal',
+                'exit_type': 'expulsion' if self.exit_kind == 'expulsion' else 'withdrawal',
                 'exit_course_id': course.id if course else False,
                 'exit_date': self.exit_date,
                 'exit_reason': self.exit_reason,
@@ -203,8 +210,8 @@ class EmsWithdrawalWizard(models.TransientModel):
             # grade lines, attendance lines and templates, group delegate). Must run BEFORE
             # the conversion, which detaches the student from its group.
             student._ems_clear_operational_records()
-            # Convert to alumni/withdrawal (clears group/level/study).
-            student._ems_convert_to_ex_student()
+            # Convert to alumni/withdrawal/expelled (clears group/level/study).
+            student._ems_convert_to_ex_student(kind=self.exit_kind)
             # Revoke portal access (student + families without other enrolled child).
             summary = student._ems_revoke_student_portal()
             revoked += len(summary['revoked'])
@@ -226,7 +233,8 @@ class EmsWithdrawalWizard(models.TransientModel):
                 student.write({'active': False})
             done += 1
 
-        parts = [_("%(done)s student(s) withdrawn", done=done)]
+        summary_label = _("expelled") if self.exit_kind == 'expulsion' else _("withdrawn")
+        parts = [_("%(done)s student(s) %(summary_label)s", done=done, summary_label=summary_label)]
         if revoked:
             parts.append(_("%(revoked)s portal access(es) revoked", revoked=revoked))
         if skipped:
@@ -238,7 +246,7 @@ class EmsWithdrawalWizard(models.TransientModel):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _("Withdrawal"),
+                'title': _("Expulsion") if self.exit_kind == 'expulsion' else _("Withdrawal"),
                 'message': message,
                 'type': 'warning' if issues else 'success',
                 'sticky': bool(issues),

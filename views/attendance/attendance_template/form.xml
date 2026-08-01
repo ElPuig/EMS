@@ -14,7 +14,8 @@
                         />
                     </header>
                     <sheet>
-                        <group string="Main data" col="6">   
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <group string="Main data" col="6">
                             <!-- This is needed to automatically display the 'archive' option within the cogmenu. -->
                             <field name="active" invisible="1"/>
 

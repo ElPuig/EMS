@@ -109,6 +109,98 @@ Regression tests: `test_group.py::test_create_with_archived_duplicate_name_raise
 `::test_action_reactivate_sets_active_and_returns_form_action`. Browser tour:
 `ems_group_reactivate_archived_duplicate` (`group_tour.js`) exercises the actual dialog/button.
 
+### Confirming archiving a group that still has active students
+
+Archiving is always allowed and never removes/unenrolls anyone — `main_student_ids` is a plain
+inverse of `res.partner.main_group_id`, `reinforcement_student_ids` a stored Many2many, and
+neither is touched by `active` changing. `_raise_if_archiving_active_students()` only asks for
+confirmation before that happens, via the same self-retriggering `RedirectWarning` pattern Odoo
+core uses for e.g. `account.account`'s Unmerge: the dialog's own button re-runs the exact same
+`write()` with a context flag (`ems_group_archive_confirmed`) that skips the check the second
+time, so declining (closing the dialog) leaves the group genuinely untouched — the check runs
+**before** `super().write()` is ever called, so there is nothing to roll back either way.
+
+```mermaid
+flowchart TD
+    A["write({'active': False})"] --> B{"ems_group_archive_confirmed\nin context?"}
+    B -- yes --> P[Proceed straight to super\(\).write\(\)]
+    B -- no --> C{"Any active main_student_ids\nor reinforcement_student_ids?"}
+    C -- no --> P
+    C -- yes --> E["raise RedirectWarning\n(nothing written yet)"]
+    E --> F["User clicks 'Proceed' in the dialog"]
+    F --> G["ir.actions.server 'action_server_group_confirm_archive'\nruns action_confirm_archive()"]
+    G --> H["write(active=False, archive_confirmed=True context)"]
+    H --> I["soft_reload client action"]
+```
+
+The count sums `len(main_student_ids)` (already `active_test`-filtered automatically, since it's
+a plain inverse search) plus `len(reinforcement_student_ids.filtered("active"))` (a stored
+Many2many does **not** auto-filter archived records on read, unlike a computed inverse - an
+explicit `.filtered("active")` is required or an already-archived reinforcement student would
+count and wrongly trigger the dialog). `_archive_confirmation_message()` builds the message
+(four paragraphs joined with `"\n\n"`, plain text - no HTML, no bullets) and is shared by two
+very different callers:
+
+```mermaid
+flowchart TD
+    A["Click Archive (form/list)"] --> B["EmsGroupFormController/ListController:\nRPC get_archive_confirmation_message()"]
+    B --> C{"Message returned\n(False = no active students)?"}
+    C -- No --> D["archive() / toggleArchiveState(true)\nno dialog at all"]
+    C -- Yes --> E["Our OWN ConfirmationDialog:\ntitle 'Archive this group?', body=message,\nconfirmLabel 'Proceed', cancelLabel 'Cancel' (default)"]
+    E -- Cancel --> F[Nothing happens - no RPC was ever made]
+    E -- Proceed --> G["RPC action_confirm_archive()\nwrite(active=False, archive_confirmed=True context)"]
+    G --> H["soft_reload client action"]
+
+    Z["Any OTHER caller (direct ORM, API, import script)"] --> Y["write({'active': False})"]
+    Y --> X{"ems_group_archive_confirmed\nin context?"}
+    X -- no --> W{"_archive_confirmation_message()\nreturns something?"}
+    W -- yes --> V["raise RedirectWarning\n(safety-net path only -\nplainer dialog, but still functional)"]
+```
+
+**The interactive path (top) never lets the user see `RedirectWarning`'s dialog at all** - the
+generic `web.RedirectWarningDialog`/`web.FormErrorDialog` templates aren't ours to style (fixed
+"Odoo Warning" title from a `subType` that's never populated for a plain RPC error, no way to
+rename the "Close" button to "Cancel"). `EmsGroupFormController`/`EmsGroupListController`
+(`static/src/js/backend/group_{form,list}_controller.js`, wired via `js_class="ems_group_form"`/
+`"ems_group_list"` on `views/community/group/{form,list}.xml`) instead call
+`get_archive_confirmation_message()` **before** ever attempting the archive, and show their own
+`web/core/confirmation_dialog`'s `ConfirmationDialog` (full control over title/labels) only when
+there's something to confirm - calling `action_confirm_archive()` directly on "Proceed" (which
+already passes `ems_group_archive_confirmed` in context, so `write()`'s own guard never fires
+for this path either). This also incidentally skips Odoo's own generic, unconditional "Are you
+sure you want to archive this record?" dialog that the Action menu's `archive` item would
+otherwise show first (`list_controller.js`/`form_controller.js`'s `archiveDialogProps` - a
+purely client-side step for **any** archivable model, before any RPC happens, so nothing
+server-side could ever suppress it) - both controllers override `getStaticActionMenuItems()` to
+replace that item's default callback entirely, the same customization point already used for
+students (`StudentPopupFormController`/`StudentListController` in
+`form_controller_custom.js`/`list_controller_custom.js`, skipped there because archiving a
+student already opens the withdrawal wizard with its own confirmation).
+
+`write()`'s `_raise_if_archiving_active_students()` (bottom of the diagram) still exists and is
+still tested directly - it's the **safety net** for anything that archives a group without going
+through this UI at all (a direct `env['ems.group'].write(...)` call, an import script, another
+module's automation). It shows the plainer `RedirectWarningDialog` if reached via RPC, which is
+an acceptable trade-off for a path that isn't the normal interactive one.
+
+**The Archive/Unarchive menu item only appears if the view itself declares the `active`
+field** - not just the model. `form_controller.js`'s `archiveEnabled` getter checks
+`model.root.activeFields` (the current view's own declared fields), not the model's Python
+field list; `list_controller.js`'s equivalent checks `props.fields` (`fields_get()`, model-wide)
+instead, so the list's Action menu may not have needed this, but the form's did. Both
+`views/community/group/form.xml` and `list.xml` now declare `<field name="active"
+invisible="1"/>` / `column_invisible="True"` for this reason - discovered empirically when a
+first version of the browser tour timed out looking for the Archive menu item at all.
+
+Regression tests: `test_group.py::test_archive_group_with_active_main_students_raises_confirmation`,
+`::test_archive_group_with_active_reinforcement_students_raises_confirmation`,
+`::test_archive_group_ignores_already_archived_reinforcement_students`,
+`::test_archive_empty_group_does_not_raise`, `::test_action_confirm_archive_actually_archives`,
+`::test_get_archive_confirmation_message_false_when_no_active_students`,
+`::test_get_archive_confirmation_message_mentions_the_count`.
+Browser tour: `ems_group_archive_confirmation` (`group_tour.js`) exercises both the accept
+("Proceed") and decline ("Close") paths through the real Action menu.
+
 ### Tutor role sync — `create()`/`write()` share `_sync_tutor_role()`
 
 **Fixed bug (2026-07-27, ahead of this model's own DTON turn, at the user's explicit request once the gap was found while DTON-ing `hr.employee`):** `write()` already called `update_tutor_role()`/`_sync_security_groups()` on `hr.employee` whenever `tutor_id` changed; `create()` didn't — a group created with `tutor_id` already set in the creation vals left the employee's `tutorship_ids` relation correct (it's just `tutor_id`'s inverse) but never granted `ems.role_tutor` or synced their security groups, until someone happened to re-save the field later. Both paths now share one `_sync_tutor_role(employees)` helper. Regression test: `test_group.py::test_create_with_tutor_already_set_syncs_role`.

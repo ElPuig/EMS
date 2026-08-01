@@ -243,6 +243,67 @@ class TestGroup(TransactionCase):
         self.assertEqual(self.test_group.course, 1)
         self.assertEqual(self.test_group.acronym, 'A')
 
+    def test_archive_group_with_active_main_students_raises_confirmation(self):
+        self.env['res.partner'].create({
+            'name': 'Active Main Student (Group Archive)', 'contact_type': 'student',
+            'main_group_id': self.test_group.id,
+        })
+        with self.assertRaises(RedirectWarning):
+            self.test_group.write({'active': False})
+        self.assertTrue(self.test_group.active)
+
+    def test_archive_group_with_active_reinforcement_students_raises_confirmation(self):
+        student = self.env['res.partner'].create({
+            'name': 'Active Reinforcement Student (Group Archive)', 'contact_type': 'student',
+        })
+        reinforcement_group = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'REF-ARCHIVE-TEST',
+            'reinforcement_student_ids': [(6, 0, [student.id])],
+        })
+        with self.assertRaises(RedirectWarning):
+            reinforcement_group.write({'active': False})
+        self.assertTrue(reinforcement_group.active)
+
+    def test_archive_group_ignores_already_archived_reinforcement_students(self):
+        student = self.env['res.partner'].create({
+            'name': 'Archived Reinforcement Student (Group Archive)', 'contact_type': 'student',
+        })
+        reinforcement_group = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'REF-ARCHIVE-TEST-2',
+            'reinforcement_student_ids': [(6, 0, [student.id])],
+        })
+        student.active = False
+        reinforcement_group.write({'active': False})
+        self.assertFalse(reinforcement_group.active)
+
+    def test_archive_empty_group_does_not_raise(self):
+        group = self.env['ems.group'].create({
+            'course': 8, 'acronym': 'Y',
+            'level_id': self.test_level.id, 'study_id': self.test_study.id,
+        })
+        group.write({'active': False})
+        self.assertFalse(group.active)
+
+    def test_action_confirm_archive_actually_archives(self):
+        self.env['res.partner'].create({
+            'name': 'Active Main Student (Group Confirm Archive)', 'contact_type': 'student',
+            'main_group_id': self.test_group.id,
+        })
+        self.test_group.action_confirm_archive()
+        self.assertFalse(self.test_group.active)
+
+    def test_get_archive_confirmation_message_false_when_no_active_students(self):
+        self.assertFalse(self.test_group.get_archive_confirmation_message())
+
+    def test_get_archive_confirmation_message_mentions_the_count(self):
+        self.env['res.partner'].create({
+            'name': 'Active Main Student (Group Archive Message)', 'contact_type': 'student',
+            'main_group_id': self.test_group.id,
+        })
+        message = self.test_group.get_archive_confirmation_message()
+        self.assertIn('1', message)
+        self.assertIn('archive this group anyway', message)
+
     def test_action_reactivate_sets_active_and_returns_form_action(self):
         self.test_group.active = False
         action = self.test_group.action_reactivate()

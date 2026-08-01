@@ -148,6 +148,12 @@
                 <xpath expr="//div[hasclass('oe_title')]" position="before">
                     <widget name="web_ribbon" title="Pending identification" bg_color="text-bg-warning"
                             invisible="not pending_identification"/>
+                    <!-- 'active' is already declared by the native hr.employee form (hr_employee_views.xml)
+                    this view inherits, so no need to re-declare it here. Mutually exclusive with the
+                    ribbon above to avoid both showing stacked on a pending-identification employee
+                    who also happens to be archived. -->
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active or pending_identification"/>
                 </xpath>
 
                 <xpath expr="//div[hasclass('oe_title')]" position="after">

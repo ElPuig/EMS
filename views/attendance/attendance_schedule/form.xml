@@ -5,7 +5,9 @@
             <field name="model">ems.attendance_schedule</field>
             <field name="arch" type="xml">
                 <form string="Schedule">
-                    <sheet>                        
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
                         <group string="Main data" col="6">
                             <group colspan="2">      
                                 <field name="attendance_template_id" readonly="True"/>

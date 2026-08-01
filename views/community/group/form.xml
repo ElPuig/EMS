@@ -4,8 +4,14 @@
             <field name="name">ems.group.form</field>
             <field name="model">ems.group</field>
             <field name="arch" type="xml">
-                <form string="Group">
+                <form string="Group" js_class="ems_group_form">
+                    <!-- Not shown (see "Don't show active field redundantly" convention): the
+                    Action menu's Archive/Unarchive only appears at all when 'active' is part of
+                    this view's own declared fields, not just the model's - see form_controller.js's
+                    archiveEnabled getter (keyed on model.root.activeFields). -->
+                    <field name="active" invisible="1"/>
                     <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <group string="Main data" col="4">
                             <group colspan="2">
                                 <field name="group_type" widget="radio" options="{'horizontal': true}" />

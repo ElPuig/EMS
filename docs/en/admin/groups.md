@@ -80,6 +80,13 @@ button right in that message — one click restores the existing group (with all
 instead of creating a confusing duplicate. If you don't want to reactivate it, just close that
 message: nothing will have been created.
 
+**If the group you're archiving still has active students in it**, EMS asks you to confirm
+first: archiving is always allowed and never removes or unenrolls anyone, it just stops the
+group from showing up in the default views. Click **Proceed** to archive it anyway, or **Close**
+to leave it untouched. If those students are still there simply because the end-of-course
+transition to next year hasn't run yet, that process will move or clear them from this group
+when it does — archiving the group now doesn't need to wait for that.
+
 ---
 
 [← Back to Administrator index](index.md)

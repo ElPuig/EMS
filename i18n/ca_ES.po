@@ -1344,6 +1344,41 @@ msgid "Reactivate archived group"
 msgstr "Reactivar grup arxivat"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "This group still has %(count)s active student(s) as members."
+msgstr "Aquest grup encara té %(count)s alumne(s) actiu(s) com a membres."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "Archiving is allowed and will not remove or unenroll any student. The group's member list stays exactly as it is, they simply won't appear in the default (non-archived) views anymore."
+msgstr "Arxivar està permès i no eliminarà ni desmatricularà cap alumne. La llista de membres del grup es manté exactament igual, simplement no apareixeran a les vistes per defecte (no arxivades)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "If these students are still here because the end-of-course transition hasn't run yet, that process will move or clear them from this group when it does, the same as for any other group. Archiving this one now has no effect on that, and doesn't need to wait for it either."
+msgstr "Si aquests alumnes encara hi són perquè la transició de final de curs encara no ha corregut, aquest procés els mourà o els netejarà d'aquest grup quan ho faci, igual que per a qualsevol altre grup. Arxivar aquest ara no té cap efecte sobre això, i tampoc cal esperar-lo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "Do you want to archive this group anyway?"
+msgstr "Vols arxivar aquest grup igualment?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "Proceed"
+msgstr "Continuar"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_server_group_confirm_archive
+msgid "Confirm archiving group(s) with active students"
+msgstr "Confirmar l'arxivat de grup(s) amb alumnes actius"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_ids model:ir.model.fields,field_description:ems.field_ems_base__activity_ids model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_ids model:ir.model.fields,field_description:ems.field_ems_grade_session__activity_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_ids model:ir.model.fields,field_description:ems.field_ems_notice__activity_ids model:ir.model.fields,field_description:ems.field_ems_notice_line__activity_ids model:ir.model.fields,field_description:ems.field_ems_student_document__activity_ids model:ir.model.fields,field_description:ems.field_ems_teaching__activity_ids model:ir.model.fields,field_description:ems.field_hr_employee__activity_ids
 msgid "Activities"
 msgstr "Activitats"

@@ -270,3 +270,134 @@ registry.category("web_tour.tours").add("ems_group_reactivate_archived_duplicate
         },
     ],
 });
+
+// Exercises the confirmation guard added to ems.group's write() (_raise_if_archiving_active_students
+// in models/contacts/group.py): archiving a group that still has active students must not be
+// blocked outright, but must ask for confirmation first. Two groups (one per outcome) are seeded
+// via the ORM in TestGroupTour.test_group_archive_confirmation_tour, each with one active
+// reinforcement student. Archiving from the form goes through Odoo's own generic "Are you sure
+// you want to archive this record?" dialog FIRST, and only then reaches our own custom one.
+registry.category("web_tour.tours").add("ems_group_archive_confirmation", {
+    test: true,
+    url: "/odoo/action-ems.action_group_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view",
+            content: "Groups list loaded",
+        },
+        // --- Accept path: click "Proceed" ---
+        {
+            trigger: ".o_searchview_input",
+            content: "Search for the accept-path group",
+            run: "edit Tour Archive Confirm Accept",
+        },
+        {
+            trigger: ".o_searchview_input",
+            content: "Confirm the search",
+            run: "press Enter",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Tour Archive Confirm Accept')",
+            content: "Open it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_cp_action_menus button",
+            content: "Open the Action menu",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_item:contains('Archive')",
+            content: "Click Archive",
+            run: "click",
+        },
+        {
+            // EmsGroupFormController (group_form_controller.js) pre-checks via RPC
+            // (get_archive_confirmation_message) before ever calling archive() - since this
+            // group has an active student, it shows a single ConfirmationDialog of our own
+            // (proper title, "Proceed"/"Cancel" labels), never Odoo's generic "are you sure?"
+            // one and never the plainer RedirectWarning dialog either.
+            trigger: ".modal .modal-title:contains('Archive this group?')",
+            content: "Our own, single confirmation dialog appears, since this group still has an active student",
+        },
+        {
+            trigger: ".modal .btn-primary:contains('Proceed')",
+            content: "Accept - archive it anyway",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .ribbon:contains('Archived')",
+            content: "The 'Archived' ribbon now shows on the group's own form",
+        },
+        {
+            trigger: ".o_form_view .o_cp_action_menus button",
+            content: "Reopen the Action menu",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_item:contains('Unarchive')",
+            content: "It shows 'Unarchive' now, proving the group is actually archived (and the student was NOT removed - it is still on the group's own Students tab, untouched)",
+        },
+        {
+            trigger: ".o_kanban_view, .o_control_panel",
+            content: "Close the Action menu before leaving",
+            run: () => {
+                document.body.click();
+            },
+        },
+        {
+            trigger: ".o_breadcrumb a",
+            content: "Back to the list",
+            run: "click",
+        },
+        // --- Decline path: click "Close" instead ---
+        {
+            trigger: ".o_searchview_facet .o_facet_remove",
+            content: "Remove the previous search filter",
+            run: "click",
+        },
+        {
+            trigger: ".o_searchview_input",
+            content: "Search for the decline-path group",
+            run: "edit Tour Archive Confirm Decline",
+        },
+        {
+            trigger: ".o_searchview_input",
+            content: "Confirm the search",
+            run: "press Enter",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Tour Archive Confirm Decline')",
+            content: "Open it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_cp_action_menus button",
+            content: "Open the Action menu",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_item:contains('Archive')",
+            content: "Click Archive",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-title:contains('Archive this group?')",
+            content: "Our own, single confirmation dialog appears again",
+        },
+        {
+            trigger: ".modal .btn-secondary:contains('Cancel')",
+            content: "Decline - cancel instead of archiving",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_cp_action_menus button",
+            content: "Reopen the Action menu",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_item:contains('Archive'):not(:contains('Unarchive'))",
+            content: "Still shows 'Archive' (not 'Unarchive') - declining left the group untouched",
+        },
+    ],
+});

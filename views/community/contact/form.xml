@@ -9,6 +9,20 @@
                     <attribute name="js_class">studentpopup_expand_button</attribute>
                 </xpath>
 
+                <!-- The native ribbon (base.view_partner_form) always says "Archived"; for a
+                student it's clearer to say WHY they left - "Alumni" (graduated) or "Withdrawal"
+                - instead, matching contact_type's own selection labels. Non-student archived
+                partners (family, provider, applicant) keep the native generic ribbon. -->
+                <xpath expr="//widget[@name='web_ribbon']" position="attributes">
+                    <attribute name="invisible">active or contact_type in ('alumni', 'withdrawal')</attribute>
+                </xpath>
+                <xpath expr="//widget[@name='web_ribbon']" position="after">
+                    <widget name="web_ribbon" title="Alumni" bg_color="text-bg-secondary"
+                            invisible="active or contact_type != 'alumni'"/>
+                    <widget name="web_ribbon" title="Withdrawal" bg_color="text-bg-danger"
+                            invisible="active or contact_type != 'withdrawal'"/>
+                </xpath>
+
                 <xpath expr="//div[@name='button_box']" position="inside">
                     <button name="action_view_strikes" type="object" class="oe_stat_button" icon="fa-exclamation-triangle"
                             invisible="contact_type != 'student' or strike_count == 0">

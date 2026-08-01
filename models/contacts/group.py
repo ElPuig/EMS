@@ -159,8 +159,61 @@ class EmsGroup(models.Model):
 		self._sync_tutor_role(groups.mapped('tutor_id'))
 		return groups
 
+	def _archive_confirmation_message(self):
+		# Archiving is always allowed (it never removes/unenrolls anyone) - this only builds the
+		# confirmation message when there's something worth confirming (at least one active
+		# student). Shared by the write()-time safety net below and by
+		# 'get_archive_confirmation_message()', which the client calls proactively so it can show
+		# its OWN dialog (proper title, "Proceed"/"Cancel" labels) instead of ever letting Odoo's
+		# generic RedirectWarning dialog ("Odoo Warning" title, no control over button styling) be
+		# what the user actually sees.
+		count = sum(
+			len(group.main_student_ids) + len(group.reinforcement_student_ids.filtered("active"))
+			for group in self
+		)
+		if not count:
+			return False
+		return "\n\n".join([
+			_("This group still has %(count)s active student(s) as members.") % {"count": count},
+			_("Archiving is allowed and will not remove or unenroll any student. The group's "
+				"member list stays exactly as it is, they simply won't appear in the default "
+				"(non-archived) views anymore."),
+			_("If these students are still here because the end-of-course transition hasn't run "
+				"yet, that process will move or clear them from this group when it does, the same "
+				"as for any other group. Archiving this one now has no effect on that, and doesn't "
+				"need to wait for it either."),
+			_("Do you want to archive this group anyway?"),
+		])
+
+	def get_archive_confirmation_message(self):
+		"""RPC-callable: returns the confirmation message (or False if none is needed) so
+		EmsGroupFormController/EmsGroupListController can show their own dialog BEFORE ever
+		calling archive - the normal, expected path. write()'s own guard below still exists as a
+		safety net for anything that archives outside that UI (a direct ORM call, an import
+		script, an RPC client), where it falls back to the plainer RedirectWarning dialog."""
+		return self._archive_confirmation_message()
+
+	def _raise_if_archiving_active_students(self):
+		# Self-retriggering RedirectWarning, same pattern Odoo core uses for e.g.
+		# account.account's Unmerge: the button re-runs this same write() with a context flag
+		# that skips the check the second time, so declining (closing the dialog) leaves the
+		# group untouched - nothing has been written yet at the point this raises.
+		if self.env.context.get("ems_group_archive_confirmed"):
+			return
+		message = self._archive_confirmation_message()
+		if not message:
+			return
+		raise RedirectWarning(
+			message,
+			self.env.ref("ems.action_server_group_confirm_archive").id,
+			_("Proceed"),
+			{"active_model": self._name, "active_ids": self.ids},
+		)
+
 	def write(self, vals):
 		self._sanitize_group_type_vals(vals)
+		if vals.get("active") is False:
+			self._raise_if_archiving_active_students()
 		old_tutor = self.tutor_id
 		name_affecting = vals.keys() & {"name", "course", "acronym", "study_id", "group_type", "external_id"}
 		with self.env.cr.savepoint():
@@ -184,6 +237,13 @@ class EmsGroup(models.Model):
 			"res_id": self.id,
 			"view_mode": "form",
 			"target": "current",
+		}
+
+	def action_confirm_archive(self):
+		self.with_context(ems_group_archive_confirmed=True).write({"active": False})
+		return {
+			"type": "ir.actions.client",
+			"tag": "soft_reload",
 		}
 
 

@@ -80,6 +80,13 @@ directament en aquest missatge — un sol clic restaura el grup existent (amb to
 historial) en lloc de crear un duplicat confús. Si no vols reactivar-lo, simplement tanca el
 missatge: no s'haurà creat res.
 
+**Si el grup que arxives encara té alumnes actius**, l'EMS et demana confirmació primer:
+arxivar sempre està permès i mai elimina ni desmatricula ningú, només fa que el grup deixi de
+sortir a les vistes per defecte. Fes clic a **Continuar** per arxivar-lo igualment, o a
+**Tancar** per deixar-lo tal com està. Si aquests alumnes encara hi són simplement perquè el
+procés de transició al curs següent encara no ha corregut, aquest procés els traurà o els
+netejarà d'aquest grup quan ho faci — arxivar el grup ara no necessita esperar a això.
+
 ---
 
 [← Tornar a l'índex d'Administrador](index.md)

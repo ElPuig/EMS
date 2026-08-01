@@ -6,6 +6,8 @@
             <field name="arch" type="xml">
                 <form string="teaching">
                     <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
                         <group string="Main data" col="4">
                             <group colspan="4">
                                 <field name="teacher_id"/>

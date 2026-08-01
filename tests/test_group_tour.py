@@ -21,3 +21,22 @@ class TestGroupTour(HttpCase):
             'group_type': 'reinforcement', 'name': 'Tour Archived Reinforcement Cancel',
         }).active = False
         self.start_tour("/odoo", "ems_group_reactivate_archived_duplicate", login="admin")
+
+    def test_group_archive_confirmation_tour(self):
+        # Reinforcement groups again, for the same low-fragility reason as above - a plain Name
+        # and a Many2many student list, no Many2one selection needed to set the scene up.
+        student_accept = self.env['res.partner'].create({
+            'name': 'Tour Archive Confirm Student Accept', 'contact_type': 'student',
+        })
+        self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'Tour Archive Confirm Accept',
+            'reinforcement_student_ids': [(6, 0, [student_accept.id])],
+        })
+        student_decline = self.env['res.partner'].create({
+            'name': 'Tour Archive Confirm Student Decline', 'contact_type': 'student',
+        })
+        self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'Tour Archive Confirm Decline',
+            'reinforcement_student_ids': [(6, 0, [student_decline.id])],
+        })
+        self.start_tour("/odoo", "ems_group_archive_confirmation", login="admin")

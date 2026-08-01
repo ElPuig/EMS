@@ -35,6 +35,8 @@
                     </header>
 
                     <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="True"/>
                         <field name="has_families" invisible="True"/>
                         <field name="can_cancel" invisible="True"/>
 

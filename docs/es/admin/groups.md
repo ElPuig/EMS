@@ -81,6 +81,13 @@ ej., recrear `DAM1A` a mano en lugar de reactivarlo), el EMS te detiene y te ofr
 su historial) en lugar de crear un duplicado confuso. Si no quieres reactivarlo, simplemente
 cierra el mensaje: no se habrá creado nada.
 
+**Si el grupo que archivas todavía tiene alumnos activos**, el EMS te pide confirmación primero:
+archivar siempre está permitido y nunca elimina ni desmatricula a nadie, solo hace que el grupo
+deje de aparecer en las vistas por defecto. Haz clic en **Continuar** para archivarlo de todos
+modos, o en **Cerrar** para dejarlo tal cual. Si esos alumnos siguen ahí simplemente porque el
+proceso de transición al curso siguiente todavía no se ha ejecutado, ese proceso los moverá o
+los limpiará de este grupo cuando lo haga — archivar el grupo ahora no necesita esperar a eso.
+
 ---
 
 [← Volver al índice de Administrador](index.md)

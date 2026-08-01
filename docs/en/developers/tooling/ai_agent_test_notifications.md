@@ -2,7 +2,7 @@
 
 An AI coding agent (e.g. Claude Code) working in this repo notifies you for exactly three reasons (see the project's `CLAUDE.md`, under *Development scripts*):
 
-1. **Any test launch** — right when it runs `./test.sh` (any class, not only tour/`HttpCase` ones), so you know to close or refresh an open Odoo browser tab before the run starts.
+1. **A test launch that actually needs the browser-tab close/refresh** — right when it runs the full, unscoped `./test.sh`, or a scoped run of a `*Tour`/`HttpCase` class, so you know to close or refresh an open Odoo browser tab before the run starts. A scoped run of a plain `TransactionCase`-only class doesn't spin up a real browser at all, so it deliberately stays silent (changed 2026-08-01 — it used to fire unconditionally for every `test.sh` invocation; the developer found that too noisy once most day-to-day runs are scoped, non-tour classes).
 2. **Task completion** — once it has finished everything you asked for in the current task, so you know it's ready to come back and review, even if you stepped away while it worked.
 3. **Blocked waiting for your input** — an `AskUserQuestion` call, or any point where the agent has asked something and has nothing left to do but wait for your reply. Without this, "still working" and "stopped, waiting on you" look identical from outside the chat.
 
@@ -101,7 +101,53 @@ Check with `systemctl --user status claude-notify-watch.service` — `active (ru
 
 ### 4. Container: Claude Code hook
 
-In `~/.claude/settings.json` (**user-level**, not the project's checked-in `.claude/settings.json` — the mount path and username here are specific to one developer's machine):
+Two pieces, both **user-level** (not the project's checked-in `.claude/settings.json` — paths/username here are specific to one developer's machine):
+
+**a) The decision script**, `/root/.claude/hooks/ems-test-notify.sh` — reads the Bash command from stdin and only writes a trigger file when the run would actually exercise a tour/`HttpCase` test (checking the class name, if any, against `tests/*_tour.py`):
+
+```bash
+#!/bin/bash
+REPO=/root/myModules/ems
+
+# The Bash tool's command is very often multi-line (e.g. a leading "cd ..." line before the
+# actual "./test.sh ..." line) - `read -r` only ever captures the FIRST line, which silently
+# broke this exact case (confirmed 2026-08-01: a "cd /root/myModules/ems\n./test.sh ..."
+# command produced no notification at all). `cmd=$(cat)` reads the whole stdin payload instead.
+cmd=$(cat)
+case "$cmd" in
+    *test.sh*) ;;
+    *) exit 0 ;;
+esac
+
+# Find the specific line that actually invokes test.sh (not necessarily the first line of the
+# command), then extract whatever follows "test.sh" on THAT line as the first argument.
+line=$(echo "$cmd" | grep -m1 'test\.sh')
+arg=$(echo "$line" | sed -n 's/.*test\.sh[[:space:]]*//p' | awk '{print $1}' | tr -d "'\"")
+
+notify=false
+if [ -z "$arg" ]; then
+    notify=true  # no argument: the full, sharded suite - always includes the tour shards
+elif [[ "$arg" == /* || "$arg" == -* ]]; then
+    notify=true  # an explicit --test-tags expression - can't cheaply tell if it includes a
+                 # tour shard, so err on the side of notifying rather than risk a silent hang
+else
+    class="${arg%%.*}"  # drop a trailing ".test_method_name" if present
+    # Anchored on "class Name(" - a plain substring match would wrongly let e.g. "TestGroup"
+    # match inside "class TestGroupTour(", since "TestGroup" is a textual prefix of it.
+    if grep -rlE "class ${class}\(" "$REPO"/tests/*_tour.py >/dev/null 2>&1; then
+        notify=true
+    fi
+fi
+
+if [ "$notify" = true ]; then
+    echo "$(date +%H:%M:%S) EMS: launching test (close/refresh your Odoo tab) -> $cmd" \
+        > /mnt/claude-notify/test-$(date +%s%N).txt
+fi
+```
+
+Make it executable: `chmod +x /root/.claude/hooks/ems-test-notify.sh`.
+
+**b) The hook wiring**, in `~/.claude/settings.json`:
 
 ```json
 {
@@ -110,14 +156,18 @@ In `~/.claude/settings.json` (**user-level**, not the project's checked-in `.cla
       "matcher": "Bash",
       "hooks": [{
         "type": "command",
-        "command": "jq -r '.tool_input.command' | { read -r cmd; case \"$cmd\" in *test.sh*) echo \"$(date +%H:%M:%S) EMS: launching test -> $cmd\" > /mnt/claude-notify/test-$(date +%s%N).txt ;; esac; } 2>/dev/null || true"
+        "command": "jq -r '.tool_input.command' | /root/.claude/hooks/ems-test-notify.sh 2>/dev/null || true"
       }]
     }]
   }
 }
 ```
 
-This fires unconditionally on any Bash command containing `test.sh` — deliberately not scoped to tour/`HttpCase`-only runs, since the developer wants the close-or-refresh reminder before every test run. Being a plain filesystem write triggered by the hook (not a call to the agent's notification tool), it's also not subject to that tool's own "you're probably still looking at this" self-suppression.
+Being a plain filesystem write triggered by the hook (not a call to the agent's notification tool), it's also not subject to that tool's own "you're probably still looking at this" self-suppression.
+
+**When testing changes to the script, never pipe sample commands through it with the real `/mnt/claude-notify` path live** — each matching invocation writes a real trigger file, which the host watcher picks up and turns into a real desktop notification (this happened once, 2026-08-01: rapid-fire manual tests of the anchoring logic spammed several real notifications before the mistake was caught). Redirect to a scratch path while iterating, and only re-point at the real bridge for the final, one-time end-to-end check described in *Verifying each layer* below.
+
+**Test with a genuinely multi-line command, not just single-line strings.** The `read -r cmd` → `cmd=$(cat)` bug above (2026-08-01) only showed up because every manual test during development happened to be a single-line string; the real Bash tool call that first exposed it was two lines (`cd /root/myModules/ems` then `./test.sh ...` on the next line), and `read -r` silently discarded everything past the first line with no error. A quick way to reproduce this class of bug: `printf 'cd /some/dir\n./test.sh TestSomethingTour' | ./ems-test-notify.sh` (pointed at a scratch path, per the note above) rather than `echo "./test.sh TestSomethingTour" | ...`.
 
 ### Covering triggers 2 and 3 too
 

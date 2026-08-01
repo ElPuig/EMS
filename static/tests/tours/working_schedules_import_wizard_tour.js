@@ -53,6 +53,27 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_unknown_te
             content: "The onchange correctly flags the unknown teacher e-mail as a blocking error, listed under the shared 'these problems prevent the import' banner",
         },
         {
+            // Reported 2026-08-01: a single long line in this 3-column list (ems_wizard_bullet_list
+            // in ems.css) got its wrapped text visually split across all 3 columns instead of staying
+            // together in the first one - CSS multi-column's default behaviour without
+            // 'break-inside: avoid' on the <li>. A fragmented item's bounding box spans (nearly) the
+            // whole list width; kept whole in one column, it should span roughly a third of it.
+            trigger: ".modal [name='alert-danger-issues'] ul.ems_wizard_bullet_list li",
+            content: "The single blocking-issue line stays whole in its own column, not fragmented across all 3",
+            run: () => {
+                const li = document.querySelector(".modal [name='alert-danger-issues'] ul.ems_wizard_bullet_list li");
+                const listWidth = li.closest("ul").getBoundingClientRect().width;
+                const itemWidth = li.getBoundingClientRect().width;
+                if (itemWidth > listWidth * 0.6) {
+                    throw new Error(
+                        `Expected the single list item to stay within one column (width <= ~${(listWidth * 0.6).toFixed(0)}px), `
+                        + `but its bounding width is ${itemWidth.toFixed(0)}px out of a ${listWidth.toFixed(0)}px-wide list - `
+                        + "it looks fragmented across columns."
+                    );
+                }
+            },
+        },
+        {
             trigger: ".modal footer:not(:has(button[name='import_planner_data']))",
             content: "The Import button is hidden while the blocking error is present",
         },
@@ -92,20 +113,31 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             run: "click",
         },
         {
+            // Two teacher nodes with no '@' anywhere in their 'name' attribute: a short placeholder
+            // code ("TOURX1", no discardable label after it) and a not-yet-hired teacher's own real,
+            // multi-word name ("Tour Fulano Pending") - reported 2026-08-01: naively splitting on the
+            // first space truncated the latter down to just "Tour". Both must be listed whole, each as
+            // its own bullet, not collapsed into one comma sentence.
             trigger: ".modal .o_field_widget[name='attachment_ids']",
             content: "Import wizard dialog opened",
             run: async () => {
-                const xml = '<root><T name="TOURX1 Pending Teacher">'
-                    + '<D name="1 Monday"><H name="1 09:00">'
-                    + '<NonTeaching name="G Guard"/>'
-                    + '</H></D></T></root>';
+                const xml = '<root>'
+                    + '<T name="TOURX1"><D name="1 Monday"><H name="1 09:00">'
+                    + '<NonTeaching name="G Guard"/></H></D></T>'
+                    + '<T name="Tour Fulano Pending"><D name="1 Monday"><H name="1 09:00">'
+                    + '<NonTeaching name="G Guard"/></H></D></T>'
+                    + '</root>';
                 const file = new File([xml], "planner_pending.xml", { type: "text/xml" });
                 await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", [file]);
             },
         },
         {
-            trigger: ".modal [name='alert-info']:contains('TOURX1')",
-            content: "The onchange reports the placeholder code as a non-blocking info message",
+            trigger: ".modal [name='alert-info'] ul.ems_wizard_bullet_list li:contains('TOURX1')",
+            content: "The onchange reports the placeholder code as its own bullet in the non-blocking info banner",
+        },
+        {
+            trigger: ".modal [name='alert-info'] ul.ems_wizard_bullet_list li:contains('Tour Fulano Pending')",
+            content: "The not-yet-hired teacher's full, multi-word name is kept whole, not truncated to just its first word",
         },
         {
             trigger: ".modal footer button[name='import_planner_data']:not([disabled])",

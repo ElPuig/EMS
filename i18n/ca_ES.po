@@ -10825,10 +10825,9 @@ msgid "Teacher with email '%s' not found."
 msgstr "No s'ha trobat cap professor amb el correu '%s'."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/working_schedule.py:0
-msgid "%(count)d teacher(s) pending identification will be created: %(codes)s."
-msgstr "Es crearan %(count)d professor(s) pendent(s) d'identificar: %(codes)s."
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "The following not-yet-identified teachers will be created (please verify their names/codes are correct before continuing):"
+msgstr "Es crearan els professors següents, encara pendents d'identificar (comproveu que els noms/codis siguin correctes abans de continuar):"
 
 #. module: ems
 #. odoo-python

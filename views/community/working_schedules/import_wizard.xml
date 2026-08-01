@@ -9,7 +9,7 @@
                     <field name="ready_to_import" invisible="1"/>
                     <field name="blocking_error_message" invisible="1"/>
                     <field name="blocking_issues_html" invisible="1"/>
-                    <field name="info_message" invisible="1"/>
+                    <field name="info_html" invisible="1"/>
                     <field name="email_mismatch_warning" invisible="1"/>
                     <field name="overrided_teachers_html" invisible="1"/>
                     <field name="external_conflicts_html" invisible="1"/>
@@ -20,8 +20,9 @@
                         Attention please: the following problems prevent the import from continuing. Please fix them and try again:
                         <field name="blocking_issues_html" readonly="1"/>
                     </div>
-                    <div class="alert alert-info" role="alert" name="alert-info" invisible="not info_message">
-                        <field name="info_message" readonly="1" class="oe_inline"/>
+                    <div class="alert alert-info" role="alert" name="alert-info" invisible="not info_html">
+                        The following not-yet-identified teachers will be created (please verify their names/codes are correct before continuing):
+                        <field name="info_html" readonly="1"/>
                     </div>
                     <div class="alert alert-warning" role="alert" name="alert-warning-email-mismatch" invisible="not email_mismatch_warning">
                         <field name="email_mismatch_warning" readonly="1" class="oe_inline"/>

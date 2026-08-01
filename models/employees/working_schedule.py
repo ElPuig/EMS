@@ -205,6 +205,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
 	_description = "Working schedules: import wizard."
 	_inherit = ['ems.datetime_utils']
+	_EMAIL_RE = re.compile(r'\S+@\S+')
 
 	attachment_id = fields.Many2one(string="Attachment", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.working_schedules_import_wizard')]")
 	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")
@@ -229,10 +230,13 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# missing classroom...). Html (not Char) so several problems render as a real list instead of
 	# one long comma sentence — same reasoning as 'overrided_teachers_html'.
 	blocking_issues_html = fields.Html(readonly=True, store=False)
-	# Non-blocking (blue banner): general importer only — codes with no '@' (e.g. "X1") don't match any
-	# employee by e-mail, but aren't an error either; a pending-identification teacher will be created
-	# for each one on import. Never hides the 'Import' button (see 'blocking_error_message' for that).
-	info_message = fields.Char(store=False)
+	# Non-blocking (blue banner): general importer only — bullet list of identifiers with no '@' (a
+	# short placeholder code like "X1", or a not-yet-hired teacher's own full name) that don't match
+	# any employee by e-mail or existing code; a pending-identification teacher will be created for
+	# each one on import. Never hides the 'Import' button (see 'blocking_error_message' for that).
+	# Html (not Char) so several of them render as a real list instead of one long comma sentence —
+	# same reasoning as 'blocking_issues_html'.
+	info_html = fields.Html(readonly=True, store=False)
 	# Non-blocking (extra yellow banner, alongside 'overrided_teachers_html'): the scoped file's single
 	# teacher node has a different e-mail than the employee this wizard was opened for — the import
 	# still goes ahead against 'teacher_id', the e-mail in the file is only ever used for the general importer.
@@ -255,13 +259,27 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		the only thing that distinguishes the two in the planner XML."""
 		return "@" in (value or "")
 
+	@classmethod
+	def _teacher_identifier(cls, name_attr):
+		"""The value that identifies a <TeacherNode>'s 'name' attribute for lookup/creation: the real
+		e-mail if one appears anywhere in it (planner rows normally look like '<email> <display
+		name>' — only the e-mail itself is ever used, the rest is a discardable label), otherwise the
+		ENTIRE (stripped) attribute value. Deliberately NOT 'name_attr.split(' ')[0]': a not-yet-
+		identified teacher's node has no code/label split at all — it may be a short placeholder code
+		('X1') or the person's own real, multi-word name ('Fulanito Menganito'), and naively taking
+		the first whitespace-separated token would silently truncate the latter to just 'Fulanito'."""
+		match = cls._EMAIL_RE.search(name_attr or "")
+		return match.group(0) if match else (name_attr or "").strip()
+
 	def _bullet_html(self, lines):
 		"""A readonly <ul><li> list from plain-text lines (escaped), or False for none — used to
-		render the wizard's warning banners as a real list instead of one long comma sentence."""
+		render the wizard's warning banners as a real list instead of one long comma sentence. Balanced
+		into a few CSS columns (see 'ems_wizard_bullet_list' in ems.css) so a long list of short items
+		(pending codes, teacher names...) doesn't waste the dialog's horizontal space."""
 		if not lines:
 			return False
 		items = Markup("").join(Markup("<li>%s</li>") % escape(line) for line in lines)
-		return Markup("<ul>%s</ul>") % items
+		return Markup('<ul class="ems_wizard_bullet_list">%s</ul>') % items
 
 	def _external_conflict_lines(self, conflicts):
 		lines = []
@@ -316,7 +334,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						) % len(root)
 						continue
 
-					email = root[0].attrib['name'].split(' ')[0]
+					email = rec._teacher_identifier(root[0].attrib['name'])
 					if email.lower() != (rec.teacher_id.work_email or '').lower():
 						rec.email_mismatch_warning = _(
 							"This file's teacher e-mail (%s) doesn't match %s — it will still be imported for this employee."
@@ -342,7 +360,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 				overrided, blocking_issues, teacher_entries = [], [], []
 				for teacherNode in root:
-					email = teacherNode.attrib['name'].split(' ')[0]
+					email = rec._teacher_identifier(teacherNode.attrib['name'])
 					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
 					if not teacher:
 						continue
@@ -372,7 +390,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		for rec in self:
 			rec.blocking_error_message = False
 			rec.blocking_issues_html = False
-			rec.info_message = False
+			rec.info_html = False
 			rec.ready_to_import = False
 			overrided, blocking_issues, pending_codes, teacher_entries = [], [], [], []
 			for attachment in rec.attachment_ids:
@@ -380,7 +398,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				tree = ET.ElementTree(ET.fromstring(xml_content))
 
 				for teacherNode in tree.getroot():
-					email = teacherNode.attrib['name'].split(' ')[0]
+					email = rec._teacher_identifier(teacherNode.attrib['name'])
 					if rec._is_email_like(email):
 						teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
 						if not teacher:
@@ -405,10 +423,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			blocking_issues += rec._missing_space_lines(missing_space)
 
 			rec.blocking_issues_html = rec._bullet_html(blocking_issues)
-			if pending_codes:
-				rec.info_message = _(
-					"%(count)d teacher(s) pending identification will be created: %(codes)s."
-				) % {'count': len(pending_codes), 'codes': ", ".join(pending_codes)}
+			rec.info_html = rec._bullet_html(pending_codes)
 			rec.overrided_teachers_html = rec._bullet_html(overrided)
 			conflicts = self.env['ems.attendance_template'].find_external_conflicts(teacher_entries) if not missing_space else self.env['ems.attendance_schedule']
 			rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
@@ -449,7 +464,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				else:
 					nodes = []
 					for node in root:
-						email = node.attrib['name'].split(' ')[0]
+						email = self._teacher_identifier(node.attrib['name'])
 						if self._is_email_like(email):
 							teacher = self.env["hr.employee"].search([("work_email", "=", email)])
 							if not teacher.id:

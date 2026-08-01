@@ -150,10 +150,14 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
     def test_import_placeholder_code_creates_pending_teacher(self):
         # A code with no '@' (e.g. "X1") isn't a real e-mail typo: the external planner uses it for a
-        # not-yet-staffed post, so a pending-identification teacher is created instead of raising.
+        # not-yet-staffed post, so a pending-identification teacher is created instead of raising. The
+        # raw XML 'name' attribute for this kind of row is just the code itself, with no discardable
+        # label after it (unlike a real teacher's "<email> <display name>" row) — see
+        # test_import_placeholder_full_name_kept_whole below for the case where that identifier is a
+        # multi-word real name instead of a short code.
         self.env['ems.working_schedules_import_wizard'].create({
             'file': self._xml_file_with_hour_node(
-                'X1 Pending',
+                'X1',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
                 f'<Students name="{self.group.name} Group"/>',
             ),
@@ -173,18 +177,34 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
     def test_import_placeholder_code_reuses_same_employee_on_reimport(self):
         self.env['ems.working_schedules_import_wizard'].create({
-            'file': self._xml_file('X2 Pending'),
+            'file': self._xml_file('X2'),
         })
         teacher = self.env['hr.employee'].search([('schedule_import_code', '=', 'X2')])
 
         self.env['ems.working_schedules_import_wizard'].create({
-            'file': self._xml_file('X2 Pending'),
+            'file': self._xml_file('X2'),
         })
 
         self.assertEqual(
             self.env['hr.employee'].search_count([('schedule_import_code', '=', 'X2')]), 1
         )
         self.assertEqual(teacher, self.env['hr.employee'].search([('schedule_import_code', '=', 'X2')]))
+
+    def test_import_placeholder_full_name_kept_whole(self):
+        # A not-yet-hired teacher may have no code at all in the planner export — just their own real,
+        # multi-word name (no '@' anywhere in it). Reported 2026-08-01: naively taking the raw 'name'
+        # attribute's first whitespace-separated token (as if it were always "<code> <label>") silently
+        # truncated this to just the first word. The full value must be kept as the identifier.
+        self.env['ems.working_schedules_import_wizard'].create({
+            'file': self._xml_file('Fulanito Menganito'),
+        })
+
+        teacher = self.env['hr.employee'].search([('schedule_import_code', '=', 'Fulanito Menganito')])
+        self.assertTrue(teacher)
+        self.assertTrue(teacher.pending_identification)
+        self.assertFalse(
+            self.env['hr.employee'].search([('schedule_import_code', '=', 'Fulanito')])
+        )
 
     def test_import_with_no_file_raises(self):
         with self.assertRaises(ValidationError):
@@ -433,13 +453,13 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertTrue(wizard.blocking_issues_html)
         self.assertIn('unknown.import.wizard@example.com', wizard.blocking_issues_html)
         self.assertIn('planner_unknown.xml', wizard.blocking_issues_html)
-        self.assertFalse(wizard.info_message)
+        self.assertFalse(wizard.info_html)
         self.assertFalse(wizard.ready_to_import)
 
-    def test_onchange_attachment_ids_placeholder_code_sets_info_message_not_blocking(self):
+    def test_onchange_attachment_ids_placeholder_code_sets_info_html_not_blocking(self):
         attachment = self.env['ir.attachment'].create({
             'name': 'planner_pending.xml',
-            'datas': self._xml_file('X3 Pending'),
+            'datas': self._xml_file('X3'),
         })
         wizard = self.env['ems.working_schedules_import_wizard'].new({
             'attachment_ids': [(6, 0, [attachment.id])],
@@ -448,8 +468,25 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         wizard._onchange_attachment_ids()
 
         self.assertFalse(wizard.blocking_issues_html)
-        self.assertTrue(wizard.info_message)
-        self.assertIn('X3', wizard.info_message)
+        self.assertTrue(wizard.info_html)
+        self.assertIn('X3', wizard.info_html)
+        self.assertTrue(wizard.ready_to_import)
+
+    def test_onchange_attachment_ids_placeholder_full_name_kept_whole_in_info_html(self):
+        # Same bug as test_import_placeholder_full_name_kept_whole, checked at the onchange-preview
+        # level: the blue banner must list the teacher's full name, not just its first word.
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_pending_name.xml',
+            'datas': self._xml_file('Fulanito Menganito'),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+
+        wizard._onchange_attachment_ids()
+
+        self.assertTrue(wizard.info_html)
+        self.assertIn('Fulanito Menganito', wizard.info_html)
         self.assertTrue(wizard.ready_to_import)
 
     def test_onchange_attachment_ids_known_email_no_blocking_error(self):

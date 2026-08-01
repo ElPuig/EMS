@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Native server actions unbound from the res.partner "Actions" menu.
+
+             Clearing binding_model_id is the only lever Odoo offers: the Actions menu
+             is built from the bindings of the model, so this hides them in EVERY
+             res.partner view, not just one. That is deliberate in both cases below —
+             each of them is either ambiguous or a way to bypass EMS's own flow. -->
+
+        <!-- "Download (vCard)" translates to "Baixa (vCard)" in Catalan, the very word
+             the withdrawal button uses. Two unrelated actions reading "Baixa" in the
+             same toolbar is a mistake waiting to happen, and a vCard export is of no
+             use to a school secretariat. -->
+        <record id="web.download_contact" model="ir.actions.server">
+            <field name="binding_model_id" eval="False"/>
+        </record>
+
+        <!-- Odoo's own "Grant portal access" creates the portal user straight from the
+             partner, skipping everything ems.portal.access.wizard knows: which contact
+             types may hold an account, whose email to use (the applicant's own vs the
+             family's), and the sibling check on revoke. EMS binds its own replacement,
+             "Portal access (students/families)", right above this file's load order. -->
+        <record id="portal.partner_wizard_action_create_and_open" model="ir.actions.server">
+            <field name="binding_model_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

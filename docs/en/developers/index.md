@@ -91,6 +91,14 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Settings
+
+| Model | Description |
+|-------|-------------|
+| [ems.course_transition_wizard](settings/course_transition_wizard.md) | End-of-year transition: study-scoped preview and apply, graduates archived as alumni, bulk placement from the destination enrollments and conditional course flip |
+
+---
+
 ## Shared
 
 | Topic | Description |

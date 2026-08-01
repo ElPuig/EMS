@@ -109,6 +109,11 @@ class TestYearRecord(TransactionCase):
         return self.env['res.partner'].create(dict(
             {'name': name, 'contact_type': 'student', 'main_group_id': self.group.id}, **vals))
 
+    def _frozen(self, student, course=None):
+        return self.env['ems.student.year_record'].search([
+            ('student_id', '=', student.id),
+            ('course_id', '=', (course or self.current_course).id)])
+
     def _enroll(self, student, subject):
         self.env['ems.enrollment'].create({
             'student_id': student.id, 'group_id': self.group.id, 'subject_id': subject.id})
@@ -407,6 +412,51 @@ class TestYearRecord(TransactionCase):
         self.assertEqual(len(record.subject_record_ids), 2)
 
     # --- access ------------------------------------------------------------------
+
+    # --- a frozen record is never overwritten with nothing ------------------
+
+    def test_regenerating_without_a_group_keeps_the_frozen_record(self):
+        """The transition detaches the student and deletes the live grades, so a later
+        regeneration would read an empty group and wipe what it had just frozen. It is
+        the withdrawal wizard's normal path: the manual tells you to register the
+        leavers AFTER applying the transition."""
+        student = self._student('YR Frozen')
+        self._enroll(student, self.subject1)
+        session = self._session(self.subject1)
+        session.fill_students()
+        self._score(session, student, {self.outcome1: 8, self.outcome2: 8})
+        Record = self.env['ems.student.year_record']
+        Record.generate_for_students(student, self.current_course)
+        before = self._frozen(student)
+        self.assertEqual(before.group_id, self.group)
+        self.assertTrue(before.subject_record_ids)
+
+        # What the transition leaves behind: no group, no live grade lines.
+        student.main_group_id = False
+        self.env['ems.grade_outcome_line'].search([('student_id', '=', student.id)]).unlink()
+        self.env['ems.grade_subject_line'].search([('student_id', '=', student.id)]).unlink()
+
+        Record.generate_for_students(student, self.current_course)
+        after = self._frozen(student)
+        self.assertEqual(after, before)
+        self.assertEqual(after.group_id, self.group)
+        self.assertTrue(after.subject_record_ids)
+
+    def test_a_student_with_no_group_and_no_record_still_gets_one(self):
+        """Refusing to overwrite must not turn into refusing to record an exit."""
+        student = self._student('YR No Group', main_group_id=False)
+        record = self.env['ems.student.year_record'].generate_for_students(student, self.current_course)
+        self.assertTrue(record)
+        self.assertFalse(record.group_id)
+
+    def test_an_explicit_group_still_refreshes_the_record(self):
+        """freeze_on_leaving() passes the origin group, so the guard must not stop it."""
+        student = self._student('YR Explicit')
+        Record = self.env['ems.student.year_record']
+        Record.generate_for_students(student, self.current_course)
+        student.main_group_id = False
+        Record.generate_for_students(student, self.current_course, group=self.group)
+        self.assertEqual(self._frozen(student).group_id, self.group)
 
     def test_access_tutor_reads_own_students_only(self):
         student = self._student('Access Student')

@@ -255,6 +255,9 @@ class SaleOrder(models.Model):
         if handover_orders:
             handover_orders._ems_unfollow_teachers()
 
+        if vals.get('ems_group_id'):
+            self._ems_place_on_group_assignment()
+
         # If one of the fields that make up the code was changed...
         if any(field in vals for field in ['ems_course_id', 'ems_level_id', 'ems_study_id']):
             for order in self:
@@ -585,13 +588,15 @@ class SaleOrder(models.Model):
         of an internal continuer once the granted study is the one being confirmed.
         Placement (group + subject enrollments) only runs for latecomers whose
         destination study has already been transitioned; in the normal case (study still
-        active) the transition wizard places everyone in bulk later. The
-        `transition_state` field lands in the transition phase, so until then this
-        branch stays dormant.
+        active) the transition wizard places everyone in bulk later.
         """
         self.ensure_one()
         partner = self.partner_id
-        if partner.contact_type == 'applicant':
+        # Ex-students come back too: a graduate starting another study, or a returner
+        # archived last year. The bulk placement of the transition wizard already
+        # covered the three states, and the individual path has to match it or a
+        # September confirmation would land on an archived alumni nobody can place.
+        if partner.contact_type in ('applicant', 'alumni', 'withdrawal'):
             partner._ems_convert_to_student()
         # Spent assignment: clearing it keeps the "With GEDAC assignment" filter showing
         # only the continuers still pending enrollment. A different study being confirmed
@@ -603,32 +608,55 @@ class SaleOrder(models.Model):
                 'preinscription_shift': False,
                 'preinscription_course': False,
             })
-        if getattr(self.ems_study_id, 'transition_state', False) == 'transitioned':
+        if self._ems_placement_is_individual():
             self._ems_apply_destination_placement()
+
+    def _ems_placement_is_individual(self):
+        """Whether THIS enrollment has to place its student on its own.
+
+        The bulk pass of the transition wizard has already run when either is true:
+
+        - the destination study is 'transitioned' — a partial transition, the wizard
+          did that study and the centre is still on the outgoing course; or
+        - the enrollment is for the course that is already running. The global flip
+          puts every study back to 'active', so after a complete transition — the
+          normal end state — 'transitioned' is true for nobody and keying on it alone
+          left September unable to place a single latecomer.
+
+        An enrollment for a course that has not started yet is left to the wizard.
+        """
+        self.ensure_one()
+        return self.ems_study_id.transition_state == 'transitioned' \
+            or self.ems_course_id == self.env.company.current_course_id
 
     def _ems_suggest_group(self):
         """Suggest a destination group for this enrollment from its own data.
 
-        Continuing student: the same acronym as the student's current group plus
-        the enrollment shift, in the destination study/course. Applicant: the
-        lowest-letter group of the shift. Empty when there is no single match.
+        Continuing student: the same acronym as the student's current group plus the
+        enrollment shift, in the destination study/course. Newcomer: the lowest-letter
+        group of the shift. Empty when there is no single match.
+
+        What tells the two apart is whether there is a group to copy the letter FROM,
+        not the contact type. Keying it on 'applicant' looked equivalent but stopped
+        being true at exactly the wrong moment: confirming the enrollment runs
+        _ems_admit_student(), which turns the applicant into a student, so from then on
+        a newcomer awaiting the bulk placement fell through both branches and got no
+        suggestion at all.
         """
         self.ensure_one()
         study = self.ems_study_id
-        course = self.sale_order_template_id.study_year
+        course = self.sale_order_template_id.study_year or self._ems_course_from_tutorship()
         if not (study and course):
             return self.env['ems.group']
         Group = self.env['ems.group']
         partner = self.partner_id
-        if partner.contact_type == 'applicant':
+        current = partner.main_group_id
+        if not current:
             domain = [('study_id', '=', study.id), ('course', '=', course)]
             shift = self.shift or partner.preinscription_shift
             if shift:
                 domain.append(('shift', '=', shift))
             return Group.search(domain, order='acronym', limit=1)
-        current = partner.main_group_id
-        if not current:
-            return Group
         domain = [('study_id', '=', study.id), ('course', '=', course),
                   ('acronym', '=', current.acronym)]
         shift = self.shift or current.shift
@@ -636,6 +664,36 @@ class SaleOrder(models.Model):
             domain.append(('shift', '=', shift))
         matches = Group.search(domain)
         return matches if len(matches) == 1 else Group
+
+    def _ems_course_from_tutorship(self):
+        """Destination course of an enrollment that carries no template.
+
+        A repeater re-enrolling only in what they failed never goes through a template,
+        so sale_order_template_id.study_year is empty and the suggestion gave up. Their
+        lines cannot be matched against a template as a whole either: they mix modules
+        pending from an earlier course with the current one, plus the economic items
+        (enrollment fee, AMPA), so no template is ever a superset of them.
+
+        The tutorship is the handle. There is exactly one per enrollment and it is
+        course-specific ("Tutoria 2n SMX"), so whichever templates sell it pin the
+        course down. Anything ambiguous — no tutorship, more than one, or templates
+        disagreeing on the year — returns nothing, and the caller leaves the group
+        empty rather than guess.
+        """
+        self.ensure_one()
+        tutorships = self.env['ems.subject'].search([
+            ('product_id', 'in', self.order_line.mapped('product_id').ids),
+            ('is_tutorship', '=', True)])
+        if len(tutorships) != 1:
+            return False
+        years = {
+            template.study_year
+            for template in self.env['sale.order.template'].search([
+                ('ems_study_id', '=', self.ems_study_id.id),
+                ('study_year', '!=', False)])
+            if tutorships.product_id in template.sale_order_template_line_ids.product_id
+        }
+        return years.pop() if len(years) == 1 else False
 
     def _ems_fill_suggested_group(self):
         """Fill ems_group_id with the suggestion on enrollments that have none.
@@ -649,6 +707,31 @@ class SaleOrder(models.Model):
                 order.ems_group_id = group
                 filled += 1
         return filled
+
+    def _ems_place_on_group_assignment(self):
+        """Place a confirmed enrollment whose destination group arrives late.
+
+        The placement used to run only on confirmation and in the wizard's bulk pass,
+        so an enrollment confirmed WITHOUT a destination group could never be repaired:
+        writing the group did nothing, and action_confirm() refuses to run twice
+        ("Some orders are not in a state requiring confirmation"). The student stayed
+        with no group, no subject enrollments and no evaluation sessions, recoverable
+        only by hand.
+
+        Deliberately narrow: it only fires for a student that has NO group.
+        _ems_apply_destination_placement() creates the enrollments of the new group but
+        does not remove those of the old one, so re-pointing an already-placed student
+        would leave it enrolled in two groups' subjects at once. Moving somebody is a
+        different operation and does not belong here.
+        """
+        for order in self:
+            if order.state != 'sale' or not order.ems_group_id:
+                continue
+            if not order._ems_placement_is_individual():
+                continue  # the wizard's bulk pass will place them
+            if order.partner_id.main_group_id:
+                continue
+            order._ems_apply_destination_placement()
 
     def _ems_apply_destination_placement(self):
         """Place the student in the destination group and materialize the subject
@@ -664,8 +747,24 @@ class SaleOrder(models.Model):
         if not group:
             return
         student = self.partner_id
-        if student.main_group_id != group:
-            student.sudo().main_group_id = group
+        # Last chance to record the year that ends: the write below overwrites the origin
+        # group, and a student placed by the run of ANOTHER study would otherwise lose it
+        # (see ems.student.year_record.freeze_on_leaving). No-op when the history is
+        # already there, which is the normal case of a student of the study being run.
+        origin_group = student.main_group_id
+        if origin_group and origin_group != group:
+            self.env['ems.student.year_record'].sudo().freeze_on_leaving(student, origin_group)
+        # Study and level travel with the group, they are not derived from it: leaving
+        # them behind would keep a student who moves to another study (or an applicant
+        # entering one) pointing at the previous one. Written together and only when
+        # they differ, so re-running the placement stays a no-op.
+        placement = {
+            'main_group_id': group.id,
+            'study_id': group.study_id.id,
+            'level_id': group.level_id.id,
+        }
+        if any(student[field].id != value for field, value in placement.items()):
+            student.sudo().write(placement)
         Enrollment = self.env['ems.enrollment'].sudo()
         subjects = self.env['ems.subject'].sudo().search([
             ('product_id', 'in', self.order_line.product_id.ids)])

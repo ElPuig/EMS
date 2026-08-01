@@ -33,17 +33,11 @@ class EmsGraduationWizard(models.TransientModel):
         return self.env.company.current_course_id \
             or self.env['ems.course'].search([('is_current', '=', True)], limit=1)
 
-    def _last_course_of_study(self, study):
-        if not study:
-            return 0
-        courses = self.env['ems.group'].search([('study_id', '=', study.id)]).mapped('course')
-        return max(courses) if courses else 0
-
     def _is_last_course(self, student):
         """Only students in the last course of their study can graduate (e.g. 2nd in
         CFGM/CFGS/Bachillerato, 4th in ESO). The last course is derived from the highest
         group course of the study."""
-        last = self._last_course_of_study(student.study_id)
+        last = student.study_id._ems_last_course()
         return bool(last) and bool(student.main_group_id) and student.main_group_id.course >= last
 
     def _line_vals(self, student):
@@ -56,9 +50,16 @@ class EmsGraduationWizard(models.TransientModel):
                 ('partner_id', '=', student.id),
                 ('ems_course_id', '=', next_course.id),
                 ('state', '!=', 'cancel')]))
-            warning = _("Already enrolled for the next course — graduation is incompatible") if has_next else ''
+            # Not a contradiction: a graduate moving up to another study at the centre
+            # is graduated AND placed by the transition, never converted nor archived.
+            warning = _("Enrolled for the next course — will be graduated and placed, not archived") \
+                if has_next else ''
         return {
             'student_id': student.id,
+            # Shown for confirmation (D2): a student only ever has one study, through its
+            # main group, so there is nothing to pick — but the operator has to see which
+            # one the graduation is being recorded against.
+            'study_id': student.study_id.id,
             'already_marked': student.exit_type == 'graduation',
             'blocked': blocked,
             'warning': warning,
@@ -114,7 +115,10 @@ class EmsGraduationWizard(models.TransientModel):
                 'message': message,
                 'type': 'success',
                 'sticky': False,
-                'next': {'type': 'ir.actions.act_window_close'},
+                # Reload instead of just closing: the graduation mark the wizard has
+                # just written is invisible in the list until the rows are read again.
+                # 'soft_reload' keeps the search filters and the group-by.
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
             },
         }
 
@@ -125,6 +129,7 @@ class EmsGraduationWizardLine(models.TransientModel):
 
     wizard_id = fields.Many2one('ems.graduation_wizard', ondelete='cascade')
     student_id = fields.Many2one('res.partner', string='Student')
+    study_id = fields.Many2one('ems.study', string='Study')
     already_marked = fields.Boolean(string='Already marked')
     blocked = fields.Boolean(string='Blocked')
     warning = fields.Char(string='Warning')
@@ -250,7 +255,10 @@ class EmsWithdrawalWizard(models.TransientModel):
                 'message': message,
                 'type': 'warning' if issues else 'success',
                 'sticky': bool(issues),
-                'next': {'type': 'ir.actions.act_window_close'},
+                # Reload instead of just closing: a withdrawal drops the student out
+                # of the list domain altogether, so leaving the rows on screen reads
+                # as if nothing had happened. 'soft_reload' keeps filters and group-by.
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
             },
         }
 

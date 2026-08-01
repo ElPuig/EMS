@@ -77,21 +77,58 @@ class EmsStudentYearRecord(models.Model):
     # --- generation (called by the withdrawal wizard and the transition wizard) ---
 
     @api.model
-    def generate_for_students(self, students, course):
+    def generate_for_students(self, students, course, group=None):
         """Create or refresh the year record of each student for the given course.
 
         Idempotent on (student_id, course_id): an existing record has its copied
         content replaced instead of being duplicated. Must be called while the
-        student still has its main_group_id (i.e. before any ex-student conversion).
+        student still has its main_group_id (i.e. before any ex-student conversion),
+        unless 'group' names the origin group explicitly — which is what
+        freeze_on_leaving() does when the student is already on its way out.
         """
         records = self.browse()
         for student in students:
-            records |= self._generate_one(student, course)
+            records |= self._generate_one(student, course, group=group)
         return records
 
     @api.model
-    def _generate_one(self, student, course):
-        group = student.main_group_id
+    def freeze_on_leaving(self, student, origin_group):
+        """Freeze the outgoing course of a student about to be moved out of its group.
+
+        The transition runs study by study, so a student can be pulled out of its
+        origin group by the run of its DESTINATION study, before its own study
+        transitions. Ordering the runs does not save it: with students finishing ASIX
+        to start DAM and others finishing DAM to start ASIX in the same year, whichever
+        study goes first strands the other. Once main_group_id is overwritten the origin
+        group is gone, and with it the only handle _generate_one() had on the year that
+        ended.
+
+        So the history is frozen here instead, at the single choke point every placement
+        goes through — bulk and individual alike. Skipped once the origin study has
+        transitioned: its own run already froze everybody, and by then the current course
+        may well be the incoming one.
+        """
+        course = self.env.company.current_course_id
+        if not course or not origin_group \
+                or origin_group.study_id.transition_state == 'transitioned':
+            return self.browse()
+        if self.search_count([('student_id', '=', student.id), ('course_id', '=', course.id)]):
+            return self.browse()
+        return self._generate_one(student, course, group=origin_group)
+
+    @api.model
+    def _generate_one(self, student, course, group=None):
+        group = group or student.main_group_id
+        # A record already frozen is never rewritten from an empty group. Once the
+        # transition has run, the student has no main_group_id (step 4b detached it) and
+        # its live grade lines are gone (step 8 deleted them, precisely because this
+        # record replaces them) — so regenerating would overwrite the only surviving
+        # trace of the year with blanks. It is not hypothetical: the withdrawal wizard
+        # regenerates on every exit, and the manual tells the operator to register the
+        # leavers AFTER applying the transition.
+        existing = self.search([('student_id', '=', student.id), ('course_id', '=', course.id)])
+        if existing and not group:
+            return existing
         attendance_rate, subject_rates = self._attendance_rates(student)
         subject_vals = self._subject_vals(student, subject_rates)
         all_passed = all(vals['state'] == 'passed' for vals in subject_vals)
@@ -118,7 +155,7 @@ class EmsStudentYearRecord(models.Model):
             'title_obtained': title_obtained,
             'subject_record_ids': [(0, 0, vals) for vals in subject_vals],
         }
-        record = self.search([('student_id', '=', student.id), ('course_id', '=', course.id)])
+        record = existing
         if record:
             record.subject_record_ids.unlink()
             record.write(vals)

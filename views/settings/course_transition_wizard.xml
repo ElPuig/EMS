@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_course_transition_wizard_form">
+            <field name="name">ems.course_transition_wizard.form</field>
+            <field name="model">ems.course_transition_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Set up the next course" js_class="ems_course_transition_form">
+                    <sheet>
+                        <field name="state" invisible="1"/>
+                        <field name="has_blockers" invisible="1"/>
+                        <field name="will_flip" invisible="1"/>
+
+                        <div invisible="state == 'done'">
+                            <p style="color: #666; font-size: 13px;">
+                                This closes the outgoing course and opens the next one for the
+                                studies you select. It freezes the academic history, turns the
+                                graduates who leave into archived alumni, turns the graduates
+                                whose enrollment is not confirmed yet into applicants that keep
+                                their portal access, places everyone else into the destination
+                                group of their confirmed enrollment, and deletes the operational
+                                records of the year that ends. <strong>The cleanup cannot be undone.</strong><br/>
+                                Studies do not all finish at the same time: transition the ones
+                                that are done, and run it again for the rest. The current course
+                                only switches on the run that leaves no study pending.
+                            </p>
+                            <group>
+                                <group>
+                                    <field name="source_course_id"/>
+                                    <field name="target_course_id"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="study_ids" widget="many2many_tags"
+                                       options="{'no_create': True}"/>
+                            </group>
+                        </div>
+
+                        <div invisible="state != 'preview'">
+                            <div class="alert alert-danger" role="alert" invisible="not has_blockers">
+                                <strong>The transition cannot be applied yet:</strong>
+                                <field name="blocking_html" nolabel="1" readonly="1"/>
+                            </div>
+                            <div class="alert alert-info" role="alert" invisible="has_blockers and not will_flip">
+                                <strong>Please read before applying:</strong>
+                                <field name="warning_html" nolabel="1" readonly="1"/>
+                            </div>
+                            <group string="What will happen">
+                                <group>
+                                    <field name="graduate_count"/>
+                                    <field name="graduate_continue_count"/>
+                                    <field name="graduate_pending_count"/>
+                                    <field name="place_count"/>
+                                    <field name="pending_count"/>
+                                    <field name="unplaced_count"/>
+                                    <field name="missing_count"/>
+                                </group>
+                                <group>
+                                    <field name="incomplete_evaluation_count"/>
+                                    <field name="template_count"/>
+                                    <field name="delete_count"/>
+                                </group>
+                            </group>
+                            <group invisible="has_blockers">
+                                <field name="backup_done"/>
+                            </group>
+                            <field name="line_ids" nolabel="1" readonly="1">
+                                <list string="Preview" create="false" delete="false">
+                                    <field name="student_id"/>
+                                    <field name="study_id"/>
+                                    <field name="source_group_id"/>
+                                    <field name="action"/>
+                                    <field name="destination_group_id"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div invisible="state != 'done'">
+                            <field name="result_html" nolabel="1" readonly="1"/>
+                            <field name="audit_file" widget="auto_download_binary"
+                                   filename="audit_file_name" string="Download the transition log (CSV)"/>
+                            <field name="audit_file_name" invisible="1"/>
+                        </div>
+                    </sheet>
+                    <footer>
+                        <button name="action_preview" type="object" string="Preview"
+                                class="btn-primary" invisible="state == 'done'"/>
+                        <button name="action_apply" type="object" string="Apply the transition"
+                                class="btn-danger" invisible="state != 'preview' or has_blockers"
+                                confirm="The operational records of the outgoing course will be deleted and this cannot be undone. It can take several minutes: do not close the window while it runs. Apply the transition?"/>
+                        <button special="cancel" string="Close"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_course_transition_wizard">
+            <field name="name">Set up the next course</field>
+            <field name="res_model">ems.course_transition_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        </record>
+    </data>
+</odoo>

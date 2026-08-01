@@ -24,6 +24,7 @@ Esta sección contiene los manuales para **administradores**.
 - [Asignación de tareas: quién gestiona las tareas que crea EMS](task-assignment.md) — Elegir quién revisa los documentos que suben los alumnos y los comentarios de las familias, con independencia de los roles y los permisos.
 - [Grupos](groups.md) — Crear y gestionar grupos Principales/de Refuerzo, tutores, delegados y cambio de tipo de grupo.
 - [El horario semanal de un grupo](group-schedule.md) — Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF.
+- [Preparar el curso siguiente](course-transition.md) — Cerrar el curso: archivar el historial académico, graduar y archivar a los exalumnos, colocar a todos en su grupo nuevo y cambiar el curso actual.
 
 ---
 

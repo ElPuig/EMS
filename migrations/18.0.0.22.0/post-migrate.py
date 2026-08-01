@@ -210,6 +210,22 @@ def _backfill_null_course_enrollment_default(cr):
             "is_enrollment_default to False.", cr.rowcount)
 
 
+def _recompute_authorization_flags(env):
+    # auth_image/auth_trip/auth_healt/auth_share are STORED, and until now they read
+    # the enrollment of the course flagged as current. Between transitioning a study
+    # and the global course flip the student holds no enrollment for the outgoing
+    # course, so every signed authorization read as unsigned; they are now taken from
+    # res.partner._ems_enrollment_in_force(). The stored values do not recompute on
+    # their own because none of their dependencies changed - only the rule did - so
+    # they are refreshed once here.
+    students = env['res.partner'].search([('contact_type', 'in', ('student', 'applicant'))])
+    students.modified(['sale_order_ids'])
+    env.flush_all()
+    _logger.info(
+        "Migration 18.0.0.22.0: recomputed the authorization flags of %s contact(s).",
+        len(students))
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _enable_unaccent(cr)
@@ -219,3 +235,4 @@ def migrate(cr, _version):
     _backfill_special_type(cr)
     _backfill_iban_trust(env)
     _backfill_null_course_enrollment_default(cr)
+    _recompute_authorization_flags(env)

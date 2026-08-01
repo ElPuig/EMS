@@ -18,7 +18,18 @@ class EmsStudy(models.Model):
     date = fields.Date(string="Release Date", required=True)
     deprecated = fields.Boolean(string="Deprecated", required=True, default=False)
     notes = fields.Text(string="Notes")
-    
+    # Where this study stands in the end-of-year transition. Studies do not finish at the
+    # same time (a CFGS may close in June while an ESO level is still evaluating), so the
+    # transition wizard runs per study and marks the ones it processed; the global course
+    # flip only happens on the run that leaves no 'active' study behind, which then resets
+    # every study back to 'active'. It also tells sale.order._ems_admit_student() whether a
+    # late confirmation still has a bulk placement coming ('active') or has to place the
+    # student on its own ('transitioned'). copy=False: a duplicated study starts its own life.
+    transition_state = fields.Selection(string="Transition state", selection=[
+        ('active', 'Active'),
+        ('transitioned', 'Transitioned'),
+    ], default='active', required=True, copy=False)
+
     follow_ids = fields.One2many(string="Follow-up", comodel_name="ems.tracking", inverse_name="study_id")
     subject_ids = fields.Many2many(string="Subjects", comodel_name="ems.subject") 
     level_id = fields.Many2one(string="Level", comodel_name="ems.level")
@@ -42,6 +53,18 @@ class EmsStudy(models.Model):
         for study in self:
             year = date.today().year if study.date is False else study.date.year
             study.display_name = "%s (%s): %s" % (study.acronym, year, study.name)
+
+    def _ems_last_course(self):
+        """Highest group course of this study (2 for a CFGM/CFGS, 4 for ESO...), 0 when
+        the study has no group yet. Answers "is this the final year?", which drives both
+        who may graduate (graduation wizard) and which evaluation components are due
+        (transition wizard: the work placement only exists in the last course).
+        Tolerates an empty recordset so callers can pass a student's study unchecked."""
+        if not self:
+            return 0
+        self.ensure_one()
+        courses = self.env['ems.group'].search([('study_id', '=', self.id)]).mapped('course')
+        return max(courses) if courses else 0
 
     def _compute_uses_enrollment_flow(self):
         Template = self.env['sale.order.template']

@@ -216,20 +216,44 @@ class ResPartner(models.Model):
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
     is_tutor_readonly = fields.Boolean(default=lambda self:self._get_is_tutor_readonly(), store=False)
 
+    def _ems_enrollment_in_force(self):
+        """The student's enrollment that governs what may be done with them now.
+
+        What rules an authorization is the year being TAUGHT, not the one being
+        enrolled into, so the running course comes first. The fallback exists for the
+        one window where that yields nothing: between transitioning a study and the
+        global flip, the student has already been moved into the incoming course and
+        holds no enrollment for the outgoing one — which is exactly what left 122 of
+        122 SMX students showing every signed authorization as unsigned.
+
+        Preferring the enrollment-default course instead would break later on: once
+        27-28 is opened for enrolment halfway through 26-27, the flags would start
+        reading a draft enrollment nobody has signed yet and fall back to false in
+        the middle of the school year.
+
+        Shared with ems_current_enrollment_id so the two cannot drift apart, which is
+        how the discrepancy arose in the first place.
+        """
+        self.ensure_one()
+        Course = self.env['ems.course']
+        running = Course.search([('is_current', '=', True)], limit=1)
+        orders = self.sale_order_ids.filtered(
+            lambda order: order.state in ('draft', 'sent', 'sale'))
+        in_force = orders.filtered(lambda order: order.ems_course_id == running)
+        if in_force:
+            return in_force[0]
+        enrolling = Course.search([('is_enrollment_default', '=', True)], limit=1)
+        return orders.filtered(lambda order: order.ems_course_id == enrolling)[:1]
+
     @api.depends(
+    'sale_order_ids.ems_course_id',
     'sale_order_ids.ems_authorization_ids.status',
     'sale_order_ids.ems_authorization_ids.template_id.auth_type',
     )
     def _compute_auth_booleans(self):
-        current_course = self.env['ems.course'].search([
-            ('is_current', '=', True)
-        ], limit=1)
-
         for student in self:
             image, trip, health, share = False, False, False, False
-            for order in student.sale_order_ids.filtered(
-                lambda o: o.ems_course_id == current_course
-            ):
+            for order in student._ems_enrollment_in_force():
                 for auth in order.ems_authorization_ids:
                     if auth.status == 'yes':
                         if auth.template_id.auth_type == 'image':
@@ -245,38 +269,21 @@ class ResPartner(models.Model):
             student.auth_healt = health
             student.auth_share = share        
 
-    @api.depends('sale_order_ids.ems_authorization_ids', 'sale_order_ids.ems_course_id')
+    @api.depends('sale_order_ids.ems_course_id', 'sale_order_ids.state',
+                 'sale_order_ids.ems_authorization_ids')
     def _compute_ems_authorization_ids(self):
-        current_course = self.env['ems.course'].search([
-            ('is_current', '=', True)
-        ], limit=1)
-
+        # Same enrollment the flags above read, so the Secretary tab cannot show an
+        # empty list next to a green badge: both come from _ems_enrollment_in_force().
         for partner in self:
-            # Find this student's enrollments and pull their authorizations.
-            enrollments = self.env['sale.order'].search([
-                ('partner_id', '=', partner.id),
-                ('ems_course_id', '=', current_course.id if current_course else False),
-            ])
-            partner.ems_authorization_ids = enrollments.mapped('ems_authorization_ids')
+            partner.ems_authorization_ids = \
+                partner._ems_enrollment_in_force().ems_authorization_ids
 
     def _search_current_enrollment(self, operator, value):
         return [('sale_order_ids.name', operator, value)]
 
     def _compute_current_enrollment(self):
-        current_course = self.env['ems.course'].search([
-            ('is_enrollment_default', '=', True)
-        ], limit=1)
-        if not current_course:
-            current_course = self.env['ems.course'].search([
-                ('is_current', '=', True)
-            ], limit=1)
         for partner in self:
-            enrollment = self.env['sale.order'].search([
-                ('partner_id', '=', partner.id),
-                ('ems_course_id', '=', current_course.id if current_course else False),
-                ('state', 'in', ['draft', 'sent', 'sale']),
-            ], limit=1)
-            partner.ems_current_enrollment_id = enrollment
+            partner.ems_current_enrollment_id = partner._ems_enrollment_in_force()
 
     def action_open_current_enrollment(self):
         self.ensure_one()
@@ -367,6 +374,12 @@ class ResPartner(models.Model):
                 'message': message,
                 'type': 'success',
                 'sticky': False,
+                # Without this the list keeps showing the rows as they were, which
+                # reads as if nothing had happened. 'soft_reload' restores the very
+                # same controller (action.restore), so the search filters, the
+                # group-by and the search panel all survive; the row selection does
+                # not, because the records are read again.
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
             },
         }
 
@@ -624,8 +637,11 @@ class ResPartner(models.Model):
         Invoked by the sale.order confirmation (applicant admission), the
         transition wizard and the final Esfer@ re-import. Clears the exit
         metadata but never touches has_graduated, which is a permanent mark.
+        Unarchives: an ex-student converted back is by definition active again,
+        and _ems_convert_to_ex_student() is what archived it in the first place.
         """
         self.write({
+            'active': True,
             'contact_type': 'student',
             'exit_type': False,
             'exit_course_id': False,
@@ -697,6 +713,16 @@ class ResPartner(models.Model):
                 [('student_ids', 'in', partner.id)])
             for template in templates:
                 template.student_ids = [(3, partner.id)]
+            # Attendance issues: the year record already froze attendance_issue_count, so
+            # the live notifications have nothing left to say about a student who has gone.
+            # Dropping its rows can leave a tutor notification with no student at all;
+            # remove_if_empty() disposes of it and cancels its pending queue job.
+            issue_students = self.env['ems.attendance_issue_student'].sudo().search(
+                [('student_id', '=', partner.id)])
+            tutor_issues = issue_students.attendance_issue_tutor_id
+            issue_students.unlink()
+            for tutor_issue in tutor_issues.exists():
+                tutor_issue.remove_if_empty()
             if group.delegate_id == partner:
                 group.sudo().delegate_id = False
 

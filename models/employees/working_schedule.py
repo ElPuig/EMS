@@ -399,6 +399,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 				for teacherNode in tree.getroot():
 					email = rec._teacher_identifier(teacherNode.attrib['name'])
+					teacher = False
 					if rec._is_email_like(email):
 						teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
 						if not teacher:
@@ -407,17 +408,23 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					else:
 						teacher = self.env["hr.employee"].search([("schedule_import_code", "=", email)]) or False
 						if not teacher:
+							# NOTE: no real employee exists yet for this code - one will only be
+							# created for real in create(). Still parse this node's own schedule
+							# content below (subject/group resolution) rather than skipping it
+							# entirely: an unresolvable group/subject in a not-yet-identified
+							# teacher's row must surface here as a blocking issue too, not only
+							# blow up uncaught later, when 'create()' actually imports it.
 							pending_codes.append(email)
-							continue
 
-					if teacher.resource_calendar_id.id:
+					if teacher and teacher.resource_calendar_id.id:
 						overrided.append(teacher.display_name)
 					try:
 						entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
 					except ValidationError as error:
 						blocking_issues.append(str(error))
 						continue
-					teacher_entries.append((teacher, entries))
+					if teacher:
+						teacher_entries.append((teacher, entries))
 
 			missing_space = rec._groups_without_space(teacher_entries)
 			blocking_issues += rec._missing_space_lines(missing_space)

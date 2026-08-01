@@ -10830,6 +10830,18 @@ msgid "The following not-yet-identified teachers will be created (please verify 
 msgstr "Se crearán los siguientes profesores, aún pendientes de identificar (comprueba que los nombres/códigos sean correctos antes de continuar):"
 
 #. module: ems
+#: code:addons/ems/static/src/js/backend/working_schedule_import_blocking_upload.js:0
+#, python-format
+msgid "Reading and validating the schedule file, please wait..."
+msgstr "Leyendo y validando el fichero de horario, por favor espere..."
+
+#. module: ems
+#: code:addons/ems/static/src/js/backend/working_schedules_import_wizard_form_controller.js:0
+#, python-format
+msgid "Importing the schedule, please wait..."
+msgstr "Importando el horario, por favor espere..."
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Pending teacher (%s)"

@@ -4,7 +4,7 @@
             <field name="name">ems.working_schedules_import.wizard</field>
             <field name="model">ems.working_schedules_import_wizard</field>
             <field name="arch" type="xml">
-                <form string="Session">
+                <form string="Session" js_class="ems_working_schedules_import_wizard_form">
                     <field name="teacher_id" invisible="1"/>
                     <field name="ready_to_import" invisible="1"/>
                     <field name="blocking_error_message" invisible="1"/>

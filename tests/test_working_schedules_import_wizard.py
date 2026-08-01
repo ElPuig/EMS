@@ -489,6 +489,32 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertIn('Fulanito Menganito', wizard.info_html)
         self.assertTrue(wizard.ready_to_import)
 
+    def test_onchange_attachment_ids_placeholder_code_unresolved_group_sets_blocking_error(self):
+        # Reported 2026-08-01: a not-yet-identified (pending-code) teacher's schedule content was
+        # never actually parsed at onchange-preview time (only its code was noted as "pending"), so
+        # an unresolvable group acronym in that same row silently passed the preview and only blew up
+        # as an uncaught ValidationError when actually clicking Import (create()) - a generic error
+        # popup instead of the wizard's own red "blocking issues" banner. The onchange must now catch
+        # this here too, just like it already does for a known teacher's unresolved group.
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_pending_bad_group.xml',
+            'datas': self._xml_file_with_hour_node(
+                'X4',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                '<Students name="NOPE Group"/>',
+            ),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].new({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+
+        wizard._onchange_attachment_ids()
+
+        self.assertTrue(wizard.blocking_issues_html)
+        self.assertIn("Group with acronym 'NOPE Group' not found", wizard.blocking_issues_html)
+        self.assertIn('X4', wizard.info_html)
+        self.assertFalse(wizard.ready_to_import)
+
     def test_onchange_attachment_ids_known_email_no_blocking_error(self):
         attachment = self.env['ir.attachment'].create({
             'name': 'planner_known.xml',

@@ -410,7 +410,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				for node, teacher in nodes:
 					entries = self._create_schedule(node, teacher, course_id)
 					entries = [e for e in entries if not e["non_teaching"]]
-					self.env['ems.teaching'].sync_from_schedule(teacher, entries)
+					# NOTE: replace=False - this file only ever describes ONE SLICE of the centre's
+					# schedule (e.g. one department), never a teacher's ENTIRE teaching load, so a
+					# combo from a DIFFERENT, already-imported file must never be unlinked just
+					# because this teacher also appears here (see sync_from_schedule's own docstring).
+					self.env['ems.teaching'].sync_from_schedule(teacher, entries, replace=False)
 					teacher_entries.append((teacher, entries))
 
 			# NOTE: ems.attendance_template.space_id is required, but ems.group.space_id (where it's
@@ -436,7 +440,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					"These existing sessions occupy the same space and time as what you're importing, "
 					"for a different group/subject - fix the room conflict and try again: %s"
 				) % "; ".join(self._conflict_lines(space_conflicts)))
-			self.env['ems.attendance_template'].sync_from_schedule_batch(teacher_entries)
+			self.env['ems.attendance_template'].sync_from_schedule_batch_fresh_import(teacher_entries)
 
 		return super(models.Model, self).create(values)
 

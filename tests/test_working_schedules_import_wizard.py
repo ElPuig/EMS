@@ -832,3 +832,46 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertIn('unknown.import.wizard@example.com', wizard.blocking_issues_html)
         self.assertIn(self.spaceless_group.name, wizard.blocking_issues_html)
         self.assertEqual(wizard.blocking_issues_html.count('<li>'), 2)
+
+    def test_diag_self_conflict_across_two_incremental_imports(self):
+        # TEMPORARY diagnostic (2026-08-01) - does classify_external_conflicts (scoped to teachers
+        # NOT in the submitting batch) miss a SELF-conflict: the SAME teacher, imported in two
+        # separate department files over time, ending up double-booked (two different rooms, same
+        # day/time)? If so, does it currently surface as the nice blocking_issues_html banner, or
+        # fall through to Odoo's raw check_overlap ValidationError?
+        other_space = self.env['ems.space'].create({
+            'code': 'TWIW-B', 'name': 'Test Space B (Import Wizard)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TWIWB', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': other_space.id,
+        })
+        # Import 1 ("department A"): teacher in room self.space, Monday 09:00.
+        self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            )),
+        })
+        first_template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertTrue(first_template.active, "sanity check: department A's import created an active template")
+
+        # Import 2 ("department B", later): SAME teacher, DIFFERENT room, SAME day/time.
+        self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
+                f'<Students name="{other_group.name} Group"/>',
+            )),
+        })
+
+        print("DIAG first_template.active after 2nd import:", first_template.active)
+        print("DIAG first_template.attendance_schedule_ids:", first_template.attendance_schedule_ids)
+        print("DIAG teacher.teaching_ids after 2nd import:", self.teacher.teaching_ids.mapped(
+            lambda t: (t.subject_id.code, t.group_id.name)
+        ))

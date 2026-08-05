@@ -454,6 +454,121 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_te
     ],
 });
 
+// Screen 3, "Create new" checkbox (2026-08-05, developer feedback after using the wizard for
+// real) - some unresolved e-mails belong to a genuinely never-hired teacher, not a typo/mismatch
+// of an existing one. Ticking "Create new" locks (readonly) the row's 'employee_id' selector -
+// this tour proves that lock actually renders in a real browser, not just at the model level
+// (readonly="create_new" is arch-valid but says nothing about whether it visually takes effect) -
+// then completes the import and confirms the resulting pending teacher in the list view, mirroring
+// 'ems_working_schedules_import_pending_teacher's own final assertion for a placeholder code.
+registry.category("web_tour.tours").add("ems_working_schedules_import_create_new_teacher", {
+    test: true,
+    url: "/odoo/action-ems.action_working_schedules_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view",
+            content: "Working Schedules list loaded",
+        },
+        {
+            trigger: ".o_cp_action_menus button",
+            content: "Open the list's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-item:contains('Import planner data')",
+            content: "Click 'Import planner data (XML)'",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids']",
+            content: "Import wizard dialog opened",
+            run: async () => {
+                const xml = '<root><T name="tour.create.new.teacher@example.com Someone">'
+                    + '<D name="1 Monday"><H name="1 09:00"><NonTeaching name="G Guard"/></H></D>'
+                    + '</T></root>';
+                const file = new File([xml], "planner_create_new_teacher.xml", { type: "text/xml" });
+                await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", [file]);
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attachment",
+            content: "File attached",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled purely because a file is attached",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('Every group mentioned in the file was recognized')",
+            content: "The 'groups' screen shows the success message - this file has no '<Students>' at all",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'groups' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_cell:contains('tour.create.new.teacher@example.com')",
+            content: "The 'teachers' screen lists the unresolved e-mail found in the file",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
+            content: "Continue shows disabled - neither a teacher nor 'Create new' has been picked yet",
+        },
+        {
+            // A boolean cell's FIRST click both enters row-edit mode AND toggles the value in one
+            // go (see 'ListRenderer.onCellClicked' - it flips the field right when entering edition,
+            // not on a later, separate click on the now-editable checkbox input) - a second click on
+            // the input afterward would toggle it right back off.
+            trigger: ".modal .o_data_row .o_data_cell[name='create_new']",
+            content: "Tick 'Create new'",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_row .o_data_cell[name='employee_id'].o_readonly_modifier",
+            content: "The teacher selector is now locked (readonly), matching 'readonly=\"create_new\"' in the view",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled purely from 'Create new' being ticked, with no teacher picked",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('No room conflicts were found within this batch')",
+            content: "The 'internal_conflicts' screen shows its own success message - only one teacher is in this batch, so no collision is possible",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'internal_conflicts' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('No conflicts were found against already-active schedules')",
+            content: "The 'db_conflicts' screen shows its own success message - no pre-existing session collides here",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'db_conflicts' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'pending_info' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
+            content: "Click 'Import' - a brand-new pending-identification teacher gets created",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_list_view",
+            content: "Back to the Working Schedules list, confirming the create-new import completed",
+        },
+    ],
+});
+
 // Screen 4 ("Internal conflicts", 2026-08-05, see plans/working_schedule_import_redesign.md's
 // step 4) - two DIFFERENT teachers in the same batch, same subject, DIFFERENT groups sharing the
 // SAME classroom at the same slot: a "desdoble" (split session) needing two different rooms. This

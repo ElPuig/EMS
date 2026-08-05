@@ -339,6 +339,33 @@ consequence of the screen actually existing now, not a design question to re-lit
   row still missing an `employee_id`) - same enabled/disabled "Continue" mechanism as screen 2, no
   new UI concept needed.
 
+**"Create new" checkbox for a genuinely never-hired teacher (2026-08-05, developer feedback after
+using it for real):** the original design above assumed every unresolved e-mail was a typo/mismatch
+of an *already-existing* teacher. In practice, some rows are a genuinely new hire whose e-mail
+simply doesn't exist in EMS yet - forcing a pick from the (create-disabled) Many2one made no sense
+for those. `teacher_line` gains `create_new` (Boolean) - a checkbox shown *before* `employee_id` in
+the list, which the field's own `readonly="create_new"` then locks once ticked (an `@api.onchange`
+also clears any already-picked `employee_id`, so the two can never disagree). A row is valid if
+*either* `employee_id` is set *or* `create_new` is ticked - never neither.
+
+The resulting employee is created exactly like a placeholder-code teacher (same "Pending teacher
+(...)" naming, same `schedule_import_code` re-import-dedup guarantee - reusing the raw e-mail
+string as the code, so re-importing the same file before this teacher's real identity is resolved
+finds and reuses the same record instead of creating a duplicate), plus one difference: the
+developer's own framing - *"esa dirección de correo no se puede dar por buena, porque quizás está
+ocupada, pero me gustaría intentarlo"* - means the file's e-mail IS worth trying, just not as an
+immutable, auto-generated value. `google_ws_manual_email` (the existing Google Workspace
+integration field, `models/employees/google_workspace_integration.py` - already means "edit Work
+Email by hand instead of letting EMS generate it") is set `True` on creation, with `work_email`
+pre-filled to the attempted address - editable from the start, never silently overwritten by the
+normal auto-generation flow, exactly matching "intentarlo" (try it) without pretending it's been
+confirmed.
+
+Extracted `_get_or_create_pending_teacher(identifier, manual_email=False)` out of `_apply_import`'s
+previously-inline placeholder-code branch, so both paths (a placeholder code, and now a
+create-new-ticked e-mail) share the exact same get-or-create-by-`schedule_import_code` mechanism -
+`manual_email` is the only behavioral difference between the two callers.
+
 ### Screen 4 — "Internal conflicts" (2026-08-05) — within-batch room collisions
 
 **Genuinely new check, unlike screens 2/3** (which mainly relocated existing validation) - no

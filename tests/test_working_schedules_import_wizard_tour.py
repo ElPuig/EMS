@@ -53,6 +53,13 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         })
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_teacher_email", login="admin")
 
+    def test_working_schedules_import_create_new_teacher_tour(self):
+        # No teacher fixture is seeded here on purpose - 'tour.create.new.teacher@example.com'
+        # must genuinely not match any existing employee, so the tour's own 'Create new' tick is
+        # what resolves the row (see TestWorkingSchedulesImportWizard.
+        # test_continue_from_teachers_create_new_creates_pending_teacher_with_manual_email).
+        self.start_tour("/odoo", "ems_working_schedules_import_create_new_teacher", login="admin")
+
     def test_working_schedules_import_resolve_internal_conflict_tour(self):
         # Two reinforcement groups (no level/study/course needed, same simplification as the
         # 'resolve_group' tour's own fixture) sharing the SAME classroom - the "desdoble" (split

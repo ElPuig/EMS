@@ -48,7 +48,8 @@
                             <field name="teacher_line_ids" invisible="not teacher_line_ids">
                                 <list editable="bottom" create="False" delete="False">
                                     <field name="raw_identifier" string="E-mail found in file"/>
-                                    <field name="employee_id" context="{'no_create': True, 'no_create_edit': True}"/>
+                                    <field name="create_new" class="text-center"/>
+                                    <field name="employee_id" readonly="create_new" context="{'no_create': True, 'no_create_edit': True}"/>
                                 </list>
                             </field>
                         </div>

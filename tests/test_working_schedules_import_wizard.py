@@ -912,6 +912,110 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         self.assertTrue(second_teacher.resource_calendar_id.attendance_ids)
 
+    def test_teacher_line_onchange_create_new_clears_employee_id(self):
+        second_teacher = self.env['hr.employee'].create({
+            'name': 'Test Wizard Teacher Resolved (Import Wizard)',
+            'employee_type': 'teacher',
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.employee_id = second_teacher.id
+
+        wizard.teacher_line_ids._onchange_create_new()
+        self.assertEqual(wizard.teacher_line_ids.employee_id, second_teacher)  # not ticked, unaffected
+
+        wizard.teacher_line_ids.create_new = True
+        wizard.teacher_line_ids._onchange_create_new()
+        self.assertFalse(wizard.teacher_line_ids.employee_id)
+
+    def test_continue_from_teachers_raises_when_neither_employee_nor_create_new(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+
+        with self.assertRaises(ValidationError) as capture:
+            wizard.action_continue()
+
+        self.assertIn('unknown.import.wizard@example.com', str(capture.exception))
+        self.assertEqual(wizard.state, 'teachers')
+
+    def test_continue_from_teachers_create_new_valid_without_employee_picked(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.create_new = True
+
+        self.assertFalse(wizard.continue_disabled)
+        wizard.action_continue()  # teachers -> internal_conflicts, no raise
+        self.assertEqual(wizard.state, 'internal_conflicts')
+
+    def test_continue_from_teachers_create_new_creates_pending_teacher_with_manual_email(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('genuinely.new.hire@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.create_new = True
+
+        while wizard.state != 'override_info':
+            wizard.action_continue()
+        wizard.import_planner_data()
+
+        teacher = self.env['hr.employee'].search([('schedule_import_code', '=', 'genuinely.new.hire@example.com')])
+        self.assertTrue(teacher)
+        self.assertEqual(teacher.employee_type, 'teacher')
+        self.assertTrue(teacher.pending_identification)
+        self.assertEqual(teacher.work_email, 'genuinely.new.hire@example.com')
+        self.assertTrue(teacher.google_ws_manual_email)
+        self.assertTrue(teacher.resource_calendar_id.attendance_ids)
+
+    def test_continue_from_teachers_create_new_reuses_same_pending_teacher_on_reimport(self):
+        first_wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('genuinely.new.hire2@example.com Someone'),
+            ),
+        })
+        first_wizard.action_continue()  # intro -> groups
+        first_wizard.action_continue()  # groups -> teachers
+        first_wizard.teacher_line_ids.create_new = True
+        while first_wizard.state != 'override_info':
+            first_wizard.action_continue()
+        first_wizard.import_planner_data()
+
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('genuinely.new.hire2@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+
+        # Once created (and NOT yet re-identified with a real personal e-mail), the same
+        # 'schedule_import_code' still matches on work_email too now (see 'test_import_matches_by_email'-
+        # style resolution) - so this identifier no longer even reaches the 'teachers' step's
+        # unresolved-line list; it resolves automatically, exactly like a real already-known teacher.
+        self.assertEqual(wizard.state, 'groups')
+        wizard.action_continue()  # groups -> teachers
+        self.assertFalse(wizard.teacher_line_ids)
+
+        self.assertEqual(
+            self.env['hr.employee'].search_count([('schedule_import_code', '=', 'genuinely.new.hire2@example.com')]), 1
+        )
+
     def _second_teacher(self, email='test.wizard.teacher2.import.wizard@example.com'):
         return self.env['hr.employee'].create({
             'name': 'Test Wizard Teacher 2 (Import Wizard)',

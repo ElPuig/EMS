@@ -301,9 +301,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	@api.depends(
 		"state", "ready_to_import", "group_line_ids.group_id", "teacher_line_ids.employee_id",
-		"internal_conflict_line_ids.resolution", "internal_conflict_line_ids.left_space_id",
-		"internal_conflict_line_ids.right_space_id", "external_conflict_line_ids.resolution",
-		"external_conflict_line_ids.left_space_id", "external_conflict_line_ids.right_space_id",
+		"teacher_line_ids.create_new", "internal_conflict_line_ids.resolution",
+		"internal_conflict_line_ids.left_space_id", "internal_conflict_line_ids.right_space_id",
+		"external_conflict_line_ids.resolution", "external_conflict_line_ids.left_space_id",
+		"external_conflict_line_ids.right_space_id",
 	)
 	def _compute_continue_disabled(self):
 		for wizard in self:
@@ -312,7 +313,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			elif wizard.state == 'groups':
 				wizard.continue_disabled = bool(wizard.group_line_ids.filtered(lambda line: not line.group_id))
 			elif wizard.state == 'teachers':
-				wizard.continue_disabled = bool(wizard.teacher_line_ids.filtered(lambda line: not line.employee_id))
+				wizard.continue_disabled = bool(wizard.teacher_line_ids.filtered(lambda line: not line.employee_id and not line.create_new))
 			elif wizard.state == 'internal_conflicts':
 				wizard.continue_disabled = bool(wizard.internal_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid()))
 			elif wizard.state == 'db_conflicts':
@@ -546,23 +547,28 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	def _continue_from_teachers(self):
 		"""The 'teachers' step's own 'Continue' handler, mirroring '_continue_from_groups': every
-		'teacher_line_ids' row must have a teacher picked (raised otherwise), then every 'node_cache'
-		item sharing that row's raw identifier gets an 'employee_id' key written onto it directly
-		(the identifier is the item's own top-level field, not part of 'entries'/'attendance_ids'
-		like a group reference - no '_finalize_pending_groups'-style dict-shape juggling needed)."""
+		'teacher_line_ids' row must have EITHER a teacher picked OR 'create_new' ticked (raised
+		otherwise), then every 'node_cache' item sharing that row's raw identifier gets an
+		'employee_id' or 'create_pending' key written onto it directly (the identifier is the
+		item's own top-level field, not part of 'entries'/'attendance_ids' like a group reference -
+		no '_finalize_pending_groups'-style dict-shape juggling needed)."""
 		self.ensure_one()
-		unresolved_lines = self.teacher_line_ids.filtered(lambda line: not line.employee_id)
+		unresolved_lines = self.teacher_line_ids.filtered(lambda line: not line.employee_id and not line.create_new)
 		if unresolved_lines:
 			raise ValidationError(_(
 				"Please select a teacher for every unresolved e-mail before continuing:\n%s"
 			) % "\n".join(unresolved_lines.mapped('raw_identifier')))
 
-		identifier_to_employee = {line.raw_identifier: line.employee_id for line in self.teacher_line_ids}
+		identifier_to_employee = {line.raw_identifier: line.employee_id for line in self.teacher_line_ids if line.employee_id}
+		identifiers_to_create = {line.raw_identifier for line in self.teacher_line_ids if line.create_new}
 		node_cache = json.loads(self.parsed_entries_json or '[]')
 		for item in node_cache:
-			employee = identifier_to_employee.get(item['identifier'])
-			if employee:
-				item['employee_id'] = employee.id
+			if item['identifier'] in identifiers_to_create:
+				item['create_pending'] = True
+			else:
+				employee = identifier_to_employee.get(item['identifier'])
+				if employee:
+					item['employee_id'] = employee.id
 		self.parsed_entries_json = json.dumps(node_cache)
 		self.internal_conflict_line_ids = [(5, 0, 0)] + self._build_internal_conflict_lines(node_cache)
 		self._advance_state()
@@ -885,6 +891,33 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		self.parsed_entries_json = json.dumps(node_cache)
 		self._advance_state()
 
+	def _get_or_create_pending_teacher(self, identifier, manual_email=False):
+		"""Get-or-create-by-'schedule_import_code' shared by both not-yet-identified-teacher paths:
+		a placeholder code (e.g. 'X1', 'manual_email=False') and a 'create_new'-ticked e-mail that
+		genuinely doesn't match any existing teacher ('manual_email=True' - see 'teacher_line.
+		create_new'). Re-importing an updated file before this teacher's real identity is resolved
+		reuses the SAME record either way, never creating a duplicate - 'identifier' is exactly what
+		a re-import would search for again next time.
+
+		'manual_email=True' additionally pre-fills 'work_email' with 'identifier' itself and sets
+		'google_ws_manual_email' (the existing Google Workspace integration field - already means
+		"edit Work Email by hand instead of letting EMS generate it") - the developer's own framing
+		for this case: *"esa dirección de correo no se puede dar por buena... pero me gustaría
+		intentarlo"* - worth trying, but never silently treated as confirmed/auto-generated the way
+		a normal corporate email would be."""
+		teacher = self.env["hr.employee"].search([("schedule_import_code", "=", identifier)])
+		if teacher.id:
+			return teacher
+		vals = {
+			"name": _("Pending teacher (%s)") % identifier,
+			"employee_type": "teacher",
+			"schedule_import_code": identifier,
+		}
+		if manual_email:
+			vals["work_email"] = identifier
+			vals["google_ws_manual_email"] = True
+		return self.env["hr.employee"].create(vals)
+
 	def _write_teacher_schedule(self, teacher, course_id, attendance_ids):
 		"""Creates (if missing) or updates 'teacher's resource.calendar for 'course_id', writing
 		'attendance_ids' (already-parsed (0, 0, {...}) commands - see '_parse_schedule_entries')."""
@@ -915,6 +948,12 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				# identifier that never needed a correction line (already matched 'work_email' on
 				# its own) falls through to the plain lookup branch below instead, unaffected.
 				teacher = self.env["hr.employee"].browse(item['employee_id'])
+			elif item.get('create_pending'):
+				# NOTE: 'create_new' ticked on the 'teachers' step (see '_continue_from_teachers') -
+				# a genuinely never-hired teacher, not a typo/mismatch of an existing one. Reuses the
+				# exact same get-or-create mechanism as a placeholder code, only adding
+				# 'manual_email=True' - see '_get_or_create_pending_teacher's own docstring.
+				teacher = self._get_or_create_pending_teacher(identifier, manual_email=True)
 			elif self._is_email_like(identifier):
 				teacher = self.env["hr.employee"].search([("work_email", "=", identifier)])
 				if not teacher.id:
@@ -923,13 +962,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					# every unresolved e-mail turned into a 'teacher_line' at the 'teachers' step.
 					raise ValidationError(_("Teacher with email '%s' not found.") % identifier)
 			else:
-				teacher = self.env["hr.employee"].search([("schedule_import_code", "=", identifier)])
-				if not teacher.id:
-					teacher = self.env["hr.employee"].create({
-						"name": _("Pending teacher (%s)") % identifier,
-						"employee_type": "teacher",
-						"schedule_import_code": identifier,
-					})
+				teacher = self._get_or_create_pending_teacher(identifier)
 
 			self._write_teacher_schedule(teacher, course_id, item['attendance_ids'])
 			entries = [e for e in item['entries'] if not e["non_teaching"]]
@@ -1150,10 +1183,26 @@ class ems_working_schedules_import_wizard_teacher_line(models.TransientModel):
 	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
 	raw_identifier = fields.Char(string="E-mail found in file", required=True, readonly=True)
 	# NOTE: create explicitly disabled in the view (context="{'no_create': True, 'no_create_edit':
-	# True}") - the developer's own call, see plans/working_schedule_import_redesign.md's step 3: a
-	# brand-new teacher record is screen 6's job (pending-identification, automatic at Import), this
-	# screen only ever attaches the schedule to an already-existing employee.
+	# True}") - the developer's own original call, see plans/working_schedule_import_redesign.md's
+	# step 3: a brand-new teacher record is normally screen 6's job (pending-identification,
+	# automatic at Import), this screen only ever attaches the schedule to an already-existing
+	# employee - EXCEPT when 'create_new' is ticked below, for the genuinely-never-hired case.
 	employee_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
+	# NOTE: added 2026-08-05 (developer feedback): some unresolved e-mails are a genuinely new hire,
+	# not a typo/mismatch of an already-existing teacher - forcing a pick from 'employee_id' (create
+	# disabled) makes no sense for those. Ticking this creates a new pending-identification teacher
+	# at Import instead (see '_get_or_create_pending_teacher') - a row is valid if EITHER
+	# 'employee_id' is set OR this is ticked, never neither (see '_resolution_is_valid'-equivalent
+	# check in '_continue_from_teachers').
+	create_new = fields.Boolean(string="New")
+
+	@api.onchange('create_new')
+	def _onchange_create_new(self):
+		# Keeps the two fields from ever disagreeing - ticking "create new" while a real employee
+		# is still picked would leave it ambiguous which one '_continue_from_teachers' should use.
+		for line in self:
+			if line.create_new:
+				line.employee_id = False
 
 class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 	_name = "ems.working_schedules_import_wizard.conflict_mixin"

@@ -7818,6 +7818,11 @@ msgid "E-mail found in file"
 msgstr "Correo encontrado en el fichero"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
+msgid "New"
+msgstr "Nuevo"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "Every teacher e-mail mentioned in the file was recognized."
 msgstr "Se han reconocido todos los correos de docentes mencionados en el fichero."

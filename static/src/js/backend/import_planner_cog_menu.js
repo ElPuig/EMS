@@ -28,10 +28,16 @@ export class ImportPlannerCogMenu extends Component {
             type: "ir.actions.act_window",
             res_model: "ems.working_schedules_import_wizard",
             res_id: false,
-            views: [[false, "form"]],   
+            views: [[false, "form"]],
             view_mode: "form",
             target: "new",
-        });  
+            // 'extra-large' (Odoo's own widest dialog size, same as e.g. base.document.layout's own
+            // wizard) - the "Internal conflicts"/"Existing schedule conflicts" steps' 6-column list
+            // (left/right label, conflict, resolution, two room pickers) crammed badly at the
+            // default 'medium' width (developer feedback 2026-08-05). One dialog serves every step
+            // of this wizard, so the size is set once here for the whole flow, not per-step.
+            context: { dialog_size: "extra-large" },
+        });
     };
 }
 

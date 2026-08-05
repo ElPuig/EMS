@@ -514,7 +514,7 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_create_new
         },
         {
             trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
-            content: "Continue shows disabled - neither a teacher nor 'Create new' has been picked yet",
+            content: "Continue shows disabled - neither a teacher nor 'New' has been picked yet",
         },
         {
             // A boolean cell's FIRST click both enters row-edit mode AND toggles the value in one
@@ -522,7 +522,7 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_create_new
             // not on a later, separate click on the now-editable checkbox input) - a second click on
             // the input afterward would toggle it right back off.
             trigger: ".modal .o_data_row .o_data_cell[name='create_new']",
-            content: "Tick 'Create new'",
+            content: "Tick 'New'",
             run: "click",
         },
         {
@@ -531,7 +531,7 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_create_new
         },
         {
             trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
-            content: "Continue is enabled purely from 'Create new' being ticked, with no teacher picked",
+            content: "Continue is enabled purely from 'New' being ticked, with no teacher picked",
             run: "click",
         },
         {

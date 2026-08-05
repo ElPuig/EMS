@@ -655,7 +655,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	_RESOLUTION_DEFAULTS = {
 		'co_teaching_eligible': 'co_teaching',
 		'desdoble_eligible': 'reassign_rooms',
-		'plain_conflict': 'prevail_left',
+		'plain_conflict': 'reassign_rooms',
 	}
 
 	def _build_internal_conflict_lines(self, node_cache):
@@ -663,8 +663,12 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		'_find_internal_conflicts'. Positional references (item/entry indices), not content
 		matching - built once here, from the very 'node_cache' '_continue_from_internal_conflicts'
 		re-reads unchanged, so they stay valid. 'left_space_id'/'right_space_id' are pre-filled with
-		the colliding room for every desdoble-eligible pair regardless of its (possibly different)
-		current resolution, so they're ready the moment 'reassign_rooms' is picked."""
+		the colliding room (the group's own currently-assigned classroom - the same value on both
+		sides, since that's exactly why they collided in the first place) for every desdoble-eligible
+		OR plain-conflict pair, regardless of its (possibly different) current resolution, so they're
+		ready the moment 'reassign_rooms' is picked - a genuine room conflict defaults to
+		'reassign_rooms' too (developer feedback 2026-08-05: picking a room is the actual fix, not an
+		afterthought behind 'prevail_left'/'prevail_right')."""
 		commands = []
 		for item_index_a, entry_index_a, item_index_b, entry_index_b in self._find_internal_conflicts(node_cache):
 			entry_a = node_cache[item_index_a]['entries'][entry_index_a]
@@ -680,7 +684,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'right_entry_index': entry_index_b,
 				'right_label': self._entry_label(node_cache[item_index_b], entry_b),
 			}
-			if kind == 'desdoble_eligible':
+			if kind in ('desdoble_eligible', 'plain_conflict'):
 				space_id = self._entry_default_space_id(entry_a)
 				vals['left_space_id'] = space_id
 				vals['right_space_id'] = space_id
@@ -836,7 +840,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'right_schedule_id': candidate.id,
 				'right_label': self._external_conflict_label(candidate),
 			}
-			if kind == 'desdoble_eligible':
+			if kind in ('desdoble_eligible', 'plain_conflict'):
 				space_id = self._entry_default_space_id(entry)
 				vals['left_space_id'] = space_id
 				vals['right_space_id'] = space_id
@@ -1215,7 +1219,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 		('co_teaching_eligible', "Co-teaching"),
 		('desdoble_eligible', "Split session (different room needed)"),
 		('plain_conflict', "Room conflict"),
-	], string="Type", required=True, readonly=True)
+	], string="Conflict", required=True, readonly=True)
 	left_label = fields.Char(string="Left", required=True, readonly=True)
 	right_label = fields.Char(string="Right", required=True, readonly=True)
 	# NOTE: a flat Selection with every option always visible/selectable, validated server-side on
@@ -1239,7 +1243,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 		allowed_by_kind = {
 			'co_teaching_eligible': {'co_teaching', 'prevail_left', 'prevail_right'},
 			'desdoble_eligible': {'reassign_rooms', 'prevail_left', 'prevail_right'},
-			'plain_conflict': {'prevail_left', 'prevail_right'},
+			'plain_conflict': {'reassign_rooms', 'prevail_left', 'prevail_right'},
 		}
 		if self.resolution not in allowed_by_kind[self.kind]:
 			return False

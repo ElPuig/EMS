@@ -280,6 +280,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# of whether it ends up empty (the 'groups' screen shows a success message instead of the list
 	# in that case).
 	group_line_ids = fields.One2many(string="Unresolved groups", comodel_name="ems.working_schedules_import_wizard.group_line", inverse_name="wizard_id")
+	# NOTE: one line per distinct unresolved e-mail (see '_pending_teacher_identifiers') - populated
+	# once, leaving 'groups' (not 'intro' - unlike 'group_line_ids', this needs the group picks
+	# already applied first, per the flow's own 'groups --> teachers' transition).
+	teacher_line_ids = fields.One2many(string="Unresolved teachers", comodel_name="ems.working_schedules_import_wizard.teacher_line", inverse_name="wizard_id")
 	# NOTE: drives whether "Continue" renders enabled or disabled (developer feedback 2026-08-05:
 	# "que quedará mas claro si los botones de continuar... aparecen como enabled o disabled" rather
 	# than appearing/disappearing) - the view keeps the button in the SAME place either way (two
@@ -288,13 +292,15 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# outright the way 'override_info' still does for a wholly different screen's button.
 	continue_disabled = fields.Boolean(compute="_compute_continue_disabled")
 
-	@api.depends("state", "ready_to_import", "group_line_ids.group_id")
+	@api.depends("state", "ready_to_import", "group_line_ids.group_id", "teacher_line_ids.employee_id")
 	def _compute_continue_disabled(self):
 		for wizard in self:
 			if wizard.state == 'intro':
 				wizard.continue_disabled = not wizard.ready_to_import
 			elif wizard.state == 'groups':
 				wizard.continue_disabled = bool(wizard.group_line_ids.filtered(lambda line: not line.group_id))
+			elif wizard.state == 'teachers':
+				wizard.continue_disabled = bool(wizard.teacher_line_ids.filtered(lambda line: not line.employee_id))
 			else:
 				wizard.continue_disabled = False
 
@@ -438,7 +444,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	def action_continue(self):
 		"""The single 'Continue' button's handler for every non-final step - dispatches to each
-		step's own logic. Only 'intro' and 'groups' have real logic built so far (see
+		step's own logic. Only 'intro', 'groups' and 'teachers' have real logic built so far (see
 		plans/working_schedule_import_redesign.md); every other step is still a placeholder that
 		just advances the statusbar, so the skeleton is clickable end-to-end already and each step
 		gets filled in here as it's built."""
@@ -447,6 +453,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			self._continue_from_intro()
 		elif self.state == 'groups':
 			self._continue_from_groups()
+		elif self.state == 'teachers':
+			self._continue_from_teachers()
 		else:
 			self._advance_state()
 		return self._reopen_self_action()
@@ -500,6 +508,42 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				if command[0] == 0:
 					self._finalize_pending_groups(command[2], name_to_group)
 		self.parsed_entries_json = json.dumps(node_cache)
+		self.teacher_line_ids = [(5, 0, 0)] + [
+			(0, 0, {'raw_identifier': identifier}) for identifier in self._pending_teacher_identifiers(node_cache)
+		]
+		self._advance_state()
+
+	def _pending_teacher_identifiers(self, node_cache):
+		"""Every distinct e-mail-shaped identifier (see '_is_email_like') in 'node_cache' with no
+		matching 'hr.employee.work_email' - a pending-identification CODE (no '@') is never included
+		here, it isn't a problem for this screen to resolve (see screen 6, automatic at Import)."""
+		identifiers = set()
+		for item in node_cache:
+			identifier = item['identifier']
+			if self._is_email_like(identifier) and not self.env['hr.employee'].search([('work_email', '=', identifier)]):
+				identifiers.add(identifier)
+		return sorted(identifiers)
+
+	def _continue_from_teachers(self):
+		"""The 'teachers' step's own 'Continue' handler, mirroring '_continue_from_groups': every
+		'teacher_line_ids' row must have a teacher picked (raised otherwise), then every 'node_cache'
+		item sharing that row's raw identifier gets an 'employee_id' key written onto it directly
+		(the identifier is the item's own top-level field, not part of 'entries'/'attendance_ids'
+		like a group reference - no '_finalize_pending_groups'-style dict-shape juggling needed)."""
+		self.ensure_one()
+		unresolved_lines = self.teacher_line_ids.filtered(lambda line: not line.employee_id)
+		if unresolved_lines:
+			raise ValidationError(_(
+				"Please select a teacher for every unresolved e-mail before continuing:\n%s"
+			) % "\n".join(unresolved_lines.mapped('raw_identifier')))
+
+		identifier_to_employee = {line.raw_identifier: line.employee_id for line in self.teacher_line_ids}
+		node_cache = json.loads(self.parsed_entries_json or '[]')
+		for item in node_cache:
+			employee = identifier_to_employee.get(item['identifier'])
+			if employee:
+				item['employee_id'] = employee.id
+		self.parsed_entries_json = json.dumps(node_cache)
 		self._advance_state()
 
 	def _write_teacher_schedule(self, teacher, course_id, attendance_ids):
@@ -527,9 +571,17 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		teacher_entries = []
 		for item in node_cache:
 			identifier = item['identifier']
-			if self._is_email_like(identifier):
+			if item.get('employee_id'):
+				# NOTE: resolved on the 'teachers' step (see '_continue_from_teachers') - an
+				# identifier that never needed a correction line (already matched 'work_email' on
+				# its own) falls through to the plain lookup branch below instead, unaffected.
+				teacher = self.env["hr.employee"].browse(item['employee_id'])
+			elif self._is_email_like(identifier):
 				teacher = self.env["hr.employee"].search([("work_email", "=", identifier)])
 				if not teacher.id:
+					# NOTE: safety net for a direct ORM/API caller bypassing the wizard's own
+					# step-by-step UI - a real user reaching Import through the wizard already had
+					# every unresolved e-mail turned into a 'teacher_line' at the 'teachers' step.
 					raise ValidationError(_("Teacher with email '%s' not found.") % identifier)
 			else:
 				teacher = self.env["hr.employee"].search([("schedule_import_code", "=", identifier)])
@@ -751,4 +803,16 @@ class ems_working_schedules_import_wizard_group_line(models.TransientModel):
 	# plain Many2one already gives "pick an existing group, or create one on the spot" for free, no
 	# bespoke code needed (see plans/working_schedule_import_redesign.md's step 2).
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
+
+class ems_working_schedules_import_wizard_teacher_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.teacher_line"
+	_description = "Working schedules import wizard: unresolved teacher e-mail correction line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	raw_identifier = fields.Char(string="E-mail found in file", required=True, readonly=True)
+	# NOTE: create explicitly disabled in the view (context="{'no_create': True, 'no_create_edit':
+	# True}") - the developer's own call, see plans/working_schedule_import_redesign.md's step 3: a
+	# brand-new teacher record is screen 6's job (pending-identification, automatic at Import), this
+	# screen only ever attaches the schedule to an already-existing employee.
+	employee_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 

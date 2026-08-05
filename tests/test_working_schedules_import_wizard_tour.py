@@ -42,6 +42,17 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         })
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_group", login="admin")
 
+    def test_working_schedules_import_resolve_teacher_email_tour(self):
+        # Seeds a real teacher the tour's XML deliberately does NOT reference by e-mail - the tour
+        # picks it via the 'teachers' step's Many2one to prove that new screen actually renders and
+        # resolves in a real browser (see TestWorkingSchedulesImportWizard.
+        # test_continue_from_teachers_resolves_pending_email_and_completes_import).
+        self.env['hr.employee'].create({
+            'name': 'Tour Resolve Teacher Email',
+            'employee_type': 'teacher',
+        })
+        self.start_tour("/odoo", "ems_working_schedules_import_resolve_teacher_email", login="admin")
+
     def test_employee_pending_identification_indicator_tour(self):
         # "0000 "/"0001 " prefixes: hr.employee's default _order is "name", so these sort first on
         # the list's very first page among the pre-existing teachers in this DB (same convention as

@@ -41,7 +41,19 @@
                             </field>
                         </div>
 
-                        <div class="alert alert-info" role="alert" invisible="state in ('intro', 'groups', 'override_info')">
+                        <div invisible="state != 'teachers'">
+                            <div class="alert alert-success" role="alert" invisible="teacher_line_ids">
+                                Every teacher e-mail mentioned in the file was recognized.
+                            </div>
+                            <field name="teacher_line_ids" invisible="not teacher_line_ids">
+                                <list editable="bottom" create="False" delete="False">
+                                    <field name="raw_identifier" string="E-mail found in file"/>
+                                    <field name="employee_id" context="{'no_create': True, 'no_create_edit': True}"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div class="alert alert-info" role="alert" invisible="state in ('intro', 'groups', 'teachers', 'override_info')">
                             This step is not implemented yet - "Continue" moves on without asking anything here for now.
                         </div>
                     </sheet>

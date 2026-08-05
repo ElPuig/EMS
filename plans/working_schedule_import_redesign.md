@@ -331,6 +331,15 @@ have a value picked (block Continue otherwise, inline validation) before substit
 into `teacher_entries` and advancing to step 3.
 
 ### 3 (their 4) — Resolve unrecognized teachers
+
+**IMPLEMENTED 2026-08-05** — see `docs/en/developers/employees/working_schedule.md`'s "Screen 3 —
+'Resolve teachers'" section for the mechanism. Unlike screen 2's group-code question, this one was
+unambiguous: the plan already fully specified this exact deferred-resolution behavior for an
+unresolved e-mail, so no developer check-in was needed before building it. Building it does change
+what "an unknown e-mail" means for the existing tour/tests written before this screen existed (it
+now surfaces as a resolvable line here instead of an error dialog at the final Import) - adapted
+the same way screen 2's pre-existing tests were.
+
 Same shape as step 2, but for teacher identification: one line per distinct unresolved identifier
 (an e-mail matching nobody by `work_email` — see the open question below on telling this apart
 from a legitimate pending-identification code) + a `Many2one` to `hr.employee`, **create

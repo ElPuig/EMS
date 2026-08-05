@@ -165,6 +165,9 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertTrue(self.teacher.resource_calendar_id.attendance_ids)
 
     def test_import_unknown_email_raises(self):
+        # Deferred to the 'teachers' step (2026-08-05): '_import()' never fills in a pick for the
+        # resulting 'teacher_line', so leaving that step still raises, same as a real user leaving
+        # it unresolved would.
         with self.assertRaises(ValidationError):
             self._import({
                 'attachment_ids': self._attachment_ids(
@@ -784,6 +787,91 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         attendance = self.teacher.resource_calendar_id.attendance_ids
         self.assertEqual(attendance.group_ids, self.group)
 
+    def test_continue_from_groups_builds_teacher_line_for_unresolved_email(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups (no Students, nothing to resolve there)
+        wizard.action_continue()  # groups -> teachers
+
+        self.assertEqual(wizard.state, 'teachers')
+        self.assertEqual(
+            wizard.teacher_line_ids.mapped('raw_identifier'), ['unknown.import.wizard@example.com']
+        )
+        self.assertFalse(wizard.teacher_line_ids.employee_id)
+
+    def test_continue_from_groups_dedups_same_unresolved_email_across_teachers(self):
+        # The same unresolved e-mail appearing in more than one <T> node (e.g. re-listed across
+        # files, or a duplicate row) is ONE correction line, not one per occurrence.
+        xml = (
+            '<root>'
+            '<T name="unknown.import.wizard@example.com Someone">'
+            '<D name="1 Monday"><H name="1 09:00"><NonTeaching name="G Guard"/></H></D></T>'
+            '<T name="unknown.import.wizard@example.com Someone Again">'
+            '<D name="1 Monday"><H name="1 09:00"><NonTeaching name="G Guard"/></H></D></T>'
+            '</root>'
+        )
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(base64.b64encode(xml.encode())),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+
+        self.assertEqual(
+            wizard.teacher_line_ids.mapped('raw_identifier'), ['unknown.import.wizard@example.com']
+        )
+
+    def test_continue_from_groups_does_not_list_a_pending_identification_code(self):
+        # A code with no '@' isn't a problem for THIS screen - it's expected input, handled
+        # automatically at the final Import step (creates a pending-identification teacher).
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file('X1')),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+
+        self.assertFalse(wizard.teacher_line_ids)
+
+    def test_continue_from_teachers_raises_when_a_line_has_no_teacher_picked(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+
+        with self.assertRaises(ValidationError) as capture:
+            wizard.action_continue()
+
+        self.assertIn('unknown.import.wizard@example.com', str(capture.exception))
+        self.assertEqual(wizard.state, 'teachers')
+
+    def test_continue_from_teachers_resolves_pending_email_and_completes_import(self):
+        second_teacher = self.env['hr.employee'].create({
+            'name': 'Test Wizard Teacher Resolved (Import Wizard)',
+            'employee_type': 'teacher',
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.employee_id = second_teacher.id
+        wizard.action_continue()  # teachers -> internal_conflicts, substitutes the pick
+
+        self.assertEqual(wizard.state, 'internal_conflicts')
+
+        while wizard.state != 'override_info':
+            wizard.action_continue()
+        wizard.import_planner_data()
+
+        self.assertTrue(second_teacher.resource_calendar_id.attendance_ids)
+
     def test_continue_disabled_true_at_intro_without_attachment(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({})
         self.assertTrue(wizard.continue_disabled)
@@ -837,15 +925,43 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers (known e-mail, nothing to resolve either)
+        wizard.action_continue()  # teachers -> internal_conflicts (still a placeholder)
+        self.assertFalse(wizard.continue_disabled)
+
+    def test_continue_disabled_true_at_teachers_with_unresolved_line(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
+        self.assertEqual(wizard.state, 'teachers')
+        self.assertTrue(wizard.continue_disabled)
+
+    def test_continue_disabled_false_at_teachers_once_resolved(self):
+        second_teacher = self.env['hr.employee'].create({
+            'name': 'Test Wizard Teacher Resolved 2 (Import Wizard)',
+            'employee_type': 'teacher',
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.employee_id = second_teacher.id
         self.assertFalse(wizard.continue_disabled)
 
     def test_action_continue_placeholder_steps_advance_one_state_at_a_time(self):
-        # Steps 'teachers' through 'pending_info' have no real logic yet (see
+        # Steps 'internal_conflicts' through 'pending_info' have no real logic yet (see
         # plans/working_schedule_import_redesign.md) - 'action_continue' just advances the
-        # statusbar for each of them, one step per call, until reaching the final step. 'intro' and
-        # 'groups' are the two real steps built so far (this file's XML has no '<Students>' at all,
-        # so 'groups' has nothing to resolve and also just advances).
+        # statusbar for each of them, one step per call, until reaching the final step. 'intro',
+        # 'groups' and 'teachers' are the three real steps built so far (this file's XML has no
+        # '<Students>' at all and uses an already-known teacher e-mail, so both 'groups' and
+        # 'teachers' have nothing to resolve and also just advance).
         wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(
                 self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),

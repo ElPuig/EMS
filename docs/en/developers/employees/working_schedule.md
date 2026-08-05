@@ -297,6 +297,48 @@ step. Verified in a real browser, not just by reasoning about the source: the re
 asserts `button[name='action_continue_disabled'][disabled]` is actually present before a group is
 picked, and `button[name='action_continue']:not([disabled])` right after.
 
+### Screen 3 — "Resolve teachers" (2026-08-05) — deferred e-mail resolution
+
+Unlike screen 2, this one needed no developer check-in first: the plan already fully specified an
+unresolved e-mail as this screen's job, distinct from a pending-identification *code* (no `@`,
+still handled automatically at Import, per screen 6 - see `_is_email_like`). Building it does
+change what "an unknown e-mail" means for tests/tours written before this screen existed - it now
+surfaces as a resolvable line here instead of always reaching an error dialog at the final Import
+- adapted the same way screen 2's pre-existing tests were, since this is an unambiguous, intended
+consequence of the screen actually existing now, not a design question to re-litigate.
+
+**Mechanism**, deliberately mirroring screen 2's shape:
+
+- **`_pending_teacher_identifiers(node_cache)`**: every distinct e-mail-shaped identifier
+  (`_is_email_like`) with no matching `hr.employee.work_email` - a pending-identification *code*
+  is never included, it isn't a problem for this screen to resolve. Computed **after** group picks
+  are applied, inside `_continue_from_groups()` (not `_continue_from_intro()` - unlike screen 2's
+  own lines, which are built leaving `intro`), materializing one `ems.working_schedules_import_
+  wizard.teacher_line` (`raw_identifier` readonly, `employee_id` Many2one to `hr.employee` domain
+  `employee_type = 'teacher'`) per name, before advancing to `teachers` - matches the flow diagram's
+  own `groups --> teachers: Continue (apply group picks, reclassify)` transition.
+- **`_continue_from_teachers()`**: raises if any line still has no `employee_id` picked (same
+  convention as screen 2); otherwise builds an `identifier → employee` map and writes an
+  `employee_id` key straight onto every matching `node_cache` item (not into `entries`/
+  `attendance_ids` like screen 2's group substitution - a *teacher* isn't part of those dicts at
+  all, it's the item's own top-level `identifier`), re-serializes the cache, advances to
+  `internal_conflicts`.
+- **`_apply_import()`** now checks `item.get('employee_id')` **first**, before falling back to the
+  original `work_email` lookup (still the correct path for an identifier that resolved on its own,
+  with no line ever created) or the placeholder-code branch (fully unaffected). The original
+  `raise ValidationError(_("Teacher with email '%s' not found."))` stays as a safety net for a
+  direct ORM/API caller bypassing the wizard's own step-by-step UI - by the time a real user
+  reaches Import through the wizard, every e-mail that could need this line already got one.
+- **Many2one create explicitly disabled** (`context="{'no_create': True, 'no_create_edit': True}"`,
+  the developer's own call from the plan): a brand-new teacher record is screen 6's job
+  (pending-identification, automatic at Import) - this screen only ever *attaches* the schedule to
+  an already-existing employee, never creates one.
+- View: a new `state == 'teachers'` screen, same "editable list, or a success alert" shape as
+  `groups`; the placeholder "not implemented yet" alert's `invisible` grew a third excluded state
+  (`'teachers'`) to match. `continue_disabled` grew its own `teachers` branch (any `teacher_line_ids`
+  row still missing an `employee_id`) - same enabled/disabled "Continue" mechanism as screen 2, no
+  new UI concept needed.
+
 ### Multi-step wizard skeleton (2026-08-05) — only the intro screen has real logic so far
 
 Being rebuilt into a 7-screen guided flow (statusbar `state` field, one screen per step) per

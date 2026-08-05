@@ -6917,7 +6917,7 @@ msgid "Tasks"
 msgstr ""
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_session__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__teacher_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__teacher_id model:ir.model.fields,field_description:ems.field_ems_strike__teacher_id model:ir.model.fields,field_description:ems.field_ems_teaching__teacher_id model:ir.model.fields,field_description:ems.field_ems_tracking__teacher_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__teacher_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__employee_id model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__teacher model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__teacher model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__teacher model:res.groups,name:ems.group_teacher model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_list model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_session__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__teacher_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__teacher_id model:ir.model.fields,field_description:ems.field_ems_strike__teacher_id model:ir.model.fields,field_description:ems.field_ems_teaching__teacher_id model:ir.model.fields,field_description:ems.field_ems_tracking__teacher_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__teacher_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__employee_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__employee_id model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__teacher model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__teacher model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__teacher model:res.groups,name:ems.group_teacher model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_list model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 msgid "Teacher"
 msgstr "Profesor"
 
@@ -7717,7 +7717,7 @@ msgid "Whether there is a final grade (the computed grade is available)."
 msgstr "Indica si hay nota final (la nota calculada está disponible)."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_csv_column__wizard_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_csv_column__wizard_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__wizard_id
 msgid "Wizard"
 msgstr "Asistente"
 
@@ -7801,6 +7801,32 @@ msgstr "Se han reconocido todos los grupos mencionados en el fichero."
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Please select a group for every unresolved name before continuing:\n%s"
 msgstr "Seleccione un grupo para cada nombre no resuelto antes de continuar:\n%s"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_working_schedules_import_wizard_teacher_line
+msgid "Working schedules import wizard: unresolved teacher e-mail correction line."
+msgstr "Asistente de importación de horarios: línea de corrección de correo de docente no resuelto."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__teacher_line_ids
+msgid "Unresolved teachers"
+msgstr "Docentes no resueltos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__raw_identifier model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "E-mail found in file"
+msgstr "Correo encontrado en el fichero"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Every teacher e-mail mentioned in the file was recognized."
+msgstr "Se han reconocido todos los correos de docentes mencionados en el fichero."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Please select a teacher for every unresolved e-mail before continuing:\n%s"
+msgstr "Seleccione un docente para cada correo no resuelto antes de continuar:\n%s"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form

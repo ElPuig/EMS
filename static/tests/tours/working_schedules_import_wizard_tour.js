@@ -17,10 +17,14 @@ import { inputFiles } from "@web/../tests/utils";
 // screen no longer validates or shows anything about the file's own content - not even an
 // unknown e-mail - since resolving that is what steps 2-3 exist for (see
 // plans/working_schedule_import_redesign.md). "Continue" only ever depends on a file being
-// attached at all, so an unknown e-mail here doesn't block leaving the intro screen any more;
-// it only surfaces once the flow reaches the real "Import" click at the final step (today, since
-// steps 2-6 are still placeholders) - as a plain error dialog, the same way any other
-// ValidationError from a button action renders.
+// attached at all, so an unknown e-mail here doesn't block leaving the intro screen any more.
+//
+// Updated again 2026-08-05, once screen 3 ("Resolve teachers") was actually built: an unknown
+// e-mail no longer reaches Import at all - it surfaces right here, as an unresolved line on the
+// 'teachers' screen, with "Continue" rendering disabled (not hidden - see 'continue_disabled')
+// until a real teacher is picked for it. This tour proves it stays blocked when left unresolved;
+// see 'ems_working_schedules_import_resolve_teacher_email' below for the full resolve-and-complete
+// path (mirroring 'ems_working_schedules_import_resolve_group').
 registry.category("web_tour.tours").add("ems_working_schedules_import_unknown_teacher", {
     test: true,
     url: "/odoo/action-ems.action_working_schedules_tree",
@@ -71,33 +75,12 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_unknown_te
             run: "click",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'teachers' placeholder step",
-            run: "click",
+            trigger: ".modal .o_data_cell:contains('unknown.tour.teacher@example.com')",
+            content: "The 'teachers' screen lists the unresolved e-mail found in the file",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'internal_conflicts' placeholder step",
-            run: "click",
-        },
-        {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'db_conflicts' placeholder step",
-            run: "click",
-        },
-        {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' placeholder step",
-            run: "click",
-        },
-        {
-            trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
-            content: "Click 'Import' - only now does the unknown e-mail actually get looked up",
-            run: "click",
-        },
-        {
-            trigger: ".o_error_dialog:contains('unknown.tour.teacher@example.com')",
-            content: "The unknown e-mail surfaces as a real error dialog at Import time, not earlier",
+            trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
+            content: "Continue shows disabled - the e-mail is left unresolved, on purpose, by this tour",
         },
     ],
 });
@@ -157,15 +140,17 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             content: "Continue is enabled purely because a file is attached - leaving the intro screen parses and caches both placeholder-code teachers (nothing written yet)",
             run: "click",
         },
-        // Steps 'teachers' through 'pending_info' have no screen of their own yet (see
+        // Steps 'internal_conflicts' through 'pending_info' have no screen of their own yet (see
         // plans/working_schedule_import_redesign.md) - each is a placeholder "Continue" click
         // that just advances the statusbar. Not asserting on the statusbar's own DOM here (its
         // items can fold into a "more" dropdown under narrow viewports, purely width-driven -
         // see web.StatusBarField's adjustVisibleItems - which would make a `data-value=...`
         // selector flaky); the "Import" button only appearing once every placeholder has been
         // clicked through is itself the proof the skeleton advances correctly end-to-end. 'groups'
-        // (just above) is the other real step built so far - see the tour dedicated to it,
-        // 'ems_working_schedules_import_resolve_group', below.
+        // and 'teachers' (just below) are the other real steps built so far - neither placeholder
+        // code here is e-mail-shaped, so 'teachers' also has nothing to resolve and shows its own
+        // success message - see the tours dedicated to each, 'ems_working_schedules_import_
+        // resolve_group'/'ems_working_schedules_import_resolve_teacher_email', below.
         {
             trigger: ".modal .alert-success:contains('Every group mentioned in the file was recognized')",
             content: "The 'groups' screen shows the success message - this file has no '<Students>' at all",
@@ -176,8 +161,12 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             run: "click",
         },
         {
+            trigger: ".modal .alert-success:contains('Every teacher e-mail mentioned in the file was recognized')",
+            content: "The 'teachers' screen shows its own success message - neither placeholder code is e-mail-shaped",
+        },
+        {
             trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'teachers' placeholder step",
+            content: "Continue through the 'teachers' step (nothing to resolve here)",
             run: "click",
         },
         {
@@ -295,8 +284,12 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_gr
             run: "click",
         },
         {
+            trigger: ".modal .alert-success:contains('Every teacher e-mail mentioned in the file was recognized')",
+            content: "The 'teachers' screen shows its own success message - the teacher here is a placeholder code, not an e-mail",
+        },
+        {
             trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'teachers' placeholder step",
+            content: "Continue through the 'teachers' step (nothing to resolve here)",
             run: "click",
         },
         {
@@ -322,6 +315,114 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_gr
         {
             trigger: "body:not(:has(.modal)) .o_list_view",
             content: "Back to the Working Schedules list, confirming the resolved-group import completed",
+        },
+    ],
+});
+
+// Screen 3 ("Resolve teachers", 2026-08-05, see plans/working_schedule_import_redesign.md's step
+// 3) - an unresolved e-mail no longer reaches Import at all: it surfaces here as an editable list
+// row (raw e-mail + a Many2one to pick the real teacher, create disabled - a brand-new teacher is
+// screen 6's job, not this one's). Mirrors 'ems_working_schedules_import_resolve_group' exactly.
+// The real teacher ("Tour Resolve Teacher Email") is seeded by the Python test method; the XML
+// deliberately uses a different, unknown e-mail so a 'teacher_line' is actually created.
+registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_teacher_email", {
+    test: true,
+    url: "/odoo/action-ems.action_working_schedules_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view",
+            content: "Working Schedules list loaded",
+        },
+        {
+            trigger: ".o_cp_action_menus button",
+            content: "Open the list's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-item:contains('Import planner data')",
+            content: "Click 'Import planner data (XML)'",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids']",
+            content: "Import wizard dialog opened",
+            run: async () => {
+                const xml = '<root><T name="tour.unresolved.teacher@example.com Someone">'
+                    + '<D name="1 Monday"><H name="1 09:00"><NonTeaching name="G Guard"/></H></D>'
+                    + '</T></root>';
+                const file = new File([xml], "planner_resolve_teacher.xml", { type: "text/xml" });
+                await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", [file]);
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attachment",
+            content: "File attached",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled purely because a file is attached",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('Every group mentioned in the file was recognized')",
+            content: "The 'groups' screen shows the success message - this file has no '<Students>' at all",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'groups' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_cell:contains('tour.unresolved.teacher@example.com')",
+            content: "The 'teachers' screen lists the unresolved e-mail found in the file",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
+            content: "Continue shows disabled - the teacher hasn't been picked yet",
+        },
+        {
+            trigger: ".modal .o_data_row .o_data_cell[name='employee_id']",
+            content: "Click the row's teacher cell to edit it",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_selected_row .o_field_widget[name='employee_id'] input",
+            content: "Search for the seeded teacher",
+            run: "edit Tour Resolve Teacher Email",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Tour Resolve Teacher Email')",
+            content: "Select it",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled now that the teacher is picked - the picked teacher resolves every occurrence of the e-mail",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'internal_conflicts' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'db_conflicts' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'pending_info' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
+            content: "Click 'Import' - the resolved teacher is what actually gets written",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_list_view",
+            content: "Back to the Working Schedules list, confirming the resolved-teacher import completed",
         },
     ],
 });

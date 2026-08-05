@@ -98,6 +98,69 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         })
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_internal_conflict", login="admin")
 
+    def test_working_schedules_import_resolve_db_conflict_tour(self):
+        # Seeds a REAL, already-active 'ems.attendance_schedule' directly via the ORM (teacher A,
+        # sharing 'Tour Resolve DB Conflict Space A' with a sibling reinforcement group B) - the
+        # tour then imports a SECOND, different teacher into group B, a "desdoble" against this
+        # existing DB session rather than another entry in the same batch (see
+        # TestWorkingSchedulesImportWizard.
+        # test_continue_from_db_conflicts_reassign_rooms_with_has_sessions_archives_and_clones for
+        # the has_sessions branch - this tour only needs to prove the screen itself renders and
+        # resolves in a real browser, matching the internal-conflict tour's own scope).
+        shared_space = self.env['ems.space'].create({
+            'code': 'TOURRESOLVEDBCONFLICT-A',
+            'name': 'Tour Resolve DB Conflict Space A',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        self.env['ems.space'].create({
+            'code': 'TOURRESOLVEDBCONFLICT-B',
+            'name': 'Tour Resolve DB Conflict Space B',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        subject = self.env['ems.subject'].create({
+            'code': 'TOURRESOLVEDBCONFLICT',
+            'acronym': 'TRSVDB',
+            'name': 'Tour Resolve DB Conflict Subject',
+        })
+        group_a = self.env['ems.group'].create({
+            'group_type': 'reinforcement',
+            'name': 'Tour Resolve DB Conflict Group A',
+            'space_id': shared_space.id,
+        })
+        self.env['ems.group'].create({
+            'group_type': 'reinforcement',
+            'name': 'Tour Resolve DB Conflict Group B',
+            'space_id': shared_space.id,
+        })
+        teacher_a = self.env['hr.employee'].create({
+            'name': 'Tour Resolve DB Conflict Teacher A',
+            'employee_type': 'teacher',
+            'work_email': 'tour.resolve.dbconflict.a@example.com',
+        })
+        self.env['hr.employee'].create({
+            'name': 'Tour Resolve DB Conflict Teacher B',
+            'employee_type': 'teacher',
+            'work_email': 'tour.resolve.dbconflict.b@example.com',
+        })
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [teacher_a.id])],
+            'subject_id': subject.id,
+            'group_ids': [(6, 0, [group_a.id])],
+            'space_id': shared_space.id,
+            'start_date': '2026-01-01',
+            'end_date': '2026-06-30',
+        })
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '0',
+            'start_time': 9.0,
+            'end_time': 13.0,
+            'space_id': shared_space.id,
+        })
+        self.start_tour("/odoo", "ems_working_schedules_import_resolve_db_conflict", login="admin")
+
     def test_employee_pending_identification_indicator_tour(self):
         # "0000 "/"0001 " prefixes: hr.employee's default _order is "name", so these sort first on
         # the list's very first page among the pre-existing teachers in this DB (same convention as

@@ -424,6 +424,68 @@ implemented yet" alert's `invisible` grew a fourth excluded state (`'internal_co
 `continue_disabled` grew its own `internal_conflicts` branch (any line whose resolution isn't
 currently valid for its kind) - same enabled/disabled "Continue" mechanism as before.
 
+### Screen 5 — "Existing schedule conflicts" (2026-08-05) — within-batch entries vs. already-active DB schedules
+
+Same classification/resolution shape as screen 4 (`_classify_conflict_kind`, the flat `resolution`
+Selection, the enabled/disabled "Continue"), but **left** = a new entry from this import,
+**right** = an already-active `ems.attendance_schedule` DB record - no fresh check-in needed here,
+the plan had already fully speced this screen (including the `has_sessions` interaction, found and
+resolved in an earlier same-day session) before this pass began.
+
+**Reuses the existing classification engine rather than reimplementing it** -
+`ems.attendance_template.classify_external_conflicts`/`find_self_conflicts` (already used as
+`_apply_import`'s pre-existing safety net) are called as-is to get the three aggregate
+recordsets (`co_teaching`, `space_conflicts`, `self_conflicts`), all `ems.attendance_schedule`).
+Those methods only ever return *which DB records* collide, not *which new entry* triggered each
+one (they don't need to, for their original blocking-check purpose) - so a second, thin pass
+(`_match_entry_for_conflict`) re-derives the (item_index, entry_index) pairing per candidate,
+matching on the same `(space, weekday, time-overlap)` key the classification itself used. **Known
+simplification, same spirit as screen 4's pairwise-only detection:** if two different new entries
+would both collide with the exact same existing DB record (rare), only the first match found is
+turned into a line - not engineered further for a scenario this unlikely.
+
+- **`_teacher_entries_for_classification(node_cache)`**: mirrors `_apply_import`'s own per-item
+  teacher resolution (`employee_id` if screen 3 already resolved it, else a **read-only** search by
+  `work_email`/`schedule_import_code` - deliberately never creates a pending teacher here, unlike
+  `_apply_import` itself). An item whose teacher doesn't exist yet contributes an empty recordset -
+  harmless for `classify_external_conflicts`'s own exclusion set, and self-conflicts are simply
+  skipped for it (nothing can conflict against a not-yet-created teacher's own schedule).
+- **`_build_external_conflict_lines`**: for every distinct candidate across all three recordsets,
+  `_match_entry_for_conflict` finds its colliding entry, `_classify_conflict_kind` classifies the
+  pair (identical rules to screen 4), and one `ems.working_schedules_import_wizard.
+  external_conflict_line` is created - `right_schedule_id` (Many2one to the actual
+  `ems.attendance_schedule` record) instead of screen 4's positional right-side indices, since the
+  right side here is a real, already-persisted record, not a node_cache position.
+- **`_continue_from_db_conflicts()`**, per resolution:
+  - `co_teaching`: no-op, same as screen 4 - `_reconcile_fresh_import`'s own merge already folds an
+    external teacher's exact-match slot into the shared group correctly on its own.
+  - `prevail_left` (the new entry wins): `right_schedule_id.action_archive()` - archiving a single
+    schedule line is always allowed regardless of `has_sessions` (only in-place field edits on a
+    line with real history are locked - see `ems.attendance_mixin`), freeing the slot for the new
+    entry to be written into on Import. Matches the plan's own "archives/trims the existing DB
+    session's template" wording literally: archiving the one line is the "trim"; if that was the
+    template's *only* active line, the now-empty template is archived too (checked via
+    `template.attendance_schedule_ids`, which - like any One2many - only ever lists active records
+    unless the context says otherwise) rather than left behind as an orphaned, lineless record -
+    found empirically while testing the self-conflict scenario below, where the first version of
+    this code only archived the line and left the (now pointless) parent template active.
+  - `prevail_right` (the existing session wins): deletes the new entry, exactly like screen 4's own
+    `prevail_left`/`prevail_right` (same index-collection-then-reverse-delete mechanism, shared
+    with `_continue_from_internal_conflicts`).
+  - `reassign_rooms`: the **left** (new entry) side writes `space_id` into `node_cache` exactly like
+    screen 4. The **right** (existing DB record) side calls
+    `right_schedule_id._write_or_new_version({'space_id': ...})` directly - **not** its
+    `action_new_version()` button wrapper (that one is hardcoded to no field changes, since it only
+    ever exists for the manual "make this locked line editable again" action) - the shared mixin
+    method already does exactly what's needed here: write in place if `not has_sessions`, or
+    archive-and-clone with the new room if a real session history already exists. This was the one
+    piece of real forward-planning from an earlier same-day session (see the plan's "Interaction
+    with the `has_sessions` lock" note) that made this screen's own Green phase noticeably
+    smaller than it would otherwise have been.
+
+View/`continue_disabled`: same shape as screen 4, `internal_conflicts` excluded state on the
+placeholder alert becomes `db_conflicts`, `right_space_id`/column visibility identical.
+
 ### Multi-step wizard skeleton (2026-08-05) — only the intro screen has real logic so far
 
 Being rebuilt into a 7-screen guided flow (statusbar `state` field, one screen per step) per

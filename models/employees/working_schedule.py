@@ -288,6 +288,9 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# leaving 'teachers' (needs both group and teacher picks already applied - group resolution
 	# affects which classroom an entry defaults to; teacher resolution affects the display label).
 	internal_conflict_line_ids = fields.One2many(string="Internal conflicts", comodel_name="ems.working_schedules_import_wizard.internal_conflict_line", inverse_name="wizard_id")
+	# NOTE: one line per colliding pair found by '_build_external_conflict_lines' against
+	# already-active DB schedules - populated once, leaving 'internal_conflicts'.
+	external_conflict_line_ids = fields.One2many(string="Existing schedule conflicts", comodel_name="ems.working_schedules_import_wizard.external_conflict_line", inverse_name="wizard_id")
 	# NOTE: drives whether "Continue" renders enabled or disabled (developer feedback 2026-08-05:
 	# "que quedará mas claro si los botones de continuar... aparecen como enabled o disabled" rather
 	# than appearing/disappearing) - the view keeps the button in the SAME place either way (two
@@ -299,7 +302,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	@api.depends(
 		"state", "ready_to_import", "group_line_ids.group_id", "teacher_line_ids.employee_id",
 		"internal_conflict_line_ids.resolution", "internal_conflict_line_ids.left_space_id",
-		"internal_conflict_line_ids.right_space_id",
+		"internal_conflict_line_ids.right_space_id", "external_conflict_line_ids.resolution",
+		"external_conflict_line_ids.left_space_id", "external_conflict_line_ids.right_space_id",
 	)
 	def _compute_continue_disabled(self):
 		for wizard in self:
@@ -311,6 +315,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				wizard.continue_disabled = bool(wizard.teacher_line_ids.filtered(lambda line: not line.employee_id))
 			elif wizard.state == 'internal_conflicts':
 				wizard.continue_disabled = bool(wizard.internal_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid()))
+			elif wizard.state == 'db_conflicts':
+				wizard.continue_disabled = bool(wizard.external_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid()))
 			else:
 				wizard.continue_disabled = False
 
@@ -454,10 +460,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	def action_continue(self):
 		"""The single 'Continue' button's handler for every non-final step - dispatches to each
-		step's own logic. Only 'intro', 'groups', 'teachers' and 'internal_conflicts' have real
-		logic built so far (see plans/working_schedule_import_redesign.md); every other step is
-		still a placeholder that just advances the statusbar, so the skeleton is clickable
-		end-to-end already and each step gets filled in here as it's built."""
+		step's own logic. Only 'intro', 'groups', 'teachers', 'internal_conflicts' and
+		'db_conflicts' have real logic built so far (see plans/working_schedule_import_redesign.md);
+		every other step is still a placeholder that just advances the statusbar, so the skeleton is
+		clickable end-to-end already and each step gets filled in here as it's built."""
 		self.ensure_one()
 		if self.state == 'intro':
 			self._continue_from_intro()
@@ -467,6 +473,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			self._continue_from_teachers()
 		elif self.state == 'internal_conflicts':
 			self._continue_from_internal_conflicts()
+		elif self.state == 'db_conflicts':
+			self._continue_from_db_conflicts()
 		else:
 			self._advance_state()
 		return self._reopen_self_action()
@@ -707,6 +715,167 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				):
 					node_cache[item_index]['entries'][entry_index]['space_id'] = space_id
 					node_cache[item_index]['attendance_ids'][entry_index + 1][2]['space_id'] = space_id
+
+		for item_index, entry_indices in indices_to_remove.items():
+			for entry_index in sorted(entry_indices, reverse=True):
+				del node_cache[item_index]['entries'][entry_index]
+				del node_cache[item_index]['attendance_ids'][entry_index + 1]
+
+		self.parsed_entries_json = json.dumps(node_cache)
+		self.external_conflict_line_ids = [(5, 0, 0)] + self._build_external_conflict_lines(node_cache)
+		self._advance_state()
+
+	def _resolve_teacher_for_classification(self, item):
+		"""Read-only counterpart to '_apply_import's per-item teacher resolution - never creates a
+		pending teacher (unlike '_apply_import' itself), since this is only used to build the
+		'db_conflicts' screen's own conflict lines, well before Import actually writes anything. An
+		item whose teacher doesn't exist yet (a not-yet-created placeholder code) resolves to an
+		empty recordset - harmless for classification, since nothing in the DB could possibly
+		reference a teacher that doesn't exist yet."""
+		if item.get('employee_id'):
+			return self.env['hr.employee'].browse(item['employee_id'])
+		identifier = item['identifier']
+		if self._is_email_like(identifier):
+			return self.env['hr.employee'].search([('work_email', '=', identifier)], limit=1)
+		return self.env['hr.employee'].search([('schedule_import_code', '=', identifier)], limit=1)
+
+	def _external_conflict_label(self, candidate):
+		weekday = dict(candidate.weekdays_selection).get(candidate.weekday)
+		return _("%(teacher)s — %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
+			'teacher': ", ".join(candidate.attendance_template_id.teacher_ids.mapped('display_name')),
+			'subject': candidate.attendance_template_id.subject_id.display_name,
+			'groups': ", ".join(candidate.attendance_template_id.group_ids.mapped('display_name')),
+			'weekday': weekday,
+			'time': candidate.time_range,
+		}
+
+	def _find_external_conflicts(self, node_cache):
+		"""Every (item_index, entry_index, candidate) triple where 'candidate' is an already-active
+		'ems.attendance_schedule' colliding with that entry - either EXTERNAL (same classroom +
+		weekday + time-overlap, held by a teacher not in this batch at all) or SELF (the entry's own
+		resolved teacher already has an active session overlapping in weekday/time, for a genuinely
+		different (subject, group) combo - resubmitting the SAME combo is handled by the normal sync
+		refresh, not a conflict to show here).
+
+		Deliberately reimplements the two searches here rather than reusing
+		'classify_external_conflicts'/'find_self_conflicts' as black boxes (the same methods
+		'_apply_import' itself still uses, unchanged, as its own safety net): those methods only
+		ever return the AGGREGATE colliding recordset, by design (their original callers only need a
+		yes/no blocking check) - critically, 'find_self_conflicts' matches purely on
+		weekday/time-overlap with NO room restriction at all (the same teacher physically can't be
+		in two rooms at once, regardless of which rooms), so trying to re-derive the pairing
+		afterward by matching on room (as screen 4's own within-batch detection safely can, since
+		every one of ITS candidates was already room-matched by construction) would silently miss
+		every genuine self-conflict whose colliding room differs from the new entry's own - found
+		while building this exact method, not guessed at.
+
+		Same pairwise-only simplification as '_find_internal_conflicts': if the same existing
+		record would collide with more than one new entry, only the first one found becomes a
+		line."""
+		batch_teacher_ids = {
+			teacher.id for teacher in (self._resolve_teacher_for_classification(item) for item in node_cache) if teacher
+		}
+		results = []
+		seen_schedule_ids = set()
+		for item_index, item in enumerate(node_cache):
+			teacher = self._resolve_teacher_for_classification(item)
+			for entry_index, entry in enumerate(item['entries']):
+				if entry.get('non_teaching') or not entry.get('group_ids'):
+					continue
+				entry_combo = (entry['subject_id'], tuple(sorted(entry['group_ids'])))
+
+				space_id = self._entry_default_space_id(entry)
+				external_candidates = self.env['ems.attendance_schedule']
+				if space_id:
+					external_candidates = self.env['ems.attendance_schedule'].search([
+						('weekday', '=', entry['dayofweek']),
+						('space_id', '=', space_id),
+						('attendance_template_id.teacher_ids', 'not in', list(batch_teacher_ids)),
+					]).filtered(lambda c, entry=entry: c.ranges_overlap(c.start_time, c.end_time, entry['hour_from'], entry['hour_to']))
+
+				self_candidates = self.env['ems.attendance_schedule']
+				if teacher:
+					self_candidates = self.env['ems.attendance_schedule'].search([
+						('weekday', '=', entry['dayofweek']),
+						('attendance_template_id.teacher_ids', 'in', teacher.id),
+					]).filtered(lambda c, entry=entry: c.ranges_overlap(c.start_time, c.end_time, entry['hour_from'], entry['hour_to']))
+					self_candidates = self_candidates.filtered(lambda c: (
+						c.attendance_template_id.subject_id.id, tuple(sorted(c.attendance_template_id.group_ids.ids)),
+					) != entry_combo)
+
+				for candidate in external_candidates | self_candidates:
+					if candidate.id in seen_schedule_ids:
+						continue
+					seen_schedule_ids.add(candidate.id)
+					results.append((item_index, entry_index, candidate))
+		return results
+
+	def _build_external_conflict_lines(self, node_cache):
+		"""(0, 0, {...}) create-commands for 'external_conflict_line_ids', one per triple found by
+		'_find_external_conflicts'."""
+		commands = []
+		for item_index, entry_index, candidate in self._find_external_conflicts(node_cache):
+			entry = node_cache[item_index]['entries'][entry_index]
+			candidate_entry = {
+				'subject_id': candidate.attendance_template_id.subject_id.id,
+				'group_ids': candidate.attendance_template_id.group_ids.ids,
+			}
+			kind = self._classify_conflict_kind(entry, candidate_entry)
+			vals = {
+				'kind': kind,
+				'resolution': self._RESOLUTION_DEFAULTS[kind],
+				'left_item_index': item_index,
+				'left_entry_index': entry_index,
+				'left_label': self._entry_label(node_cache[item_index], entry),
+				'right_schedule_id': candidate.id,
+				'right_label': self._external_conflict_label(candidate),
+			}
+			if kind == 'desdoble_eligible':
+				space_id = self._entry_default_space_id(entry)
+				vals['left_space_id'] = space_id
+				vals['right_space_id'] = space_id
+			commands.append((0, 0, vals))
+		return commands
+
+	def _continue_from_db_conflicts(self):
+		"""The 'db_conflicts' step's own 'Continue' handler - mirrors '_continue_from_internal_
+		conflicts' exactly on the left (new-entry) side, but the right side is a real, already-
+		persisted 'ems.attendance_schedule' record instead of another node_cache position:
+		'prevail_left' archives it outright (always allowed regardless of 'has_sessions' - only
+		in-place field edits on a line with real history are locked), 'reassign_rooms' writes its
+		new room through the shared 'ems.attendance_mixin._write_or_new_version()' (archives and
+		clones with the new room if it already has sessions, plain write otherwise) rather than a
+		raw 'write()' - the one piece of forward-planning from an earlier session that made this
+		screen's own Green phase smaller than screen 4's."""
+		self.ensure_one()
+		invalid_lines = self.external_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid())
+		if invalid_lines:
+			raise ValidationError(_(
+				"Please choose a valid resolution for every conflict before continuing:\n%s"
+			) % "\n".join(
+				_("%(left)s vs. %(right)s") % {'left': line.left_label, 'right': line.right_label}
+				for line in invalid_lines
+			))
+
+		node_cache = json.loads(self.parsed_entries_json or '[]')
+		indices_to_remove = {}
+		for line in self.external_conflict_line_ids:
+			if line.resolution == 'prevail_left':
+				# NOTE: "archives/trims the existing DB session's template" (the plan's own words)
+				# - archiving just this one line is enough to free the slot ("trims"), but if that
+				# was the template's only active line, the now-empty template is archived outright
+				# too ("archives") rather than left as an orphaned, lineless record.
+				template = line.right_schedule_id.attendance_template_id
+				line.right_schedule_id.action_archive()
+				if not template.attendance_schedule_ids:
+					template.action_archive()
+			elif line.resolution == 'prevail_right':
+				indices_to_remove.setdefault(line.left_item_index, set()).add(line.left_entry_index)
+			elif line.resolution == 'reassign_rooms':
+				node_cache[line.left_item_index]['entries'][line.left_entry_index]['space_id'] = line.left_space_id.id
+				node_cache[line.left_item_index]['attendance_ids'][line.left_entry_index + 1][2]['space_id'] = line.left_space_id.id
+				if line.right_schedule_id.space_id != line.right_space_id:
+					line.right_schedule_id._write_or_new_version({'space_id': line.right_space_id.id})
 
 		for item_index, entry_indices in indices_to_remove.items():
 			for entry_index in sorted(entry_indices, reverse=True):
@@ -986,13 +1155,13 @@ class ems_working_schedules_import_wizard_teacher_line(models.TransientModel):
 	# screen only ever attaches the schedule to an already-existing employee.
 	employee_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
-class ems_working_schedules_import_wizard_internal_conflict_line(models.TransientModel):
-	_name = "ems.working_schedules_import_wizard.internal_conflict_line"
-	_description = "Working schedules import wizard: within-batch room collision line."
+class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
+	_name = "ems.working_schedules_import_wizard.conflict_mixin"
+	_description = "Working schedules import wizard: shared kind/resolution fields for a conflict line (internal or against an existing DB schedule)."
 
-	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
-	# NOTE: computed once, at line-creation time (see '_build_internal_conflict_lines') - not an
-	# '@api.depends' compute, same convention as 'group_line.raw_name'/'teacher_line.raw_identifier'.
+	# NOTE: computed once, at line-creation time (see '_build_internal_conflict_lines'/
+	# '_build_external_conflict_lines') - not an '@api.depends' compute, same convention as
+	# 'group_line.raw_name'/'teacher_line.raw_identifier'.
 	kind = fields.Selection([
 		('co_teaching_eligible', "Co-teaching"),
 		('desdoble_eligible', "Split session (different room needed)"),
@@ -1000,13 +1169,6 @@ class ems_working_schedules_import_wizard_internal_conflict_line(models.Transien
 	], string="Type", required=True, readonly=True)
 	left_label = fields.Char(string="Left", required=True, readonly=True)
 	right_label = fields.Char(string="Right", required=True, readonly=True)
-	# NOTE: positional references into the wizard's own 'parsed_entries_json' node_cache structure
-	# (item index, entry index within that item's own 'entries' list) - not content-matching, see
-	# '_continue_from_internal_conflicts'.
-	left_item_index = fields.Integer(required=True, readonly=True)
-	left_entry_index = fields.Integer(required=True, readonly=True)
-	right_item_index = fields.Integer(required=True, readonly=True)
-	right_entry_index = fields.Integer(required=True, readonly=True)
 	# NOTE: a flat Selection with every option always visible/selectable, validated server-side on
 	# Continue (see '_resolution_is_valid') rather than a widget hiding the options invalid for this
 	# row's own 'kind' - confirmed with the developer 2026-08-05 as the simpler, equally-valid
@@ -1018,8 +1180,8 @@ class ems_working_schedules_import_wizard_internal_conflict_line(models.Transien
 		('reassign_rooms', "Reassign rooms"),
 	], string="Resolution", required=True)
 	# NOTE: only relevant when 'resolution' is 'reassign_rooms' - pre-filled with the colliding room
-	# for every desdoble-eligible line regardless of its current resolution (see
-	# '_build_internal_conflict_lines'), so they're ready the moment "reassign_rooms" is picked.
+	# for every desdoble-eligible line regardless of its current resolution, so they're ready the
+	# moment "reassign_rooms" is picked.
 	left_space_id = fields.Many2one(string="Left classroom", comodel_name="ems.space")
 	right_space_id = fields.Many2one(string="Right classroom", comodel_name="ems.space")
 
@@ -1035,4 +1197,31 @@ class ems_working_schedules_import_wizard_internal_conflict_line(models.Transien
 		if self.resolution == 'reassign_rooms':
 			return bool(self.left_space_id) and bool(self.right_space_id) and self.left_space_id != self.right_space_id
 		return True
+
+class ems_working_schedules_import_wizard_internal_conflict_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.internal_conflict_line"
+	_inherit = ["ems.working_schedules_import_wizard.conflict_mixin"]
+	_description = "Working schedules import wizard: within-batch room collision line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	# NOTE: positional references into the wizard's own 'parsed_entries_json' node_cache structure
+	# (item index, entry index within that item's own 'entries' list) - not content-matching, see
+	# '_continue_from_internal_conflicts'. Both sides are new entries from THIS import here.
+	left_item_index = fields.Integer(required=True, readonly=True)
+	left_entry_index = fields.Integer(required=True, readonly=True)
+	right_item_index = fields.Integer(required=True, readonly=True)
+	right_entry_index = fields.Integer(required=True, readonly=True)
+
+class ems_working_schedules_import_wizard_external_conflict_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.external_conflict_line"
+	_inherit = ["ems.working_schedules_import_wizard.conflict_mixin"]
+	_description = "Working schedules import wizard: new entry vs. already-active DB schedule collision line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	# NOTE: the LEFT side is a new entry from this import - positional reference into node_cache,
+	# same as 'internal_conflict_line'. The RIGHT side is a real, already-persisted
+	# 'ems.attendance_schedule' record - a genuine Many2one, not a position.
+	left_item_index = fields.Integer(required=True, readonly=True)
+	left_entry_index = fields.Integer(required=True, readonly=True)
+	right_schedule_id = fields.Many2one(string="Existing session", comodel_name="ems.attendance_schedule", required=True, readonly=True)
 

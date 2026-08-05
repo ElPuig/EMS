@@ -385,6 +385,12 @@ method only ever compared against already-written DB data, never within the same
 batch).
 
 ### 5 (their 6) — Resolve overlaps *from this import against already-active DB schedules*
+
+**IMPLEMENTED 2026-08-05** — see `docs/en/developers/employees/working_schedule.md`'s "Screen 5 —
+'Existing schedule conflicts'" section for the mechanism. No developer check-in needed before
+building it, same as screen 3 - this section already fully speced the behavior, including the
+`has_sessions` interaction resolved earlier the same day (see "Room reassignment" below).
+
 The current red `blocking_issues_html` mechanism — `classify_external_conflicts`'s `co_teaching` +
 `space_conflicts` + `find_self_conflicts`'s self-conflicts — now **all** routed through the exact
 same three-way classification and resolution UI as step 4 (co-teaching-eligible /

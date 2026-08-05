@@ -6,7 +6,7 @@ An `ems.attendance_template` answers "who teaches what, where and for whom": one
 
 Templates are **not created directly by an admin filling in a form** in the normal case — they are derived by `sync_from_schedule_batch()` from schedule entries, reconciling co-teaching and splitting/merging templates as needed (see "CRUD flow" below). The form/list views exist for inspecting and manually correcting the result, not as the primary entry point.
 
-`ems.attendance_template` also carries `mail.thread`/`mail.activity.mixin` (chatter) — every archive/clone via "New version" (see below) and manual identity-field edit is tracked there.
+`ems.attendance_template` also carries `mail.thread`/`mail.activity.mixin` (chatter) — every archive/clone via the "Edit" button (see below) and manual identity-field edit is tracked there.
 
 **Module files:** `models/attendance/attendance_template.py`, `views/attendance/attendance_template/`, `models/shared/hex_color_mixin.py` (color), `models/attendance/attendance_schedule.py` (the weekly slots, own fields/logic documented in [`attendance_schedule.md`](attendance_schedule.md)).
 
@@ -46,7 +46,7 @@ erDiagram
 
 `@api.constrains('subject_id', 'study_ids')`: rejects a `subject_id` that isn't in `allowed_subject_ids` whenever `study_ids` is non-empty — i.e. the chosen subject must actually be taught in **every** selected study, not just one of them. A reinforcement template (no `study_ids`) is never subject to this.
 
-## Identity fields, locking, and "New version"
+## Identity fields, locking, and the "Edit" button
 
 Once a template has real attendance history (`has_sessions`), its **identity fields** —
 `teacher_ids`, `subject_id`, `study_ids`, `group_ids` (template-level) and each schedule
@@ -58,7 +58,11 @@ sessions were actually about (every `ems.attendance_session_header` field mirror
 [`attendance_session.md`](attendance_session.md)).
 
 Correcting a mistake (or handling a legitimate mid-year change of teacher/subject/group) is done
-via **`action_new_version()`** instead of unlocking the field:
+via **`action_new_version()`** instead of unlocking the field — surfaced in the UI as an **"Edit"**
+button (`icon="fa-pencil-square-o"`, renamed from "New version" 2026-08-05 per the developer: from
+the user's perspective this *is* editing a locked template, the archive+clone happening
+underneath is an implementation detail the confirm dialog still spells out, not something the
+button label needs to advertise):
 
 ```mermaid
 flowchart TD
@@ -121,7 +125,7 @@ Key behaviours, each covered by its own docstring in the code:
 `study_ids`); `study_id` (`Many2one`) → `study_ids` (`Many2many`), since a template can
 legitimately cover groups from more than one study (co-teaching/"desdoble" across studies —
 `_write_schedule_sync` now unions every involved group's own study). Added the
-`has_sessions`-gated identity-field lock and "New version" archive-and-clone action (both
+`has_sessions`-gated identity-field lock and "Edit" archive-and-clone action (both
 here and on `ems.attendance_schedule`, see that doc). Converted `ems.attendance_session_header`'s
 `group_ids`/`subject_id`/`space_id`/`template_teacher_ids`/`study_ids` from `sudo()`-laden
 compute methods to genuine `related=` fields (see [`attendance_session.md`](attendance_session.md)).

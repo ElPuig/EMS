@@ -9,12 +9,14 @@
                         <button string="Reload students"
                             name="reload_students"
                             type="object"
+                            icon="fa-refresh"
                             confirm="This action will remove any manual change to the student list and reassign the students according to their current enrollments. It cannot be undone. Do you wish to continue?"
                             invisible="not id or read_only_user"
                         />
-                        <button string="New version"
+                        <button string="Edit"
                             name="action_new_version"
                             type="object"
+                            icon="fa-pencil-square-o"
                             confirm="This will archive this template (and its schedule) and open a fresh, fully editable copy - already-taken attendance stays linked to the archived original. Continue?"
                             invisible="not has_sessions or read_only_user"
                         />
@@ -93,8 +95,8 @@
                                         <!-- The following fields are needed for internal compute. -->
                                         <field name="start_date" widget="timepicker" width="120px" column_invisible="True" />
                                         <field name="end_date" widget="timepicker" width="120px" column_invisible="True" />
-                                        <button name="action_new_version" type="object" string="New version"
-                                            icon="fa-clone" invisible="not has_sessions"
+                                        <button name="action_new_version" type="object" class="oe_stat_button"
+                                            icon="fa-pencil-square-o" title="Edit" invisible="not has_sessions"
                                             confirm="This will archive this schedule line and create a fresh, editable copy of it - already-taken attendance stays linked to the archived original. Continue?"
                                         />
                                     </list>

@@ -1586,7 +1586,7 @@ msgstr "Marc horari predeterminat"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
 msgid "Edit"
 msgstr "Edita"
 
@@ -1601,11 +1601,6 @@ msgstr "Carrega"
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "New"
 msgstr "Nou"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
-msgid "New version"
-msgstr "Nova versió"
 
 #. module: ems
 #. odoo-javascript

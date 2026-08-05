@@ -304,6 +304,35 @@ class TestAttendanceTemplate(TransactionCase):
         # The already-taken session stays linked to the archived original template's schedule.
         self.assertEqual(session.attendance_schedule_id.attendance_template_id, template)
 
+    def test_write_or_new_version_writes_in_place_without_sessions(self):
+        # Direct unit coverage for 'ems.attendance_mixin._write_or_new_version' itself - no
+        # current caller exercises its no-sessions branch (action_new_version's button is only
+        # ever shown once has_sessions is already True), but the schedule-sync pipeline and the
+        # future import wizard both share this exact decision, so it deserves its own test
+        # independent of any specific caller.
+        template = self._create_template(self.teacher_a, self.space_a)
+        schedule = self._create_schedule(template, self.space_a)
+        schedule_id = schedule.id
+
+        result = schedule._write_or_new_version({'space_id': self.space_b.id})
+
+        self.assertEqual(result.id, schedule_id)
+        self.assertTrue(result.active)
+        self.assertEqual(result.space_id, self.space_b)
+
+    def test_write_or_new_version_archives_and_clones_with_sessions(self):
+        template = self._create_template(self.teacher_a, self.space_a)
+        schedule = self._create_schedule(template, self.space_a)
+        schedule_id = schedule.id
+        session = self._create_session(schedule, self.teacher_a)
+
+        result = schedule._write_or_new_version({'space_id': self.space_b.id})
+
+        self.assertNotEqual(result.id, schedule_id)
+        self.assertFalse(schedule.active)
+        self.assertEqual(result.space_id, self.space_b)
+        self.assertEqual(session.attendance_schedule_id.id, schedule_id)
+
     def test_read_only_user_false_for_either_co_teacher(self):
         template = self._create_template(self.teacher_a, self.space_a)
         template.teacher_ids = [(4, self.teacher_b.id)]
@@ -494,6 +523,65 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
 
         self.assertEqual(template.space_id, self.other_space)
+
+    def test_resync_updates_schedule_line_in_place_when_no_sessions(self):
+        # A matched line (same weekday/time) whose room changed, with no real attendance history
+        # yet, must be updated in place - same DB id - not archived and recreated. See
+        # 'ems.attendance_template._match_schedule_lines'/'_write_schedule_sync'.
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
+        line = self.env['ems.attendance_schedule'].search([
+            ('attendance_template_id.teacher_ids', 'in', self.teacher.id),
+        ])
+        line_id = line.id
+
+        self.group.space_id = self.other_space
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
+
+        self.assertEqual(line.id, line_id)
+        self.assertTrue(line.active)
+        self.assertEqual(line.space_id, self.other_space)
+
+    def test_resync_archives_and_recreates_schedule_line_when_sessions_exist(self):
+        # Same scenario as above, but the matched line already has a real attendance session -
+        # updating its room in place would retroactively misrepresent that session. Must archive
+        # the original (history stays intact) and create a fresh replacement with the new room.
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
+        line = self.env['ems.attendance_schedule'].search([
+            ('attendance_template_id.teacher_ids', 'in', self.teacher.id),
+        ])
+        line_id = line.id
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': line.id, 'date': date(2026, 2, 2),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+
+        self.group.space_id = self.other_space
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
+
+        self.assertFalse(line.active)
+        self.assertEqual(session.attendance_schedule_id.id, line_id)  # history stays linked to the archived original
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        new_line = template.attendance_schedule_ids
+        self.assertNotEqual(new_line.id, line_id)
+        self.assertEqual(new_line.space_id, self.other_space)
+
+    def test_resync_leaves_unchanged_schedule_line_untouched(self):
+        # A matched line whose weekday/time/room are all identical to the incoming entry must not
+        # be touched at all - not even a no-op archive+recreate.
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
+        line = self.env['ems.attendance_schedule'].search([
+            ('attendance_template_id.teacher_ids', 'in', self.teacher.id),
+        ])
+        line_id = line.id
+        write_date = line.write_date
+
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0')])
+
+        self.assertEqual(line.id, line_id)
+        self.assertTrue(line.active)
+        self.assertEqual(line.write_date, write_date)
 
     def test_sync_respects_entry_level_space_override(self):
         # An entry carrying its own 'space_id' (e.g. a one-off room reassignment resolved by the

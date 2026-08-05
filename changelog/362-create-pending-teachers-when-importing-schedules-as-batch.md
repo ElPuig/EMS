@@ -36,6 +36,7 @@
 - The template form is reorganized into a 3x3 grid (color/teachers; studies/start date/end date; groups/space/subject) and gains chatter (`mail.thread`/`mail.activity.mixin`).
 - Migration `migrations/18.0.0.22.0/{pre,post}-migrate.py`: renames the old `study_id` column out of the way before schema sync, then backfills `study_ids` on the template and cascades it down to every existing session header/line via SQL joins.
 - Documented in `docs/en/developers/attendance/{attendance_template,attendance_schedule,attendance_session}.md`; cross-references in `docs/en/developers/curriculum/{study,level}.md` and `docs/en/developers/employees/working_schedule.md` updated to match.
+- The archive-or-write decision behind the "Edit" button is now a shared method, `ems.attendance_mixin._write_or_new_version(vals)` (`models/shared/attendance_mixin.py`), reused by the schedule-sync pipeline instead of each reimplementing the same `has_sessions` check. `_archive_stale_schedule_sync`/`_write_schedule_sync` (shared by the live Schedule tab's own edits and the working-schedule import wizard) changed from unconditionally archiving and recreating **every** schedule line of a persisting template to a per-line match: an untouched line is left alone, a changed line with no real sessions is updated in place (same DB id), and a changed line that already has sessions is archived and replaced with a fresh one - the same rule a manual edit already follows, now applied uniformly regardless of which caller triggers the sync.
 
 # Fixes:
 

@@ -13,7 +13,7 @@ TEMPLATE_COLOR_PALETTE = [
 class EmsAttendanceTemplate(models.Model):
 	_name = "ems.attendance_template"
 	_description = "Attendance template: contains the basic attendance data (who teaches what, where and for whom)"
-	_inherit = ['ems.base', 'ems.hex_color_mixin', 'mail.thread', 'mail.activity.mixin']
+	_inherit = ['ems.base', 'ems.hex_color_mixin', 'mail.thread', 'mail.activity.mixin', 'ems.attendance_mixin']
 
 	start_date = fields.Date(string="Start date", required=True)
 	end_date = fields.Date(string="End date", required=True)
@@ -83,16 +83,22 @@ class EmsAttendanceTemplate(models.Model):
 		archives the whole template (this model's own action_archive() override cascades to every
 		schedule line too) and clones it - the copy starts with no session history, so every field
 		is freely editable again. Already-taken sessions stay linked to the archived original,
-		permanently accurate. Archives BEFORE copying (not after) - see
-		'ems.attendance_schedule.action_new_version's own docstring for why the order matters
-		(copying while the original's lines are still active would collide with the clone's own
-		identical lines via check_overlap)."""
+		permanently accurate. A thin wrapper over 'ems.attendance_mixin's shared
+		'_write_or_new_version()' (called with no field overrides, since this button only exists to
+		unlock the record for a subsequent manual edit, not to apply a value itself) - the same
+		method the schedule-sync pipeline uses to decide between updating in place and
+		archiving+recreating. Always takes the archive+clone branch here in practice, since the view
+		only shows this button once 'has_sessions' is already True. Archiving BEFORE copying
+		(handled inside '_write_or_new_version') matters because copying while the original's lines
+		are still active would collide with the clone's own identical lines via check_overlap - see
+		'ems.attendance_schedule.action_new_version's own docstring for the same reasoning at the
+		line level."""
 		self.ensure_one()
-		self.action_archive()
-		new_template = self.copy({'active': True})
-		# NOTE: 'copy()'s own o2m cascade copies each schedule line's CURRENT field values,
-		# 'active' included - since the source lines were just archived above, the freshly
-		# created lines would otherwise silently come back archived too.
+		new_template = self._write_or_new_version({})
+		# NOTE: 'copy()'s own o2m cascade (inside '_write_or_new_version') copies each schedule
+		# line's CURRENT field values, 'active' included - since the source lines were just
+		# archived by that same call, the freshly created lines would otherwise silently come back
+		# archived too.
 		new_template.attendance_schedule_ids.action_unarchive()
 		return {
 			'type': 'ir.actions.act_window',
@@ -557,28 +563,70 @@ class EmsAttendanceTemplate(models.Model):
 			key = "%s.%s" % (entry["subject_id"], ",".join(str(g) for g in sorted(entry["group_ids"])))
 			grouped_entries.setdefault(key, []).append(entry)
 
+		# NOTE: precompute the per-line breakdown for every persisting key ONCE here, so
+		# '_archive_stale_schedule_sync' and '_write_schedule_sync' both read the exact same
+		# match instead of each recomputing it independently and risking disagreement.
+		line_sync = dict()
+		for key, templates in old_items.items():
+			if key in grouped_entries:
+				first_group = self.env['ems.group'].browse(grouped_entries[key][0]["group_ids"][0])
+				line_sync[key] = self._match_schedule_lines(templates[0], grouped_entries[key], first_group.space_id.id)
+
 		return {
 			'teachers': teachers,
 			'old_items': old_items,
 			'grouped_entries': grouped_entries,
+			'line_sync': line_sync,
 			'start_date': start_date,
 			'end_date': end_date,
 		}
 
-	def _schedule_lines(self, group_entries, space_id):
-		"""'space_id' is the group-derived fallback - an entry carrying its own 'space_id' (e.g. a
+	def _match_schedule_lines(self, survivor, group_entries, space_id):
+		"""Matches 'survivor's current active schedule lines against 'group_entries' (this sync's
+		freshly reconciled slots for the same key) by (weekday, start_time, end_time) - a line's own
+		identity within a template. Returns {'stale_lines', 'lines_to_rewrite', 'fresh_entries'}:
+		- 'stale_lines': lines with no matching entry at all - genuinely gone, always archived
+		  outright regardless of 'has_sessions' (archiving is never locked, only in-place field
+		  edits are - see 'ems.attendance_mixin').
+		- 'lines_to_rewrite': (line, entry) pairs whose matched entry wants a different 'space_id' -
+		  handled per 'has_sessions' by the two callers below (write in place, or archive+recreate).
+		- 'fresh_entries': entries with no matching existing line - a genuinely new schedule line.
+		A line whose matched entry is identical in every synced field (including 'space_id') is left
+		out of all three entirely - not even a no-op archive+recreate."""
+		lines_by_slot = {(line.weekday, line.start_time, line.end_time): line for line in survivor.attendance_schedule_ids}
+		matched_slots = set()
+		lines_to_rewrite = []
+		fresh_entries = []
+		for entry in group_entries:
+			slot = (entry["dayofweek"], entry["hour_from"], entry["hour_to"])
+			line = lines_by_slot.get(slot)
+			if line is None:
+				fresh_entries.append(entry)
+				continue
+			matched_slots.add(slot)
+			if line.space_id.id != entry.get("space_id", space_id):
+				lines_to_rewrite.append((line, entry))
+		stale_lines = survivor.attendance_schedule_ids.filtered(
+			lambda line: (line.weekday, line.start_time, line.end_time) not in matched_slots)
+		return {'stale_lines': stale_lines, 'lines_to_rewrite': lines_to_rewrite, 'fresh_entries': fresh_entries}
+
+	def _schedule_line_vals(self, entry, space_id):
+		"""Plain create/write vals for one schedule line built from a parsed XML/grid entry -
+		'space_id' is the group-derived fallback - an entry carrying its own 'space_id' (e.g. a
 		room reassignment resolved by the import wizard) always takes priority over it, so a
 		one-off divergence from the group's default room survives this sync instead of being
 		silently overwritten."""
-		return [
-			(0, 0, {
-				'start_time': entry["hour_from"],
-				'end_time': entry["hour_to"],
-				'weekday': entry["dayofweek"],
-				'space_id': entry.get("space_id", space_id),
-			})
-			for entry in group_entries
-		]
+		return {
+			'start_time': entry["hour_from"],
+			'end_time': entry["hour_to"],
+			'weekday': entry["dayofweek"],
+			'space_id': entry.get("space_id", space_id),
+		}
+
+	def _schedule_lines(self, group_entries, space_id):
+		"""(0, 0, {...}) create-commands for a BRAND NEW template's 'attendance_schedule_ids' -
+		see '_schedule_line_vals' for the shared per-entry shape."""
+		return [(0, 0, self._schedule_line_vals(entry, space_id)) for entry in group_entries]
 
 	def _archive_stale_schedule_sync(self, plan):
 		"""First pass: archive every schedule line about to be removed or replaced by '_write_schedule_sync'.
@@ -590,18 +638,20 @@ class EmsAttendanceTemplate(models.Model):
 				# every duplicate sharing this key, not just one.
 				templates.action_archive()
 			else:
-				# NOTE: the subject+group combo persists across imports, but its actual weekly times
-				# (and possibly its classroom) may have changed since the last import — archive (not
-				# unlink, same history-preserving reasoning as above) the stale lines, recreated by
-				# '_write_schedule_sync' from the freshly imported entries, mirroring
-				# resource.calendar.apply_schedule_changes's own unlink-then-recreate approach for the
-				# same underlying problem. If more than one active template shares this key (duplicates
-				# from past imports), only 'templates[0]' survives (see '_write_schedule_sync') — fully
+				# NOTE: if more than one active template shares this key (duplicates from past
+				# imports), only 'templates[0]' survives (see '_write_schedule_sync') — fully
 				# archive the rest here rather than just their schedule lines.
 				survivor, duplicates = templates[0], templates[1:]
 				if duplicates:
 					duplicates.action_archive()
-				survivor.attendance_schedule_ids.action_archive()
+				line_sync = plan['line_sync'][key]
+				line_sync['stale_lines'].action_archive()
+				# NOTE: a changed line only needs archiving here if it has real session history -
+				# 'has_sessions' doesn't depend on 'active', so '_write_schedule_sync' below reads
+				# the same predicate independently without needing to track "was archived" state.
+				for line, _entry in line_sync['lines_to_rewrite']:
+					if line.has_sessions:
+						line.action_archive()
 
 	def _write_schedule_sync(self, plan):
 		"""Second pass: refresh persisting templates and create genuinely new ones from 'plan'."""
@@ -614,9 +664,25 @@ class EmsAttendanceTemplate(models.Model):
 				# order) — any other duplicate sharing this key was already fully archived there.
 				survivor = templates[0]
 				first_group = self.env['ems.group'].browse(grouped_entries[key][0]["group_ids"][0])
+				line_sync = plan['line_sync'][key]
+				new_lines = [
+					(0, 0, self._schedule_line_vals(entry, first_group.space_id.id))
+					for entry in line_sync['fresh_entries']
+				]
+				for line, entry in line_sync['lines_to_rewrite']:
+					vals = self._schedule_line_vals(entry, first_group.space_id.id)
+					if line.has_sessions:
+						# NOTE: already archived in '_archive_stale_schedule_sync' above - create
+						# its replacement here, same shape as any other fresh line.
+						new_lines.append((0, 0, vals))
+					else:
+						# NOTE: left untouched (not archived) in the pass above - safe to update in
+						# place, same "no sessions yet" reasoning as
+						# 'ems.attendance_mixin._write_or_new_version'.
+						line.write(vals)
 				survivor.write({
 					'space_id': first_group.space_id.id,
-					'attendance_schedule_ids': self._schedule_lines(grouped_entries[key], first_group.space_id.id),
+					'attendance_schedule_ids': new_lines,
 				})
 
 		# NOTE: offset by the count of every template ever created (not just this batch), so

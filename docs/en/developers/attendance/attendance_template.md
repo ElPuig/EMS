@@ -66,11 +66,25 @@ button label needs to advertise):
 
 ```mermaid
 flowchart TD
-    A["action_new_version() on the template\n(or schedule line - see attendance_schedule.md)"] --> B["action_archive()\n(cascades to schedule lines too, template-level)"]
-    B --> C["copy({'active': True})"]
-    C --> D["new_template.attendance_schedule_ids.action_unarchive()\n(copy() carries over each line's just-archived 'active')"]
-    D --> E["open the new, fully editable copy\n(view_mode: form)"]
+    A["action_new_version() on the template\n(or schedule line - see attendance_schedule.md)"] --> B["_write_or_new_version({})\n(ems.attendance_mixin, shared with the sync pipeline below)"]
+    B --> C["action_archive()\n(cascades to schedule lines too, template-level)"]
+    C --> D["copy({'active': True})"]
+    D --> E["new_template.attendance_schedule_ids.action_unarchive()\n(copy() carries over each line's just-archived 'active')"]
+    E --> F["open the new, fully editable copy\n(view_mode: form)"]
 ```
+
+**`ems.attendance_mixin`** (`models/shared/attendance_mixin.py`, in both this model's and
+`ems.attendance_schedule`'s `_inherit`) supplies the one shared decision behind every caller that
+can change a locked field: `_write_or_new_version(vals)` writes `vals` in place if
+`not self.has_sessions`, or archives `self` and returns `self.copy({'active': True, **vals})`
+otherwise. `action_new_version()` is a thin wrapper calling it with `vals={}` (this button only
+exists to unlock the record for a *subsequent* manual edit, not to apply a value itself) — always
+taking the archive+clone branch in practice, since the view only shows the button once
+`has_sessions` is already `True`. The **schedule-sync pipeline** (`_archive_stale_schedule_sync`/
+`_write_schedule_sync`, see "CRUD flow" below) shares the exact same `has_sessions` predicate for
+its own per-schedule-line decisions, though it can't call this method as a single atomic step —
+see that section for why. Deliberately named generically (not e.g. `ems.has_sessions_lock_mixin`)
+so it can hold other shared attendance-model code later too, not just this one rule.
 
 Archiving happens **before** copying, not after — copying first would momentarily leave the
 original and the identical fresh clone both active, sharing the same
@@ -99,6 +113,7 @@ Key behaviours, each covered by its own docstring in the code:
 
 - **Co-teaching reconciliation** (`_reconcile_teacher_groups`) works at the exact (weekday, start_time, end_time) slot level, not at the whole-template level — a single teacher's live edit can retroactively **split** another teacher's existing template if they now land on the exact same slot, or leave it alone otherwise.
 - **Archive-then-write, in two full passes across the whole batch** (`_archive_stale_schedule_sync` for every plan, then `_write_schedule_sync` for every plan) — never interleaved per-plan. Interleaving would let one plan's fresh line collide (via `ems.attendance_schedule.check_overlap()`) with another plan's still-active *stale* line that hasn't been re-synced yet, when two groups share a classroom.
+- **Per-line, `has_sessions`-aware matching for a persisting template (added 2026-08-05, replacing a blunter "archive every line, recreate all fresh" behavior):** `_plan_schedule_sync` calls `_match_schedule_lines` once per persisting key, matching the survivor's current `attendance_schedule_ids` against the incoming entries by `(weekday, start_time, end_time)` - a line's own identity within a template. A line with no matching entry is archived outright (genuinely gone); a matched line whose room hasn't changed is left completely untouched; a matched line whose room *has* changed goes through the same decision as `ems.attendance_mixin._write_or_new_version` - updated in place if it has no real sessions yet, or archived-and-replaced-with-a-fresh-line if it does (split across the two passes above for the same cross-plan collision reason, not called as one atomic step - see the code's own comments on `_archive_stale_schedule_sync`/`_write_schedule_sync` for why). This is shared, unconditional model-level behavior - it applies identically whether the caller is the live Schedule tab's own edit or (once built) the working-schedule import wizard, not something either caller opts into separately.
 - **Duplicate consolidation:** more than one active template can share the same (subject, group-set, teacher-set) key, a pre-existing data-quality artifact of repeated past imports. Only `templates[0]` (the "survivor") gets refreshed; every other duplicate sharing that key is archived outright.
 - **History preservation:** stale data is always **archived**, never unlinked — `unlink()` itself refuses outright once any of a template's schedule lines has an actual `attendance_session_ids` entry (a real roll-call was taken against it).
 - **`find_external_conflicts()`** is a read-only helper (used by the import wizard's preview and by the import itself) that finds active schedule lines belonging to teachers **outside** the current batch that would collide on room+time — a batch only cleans up its own teachers' stale data, so an external teacher's now-conflicting line needs separate handling.
@@ -131,3 +146,15 @@ here and on `ems.attendance_schedule`, see that doc). Converted `ems.attendance_
 compute methods to genuine `related=` fields (see [`attendance_session.md`](attendance_session.md)).
 Migration: `migrations/18.0.0.22.0/{pre,post}-migrate.py` (column rename + relation-table
 backfill for the `study_id`→`study_ids` schema change).
+
+**Later the same day:** extracted the archive-or-write decision behind `action_new_version()`
+into a new shared mixin, `ems.attendance_mixin` (`models/shared/attendance_mixin.py`,
+`_write_or_new_version(vals)`) - reused by the schedule-sync pipeline for its own per-line
+decisions (see "CRUD flow" above), and intended for the working-schedule import wizard's future
+room-reassignment step too (see `plans/working_schedule_import_redesign.md`), per the developer's
+explicit reuse requirement rather than each caller reimplementing the same `has_sessions` check.
+`_archive_stale_schedule_sync`/`_write_schedule_sync` changed from unconditionally archiving and
+recreating *every* schedule line of a persisting template to a per-line match (unchanged lines
+untouched, changed-without-sessions lines updated in place, changed-with-sessions lines
+archived+recreated) - this is model-level behavior, not wizard-specific, so it applies to the
+live Schedule tab's own edits too, not only a not-yet-built import path.

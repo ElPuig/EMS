@@ -48,6 +48,14 @@ the same reason: copying while the original line is still active would momentari
 identical, active lines sharing the same room/day/time/teacher, which `check_overlap` (below)
 correctly rejects as a double-booking.
 
+Both models' `action_new_version()` are thin wrappers over `ems.attendance_mixin`'s shared
+`_write_or_new_version(vals)` (`models/shared/attendance_mixin.py`) - called here with `vals={}`,
+since this button only exists to unlock the line for a subsequent manual edit. The schedule-sync
+pipeline (`ems.attendance_template._archive_stale_schedule_sync`/`_write_schedule_sync`, see that
+model's "CRUD flow") shares the exact same `has_sessions` predicate for its own per-line
+decisions when resyncing a persisting template - a matched line whose room changed is updated in
+place if it has no sessions, or archived-and-replaced if it does, exactly like this button would.
+
 ---
 
 ## `check_overlap`: double-booking guard with a co-teaching exception
@@ -100,3 +108,9 @@ fields, `check_overlap`'s same-teacher/same-space/co-teaching/different-weekday 
 the `unlink()` guard) — the existing `TestAttendanceScheduleAccess` class only covered the
 `ir.rule` fix from an earlier session, not this model's own logic. No bugs found; no O work
 needed (`_order`/constraints already correct).
+
+## Changed in this pass (2026-08-05)
+
+`action_new_version()` refactored to call the new shared `ems.attendance_mixin._write_or_
+new_version()` instead of inlining its own archive+copy - see "Locking and `action_new_version()`"
+above.

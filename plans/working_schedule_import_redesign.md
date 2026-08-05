@@ -53,8 +53,47 @@ today) turned out simpler than the compute from round 7, so that's what stays: j
 tested 2026-08-05** - see "Room reassignment"'s own status note below for what shipped and what
 turned out unnecessary once actually built (a planned new onchange on `ems.attendance_schedule`
 was found redundant with a `default_space_id` context the template's view already had). The
-remaining wizard phases (1-6, multi-step UI) are still design-only - **no code written yet** for
+remaining wizard phases (1-7, multi-step UI) are still design-only - **no code written yet** for
 those.
+
+**Reviewed 2026-08-05 against the same day's separate `study_ids`/`has_sessions`/"Edit" work**
+(the multi-study support + identity-field locking on `ems.attendance_template`/
+`ems.attendance_schedule`, see `docs/en/developers/attendance/attendance_template.md`'s "Identity
+fields, locking, and the 'Edit' button" section): no stale `level_id`/`study_id` (singular)
+references found anywhere in this file - this plan's own text only ever dealt with
+`group_ids`/`subject_id`/`teacher_ids`/`space_id`, never level/study directly, so that rename
+needed no changes here. Confirmed (by reading the current code) that
+`sync_from_schedule_batch_fresh_import` already calls `_write_schedule_sync` directly
+(`models/attendance/attendance_template.py:250`) - so that method's `study_ids` union-across-groups
+behavior (added 2026-08-05) already applies to this wizard's eventual write path for free, no
+wizard-specific work needed for multi-study support.
+
+**One genuine integration gap found, then corrected in scope after developer clarification** (see
+"Room reassignment"'s "Interaction with the `has_sessions` lock" section for the full writeup):
+first pass scoped this narrowly to the wizard's own step 5 UI (writing a reassigned room onto an
+already-active DB entry). The developer corrected that framing - this is a property the
+`ems.attendance_schedule` **model** itself must uphold, not something specific to this wizard:
+*"Yo no me refería a la pestaña Schedule, me refería al modelo attendance_schedule, vinculado al
+modelo attendance_template."* The actual fix lands on `_archive_stale_schedule_sync`/
+`_write_schedule_sync` themselves (moved out of "Not changing" below) - shared infrastructure
+between the live Schedule tab's own save path and this wizard's future one, so the fix benefits
+(and changes the behavior of) both, not just the not-yet-built wizard.
+
+**This model-level fix IMPLEMENTED AND TESTED 2026-08-05, ahead of the multi-step wizard itself**
+(per the developer's own requested order - foundational, and step 5 depends on it): new shared
+mixin `ems.attendance_mixin` (`models/shared/attendance_mixin.py`, deliberately generic name per
+the developer's own request - a home for future shared attendance-model code, not just this rule)
+providing `_write_or_new_version(vals)`; both models' `action_new_version()` refactored into thin
+wrappers over it; `_plan_schedule_sync`/`_archive_stale_schedule_sync`/`_write_schedule_sync`
+rewritten for the per-line match described above (`_match_schedule_lines`, `_schedule_line_vals`).
+Verified: all 5 pre-existing test classes touching this pipeline still green
+(`TestAttendanceTemplate`, `TestAttendanceScheduleLogic`, `TestAttendanceTemplateSyncFromSchedule`,
+`TestWorkingSchedule`, `TestWorkingSchedulesImportWizard` - 123 tests total), plus 5 new tests
+covering the mixin's two branches directly and the sync pipeline's three per-line outcomes
+(untouched/updated-in-place/archived-and-recreated). `pylint --enable=redefined-builtin` clean.
+Docs (`attendance_template.md`/`attendance_schedule.md`) and this branch's changelog updated.
+**What's still not built:** the multi-step wizard itself (phases 1-7 below) - this piece only
+covers the shared model-level rule steps 4/5 will eventually call into.
 
 # Why
 
@@ -366,6 +405,107 @@ letting the room that already lives at the right granularity (`attendance_schedu
 actually flow from the source block instead of being blindly re-derived, plus fixing one stale
 read on the attendance-taking side.
 
+**Interaction with the `has_sessions` lock — expanded 2026-08-05 into a model-level fix, not just
+a wizard-step one.** First pass at this review scoped the gap narrowly to step 5's interactive
+room-conflict resolution; the developer corrected that framing: *"Yo no me refería a la pestaña
+Schedule, me refería al modelo attendance_schedule, vinculado al modelo attendance_template"* -
+i.e. this is a property the `ems.attendance_schedule` model itself must uphold regardless of which
+caller (the live Schedule tab's editor, or this wizard) triggers the sync, not something to bolt
+on only inside the wizard's own UI.
+
+**What this actually means: `_archive_stale_schedule_sync`/`_write_schedule_sync` themselves need
+to change** (previously listed under "Not changing" below - moved out, see that section). Traced
+the current code (`models/attendance/attendance_template.py`) to ground this rather than assume:
+both methods are the **shared** archive-then-write pass (`_run_schedule_sync_plans`) used by
+**both** `sync_from_schedule_batch` (the live Schedule tab's own single-teacher edit) **and**
+`sync_from_schedule_batch_fresh_import` (this wizard's future write path) - there is only one
+implementation of this pipeline, not two. Today, for a persisting template (`key in
+grouped_entries`), the behavior is unconditional and coarse: `_archive_stale_schedule_sync`
+archives **every** one of the survivor's current `attendance_schedule_ids` regardless of whether
+each one actually changed or has `has_sessions`, and `_write_schedule_sync` then recreates **all**
+of them fresh via `_schedule_lines`. This already happens in production today, for both callers,
+completely independent of anything built in this session's separate multi-study/locking work -
+it's a pre-existing "blunt instrument" the new `has_sessions` invariant now needs threaded through.
+
+**Required change (not yet implemented) - per matched schedule line, not per whole template:**
+1. Match each of the survivor's *current* `attendance_schedule_ids` against the incoming entries
+   (exact key still to confirm at Green time - `(weekday, start_time, end_time)` is the natural
+   candidate, since that's a line's own identity within a template).
+2. **No matching entry at all** (the slot is genuinely gone) → archive that line, exactly as
+   today - unaffected by this change. Archiving is always allowed regardless of `has_sessions`
+   (only in-place field edits are locked, per the developer's own framing when that lock was
+   designed: *"no hay problema en borrar (archivar) o crear schedules, pero la edición es el
+   problema"*) - `unlink()` was never used here anyway (see `attendance_schedule.md`'s "history
+   guard": a line with real sessions can't be unlinked at all, only archived).
+3. **Matches an entry and nothing about it actually differs** (same room too) → leave it alone
+   entirely - not even a no-op archive+recreate. A genuine improvement over today's blanket
+   behavior, not just a side effect of the `has_sessions` fix.
+4. **Matches an entry but a locked field differs (`space_id`, e.g. a room reassignment)** → check
+   that line's `has_sessions`: **`False`** → plain `write()` in place (keeps the same DB id,
+   exactly the "same behavior as manually editing" principle the developer stated: *"si no hay
+   sesiones relacionadas, se actualiza; si las hay, se archiva y se crea la nueva entrada"*).
+   **`True`** → archive that line and create a fresh one with the new values (conceptually the
+   same archive-then-clone shape as `action_new_version()`, but seeded with the *new* entry's
+   values rather than a copy of the old ones - whether Green-phase code literally reuses
+   `action_new_version()` or writes adjacent logic with the same archive-first ordering is an
+   implementation detail, not a design one).
+
+**Shared implementation, per the developer's explicit reuse requirement** (*"a edición o archivado
++creación se refiere... ya sea desde el wizard, desde la edición en vivo... o la edición a mano de
+attendance_templates o attendance_schedules"*) — one predicate, one place, not reimplemented per
+caller:
+
+- **New mixin `ems.attendance_mixin`** (`models/shared/attendance_mixin.py`, matching this
+  codebase's existing small-focused-mixin convention - see `ems.hex_color_mixin` for the pattern;
+  named generically on purpose - a home for future shared attendance-model code too, not only this
+  one rule), providing `_write_or_new_version(self, vals)`: writes `vals` in place if
+  `not self.has_sessions`, or archives `self` and returns `self.copy({'active': True, **vals})`
+  otherwise. Both `ems.attendance_template` and `ems.attendance_schedule` add it to their
+  `_inherit` list (each already has its own `has_sessions` field/compute - the mixin only supplies
+  the shared decision, not the field itself, since the two models' `@api.depends` paths genuinely
+  differ).
+- **`action_new_version()` on both models becomes a thin wrapper**: `self._write_or_new_version({})`
+  - since the button is only ever visible when `has_sessions` is already `True`, this always takes
+  the archive+clone branch, exactly as today; the template's own extra
+  `attendance_schedule_ids.action_unarchive()` step (needed because `action_archive()`/`copy()`
+  cascade to children) stays as a small piece of model-specific logic layered on top of the
+  generic call, not something the mixin needs to know about.
+- **The sync pipeline (`_archive_stale_schedule_sync`/`_write_schedule_sync`) shares the same
+  `has_sessions` predicate, but can't literally call `_write_or_new_version()` as one atomic step**
+  - both methods must keep the existing "archive across the WHOLE batch first, write across the
+  whole batch second" ordering (see `_plan_schedule_sync`'s own docstring for why: a same-room
+  collision between two DIFFERENT plans' lines, one already-fresh and one not-yet-archived-stale,
+  is exactly what that ordering prevents - a genuine risk here too, since two colliding plans
+  wanting the same target room is precisely the desdoble/room-reassignment scenario steps 4/5 are
+  built for). So the line-level match (per key, computed once and reused by both passes - extend
+  `_plan_schedule_sync`'s returned dict with the per-key breakdown so the two passes never
+  recompute it independently and risk disagreeing) still splits the *mechanics* of `_write_or_
+  new_version` across the two passes: pass 1 archives a stale-or-superseded line iff
+  `line.has_sessions` (this predicate doesn't change between passes - it depends on session
+  existence, not `active` status, so both passes can read it independently and agree); pass 2
+  either writes the new value onto a still-active (never archived) line, or creates a brand new
+  one to replace an archived one. The *decision* is identical to `_write_or_new_version`'s, and
+  worth a code comment cross-referencing it explicitly, even though the two-pass constraint means
+  the sync pipeline can't call that method as a single unit the way the manual "Edit" button does.
+5. A genuinely **new** entry with no existing counterpart → create fresh, exactly as today,
+   unaffected.
+
+**Duplicates and fully-vacated templates are unaffected by this change** - `_archive_stale_
+schedule_sync`'s other two cases (`key not in grouped_entries` → the whole template is archived;
+a persisting key with more than one active template sharing it → every non-survivor duplicate is
+archived outright) stay exactly as they are today; only the **survivor's own schedule lines** get
+the finer per-line treatment above.
+
+**Consequence for this plan's scope:** this is broader than a wizard-only concern - it changes
+already-shipped, daily-used behavior on the live Schedule tab's own save path too, confirmed
+deliberate by the developer (the model's own invariant should hold everywhere, not only inside
+this not-yet-built wizard). Needs its own tests covering **both** callers: a live single-teacher
+edit that touches a slot with real sessions must now go through archive+recreate for that specific
+line while an untouched sibling slot in the same save is left alone (today's code would touch
+both), and the wizard's future write path inherits the exact same per-line behavior for free once
+`_archive_stale_schedule_sync`/`_write_schedule_sync` themselves are fixed - no wizard-specific
+duplication of this logic needed.
+
 ## Migrations — checked explicitly (2026-08-01), conclusion: none needed for this room work
 
 Per CLAUDE.md's migration rules, checked every schema/behavior change above individually rather
@@ -482,8 +622,11 @@ like `import_planner_data()` does today.
     `resolution = 'reassign_rooms'`, pre-filled with the room causing the collision — on Continue,
     each side that got a *different* room from its original one gets that `space_id` written
     straight onto its own entry/cell before the normal sync methods ever run, see "Room
-    reassignment"). Whether internal and external conflicts need two separate models or can share
-    one (with a discriminating field) is a Green-phase call, not a design one.
+    reassignment" - **except step 5's right side (an already-active DB record, not a fresh
+    entry/cell): see that section's "Interaction with the `has_sessions` lock" note, added
+    2026-08-05, for the `action_new_version()` fix needed there instead of a raw write**).
+    Whether internal and external conflicts need two separate models or can share one (with a
+    discriminating field) is a Green-phase call, not a design one.
 - **No new persistent model, and no template-grouping change needed** (corrected 2026-08-01,
   fourth then fifth round — earlier drafts of this sketch proposed a new model, then a
   `_plan_schedule_sync` key change; neither is needed). The room lives on
@@ -517,17 +660,27 @@ like `import_planner_data()` does today.
 - If/when the planner XML starts sending room directly (see "Room reassignment"'s
   forward-looking note), the exact node/attribute shape to parse - not yet confirmed, revisit
   only once real data with that shape exists.
+- **Not optional, added 2026-08-05:** step 5's "reasignar aulas" resolution, when the right side
+  (existing DB entry) already has `has_sessions = True`, must call that line's
+  `action_new_version()` rather than writing `space_id` directly - see "Room reassignment"'s
+  "Interaction with the `has_sessions` lock" note. Needs its own test: a right-side line WITH real
+  sessions takes the `action_new_version()` path (archived original + fresh clone with the new
+  room); one WITHOUT sessions still takes the plain direct-write path (no unnecessary
+  archive/clone churn for a line that was always freely editable anyway).
 
 # Not changing
 
 - `ems.teaching.sync_from_schedule()` (with `replace=True`), `sync_from_schedule_batch`,
-  `_reconcile_teacher_groups`, `_archive_stale_schedule_sync`, `_write_schedule_sync` - all stay,
-  serving the Schedule tab's own live single-teacher edit exactly as today. Exception: `
-  _schedule_lines` (called by `_write_schedule_sync`, shared by both this path and the importer)
-  gets the small, backward-compatible per-entry `space_id` change described in "Room
-  reassignment" - behavior for the live editor is unaffected by it, since its own `cells` never
-  carry an explicit `space_id` today, so it keeps falling back to the group-derived default
-  exactly as before.
+  `_reconcile_teacher_groups` - stay exactly as they are, serving the Schedule tab's own live
+  single-teacher edit. **`_archive_stale_schedule_sync`/`_write_schedule_sync` are NOT in this
+  list anymore (moved out 2026-08-05)** - see "Room reassignment"'s "Interaction with the
+  `has_sessions` lock" section above: both need the per-line has_sessions-aware update-vs-
+  archive+recreate fix, and since they're shared infrastructure (`_run_schedule_sync_plans`),
+  that fix lands on the live Schedule tab's save path too, not only this wizard's. `_schedule_lines`
+  (called by `_write_schedule_sync`) still also gets the small, backward-compatible per-entry
+  `space_id` change described in "Room reassignment" - behavior for the live editor is unaffected
+  by *that specific* change, since its own `cells` never carry an explicit `space_id` today, so it
+  keeps falling back to the group-derived default exactly as before.
 - `ems.attendance_schedule.check_overlap` (the `@api.constrains`) - still the actual DB-level
   guardrail; the new interactive resolution above is a *pre-check* in the wizard so the user gets
   asked instead of hitting that constraint's raw error, not a replacement for it.
@@ -547,8 +700,14 @@ like `import_planner_data()` does today.
    group/teacher correction lines (create-allowed vs create-disabled), the two-column left/right
    resolution for both internal (step 4) and DB (step 5) conflicts, success-banner-when-empty for
    every resolvable step. Tour coverage is substantial here — see the last open question above —
-   budget real time for it, not an afterthought.
+   budget real time for it, not an afterthought. **`_archive_stale_schedule_sync`/
+   `_write_schedule_sync`'s per-line has_sessions-aware fix is DONE (2026-08-05, see the status
+   note near the top of this file and "Room reassignment"'s "Interaction with the `has_sessions`
+   lock")** - built and tested ahead of the wizard itself, exactly as planned here, since step 5
+   depends on it. Nothing left to do for that piece; the wizard's own step 4/5 work can now build
+   on top of it directly rather than needing to build it first.
 3. **T (Green):** implement (state field + statusbar view, child line models, per-step action
-   methods, the two-column radio-button template, button color classes).
+   methods, the two-column radio-button template, button color classes). The shared
+   `_archive_stale_schedule_sync`/`_write_schedule_sync` fix no longer needs building here - done.
 4. **N:** coding-guidelines pass, pylint redefined-builtin check.
 5. **Close:** i18n (new step labels/banners), changelog, delete this plan file once shipped.

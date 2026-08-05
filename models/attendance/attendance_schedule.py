@@ -7,7 +7,7 @@ class EmsAttendanceSchedule(models.Model):
     _name = "ems.attendance_schedule"
     _description = "Attendance schedule: concretes the weekdays data."
     _order = 'name asc'
-    _inherit = ['ems.base', 'ems.datetime_utils']
+    _inherit = ['ems.base', 'ems.datetime_utils', 'ems.attendance_mixin']
 
     # Note: today.weekday() returns this values, do not alter!
     weekdays_selection = [
@@ -58,13 +58,18 @@ class EmsAttendanceSchedule(models.Model):
         already-taken attendance history: archives this exact line and clones it under the same
         template, so the fresh, freely editable copy replaces it - the template itself and every
         other line are left untouched. 'attendance_session_ids' is copy=False, so no historical
-        session is ever duplicated. Archives BEFORE copying (not after) - copying while the
-        original is still active would momentarily have two identical, active lines sharing the
-        same room/day/time/teacher, which check_overlap correctly rejects; archived-first means
-        the original is no longer a candidate in that search by the time the copy is created."""
+        session is ever duplicated. A thin wrapper over 'ems.attendance_mixin's shared
+        '_write_or_new_version()' (called with no field overrides, since this button only exists
+        to unlock the record for a subsequent manual edit, not to apply a value itself) - the same
+        method the schedule-sync pipeline uses to decide between updating a line in place and
+        archiving+recreating it. Always takes the archive+clone branch here in practice, since the
+        view only shows this button once 'has_sessions' is already True. Archiving BEFORE copying
+        (handled inside '_write_or_new_version') matters because copying while the original is
+        still active would momentarily have two identical, active lines sharing the same
+        room/day/time/teacher, which check_overlap correctly rejects; archived-first means the
+        original is no longer a candidate in that search by the time the copy is created."""
         self.ensure_one()
-        self.action_archive()
-        self.copy({'active': True})
+        self._write_or_new_version({})
         return {'type': 'ir.actions.client', 'tag': 'soft_reload'}
 
     time_range = fields.Char(compute="_compute_time_range", store=True)

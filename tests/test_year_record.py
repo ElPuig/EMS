@@ -304,8 +304,8 @@ class TestYearRecord(TransactionCase):
             'code': 'YRS-SPACE', 'name': 'Year Record Space',
             'space_type_id': space_type.id, 'work_location_id': work_location.id})
         template = self.env['ems.attendance_template'].create({
-            'teacher_ids': [(6, 0, [self.tutor_employee.id])], 'level_id': self.level.id,
-            'study_id': self.study.id, 'subject_id': self.subject1.id,
+            'teacher_ids': [(6, 0, [self.tutor_employee.id])],
+            'study_ids': [(6, 0, [self.study.id])], 'subject_id': self.subject1.id,
             'group_ids': [(6, 0, [self.group.id])], 'space_id': space.id,
             'start_date': date(2020, 1, 1), 'end_date': date(2098, 12, 31),
         })

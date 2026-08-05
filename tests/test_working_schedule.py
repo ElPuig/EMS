@@ -112,6 +112,39 @@ class TestWorkingSchedule(TransactionCase):
         self.assertEqual(len(calendar.attendance_ids), 1)
         self.assertEqual(calendar.source_framework_id, self.framework)
 
+    def test_apply_schedule_changes_defaults_space_from_group(self):
+        # 'space_id' stopped being a compute (2026-08-01, room-granularity change) - a cell that
+        # doesn't specify one must still default to the group's own room, matching the old
+        # compute's behavior for the common, no-override case.
+        calendar = self.env['resource.calendar'].create({'name': 'Test Space Default (Working Schedule)'})
+        cells = [{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'Test: Group',
+        }]
+
+        calendar.apply_schedule_changes(cells)
+
+        self.assertEqual(calendar.attendance_ids.space_id, self.space)
+
+    def test_apply_schedule_changes_respects_explicit_space_id(self):
+        # A cell carrying its own 'space_id' (e.g. a one-off room reassignment) must survive as-is
+        # instead of being silently overwritten by the group's own default room.
+        other_space = self.env['ems.space'].create({
+            'code': 'TWSL-B', 'name': 'Test Space B (Working Schedule)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        calendar = self.env['resource.calendar'].create({'name': 'Test Space Override (Working Schedule)'})
+        cells = [{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'Test: Group',
+            'space_id': other_space.id,
+        }]
+
+        calendar.apply_schedule_changes(cells)
+
+        self.assertEqual(calendar.attendance_ids.space_id, other_space)
+
     def test_apply_schedule_changes_unlinks_previous_weekday_rows(self):
         calendar = self.env['resource.calendar'].create({
             'name': 'Test Apply Replace (Working Schedule)',

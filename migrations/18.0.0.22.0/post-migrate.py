@@ -226,6 +226,55 @@ def _recompute_authorization_flags(env):
         len(students))
 
 
+def _backfill_attendance_template_study_ids(cr):
+    """Second half of the ems_attendance_template.study_id -> study_ids migration - see the
+    matching _rename_old_attendance_template_study_column() in pre-migrate.py. Also backfills
+    the two DOWNSTREAM related+store fields that read from the template's own study_ids
+    (ems_attendance_session_header.study_ids, ems_attendance_session_line.study_ids):
+    confirmed empirically (2026-08-05, on a dev box) that Odoo's own "auto-populate a brand
+    new stored field" pass runs once, at schema-sync time - i.e. *before* this script gets a
+    chance to backfill the template's own study_ids from study_id_old - so relying on Odoo to
+    cascade the correct value down on its own does not work here; both downstream tables are
+    derived directly via SQL joins instead (schedule -> template for session_header, then
+    session_header -> session_line), the exact same join shape used to repair the dev box's
+    own data by hand before this migration was written.
+    """
+    if not _column_exists(cr, 'ems_attendance_template', 'study_id_old'):
+        return
+
+    cr.execute("""
+        INSERT INTO ems_attendance_template_ems_study_rel (ems_attendance_template_id, ems_study_id)
+        SELECT id, study_id_old FROM ems_attendance_template WHERE study_id_old IS NOT NULL
+        ON CONFLICT DO NOTHING
+    """)
+    template_rows = cr.rowcount
+
+    cr.execute("""
+        INSERT INTO ems_attendance_session_header_ems_study_rel (ems_attendance_session_header_id, ems_study_id)
+        SELECT DISTINCT h.id, tr.ems_study_id
+        FROM ems_attendance_session_header h
+        JOIN ems_attendance_schedule s ON s.id = h.attendance_schedule_id
+        JOIN ems_attendance_template_ems_study_rel tr ON tr.ems_attendance_template_id = s.attendance_template_id
+        ON CONFLICT DO NOTHING
+    """)
+    header_rows = cr.rowcount
+
+    cr.execute("""
+        INSERT INTO ems_attendance_session_line_ems_study_rel (ems_attendance_session_line_id, ems_study_id)
+        SELECT DISTINCT l.id, hr.ems_study_id
+        FROM ems_attendance_session_line l
+        JOIN ems_attendance_session_header_ems_study_rel hr ON hr.ems_attendance_session_header_id = l.attendance_session_id
+        ON CONFLICT DO NOTHING
+    """)
+    line_rows = cr.rowcount
+
+    cr.execute("ALTER TABLE ems_attendance_template DROP COLUMN study_id_old")
+    _logger.info(
+        "Migration 18.0.0.22.0: backfilled study_ids for %d attendance template(s), "
+        "%d session header(s) and %d session line(s), then dropped study_id_old.",
+        template_rows, header_rows, line_rows)
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _enable_unaccent(cr)
@@ -236,3 +285,4 @@ def migrate(cr, _version):
     _backfill_iban_trust(env)
     _backfill_null_course_enrollment_default(cr)
     _recompute_authorization_flags(env)
+    _backfill_attendance_template_study_ids(cr)

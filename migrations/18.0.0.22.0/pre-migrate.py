@@ -336,11 +336,30 @@ def _clear_noupdate_for_hr_owned_xmlids(cr):
             )
 
 
+def _rename_old_attendance_template_study_column(cr):
+    """ems_attendance_template.study_id (Many2one) becomes study_ids (Many2many) in this
+    version, and level_id is dropped outright - see
+    plans/attendance_template_multi_study.md. Same rename-before-schema-sync gotcha as
+    _rename_old_status_columns above: renaming study_id here (before the field is removed
+    from the model) keeps its value reachable for the post-migrate backfill, since Odoo's
+    own field-removal cleanup would otherwise drop the column outright as soon as schema
+    sync runs. level_id needs no such preservation - confirmed (see the plan) it carries
+    no information not already derivable from group_ids/study_ids, and has zero downstream
+    readers once removed, so there's nothing worth keeping.
+    """
+    if _column_exists(cr, 'ems_attendance_template', 'study_id'):
+        cr.execute("ALTER TABLE ems_attendance_template RENAME COLUMN study_id TO study_id_old")
+        _logger.info(
+            "Migration 18.0.0.22.0: preserved ems_attendance_template.study_id as "
+            "study_id_old for the post-migrate study_ids backfill.")
+
+
 def migrate(cr, _version):
     _migrate_role_color(cr)
     _migrate_attendance_template_color(cr)
     _rename_old_status_columns(cr)
     _rename_old_special_columns(cr)
+    _rename_old_attendance_template_study_column(cr)
     _dedupe_ems_enrollment(cr)
     _rename_data_custom_xmlid_ownership(cr)
     _reconcile_planning_outcome_xmlids(cr)

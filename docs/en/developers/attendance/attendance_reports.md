@@ -46,11 +46,12 @@ and share a single `_build_report_values(env, docids, data, group_key)` helper (
 `group_key` used to group the per-line entries — student for by-subject, subject for by-group/by-student).
 
 `ems.attendance_session_line` gained 5 stored `related` fields, copied from `attendance_session_id` purely
-so the analysis pivot/graph can `GROUP BY` them without a join: `date`, `level_id`, `study_id`, `group_ids`,
-`subject_id`. `group_ids` is a related Many2many with `store=True`, which needs its own explicit
-`relation`/`column1`/`column2` (Odoo cannot auto-derive a relation table name for a *related* Many2many the
-way it does for an owned/computed one) — see `relation="ems_attendance_session_line_group_rel"` in
-`attendance_session.py`.
+so the analysis pivot/graph can `GROUP BY` them without a join: `date`, `level_id`, `study_ids`, `group_ids`,
+`subject_id`. `group_ids`/`study_ids` are related Many2many fields with `store=True`, which each need their
+own explicit `relation`/`column1`/`column2` (Odoo cannot auto-derive a relation table name for a *related*
+Many2many the way it does for an owned/computed one) — see `attendance_session.py`. (`study_id` was a
+`Many2one` at the time this report code was ported; it became the `Many2many` `study_ids` in a later pass,
+2026-08-05 — see [`attendance_template.md`](attendance_template.md).)
 
 It also gained `absence_rate` (`Float`, `compute`+`store`, `aggregator="avg"`): `100.0` if
 `status_id.category == 'absence'` else `0.0`. Storing 0/100 rather than a boolean means the graph view's

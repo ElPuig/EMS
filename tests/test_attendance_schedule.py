@@ -74,7 +74,7 @@ class TestAttendanceScheduleAccess(TransactionCase):
         })
 
         cls.template = cls.env['ems.attendance_template'].create({
-            'teacher_ids': [(6, 0, [cls.owner_employee.id])], 'level_id': cls.level.id, 'study_id': cls.study.id,
+            'teacher_ids': [(6, 0, [cls.owner_employee.id])], 'study_ids': [(6, 0, [cls.study.id])],
             'subject_id': cls.subject.id, 'group_ids': [(6, 0, [cls.group_record.id])], 'space_id': cls.space.id,
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
@@ -171,7 +171,7 @@ class TestAttendanceScheduleLogic(TransactionCase):
 
     def _template(self, teacher, subject=None, groups=None, space=None):
         return self.env['ems.attendance_template'].create({
-            'teacher_ids': [(6, 0, teacher.ids)], 'level_id': self.level.id, 'study_id': self.study.id,
+            'teacher_ids': [(6, 0, teacher.ids)], 'study_ids': [(6, 0, [self.study.id])],
             'subject_id': (subject or self.subject).id,
             'group_ids': [(6, 0, (groups or self.group1).ids)],
             'space_id': (space or self.space).id,

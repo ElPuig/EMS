@@ -1547,6 +1547,11 @@ msgid "Allowed Subject"
 msgstr "Assignatures permeses"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__allowed_subject_ids
+msgid "Allowed subjects"
+msgstr "Assignatures permeses"
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/shared/base.py:0
 msgid "An error occurred during the process"
@@ -1596,6 +1601,11 @@ msgstr "Carrega"
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "New"
 msgstr "Nou"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+msgid "New version"
+msgstr "Nova versió"
 
 #. module: ems
 #. odoo-javascript
@@ -3909,6 +3919,11 @@ msgstr "Té planificació"
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__has_portal
 msgid "Has portal access"
 msgstr "Té accés al portal"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__has_sessions model:ir.model.fields,field_description:ems.field_ems_attendance_template__has_sessions
+msgid "Has sessions"
+msgstr "Té sessions"
 
 #. module: ems
 #: model:ems.role,name:ems.role_hos model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__hos
@@ -6401,9 +6416,14 @@ msgid "Source group"
 msgstr ""
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__space_id model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__space_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__space_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__space_id model:ir.model.fields,field_description:ems.field_ems_minute__space_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__space_id model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__space_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__space_id model:ir.model.fields,field_description:ems.field_ems_minute__space_id
 msgid "Space"
 msgstr "Espai"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__space_id
+msgid "Session's default space"
+msgstr "Aula per defecte de la sessió"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_space_type_tree
@@ -6649,7 +6669,7 @@ msgid "Students - Tutor View"
 msgstr "Alumnes - Vista tutor/a"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_study_tree model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__study_ids model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__study_ids model:ir.model.fields,field_description:ems.field_ems_level__study_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__study_ids model:ir.model.fields,field_description:ems.field_ems_subject__study_ids model:ir.model.fields,field_description:ems.field_res_partner__study_id model:ir.model.fields,field_description:ems.field_res_users__study_id model:ir.ui.menu,name:ems.menu_studies model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_study_form model_terms:ir.ui.view,arch_db:ems.view_subject_form model_terms:ir.ui.view,arch_db:ems.view_subject_search model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__study_ids
+#: model:ir.actions.act_window,name:ems.action_study_tree model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__study_ids model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__study_ids model:ir.model.fields,field_description:ems.field_ems_level__study_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__study_ids model:ir.model.fields,field_description:ems.field_ems_subject__study_ids model:ir.model.fields,field_description:ems.field_res_partner__study_id model:ir.model.fields,field_description:ems.field_res_users__study_id model:ir.ui.menu,name:ems.menu_studies model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_study_form model_terms:ir.ui.view,arch_db:ems.view_subject_form model_terms:ir.ui.view,arch_db:ems.view_subject_search model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__study_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__study_ids
 msgid "Studies"
 msgstr "Estudis"
 
@@ -7083,6 +7103,12 @@ msgstr "<strong>L'informe pot arribar a ser molt gran.</strong> Afegir estats m�
 #: code:addons/ems/models/grades/grade_outcome_line.py:0
 msgid "The score must be within the range [0, 10]."
 msgstr "La nota ha d'estar dins del rang [0, 10]."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_template.py:0
+msgid "The subject must be available in every one of the selected studies."
+msgstr "L'assignatura ha d'estar disponible a tots els estudis seleccionats."
 
 #. module: ems
 #. odoo-python
@@ -10591,6 +10617,16 @@ msgstr "Trieu el grup i qualifiqueu els estudiants que han acabat l'estada a l'e
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Re-apply Benefits"
 msgstr "Reaplicar beneficis"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+msgid "This will archive this schedule line and create a fresh, editable copy of it - already-taken attendance stays linked to the archived original. Continue?"
+msgstr "Això arxivarà aquesta línia d'horari i en crearà una còpia nova i editable - l'assistència ja registrada es manté vinculada a l'original arxivat. Continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+msgid "This will archive this template (and its schedule) and open a fresh, fully editable copy - already-taken attendance stays linked to the archived original. Continue?"
+msgstr "Això arxivarà aquesta plantilla (i el seu horari) i obrirà una còpia nova, totalment editable - l'assistència ja registrada es manté vinculada a l'original arxivat. Continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment

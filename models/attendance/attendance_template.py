@@ -13,26 +13,95 @@ TEMPLATE_COLOR_PALETTE = [
 class EmsAttendanceTemplate(models.Model):
 	_name = "ems.attendance_template"
 	_description = "Attendance template: contains the basic attendance data (who teaches what, where and for whom)"
-	_inherit = ['ems.base', 'ems.hex_color_mixin']
+	_inherit = ['ems.base', 'ems.hex_color_mixin', 'mail.thread', 'mail.activity.mixin']
 
 	start_date = fields.Date(string="Start date", required=True)
 	end_date = fields.Date(string="End date", required=True)
 	color = fields.Char(string="Color", default="#3A8DDE", help="Free-pick display color, used to tell templates apart in the list view.")
 	teacher_ids = fields.Many2many(string="Teachers", comodel_name="hr.employee", relation="ems_attendance_template_teacher_rel", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_ids())
-	# NOTE: not required — a reinforcement ems.group (group_type == 'reinforcement') has no level/study
-	# of its own, so a template built from one (see '_write_schedule_sync') leaves both False.
-	level_id = fields.Many2one(string="Level", comodel_name="ems.level")
-	study_id = fields.Many2one(string="Study", comodel_name="ems.study", domain="[('level_id', '=', level_id)]")
-	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", domain="[('study_id', '=', study_id)]")
-	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", domain="[('study_ids', 'in', study_id)]", required=True)
-	space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
-	
-	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_schedule", inverse_name="attendance_template_id")			
-	student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")	
+	# NOTE: not required — a reinforcement ems.group (group_type == 'reinforcement') has no study
+	# of its own, so a template built from one (see '_write_schedule_sync') leaves it empty.
+	# Many2many since 2026-08-05: group_ids already allows several groups sharing one template
+	# (co-teaching), and different groups can belong to different studies - a single study_id
+	# couldn't represent that. 'level_id' was dropped entirely the same day: it never carried any
+	# information study_ids/group_ids didn't already imply, and had zero real uses beyond
+	# narrowing this same dropdown (see plans/attendance_template_multi_study.md).
+	study_ids = fields.Many2many(string="Studies", comodel_name="ems.study")
+	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", domain="[('study_id', 'in', study_ids)]")
+	subject_id = fields.Many2one(
+		string="Subject", comodel_name="ems.subject", domain="[('id', 'in', allowed_subject_ids)]", required=True)
+	# NOTE: non-stored, view-domain-only - the subjects valid for EVERY selected study
+	# (intersection), not just any one of them. A plain domain can't express an "ALL" condition
+	# directly against a Many2many, so this is computed in Python and the view filters against it.
+	allowed_subject_ids = fields.Many2many(string="Allowed subjects", comodel_name="ems.subject", compute="_compute_allowed_subject_ids", store=False)
+	# NOTE: no longer the authoritative room - each 'ems.attendance_schedule' line carries its own
+	# 'space_id' since 2026-08-01 (a one-off room reassignment can diverge from the group's
+	# default). This field is now only a default/seed value: a schedule line created by hand
+	# through this template's own form already defaults from it via Odoo's own 'default_<field>'
+	# context convention (see the 'default_space_id' context on 'attendance_schedule_ids' in
+	# views/attendance/attendance_template/form.xml) - no bespoke onchange needed for this.
+	space_id = fields.Many2one(string="Session's default space", comodel_name="ems.space", required=True)
+
+	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_schedule", inverse_name="attendance_template_id")
+	student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
 
 	# NOTE: this field is computed when loaded within a form or list
 	read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
-	
+
+	# NOTE: drives the 'identity fields' lock (subject_id/group_ids/teacher_ids) - once real
+	# attendance has been taken under this template, those fields must never change in place;
+	# use action_new_version() (clone + archive) instead. Deliberately keyed on real usage, not
+	# on the template merely existing, so a harmless typo can still be fixed by hand before any
+	# attendance was ever taken.
+	has_sessions = fields.Boolean(string="Has sessions", compute="_compute_has_sessions")
+
+	@api.depends('attendance_schedule_ids.attendance_session_ids')
+	def _compute_has_sessions(self):
+		for template in self:
+			template.has_sessions = bool(template.attendance_schedule_ids.attendance_session_ids)
+
+	@api.depends('study_ids')
+	def _compute_allowed_subject_ids(self):
+		# NOTE: 'study_ids.ids' (not 'study_ids[0].id' etc.) - inside a still-unsaved form (this
+		# compute must also run live in the form, not just once the template is saved),
+		# 'study_ids' holds NewId-wrapped records; a NewId's own '.id' is a placeholder object,
+		# not the real database id a search() domain needs, but the recordset's own '.ids'
+		# correctly resolves each one back to its real origin id.
+		for template in self:
+			study_ids = template.study_ids.ids
+			if not study_ids:
+				template.allowed_subject_ids = self.env['ems.subject']
+				continue
+			subjects = self.env['ems.subject'].search([('study_ids', 'in', study_ids[0])])
+			for study_id in study_ids[1:]:
+				subjects &= self.env['ems.subject'].search([('study_ids', 'in', study_id)])
+			template.allowed_subject_ids = subjects
+
+	def action_new_version(self):
+		"""Corrects a locked template's identity fields (subject_id/group_ids/study_ids/
+		teacher_ids - see 'has_sessions') without disturbing its already-taken attendance history:
+		archives the whole template (this model's own action_archive() override cascades to every
+		schedule line too) and clones it - the copy starts with no session history, so every field
+		is freely editable again. Already-taken sessions stay linked to the archived original,
+		permanently accurate. Archives BEFORE copying (not after) - see
+		'ems.attendance_schedule.action_new_version's own docstring for why the order matters
+		(copying while the original's lines are still active would collide with the clone's own
+		identical lines via check_overlap)."""
+		self.ensure_one()
+		self.action_archive()
+		new_template = self.copy({'active': True})
+		# NOTE: 'copy()'s own o2m cascade copies each schedule line's CURRENT field values,
+		# 'active' included - since the source lines were just archived above, the freshly
+		# created lines would otherwise silently come back archived too.
+		new_template.attendance_schedule_ids.action_unarchive()
+		return {
+			'type': 'ir.actions.act_window',
+			'res_model': 'ems.attendance_template',
+			'res_id': new_template.id,
+			'view_mode': 'form',
+			'target': 'current',
+		}
+
 	def _get_read_only_user(self):
 		return not (self.id == False or self.get_user_is_admin() or bool(self.teacher_ids.filtered(lambda teacher: teacher.user_id.id == self.env.uid)) or self.create_uid == self.env.uid)
 
@@ -45,6 +114,15 @@ class EmsAttendanceTemplate(models.Model):
 		for template in self:
 			if not template.group_ids:
 				raise ValidationError(_("At least one group must be selected."))
+
+	@api.constrains('subject_id', 'study_ids')
+	def _check_subject_valid_for_all_studies(self):
+		# NOTE: the view's own domain (allowed_subject_ids) already keeps a user from picking an
+		# invalid subject in practice - this is the real, server-side guarantee behind it.
+		for template in self:
+			if template.study_ids and template.subject_id not in template.allowed_subject_ids:
+				raise ValidationError(_(
+					"The subject must be available in every one of the selected studies."))
 
 	@api.constrains('teacher_ids')
 	def _check_teacher_ids(self):
@@ -488,12 +566,16 @@ class EmsAttendanceTemplate(models.Model):
 		}
 
 	def _schedule_lines(self, group_entries, space_id):
+		"""'space_id' is the group-derived fallback - an entry carrying its own 'space_id' (e.g. a
+		room reassignment resolved by the import wizard) always takes priority over it, so a
+		one-off divergence from the group's default room survives this sync instead of being
+		silently overwritten."""
 		return [
 			(0, 0, {
 				'start_time': entry["hour_from"],
 				'end_time': entry["hour_to"],
 				'weekday': entry["dayofweek"],
-				'space_id': space_id,
+				'space_id': entry.get("space_id", space_id),
 			})
 			for entry in group_entries
 		]
@@ -548,7 +630,8 @@ class EmsAttendanceTemplate(models.Model):
 			if key in old_items:
 				continue
 			# TODO: define default start and end date for subjects within settings.
-			first_group = self.env['ems.group'].browse(group_entries[0]["group_ids"][0])
+			groups = self.env['ems.group'].browse(group_entries[0]["group_ids"])
+			first_group = groups[:1]
 			templates[key] = {
 				'start_date': plan['start_date'],
 				'end_date': plan['end_date'],
@@ -556,8 +639,9 @@ class EmsAttendanceTemplate(models.Model):
 				'teacher_ids': [(6, 0, plan['teachers'].ids)],
 				'subject_id': group_entries[0]["subject_id"],
 				'group_ids': [(6, 0, group_entries[0]["group_ids"])],
-				'level_id': first_group.level_id.id,
-				'study_id': first_group.study_id.id,
+				# NOTE: every involved group's own study, not just the first one's - a template can
+				# cover groups from different studies (co-teaching/"desdoble" across studies).
+				'study_ids': [(6, 0, groups.mapped('study_id').ids)],
 				'space_id': first_group.space_id.id,
 				'attendance_schedule_ids': self._schedule_lines(group_entries, first_group.space_id.id),
 			}

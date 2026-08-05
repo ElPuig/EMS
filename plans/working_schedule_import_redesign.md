@@ -28,9 +28,33 @@ surfaces as the raw `check_overlap` error, not a named banner.
 
 **Not done / next up:** #3 was re-scoped 2026-08-01 from a simple "inline dropdown" idea into a
 full **multi-step wizard** (7 screens, statusbar progress) per the developer's own detailed,
-button-by-button spec. Fully designed below in "Multi-step wizard (step-by-step import)" -
-**no code written yet**, the developer ran out of usage quota for the day right after specifying
-it. This section is what to pick up from next session.
+button-by-button spec, then refined three more times the same day: (2) co-teaching becomes an
+explicit per-row choice in steps 4/5 instead of a silent assumption, plus a new "reasignar aulas"
+resolution for group-split/"desdoble" room collisions; (3) that resolution's default should be
+"reasignar aulas", not pick-one, and the fix must be per-schedule-block, not `ems.group.space_id`
+- first attempt at "per-block" proposed a brand-new persistent override model; (4) **that model
+was itself wrong** per the developer's correction - `ems.attendance_template`/`ems.attendance_
+schedule` are teacher-owned attendance-taking artifacts, not the source of truth for room; the
+room belongs on the actual schedule block (`resource.calendar.attendance`) upstream of them; (5)
+the one open subtlety from round 4 (does a room reassignment need to survive a *later* re-import
+of the same file) - decided: no, deliberately not carried forward, kept as simple as "fallback to
+the group's room, fix again by hand if it collides again" (see "Room reassignment"'s "Re-import
+durability" note); and (6) **round 4's own fix turned out to be more complex than necessary** -
+`ems.attendance_schedule.space_id` (the recurring weekly line, already read by `check_overlap`/
+`classify_external_conflicts` today) already gives the right granularity with zero changes to
+`_plan_schedule_sync`'s template-grouping key, once `_schedule_lines` is taught to prefer each
+entry's own `space_id` over the group-derived default - plus a real, independently-found bug
+(`ems.attendance_session_header._compute_space_id` reads the template's room, not the schedule
+line's, so attendance-taking would show a stale room once they can diverge) that needs fixing
+alongside it; (7) proposed `ems.attendance_template.space_id` become a non-editable `compute`;
+and (8) **reverted 2026-08-01, per the developer** - keeping it editable/stored (exactly as
+today) turned out simpler than the compute from round 7, so that's what stays: just relabeled
+("Session's default space"). **Phase 0 (this whole room-granularity foundation) implemented and
+tested 2026-08-05** - see "Room reassignment"'s own status note below for what shipped and what
+turned out unnecessary once actually built (a planned new onchange on `ems.attendance_schedule`
+was found redundant with a `default_space_id` context the template's view already had). The
+remaining wizard phases (1-6, multi-step UI) are still design-only - **no code written yet** for
+those.
 
 # Why
 
@@ -183,37 +207,240 @@ re-derive `teacher_entries`, advance to step 4.
 
 ### 4 (their 5) — Resolve overlaps *within this same import*
 A genuinely new check, not built yet: two entries **inside the batch itself** (same file, or two
-files uploaded together) that collide — either the same space+time claimed by two different
-`(subject, group)` combinations, or the same teacher double-booked at the same time in two
-different rooms — excluding the case where both entries share subject **and** group (that's
-intentional co-teaching declared twice in the source data itself, not a conflict). Each colliding
-pair renders as **two side-by-side columns** (teacher / subject / group / weekday / time per
-side) with a radio button choosing which one prevails — **left selected by default**. The
-discarded side is dropped from `teacher_entries` entirely before anything downstream sees it. No
-conflicts found → green success banner. **Continue:** apply picks, advance to step 5. This closes
-the one known gap called out in `find_self_conflicts`'s own docstring (that method only ever
-compared against already-written DB data, never within the same submitted batch).
+files uploaded together) that collide on space+time. **Revised 2026-08-01 (second round,
+developer feedback) — no case is silently auto-resolved any more, every colliding pair is shown
+and classified** (see "Conflict kind classification" below, shared with step 5):
+
+- **Co-teaching-eligible** (same subject, sharing the group) — shown as a **yellow warning**
+  (not red: this might be entirely legitimate), first-level radio **"Es co-docencia"** (default,
+  keeps both) vs **"Prevalece uno"** (reveals the same two-column/radio UI as the plain-conflict
+  case, to discard one side). This replaces the original design's silent auto-exclude of this
+  exact shape — the developer explicitly doesn't want co-teaching *assumed*, since a genuine
+  typo/error in the source file can produce the identical shape.
+- **Desdoble-eligible** (same subject, **different** group) — second-level radio **"Reasignar
+  aulas"** (default — see "Room reassignment" below, two `ems.space` dropdowns instead of
+  discarding either side) vs **"Prevalece uno"** (fallback, today's plain pick-one).
+- **Plain conflict** (different subject) — unchanged: two side-by-side columns (teacher /
+  subject / group / weekday / time per side), one radio, **left default**, no extra options —
+  this shape can never be legitimate co-teaching or a room-only fix.
+
+No conflicts of any kind → green success banner. **Continue:** apply every row's resolution
+(co-teaching keeps both; pick-one drops the discarded side from `teacher_entries`; room-
+reassignment updates the relevant `ems.group.space_id`(s) and keeps both), advance to step 5.
+This also closes the one known gap called out in `find_self_conflicts`'s own docstring (that
+method only ever compared against already-written DB data, never within the same submitted
+batch).
 
 ### 5 (their 6) — Resolve overlaps *from this import against already-active DB schedules*
-The current red `blocking_issues_html` mechanism — `classify_external_conflicts`'s
-`space_conflicts` + `find_self_conflicts`'s self-conflicts (both are "an active DB session
-collides with a new entry" cases; unified into one step/UI here) — now resolved interactively
-instead of just blocking with a "go fix your file and re-upload" error. Same two-column/radio-
-button UI as step 4: left = the new entry from this import, right = the existing active DB
-session, **left default**. Choosing left archives/trims the existing DB session's template to
-free that slot before the new one is written; choosing right drops that specific new entry from
-what gets imported (the existing DB session is left completely alone). **Explicitly excluded from
-this step** (the developer's own parenthetical — "evitando los de un docente hacia sí mismo,
-porque eso se recrea"): a teacher's own existing session for the **exact same** `(subject,
-group-set)` combo being resubmitted now — that's just an in-place update, already excluded by
-construction in both `classify_external_conflicts` (`teacher_ids not in submitting_teacher_ids`)
-and `_reconcile_fresh_import`'s own key-scoped logic; nothing new needed there, just confirming it
-stays excluded once this becomes a wizard step instead of a raised exception. Legitimate
-co-teaching (`classify_external_conflicts`'s `co_teaching` return value) is **not** part of this
-step's resolvable list — there's nothing to discard, both sides stay — shown instead as a small
-non-blocking informational aside above/alongside this step, same wording as today's banner. No
-resolvable conflicts found → green success banner (the co-teaching aside, if any, can still show
-alongside it). **Continue:** apply picks, advance to step 6.
+The current red `blocking_issues_html` mechanism — `classify_external_conflicts`'s `co_teaching` +
+`space_conflicts` + `find_self_conflicts`'s self-conflicts — now **all** routed through the exact
+same three-way classification and resolution UI as step 4 (co-teaching-eligible /
+desdoble-eligible / plain-conflict), left = the new entry from this import, right = the existing
+active DB session, **left default** for co-teaching/plain rows; for desdoble-eligible rows
+**"reasignar aulas" is the default** (see "Room reassignment" below), same as step 4. Choosing
+"prevalece uno" on the left archives/trims the existing DB session's template to free the slot
+before the new one is written (or drops the new entry if the right side wins); choosing
+"reasignar aulas" sets a genuinely different `space_id` on the entry/block for the slot(s)
+involved instead of discarding anything. **Revised
+2026-08-01 (second round):** `co_teaching` no longer gets silent, no-choice treatment (the
+"non-blocking informational aside" from the first design round is dropped) — it now surfaces as
+the same yellow-warning, co-docencia-or-pick-one row as step 4's own co-teaching-eligible case.
+**Still explicitly excluded** (unchanged from the first round — the developer's own parenthetical,
+"evitando los de un docente hacia sí mismo, porque eso se recrea"): a teacher's own existing
+session for the **exact same** `(subject, group-set)` combo being resubmitted now — that was never
+a conflict to classify in the first place, already excluded by construction in both
+`classify_external_conflicts` (`teacher_ids not in submitting_teacher_ids`) and
+`_reconcile_fresh_import`'s own key-scoped logic. No resolvable conflicts of any kind → green
+success banner. **Continue:** apply picks, advance to step 6.
+
+## Conflict kind classification (shared by steps 4 and 5)
+
+One helper, reused by both steps regardless of whether the pair came from an internal
+(within-batch) or external (against-DB) search — given two colliding entries/sessions:
+- same `subject_id` **and** sharing at least one `group_id` → `co_teaching_eligible`.
+- same `subject_id`, **no** shared `group_id` → `desdoble_eligible` — two distinct groups
+  teaching the same subject at the same time is really a single split ("desdoble") session that
+  needs two different rooms; the collision usually means the split's destination room was never
+  in the source file, so both groups still carry their shared, original room.
+- different `subject_id` → `plain_conflict` — pick-one only, no other option makes sense.
+
+Applies uniformly to every pair regardless of which check produced it — notably, a
+`find_self_conflicts` pair (same teacher, different combo) can still be `desdoble_eligible`: the
+same teacher legitimately teaching both halves of a split class at the same time is a realistic
+case, not an edge case to special-case away from room-reassignment.
+
+## Room reassignment (desdoble-eligible rows, steps 4 and 5)
+
+**Redesigned 2026-08-01 (fourth round, developer correction) — both earlier drafts of this
+section were wrong on the same underlying point.** Round 2 said write to `ems.group.space_id`
+(wrong: group-wide, not block-specific). Round 3 proposed a brand-new standalone
+`ems.attendance_space_override` model — also wrong, per the developer: `ems.attendance_template`/
+`ems.attendance_schedule` are **teacher-owned attendance-taking artifacts** (a teacher can freely
+archive/add/edit/delete their own `attendance_schedule` rows), so treating them — or a satellite
+table bolted onto them — as the *source of truth* for room assignment loses the actual origin of
+that data. `sync_from_schedule`/`sync_from_schedule_batch_fresh_import` **derive**
+`ems.attendance_template`/`ems.attendance_schedule` from the schedule blocks (`cells`/`entries`),
+never the other way round — the room, if it can vary per block, has to live upstream, on the
+block itself.
+
+**The schedule block is `resource.calendar.attendance`** (`ems_working_schedule_assignation` in
+`working_schedule.py` — the model backing a teacher's personal `resource.calendar`, rendered by
+the Schedule tab's grid; `dayofweek`/`hour_from`/`hour_to`/`subject_id`/`group_ids`, one row per
+weekly slot). Each block becomes one `ems.attendance_schedule` line, carrying its own room; blocks
+sharing subject + group-set + teacher-set still form one shared `attendance_template` exactly as
+today — **room does not need to be, and per the fifth round below isn't, part of that grouping** —
+a template's own lines can simply hold different rooms from one another.
+
+**Simplified 2026-08-01 (fifth round) — the developer's own follow-up question ("would saving
+the room on the session instead of the template simplify anything?") revealed the fourth round's
+own plan above was *more complex than necessary*.** `ems.attendance_schedule.space_id` (the
+recurring weekly block/line — not `ems.attendance_session_header`, the frozen per-date
+attendance-taking snapshot, which would be the wrong place for the reasons in the developer's
+own framing: conflict detection needs to check *before* any date-specific session exists, and
+that model's own docstring says it must stay unaltered when master data changes) **already
+exists, and `check_overlap`/`classify_external_conflicts` already read from it, not from
+`ems.attendance_template.space_id`.** A desdoble collision (two different groups) already
+produces two separate templates today, purely because `group_ids` already differs between them —
+room was never actually needed as part of the template-grouping key at all. Dropped the fourth
+round's step 3 (extending `_plan_schedule_sync`'s key) entirely; here is the corrected, smaller
+list:
+
+1. `resource.calendar.attendance.space_id` (`working_schedule.py`) is currently `compute=
+   "_compute_space_id", store=True`, `@api.depends("group_ids", "group_ids.space_id")` — always
+   silently overwritten from the group. Drop the `compute`, keep it a plain stored field: still
+   **defaulted** from `group_ids[:1].space_id` the moment a block is first built (same UX as
+   today for the common, no-override case), but an already-set value is authoritative from then
+   on — nothing re-derives it afterwards.
+2. `entries`/`cells` (the shared dict shape built by the grid's `apply_schedule_changes` or the
+   importer's `_parse_schedule_entries`, and consumed by `ems.teaching.sync_from_schedule`/
+   `ems.attendance_template.sync_from_schedule*`) start carrying that resolved `space_id`
+   through, instead of leaving room to be re-derived downstream — this is what lets the wizard's
+   "reasignar aulas" pick reach the block that gets written.
+3. `_schedule_lines` (`ems.attendance_template.py`) currently takes one `space_id` argument and
+   applies it uniformly to every line it builds. Change it to prefer each entry's own `space_id`
+   when present, falling back to the passed-in group default otherwise (`entry.get("space_id",
+   space_id)`) — a one-line change. `_write_schedule_sync`/`_plan_schedule_sync` need **no other
+   change**: templates keep grouping purely by `(subject, group_ids, teacher_ids)` exactly as
+   today. `_reconcile_teacher_groups`/`_reconcile_fresh_import` are entirely unaffected — this
+   only touches the final line-writing step.
+4. **Reverted 2026-08-01 (seventh round, developer feedback) — `ems.attendance_template.space_id`
+   stays an editable, stored field, exactly as it already is today; the sixth round's "convert to
+   compute" idea is dropped as unnecessary complexity.** Only one change on top of today's
+   existing field (`_onchange_group_ids` included, unchanged):
+   - Relabel it — `string="Space"` → `string="Session's default space"` — to make clear its role
+     from here on is a *default/seed* for new schedule lines, not the authoritative room (that's
+     `ems.attendance_schedule.space_id`, per point 3 above).
+   - **Planned new `@api.onchange('attendance_template_id')` on `ems.attendance_schedule` turned
+     out unnecessary once actually implemented (found 2026-08-05, verified empirically):** the
+     template's own form view (`views/attendance/attendance_template/form.xml`) already has
+     `context="{'default_space_id' : space_id, ...}"` on the `attendance_schedule_ids` field — a
+     new line added through it already gets `default_space_id` from Odoo's own generic
+     `default_<field>` context convention, with zero extra code. Confirmed via
+     `env['ems.attendance_schedule'].with_context(default_space_id=...).new(...)` returning the
+     right value with no onchange involved at all - see
+     `test_new_schedule_line_defaults_space_from_template_context` in `tests/
+     test_attendance_template.py`. No onchange was added.
+   - **One characteristic worth documenting, not fixing:** both sync paths still blindly write
+     `template.space_id = first_group.space_id.id` on every run (`_write_schedule_sync`,
+     unchanged) — a template kept in sync by the live editor or a re-import will have any manually
+     edited "default" reset back to the group's current room on the next sync. Accepted as-is:
+     this field is no longer authoritative for anything (conflict detection and attendance-taking
+     both read the line-level field), so losing a stale default suggestion here costs nothing real
+     - only a template maintained *entirely* by hand, never touched by either sync path, would
+     keep a genuinely custom default long-term. Revisit only if this specific gap turns out to
+     matter in practice - not a reason to add the same "respect what's already there" logic
+     already applied to the line level.
+5. **Real bug found while validating this, needs fixing regardless of anything else:**
+   `ems.attendance_session_header._compute_space_id` (`attendance_session.py`) currently derives
+   its room from `attendance_schedule_id.attendance_template_id.sudo().space_id` — the
+   **template**, skipping straight past the schedule line's own `space_id` field entirely. Harmless
+   today only because both values are always forced identical by the current uniform-write
+   behavior being replaced in point 3 above; once a line's room can genuinely diverge from the
+   template's, a teacher taking attendance for that date would see the *wrong* (template-level,
+   stale) room unless this is changed to read `attendance_schedule_id.space_id` directly.
+
+This is, in effect, the real fix for the previously-deferred, now-deleted
+`group_room_per_subject_override` plan — confirmed once traced properly, and simpler than either
+of this plan's own two earlier attempts at it: no new model, no template-grouping change, just
+letting the room that already lives at the right granularity (`attendance_schedule.space_id`)
+actually flow from the source block instead of being blindly re-derived, plus fixing one stale
+read on the attendance-taking side.
+
+## Migrations — checked explicitly (2026-08-01), conclusion: none needed for this room work
+
+Per CLAUDE.md's migration rules, checked every schema/behavior change above individually rather
+than assuming:
+- `resource.calendar.attendance.space_id`: dropping `compute=` from an already-`store=True`
+  field. The column already holds the correct value (guaranteed by the compute up to the moment
+  of deploy); Odoo does not touch or recompute existing column data just because a field stops
+  being computed. Nothing to backfill.
+- `ems.attendance_schedule.space_id`: no field definition change at all, only which Python code
+  writes to it (`_schedule_lines`). No schema impact.
+- `ems.attendance_session_header._compute_space_id`: the compute *formula* changes, but today's
+  old and new formulas always agree (`attendance_schedule.space_id` and
+  `attendance_template.space_id` are currently forced identical by the uniform-write behavior this
+  same work replaces) — so no already-stored value is wrong at the moment this deploys. Provided
+  the `@api.depends` list includes `attendance_schedule_id.space_id` (not just
+  `attendance_schedule_id`), Odoo's own recompute engine keeps future divergence correctly synced
+  without any manual backfill.
+- `ems.attendance_template.space_id`: relabeling only (`string=`) — not an XML-ID rename, doesn't
+  trigger CLAUDE.md's XML-ID migration rule at all.
+- New wizard fields/child models (`state`, conflict/correction lines): all on the wizard's own
+  `TransientModel` - transient data is never migrated/backfilled, Odoo recycles it.
+- No XML ID (view, action, menu, or the wizard model/its records) is renamed or removed anywhere
+  in this design.
+
+Confirmed no migration is already pending/unapplied either — the manifest version
+(`18.0.0.22.0`) matches the highest existing `migrations/` folder, so this work starts from a
+clean baseline. **Re-verify this conclusion once the actual code is written** (per the project's
+own "verify empirically, not just source reading" convention) — this is a design-time analysis,
+not a substitute for checking the real diff before considering the work done.
+
+**Re-import durability — resolved 2026-08-01, deliberately NOT carried forward (developer
+decision):** raised above as an open subtlety — does a later re-import of the same file (e.g. a
+corrected department file re-uploaded next month) need to remember a "reasignar aulas" choice
+made in an earlier import, given the importer's own `_create_schedule` unlinks **every** existing
+`resource.calendar.attendance` row for a teacher before recreating them fresh from the parsed XML
+(`attendance_ids = [[5], ...]`), and the planner XML never carries room at all today? **Decided:
+no** — explicitly not worth the complexity ("no quiero añadir complejidad extra, porque además,
+las aulas seguramente cambiarán de un curso a otro"). The fallback is simply the group's own
+current room, same as always; if that collides again on a later re-import, the admin just runs
+"reasignar aulas" again in the wizard at that point — a fresh decision each time, not a stored
+one, matching how the room can legitimately be different from one course to the next anyway.
+**Forward-looking note the developer flagged, not yet confirmed as real:** the planner export may
+start sending room directly in the XML at some point ("es probable que me pasen el aula en el
+XML") — when/if that happens, `_parse_schedule_entries` should read it straight into the entry's
+own `space_id` (taking priority over the group's default), and a collision only reduces to
+"reasignar aulas" for whatever the source genuinely leaves unresolved. Not implemented now — no
+confirmed XML shape to parse yet; revisit if/when the planner format actually changes.
+
+**Deliberately out of scope for this plan** (unchanged from the previous round): an actual
+per-cell room-picker UI in the live Schedule tab grid. The *data path* above (space_id threaded
+through `cells`/`entries`, respected instead of overwritten) benefits the live editor
+automatically once built — a manually-set room would survive a grid re-save exactly like any
+importer-set one would survive a re-import — but there is still no UI affordance today for a
+teacher to actually pick a different room per cell in the grid itself; that's a separate,
+not-yet-requested feature, worth its own follow-up plan if wanted later.
+
+Continue is blocked until every desdoble-eligible row with "Reasignar aulas" chosen ends up with
+the two sides no longer colliding (exact validation — both sides need a picked room, or only the
+losing side needs to move while the other keeps its default — is a Green-phase call).
+
+## Complexity flag (asked for explicitly re: step 4's co-teaching change)
+
+Not exaggerated, but real: today, same-subject/same-group pairs are silently dropped before ever
+becoming a line at all. Making them a genuine row again means:
+- each row needs a two-level radio (mode, then left/right only if "pick one" is chosen) — one new
+  interaction pattern, reused identically in step 5 and, for the desdoble case, in a room-dropdown
+  variant, so it's one new UI shape, not three.
+- the `internal_conflict_line`/`external_conflict_line` model's resolution field grows from a
+  plain `[left, right]` Selection into something representing `co_teaching`/`left`/`right`/
+  `reassign_rooms`, plus, only for the last one, two extra Many2one room fields — a richer line
+  model than originally sketched, not a structurally new subsystem.
+- a **simpler, functionally-equivalent alternative** worth considering at Green time: a single
+  flat radio group per row (`Co-docencia` / `Prevalece izquierda` / `Prevalece derecha` /
+  `Reasignar aulas`, only the options relevant to that row's `kind` shown) instead of a genuine
+  two-level reveal-on-choice UI — same outcome, less client-side state to manage.
 
 ### 6 (their 7) — Pending-identification teachers (informational)
 Today's blue `info_html` content, moved into its own step: lists every placeholder code (`X1`,
@@ -245,10 +472,25 @@ like `import_planner_data()` does today.
   - `....group_line` — `raw_name` (Char), `group_id` (Many2one, create allowed).
   - `....teacher_line` — `raw_identifier` (Char), `teacher_id` (Many2one, create disabled).
   - `....internal_conflict_line` / `....external_conflict_line` — `left_label`/`right_label`
-    (Char, prebuilt display text — reuse `_conflict_lines`'s formatting) + `keep` (Selection
-    `[('left', ...), ('right', ...)]`, default `'left'`). Whether internal and external conflicts
-    need two separate models or can share one (with a discriminating field) is a Green-phase
-    call, not a design one.
+    (Char, prebuilt display text — reuse `_conflict_lines`'s formatting) + `kind` (Selection
+    `[('co_teaching_eligible', ...), ('desdoble_eligible', ...), ('plain_conflict', ...)]`,
+    computed once when the line is built — drives which resolution options the view offers) +
+    `resolution` (Selection, valid options depend on `kind`: `co_teaching`/`pick_one` for
+    co-teaching-eligible rows — `co_teaching` default; `reassign_rooms`/`pick_one` for
+    desdoble-eligible rows — `reassign_rooms` default; `pick_one` only — fixed — for plain
+    conflicts) + `left_space_id`/`right_space_id` (Many2one `ems.space`, only relevant/shown when
+    `resolution = 'reassign_rooms'`, pre-filled with the room causing the collision — on Continue,
+    each side that got a *different* room from its original one gets that `space_id` written
+    straight onto its own entry/cell before the normal sync methods ever run, see "Room
+    reassignment"). Whether internal and external conflicts need two separate models or can share
+    one (with a discriminating field) is a Green-phase call, not a design one.
+- **No new persistent model, and no template-grouping change needed** (corrected 2026-08-01,
+  fourth then fifth round — earlier drafts of this sketch proposed a new model, then a
+  `_plan_schedule_sync` key change; neither is needed). The room lives on
+  `resource.calendar.attendance.space_id` (changed from a pure compute to a plain stored field,
+  defaulted once at block creation) and flows through to `ems.attendance_schedule.space_id` (the
+  line-level field, already what conflict detection reads) via a one-line change to
+  `_schedule_lines` — see "Room reassignment" above for the final mechanism.
 - Each step's Continue is a real server method (`action_continue_groups()`,
   `action_continue_teachers()`, ...) that: validates the current step's lines are all resolved,
   folds the picks back into the cached `teacher_entries`, re-runs the *next* step's own
@@ -269,12 +511,23 @@ like `import_planner_data()` does today.
   progression, each step's success/non-success banner, the two-column radio picks, the Many2one
   create-vs-no-create behavior) — budget for this explicitly in the Red phase, don't treat it as
   an afterthought.
+- Two-level reveal-on-choice radio vs. a single flat radio group with only the row's valid
+  options shown (see "Complexity flag" above) for steps 4/5's conflict rows — functionally
+  equivalent, worth picking whichever is less client-side code at Green time.
+- If/when the planner XML starts sending room directly (see "Room reassignment"'s
+  forward-looking note), the exact node/attribute shape to parse - not yet confirmed, revisit
+  only once real data with that shape exists.
 
 # Not changing
 
 - `ems.teaching.sync_from_schedule()` (with `replace=True`), `sync_from_schedule_batch`,
   `_reconcile_teacher_groups`, `_archive_stale_schedule_sync`, `_write_schedule_sync` - all stay,
-  serving the Schedule tab's own live single-teacher edit exactly as today.
+  serving the Schedule tab's own live single-teacher edit exactly as today. Exception: `
+  _schedule_lines` (called by `_write_schedule_sync`, shared by both this path and the importer)
+  gets the small, backward-compatible per-entry `space_id` change described in "Room
+  reassignment" - behavior for the live editor is unaffected by it, since its own `cells` never
+  carry an explicit `space_id` today, so it keeps falling back to the group-derived default
+  exactly as before.
 - `ems.attendance_schedule.check_overlap` (the `@api.constrains`) - still the actual DB-level
   guardrail; the new interactive resolution above is a *pre-check* in the wizard so the user gets
   asked instead of hitting that constraint's raw error, not a replacement for it.

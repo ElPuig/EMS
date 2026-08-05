@@ -14,17 +14,22 @@ is one row per student within that session, holding their `status_id`
 
 ## Session header: fields
 
-Almost every field is computed from `attendance_schedule_id` → its
-`attendance_template_id`, `sudo()`'d since a plain teacher may not have read access to
-another teacher's template but still needs these derived values on their own session:
+Almost every field is derived from `attendance_schedule_id` → its `attendance_template_id`:
 
 | Field | Source |
 |-------|--------|
 | `weekday`/`start_time`/`end_time`/`time_range` | `attendance_schedule_id`'s own fields |
 | `start_date`/`end_date` | `date` (this session's actual day) combined with the schedule's `start_time`/`end_time`, timezone-converted |
-| `level_id`/`study_id`/`group_ids`/`subject_id`/`space_id`/`template_teacher_ids` | `attendance_schedule_id.attendance_template_id.sudo()` |
+| `group_ids`/`subject_id`/`space_id`/`study_ids`/`template_teacher_ids` | plain `related=` fields (e.g. `related="attendance_schedule_id.attendance_template_id.study_ids"`), `store=True` — genuine ORM `related` fields, not hand-written compute methods, so they need no `sudo()` of their own (Odoo's `related` resolution already runs with the necessary access) |
+| `level_id` | **Not related to the template** — computed straight from `group_ids[:1].level_id` (`@api.depends("group_ids.level_id")`), since `ems.attendance_template` no longer has its own `level_id` (removed 2026-08-05, see [`attendance_template.md`](attendance_template.md)) |
 | `session_teacher_id` | **Not derived** — who actually ran *this* session, defaults to the acting user's own `hr.employee`, but stays independent of the template's teacher set (covers substitution/guard-duty sessions) |
 | `mode` | `scheduled` (normal roll-call) / `guard` (a substitute covering someone else's slot) / `manual` (ad-hoc, no schedule tie) |
+
+`study_ids` (like `group_ids`/`template_teacher_ids` below) is a `Many2many`, so its `related`
+field needs an explicit `relation`/`column1`/`column2` — Odoo doesn't auto-derive one for a
+`related` M2M the way it would for a compute-based one (see the session-line note below).
+`ems.attendance_session_line.study_ids` in turn is `related="attendance_session_id.study_ids"`,
+one hop further down.
 
 `_sql_constraints`: `UNIQUE(date, attendance_schedule_id)` — the actual concurrency guard
 against two teachers creating the same day's session twice; `create()` catches the resulting
@@ -130,7 +135,7 @@ whether to show a "continuing from period 1" hint before the roll-call even load
 |-------|-------|
 | `is_auto_generated` | Distinguishes a line the system created (from `_auto_populate_lines`) from one a teacher manually added — a manually-added line can be re-targeted to a different student (`_onchange_student_id`), an auto-generated one can't (would silently break the "no duplicate student per session" expectation the view enforces). |
 | `absence_rate` | `0`/`100`, not a boolean — lets the "Attendance reports" pivot/graph's default `avg` measure resolve directly to a percentage. |
-| `group_ids` | `related`, but with an explicit custom `relation`/`column1`/`column2` — the default auto-generated M2M table name would exceed PostgreSQL's 63-character identifier limit. |
+| `group_ids`/`study_ids` | `related` (from the header's own `group_ids`/`study_ids`), each with an explicit custom `relation`/`column1`/`column2` — a `related` M2M field doesn't auto-derive a relation table the way a compute-based one does; the explicit names here also keep them under PostgreSQL's 63-character identifier limit. |
 | `strike_count` | Stored so it works as a pivot/graph measure; a strike is created separately (`ems.strike`, see [`strike.md`](../coexistence/strike.md)) and merely links back via `attendance_session_line_id`. |
 
 ## Fixed in this pass (2026-07-28)
@@ -146,3 +151,13 @@ Odoo's compute-dispatch graph referenced it). Leftover from an abandoned field a
 removing it changes no behavior. The `collect_issue_status_data` crash above (real bug,
 fixed). New `tests/test_attendance_session.py` (18 tests across both classes) — zero
 coverage existed before this pass on either model.
+
+## Changed in this pass (2026-08-05)
+
+`level_id` no longer mirrors the template (which no longer has one) — recomputed from
+`group_ids[:1].level_id` instead. `study_id` (`Many2one`) → `study_ids` (`Many2many`) on both
+`ems.attendance_session_header` and `ems.attendance_session_line`, following the same rename
+on `ems.attendance_template`. `group_ids`/`subject_id`/`space_id`/`template_teacher_ids`
+converted from `sudo()`-laden compute methods to genuine `related=` fields (see
+[`attendance_template.md`](attendance_template.md) for the full identity-field-locking
+context this is part of).

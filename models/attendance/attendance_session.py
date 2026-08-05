@@ -37,12 +37,41 @@ class EmsAttendanceSessionHeader(models.Model):
     #   2. Removing templates, removes also the schedules.
     #   3. Sessions are linked to schedules, so cannot be removed because never should be removed by cascade (only manually).
     #    4. The same if a student's group is removed, it should really be archived.
+    # NOTE: 'ems.attendance_template' no longer has its own 'level_id' (dropped 2026-08-05 - see
+    # plans/attendance_template_multi_study.md), so this derives from the group instead - same
+    # "first group wins" convention used everywhere else group-derived data is needed. Kept as a
+    # real compute (not a plain related=) because the path goes through 'group_ids', a Many2many,
+    # in the MIDDLE - Odoo's related mechanism only supports that as the FINAL segment.
     level_id = fields.Many2one(string="Level", comodel_name="ems.level", compute="_compute_level_id", store=True)
-    study_id = fields.Many2one(string="Study", comodel_name="ems.study", compute="_compute_study_id", store=True)
-    group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", compute="_compute_group_ids", store=True)
-    subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", compute="_compute_subject_id", store=True)
-    space_id = fields.Many2one(string="Space", comodel_name="ems.space", compute="_compute_space_id", store=True)
-    template_teacher_ids = fields.Many2many(string="Template's teachers", comodel_name="hr.employee", compute="_compute_template_teacher_ids", store=True)
+    # NOTE: Many2many since 2026-08-05 (was Many2one) - follows attendance_template.study_ids's
+    # own cardinality change. Explicit relation/column names: this is a genuinely new relation
+    # (the old field was a plain Many2one, no prior M2M table to preserve).
+    study_ids = fields.Many2many(
+        string="Studies", comodel_name="ems.study", related="attendance_schedule_id.attendance_template_id.study_ids",
+        store=True, relation="ems_attendance_session_header_ems_study_rel",
+        column1="ems_attendance_session_header_id", column2="ems_study_id",
+    )
+    # NOTE: plain 'related' fields since 2026-08-05 - safe now that ems.attendance_template's own
+    # identity fields (subject_id/group_ids/teacher_ids) are locked once a template has real
+    # sessions (see 'has_sessions'/action_new_version()), so the source can never drift under an
+    # already-taken attendance record. A 'related' field defaults to compute_sudo=True in Odoo
+    # (see odoo/fields.py's own Field._setup_attrs), matching the '.sudo()' the old hand-written
+    # computes needed to read through ems.attendance_template's own restrictive record rules.
+    # NOTE: explicit relation/column names - unlike a compute=, a related= Many2many field doesn't
+    # auto-derive the same relation table a plain stored field would; without these, Odoo tries to
+    # create a brand-new (badly-named) one instead of reusing the one already holding real data.
+    group_ids = fields.Many2many(
+        string="Groups", comodel_name="ems.group", related="attendance_schedule_id.attendance_template_id.group_ids",
+        store=True, relation="ems_attendance_session_header_ems_group_rel",
+        column1="ems_attendance_session_header_id", column2="ems_group_id",
+    )
+    subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", related="attendance_schedule_id.attendance_template_id.subject_id", store=True)
+    space_id = fields.Many2one(string="Space", comodel_name="ems.space", related="attendance_schedule_id.space_id", store=True)
+    template_teacher_ids = fields.Many2many(
+        string="Template's teachers", comodel_name="hr.employee", related="attendance_schedule_id.attendance_template_id.teacher_ids",
+        store=True, relation="ems_attendance_session_header_hr_employee_rel",
+        column1="ems_attendance_session_header_id", column2="hr_employee_id",
+    )
     session_teacher_id = fields.Many2one(string="Session's teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]", required=True, default=lambda self: self._default_teacher_id(), store=True)
     mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 
@@ -85,35 +114,10 @@ class EmsAttendanceSessionHeader(models.Model):
             utc = session.local_datetime_to_utc(local)
             session.end_date = session.datetime_to_odoo(utc)
 
-    @api.depends("attendance_schedule_id")
+    @api.depends("group_ids.level_id")
     def _compute_level_id(self):
         for session in self:
-            session.level_id = session.attendance_schedule_id.attendance_template_id.sudo().level_id
-
-    @api.depends("attendance_schedule_id")
-    def _compute_study_id(self):
-        for session in self:
-            session.study_id = session.attendance_schedule_id.attendance_template_id.sudo().study_id
-
-    @api.depends("attendance_schedule_id")
-    def _compute_group_ids(self):
-        for session in self:
-            session.group_ids = session.attendance_schedule_id.attendance_template_id.sudo().group_ids
-
-    @api.depends("attendance_schedule_id")
-    def _compute_subject_id(self):
-        for session in self:
-            session.subject_id = session.attendance_schedule_id.attendance_template_id.sudo().subject_id
-
-    @api.depends("attendance_schedule_id")
-    def _compute_space_id(self):
-        for session in self:
-            session.space_id = session.attendance_schedule_id.attendance_template_id.sudo().space_id
-
-    @api.depends("attendance_schedule_id")
-    def _compute_template_teacher_ids(self):
-        for session in self:
-            session.template_teacher_ids = session.attendance_schedule_id.attendance_template_id.sudo().teacher_ids
+            session.level_id = session.group_ids[:1].level_id
 
     @api.depends('attendance_schedule_id', 'date')
     def _compute_display_name(self):
@@ -455,7 +459,7 @@ class EmsAttendanceSessionHeader(models.Model):
                 ['session_teacher_id', '=', own_emp.id]]
         return self.sudo().search_read(
             domain,
-            fields=['id', 'time_range', 'subject_id', 'study_id',
+            fields=['id', 'time_range', 'subject_id', 'study_ids',
                     'attendance_schedule_id', 'start_time', 'end_time',
                     'attendance_session_line_ids'],
             order='start_time asc',
@@ -497,7 +501,7 @@ class EmsAttendanceSessionHeader(models.Model):
                 ['session_teacher_id',  '=', own_emp.id]]
         sessions = self.search_read(
             session_domain,
-            fields=['id', 'time_range', 'subject_id', 'study_id', 'attendance_schedule_id',
+            fields=['id', 'time_range', 'subject_id', 'study_ids', 'attendance_schedule_id',
                     'attendance_session_line_ids', 'start_time', 'end_time'],
             order='start_time asc',
         )
@@ -570,7 +574,14 @@ class EmsAttendanceSessionLine(models.Model):
     # Stored so the 'Attendance analysis' pivot/graph view can group by them efficiently.
     date = fields.Date(string="Date", related="attendance_session_id.date", store=True)
     level_id = fields.Many2one(string="Level", comodel_name="ems.level", related="attendance_session_id.level_id", store=True)
-    study_id = fields.Many2one(string="Study", comodel_name="ems.study", related="attendance_session_id.study_id", store=True)
+    # NOTE: Many2many since 2026-08-05 (was Many2one) - follows attendance_session_header.
+    # study_ids's own cardinality change. Explicit relation/column names: genuinely new relation
+    # (the old field was a plain Many2one, no prior M2M table to preserve).
+    study_ids = fields.Many2many(
+        string="Studies", comodel_name="ems.study", related="attendance_session_id.study_ids", store=True,
+        relation="ems_attendance_session_line_ems_study_rel",
+        column1="ems_attendance_session_line_id", column2="ems_study_id",
+    )
     group_ids = fields.Many2many(
         string="Groups", comodel_name="ems.group", related="attendance_session_id.group_ids", store=True,
         relation="ems_attendance_session_line_group_rel", column1="attendance_session_line_id", column2="group_id",
@@ -591,6 +602,14 @@ class EmsAttendanceSessionLine(models.Model):
     def status_is_notificable(self):
         # TODO: we want to notify also a justified miss? Maybe to prevent falsification (inform about a preveision? But if legit, will be also notified...)
         return bool(self.status_id.notifiable)
+
+    def _justification_vals(self):
+        """This line's own vals, shaped for ems.attendance_justification.perform_justification() -
+        includes 'id' so a subsequent write() targets this exact record."""
+        self.ensure_one()
+        vals = self.copy_data()[0]
+        vals['id'] = self.id
+        return vals
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -620,7 +639,7 @@ class EmsAttendanceSessionLine(models.Model):
                 previssions = EmsAttendanceJustification.get_current_justifications(self, line.attendance_session_id.start_date, line.attendance_session_id.end_date)
                 for p in previssions:
                     if p.student_id == line.student_id:
-                        data = p.perform_justification(line, True)
+                        data = p.perform_justification(line._justification_vals(), True)
                 line.write(data)
 
     def _update_notification(self):

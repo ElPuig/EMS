@@ -79,6 +79,11 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'code': 'TDEV001', 'acronym': 'TDEV', 'name': 'Test Bare Acronym Study (Import Wizard)',
             'date': fields.Date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
+        # 'self.subject' is imported for groups belonging to this study too (see e.g.
+        # test_import_bare_study_acronym_resolves_single_course_single_group) - must be one of its
+        # own allowed studies, or ems.attendance_template's own subject/study validity check
+        # (_check_subject_valid_for_all_studies) correctly rejects the combination.
+        cls.subject.study_ids = [(4, cls.bare_acronym_study.id)]
         cls.bare_acronym_group = cls.env['ems.group'].create({
             'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.bare_acronym_study.id,
             'space_id': cls.space.id,

@@ -154,8 +154,8 @@ No record-level rules exist for this model. Teacher/Secretary/Portal read access
 | `ems.enrollment` | `ems_study_id` | Many2one | Enrolment header targets a study; derives `ems_level_id` |
 | `ems.authorization` / `ems.authorization.template` | `ems_study_id` / `ems_study_ids` | Many2one / Many2many | Authorization scope |
 | [Enrollment template](../enrollment/enrollment_template.md) (`sale.order.template`) | `ems_study_id` | Many2one | Drives `uses_enrollment_flow` |
-| `ems.attendance_template` | `study_id` | Many2one | Attendance scheduling, filtered by `level_id` |
-| `ems.attendance_session_header` / `_line` | `study_id` | Computed / related | Inherited from the attendance template |
+| `ems.attendance_template` | `study_ids` | Many2many | Attendance scheduling; can span several studies (co-teaching) |
+| `ems.attendance_session_header` / `_line` | `study_ids` | Related (`store=True`) | Inherited from the attendance template |
 | `ems.student.year_record` | `study_id` | Many2one | Historical academic record |
 | `ems.em_grading_wizard` | `study_id` | Many2one | Work-placement grading scope |
 | `ems.grade_session_state_wizard` | `study_ids` | Many2many | Bulk grade-session state changes |

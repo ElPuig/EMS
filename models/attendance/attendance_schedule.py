@@ -34,11 +34,38 @@ class EmsAttendanceSchedule(models.Model):
     space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
     attendance_template_id = fields.Many2one(
         string="Template", comodel_name="ems.attendance_template", ondelete='cascade', required=True)
+    # NOTE: copy=False - real attendance-taking history must never be duplicated when this line
+    # (or its parent template, which drags its lines along) is cloned by action_new_version().
     attendance_session_ids = fields.One2many(
-        string="Sessions", comodel_name="ems.attendance_session_header", inverse_name="attendance_schedule_id")
+        string="Sessions", comodel_name="ems.attendance_session_header", inverse_name="attendance_schedule_id",
+        copy=False)
 
     # Used only for permission filtering purposes (see security/rules/attendance.xml).
     teacher_ids = fields.Many2many(string='Teachers', related="attendance_template_id.teacher_ids", store=False)
+
+    # NOTE: drives this line's own lock (space_id/weekday/start_time/end_time) - once real
+    # attendance has been taken for this specific line, those fields must never change in place;
+    # use action_new_version() (clone + archive just this line) instead.
+    has_sessions = fields.Boolean(string="Has sessions", compute="_compute_has_sessions")
+
+    @api.depends('attendance_session_ids')
+    def _compute_has_sessions(self):
+        for schedule in self:
+            schedule.has_sessions = bool(schedule.attendance_session_ids)
+
+    def action_new_version(self):
+        """Corrects a locked line's room/day/time (see 'has_sessions') without disturbing its
+        already-taken attendance history: archives this exact line and clones it under the same
+        template, so the fresh, freely editable copy replaces it - the template itself and every
+        other line are left untouched. 'attendance_session_ids' is copy=False, so no historical
+        session is ever duplicated. Archives BEFORE copying (not after) - copying while the
+        original is still active would momentarily have two identical, active lines sharing the
+        same room/day/time/teacher, which check_overlap correctly rejects; archived-first means
+        the original is no longer a candidate in that search by the time the copy is created."""
+        self.ensure_one()
+        self.action_archive()
+        self.copy({'active': True})
+        return {'type': 'ir.actions.client', 'tag': 'soft_reload'}
 
     time_range = fields.Char(compute="_compute_time_range", store=True)
     notes = fields.Text(string="Notes")

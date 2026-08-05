@@ -12,6 +12,10 @@ MODULE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 ALLOWED_NATIVE_OVERRIDE_IDS = {
     'hr.job_ceo', 'hr.job_consultant', 'hr.job_developer', 'hr.job_marketing',
     'hr.job_cto', 'hr.job_hrm', 'hr.job_trainee',
+    # data/main/hr.departure.reason.csv adds a 'color' to these two native
+    # hr.departure.reason records - same override pattern, missed when that
+    # file was first added.
+    'hr.departure_retired', 'hr.departure_resigned',
 }
 
 

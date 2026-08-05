@@ -6,6 +6,8 @@ An `ems.attendance_template` answers "who teaches what, where and for whom": one
 
 Templates are **not created directly by an admin filling in a form** in the normal case — they are derived by `sync_from_schedule_batch()` from schedule entries, reconciling co-teaching and splitting/merging templates as needed (see "CRUD flow" below). The form/list views exist for inspecting and manually correcting the result, not as the primary entry point.
 
+`ems.attendance_template` also carries `mail.thread`/`mail.activity.mixin` (chatter) — every archive/clone via "New version" (see below) and manual identity-field edit is tracked there.
+
 **Module files:** `models/attendance/attendance_template.py`, `views/attendance/attendance_template/`, `models/shared/hex_color_mixin.py` (color), `models/attendance/attendance_schedule.py` (the weekly slots, own fields/logic documented in [`attendance_schedule.md`](attendance_schedule.md)).
 
 ## Relations
@@ -18,11 +20,10 @@ erDiagram
     ems_attendance_template }o--o{ ems_group : group_ids
     ems_attendance_template }o--|| ems_space : space_id
     ems_attendance_template }o--o{ res_partner : "student_ids (students)"
-    ems_attendance_template }o--o| ems_level : level_id
-    ems_attendance_template }o--o| ems_study : study_id
+    ems_attendance_template }o--o{ ems_study : study_ids
 ```
 
-`level_id`/`study_id` are **not required** — a template built from a *reinforcement* `ems.group` (`group_type == 'reinforcement'`) has no level/study of its own and leaves both `False` (see `_write_schedule_sync`).
+`study_ids` is **not required** — a template built from a *reinforcement* `ems.group` (`group_type == 'reinforcement'`) has no study of its own and leaves it empty (see `_write_schedule_sync`). There is no `level_id` on this model anymore (removed 2026-08-05, see "Identity fields, locking..." below) — a level is always derivable from `group_ids`/`study_ids` when needed (e.g. `ems.attendance_session_header.level_id`, still on the session side, is computed straight from `group_ids[:1].level_id`).
 
 ## Data model
 
@@ -30,14 +31,49 @@ erDiagram
 |-------|------|-------|
 | `start_date` / `end_date` | `Date`, required | The template's active date range |
 | `color` | `Char` (hex) | Free-pick display color, auto-assigned on creation — see [Free-pick color widget](../shared/color_widget.md) |
-| `teacher_ids` | `Many2many → hr.employee` | Required. Domain restricted to `employee_type = 'teacher'`. More than one teacher means co-teaching |
-| `subject_id` | `Many2one → ems.subject` | Required |
-| `group_ids` | `Many2many → ems.group` | Required (`_check_group_ids`) |
+| `teacher_ids` | `Many2many → hr.employee` | Required. Domain restricted to `employee_type = 'teacher'`. More than one teacher means co-teaching. Locked (`readonly`) once `has_sessions` unless `user_is_admin` |
+| `subject_id` | `Many2one → ems.subject` | Required. Domain restricted to `allowed_subject_ids`. Locked once `has_sessions` |
+| `study_ids` | `Many2many → ems.study` | Optional (see above). Locked once `has_sessions` |
+| `group_ids` | `Many2many → ems.group` | Required (`_check_group_ids`). Domain restricted to `study_id in study_ids`. Locked once `has_sessions` |
+| `allowed_subject_ids` | `Many2many → ems.subject`, computed, non-stored | Subjects available in **every** one of `study_ids` (intersection, not union) — backs `subject_id`'s domain and `_check_subject_valid_for_all_studies` below. Empty `study_ids` means no restriction (all subjects allowed) |
 | `space_id` | `Many2one → ems.space` | Required. Auto-filled from the first group's own space on `group_ids` change |
-| `level_id` / `study_id` | `Many2one`, optional | Blank for a reinforcement-group-only template |
 | `attendance_schedule_ids` | `One2many → ems.attendance_schedule` | The actual weekly weekday/start_time/end_time slots |
 | `student_ids` | `Many2many → res.partner` | Auto-filled (`fill_students()`) from active enrollments matching `subject_id` + `group_ids` |
+| `has_sessions` | `Boolean`, computed | `True` once any of this template's schedules has a real `attendance_session_ids` entry — see "Identity fields, locking..." below |
 | `read_only_user` | `Boolean`, non-stored | `True` unless: admin, one of `teacher_ids`, or the record's own creator |
+
+### `_check_subject_valid_for_all_studies`
+
+`@api.constrains('subject_id', 'study_ids')`: rejects a `subject_id` that isn't in `allowed_subject_ids` whenever `study_ids` is non-empty — i.e. the chosen subject must actually be taught in **every** selected study, not just one of them. A reinforcement template (no `study_ids`) is never subject to this.
+
+## Identity fields, locking, and "New version"
+
+Once a template has real attendance history (`has_sessions`), its **identity fields** —
+`teacher_ids`, `subject_id`, `study_ids`, `group_ids` (template-level) and each schedule
+line's `weekday`/`space_id`/`start_time`/`end_time` (line-level, see
+[`attendance_schedule.md`](attendance_schedule.md)) — become readonly in the form. Editing
+them in place after real sessions exist would retroactively misrepresent what those already-taken
+sessions were actually about (every `ems.attendance_session_header` field mirroring them is
+`related`+`store=True`, so an in-place edit would silently rewrite history — see
+[`attendance_session.md`](attendance_session.md)).
+
+Correcting a mistake (or handling a legitimate mid-year change of teacher/subject/group) is done
+via **`action_new_version()`** instead of unlocking the field:
+
+```mermaid
+flowchart TD
+    A["action_new_version() on the template\n(or schedule line - see attendance_schedule.md)"] --> B["action_archive()\n(cascades to schedule lines too, template-level)"]
+    B --> C["copy({'active': True})"]
+    C --> D["new_template.attendance_schedule_ids.action_unarchive()\n(copy() carries over each line's just-archived 'active')"]
+    D --> E["open the new, fully editable copy\n(view_mode: form)"]
+```
+
+Archiving happens **before** copying, not after — copying first would momentarily leave the
+original and the identical fresh clone both active, sharing the same
+teacher/room/time/subject, which `ems.attendance_schedule.check_overlap()` correctly rejects
+as a double-booking. The already-taken sessions stay linked to the archived original,
+permanently accurate; the clone starts with no session history (`attendance_session_ids` is
+`copy=False`), so every identity field is freely editable again.
 
 ## CRUD flow
 
@@ -77,4 +113,17 @@ Key behaviours, each covered by its own docstring in the code:
 
 - **No default start/end date configuration** (`_plan_schedule_sync`'s `# TODO`): a new template's start date defaults to September 1st of the current year and end date to July 1st of the next, hardcoded — not read from any settings/course record.
 - **Auto-assigned color is cosmetic only** — it exists to visually tell templates apart in the list view, nothing else reads it (no calendar/kanban `highlight_color` currently wired to it). See [Free-pick color widget](../shared/color_widget.md) for the rotation logic and the "all red" issue it replaced.
-- **`level_id`/`study_id` desync risk:** both are set once from the *first* group's own values at creation/sync time (`_write_schedule_sync`); if a template's `group_ids` is later edited by hand to a group from a different level/study, neither field is recomputed — they only ever reflect the state at the last sync.
+- **`study_ids` desync risk (reduced, not eliminated):** `_write_schedule_sync` sets it once from every involved group's own `study_id` at creation/sync time; if a template's `group_ids` is later edited by hand (only possible before `has_sessions`, see above) to groups from different studies, `study_ids` is not automatically recomputed to match — it only reflects the state at the last sync/manual edit. `_check_subject_valid_for_all_studies` still guards `subject_id` against whatever `study_ids` currently holds, so this can't silently produce an invalid subject/study combination, only a stale-but-internally-consistent one.
+
+## Changed in this pass (2026-08-05)
+
+`level_id` removed entirely (never used in any report, always derivable from `group_ids`/
+`study_ids`); `study_id` (`Many2one`) → `study_ids` (`Many2many`), since a template can
+legitimately cover groups from more than one study (co-teaching/"desdoble" across studies —
+`_write_schedule_sync` now unions every involved group's own study). Added the
+`has_sessions`-gated identity-field lock and "New version" archive-and-clone action (both
+here and on `ems.attendance_schedule`, see that doc). Converted `ems.attendance_session_header`'s
+`group_ids`/`subject_id`/`space_id`/`template_teacher_ids`/`study_ids` from `sudo()`-laden
+compute methods to genuine `related=` fields (see [`attendance_session.md`](attendance_session.md)).
+Migration: `migrations/18.0.0.22.0/{pre,post}-migrate.py` (column rename + relation-table
+backfill for the `study_id`→`study_ids` schema change).

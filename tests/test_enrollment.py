@@ -52,8 +52,7 @@ class TestEnrollment(TransactionCase):
     def _create_template(self, groups):
         return self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [self.teacher.id])],
-            'level_id': self.level.id,
-            'study_id': self.study.id,
+            'study_ids': [(6, 0, [self.study.id])],
             'subject_id': self.subject.id,
             'group_ids': [(6, 0, groups)],
             'space_id': self.space.id,

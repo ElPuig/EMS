@@ -28,6 +28,25 @@ rewrites these rows from a teacher's live-edited or imported timetable
 | `start_date`/`end_date` | `Datetime`, computed + stored | The template's own `start_date`/`end_date` (a plain date) combined with this schedule's `start_time`/`end_time`, converted local→UTC via `ems.datetime_utils` — stored as full datetimes because timezone-correct comparisons need a real date, not a bare time-of-day float. |
 | `time_range` | `Char`, computed + stored | `"HH:MM - HH:MM"`, derived from `start_date`/`end_date` converted back to local time. |
 | `teacher_ids` | `Many2many`, `related='attendance_template_id.teacher_ids'` | Read-only mirror, used **only** for `ir.rule` permission filtering (`security/rules/attendance.xml`) — not for any business logic in this file. |
+| `has_sessions` | `Boolean`, computed | `True` once this line has a real `attendance_session_ids` entry — locks `weekday`/`space_id`/`start_time`/`end_time` (readonly in the form) and gates the per-row "New version" button. `attendance_session_ids` is `copy=False`. |
+
+---
+
+## Locking and `action_new_version()`
+
+Once a line has real attendance history (`has_sessions`), its own logistics fields —
+`weekday`, `space_id`, `start_time`, `end_time` — become readonly: changing where/when a
+class actually happened after real roll-calls were taken against it would misrepresent that
+history (`ems.attendance_session_header`'s own `space_id`/`weekday`/etc. are `related`+`store=True`
+mirrors of these, see [`attendance_session.md`](attendance_session.md)).
+
+`action_new_version()` archives this **one line** and clones it under the same template — the
+template itself and every other line are left untouched, unlike the template-level
+`action_new_version()` (see [`attendance_template.md`](attendance_template.md)), which
+archives/clones the whole template. Same archive-before-copy ordering rule applies here for
+the same reason: copying while the original line is still active would momentarily have two
+identical, active lines sharing the same room/day/time/teacher, which `check_overlap` (below)
+correctly rejects as a double-booking.
 
 ---
 

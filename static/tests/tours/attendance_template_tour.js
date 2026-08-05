@@ -33,17 +33,7 @@ registry.category("web_tour.tours").add("ems_attendance_template_crud", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='level_id'] input",
-            content: "Search for the seeded level",
-            run: "edit Test Level (Attendance Template Tour)",
-        },
-        {
-            trigger: ".o-autocomplete--dropdown-item:contains('Test Level (Attendance Template Tour)')",
-            content: "Select the level",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_view .o_field_widget[name='study_id'] input",
+            trigger: ".o_form_view .o_field_widget[name='study_ids'] input",
             content: "Search for the seeded study",
             run: "edit Test Study (Attendance Template Tour)",
         },

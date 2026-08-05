@@ -139,17 +139,11 @@ class EmsAttendanceJustification(models.Model):
             ("end_date", ">", start_date),
         ])
 
-    # NOTE: Called also from attendance_session (when creating lines as absence_prevission).
-    # 		Write and create methods always want a dictionary (values) to know which fields must be updated.
-    #       WARNING: line is a dictionary when called from attendance_session, but a model when called from attendance_justification!
-    def perform_justification(self, line, prevision=False):
-        if hasattr(line, '_name'):
-            # Is a model (the line is beeing changed from attendance_justification, so a justification is beeing made).
-            vals = line.copy_data()[0]
-            vals['id'] = line.id
-        else:
-            # Is a dictionary (the line is beeing created from attendance_session, so a prevision is beeing made).
-            vals = line.copy()
+    # NOTE: 'vals' must already be plain ems.attendance_session_line create()/write() vals - the
+    # caller normalizes an existing record via its own 'ems.attendance_session_line._justification_
+    # vals()' before calling this, this method never branches on the caller's own shape.
+    def perform_justification(self, vals, prevision=False):
+        vals = dict(vals)
 
         text = PREVISION_CAPTION if prevision else JUSTIFICATION_CAPTION
         notes = "" if vals["notes"] is None or vals["notes"] == False else vals["notes"] + "\n"
@@ -180,7 +174,7 @@ class EmsAttendanceJustification(models.Model):
 
             for line in justification.attendance_session_line_ids:
                 if line.status_id == self.env.ref("ems.attendance_status_miss"):
-                    line.write(justification.perform_justification(line))
+                    line.write(justification.perform_justification(line._justification_vals()))
         return records
 
     def write(self, vals):
@@ -208,7 +202,7 @@ class EmsAttendanceJustification(models.Model):
                 for new_line in new_lines:
                     # Adding new justifications
                     if new_line not in old_lines:
-                        new_line.write(justification.perform_justification(new_line))
+                        new_line.write(justification.perform_justification(new_line._justification_vals()))
         return updated
 
     def unlink(self):

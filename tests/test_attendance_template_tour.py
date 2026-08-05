@@ -38,7 +38,7 @@ class TestAttendanceTemplateTour(HttpCase):
 
         template = self.env['ems.attendance_template'].search([
             ('teacher_ids', 'in', self.teacher_employee.id),
-            ('study_id', '=', self.study.id),
+            ('study_ids', 'in', self.study.id),
         ])
         self.assertEqual(len(template), 1)
         self.assertEqual(template.subject_id, self.subject)

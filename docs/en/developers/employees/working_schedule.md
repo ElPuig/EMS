@@ -24,7 +24,7 @@ graph TD
 **`resource.calendar.attendance`** (`ems_working_schedule_assignation`):
 - `subject_id` (Many2one `ems.subject`), `group_ids` (Many2many `ems.group`) — what's being taught in that slot.
 - `non_teaching` (Many2one `ems.non_teaching_type`) — a non-teaching commitment instead of a subject (guard duty, break, coordination meeting...). See "Non-teaching types" below.
-- `space_id` (Many2one `ems.space`, computed, stored) — the classroom, derived from `group_ids[:1].space_id` (same simplification `ems.attendance_template` already used: first group wins when several share a slot).
+- `space_id` (Many2one `ems.space`, plain stored field since 2026-08-05 — was a compute) — the classroom. Defaulted from `group_ids[:1].space_id` at creation (`create()`, same "first group wins when several share a slot" simplification as before), but a one-off divergence from the group's own room now survives instead of being silently re-derived on every load — see "Room granularity" below.
 
 **`ems.non_teaching_type`** (`models/employees/non_teaching_type.py`) — a configurable vocabulary of non-teaching activities, replacing what used to be a hardcoded `Selection` so an admin can add a new code from **Configuration → Teachers → Non-teaching types** without a developer deploying code (the planner app that feeds the XML importer is outside our control and can introduce new codes at any time):
 - `code` (Char, required, unique) — the stable, external-planner-facing identifier (e.g. `G`, `BR`, `CM`); what the XML import and the CM+Wednesday special case key off.
@@ -54,6 +54,48 @@ flowchart LR
 - The **real overlay** is the teacher's actually-saved rows, which always win for a given (weekday, exact hour_from/hour_to) pair, and can introduce periods the framework never had (a manually added "Add period" block, or a period copied from a colleague — see below).
 - On **Save**, only cells that ended up with a real subject or a real `non_teaching` value are sent to `apply_schedule_changes` — genuinely-empty and still-unassigned ("blank") cells are both skipped.
 - A manually added period ("Add period" in the widget) that's left unassigned in a given edit session simply **disappears** the next time you edit — it was never saved, so there's nothing to remember. This is intentional: only the framework's own structure is guaranteed to reappear.
+
+## Room granularity (2026-08-05)
+
+The room a class meets in no longer has to be a single value derived purely from its group.
+Three fields, three different roles:
+
+```mermaid
+flowchart LR
+    G["ems.group.space_id\n(the group's own 'home' room)"] -->|default at creation only| RC["resource.calendar.attendance.space_id\n(the weekly block - plain stored field)"]
+    RC -->|entry['space_id'], via sync_from_schedule*| AS["ems.attendance_schedule.space_id\n(the recurring line - AUTHORITATIVE)"]
+    AT["ems.attendance_template.space_id\n('Session's default space' - seed only)"] -.->|default for a manually-created line| AS
+    AS -->|_compute_space_id| ASH["ems.attendance_session_header.space_id\n(read here for attendance-taking/reporting)"]
+```
+
+- **`ems.attendance_schedule.space_id`** (the recurring weekly line) is the one field everything
+  else ultimately defers to — `check_overlap`/`classify_external_conflicts` already read from it,
+  not from the template. `_schedule_lines` (`ems.attendance_template.py`) writes each line's room
+  from that line's own resolved entry (`entry.get("space_id", space_id)`), preferring an explicit
+  per-entry override over the group-derived fallback — so a one-off reassignment for a single
+  weekly slot survives a future resync instead of being silently overwritten.
+- **`resource.calendar.attendance.space_id`** (the Schedule tab/importer's own weekly block, one
+  level upstream of `ems.attendance_schedule`) stopped being a compute — `ems_working_schedule_
+  assignation.create()` defaults it from `group_ids[:1].space_id` only when the incoming vals
+  don't already specify one, so it can independently diverge afterwards too.
+- **`ems.attendance_template.space_id`** ("Session's default space", not the plain "Space" label
+  it used to have) is no longer authoritative for anything — conflict detection and
+  attendance-taking both read the *line's* room. It only serves as the seed value Odoo's own
+  `default_<field>` context convention pre-fills for a schedule line created **by hand** through
+  the template's own form (`context="{'default_space_id': space_id, ...}"` on
+  `attendance_schedule_ids` in `views/attendance/attendance_template/form.xml`) - confirmed this
+  existing context mechanism already covers that case on its own, no dedicated onchange needed.
+- **`ems.attendance_session_header.space_id`** (`_compute_space_id`, `attendance_session.py`)
+  reads `attendance_schedule_id.space_id` directly (the line) — it used to skip straight past the
+  line to the template's own `space_id`, harmless only because both were always forced identical
+  under the old design; once a line's room can genuinely diverge, that stale read would have shown
+  the wrong room to a teacher taking attendance.
+
+**Not yet built:** an actual UI path for setting a per-line room override (the wizard's planned
+"reasignar aulas" resolution, `plans/working_schedule_import_redesign.md`) and the "Nueva versión"
+lock/clone-archive mechanism (`plans/attendance_template_multi_study.md`) that will let an admin
+safely correct an already-used template/line's fields without disturbing historical attendance.
+This section only covers the model-level foundation those two features will build on.
 
 ## Server methods (`models/employees/working_schedule.py`)
 
@@ -207,13 +249,18 @@ flowchart TD
     Q -->|no| SC["Genuine room conflict - blocking\n(blocking_issues_html in the onchange preview, ValidationError from create())."]
 ```
 
-There is no third, automatic case for "same subject + same group but a different space": since a
-session's space is always derived from its group's own `space_id` (one room per group, never a
-per-subject override — a known, separately-tracked limitation, not something this wizard tries to
-detect), this specific combination cannot arise from a single import batch; if the group's room
-changed since a previous sync, `_write_schedule_sync`
-already re-derives the template's `space_id` from the group's current one when it refreshes an
-existing template in place.
+There is no third, automatic case for "same subject + same group but a different space" yet: the
+wizard itself doesn't offer a room-reassignment resolution today (still planned — see
+`plans/working_schedule_import_redesign.md`'s "Room reassignment" section). The **model-level
+foundation** for it already exists (2026-08-05): a session's space no longer has to match its
+group's own `space_id` — `ems.attendance_schedule.space_id` (the weekly recurring line, not the
+template) is the actual authoritative room, defaulted from the group at creation but free to
+diverge afterwards, and `_schedule_lines` already prefers an entry's own `space_id` over the
+group-derived default when syncing. `attendance_template.space_id` is no longer authoritative
+either — it's just the "Session's default space" seed value for a manually-created line. See
+"Room granularity" below for the full mechanism. `_write_schedule_sync` still re-derives a
+persisting template's own `space_id` from the group's current one on every sync (unchanged, since
+that field is just a default/seed, not read by anything downstream any more).
 
 `ems.attendance_template.find_self_conflicts` catches a different, complementary case:
 **the same teacher**, submitted in this batch, double-booked against **their own** already-active
@@ -275,7 +322,7 @@ graph TD
 A reinforcement group still appears in a teacher's schedule exactly like a main group — it's referenced the same way by `resource.calendar.attendance.group_ids`, resolved the same way by the XML importer's exact-name lookup (`_parse_schedule_entries`), and still needs `space_id` set (checked by `_groups_without_space`, same as any group). The only differences are:
 - `_compute_name` only derives `name` from `study_id.acronym + course + acronym` for `'main'` groups; a `'reinforcement'` group's `name` is set directly (must match whatever the external planner exports for it, since the importer's lookup is an exact string match) and defaults to its `acronym`/`external_id` (or a placeholder) only the first time it's computed.
 - `_check_group_type_fields` (an `@api.constrains`) enforces the field split above at write time.
-- `ems.attendance_template.level_id`/`study_id` are **not required** (unlike most other fields on that model) precisely because a template built from a reinforcement group's slot (`_write_schedule_sync`, keyed off `first_group`) has no single level/study to store there.
+- `ems.attendance_template.study_ids` is **not required** (unlike most other fields on that model) precisely because a template built from a reinforcement group's slot (`_write_schedule_sync`, unioning every involved group's own `study_id`) has no study to store there. There is no `level_id` on `ems.attendance_template` at all anymore (removed 2026-08-05) — see [`attendance_template.md`](../attendance/attendance_template.md).
 - `get_schedule_hours_summary()` can't bucket a reinforcement group's teaching hours by `level_id` (there isn't one) — it buckets by the group itself instead, so those hours still show up as their own row in the "Weekly teaching hours" column.
 
 Student membership in a reinforcement group is entirely manual (`reinforcement_student_ids`) — it does not touch `res.partner.main_group_id`, which keeps pointing at the student's real group.

@@ -143,7 +143,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         })
 
         cls.template = cls.env['ems.attendance_template'].create({
-            'teacher_ids': [(6, 0, [cls.tutor_employee.id])], 'level_id': cls.level.id, 'study_id': cls.study.id,
+            'teacher_ids': [(6, 0, [cls.tutor_employee.id])], 'study_ids': [(6, 0, [cls.study.id])],
             'subject_id': cls.subject.id, 'group_ids': [(6, 0, [cls.group.id])], 'space_id': cls.space.id,
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
             'student_ids': [(6, 0, [cls.student.id])],

@@ -8,6 +8,24 @@ import base64
 import math
 import re
 
+
+def _m2m_command_ids(commands):
+	"""Resolve a Many2many/One2many value (as found in raw create()/write() vals, e.g. a planner
+	XML entry's 'group_ids') into a plain list of ids - shared by the import wizard and the
+	working-schedule block's own create() override, both of which need to read an id list out of
+	a not-yet-written value rather than an already-browsable recordset. Accepts either the real
+	command-tuple format ('(6, 0, ids)', '(4, id)'...) or a bare list of ids (the shape the
+	Schedule tab's own grid widget cells use for 'group_ids') - both are valid Many2many vals."""
+	ids = []
+	for command in commands or []:
+		if isinstance(command, int):
+			ids.append(command)
+		elif command[0] in (4, 1):
+			ids.append(command[1])
+		elif command[0] == 6:
+			ids.extend(command[2])
+	return ids
+
 class ems_working_schedule(models.Model):
 	# NOTE: 'ems.schedule_report_mixin' is only mixed in alongside 'resource.calendar' — a 2-item
 	# '_inherit' list without an explicit '_name' would make Odoo's metaclass define a brand-new model
@@ -168,9 +186,13 @@ class ems_working_schedule_assignation(models.Model):
 	non_teaching = fields.Many2one(string="Non-teaching", comodel_name="ems.non_teaching_type")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
-	# NOTE: the classroom is a property of the group (ems.group.space_id), same simplification already
-	# used by 'ems.attendance_template' (first selected group wins when several are assigned).
-	space_id = fields.Many2one(string="Classroom", comodel_name="ems.space", compute="_compute_space_id", store=True)
+	# NOTE: a plain stored field (not a compute) since 2026-08-01 - a schedule block's own room can
+	# now genuinely diverge from its group's default (e.g. a one-off room reassignment resolving an
+	# import conflict), and must stay put afterwards rather than being silently re-derived from the
+	# group on every load. Still defaults from the group at creation time (create() below) for the
+	# common case where no explicit room is given - same "first selected group wins when several
+	# are assigned" convention already used by 'ems.attendance_template'.
+	space_id = fields.Many2one(string="Classroom", comodel_name="ems.space", store=True)
 	# NOTE: stored because it's read in bulk whenever a group's schedule is aggregated across many
 	# different teachers' calendars (see ems.group.get_subject_teachers_summary) — computing it on the
 	# fly for every row would mean one 'hr.employee' search per row instead of a plain read.
@@ -182,10 +204,14 @@ class ems_working_schedule_assignation(models.Model):
 	# 'group_schedule_grid_field.js'.
 	non_teaching_is_break = fields.Boolean(related="non_teaching.is_break", store=True)
 
-	@api.depends("group_ids", "group_ids.space_id")
-	def _compute_space_id(self):
-		for attendance in self:
-			attendance.space_id = attendance.group_ids[:1].space_id
+	@api.model_create_multi
+	def create(self, vals_list):
+		for vals in vals_list:
+			if not vals.get('space_id'):
+				group_ids = _m2m_command_ids(vals.get('group_ids'))
+				if group_ids:
+					vals['space_id'] = self.env['ems.group'].browse(group_ids[0]).space_id.id
+		return super().create(vals_list)
 
 	@api.depends("calendar_id")
 	def _compute_employee_id(self):
@@ -469,19 +495,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	def _collect_xml_contents(self, item):
 		"""Every XML source given for this wizard's 'create()' vals, decoded."""
 		contents = []
-		attachment_ids = self._m2m_command_ids(item.get('attachment_ids'))
+		attachment_ids = _m2m_command_ids(item.get('attachment_ids'))
 		for attachment in self.env['ir.attachment'].browse(attachment_ids):
 			contents.append(base64.b64decode(attachment.datas))
 		return contents
-
-	def _m2m_command_ids(self, commands):
-		ids = []
-		for command in commands or []:
-			if command[0] in (4, 1):
-				ids.append(command[1])
-			elif command[0] == 6:
-				ids.extend(command[2])
-		return ids
 
 	def _create_schedule(self, xml_node, teacher, course_id):
 		entries, attendance_ids = self._parse_schedule_entries(xml_node)

@@ -270,7 +270,7 @@ class TestExitManagement(TransactionCase):
             'study_ids': [(6, 0, [self.study.id])]})
         template = self.env['ems.attendance_template'].create({
             'start_date': date.today(), 'end_date': date.today(),
-            'teacher_ids': [(6, 0, [teacher.id])], 'level_id': self.level.id, 'study_id': self.study.id,
+            'teacher_ids': [(6, 0, [teacher.id])], 'study_ids': [(6, 0, [self.study.id])],
             'subject_id': subject.id, 'space_id': space.id,
             'group_ids': [(6, 0, [self.group.id])]})
         student = self._student('Att Withdrawal')

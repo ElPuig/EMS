@@ -116,7 +116,7 @@ class TestAttendanceReportWizards(TransactionCase):
         })
 
         cls.template = cls.env['ems.attendance_template'].create({
-            'teacher_ids': [(6, 0, [cls.owner_employee.id])], 'level_id': cls.level.id, 'study_id': cls.study1.id,
+            'teacher_ids': [(6, 0, [cls.owner_employee.id])], 'study_ids': [(6, 0, [cls.study1.id])],
             'subject_id': cls.subject_a.id, 'group_ids': [(6, 0, [cls.group1.id])], 'space_id': cls.space.id,
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
@@ -304,7 +304,7 @@ class TestAttendanceReportWizards(TransactionCase):
     def test_session_line_analysis_fields_follow_the_session(self):
         self.assertEqual(self.line_recent.date, self.today)
         self.assertEqual(self.line_recent.level_id, self.level)
-        self.assertEqual(self.line_recent.study_id, self.study1)
+        self.assertEqual(self.line_recent.study_ids, self.study1)
         self.assertEqual(self.line_recent.subject_id, self.subject_a)
 
     def test_absence_rate_follows_status_category(self):

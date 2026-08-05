@@ -56,8 +56,7 @@ class TestAttendanceTemplate(TransactionCase):
     def _create_template(self, teacher, space, start_date=date(2026, 1, 1), end_date=date(2026, 6, 30), subject=None):
         return self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [teacher.id])],
-            'level_id': self.level.id,
-            'study_id': self.study.id,
+            'study_ids': [(6, 0, [self.study.id])],
             'subject_id': (subject or self.subject).id,
             'group_ids': [(6, 0, [self.group.id])],
             'space_id': space.id,
@@ -73,6 +72,42 @@ class TestAttendanceTemplate(TransactionCase):
             'end_time': end_time,
             'space_id': space.id,
         })
+
+    def _create_session(self, schedule, teacher, date_=date(2026, 1, 5)):
+        return self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': date_,
+            'mode': 'scheduled', 'session_teacher_id': teacher.id,
+        })
+
+    def test_allowed_subject_ids_resolves_in_unsaved_form_context(self):
+        # Regression guard: inside a still-unsaved .new()/onchange context, 'study_ids' holds
+        # NewId-wrapped records - using '.id' on one of them (a placeholder, not a real database
+        # id) instead of the recordset's own '.ids' silently made this compute always empty,
+        # which broke the subject picker's own domain live in the form (caught by
+        # ems_attendance_template_crud's own tour, not by any pre-existing backend test).
+        template = self.env['ems.attendance_template'].new({'study_ids': [(6, 0, [self.study.id])]})
+        # '._origin': allowed_subject_ids reads back NewId-wrapped copies of the assigned
+        # records while 'template' itself is unsaved - '._origin' resolves them back to the
+        # real, saved records for a meaningful comparison against 'self.subject'.
+        self.assertIn(self.subject, template.allowed_subject_ids._origin)
+
+    def test_allowed_subject_ids_intersects_across_several_studies(self):
+        other_study = self.env['ems.study'].create({
+            'code': 'TSAT003', 'acronym': 'TSAT3', 'name': 'Test Study 2 (Attendance Template)',
+            'date': date.today(), 'deprecated': False, 'level_id': self.level.id,
+        })
+        shared_subject = self.env['ems.subject'].create({
+            'code': 'TSAT003', 'acronym': 'TSAT3', 'name': 'Test Subject 3 (Attendance Template)',
+            'study_ids': [(6, 0, [self.study.id, other_study.id])],
+        })
+        template = self.env['ems.attendance_template'].new({
+            'study_ids': [(6, 0, [self.study.id, other_study.id])],
+        })
+        # self.subject only belongs to self.study, not other_study - excluded from the
+        # intersection; shared_subject belongs to both - included. '._origin' - see the
+        # previous test's own comment on why it's needed here.
+        self.assertNotIn(self.subject, template.allowed_subject_ids._origin)
+        self.assertIn(shared_subject, template.allowed_subject_ids._origin)
 
     def test_create_default_color(self):
         template = self._create_template(self.teacher_a, self.space_a)
@@ -174,8 +209,7 @@ class TestAttendanceTemplate(TransactionCase):
     def test_create_with_several_teachers(self):
         template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [self.teacher_a.id, self.teacher_b.id])],
-            'level_id': self.level.id,
-            'study_id': self.study.id,
+            'study_ids': [(6, 0, [self.study.id])],
             'subject_id': self.subject.id,
             'group_ids': [(6, 0, [self.group.id])],
             'space_id': self.space_a.id,
@@ -188,14 +222,87 @@ class TestAttendanceTemplate(TransactionCase):
         with self.assertRaises(ValidationError):
             self.env['ems.attendance_template'].create({
                 'teacher_ids': [(6, 0, [])],
-                'level_id': self.level.id,
-                'study_id': self.study.id,
+                'study_ids': [(6, 0, [self.study.id])],
                 'subject_id': self.subject.id,
                 'group_ids': [(6, 0, [self.group.id])],
                 'space_id': self.space_a.id,
                 'start_date': date(2026, 1, 1),
                 'end_date': date(2026, 6, 30),
             })
+
+    def test_new_schedule_line_defaults_space_from_template_context(self):
+        # A new line added via the template's own form defaults its room from the template's
+        # (views/attendance/attendance_template/form.xml's own
+        # context="{'default_space_id': space_id, ...}" on 'attendance_schedule_ids') - no custom
+        # onchange needed on ems.attendance_schedule itself, Odoo's own 'default_<field>' context
+        # convention already covers it. Verified here at the model level (context + new()) since
+        # Form() can't exercise the template's own view directly: it references 'read_only_user'
+        # (a default=-only, non-computed field) in several 'readonly=' expressions without ever
+        # declaring it in the arch, tripping a pre-existing Form() modifier-processing limitation
+        # (KeyError) unrelated to this change.
+        template = self._create_template(self.teacher_a, self.space_a)
+        schedule = self.env['ems.attendance_schedule'].with_context(
+            default_space_id=template.space_id.id
+        ).new({'attendance_template_id': template.id})
+
+        self.assertEqual(schedule.space_id, self.space_a)
+
+    def test_has_sessions_false_without_real_session(self):
+        template = self._create_template(self.teacher_a, self.space_a)
+        schedule = self._create_schedule(template, self.space_a)
+
+        self.assertFalse(template.has_sessions)
+        self.assertFalse(schedule.has_sessions)
+
+    def test_has_sessions_true_once_session_created(self):
+        template = self._create_template(self.teacher_a, self.space_a)
+        schedule = self._create_schedule(template, self.space_a)
+
+        self._create_session(schedule, self.teacher_a)
+
+        self.assertTrue(template.has_sessions)
+        self.assertTrue(schedule.has_sessions)
+
+    def test_action_new_version_line_archives_and_clones_only_that_line(self):
+        template = self._create_template(self.teacher_a, self.space_a)
+        schedule = self._create_schedule(template, self.space_a)
+        other_schedule = self._create_schedule(template, self.space_a, weekday='2')
+        session = self._create_session(schedule, self.teacher_a)
+
+        schedule.action_new_version()
+
+        self.assertFalse(schedule.active)
+        new_lines = template.attendance_schedule_ids.filtered('active')
+        self.assertEqual(len(new_lines), 2)
+        new_line = new_lines - other_schedule
+        self.assertEqual(new_line.weekday, schedule.weekday)
+        self.assertEqual(new_line.space_id, schedule.space_id)
+        self.assertEqual(new_line.start_time, schedule.start_time)
+        self.assertFalse(new_line.attendance_session_ids)
+        # The other line and the template itself are untouched.
+        self.assertTrue(other_schedule.active)
+        self.assertTrue(template.active)
+        # The already-taken session stays linked to the archived original.
+        self.assertEqual(session.attendance_schedule_id, schedule)
+
+    def test_action_new_version_template_archives_and_clones_whole_template(self):
+        template = self._create_template(self.teacher_a, self.space_a)
+        schedule = self._create_schedule(template, self.space_a)
+        session = self._create_session(schedule, self.teacher_a)
+
+        template.action_new_version()
+
+        self.assertFalse(template.active)
+        new_template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher_a.id), ('subject_id', '=', self.subject.id), ('active', '=', True),
+        ])
+        self.assertTrue(new_template)
+        self.assertNotEqual(new_template, template)
+        self.assertEqual(new_template.group_ids, template.group_ids)
+        self.assertFalse(new_template.attendance_schedule_ids.attendance_session_ids)
+        self.assertFalse(new_template.has_sessions)
+        # The already-taken session stays linked to the archived original template's schedule.
+        self.assertEqual(session.attendance_schedule_id.attendance_template_id, template)
 
     def test_read_only_user_false_for_either_co_teacher(self):
         template = self._create_template(self.teacher_a, self.space_a)
@@ -264,14 +371,17 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
             'employee_type': 'teacher',
         })
 
-    def _entry(self, hour_from=9, hour_to=10, dayofweek='0', subject=None, group=None, group_ids=None):
-        return {
+    def _entry(self, hour_from=9, hour_to=10, dayofweek='0', subject=None, group=None, group_ids=None, space=None):
+        entry = {
             'subject_id': (subject or self.subject).id,
             'group_ids': group_ids if group_ids is not None else [(group or self.group).id],
             'hour_from': hour_from,
             'hour_to': hour_to,
             'dayofweek': dayofweek,
         }
+        if space is not None:
+            entry['space_id'] = space.id
+        return entry
 
     def test_creates_template_with_schedule_and_space_from_group(self):
         self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry()], start_date=date(2026, 2, 1))
@@ -385,6 +495,20 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
 
         self.assertEqual(template.space_id, self.other_space)
 
+    def test_sync_respects_entry_level_space_override(self):
+        # An entry carrying its own 'space_id' (e.g. a one-off room reassignment resolved by the
+        # import wizard) must win over the group's own default room.
+        self.env['ems.attendance_template'].sync_from_schedule(
+            self.teacher, [self._entry(space=self.other_space)])
+
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(template.attendance_schedule_ids.space_id, self.other_space)
+        # The template's own 'space_id' stays the group-derived default - only the schedule
+        # line's own room is overridden.
+        self.assertEqual(template.space_id, self.space)
+
     def test_resync_swapped_times_across_two_persisting_keys_does_not_raise(self):
         # Real-world bug: refreshing a persisting template's schedule lines one key at a time (archive
         # then immediately rewrite, before moving to the next key) let an EARLIER-processed template's
@@ -453,8 +577,7 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         # slot the next import will want to reuse for this same subject.
         duplicate = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [self.teacher.id])],
-            'level_id': self.level.id,
-            'study_id': self.study.id,
+            'study_ids': [(6, 0, [self.study.id])],
             'subject_id': self.subject.id,
             'group_ids': [(6, 0, [self.group.id])],
             'space_id': self.space.id,

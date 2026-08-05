@@ -49,7 +49,7 @@ class TestAttendanceSessionHeader(TransactionCase):
         cls.student1 = cls.env['res.partner'].create({'name': 'Session Student 1', 'contact_type': 'student'})
         cls.student2 = cls.env['res.partner'].create({'name': 'Session Student 2', 'contact_type': 'student'})
         cls.template = cls.env['ems.attendance_template'].create({
-            'teacher_ids': [(6, 0, [cls.teacher.id])], 'level_id': cls.level.id, 'study_id': cls.study.id,
+            'teacher_ids': [(6, 0, [cls.teacher.id])], 'study_ids': [(6, 0, [cls.study.id])],
             'subject_id': cls.subject.id, 'group_ids': [(6, 0, [cls.group.id])], 'space_id': cls.space.id,
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
             'student_ids': [(6, 0, [cls.student1.id, cls.student2.id])],
@@ -75,11 +75,30 @@ class TestAttendanceSessionHeader(TransactionCase):
         self.assertEqual(session.end_time, 9.0)
         self.assertEqual(session.time_range, self.schedule.time_range)
         self.assertEqual(session.level_id, self.level)
-        self.assertEqual(session.study_id, self.study)
+        self.assertEqual(session.study_ids, self.study)
         self.assertEqual(session.group_ids, self.group)
         self.assertEqual(session.subject_id, self.subject)
         self.assertEqual(session.space_id, self.space)
         self.assertEqual(session.template_teacher_ids, self.teacher)
+
+    def test_space_id_comes_from_schedule_line_not_template(self):
+        # Regression guard for the 2026-08-01 room-granularity change: a schedule line's own room
+        # can now diverge from its template's "default" room (e.g. a one-off room reassignment) -
+        # the session must reflect the line's actual room, not fall back to the template's.
+        other_space = self.env['ems.space'].create({
+            'code': 'TAS-B', 'name': 'Test Space B (Attendance Session)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        self.schedule.space_id = other_space
+
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+
+        self.assertEqual(session.space_id, other_space)
+        self.assertNotEqual(session.space_id, self.template.space_id)
 
     # --- sql constraint ----------------------------------------------------------------
 
@@ -243,7 +262,7 @@ class TestAttendanceSessionLine(TransactionCase):
             'name': 'Session Line Student', 'contact_type': 'student', 'main_group_id': cls.tutor_group.id,
         })
         cls.template = cls.env['ems.attendance_template'].create({
-            'teacher_ids': [(6, 0, [cls.teacher.id])], 'level_id': cls.level.id, 'study_id': cls.study.id,
+            'teacher_ids': [(6, 0, [cls.teacher.id])], 'study_ids': [(6, 0, [cls.study.id])],
             'subject_id': cls.subject.id, 'group_ids': [(6, 0, [cls.group.id])], 'space_id': cls.space.id,
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
             'student_ids': [(6, 0, [cls.student.id])],

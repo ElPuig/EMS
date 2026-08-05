@@ -284,6 +284,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# once, leaving 'groups' (not 'intro' - unlike 'group_line_ids', this needs the group picks
 	# already applied first, per the flow's own 'groups --> teachers' transition).
 	teacher_line_ids = fields.One2many(string="Unresolved teachers", comodel_name="ems.working_schedules_import_wizard.teacher_line", inverse_name="wizard_id")
+	# NOTE: one line per colliding pair found by '_find_internal_conflicts' - populated once,
+	# leaving 'teachers' (needs both group and teacher picks already applied - group resolution
+	# affects which classroom an entry defaults to; teacher resolution affects the display label).
+	internal_conflict_line_ids = fields.One2many(string="Internal conflicts", comodel_name="ems.working_schedules_import_wizard.internal_conflict_line", inverse_name="wizard_id")
 	# NOTE: drives whether "Continue" renders enabled or disabled (developer feedback 2026-08-05:
 	# "que quedará mas claro si los botones de continuar... aparecen como enabled o disabled" rather
 	# than appearing/disappearing) - the view keeps the button in the SAME place either way (two
@@ -292,7 +296,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# outright the way 'override_info' still does for a wholly different screen's button.
 	continue_disabled = fields.Boolean(compute="_compute_continue_disabled")
 
-	@api.depends("state", "ready_to_import", "group_line_ids.group_id", "teacher_line_ids.employee_id")
+	@api.depends(
+		"state", "ready_to_import", "group_line_ids.group_id", "teacher_line_ids.employee_id",
+		"internal_conflict_line_ids.resolution", "internal_conflict_line_ids.left_space_id",
+		"internal_conflict_line_ids.right_space_id",
+	)
 	def _compute_continue_disabled(self):
 		for wizard in self:
 			if wizard.state == 'intro':
@@ -301,6 +309,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				wizard.continue_disabled = bool(wizard.group_line_ids.filtered(lambda line: not line.group_id))
 			elif wizard.state == 'teachers':
 				wizard.continue_disabled = bool(wizard.teacher_line_ids.filtered(lambda line: not line.employee_id))
+			elif wizard.state == 'internal_conflicts':
+				wizard.continue_disabled = bool(wizard.internal_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid()))
 			else:
 				wizard.continue_disabled = False
 
@@ -444,10 +454,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	def action_continue(self):
 		"""The single 'Continue' button's handler for every non-final step - dispatches to each
-		step's own logic. Only 'intro', 'groups' and 'teachers' have real logic built so far (see
-		plans/working_schedule_import_redesign.md); every other step is still a placeholder that
-		just advances the statusbar, so the skeleton is clickable end-to-end already and each step
-		gets filled in here as it's built."""
+		step's own logic. Only 'intro', 'groups', 'teachers' and 'internal_conflicts' have real
+		logic built so far (see plans/working_schedule_import_redesign.md); every other step is
+		still a placeholder that just advances the statusbar, so the skeleton is clickable
+		end-to-end already and each step gets filled in here as it's built."""
 		self.ensure_one()
 		if self.state == 'intro':
 			self._continue_from_intro()
@@ -455,6 +465,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			self._continue_from_groups()
 		elif self.state == 'teachers':
 			self._continue_from_teachers()
+		elif self.state == 'internal_conflicts':
+			self._continue_from_internal_conflicts()
 		else:
 			self._advance_state()
 		return self._reopen_self_action()
@@ -543,6 +555,164 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			employee = identifier_to_employee.get(item['identifier'])
 			if employee:
 				item['employee_id'] = employee.id
+		self.parsed_entries_json = json.dumps(node_cache)
+		self.internal_conflict_line_ids = [(5, 0, 0)] + self._build_internal_conflict_lines(node_cache)
+		self._advance_state()
+
+	@staticmethod
+	def _format_hour(value):
+		hour, minutes = divmod(round(value * 60), 60)
+		return "%02d:%02d" % (hour, minutes)
+
+	def _entry_default_space_id(self, entry):
+		"""The classroom an entry would use absent any explicit override - the SAME "first group
+		wins" convention already used throughout this file (e.g. 'ems_working_schedule_assignation.
+		create()'). A non-teaching entry, or one whose group has no classroom, has none - callers
+		skip it (that gap is caught elsewhere, see '_groups_without_space')."""
+		group_ids = entry.get('group_ids')
+		if not group_ids:
+			return False
+		return self.env['ems.group'].browse(group_ids[0]).space_id.id
+
+	@staticmethod
+	def _classify_conflict_kind(entry_a, entry_b):
+		"""Shared classification (see plans/working_schedule_import_redesign.md's "Conflict kind
+		classification", also meant for screen 5's not-yet-built external conflicts)."""
+		if entry_a['subject_id'] != entry_b['subject_id']:
+			return 'plain_conflict'
+		if set(entry_a.get('group_ids') or []) & set(entry_b.get('group_ids') or []):
+			return 'co_teaching_eligible'
+		return 'desdoble_eligible'
+
+	def _teacher_label_for_item(self, item):
+		"""Best-effort display name for a node_cache item's teacher - already-resolved by this
+		point (either it always matched, or screen 3 attached an 'employee_id') for any real e-mail;
+		a pending-identification code has no employee yet, so it's shown as-is (e.g. 'X1')."""
+		if item.get('employee_id'):
+			return self.env['hr.employee'].browse(item['employee_id']).display_name
+		identifier = item['identifier']
+		if self._is_email_like(identifier):
+			employee = self.env['hr.employee'].search([('work_email', '=', identifier)], limit=1)
+			if employee:
+				return employee.display_name
+		return identifier
+
+	def _entry_label(self, item, entry):
+		groups = ", ".join(self.env['ems.group'].browse(entry.get('group_ids') or []).mapped('display_name'))
+		weekday = dict(self.env['ems.attendance_schedule'].weekdays_selection).get(entry['dayofweek'])
+		time_range = "%s-%s" % (self._format_hour(entry['hour_from']), self._format_hour(entry['hour_to']))
+		return _("%(teacher)s — %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
+			'teacher': self._teacher_label_for_item(item),
+			'subject': entry.get('name') or '',
+			'groups': groups,
+			'weekday': weekday,
+			'time': time_range,
+		}
+
+	def _find_internal_conflicts(self, node_cache):
+		"""Every pair of TEACHING entries from DIFFERENT node_cache items that collide on the same
+		classroom + weekday + time - a genuinely new check (see plans/
+		working_schedule_import_redesign.md's step 4). Non-teaching entries carry no classroom, so
+		are excluded; a slot with 3+ colliding entries produces multiple pairwise pairs rather than
+		one n-way one (documented simplification, not expected to matter in practice). Returns a list
+		of (item_index_a, entry_index_a, item_index_b, entry_index_b) tuples."""
+		by_slot = {}
+		for item_index, item in enumerate(node_cache):
+			for entry_index, entry in enumerate(item['entries']):
+				if entry.get('non_teaching'):
+					continue
+				space_id = self._entry_default_space_id(entry)
+				if not space_id:
+					continue
+				slot_key = (space_id, entry['dayofweek'], entry['hour_from'], entry['hour_to'])
+				by_slot.setdefault(slot_key, []).append((item_index, entry_index))
+
+		pairs = []
+		for slot_refs in by_slot.values():
+			for i in range(len(slot_refs)):
+				for j in range(i + 1, len(slot_refs)):
+					item_index_a, entry_index_a = slot_refs[i]
+					item_index_b, entry_index_b = slot_refs[j]
+					if item_index_a == item_index_b:
+						continue  # the same teacher can't conflict with their own entry here
+					pairs.append((item_index_a, entry_index_a, item_index_b, entry_index_b))
+		return pairs
+
+	_RESOLUTION_DEFAULTS = {
+		'co_teaching_eligible': 'co_teaching',
+		'desdoble_eligible': 'reassign_rooms',
+		'plain_conflict': 'prevail_left',
+	}
+
+	def _build_internal_conflict_lines(self, node_cache):
+		"""(0, 0, {...}) create-commands for 'internal_conflict_line_ids', one per pair found by
+		'_find_internal_conflicts'. Positional references (item/entry indices), not content
+		matching - built once here, from the very 'node_cache' '_continue_from_internal_conflicts'
+		re-reads unchanged, so they stay valid. 'left_space_id'/'right_space_id' are pre-filled with
+		the colliding room for every desdoble-eligible pair regardless of its (possibly different)
+		current resolution, so they're ready the moment 'reassign_rooms' is picked."""
+		commands = []
+		for item_index_a, entry_index_a, item_index_b, entry_index_b in self._find_internal_conflicts(node_cache):
+			entry_a = node_cache[item_index_a]['entries'][entry_index_a]
+			entry_b = node_cache[item_index_b]['entries'][entry_index_b]
+			kind = self._classify_conflict_kind(entry_a, entry_b)
+			vals = {
+				'kind': kind,
+				'resolution': self._RESOLUTION_DEFAULTS[kind],
+				'left_item_index': item_index_a,
+				'left_entry_index': entry_index_a,
+				'left_label': self._entry_label(node_cache[item_index_a], entry_a),
+				'right_item_index': item_index_b,
+				'right_entry_index': entry_index_b,
+				'right_label': self._entry_label(node_cache[item_index_b], entry_b),
+			}
+			if kind == 'desdoble_eligible':
+				space_id = self._entry_default_space_id(entry_a)
+				vals['left_space_id'] = space_id
+				vals['right_space_id'] = space_id
+			commands.append((0, 0, vals))
+		return commands
+
+	def _continue_from_internal_conflicts(self):
+		"""The 'internal_conflicts' step's own 'Continue' handler: every line's 'resolution' must be
+		valid for its own 'kind' (raised otherwise, naming the offending pairs), then every line's
+		pick is applied to a freshly re-read 'node_cache' - 'co_teaching' is a no-op (the existing
+		'_reconcile_fresh_import' auto-merge already handles it), 'prevail_left'/'prevail_right'
+		deletes the losing side's one specific entry (never the whole item), 'reassign_rooms' writes
+		'space_id' onto both sides. Deletions across every line are collected first (grouped by item)
+		and applied in reverse-index order per item only once every room write has happened, so one
+		line's deletion can never shift another still-unprocessed line's stored index within the same
+		item (only relevant for the rare 3+-way collision case - see '_find_internal_conflicts')."""
+		self.ensure_one()
+		invalid_lines = self.internal_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid())
+		if invalid_lines:
+			raise ValidationError(_(
+				"Please choose a valid resolution for every conflict before continuing:\n%s"
+			) % "\n".join(
+				_("%(left)s vs. %(right)s") % {'left': line.left_label, 'right': line.right_label}
+				for line in invalid_lines
+			))
+
+		node_cache = json.loads(self.parsed_entries_json or '[]')
+		indices_to_remove = {}
+		for line in self.internal_conflict_line_ids:
+			if line.resolution == 'prevail_left':
+				indices_to_remove.setdefault(line.right_item_index, set()).add(line.right_entry_index)
+			elif line.resolution == 'prevail_right':
+				indices_to_remove.setdefault(line.left_item_index, set()).add(line.left_entry_index)
+			elif line.resolution == 'reassign_rooms':
+				for item_index, entry_index, space_id in (
+					(line.left_item_index, line.left_entry_index, line.left_space_id.id),
+					(line.right_item_index, line.right_entry_index, line.right_space_id.id),
+				):
+					node_cache[item_index]['entries'][entry_index]['space_id'] = space_id
+					node_cache[item_index]['attendance_ids'][entry_index + 1][2]['space_id'] = space_id
+
+		for item_index, entry_indices in indices_to_remove.items():
+			for entry_index in sorted(entry_indices, reverse=True):
+				del node_cache[item_index]['entries'][entry_index]
+				del node_cache[item_index]['attendance_ids'][entry_index + 1]
+
 		self.parsed_entries_json = json.dumps(node_cache)
 		self._advance_state()
 
@@ -815,4 +985,54 @@ class ems_working_schedules_import_wizard_teacher_line(models.TransientModel):
 	# brand-new teacher record is screen 6's job (pending-identification, automatic at Import), this
 	# screen only ever attaches the schedule to an already-existing employee.
 	employee_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
+
+class ems_working_schedules_import_wizard_internal_conflict_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.internal_conflict_line"
+	_description = "Working schedules import wizard: within-batch room collision line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	# NOTE: computed once, at line-creation time (see '_build_internal_conflict_lines') - not an
+	# '@api.depends' compute, same convention as 'group_line.raw_name'/'teacher_line.raw_identifier'.
+	kind = fields.Selection([
+		('co_teaching_eligible', "Co-teaching"),
+		('desdoble_eligible', "Split session (different room needed)"),
+		('plain_conflict', "Room conflict"),
+	], string="Type", required=True, readonly=True)
+	left_label = fields.Char(string="Left", required=True, readonly=True)
+	right_label = fields.Char(string="Right", required=True, readonly=True)
+	# NOTE: positional references into the wizard's own 'parsed_entries_json' node_cache structure
+	# (item index, entry index within that item's own 'entries' list) - not content-matching, see
+	# '_continue_from_internal_conflicts'.
+	left_item_index = fields.Integer(required=True, readonly=True)
+	left_entry_index = fields.Integer(required=True, readonly=True)
+	right_item_index = fields.Integer(required=True, readonly=True)
+	right_entry_index = fields.Integer(required=True, readonly=True)
+	# NOTE: a flat Selection with every option always visible/selectable, validated server-side on
+	# Continue (see '_resolution_is_valid') rather than a widget hiding the options invalid for this
+	# row's own 'kind' - confirmed with the developer 2026-08-05 as the simpler, equally-valid
+	# option the plan itself offered (plans/working_schedule_import_redesign.md's "Complexity flag").
+	resolution = fields.Selection([
+		('co_teaching', "It's co-teaching (keep both)"),
+		('prevail_left', "Left prevails"),
+		('prevail_right', "Right prevails"),
+		('reassign_rooms', "Reassign rooms"),
+	], string="Resolution", required=True)
+	# NOTE: only relevant when 'resolution' is 'reassign_rooms' - pre-filled with the colliding room
+	# for every desdoble-eligible line regardless of its current resolution (see
+	# '_build_internal_conflict_lines'), so they're ready the moment "reassign_rooms" is picked.
+	left_space_id = fields.Many2one(string="Left classroom", comodel_name="ems.space")
+	right_space_id = fields.Many2one(string="Right classroom", comodel_name="ems.space")
+
+	def _resolution_is_valid(self):
+		self.ensure_one()
+		allowed_by_kind = {
+			'co_teaching_eligible': {'co_teaching', 'prevail_left', 'prevail_right'},
+			'desdoble_eligible': {'reassign_rooms', 'prevail_left', 'prevail_right'},
+			'plain_conflict': {'prevail_left', 'prevail_right'},
+		}
+		if self.resolution not in allowed_by_kind[self.kind]:
+			return False
+		if self.resolution == 'reassign_rooms':
+			return bool(self.left_space_id) and bool(self.right_space_id) and self.left_space_id != self.right_space_id
+		return True
 

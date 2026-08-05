@@ -339,6 +339,91 @@ consequence of the screen actually existing now, not a design question to re-lit
   row still missing an `employee_id`) - same enabled/disabled "Continue" mechanism as screen 2, no
   new UI concept needed.
 
+### Screen 4 — "Internal conflicts" (2026-08-05) — within-batch room collisions
+
+**Genuinely new check, unlike screens 2/3** (which mainly relocated existing validation) - no
+prior single-screen wizard equivalent existed. Confirmed the UI/validation shape with the
+developer first, per the plan's own "Complexity flag" section (which explicitly asked to be
+revisited here): a flat `resolution` Selection with all options always visible, validated
+server-side on `Continue` (same raised-`ValidationError` convention as every other step), rather
+than a fancier widget hiding invalid options per row - the plan itself offered both as equally
+valid ("Green-phase call, not a design one"), and the flat/validated shape needs no new client-side
+state machine.
+
+**What does NOT need building:** two different teachers in this batch submitting the exact same
+`(subject, group-set, slot)` already merge into one shared co-teaching template automatically,
+today, via `_reconcile_fresh_import`'s own `by_slot`/`by_teacher_set` grouping (keyed on
+`(subject_id, tuple(group_ids))`) - nothing about that merge mechanism changes. What screen 4 adds
+is *visibility*: the developer's explicit 2026-08-01 call was that this auto-merge should still be
+**shown and confirmed**, not silently assumed, since a same-subject/same-group collision can
+equally be a genuine typo in the source file coincidentally producing the same shape.
+
+**Detection (`_find_internal_conflicts`):** groups every **teaching** entry (`non_teaching` ones
+are excluded - they carry no classroom, there's no room concept to collide over) across every
+`node_cache` item by `(space_id, dayofweek, hour_from, hour_to)` - the room comes from
+`_entry_default_space_id` (the entry's first `group_id`'s own `space_id`, same "first group wins"
+convention used everywhere else in this file; an entry lacking a resolvable room is skipped, that
+gap is caught elsewhere - see `_groups_without_space`). Within each occupied slot, every pairwise
+combination of entries from **different** items (a teacher can't conflict with their own entry;
+`find_self_conflicts` at Import already covers a teacher double-booked against their own *existing*
+DB schedule - a distinct, unrelated case) becomes one conflict. **Only pairwise combinations are
+handled** - a slot with 3+ colliding entries produces multiple pairwise lines rather than one
+n-way line; not expected to matter in practice (a genuine 3-way room collision within one import
+batch would be a very unusual planning error), documented here as a known simplification rather
+than engineered for speculatively.
+
+**Classification (`_classify_conflict_kind`)**, shared conceptually with screen 5 (not yet built)
+per the plan's own "Conflict kind classification" section:
+- same `subject_id` **and** a shared `group_id` → `co_teaching_eligible`.
+- same `subject_id`, **no** shared `group_id` → `desdoble_eligible` (a genuine split/"desdoble"
+  class needing two different rooms - the collision usually means the split's own destination room
+  was never in the source file, so both groups still carry their shared original one).
+- different `subject_id` → `plain_conflict` (pick one side, no other option makes sense).
+
+**Positional references, not content matching:** each `ems.working_schedules_import_wizard.
+internal_conflict_line` stores `left_item_index`/`left_entry_index`/`right_item_index`/
+`right_entry_index` (plain integers into `node_cache`'s own list structure) rather than trying to
+re-match entries by content later - built once, leaving `teachers`, from the very `node_cache`
+`_continue_from_internal_conflicts` re-reads unchanged, so the indices stay valid. `left_label`/
+`right_label` (prebuilt Char, reusing the existing teacher-name/subject/group/weekday/time
+formatting conventions from `_conflict_lines`) are what the view actually shows - no need to
+re-derive them from the raw entry at resolution time.
+
+**`resolution`** (Selection: `co_teaching`/`prevail_left`/`prevail_right`/`reassign_rooms`),
+defaulted per `kind` at line-creation time (`co_teaching` for co-teaching-eligible,
+`reassign_rooms` for desdoble-eligible, `prevail_left` for plain conflicts - the plan's own
+"left default" call). `left_space_id`/`right_space_id` (Many2one `ems.space`) are pre-filled with
+the colliding room for every desdoble-eligible line regardless of its current resolution, so
+they're ready the moment "reasignar aulas" is picked (`reassign_rooms` already being the default
+for that kind).
+
+**`_continue_from_internal_conflicts()`**: raises (naming every offending line's labels) if any
+line's `resolution` isn't valid for its own `kind`, or if `reassign_rooms` has a blank or
+identical left/right room (picking the *same* room again wouldn't actually resolve anything).
+Otherwise, re-reads `node_cache` fresh and applies every line:
+- `co_teaching`: no-op - the existing auto-merge mechanism already handles it correctly.
+- `prevail_left`/`prevail_right`: deletes the losing side's one specific hour-entry (and its
+  matching `attendance_ids` command - the two lists stay index-aligned 1:1, `entries[i]` ↔
+  `attendance_ids[i+1]`, since `_parse_schedule_entries` appends to both in lockstep) - never the
+  whole teacher/item, just that one slot.
+- `reassign_rooms`: writes `entry['space_id']` directly onto both sides' entries **and** their
+  `attendance_ids` commands - `ems.attendance_template._schedule_line_vals` already prefers
+  `entry.get("space_id", space_id)` over the group-derived default (built earlier this same day,
+  during the `has_sessions`/room-granularity model work), and `resource.calendar.attendance`'s own
+  `create()` override only defaults `space_id` when the vals dict doesn't already provide one - so
+  this one dict key is all that's needed for the reassignment to actually reach both the written
+  schedule line and the teacher's own calendar block, no further plumbing required.
+- Deletions across **all** lines are collected first (grouped by item, as a set of entry indices)
+  and applied in reverse-index order per item only after every line's in-place room writes have
+  happened - so one line's deletion can never shift another still-unprocessed line's stored index
+  within the same item (only relevant for the rare 3+-way collision case above, where the same item
+  could appear in more than one line).
+
+View: same "editable list, or a success alert" shape as screens 2/3; the placeholder "not
+implemented yet" alert's `invisible` grew a fourth excluded state (`'internal_conflicts'`).
+`continue_disabled` grew its own `internal_conflicts` branch (any line whose resolution isn't
+currently valid for its kind) - same enabled/disabled "Continue" mechanism as before.
+
 ### Multi-step wizard skeleton (2026-08-05) — only the intro screen has real logic so far
 
 Being rebuilt into a 7-screen guided flow (statusbar `state` field, one screen per step) per

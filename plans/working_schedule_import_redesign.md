@@ -349,6 +349,16 @@ Import time), not here. No unresolved lines → green success banner. **Continue
 re-derive `teacher_entries`, advance to step 4.
 
 ### 4 (their 5) — Resolve overlaps *within this same import*
+
+**IMPLEMENTED 2026-08-05** — see `docs/en/developers/employees/working_schedule.md`'s "Screen 4 —
+'Internal conflicts'" section for the mechanism. Confirmed the UI/validation shape with the
+developer first (per this section's own "Complexity flag" below, which explicitly asked to be
+revisited): a flat `resolution` Selection validated server-side, not a widget hiding invalid
+options per row - both were offered as equally valid here, so this was a quick confirmation, not a
+re-litigation of the design. Pairwise-only collision detection (a 3+-way room collision within one
+batch produces multiple pairwise lines instead of one n-way line) is a documented simplification,
+not a design point that was checked in on.
+
 A genuinely new check, not built yet: two entries **inside the batch itself** (same file, or two
 files uploaded together) that collide on space+time. **Revised 2026-08-01 (second round,
 developer feedback) — no case is silently auto-resolved any more, every colliding pair is shown

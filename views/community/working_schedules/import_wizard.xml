@@ -53,7 +53,23 @@
                             </field>
                         </div>
 
-                        <div class="alert alert-info" role="alert" invisible="state in ('intro', 'groups', 'teachers', 'override_info')">
+                        <div invisible="state != 'internal_conflicts'">
+                            <div class="alert alert-success" role="alert" invisible="internal_conflict_line_ids">
+                                No room conflicts were found within this batch.
+                            </div>
+                            <field name="internal_conflict_line_ids" invisible="not internal_conflict_line_ids">
+                                <list editable="bottom" create="False" delete="False">
+                                    <field name="left_label"/>
+                                    <field name="right_label"/>
+                                    <field name="kind"/>
+                                    <field name="resolution"/>
+                                    <field name="left_space_id" invisible="resolution != 'reassign_rooms'"/>
+                                    <field name="right_space_id" invisible="resolution != 'reassign_rooms'"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div class="alert alert-info" role="alert" invisible="state in ('intro', 'groups', 'teachers', 'internal_conflicts', 'override_info')">
                             This step is not implemented yet - "Continue" moves on without asking anything here for now.
                         </div>
                     </sheet>

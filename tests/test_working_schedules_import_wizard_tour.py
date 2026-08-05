@@ -17,6 +17,31 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
     def test_working_schedules_import_pending_teacher_tour(self):
         self.start_tour("/odoo", "ems_working_schedules_import_pending_teacher", login="admin")
 
+    def test_working_schedules_import_resolve_group_tour(self):
+        # Seeds a real group the tour's XML deliberately does NOT name exactly (a reinforcement
+        # group needs no level/study/course, matching the existing backend test's own
+        # 'reinforcement_group' fixture) - the tour picks it via the 'groups' step's Many2one to
+        # prove that new screen actually renders and resolves in a real browser, not just at the
+        # TransactionCase level (see TestWorkingSchedulesImportWizard.
+        # test_continue_from_groups_resolves_pending_group_and_completes_import).
+        space = self.env['ems.space'].create({
+            'code': 'TOURRESOLVEGROUP-A',
+            'name': 'Tour Resolve Group Space',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        self.env['ems.subject'].create({
+            'code': 'TOURRESOLVEGROUP',
+            'acronym': 'TRSVG',
+            'name': 'Tour Resolve Group Subject',
+        })
+        self.env['ems.group'].create({
+            'group_type': 'reinforcement',
+            'name': 'Tour Resolve Group',
+            'space_id': space.id,
+        })
+        self.start_tour("/odoo", "ems_working_schedules_import_resolve_group", login="admin")
+
     def test_employee_pending_identification_indicator_tour(self):
         # "0000 "/"0001 " prefixes: hr.employee's default _order is "name", so these sort first on
         # the list's very first page among the pre-existing teachers in this DB (same convention as

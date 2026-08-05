@@ -258,8 +258,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# NOTE: the 7-screen guided flow (see plans/working_schedule_import_redesign.md's "Multi-step
 	# wizard" section) - a statusbar Selection, non-clickable (no jumping steps by clicking the
 	# bar itself; Cancel is the only way back, discarding the whole in-progress wizard). Only
-	# 'intro' (this pass) has real per-step logic; the rest are placeholders that just advance the
-	# statusbar until each one gets its own screen built (see 'action_continue').
+	# 'intro' and 'groups' (this pass) have real per-step logic; the rest are placeholders that
+	# just advance the statusbar until each one gets its own screen built (see 'action_continue').
 	state = fields.Selection([
 		('intro', "Welcome"),
 		('groups', "Resolve groups"),
@@ -275,6 +275,28 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# across this TransientModel's own several write() calls (one per statusbar step), unlike an
 	# in-memory value would.
 	parsed_entries_json = fields.Text(readonly=True)
+	# NOTE: one line per distinct unresolved '<Students>' name found anywhere in the batch (see
+	# '_continue_from_intro'/'_classify_attachments') - populated once, leaving 'intro', regardless
+	# of whether it ends up empty (the 'groups' screen shows a success message instead of the list
+	# in that case).
+	group_line_ids = fields.One2many(string="Unresolved groups", comodel_name="ems.working_schedules_import_wizard.group_line", inverse_name="wizard_id")
+	# NOTE: drives whether "Continue" renders enabled or disabled (developer feedback 2026-08-05:
+	# "que quedará mas claro si los botones de continuar... aparecen como enabled o disabled" rather
+	# than appearing/disappearing) - the view keeps the button in the SAME place either way (two
+	# stacked buttons, only one visible at a time: the real actionable one, or a cosmetic
+	# 'disabled="disabled"' twin with no 'name' - see import_wizard.xml), instead of hiding it
+	# outright the way 'override_info' still does for a wholly different screen's button.
+	continue_disabled = fields.Boolean(compute="_compute_continue_disabled")
+
+	@api.depends("state", "ready_to_import", "group_line_ids.group_id")
+	def _compute_continue_disabled(self):
+		for wizard in self:
+			if wizard.state == 'intro':
+				wizard.continue_disabled = not wizard.ready_to_import
+			elif wizard.state == 'groups':
+				wizard.continue_disabled = bool(wizard.group_line_ids.filtered(lambda line: not line.group_id))
+			else:
+				wizard.continue_disabled = False
 
 	_STATE_SEQUENCE = ['intro', 'groups', 'teachers', 'internal_conflicts', 'db_conflicts', 'pending_info', 'override_info']
 
@@ -352,13 +374,14 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		step. Deliberately does NOT resolve teachers, check for missing classrooms, or look for
 		schedule conflicts here any more (2026-08-05, developer feedback after actually using this
 		screen) - every one of those is deferred all the way to '_apply_import' at the final step
-		instead, since resolving an unknown e-mail/group is exactly what steps 2-3 exist for, not
-		something this welcome screen should pre-empt by blocking on it. The one thing that
+		instead (or to the 'groups' step for an unresolved group name - see 'pending_group_names'
+		below), since resolving those problems is exactly what the later steps exist for, not
+		something this welcome screen should pre-empt by blocking on them. The one thing that
 		genuinely can't be deferred: a node whose own schedule content fails to parse at all (an
-		unresolved SUBJECT or GROUP code inside '_parse_schedule_entries') has no entries to cache
-		in the first place - collected in 'unparseable_issues' and still blocks leaving this screen,
-		since there is no later step (yet) that could resolve it and no data to silently carry
-		forward instead."""
+		unresolved SUBJECT code, or a genuinely malformed node - inside '_parse_schedule_entries')
+		has no entries to cache in the first place - collected in 'unparseable_issues' and still
+		blocks leaving this screen, since there is no later step that could resolve it and no data
+		to silently carry forward instead."""
 		unparseable_issues, node_cache = [], []
 		for attachment in self.attachment_ids:
 			xml_content = base64.b64decode(attachment.datas)
@@ -373,7 +396,23 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					continue
 				node_cache.append({'identifier': identifier, 'entries': entries, 'attendance_ids': attendance_ids})
 
-		return {'unparseable_issues': unparseable_issues, 'node_cache': node_cache}
+		return {
+			'unparseable_issues': unparseable_issues,
+			'node_cache': node_cache,
+			'pending_group_names': self._pending_group_names(node_cache),
+		}
+
+	@staticmethod
+	def _pending_group_names(node_cache):
+		"""Every distinct raw '<Students>' name left unresolved anywhere in 'node_cache' (see
+		'pending_group_names' on an 'entries' item, set by '_parse_schedule_entries') - dedup by raw
+		text, so the same typo'd name appearing in many hour-nodes across a file becomes ONE
+		correction line on the 'groups' step, not one per occurrence."""
+		names = set()
+		for item in node_cache:
+			for entry in item['entries']:
+				names.update(entry.get('pending_group_names') or [])
+		return sorted(names)
 
 	def _advance_state(self):
 		self.ensure_one()
@@ -399,13 +438,15 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	def action_continue(self):
 		"""The single 'Continue' button's handler for every non-final step - dispatches to each
-		step's own logic. Only 'intro' has real logic built so far (see
+		step's own logic. Only 'intro' and 'groups' have real logic built so far (see
 		plans/working_schedule_import_redesign.md); every other step is still a placeholder that
 		just advances the statusbar, so the skeleton is clickable end-to-end already and each step
 		gets filled in here as it's built."""
 		self.ensure_one()
 		if self.state == 'intro':
 			self._continue_from_intro()
+		elif self.state == 'groups':
+			self._continue_from_groups()
 		else:
 			self._advance_state()
 		return self._reopen_self_action()
@@ -415,7 +456,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		caches the result, and advances to the next step. The 'no course configured'/'no file
 		attached' checks stay here (there is no later step that could ever resolve either one), but
 		everything about the file's own CONTENT (unresolved teachers, missing classrooms, schedule
-		conflicts...) is deferred to '_apply_import' - see that method's own docstring."""
+		conflicts...) is deferred to '_apply_import' - see that method's own docstring - except an
+		unresolved group name, deferred to the 'groups' step instead (see 'group_line_ids' below)."""
 		self.ensure_one()
 		if not self.env.company.current_course_id.id:
 			raise ValidationError(_("No 'current course' has been setup. Please, select or create the current course within the EMS settings section."))
@@ -430,6 +472,34 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				"Please fix the following issues before continuing:\n%s"
 			) % "\n".join(result['unparseable_issues']))
 		self.parsed_entries_json = json.dumps(result['node_cache'])
+		self.group_line_ids = [(5, 0, 0)] + [
+			(0, 0, {'raw_name': name}) for name in result['pending_group_names']
+		]
+		self._advance_state()
+
+	def _continue_from_groups(self):
+		"""The 'groups' step's own 'Continue' handler: every 'group_line_ids' row must have a group
+		picked (raised, same convention as every other validation in this wizard - the developer's
+		own choice, see 'plans/working_schedule_import_redesign.md's step 2), then every occurrence
+		of each resolved raw name across the whole cached batch is substituted in place (see
+		'_finalize_pending_groups') before advancing - nothing reaches '_apply_import()' with a
+		'pending_group_names' marker still attached."""
+		self.ensure_one()
+		unresolved_lines = self.group_line_ids.filtered(lambda line: not line.group_id)
+		if unresolved_lines:
+			raise ValidationError(_(
+				"Please select a group for every unresolved name before continuing:\n%s"
+			) % "\n".join(unresolved_lines.mapped('raw_name')))
+
+		name_to_group = {line.raw_name: line.group_id for line in self.group_line_ids}
+		node_cache = json.loads(self.parsed_entries_json or '[]')
+		for item in node_cache:
+			for entry in item['entries']:
+				self._finalize_pending_groups(entry, name_to_group)
+			for command in item['attendance_ids']:
+				if command[0] == 0:
+					self._finalize_pending_groups(command[2], name_to_group)
+		self.parsed_entries_json = json.dumps(node_cache)
 		self._advance_state()
 
 	def _write_teacher_schedule(self, teacher, course_id, attendance_ids):
@@ -522,13 +592,67 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			'tag': 'soft_reload',
 		}
 
+	def _resolve_group_name(self, full_name):
+		"""Resolve one '<Students name="...">' raw value into an 'ems.group', or an empty recordset
+		if no heuristic below matches - extracted out of '_parse_schedule_entries' so it can be
+		reused for a name that failed to resolve at parse time (see 'pending_group_names') once the
+		'groups' step's picks are known."""
+		# NOTE: try the FULL attribute value first — a reinforcement group's name is free-form and
+		# can contain spaces (e.g. "Reforç Programació"), so it must match exactly as-is; the real
+		# planner export never appends anything to it. Only fall back to the legacy "first word (+
+		# trailing 'A')" heuristic below for the 'main' groups' naming convention, where the planner
+		# names a level's only group "DAM1" while EMS always stores it with a trailing letter
+		# ("DAM1A") — still not found after both attempts means a genuine mismatch that needs manual
+		# review.
+		group = self.env["ems.group"].search([("name", "=", full_name)], limit=1)
+		if group:
+			return group
+		acro = full_name.split(' ')[0]
+		group = self.env["ems.group"].search([("name", "=", acro)], limit=1) \
+			or self.env["ems.group"].search([("name", "=", acro + "A")], limit=1)
+		if group:
+			return group
+		# NOTE: for a study with a single course AND a single group, the planner sometimes exports
+		# just the bare study acronym ("DEV", "AO"), omitting BOTH the course number and the
+		# trailing group letter EMS always stores ("DEV1A", "AO1A") — unlike the "DAM1" case above
+		# (course present, only the letter missing), here neither is known upfront, so search by
+		# prefix and accept it only if exactly one group matches (an ambiguous prefix is a genuine
+		# mismatch, not a guess this heuristic should make).
+		candidates = self.env["ems.group"].search([("name", "=like", acro + "%")])
+		pattern = re.compile(r"^%s\d+[A-Za-z]$" % re.escape(acro))
+		matches = candidates.filtered(lambda group: pattern.match(group.name or ""))
+		return matches if len(matches) == 1 else self.env["ems.group"]
+
+	def _finalize_pending_groups(self, entry, name_to_group):
+		"""Substitutes 'entry's still-unresolved 'pending_group_names' (see '_parse_schedule_entries')
+		with the picks made on the 'groups' step, using 'name_to_group' (a plain dict, raw name ->
+		'ems.group'). Called on both shapes 'entry' can take once loaded back from the JSON cache -
+		an 'entries' list item, whose 'group_ids' is a flat list of ints, or an 'attendance_ids'
+		command's own inner dict, whose 'group_ids' is still in '[(6, 0, ids)]' command form - and
+		normalizes both into the same resolved id set. No-op if there's nothing pending (most
+		entries, and every entry once already resolved). Always removes the 'pending_group_names'
+        key - it must never reach '_apply_import()' still attached, since that key isn't a real
+		field on 'resource.calendar.attendance'."""
+		pending_names = entry.pop('pending_group_names', None)
+		if not pending_names:
+			return
+		current_group_ids = entry.get('group_ids') or []
+		is_command_form = bool(current_group_ids) and isinstance(current_group_ids[0], (list, tuple))
+		existing_ids = current_group_ids[0][2] if is_command_form else current_group_ids
+		groups = self.env['ems.group'].browse(sorted(
+			set(existing_ids) | {name_to_group[name].id for name in pending_names}
+		))
+		entry['group_ids'] = [(6, 0, groups.ids)] if is_command_form else groups.ids
+		entry['name'] += " (%s)" % ", ".join(groups.mapped('name'))
+
 	def _parse_schedule_entries(self, xml_node):
 		"""Parse a <Teacher> XML node into (entries, attendance_ids) — the flattened list of real
 		(subject/non-teaching) slots plus the (0,0,{...})-command list ready for a resource.calendar's
 		'attendance_ids', without writing anything. Pure parsing, reused for a preview (the import
 		wizard's onchange handlers, or conflict detection), for the intro step's own cache
 		('_classify_attachments'), and for the final step's real write ('_apply_import') - without any
-		side effect until that final call."""
+		side effect until that final call. A group name that fails to resolve no longer raises here -
+		see 'pending_group_names' below and '_finalize_pending_groups'."""
 		non_teaching_items = {t.code: t for t in self.env['ems.non_teaching_type'].search([])}
 
 		entries = []
@@ -574,37 +698,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 				if len(acronyms) > 0:
 					groups = self.env["ems.group"]
+					pending_names = []
 					for full_name in acronyms:
-						# NOTE: try the FULL attribute value first — a reinforcement group's name is
-						# free-form and can contain spaces (e.g. "Reforç Programació"), so it must match
-						# exactly as-is; the real planner export never appends anything to it. Only fall
-						# back to the legacy "first word (+ trailing 'A')" heuristic below for the 'main'
-						# groups' naming convention, where the planner names a level's only group "DAM1"
-						# while EMS always stores it with a trailing letter ("DAM1A") — still not found
-						# after both attempts means a genuine mismatch that needs manual review.
-						group = self.env["ems.group"].search([("name", "=", full_name)], limit=1)
-						if not group:
-							acro = full_name.split(' ')[0]
-							group = self.env["ems.group"].search([("name", "=", acro)], limit=1) \
-								or self.env["ems.group"].search([("name", "=", acro + "A")], limit=1)
-						if not group:
-							# NOTE: for a study with a single course AND a single group, the planner
-							# sometimes exports just the bare study acronym ("DEV", "AO"), omitting BOTH
-							# the course number and the trailing group letter EMS always stores ("DEV1A",
-							# "AO1A") — unlike the "DAM1" case above (course present, only the letter
-							# missing), here neither is known upfront, so search by prefix and accept it
-							# only if exactly one group matches (an ambiguous prefix is a genuine mismatch,
-							# not a guess this heuristic should make).
-							candidates = self.env["ems.group"].search([("name", "=like", acro + "%")])
-							pattern = re.compile(r"^%s\d+[A-Za-z]$" % re.escape(acro))
-							matches = candidates.filtered(lambda g: pattern.match(g.name or ""))
-							if len(matches) == 1:
-								group = matches
-						if not group:
-							raise ValidationError("Group with acronym '%s' not found." % full_name)
-						groups |= group
+						group = self._resolve_group_name(full_name)
+						if group:
+							groups |= group
+						else:
+							pending_names.append(full_name)
 					new_entry["group_ids"] = [(6, 0, groups.ids)]
-					new_entry["name"] += " (%s)" % (", ".join(g.name for g in groups))
+					if pending_names:
+						# NOTE: deferred to the 'groups' step's own resolution screen (see
+						# 'ems.working_schedules_import_wizard._continue_from_groups') instead of raising
+						# here - a transient, JSON-cache-only marker that must never survive into the
+						# '(0, 0, {...})' commands actually passed to
+						# 'resource.calendar.attendance.create()' (see '_finalize_pending_groups'). The
+						# '(group names)' suffix below is skipped while any name is still pending -
+						# rebuilt from the FULL final group set once resolution completes.
+						new_entry["pending_group_names"] = pending_names
+					else:
+						new_entry["name"] += " (%s)" % (", ".join(g.name for g in groups))
 				dwe.append(new_entry)
 				
 			dwe = sorted(dwe, key=lambda e: e["hour_from"])
@@ -628,4 +740,15 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				attendance_ids.append([0, 0, e])
 
 		return entries, attendance_ids
+
+class ems_working_schedules_import_wizard_group_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.group_line"
+	_description = "Working schedules import wizard: unresolved group correction line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	raw_name = fields.Char(string="Name found in file", required=True, readonly=True)
+	# NOTE: create-on-the-fly deliberately allowed (no 'no_create'/'no_create_edit' context) - a
+	# plain Many2one already gives "pick an existing group, or create one on the spot" for free, no
+	# bespoke code needed (see plans/working_schedule_import_redesign.md's step 2).
+	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
 

@@ -97,11 +97,6 @@ msgid "(New notice)"
 msgstr ""
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid ") already have a schedule defined for the current course. If you continue with the process: <br/>"
-msgstr ") ya tiene definido un horario para el curso actual. Si continua con el proceso: <br/>"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "1. Authorizations"
 msgstr "1. Autorizaciones"
@@ -1964,11 +1959,6 @@ msgstr "Plantillas de asistencia"
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_attended model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__a_attended model:ems.attendance_status,name:ems.attendance_status_attended
 msgid "Attended"
 msgstr "Asistencia"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "Attention please: some teachers ("
-msgstr "Atención: algunos docentes ("
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_response__authorization_id model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -3850,7 +3840,7 @@ msgid "Grant access"
 msgstr "Otorgar acceso"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__group_id model:ir.model.fields,field_description:ems.field_ems_grade_session__group_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_teaching__group_id model_terms:ir.ui.view,arch_db:ems.view_grade_session_search model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_group_list model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_id model_terms:ir.ui.view,arch_db:ems.view_year_record_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__group_id model:ir.model.fields,field_description:ems.field_ems_grade_session__group_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_teaching__group_id model_terms:ir.ui.view,arch_db:ems.view_grade_session_search model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_group_list model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_id model_terms:ir.ui.view,arch_db:ems.view_year_record_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__group_id
 msgid "Group"
 msgstr "Grupo"
 
@@ -7066,25 +7056,10 @@ msgid "The block will use the group's tutor data."
 msgstr "El bloque usará los datos del tutor del grupo."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "The current assistance templates will be updated to match the new schedules."
-msgstr "Las plantillas de assistencia actuales serán actualitzadas para coincidir con los nuevos horarios."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_session.py:0 model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
 msgid "The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session."
 msgstr "La sesión actual ya existe. Por favor, edita la existente (quizás la haya creado otro profesor) o elige otra sesión disponible."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "The current subject assignations will be updated to match the new schedules."
-msgstr "La assignación de materias del profesorado se actualitzará para conincidir con los nuevos horarios aportados."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "The current working schedules will be updated according to the provided ones (none will be removed)."
-msgstr "Los horarios del profesorado actuales serán actualizados en función de los aportados (ninguno será eliminado)."
 
 #. module: ems
 #. odoo-python
@@ -7742,7 +7717,7 @@ msgid "Whether there is a final grade (the computed grade is available)."
 msgstr "Indica si hay nota final (la nota calculada está disponible)."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_csv_column__wizard_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_csv_column__wizard_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__wizard_id
 msgid "Wizard"
 msgstr "Asistente"
 
@@ -7800,6 +7775,32 @@ msgstr "Horarios de trabajo"
 #: model:ir.model,name:ems.model_ems_working_schedules_import_wizard
 msgid "Working schedules: import wizard."
 msgstr "Horarios de trabajo: asistente de importación."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_working_schedules_import_wizard_group_line
+msgid "Working schedules import wizard: unresolved group correction line."
+msgstr "Asistente de importación de horarios: línea de corrección de grupo no resuelto."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__group_line_ids
+msgid "Unresolved groups"
+msgstr "Grupos no resueltos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__raw_name model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Name found in file"
+msgstr "Nombre encontrado en el fichero"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Every group mentioned in the file was recognized."
+msgstr "Se han reconocido todos los grupos mencionados en el fichero."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Please select a group for every unresolved name before continuing:\n%s"
+msgstr "Seleccione un grupo para cada nombre no resuelto antes de continuar:\n%s"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form

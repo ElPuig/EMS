@@ -311,6 +311,15 @@ framing (*"al cargar el fichero, no salga nada en esta primera ventana, solament
 botón Continue... o que se pueda cancelar"*).
 
 ### 2 (their 3) — Resolve unrecognized groups
+
+**IMPLEMENTED 2026-08-05** — confirmed with the developer first, since building this exactly as
+designed here changes the intro screen's own previously-documented behavior (an unresolved group
+name used to permanently block leaving Welcome; now it's deferred here instead, matching this
+section's original design). See `docs/en/developers/employees/working_schedule.md`'s "Screen 2 —
+'Resolve groups'" section for the full mechanism and the exact conflict that prompted asking
+rather than assuming. Subject *codes* are unaffected — still no resolution screen for those, still
+blocks at Welcome.
+
 One line per **distinct** unresolved `<Students>` name found anywhere in the batch (dedup by raw
 name — the same typo'd group appearing in 20 hour-nodes across a file shows as ONE line, and
 picking a group for it applies to all 20 occurrences). Each line: the raw text from the file + a

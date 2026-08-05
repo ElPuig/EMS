@@ -24,6 +24,7 @@ Gestiona el horario semanal de cada docente desde su propia ficha de empleado, y
 - Marcos horarios: **Configuración → Profesorado → Marcos horarios**
 - Ajuste del marco predeterminado: **Configuración → Empleados → "Marco horario predeterminado"**
 - El horario de un docente: **Empleados → [abrir el docente] → pestaña Horario**
+- Importación de horarios desde un archivo: **Configuración → Profesorado → Horarios de trabajo** → menú ⚙️ (engranaje) → **Import: planner data**
 
 ---
 
@@ -109,35 +110,29 @@ El patio nunca se cuenta en ninguna de las dos columnas. Una franja que solo se 
 
 ---
 
-## Importar el horario de un docente desde un archivo
+## Importar horarios de trabajo desde un archivo
 
-Si tu centro ya exporta horarios desde una herramienta externa de planificación (XML), puedes importar uno directamente para un docente concreto en lugar de construirlo a mano:
-
-1. Abre la pestaña **Horario** del docente y haz clic en **Importar**.
-2. Adjunta el archivo XML.
-3. Si el docente ya tiene un horario, verás un aviso de que se actualizará (no se reemplazará desde cero) — las asignaciones de asignaturas y las plantillas de asistencia se mantienen sincronizadas con el archivo nuevo.
-4. Haz clic en **Importar**.
-
----
-
-## Importar el horario de varios docentes a la vez
-
-Si tienes varios archivos de exportación de la planificación para importar de una vez (cada archivo ya puede describir más de un docente, emparejado por correo electrónico), usa el importador general en lugar del botón por docente:
+Si tu centro ya exporta horarios desde una herramienta externa de planificación (XML), usa el importador general en lugar de construir los horarios a mano — cada archivo ya puede describir varios docentes a la vez (emparejados por correo electrónico), y puedes adjuntar más de un archivo en una misma ejecución. Ya no existe un importador por docente individual: un docente que se incorpora a mitad de curso recibe su horario mediante **Nuevo** en su propia pestaña **Horario** (ver "Empezar el horario de un docente a partir de un marco o de otro docente" más abajo) o a mano, nunca con una subida de archivo para un solo docente.
 
 1. Ve a **Configuración → Profesorado → Horarios de trabajo**.
 2. Abre el menú ⚙️ (engranaje) sobre la lista y elige **Import: planner data**.
-3. Adjunta tantos archivos XML como necesites.
-4. Si alguno de los docentes encontrados en esos archivos ya tiene un horario, verás un aviso que los lista — los horarios se actualizan, no se reemplazan desde cero.
-5. Haz clic en **Importar**.
+3. En la pantalla de **Bienvenida**, adjunta uno o más archivos XML y haz clic en **Continuar** — todavía no se escribe nada en este punto, ni tampoco se comprueba nada del contenido de los archivos.
+4. Si los archivos mencionan algún nombre de grupo que EMS no ha podido emparejar automáticamente, una pantalla de **Resolver grupos** los lista uno a uno: elige el grupo real en el desplegable de cada fila (o crea uno al vuelo, igual que en cualquier otro campo de grupo) y haz clic en **Continuar**. Si todos los grupos se reconocieron automáticamente, verás un mensaje de confirmación en lugar de una lista.
+5. Haz clic en **Continuar** en las pantallas restantes (todavía no construidas como pantallas propias — una versión futura permitirá resolver aquí mismo los conflictos de docente/aula, en lugar de solo en el paso final).
+6. En el paso final, haz clic en **Importar**. Este es el momento en que todo se escribe de verdad, y donde cualquier problema pendiente (un correo de docente desconocido, un aula que falta, un conflicto de horario) se reporta indicando exactamente qué hay que corregir.
+
+> Hazlo durante la preparación del próximo curso, una vez que los horarios del curso anterior ya hayan sido archivados por el asistente de "Configurar el próximo curso" — ejecutarlo contra un curso ya en marcha puede generar conflictos que luego habrá que resolver a mano.
+
+Si alguno de los docentes encontrados en los archivos ya tiene un horario, se actualiza in situ (no se reemplaza desde cero) al hacer clic en **Importar** — las asignaciones de asignaturas y las plantillas de asistencia existentes se mantienen sincronizadas con el archivo nuevo.
 
 ---
 
 ## Docentes aún no contratados (pendientes de identificar)
 
-A veces llegan horarios nuevos antes de que todos los puestos estén cubiertos — tu herramienta de planificación nombra esas filas con un código provisional (`X1`, `X2`...) en lugar del correo real de un docente. Importar un archivo así (tanto con el importador por docente como con el general, más arriba) ya no falla en esas filas:
+A veces llegan horarios nuevos antes de que todos los puestos estén cubiertos — tu herramienta de planificación nombra esas filas con un código provisional (`X1`, `X2`...) en lugar del correo real de un docente. Importar un archivo así ya no falla en esas filas:
 
-1. Adjunta el archivo como siempre. Las filas con un código provisional muestran un aviso azul, no bloqueante ("Se crearán N profesor(es) pendiente(s) de identificar: ...") en lugar de un error — el botón **Importar** sigue disponible.
-2. Haz clic en **Importar**. Se crea un nuevo registro de empleado para cada código aún no identificado, ya nombrado p. ej. "Profesor pendiente (X1)", con **su horario, asignaturas y listas de asistencia ya configurados** exactamente como si fuera un docente conocido.
+1. Adjunta el archivo y haz clic a través del asistente como de costumbre (ver "Importar horarios de trabajo desde un archivo" más arriba) — un código provisional no se trata como un problema en ningún paso.
+2. Haz clic en **Importar** en el paso final. Se crea un nuevo registro de empleado para cada código aún no identificado, ya nombrado p. ej. "Profesor pendiente (X1)", con **su horario, asignaturas y listas de asistencia ya configurados** exactamente como si fuera un docente conocido.
 3. Estos registros muestran una etiqueta **"Pendiente de identificar"** en la lista/kanban de docentes y una cinta en su propia ficha, para que sean fáciles de encontrar (usa el filtro/agrupación **Pendiente de identificar** en la lista de docentes) y fáciles de distinguir de un docente real ya identificado.
 
 Cuando se cubre el puesto:

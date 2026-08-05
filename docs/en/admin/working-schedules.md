@@ -24,6 +24,7 @@ Manage each teacher's weekly timetable from their own employee record, and set u
 - Schedule frameworks: **Configuration → Teachers → Schedule frameworks**
 - Default framework setting: **Settings → Employees → "Default schedule framework"**
 - A teacher's own schedule: **Employees → [open the teacher] → Schedule** tab
+- Batch import from a file: **Configuration → Teachers → Working schedules** → ⚙️ (cog) menu → **Import: planner data**
 
 ---
 
@@ -109,35 +110,29 @@ The break is never counted in either column. A period that only partially overla
 
 ---
 
-## Import a Teacher's Schedule from a File
+## Import Working Schedules From a File
 
-If your centre already exports schedules from an external planning tool (XML), you can import one directly for a specific teacher instead of building it by hand:
-
-1. Open the teacher's **Schedule** tab and click **Import**.
-2. Attach the XML file.
-3. If the teacher already has a schedule, you'll see a warning that it will be updated (not replaced from scratch) — subject assignments and attendance templates are kept in sync with the new file.
-4. Click **Import**.
-
----
-
-## Import Several Teachers' Schedules at Once
-
-If you have several planner export files to import in one go (each file can already describe more than one teacher, matched by e-mail), use the general importer instead of the per-teacher button:
+If your centre already exports schedules from an external planning tool (XML), use the batch importer instead of building schedules by hand — each file can already describe several teachers at once (matched by e-mail), and you can attach more than one file in the same run. There is no separate per-teacher import any more: a teacher joining mid-year gets their schedule via **New** on their own **Schedule** tab (see "Start a Teacher's Schedule From a Framework or From Another Teacher" below) or by hand, never a single-teacher file upload.
 
 1. Go to **Configuration → Teachers → Working schedules**.
 2. Open the ⚙️ (cog) menu above the list and choose **Import: planner data**.
-3. Attach as many XML files as you need.
-4. If any of the teachers found across those files already has a schedule, you'll see a warning listing them — schedules are updated, not replaced from scratch.
-5. Click **Import**.
+3. On the **Welcome** screen, attach one or more XML files, then click **Continue** — nothing is written yet at this point, and nothing about the files' content is checked here either.
+4. If the files mention any group name EMS couldn't match automatically, a **Resolve groups** screen lists each one: pick the real group from the dropdown for each row (or create one on the spot, the same way you would from any other group field), then click **Continue**. If every group was recognized automatically, you'll see a confirmation message instead of a list.
+5. Click **Continue** through the remaining steps (not yet built as their own screens — a future version will let you resolve teacher/room conflicts here interactively instead of only at the final step).
+6. On the final step, click **Import**. This is the point where everything is actually written, and where any remaining problem (an unknown teacher e-mail, a missing classroom, a schedule conflict) is reported, naming exactly what needs fixing.
+
+> Run this during next-course preparation, once the previous course's schedules have already been archived by the "Setting Up the Next Course" wizard — running it against a course already in progress can create conflicts that then need manual resolution.
+
+If any of the teachers found across the files already has a schedule, it's updated in place (not replaced from scratch) once you click **Import** — existing subject assignments and attendance templates stay in sync with the new file.
 
 ---
 
 ## Teachers Not Yet Hired (Pending Identification)
 
-New timetables sometimes arrive before every post is staffed — your planner tool names those rows with a placeholder code (`X1`, `X2`...) instead of a real teacher's e-mail. Importing such a file (via either the per-teacher or the general importer above) no longer fails on those rows:
+New timetables sometimes arrive before every post is staffed — your planner tool names those rows with a placeholder code (`X1`, `X2`...) instead of a real teacher's e-mail. Importing such a file no longer fails on those rows:
 
-1. Attach the file as usual. Rows with a placeholder code produce a blue, non-blocking notice ("N teacher(s) pending identification will be created: ...") instead of an error — the **Import** button stays available.
-2. Click **Import**. A new employee record is created for each not-yet-identified code, already named e.g. "Pending teacher (X1)", with **their schedule, subjects and attendance lists already set up** exactly as if they were a known teacher.
+1. Attach the file and click through the wizard as usual (see "Import Working Schedules From a File" above) — a placeholder code isn't treated as a problem at any step.
+2. Click **Import** on the final step. A new employee record is created for each not-yet-identified code, already named e.g. "Pending teacher (X1)", with **their schedule, subjects and attendance lists already set up** exactly as if they were a known teacher.
 3. These records show a **"Pending identification"** badge in the Teachers list/kanban and a ribbon on their own form, so they're easy to find (use the **Pending identification** filter/group-by in the Teachers list) and easy to tell apart from a real, already-identified teacher.
 
 When the post is filled:

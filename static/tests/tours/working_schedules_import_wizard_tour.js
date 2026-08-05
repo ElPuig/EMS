@@ -62,8 +62,12 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_unknown_te
             run: "click",
         },
         {
+            trigger: ".modal .alert-success:contains('Every group mentioned in the file was recognized')",
+            content: "The 'groups' screen shows the success message - this file has no '<Students>' at all",
+        },
+        {
             trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'groups' placeholder step",
+            content: "Continue through the 'groups' step (nothing to resolve here)",
             run: "click",
         },
         {
@@ -153,16 +157,22 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             content: "Continue is enabled purely because a file is attached - leaving the intro screen parses and caches both placeholder-code teachers (nothing written yet)",
             run: "click",
         },
-        // Steps 'groups' through 'pending_info' have no screen of their own yet (see
+        // Steps 'teachers' through 'pending_info' have no screen of their own yet (see
         // plans/working_schedule_import_redesign.md) - each is a placeholder "Continue" click
         // that just advances the statusbar. Not asserting on the statusbar's own DOM here (its
         // items can fold into a "more" dropdown under narrow viewports, purely width-driven -
         // see web.StatusBarField's adjustVisibleItems - which would make a `data-value=...`
         // selector flaky); the "Import" button only appearing once every placeholder has been
-        // clicked through is itself the proof the skeleton advances correctly end-to-end.
+        // clicked through is itself the proof the skeleton advances correctly end-to-end. 'groups'
+        // (just above) is the other real step built so far - see the tour dedicated to it,
+        // 'ems_working_schedules_import_resolve_group', below.
+        {
+            trigger: ".modal .alert-success:contains('Every group mentioned in the file was recognized')",
+            content: "The 'groups' screen shows the success message - this file has no '<Students>' at all",
+        },
         {
             trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'groups' placeholder step",
+            content: "Continue through the 'groups' step (nothing to resolve here)",
             run: "click",
         },
         {
@@ -198,6 +208,120 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             // still-mid-close dialog as "an open form view in edition mode".
             trigger: "body:not(:has(.modal)) .o_list_view",
             content: "Back to the Working Schedules list, confirming the placeholder teacher was created",
+        },
+    ],
+});
+
+// Screen 2 ("Resolve groups", 2026-08-05, see plans/working_schedule_import_redesign.md's step 2)
+// - an unresolved '<Students>' name no longer blocks the intro screen: it now surfaces here as an
+// editable list row (raw name + a Many2one to pick the real group), and picking one applies to
+// every occurrence of that name across the whole batch. This tour proves that new screen actually
+// renders and resolves in a real browser (a TransactionCase already proves the underlying model
+// logic - see TestWorkingSchedulesImportWizard.
+// test_continue_from_groups_resolves_pending_group_and_completes_import). The real group ("Tour
+// Resolve Group") is seeded by the Python test method; the XML deliberately names something else
+// ("TourUnresolvedGroupXYZ Group") so none of '_resolve_group_name's heuristics match it at parse
+// time. The teacher is a placeholder code (no '@'), not a real e-mail, so Import can succeed
+// without needing an existing teacher fixture too - same pattern as the pending-teacher tour above.
+registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_group", {
+    test: true,
+    url: "/odoo/action-ems.action_working_schedules_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view",
+            content: "Working Schedules list loaded",
+        },
+        {
+            trigger: ".o_cp_action_menus button",
+            content: "Open the list's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-item:contains('Import planner data')",
+            content: "Click 'Import planner data (XML)'",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids']",
+            content: "Import wizard dialog opened",
+            run: async () => {
+                const xml = '<root><T name="TOURGROUPTEACHER"><D name="1 Monday"><H name="1 09:00">'
+                    + '<Subject name="TOURRESOLVEGROUP Tour Resolve Group Subject"/>'
+                    + '<Students name="TourUnresolvedGroupXYZ Group"/>'
+                    + '</H></D></T></root>';
+                const file = new File([xml], "planner_resolve_group.xml", { type: "text/xml" });
+                await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", [file]);
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attachment",
+            content: "File attached",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled purely because a file is attached",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_cell:contains('TourUnresolvedGroupXYZ Group')",
+            content: "The 'groups' screen lists the unresolved raw name found in the file",
+        },
+        {
+            // Continue renders as a disabled (grayed-out) twin while a line is still unresolved,
+            // rather than disappearing (developer feedback 2026-08-05: "que quedará mas claro si
+            // los botones de continuar... aparecen como enabled o disabled") - it stays in the
+            // same spot, just not clickable, until every row has a group picked.
+            trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
+            content: "Continue shows disabled - the group hasn't been picked yet",
+        },
+        {
+            trigger: ".modal .o_data_row .o_data_cell[name='group_id']",
+            content: "Click the row's group cell to edit it",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_selected_row .o_field_widget[name='group_id'] input",
+            content: "Search for the seeded group",
+            run: "edit Tour Resolve Group",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Tour Resolve Group')",
+            content: "Select it",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled now that the group is picked - the picked group resolves every occurrence of the raw name",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'teachers' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'internal_conflicts' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'db_conflicts' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'pending_info' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
+            content: "Click 'Import' - the resolved group is what actually gets written",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_list_view",
+            content: "Back to the Working Schedules list, confirming the resolved-group import completed",
         },
     ],
 });

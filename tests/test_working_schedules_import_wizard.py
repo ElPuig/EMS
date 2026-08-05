@@ -90,14 +90,17 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
 
     def _import(self, vals):
-        """Creates the wizard, leaves the intro screen (parsing+caching - since 2026-08-05's
-        multi-step redesign, this is where a ValidationError for an unresolved group/subject/
-        e-mail or a blocking conflict now surfaces, not create() itself), then runs the final
-        step's real write. Mirrors what a real user does by clicking through the wizard, minus
-        the not-yet-built middle steps (see plans/working_schedule_import_redesign.md). Returns
-        the wizard record."""
+        """Creates the wizard and clicks 'Continue' through every step to the final one, then runs
+        the real write - mirrors what a real user does clicking through the wizard. Since
+        2026-08-05's multi-step redesign, a ValidationError for an unresolved subject/e-mail or a
+        blocking conflict surfaces at the final 'import_planner_data()' call; an unresolved GROUP
+        name (see 'ems.working_schedules_import_wizard._continue_from_groups') surfaces instead
+        while still leaving the 'groups' step, since this helper never fills in
+        'group_line_ids.group_id' - a test that needs to actually resolve one should drive the
+        wizard by hand instead of using this helper."""
         wizard = self.env['ems.working_schedules_import_wizard'].create(vals)
-        wizard.action_continue()
+        while wizard.state != 'override_info':
+            wizard.action_continue()
         wizard.import_planner_data()
         return wizard
 
@@ -356,8 +359,10 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(attendance.group_ids, self.bare_acronym_group)
 
     def test_import_bare_study_acronym_with_several_groups_raises(self):
-        # If the study actually has more than one group, a bare acronym is genuinely ambiguous — the
-        # importer must not guess which one the planner meant, and should raise like any other mismatch.
+        # If the study actually has more than one group, a bare acronym is genuinely ambiguous - the
+        # importer must not guess which one the planner meant. Deferred to the 'groups' step
+        # (2026-08-05) rather than raised immediately: '_import()' never fills in a pick for it, so
+        # leaving that step still raises, same as before from the caller's point of view.
         self.env['ems.group'].create({
             'course': 1, 'acronym': 'B', 'level_id': self.level.id, 'study_id': self.bare_acronym_study.id,
             'space_id': self.space.id,
@@ -373,6 +378,9 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             })
 
     def test_import_group_still_not_found_after_fallback_raises(self):
+        # Deferred to the 'groups' step (2026-08-05): '_import()' never fills in a pick for the
+        # resulting 'group_line', so leaving that step still raises, same as a real user cancelling
+        # out rather than picking a group would.
         with self.assertRaises(ValidationError):
             self._import({
                 'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
@@ -413,12 +421,12 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         attendance = self.teacher.resource_calendar_id.attendance_ids
         self.assertEqual(attendance.hour_to, self.env.company.schedule_import_last_entry_time)
 
-    def test_continue_from_intro_placeholder_code_unresolved_group_raises(self):
-        # Reported 2026-08-01, still relevant after the 2026-08-05 multi-step redesign: a
-        # not-yet-identified (pending-code) teacher's schedule content must still be parsed (not
-        # skipped just because its own identity isn't resolved yet) - an unresolvable group acronym
-        # in that row has no later step that could resolve it either, so it must still raise clearly
-        # when leaving the intro screen, not silently pass through only to blow up unworded later.
+    def test_continue_from_intro_placeholder_code_unresolved_group_defers_to_groups_step(self):
+        # Reported 2026-08-01: a not-yet-identified (pending-code) teacher's schedule content must
+        # still be parsed (not skipped just because its own identity isn't resolved yet). Updated
+        # 2026-08-05: an unresolvable group acronym in that row no longer blocks the intro screen -
+        # it's deferred to the new 'groups' step instead (see 'plans/
+        # working_schedule_import_redesign.md's step 2), same as for an identified teacher.
         attachment = self.env['ir.attachment'].create({
             'name': 'planner_pending_bad_group.xml',
             'datas': self._xml_file_with_hour_node(
@@ -431,11 +439,11 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'attachment_ids': [(6, 0, [attachment.id])],
         })
 
-        with self.assertRaises(ValidationError) as capture:
-            wizard.action_continue()
+        wizard.action_continue()
 
-        self.assertIn("Group with acronym 'NOPE Group' not found", str(capture.exception))
-        self.assertEqual(wizard.state, 'intro')
+        self.assertEqual(wizard.state, 'groups')
+        self.assertEqual(wizard.group_line_ids.mapped('raw_name'), ['NOPE Group'])
+        self.assertFalse(wizard.group_line_ids.group_id)
 
     def test_ready_to_import_reflects_attachment_ids(self):
         # 'ready_to_import' is now a plain computed field (2026-08-05: no more content validation
@@ -607,11 +615,12 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         self.assertIn(self.spaceless_group.name, str(capture.exception))
 
-    def test_continue_from_intro_unknown_group_raises(self):
-        # An unresolvable group has no later step (yet) that could resolve it interactively, so it
-        # must still raise clearly when leaving the intro screen - unlike an unknown e-mail or a
-        # missing classroom, this one can't be deferred (there's no cache to defer, since
-        # '_parse_schedule_entries' itself never produced any entries for this node).
+    def test_continue_from_intro_unknown_group_defers_to_groups_step(self):
+        # Updated 2026-08-05: an unresolvable group no longer blocks the intro screen - it's
+        # deferred to the 'groups' step instead (see 'plans/working_schedule_import_redesign.md's
+        # step 2). Unlike an unknown e-mail (deferred all the way to Import) or a missing classroom,
+        # this one still needed '_parse_schedule_entries' itself to keep producing entries for the
+        # node instead of raising - see 'pending_group_names'.
         attachment = self.env['ir.attachment'].create({
             'name': 'planner_unknown_group.xml',
             'datas': self._xml_file_with_hour_node(
@@ -624,11 +633,11 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'attachment_ids': [(6, 0, [attachment.id])],
         })
 
-        with self.assertRaises(ValidationError) as capture:
-            wizard.action_continue()
+        wizard.action_continue()
 
-        self.assertIn('TWIWNOTAREALGROUP', str(capture.exception))
-        self.assertEqual(wizard.state, 'intro')
+        self.assertEqual(wizard.state, 'groups')
+        self.assertEqual(wizard.group_line_ids.mapped('raw_name'), ['TWIWNOTAREALGROUP Group'])
+        self.assertFalse(wizard.group_line_ids.group_id)
 
     def test_continue_from_intro_unknown_subject_code_raises(self):
         attachment = self.env['ir.attachment'].create({
@@ -719,18 +728,133 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             wizard.action_continue()
         self.assertEqual(wizard.state, 'intro')
 
-    def test_action_continue_placeholder_steps_advance_one_state_at_a_time(self):
-        # Steps 'groups' through 'pending_info' have no real logic yet (see
-        # plans/working_schedule_import_redesign.md) - 'action_continue' just advances the
-        # statusbar for each of them, one step per call, until reaching the final step.
+    def test_action_continue_from_intro_dedups_same_unresolved_group_name(self):
+        # The same typo'd group appearing in several hour-nodes across the batch is ONE correction
+        # line, not one per occurrence - picking a group for it applies to all of them at once.
+        xml = (
+            '<root><T name="test.wizard.teacher.import.wizard@example.com Someone">'
+            '<D name="1 Monday">'
+            f'<H name="1 09:00"><Subject name="{self.subject.code} {self.subject.name}"/><Students name="NOPE Group"/></H>'
+            f'<H name="2 10:00"><Subject name="{self.subject.code} {self.subject.name}"/><Students name="NOPE Group"/></H>'
+            '</D></T></root>'
+        )
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(base64.b64encode(xml.encode())),
+        })
+
+        wizard.action_continue()
+
+        self.assertEqual(wizard.group_line_ids.mapped('raw_name'), ['NOPE Group'])
+
+    def test_continue_from_groups_raises_when_a_line_has_no_group_picked(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                '<Students name="NOPE Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+
+        with self.assertRaises(ValidationError) as capture:
+            wizard.action_continue()
+
+        self.assertIn('NOPE Group', str(capture.exception))
+        self.assertEqual(wizard.state, 'groups')
+
+    def test_continue_from_groups_resolves_pending_group_and_completes_import(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                '<Students name="NOPE Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.group_line_ids.group_id = self.group.id
+        wizard.action_continue()  # groups -> teachers, substitutes the pick
+
+        self.assertEqual(wizard.state, 'teachers')
+        self.assertNotIn('pending_group_names', wizard.parsed_entries_json)
+
+        while wizard.state != 'override_info':
+            wizard.action_continue()
+        wizard.import_planner_data()
+
+        attendance = self.teacher.resource_calendar_id.attendance_ids
+        self.assertEqual(attendance.group_ids, self.group)
+
+    def test_continue_disabled_true_at_intro_without_attachment(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({})
+        self.assertTrue(wizard.continue_disabled)
+
+    def test_continue_disabled_false_at_intro_with_attachment(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(
                 self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
             ),
         })
-        wizard.action_continue()  # intro -> groups (the one real step so far)
+        self.assertFalse(wizard.continue_disabled)
 
-        expected_sequence = ['teachers', 'internal_conflicts', 'db_conflicts', 'pending_info', 'override_info']
+    def test_continue_disabled_true_at_groups_with_unresolved_line(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                '<Students name="NOPE Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        self.assertEqual(wizard.state, 'groups')
+        self.assertTrue(wizard.continue_disabled)
+
+    def test_continue_disabled_false_at_groups_once_resolved(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                '<Students name="NOPE Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.group_line_ids.group_id = self.group.id
+        self.assertFalse(wizard.continue_disabled)
+
+    def test_continue_disabled_false_at_groups_with_nothing_to_resolve(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        self.assertFalse(wizard.group_line_ids)
+        self.assertFalse(wizard.continue_disabled)
+
+    def test_continue_disabled_false_for_placeholder_states(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        self.assertFalse(wizard.continue_disabled)
+
+    def test_action_continue_placeholder_steps_advance_one_state_at_a_time(self):
+        # Steps 'teachers' through 'pending_info' have no real logic yet (see
+        # plans/working_schedule_import_redesign.md) - 'action_continue' just advances the
+        # statusbar for each of them, one step per call, until reaching the final step. 'intro' and
+        # 'groups' are the two real steps built so far (this file's XML has no '<Students>' at all,
+        # so 'groups' has nothing to resolve and also just advances).
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers (nothing to resolve)
+
+        expected_sequence = ['internal_conflicts', 'db_conflicts', 'pending_info', 'override_info']
         for expected_state in expected_sequence:
             wizard.action_continue()
             self.assertEqual(wizard.state, expected_state)

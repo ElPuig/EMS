@@ -226,6 +226,77 @@ is always either legitimate co-teaching or a real problem, never something to si
 
 Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_parse_schedule_entries()`, then calls `ems.teaching.sync_from_schedule(..., replace=False)`/`ems.attendance_template.sync_from_schedule_batch_fresh_import` — the importer's own entry points, **not** the ones the Schedule tab's grid widget uses to save a live edit (see "Reconciliation" above for why the importer needs its own).
 
+### Screen 2 — "Resolve groups" (2026-08-05) — deferred group-name resolution
+
+**Decision confirmed with the developer 2026-08-05, resolving a real conflict found before
+implementing:** the intro-screen redesign above says an unresolvable group/subject *code* "still
+blocks leaving the welcome screen, since there is no later step (yet) that could resolve it" —
+phrasing that could mean either "permanently, by design" or "only until step 2 exists". Several
+already-passing tests (`test_import_group_still_not_found_after_fallback_raises`,
+`test_continue_from_intro_placeholder_code_unresolved_group_raises`) asserted the permanent
+reading. Asked explicitly rather than guessing which reading was intended (per this repo's
+"full-scenario exploration before implementing" rule) — confirmed: build screen 2 as originally
+designed in `plans/working_schedule_import_redesign.md`, an unresolved **group** name (not
+subject code — there is still no resolution screen for that) is deferred instead of blocking, and
+the tests above are adapted to the new behavior rather than treated as authoritative.
+
+**Mechanism:** `_parse_schedule_entries()`'s group-name lookup is unchanged (same three-heuristic
+match: exact full name, acronym + trailing letter, unique acronym-prefix match — extracted into
+its own `_resolve_group_name()` for reuse), but a name that still doesn't resolve no longer raises.
+Instead the entry is tagged with `pending_group_names` (the raw, unresolved `<Students>` text) and
+carries whatever groups it) did resolve in `group_ids`, deferring the rest. This tag is a
+**transient, JSON-cache-only marker** — it must never survive into the `(0, 0, {...})` command
+dicts actually passed to `resource.calendar.attendance.create()` (those dict keys must all be real
+model fields), so `_continue_from_groups()` strips it from every entry before advancing past the
+`groups` state; nothing reaches `_apply_import()` with the marker still attached.
+
+- **`_classify_attachments()`** additionally collects the distinct set of unresolved raw names
+  across the whole batch (dedup by raw text — the same typo appearing in 20 hour-nodes is one
+  correction, not 20) and `_continue_from_intro()` materializes one
+  `ems.working_schedules_import_wizard.group_line` per name (`raw_name` readonly, `group_id`
+  Many2one to `ems.group` with native create-on-the-fly allowed) before advancing to `groups` —
+  every batch visits this state, whether or not it has anything to show.
+- **`_continue_from_groups()`** (state `groups`'s `action_continue()` handler): raises if any line
+  still has no `group_id` picked (inline "must pick one" validation, same raised-`ValidationError`
+  convention as the rest of this wizard); otherwise builds a `raw_name → group` map from the
+  lines, walks the cached `node_cache` substituting every `pending_group_names` reference (via the
+  shared `_finalize_pending_groups()` helper, which normalizes the two different `group_ids` shapes
+  — a plain int list on `entries` items vs. a `[(6, 0, ids)]` command on `attendance_ids`' inner
+  dicts — into the same resolved id set, and rebuilds the "(group names)" display suffix on `name`
+  that intro deliberately skipped while resolution was still pending), re-serializes the cache, and
+  advances to `teachers`.
+- View: a new `state == 'groups'` screen shows `group_line_ids` as an editable list when non-empty,
+  or a plain success alert when empty (no unresolved names in this batch) — same "list, or a
+  success message" shape the plan describes for every resolution screen.
+
+**"Continue" renders enabled/disabled instead of appearing/disappearing (2026-08-05, developer
+feedback):** *"¿Se puede hacer que no te deje continuar hasta que no se hayan seleccionado
+grupos?... Creo que quedará más claro si los botones de continuar, en lugar de aparecer u
+ocultarse, aparecen como 'enabled' o 'disabled'."* Odoo's form-view buttons have no native,
+domain-bindable "disabled" attribute the way fields have `readonly`/`required` (confirmed by
+reading `view_button.js`'s own `disabled` getter — it only ever reads a static `props.disabled`
+boolean prop, never a per-record expression; a literal `disabled="..."` in the arch is compiled as
+a static STRING prop via `BUTTON_STRING_PROPS`, not evaluated per-record). Rather than risk an
+unproven `t-att-disabled="..."` passthrough, this reuses the exact `invisible=` mechanism already
+proven everywhere else in this wizard, applied to **two** buttons occupying the same spot:
+- `action_continue` (the real, actionable button): `invisible="state == 'override_info' or
+  continue_disabled"`.
+- A second, purely cosmetic button, same label, `type="button"` (no server call), static
+  `disabled="disabled"`, and its own distinct `name="action_continue_disabled"` (Odoo's view
+  validator requires every button to have *a* `name`, even a dead one - deliberately different
+  from `action_continue`'s so existing tour selectors matching `button[name='action_continue']`
+  keep working unambiguously): `invisible="state == 'override_info' or not continue_disabled"`.
+
+Since `invisible` fully removes a node from the DOM (not just CSS-hides it), only one of the two
+is ever actually present — from the user's point of view "Continue" never disappears from that
+spot while `state != 'override_info'`, it just visually toggles enabled/disabled (Bootstrap's own
+`.btn:disabled` styling, no extra CSS needed). New computed `continue_disabled` (`@api.depends
+("state", "ready_to_import", "group_line_ids.group_id")`): `not ready_to_import` at `intro`, "any
+`group_line_ids` row still missing a `group_id`" at `groups`, `False` for every other (placeholder)
+step. Verified in a real browser, not just by reasoning about the source: the resolve-group tour
+asserts `button[name='action_continue_disabled'][disabled]` is actually present before a group is
+picked, and `button[name='action_continue']:not([disabled])` right after.
+
 ### Multi-step wizard skeleton (2026-08-05) — only the intro screen has real logic so far
 
 Being rebuilt into a 7-screen guided flow (statusbar `state` field, one screen per step) per

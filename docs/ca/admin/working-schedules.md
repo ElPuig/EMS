@@ -24,6 +24,7 @@ Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat
 - Marcs horaris: **Configuració → Professorat → Marcs horaris**
 - Ajust del marc predeterminat: **Configuració → Empleats → "Marc horari predeterminat"**
 - L'horari d'un docent: **Empleats → [obrir el docent] → pestanya Horari**
+- Importació d'horaris des d'un fitxer: **Configuració → Professorat → Horaris de treball** → menú ⚙️ (engranatge) → **Import: planner data**
 
 ---
 
@@ -109,35 +110,29 @@ El pati mai es compta a cap de les dues columnes. Una franja que només se solap
 
 ---
 
-## Importar l'horari d'un docent des d'un fitxer
+## Importar horaris de treball des d'un fitxer
 
-Si el teu centre ja exporta horaris des d'una eina externa de planificació (XML), pots importar-ne un directament per a un docent concret en lloc de construir-lo a mà:
-
-1. Obre la pestanya **Horari** del docent i fes clic a **Importa**.
-2. Adjunta el fitxer XML.
-3. Si el docent ja té un horari, veuràs un avís que s'actualitzarà (no es reemplaçarà des de zero) — les assignacions d'assignatures i les plantilles d'assistència es mantenen sincronitzades amb el fitxer nou.
-4. Fes clic a **Importa**.
-
----
-
-## Importar l'horari de diversos docents alhora
-
-Si tens diversos fitxers d'exportació de la planificació per importar d'una vegada (cada fitxer ja pot descriure més d'un docent, aparellat per correu electrònic), fes servir l'importador general en lloc del botó per docent:
+Si el teu centre ja exporta horaris des d'una eina externa de planificació (XML), fes servir l'importador general en lloc de construir els horaris a mà — cada fitxer ja pot descriure diversos docents a la vegada (aparellats per correu electrònic), i pots adjuntar més d'un fitxer en una mateixa execució. Ja no hi ha un importador per docent individual: un docent que s'incorpora a mig curs rep el seu horari mitjançant **Nou** a la seva pròpia pestanya **Horari** (vegeu "Començar l'horari d'un docent a partir d'un marc o d'un altre docent" més avall) o a mà, mai amb una pujada de fitxer per a un sol docent.
 
 1. Vés a **Configuració → Professorat → Horaris de treball**.
 2. Obre el menú ⚙️ (engranatge) de sobre la llista i tria **Import: planner data**.
-3. Adjunta tants fitxers XML com necessitis.
-4. Si algun dels docents trobats en aquests fitxers ja té un horari, veuràs un avís que els llista — els horaris s'actualitzen, no es reemplacen des de zero.
-5. Fes clic a **Importa**.
+3. A la pantalla de **Benvinguda**, adjunta un o més fitxers XML i fes clic a **Continua** — encara no s'escriu res en aquest punt, ni tampoc es comprova res del contingut dels fitxers.
+4. Si els fitxers esmenten algun nom de grup que EMS no ha pogut aparellar automàticament, una pantalla de **Resoldre grups** en llista cadascun: tria el grup real al desplegable de cada fila (o crea'n un al moment, igual que en qualsevol altre camp de grup) i fes clic a **Continua**. Si tots els grups s'han reconegut automàticament, veuràs un missatge de confirmació en lloc d'una llista.
+5. Fes clic a **Continua** a les pantalles restants (encara no construïdes com a pantalles pròpies — una versió futura permetrà resoldre aquí mateix els conflictes de docent/aula, en lloc de només al pas final).
+6. Al pas final, fes clic a **Importa**. Aquest és el moment en què tot s'escriu de debò, i on qualsevol problema pendent (un correu de docent desconegut, una aula que falta, un conflicte d'horari) es reporta indicant exactament què cal corregir.
+
+> Fes-ho durant la preparació del proper curs, un cop els horaris del curs anterior ja hagin estat arxivats per l'assistent de "Configurar el proper curs" — executar-ho contra un curs ja en marxa pot generar conflictes que després caldrà resoldre a mà.
+
+Si algun dels docents trobats en els fitxers ja té un horari, s'actualitza in situ (no es reemplaça des de zero) en fer clic a **Importa** — les assignacions d'assignatures i les plantilles d'assistència existents es mantenen sincronitzades amb el fitxer nou.
 
 ---
 
 ## Docents encara no contractats (pendents d'identificar)
 
-De vegades arriben horaris nous abans que tots els llocs estiguin coberts — la teva eina de planificació anomena aquestes files amb un codi provisional (`X1`, `X2`...) en lloc del correu real d'un docent. Importar un fitxer així (tant amb l'importador per docent com amb el general, més amunt) ja no falla en aquestes files:
+De vegades arriben horaris nous abans que tots els llocs estiguin coberts — la teva eina de planificació anomena aquestes files amb un codi provisional (`X1`, `X2`...) en lloc del correu real d'un docent. Importar un fitxer així ja no falla en aquestes files:
 
-1. Adjunta el fitxer com sempre. Les files amb un codi provisional mostren un avís blau, no bloquejant ("Es crearan N professor(s) pendent(s) d'identificar: ...") en lloc d'un error — el botó **Importa** segueix disponible.
-2. Fes clic a **Importa**. Es crea un nou registre d'empleat per a cada codi encara no identificat, ja anomenat p. ex. "Professor pendent (X1)", amb **el seu horari, assignatures i llistes d'assistència ja configurats** exactament com si fos un docent conegut.
+1. Adjunta el fitxer i fes clic a través de l'assistent com de costum (vegeu "Importar horaris de treball des d'un fitxer" més amunt) — un codi provisional no es tracta com un problema en cap pas.
+2. Fes clic a **Importa** al pas final. Es crea un nou registre d'empleat per a cada codi encara no identificat, ja anomenat p. ex. "Professor pendent (X1)", amb **el seu horari, assignatures i llistes d'assistència ja configurats** exactament com si fos un docent conegut.
 3. Aquests registres mostren una etiqueta **"Pendent d'identificar"** a la llista/kanban de docents i una cinta al seu propi formulari, perquè siguin fàcils de trobar (fes servir el filtre/agrupació **Pendent d'identificar** a la llista de docents) i fàcils de distingir d'un docent real ja identificat.
 
 Quan es cobreix el lloc:

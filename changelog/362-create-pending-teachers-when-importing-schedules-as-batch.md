@@ -101,6 +101,10 @@
 
 # Internal changes:
 
+## Debounced the test-launch desktop notification (`plans/test_notification_debounce.md`, now implemented and removed):
+- Several test launches in quick succession (iterating on a failing tour: upgrade → test → fix → upgrade → test...) used to fire one desktop notification each - flagged as annoying by the developer. `/root/.claude/hooks/ems-test-notify.sh` (a user-level file, not part of this repo) now debounces this specific notification to once per 60s (`DEBOUNCE_SECONDS`, tweakable), tracked via a small state file (`/root/.claude/hooks/.last-test-notify`, deliberately outside `/mnt/claude-notify/` since that directory is the trigger-file drop zone the host watcher consumes from). The other two notification types (task-done, waiting-on-you) are deliberately NOT debounced, per explicit developer request.
+- `docs/en/developers/tooling/ai_agent_test_notifications.md` and `CLAUDE.md`'s trigger-1 description updated to match; verified with a scratch `NOTIFY_DIR`/`STATE_FILE`/short `DEBOUNCE_SECONDS` so testing the debounce logic itself never spammed the real bridge.
+
 ## Merged in the course-transition wizard (`353-add-course-transition-wizard-setup-next-course`):
 - Resolved conflicts in `i18n/{ca,es}_ES.po` (reference-list merges, plus one genuine duplicate msgid split across two unrelated strings), `migrations/18.0.0.22.0/post-migrate.py` (combined both branches' new backfill functions into one `migrate()`), `models/contacts/contact.py` (kept the incoming branch's `_ems_enrollment_in_force()`-based authorization-flags fix over this branch's own stale current-course-based query), `models/enrollment/enrollment.py` and `tests/__init__.py`.
 - While validating the merge, also found and fixed a pre-existing duplicate `msgid` ("Subject (all enrolled)") in both `.po` files, unrelated to this merge - two distinct source strings had ended up as separate blocks instead of one shared one.

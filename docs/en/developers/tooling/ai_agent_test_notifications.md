@@ -103,11 +103,19 @@ Check with `systemctl --user status claude-notify-watch.service` — `active (ru
 
 Two pieces, both **user-level** (not the project's checked-in `.claude/settings.json` — paths/username here are specific to one developer's machine):
 
-**a) The decision script**, `/root/.claude/hooks/ems-test-notify.sh` — reads the Bash command from stdin and only writes a trigger file when the run would actually exercise a tour/`HttpCase` test (checking the class name, if any, against `tests/*_tour.py`):
+**a) The decision script**, `/root/.claude/hooks/ems-test-notify.sh` — reads the Bash command from stdin and only writes a trigger file when the run would actually exercise a tour/`HttpCase` test (checking the class name, if any, against `tests/*_tour.py`), debounced so several launches in quick succession only notify once:
 
 ```bash
 #!/bin/bash
 REPO=/root/myModules/ems
+
+# Debounce window for the test-launch notification specifically (does not apply to the other two
+# notification types - task-done/waiting-on-you - those still fire every time; see "Debounce"
+# below). Overridable via env for dry-run testing, so iterating on this logic never touches the
+# live state file or spams the real host bridge.
+DEBOUNCE_SECONDS="${DEBOUNCE_SECONDS:-60}"
+STATE_FILE="${STATE_FILE:-/root/.claude/hooks/.last-test-notify}"
+NOTIFY_DIR="${NOTIFY_DIR:-/mnt/claude-notify}"
 
 # The Bash tool's command is very often multi-line (e.g. a leading "cd ..." line before the
 # actual "./test.sh ..." line) - `read -r` only ever captures the FIRST line, which silently
@@ -140,12 +148,35 @@ else
 fi
 
 if [ "$notify" = true ]; then
+    now=$(date +%s)
+    last=$(cat "$STATE_FILE" 2>/dev/null || echo 0)
+    elapsed=$((now - last))
+    if [ "$elapsed" -lt "$DEBOUNCE_SECONDS" ]; then
+        notify=false  # another test-launch notification fired too recently - skip this one
+    fi
+fi
+
+if [ "$notify" = true ]; then
     echo "$(date +%H:%M:%S) EMS: launching test (close/refresh your Odoo tab) -> $cmd" \
-        > /mnt/claude-notify/test-$(date +%s%N).txt
+        > "$NOTIFY_DIR"/test-$(date +%s%N).txt
+    date +%s > "$STATE_FILE"
 fi
 ```
 
 Make it executable: `chmod +x /root/.claude/hooks/ems-test-notify.sh`.
+
+**Debounce (added 2026-08-05):** several test launches in quick succession (iterating on a
+failing tour: upgrade → test → fix → upgrade → test...) used to fire one desktop notification
+each, which the developer flagged as annoying. A 60s cooldown (`DEBOUNCE_SECONDS`, easily
+tweakable at the top of the script) now applies **only** to this test-launch notification —
+`.last-test-notify` (a plain Unix-timestamp state file, deliberately kept outside
+`/mnt/claude-notify/`, since that directory is the trigger-file drop zone the host watcher
+consumes and deletes from, not a place for persistent state) tracks the last time this
+notification actually fired; a launch within the window is silently skipped (the hook still exits
+0 normally either way, so the test run itself is never affected). The other two notification
+types (task-done, waiting-on-you - see "Covering triggers 2 and 3 too" below) are **not**
+debounced — the developer explicitly wants those to keep firing every time, since they don't
+happen back-to-back the way test launches do.
 
 **b) The hook wiring**, in `~/.claude/settings.json`:
 
@@ -165,7 +196,7 @@ Make it executable: `chmod +x /root/.claude/hooks/ems-test-notify.sh`.
 
 Being a plain filesystem write triggered by the hook (not a call to the agent's notification tool), it's also not subject to that tool's own "you're probably still looking at this" self-suppression.
 
-**When testing changes to the script, never pipe sample commands through it with the real `/mnt/claude-notify` path live** — each matching invocation writes a real trigger file, which the host watcher picks up and turns into a real desktop notification (this happened once, 2026-08-01: rapid-fire manual tests of the anchoring logic spammed several real notifications before the mistake was caught). Redirect to a scratch path while iterating, and only re-point at the real bridge for the final, one-time end-to-end check described in *Verifying each layer* below.
+**When testing changes to the script, never pipe sample commands through it with the real `/mnt/claude-notify` path live** — each matching invocation writes a real trigger file, which the host watcher picks up and turns into a real desktop notification (this happened once, 2026-08-01: rapid-fire manual tests of the anchoring logic spammed several real notifications before the mistake was caught). This applies doubly to the debounce logic above, since testing it means firing the script several times in quick succession by design — exactly the scenario that would spam real notifications if pointed at the live bridge. Override `NOTIFY_DIR` and `STATE_FILE` to scratch paths while iterating (e.g. `DEBOUNCE_SECONDS=2 STATE_FILE=/tmp/scratch/.last-test-notify NOTIFY_DIR=/tmp/scratch/mnt bash ems-test-notify.sh`, using a short debounce window so a test run doesn't need to actually wait 60s), and only drop back to the real defaults for the final, one-time end-to-end check described in *Verifying each layer* below.
 
 **Test with a genuinely multi-line command, not just single-line strings.** The `read -r cmd` → `cmd=$(cat)` bug above (2026-08-01) only showed up because every manual test during development happened to be a single-line string; the real Bash tool call that first exposed it was two lines (`cd /root/myModules/ems` then `./test.sh ...` on the next line), and `read -r` silently discarded everything past the first line with no error. A quick way to reproduce this class of bug: `printf 'cd /some/dir\n./test.sh TestSomethingTour' | ./ems-test-notify.sh` (pointed at a scratch path, per the note above) rather than `echo "./test.sh TestSomethingTour" | ...`.
 

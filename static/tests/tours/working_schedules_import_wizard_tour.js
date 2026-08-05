@@ -11,8 +11,16 @@ import { inputFiles } from "@web/../tests/utils";
 // "Import: planner data". widget="many2many_binary" (attachment_ids) had zero browser
 // coverage. Rather than building a full valid planner XML (a real schedule-entry format, out
 // of scope for what this gap is actually about), this exercises a real, simple path: an XML
-// naming a teacher e-mail that doesn't exist yet, which the wizard's own onchange correctly
-// reports as a blocking error - proving the upload widget and its onchange both work.
+// naming a teacher e-mail that doesn't exist yet.
+//
+// Changed 2026-08-05 (developer feedback after actually using the wizard): the intro/welcome
+// screen no longer validates or shows anything about the file's own content - not even an
+// unknown e-mail - since resolving that is what steps 2-3 exist for (see
+// plans/working_schedule_import_redesign.md). "Continue" only ever depends on a file being
+// attached at all, so an unknown e-mail here doesn't block leaving the intro screen any more;
+// it only surfaces once the flow reaches the real "Import" click at the final step (today, since
+// steps 2-6 are still placeholders) - as a plain error dialog, the same way any other
+// ValidationError from a button action renders.
 registry.category("web_tour.tours").add("ems_working_schedules_import_unknown_teacher", {
     test: true,
     url: "/odoo/action-ems.action_working_schedules_tree",
@@ -49,51 +57,56 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_unknown_te
             content: "File attached",
         },
         {
-            trigger: ".modal [name='alert-danger-issues']:contains('unknown.tour.teacher@example.com')",
-            content: "The onchange correctly flags the unknown teacher e-mail as a blocking error, listed under the shared 'these problems prevent the import' banner",
-        },
-        {
-            // Reported 2026-08-01: a single long line in this 3-column list (ems_wizard_bullet_list
-            // in ems.css) got its wrapped text visually split across all 3 columns instead of staying
-            // together in the first one - CSS multi-column's default behaviour without
-            // 'break-inside: avoid' on the <li>. A fragmented item's bounding box spans (nearly) the
-            // whole list width; kept whole in one column, it should span roughly a third of it.
-            trigger: ".modal [name='alert-danger-issues'] ul.ems_wizard_bullet_list li",
-            content: "The single blocking-issue line stays whole in its own column, not fragmented across all 3",
-            run: () => {
-                const li = document.querySelector(".modal [name='alert-danger-issues'] ul.ems_wizard_bullet_list li");
-                const listWidth = li.closest("ul").getBoundingClientRect().width;
-                const itemWidth = li.getBoundingClientRect().width;
-                if (itemWidth > listWidth * 0.6) {
-                    throw new Error(
-                        `Expected the single list item to stay within one column (width <= ~${(listWidth * 0.6).toFixed(0)}px), `
-                        + `but its bounding width is ${itemWidth.toFixed(0)}px out of a ${listWidth.toFixed(0)}px-wide list - `
-                        + "it looks fragmented across columns."
-                    );
-                }
-            },
-        },
-        {
-            trigger: ".modal footer:not(:has(button[name='import_planner_data']))",
-            content: "The Import button is hidden while the blocking error is present",
-        },
-        {
-            // Close the still-dirty dialog explicitly - otherwise Odoo's own test harness
-            // flags "Tour finished with an open form view in edition mode" as a failure.
-            trigger: ".modal footer button[name='cancel']",
-            content: "Close the wizard",
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled purely because a file is attached - the unknown e-mail inside it isn't checked at this screen any more",
             run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'groups' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'teachers' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'internal_conflicts' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'db_conflicts' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'pending_info' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
+            content: "Click 'Import' - only now does the unknown e-mail actually get looked up",
+            run: "click",
+        },
+        {
+            trigger: ".o_error_dialog:contains('unknown.tour.teacher@example.com')",
+            content: "The unknown e-mail surfaces as a real error dialog at Import time, not earlier",
         },
     ],
 });
 
 // A code with no '@' (e.g. "X1") is NOT a real e-mail typo - it's the external planner's way
-// of naming a not-yet-staffed post. Unlike the unknown-e-mail case above, this must NOT block
-// the import: a non-blocking info banner is shown instead, and importing creates a
+// of naming a not-yet-staffed post. This must NOT block the import: importing creates a
 // pending-identification teacher whose schedule is assigned immediately. This tour proves the
-// banner/Import-button behaviour and the new "Pending identification" indicator actually
-// render in the browser - a TransactionCase proves the model/importer logic works, but not
-// that the view (badge column, ribbon) doesn't crash or silently fail to show.
+// full multi-step flow and the new "Pending identification" indicator actually render in the
+// browser - a TransactionCase proves the model/importer logic works, but not that the view
+// (badge column, ribbon) doesn't crash or silently fail to show. Since 2026-08-05, the intro
+// screen no longer shows a banner for this at all (see the unknown-teacher tour above for the
+// full rationale) - the two placeholder-code teachers below are simply cached silently and only
+// actually get created once the flow reaches the real Import click.
 registry.category("web_tour.tours").add("ems_working_schedules_import_pending_teacher", {
     test: true,
     url: "/odoo/action-ems.action_working_schedules_tree",
@@ -132,16 +145,49 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             },
         },
         {
-            trigger: ".modal [name='alert-info'] ul.ems_wizard_bullet_list li:contains('TOURX1')",
-            content: "The onchange reports the placeholder code as its own bullet in the non-blocking info banner",
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attachment",
+            content: "File attached",
         },
         {
-            trigger: ".modal [name='alert-info'] ul.ems_wizard_bullet_list li:contains('Tour Fulano Pending')",
-            content: "The not-yet-hired teacher's full, multi-word name is kept whole, not truncated to just its first word",
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled purely because a file is attached - leaving the intro screen parses and caches both placeholder-code teachers (nothing written yet)",
+            run: "click",
+        },
+        // Steps 'groups' through 'pending_info' have no screen of their own yet (see
+        // plans/working_schedule_import_redesign.md) - each is a placeholder "Continue" click
+        // that just advances the statusbar. Not asserting on the statusbar's own DOM here (its
+        // items can fold into a "more" dropdown under narrow viewports, purely width-driven -
+        // see web.StatusBarField's adjustVisibleItems - which would make a `data-value=...`
+        // selector flaky); the "Import" button only appearing once every placeholder has been
+        // clicked through is itself the proof the skeleton advances correctly end-to-end.
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'groups' placeholder step",
+            run: "click",
         },
         {
-            trigger: ".modal footer button[name='import_planner_data']:not([disabled])",
-            content: "The Import button stays enabled - only a real unknown e-mail blocks it",
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'teachers' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'internal_conflicts' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'db_conflicts' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'pending_info' placeholder step",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
+            content: "The final step's 'Import' button appeared - click it. Only now does anything actually get written",
             run: "click",
         },
         {

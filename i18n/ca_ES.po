@@ -2467,6 +2467,11 @@ msgid "Confirm Enrollment"
 msgstr "Confirmar matrícula"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Continue"
+msgstr "Continuar"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__connected model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 msgid "Connected"
 msgstr "Connectat"
@@ -3386,6 +3391,16 @@ msgid "Existing contact"
 msgstr "Contacte existent"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__db_conflicts
+msgid "Existing schedule conflicts"
+msgstr "Conflictes amb horaris existents"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__override_info
+msgid "Existing teachers"
+msgstr "Professors ja existents"
+
+#. module: ems
 #: model:ir.model,name:ems.model_product_template
 msgid "Expand the product object with a reverse link to the subject to collect the studies to which it belongs."
 msgstr "Producte"
@@ -4108,6 +4123,21 @@ msgid "Import"
 msgstr "Importa"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid ""
+"Import a working-schedule batch (one or several planner files). Run this during\n"
+"                                next-course preparation, once the previous course's schedules have already been\n"
+"                                archived by the course transition wizard - running it against a course already in\n"
+"                                progress can create conflicts/overlaps that then need manual resolution in the\n"
+"                                following steps."
+msgstr ""
+"Importa un lot d'horaris (un o diversos fitxers del planificador). Executa això durant\n"
+"                                la preparació del proper curs, un cop els horaris del curs anterior ja s'han\n"
+"                                arxivat amb l'assistent de transició de curs - executar-lo contra un curs\n"
+"                                ja en marxa pot crear conflictes/solapaments que després necessitaran resolució\n"
+"                                manual en els següents passos."
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/import_student_cog_menu.xml:0 model:ir.actions.act_window,name:ems.action_student_import_wizard
 msgid "Import from Esfera"
@@ -4168,6 +4198,11 @@ msgstr ""
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__internal_score
 msgid "Internal grade (from the outcomes). Computed unless the teacher overrides it."
 msgstr "Nota del centre (a partir dels RA). Es calcula tret que el professor la sobreescrigui."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__internal_conflicts
+msgid "Internal conflicts"
+msgstr "Conflictes interns"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_planning__internal_ponderation
@@ -5332,6 +5367,11 @@ msgid "Pending"
 msgstr "Pendent"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__pending_info
+msgid "Pending teachers"
+msgstr "Professors pendents"
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
 msgid "Pending changes — the computed grades will be recalculated on apply."
@@ -5423,6 +5463,16 @@ msgstr "Si us plau, descriu els teus comentaris sobre els elements marcats..."
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Please fill in the following data:"
 msgstr "Si us plau, omple les dades següents:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid ""
+"Please fix the following issues before continuing:\n"
+"%s"
+msgstr ""
+"Si us plau, soluciona els següents problemes abans de continuar:\n"
+"%s"
 
 #. module: ems
 #. odoo-python
@@ -7215,6 +7265,11 @@ msgstr ""
 #: code:addons/ems/models/attendance/attendance_schedule.py:0
 msgid "This schedule have been already used to check the student's attendances and cannot be deleted. Please, update its data instead or archive the entire template and create a new one with the correct data."
 msgstr "Aquest horari ja ha estat utilitzat per registrar les assistències de l'alumne i no es pot eliminar. Si us plau, actualitza'n les dades o arxiva la plantilla sencera i crea'n una de nova amb les dades correctes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "This step is not implemented yet - \"Continue\" moves on without asking anything here for now."
+msgstr "Aquest pas encara no està implementat - \"Continuar\" avança sense demanar res aquí per ara."
 
 #. module: ems
 #. odoo-python
@@ -10227,6 +10282,16 @@ msgid "Repeating"
 msgstr "Repeteix curs"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__groups
+msgid "Resolve groups"
+msgstr "Resoldre grups"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__teachers
+msgid "Resolve teachers"
+msgstr "Resoldre professors"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__final_score
 msgid "Resolved grade"
 msgstr "Nota resolta"
@@ -10719,6 +10784,11 @@ msgstr "Bloquejants"
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__has_blockers
 msgid "Has blockers"
 msgstr "Té bloquejants"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__intro
+msgid "Welcome"
+msgstr "Benvinguda"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form
@@ -11571,11 +11641,6 @@ msgid "Teacher with email '%s' not found."
 msgstr "No s'ha trobat cap professor amb el correu '%s'."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "The following not-yet-identified teachers will be created (please verify their names/codes are correct before continuing):"
-msgstr "Es crearan els professors següents, encara pendents d'identificar (comproveu que els noms/codis siguin correctes abans de continuar):"
-
-#. module: ems
 #: code:addons/ems/static/src/js/backend/working_schedule_import_blocking_upload.js:0
 #, python-format
 msgid "Reading and validating the schedule file, please wait..."
@@ -11622,11 +11687,6 @@ msgid ""
 "These existing sessions occupy the same space and time as what you're importing, "
 "for a different group/subject - fix the room conflict and try again: %s"
 msgstr "Aquestes sessions existents ocupen el mateix espai i horari que el que esteu important, per a un grup/assignatura diferent - solucioneu el conflicte d'aula i torneu-ho a provar: %s"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "Attention please: the following existing sessions belong to teachers NOT included in this file, but overlap in classroom, time, subject and group with what you're importing - this looks like co-teaching. If that's not intended, fix the group/subject and try again:"
-msgstr "Atenció: les següents sessions existents pertanyen a professors NO inclosos en aquest fitxer, però coincideixen en aula, horari, assignatura i grup amb el que esteu important - això sembla codocència. Si no és el que es pretenia, corregiu el grup/assignatura i torneu-ho a provar:"
 
 #. module: ems
 #. odoo-python

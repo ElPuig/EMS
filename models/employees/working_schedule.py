@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from markupsafe import Markup, escape
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 import xml.etree.ElementTree as ET
 import base64
+import json
 import math
 import re
 
 
 def _m2m_command_ids(commands):
-	"""Resolve a Many2many/One2many value (as found in raw create()/write() vals, e.g. a planner
-	XML entry's 'group_ids') into a plain list of ids - shared by the import wizard and the
-	working-schedule block's own create() override, both of which need to read an id list out of
-	a not-yet-written value rather than an already-browsable recordset. Accepts either the real
-	command-tuple format ('(6, 0, ids)', '(4, id)'...) or a bare list of ids (the shape the
+	"""Resolve a Many2many/One2many value (as found in raw create()/write() vals) into a plain list
+	of ids - used by the working-schedule block's own create() override, which needs to read an id
+	list out of a not-yet-written value rather than an already-browsable recordset. Accepts either
+	the real command-tuple format ('(6, 0, ids)', '(4, id)'...) or a bare list of ids (the shape the
 	Schedule tab's own grid widget cells use for 'group_ids') - both are valid Many2many vals."""
 	ids = []
 	for command in commands or []:
@@ -239,33 +238,45 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# copy from another teacher) or by hand, never a single-file upload (see
 	# docs/en/developers/employees/working_schedule.md).
 	attachment_ids = fields.Many2many(string="Planner files (XML)", comodel_name="ir.attachment")
-	# Non-blocking yellow banner: bullet list of teachers who already have a schedule that will be
-	# updated. Html (not Char) so many teachers render as a real list instead of one long comma sentence.
-	overrided_teachers_html = fields.Html(readonly=True, store=False)
-	# Non-blocking yellow banner: bullet list of OTHER teachers (not part of this file) whose existing
-	# session overlaps one of this file's own, same subject and sharing a group — i.e. legitimate
-	# co-teaching (see ems.attendance_template.classify_external_conflicts), left untouched, just
-	# surfaced so the admin can confirm this is really intended before continuing.
-	co_teaching_html = fields.Html(readonly=True, store=False)
-	# Blocking (red banner, hides the 'Import' button): bullet list of specific problems that each
-	# prevent the import from continuing (unknown teacher e-mail, unresolved group/subject code,
-	# missing classroom, a genuine room double-booking against a teacher outside this file...). Html
-	# (not Char) so several problems render as a real list instead of one long comma sentence.
-	blocking_issues_html = fields.Html(readonly=True, store=False)
-	# Non-blocking (blue banner): bullet list of identifiers with no '@' (a short placeholder code like
-	# "X1", or a not-yet-hired teacher's own full name) that don't match any employee by e-mail or
-	# existing code; a pending-identification teacher will be created for each one on import. Never
-	# hides the 'Import' button. Html (not Char) so several of them render as a real list instead of
-	# one long comma sentence — same reasoning as 'blocking_issues_html'.
-	info_html = fields.Html(readonly=True, store=False)
-	# Gates the 'Import' button. Deliberately fail-closed (starts False, only this onchange ever sets
-	# it True) instead of fail-open (hide only once a problem is confirmed) - a file upload's own async
-	# work finishes before the onchange RPC that validates its content does, and with a fail-open
-	# design (hide only when blocking_issues_html is set) the button was visible and clickable during
-	# that whole gap, since that field simply hadn't been computed yet. Fail-closed means there is no
-	# gap: the button cannot render enabled before this onchange has actually finished confirming there
-	# is nothing wrong.
-	ready_to_import = fields.Boolean(store=False)
+	# NOTE: gates the 'Continue' button on the intro screen - deliberately just "is any file
+	# attached", nothing more. Found the hard way (2026-08-05, developer feedback after actually
+	# using this screen): the old single-screen wizard's banners (unknown e-mail, unresolved
+	# group/subject, room conflicts...) used to render here too, immediately on file upload - but
+	# resolving those IS the whole point of steps 2 ("Resolve groups") through 5 ("Existing
+	# schedule conflicts"), so blocking (or even just showing anything about) them on the WELCOME
+	# screen pre-empts what those screens are for. Every one of those checks is deferred to
+	# '_apply_import' at the final step instead (see '_classify_attachments'/'_continue_from_intro'
+	# below) - until steps 2-6 exist to resolve them interactively, a real problem simply surfaces
+	# later, at Import time, rather than here.
+	ready_to_import = fields.Boolean(compute="_compute_ready_to_import", store=False)
+
+	@api.depends("attachment_ids")
+	def _compute_ready_to_import(self):
+		for wizard in self:
+			wizard.ready_to_import = bool(wizard.attachment_ids)
+
+	# NOTE: the 7-screen guided flow (see plans/working_schedule_import_redesign.md's "Multi-step
+	# wizard" section) - a statusbar Selection, non-clickable (no jumping steps by clicking the
+	# bar itself; Cancel is the only way back, discarding the whole in-progress wizard). Only
+	# 'intro' (this pass) has real per-step logic; the rest are placeholders that just advance the
+	# statusbar until each one gets its own screen built (see 'action_continue').
+	state = fields.Selection([
+		('intro', "Welcome"),
+		('groups', "Resolve groups"),
+		('teachers', "Resolve teachers"),
+		('internal_conflicts', "Internal conflicts"),
+		('db_conflicts', "Existing schedule conflicts"),
+		('pending_info', "Pending teachers"),
+		('override_info', "Existing teachers"),
+	], default='intro', required=True)
+	# NOTE: JSON cache of the raw per-teacher-node parse result (see '_classify_attachments'),
+	# populated once by 'action_continue' leaving 'intro' - nothing is written to any real model
+	# before the final step's 'import_planner_data()' reads this back. A stored Text field survives
+	# across this TransientModel's own several write() calls (one per statusbar step), unlike an
+	# in-memory value would.
+	parsed_entries_json = fields.Text(readonly=True)
+
+	_STATE_SEQUENCE = ['intro', 'groups', 'teachers', 'internal_conflicts', 'db_conflicts', 'pending_info', 'override_info']
 
 	@staticmethod
 	def _is_email_like(value):
@@ -284,16 +295,6 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		the first whitespace-separated token would silently truncate the latter to just 'Fulanito'."""
 		match = cls._EMAIL_RE.search(name_attr or "")
 		return match.group(0) if match else (name_attr or "").strip()
-
-	def _bullet_html(self, lines):
-		"""A readonly <ul><li> list from plain-text lines (escaped), or False for none — used to
-		render the wizard's warning banners as a real list instead of one long comma sentence. Balanced
-		into a few CSS columns (see 'ems_wizard_bullet_list' in ems.css) so a long list of short items
-		(pending codes, teacher names...) doesn't waste the dialog's horizontal space."""
-		if not lines:
-			return False
-		items = Markup("").join(Markup("<li>%s</li>") % escape(line) for line in lines)
-		return Markup('<ul class="ems_wizard_bullet_list">%s</ul>') % items
 
 	def _conflict_lines(self, conflicts):
 		"""One bullet line per ems.attendance_schedule conflict (co-teaching or space), naming the
@@ -345,183 +346,189 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		message is worded identically wherever it appears."""
 		return [_("Group '%s' has no classroom assigned.") % group.name for group in missing_space]
 
-	@api.onchange("attachment_ids")
-	def _onchange_attachment_ids(self):
-		for rec in self:
-			rec.blocking_issues_html = False
-			rec.info_html = False
-			rec.co_teaching_html = False
-			rec.ready_to_import = False
-			overrided, blocking_issues, pending_codes, teacher_entries = [], [], [], []
-			for attachment in rec.attachment_ids:
-				xml_content = base64.b64decode(attachment.datas)
-				tree = ET.ElementTree(ET.fromstring(xml_content))
+	def _classify_attachments(self):
+		"""Parses every 'attachment_ids' file (without writing anything), building the raw
+		per-teacher-node cache '_continue_from_intro' needs to defer the actual import to the final
+		step. Deliberately does NOT resolve teachers, check for missing classrooms, or look for
+		schedule conflicts here any more (2026-08-05, developer feedback after actually using this
+		screen) - every one of those is deferred all the way to '_apply_import' at the final step
+		instead, since resolving an unknown e-mail/group is exactly what steps 2-3 exist for, not
+		something this welcome screen should pre-empt by blocking on it. The one thing that
+		genuinely can't be deferred: a node whose own schedule content fails to parse at all (an
+		unresolved SUBJECT or GROUP code inside '_parse_schedule_entries') has no entries to cache
+		in the first place - collected in 'unparseable_issues' and still blocks leaving this screen,
+		since there is no later step (yet) that could resolve it and no data to silently carry
+		forward instead."""
+		unparseable_issues, node_cache = [], []
+		for attachment in self.attachment_ids:
+			xml_content = base64.b64decode(attachment.datas)
+			tree = ET.ElementTree(ET.fromstring(xml_content))
 
-				for teacherNode in tree.getroot():
-					email = rec._teacher_identifier(teacherNode.attrib['name'])
-					teacher = False
-					if rec._is_email_like(email):
-						teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
-						if not teacher:
-							blocking_issues.append(_("unknown e-mail '%s' in '%s'") % (email, attachment.name))
-							continue
-					else:
-						teacher = self.env["hr.employee"].search([("schedule_import_code", "=", email)]) or False
-						if not teacher:
-							# NOTE: no real employee exists yet for this code - one will only be
-							# created for real in create(). Still parse this node's own schedule
-							# content below (subject/group resolution) rather than skipping it
-							# entirely: an unresolvable group/subject in a not-yet-identified
-							# teacher's row must surface here as a blocking issue too, not only
-							# blow up uncaught later, when 'create()' actually imports it.
-							pending_codes.append(email)
+			for teacherNode in tree.getroot():
+				identifier = self._teacher_identifier(teacherNode.attrib['name'])
+				try:
+					entries, attendance_ids = self._parse_schedule_entries(teacherNode)
+				except ValidationError as error:
+					unparseable_issues.append(str(error))
+					continue
+				node_cache.append({'identifier': identifier, 'entries': entries, 'attendance_ids': attendance_ids})
 
-					if teacher and teacher.resource_calendar_id.id:
-						overrided.append(teacher.display_name)
-					try:
-						entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
-					except ValidationError as error:
-						blocking_issues.append(str(error))
-						continue
-					if teacher:
-						teacher_entries.append((teacher, entries))
+		return {'unparseable_issues': unparseable_issues, 'node_cache': node_cache}
 
-			missing_space = rec._groups_without_space(teacher_entries)
-			blocking_issues += rec._missing_space_lines(missing_space)
+	def _advance_state(self):
+		self.ensure_one()
+		self.state = self._STATE_SEQUENCE[self._STATE_SEQUENCE.index(self.state) + 1]
 
-			if not missing_space:
-				co_teaching, space_conflicts = self.env['ems.attendance_template'].classify_external_conflicts(teacher_entries)
-				rec.co_teaching_html = rec._bullet_html(rec._conflict_lines(co_teaching))
-				blocking_issues += rec._space_conflict_lines(space_conflicts)
-				self_conflicts = self.env['ems.attendance_template'].find_self_conflicts(teacher_entries)
-				blocking_issues += rec._self_conflict_lines(self_conflicts)
+	def _reopen_self_action(self):
+		"""Re-opens this exact wizard record, still as a dialog. A 'type=object' button whose
+		Python method returns a falsy value (e.g. None, the implicit return of a method with no
+		explicit 'return') gets converted client-side into '{'type': 'ir.actions.act_window_close'}'
+		(see odoo/addons/web/static/src/webclient/actions/action_service.js's own 'doActionButton') -
+		for a wizard opened as 'target: new', that silently closes the dialog the moment its very
+		first save happens (found empirically 2026-08-05: the 'Continue' button on the intro screen
+		closed the whole wizard on its first click, instead of advancing to the next step). Returning
+		this action instead keeps the same dialog open, now showing whatever state was just written."""
+		self.ensure_one()
+		return {
+			'type': 'ir.actions.act_window',
+			'res_model': self._name,
+			'res_id': self.id,
+			'view_mode': 'form',
+			'target': 'new',
+		}
 
-			rec.blocking_issues_html = rec._bullet_html(blocking_issues)
-			rec.info_html = rec._bullet_html(pending_codes)
-			rec.overrided_teachers_html = rec._bullet_html(overrided)
-			rec.ready_to_import = bool(rec.attachment_ids) and not blocking_issues
+	def action_continue(self):
+		"""The single 'Continue' button's handler for every non-final step - dispatches to each
+		step's own logic. Only 'intro' has real logic built so far (see
+		plans/working_schedule_import_redesign.md); every other step is still a placeholder that
+		just advances the statusbar, so the skeleton is clickable end-to-end already and each step
+		gets filled in here as it's built."""
+		self.ensure_one()
+		if self.state == 'intro':
+			self._continue_from_intro()
+		else:
+			self._advance_state()
+		return self._reopen_self_action()
+
+	def _continue_from_intro(self):
+		"""Parses every attached file (without writing anything yet - see '_classify_attachments'),
+		caches the result, and advances to the next step. The 'no course configured'/'no file
+		attached' checks stay here (there is no later step that could ever resolve either one), but
+		everything about the file's own CONTENT (unresolved teachers, missing classrooms, schedule
+		conflicts...) is deferred to '_apply_import' - see that method's own docstring."""
+		self.ensure_one()
+		if not self.env.company.current_course_id.id:
+			raise ValidationError(_("No 'current course' has been setup. Please, select or create the current course within the EMS settings section."))
+		if not self.attachment_ids:
+			raise ValidationError(_("No XML file has been loaded. Please, provide at least one XML file and try again."))
+		result = self._classify_attachments()
+		if result['unparseable_issues']:
+			# NOTE: the actual issues are folded into the message (not a generic "please fix the
+			# issues shown above") - this is also reachable from a direct ORM/API call with no
+			# banner to look at, e.g. a test bypassing the onchange-then-click UI flow.
+			raise ValidationError(_(
+				"Please fix the following issues before continuing:\n%s"
+			) % "\n".join(result['unparseable_issues']))
+		self.parsed_entries_json = json.dumps(result['node_cache'])
+		self._advance_state()
+
+	def _write_teacher_schedule(self, teacher, course_id, attendance_ids):
+		"""Creates (if missing) or updates 'teacher's resource.calendar for 'course_id', writing
+		'attendance_ids' (already-parsed (0, 0, {...}) commands - see '_parse_schedule_entries')."""
+		name = "%s (%s)" % (teacher.name, course_id.name)
+		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
+		if not schedule:
+			schedule = self.env['resource.calendar'].create({'name': name, 'full_time_required_hours': 24})
+		schedule.write({'attendance_ids': attendance_ids})
+		teacher.write({'resource_calendar_id': schedule})
+
+	def _apply_import(self, node_cache):
+		"""Writes everything (resource.calendar/ems.teaching per teacher, then the
+		ems.attendance_template batch sync) from the raw per-node cache '_continue_from_intro' built -
+		deferred until this final step so nothing is written before the whole wizard flow completes.
+		Mirrors this model's former create() override, adapted to work from the cache instead of
+		re-parsing the XML from scratch (which would also re-resolve teachers/pending-codes against
+		data this same call is about to change)."""
+		course_id = self.env.company.current_course_id
+		# NOTE: attendance_template sync is deferred and batched across every teacher (see
+		# sync_from_schedule_batch_fresh_import) — syncing one teacher at a time here would let an
+		# early teacher's fresh schedule line falsely collide with a later teacher's still-stale one
+		# whenever they share a classroom, since the later teacher hasn't been re-synced yet.
+		teacher_entries = []
+		for item in node_cache:
+			identifier = item['identifier']
+			if self._is_email_like(identifier):
+				teacher = self.env["hr.employee"].search([("work_email", "=", identifier)])
+				if not teacher.id:
+					raise ValidationError(_("Teacher with email '%s' not found.") % identifier)
+			else:
+				teacher = self.env["hr.employee"].search([("schedule_import_code", "=", identifier)])
+				if not teacher.id:
+					teacher = self.env["hr.employee"].create({
+						"name": _("Pending teacher (%s)") % identifier,
+						"employee_type": "teacher",
+						"schedule_import_code": identifier,
+					})
+
+			self._write_teacher_schedule(teacher, course_id, item['attendance_ids'])
+			entries = [e for e in item['entries'] if not e["non_teaching"]]
+			# NOTE: replace=False - this file only ever describes ONE SLICE of the centre's
+			# schedule (e.g. one department), never a teacher's ENTIRE teaching load, so a
+			# combo from a DIFFERENT, already-imported file must never be unlinked just
+			# because this teacher also appears here (see sync_from_schedule's own docstring).
+			self.env['ems.teaching'].sync_from_schedule(teacher, entries, replace=False)
+			teacher_entries.append((teacher, entries))
+
+		# NOTE: ems.attendance_template.space_id is required, but ems.group.space_id (where it's
+		# taken from) is not — a group missing a classroom would otherwise fail with Odoo's generic
+		# "mandatory field is not set" error instead of naming the actual problem.
+		missing_space = self._groups_without_space(teacher_entries)
+		if missing_space:
+			raise ValidationError(_(
+				"These groups have no classroom assigned, so their schedule cannot be imported: %s"
+			) % ", ".join(missing_space.mapped('name')))
+
+		# NOTE: a batch import never writes on top of an already-populated schedule for its own
+		# scope (groups are reused across academic years, but their attendance templates are
+		# archived by the course transition wizard first - see
+		# docs/en/developers/employees/working_schedule.md), so an external overlap found here is
+		# always either legitimate co-teaching (left alone - sync_from_schedule_batch's own
+		# reconciliation folds the new teacher into the same shared template) or a genuine problem
+		# the onchange preview should already have caught. Raising here too (not just previewing)
+		# is the safety net for a wizard whose cache was built before some other change landed.
+		_co_teaching, space_conflicts = self.env['ems.attendance_template'].classify_external_conflicts(teacher_entries)
+		if space_conflicts:
+			raise ValidationError(_(
+				"These existing sessions occupy the same space and time as what you're importing, "
+				"for a different group/subject - fix the room conflict and try again: %s"
+			) % "; ".join(self._conflict_lines(space_conflicts)))
+
+		# NOTE: a teacher double-booked against their OWN existing schedule (e.g. two departments'
+		# files scheduling them at the same time) is never caught above - classify_external_conflicts
+		# only ever looks for OTHER teachers sharing the same space.
+		self_conflicts = self.env['ems.attendance_template'].find_self_conflicts(teacher_entries)
+		if self_conflicts:
+			raise ValidationError(_(
+				"This teacher already has an overlapping session for a different subject/group - "
+				"fix the schedule conflict and try again: %s"
+			) % "; ".join(self._conflict_lines(self_conflicts)))
+		self.env['ems.attendance_template'].sync_from_schedule_batch_fresh_import(teacher_entries)
 
 	def import_planner_data(self):
+		self.ensure_one()
+		self._apply_import(json.loads(self.parsed_entries_json or '[]'))
 		return {
 			'type': 'ir.actions.client',
 			'tag': 'soft_reload',
 		}
-	
-	@api.model_create_multi
-	def create(self, values):
-		course_id = self.env.company.current_course_id
-		if not course_id.id:
-			raise ValidationError("No 'current course' has been setup. Please, select or create the current course within the EMS settings section.")
-		
-		for item in values:
-			xml_contents = self._collect_xml_contents(item)
-			if not xml_contents:
-				raise ValidationError(_("No XML file has been loaded. Please, provide at least one XML file and try again."))
-
-			# NOTE: attendance_template sync is deferred and batched across every teacher in this item
-			# (see sync_from_schedule_batch) — syncing one teacher at a time here would let an early
-			# teacher's fresh schedule line falsely collide with a later teacher's still-stale one
-			# whenever they share a classroom, since the later teacher hasn't been re-synced yet.
-			teacher_entries = []
-			for xml_content in xml_contents:
-				tree = ET.ElementTree(ET.fromstring(xml_content))
-				root = tree.getroot()
-
-				nodes = []
-				for node in root:
-					email = self._teacher_identifier(node.attrib['name'])
-					if self._is_email_like(email):
-						teacher = self.env["hr.employee"].search([("work_email", "=", email)])
-						if not teacher.id:
-							raise ValidationError(_("Teacher with email '%s' not found.") % email)
-					else:
-						teacher = self.env["hr.employee"].search([("schedule_import_code", "=", email)])
-						if not teacher.id:
-							teacher = self.env["hr.employee"].create({
-								"name": _("Pending teacher (%s)") % email,
-								"employee_type": "teacher",
-								"schedule_import_code": email,
-							})
-					nodes.append((node, teacher))
-
-				for node, teacher in nodes:
-					entries = self._create_schedule(node, teacher, course_id)
-					entries = [e for e in entries if not e["non_teaching"]]
-					# NOTE: replace=False - this file only ever describes ONE SLICE of the centre's
-					# schedule (e.g. one department), never a teacher's ENTIRE teaching load, so a
-					# combo from a DIFFERENT, already-imported file must never be unlinked just
-					# because this teacher also appears here (see sync_from_schedule's own docstring).
-					self.env['ems.teaching'].sync_from_schedule(teacher, entries, replace=False)
-					teacher_entries.append((teacher, entries))
-
-			# NOTE: ems.attendance_template.space_id is required, but ems.group.space_id (where it's
-			# taken from) is not — a group missing a classroom would otherwise fail with Odoo's generic
-			# "mandatory field is not set" error instead of naming the actual problem.
-			missing_space = self._groups_without_space(teacher_entries)
-			if missing_space:
-				raise ValidationError(_(
-					"These groups have no classroom assigned, so their schedule cannot be imported: %s"
-				) % ", ".join(missing_space.mapped('name')))
-
-			# NOTE: a batch import never writes on top of an already-populated schedule for its own
-			# scope (groups are reused across academic years, but their attendance templates are
-			# archived by the course transition wizard first - see
-			# docs/en/developers/employees/working_schedule.md), so an external overlap found here is
-			# always either legitimate co-teaching (left alone - sync_from_schedule_batch's own
-			# reconciliation folds the new teacher into the same shared template) or a genuine problem
-			# the onchange preview should already have caught. Raising here too (not just previewing)
-			# is the safety net for a direct create() call that skipped the onchange.
-			_co_teaching, space_conflicts = self.env['ems.attendance_template'].classify_external_conflicts(teacher_entries)
-			if space_conflicts:
-				raise ValidationError(_(
-					"These existing sessions occupy the same space and time as what you're importing, "
-					"for a different group/subject - fix the room conflict and try again: %s"
-				) % "; ".join(self._conflict_lines(space_conflicts)))
-
-			# NOTE: a teacher double-booked against their OWN existing schedule (e.g. two departments'
-			# files scheduling them at the same time) is never caught above - classify_external_conflicts
-			# only ever looks for OTHER teachers sharing the same space. Checked here too (not just in
-			# the onchange preview) as the safety net for a direct create() call that skipped it.
-			self_conflicts = self.env['ems.attendance_template'].find_self_conflicts(teacher_entries)
-			if self_conflicts:
-				raise ValidationError(_(
-					"This teacher already has an overlapping session for a different subject/group - "
-					"fix the schedule conflict and try again: %s"
-				) % "; ".join(self._conflict_lines(self_conflicts)))
-			self.env['ems.attendance_template'].sync_from_schedule_batch_fresh_import(teacher_entries)
-
-		return super(models.Model, self).create(values)
-
-	def _collect_xml_contents(self, item):
-		"""Every XML source given for this wizard's 'create()' vals, decoded."""
-		contents = []
-		attachment_ids = _m2m_command_ids(item.get('attachment_ids'))
-		for attachment in self.env['ir.attachment'].browse(attachment_ids):
-			contents.append(base64.b64decode(attachment.datas))
-		return contents
-
-	def _create_schedule(self, xml_node, teacher, course_id):
-		entries, attendance_ids = self._parse_schedule_entries(xml_node)
-
-		name = "%s (%s)" % (teacher.name, course_id.name)
-		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
-		if not schedule:
-			# TODO: add a relation to current_course
-			schedule = self.env['resource.calendar'].create({
-				'name': "%s (%s)" % (teacher.name, course_id.name),
-				'full_time_required_hours': 24
-			})
-
-		schedule.write({ 'attendance_ids': attendance_ids })
-		teacher.write({ "resource_calendar_id": schedule })
-		return entries
 
 	def _parse_schedule_entries(self, xml_node):
 		"""Parse a <Teacher> XML node into (entries, attendance_ids) — the flattened list of real
 		(subject/non-teaching) slots plus the (0,0,{...})-command list ready for a resource.calendar's
-		'attendance_ids', without writing anything. Pure parsing, split out of '_create_schedule' so it
-		can be reused for a preview (e.g. the import wizard's onchange handlers, or conflict detection)
-		without any side effect."""
+		'attendance_ids', without writing anything. Pure parsing, reused for a preview (the import
+		wizard's onchange handlers, or conflict detection), for the intro step's own cache
+		('_classify_attachments'), and for the final step's real write ('_apply_import') - without any
+		side effect until that final call."""
 		non_teaching_items = {t.code: t for t in self.env['ems.non_teaching_type'].search([])}
 
 		entries = []

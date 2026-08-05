@@ -89,6 +89,18 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'space_id': cls.space.id,
         })
 
+    def _import(self, vals):
+        """Creates the wizard, leaves the intro screen (parsing+caching - since 2026-08-05's
+        multi-step redesign, this is where a ValidationError for an unresolved group/subject/
+        e-mail or a blocking conflict now surfaces, not create() itself), then runs the final
+        step's real write. Mirrors what a real user does by clicking through the wizard, minus
+        the not-yet-built middle steps (see plans/working_schedule_import_redesign.md). Returns
+        the wizard record."""
+        wizard = self.env['ems.working_schedules_import_wizard'].create(vals)
+        wizard.action_continue()
+        wizard.import_planner_data()
+        return wizard
+
     def _xml_file(self, teacher_name_attr):
         # Minimal file the parser accepts: one teacher node -> one day -> one hour -> a NonTeaching
         # entry ('G'/Guard already exists as an ems.non_teaching_type seed record, so no subject/group lookup needed).
@@ -141,7 +153,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         return [(6, 0, ids)]
 
     def test_import_matches_by_email(self):
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(
                 self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
             ),
@@ -151,7 +163,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
     def test_import_unknown_email_raises(self):
         with self.assertRaises(ValidationError):
-            self.env['ems.working_schedules_import_wizard'].create({
+            self._import({
                 'attachment_ids': self._attachment_ids(
                     self._xml_file('unknown.import.wizard@example.com Someone'),
                 ),
@@ -164,7 +176,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # label after it (unlike a real teacher's "<email> <display name>" row) — see
         # test_import_placeholder_full_name_kept_whole below for the case where that identifier is a
         # multi-word real name instead of a short code.
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'X1',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -185,12 +197,12 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertTrue(template)
 
     def test_import_placeholder_code_reuses_same_employee_on_reimport(self):
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file('X2')),
         })
         teacher = self.env['hr.employee'].search([('schedule_import_code', '=', 'X2')])
 
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file('X2')),
         })
 
@@ -204,7 +216,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # multi-word name (no '@' anywhere in it). Reported 2026-08-01: naively taking the raw 'name'
         # attribute's first whitespace-separated token (as if it were always "<code> <label>") silently
         # truncated this to just the first word. The full value must be kept as the identifier.
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file('Fulanito Menganito')),
         })
 
@@ -217,7 +229,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
     def test_import_with_no_file_raises(self):
         with self.assertRaises(ValidationError):
-            self.env['ems.working_schedules_import_wizard'].create({})
+            self._import({})
 
     def test_import_with_multiple_attachment_ids_processes_every_file(self):
         second_teacher = self.env['hr.employee'].create({
@@ -234,7 +246,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'datas': self._xml_file('test.wizard.teacher2.import.wizard@example.com Someone Else'),
         })
 
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': [(6, 0, [attachment_1.id, attachment_2.id])],
         })
 
@@ -246,7 +258,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # observable difference from a real subject is the missing 'Students' sibling. The code ('G')
         # must still be recognized as non-teaching (via ems.non_teaching_type), not looked up as a
         # real ems.subject.
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
                 '<Subject name="G Guard"/>',
@@ -259,7 +271,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertFalse(attendance.subject_id)
 
     def test_import_real_subject_sent_as_subject_node_with_students(self):
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -277,7 +289,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # Real scenario: a level split into two official groups sharing the same classroom (a
         # "desdoblament") - distinct from a reinforcement group. The planner file lists them as two
         # separate <Students> nodes under the same hour; both must end up in the same attendance row.
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -299,7 +311,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # and the real planner export never appends anything to it (unlike 'main' groups' " Group"
         # suffix convention used elsewhere in this file) — it must resolve by matching the full
         # '<Students name="...">' value exactly as-is.
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -316,7 +328,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # always stores it as "TWIW2A" even when it's the only group of that level/course.
         self.assertEqual(self.single_group.name, 'TWIW2A')
 
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -332,7 +344,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # ("TDEV"), with neither the course number nor the trailing letter EMS always stores ("TDEV1A").
         self.assertEqual(self.bare_acronym_group.name, 'TDEV1A')
 
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -352,7 +364,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
 
         with self.assertRaises(ValidationError):
-            self.env['ems.working_schedules_import_wizard'].create({
+            self._import({
                 'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                     'test.wizard.teacher.import.wizard@example.com Someone',
                     f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -362,7 +374,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
     def test_import_group_still_not_found_after_fallback_raises(self):
         with self.assertRaises(ValidationError):
-            self.env['ems.working_schedules_import_wizard'].create({
+            self._import({
                 'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                     'test.wizard.teacher.import.wizard@example.com Someone',
                     f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -375,7 +387,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # setting (schedule_import_last_entry_time, 21:00), instead of keeping the same 1h duration
         # as the rest of the day. 19:20-20:20 (1h) is followed by a period starting at 20:20, which
         # should now end at 21:20, not the company's fixed 21:00.
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hours(
                 'test.wizard.teacher.import.wizard@example.com Someone',
                 ['19:20', '20:20'],
@@ -392,7 +404,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
     def test_import_single_period_day_still_uses_company_fallback(self):
         # No preceding period to infer a duration from: falls back to the company setting, same as
         # before this fix.
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(
                 self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
             ),
@@ -401,63 +413,12 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         attendance = self.teacher.resource_calendar_id.attendance_ids
         self.assertEqual(attendance.hour_to, self.env.company.schedule_import_last_entry_time)
 
-    def test_onchange_attachment_ids_unknown_email_sets_blocking_error(self):
-        attachment = self.env['ir.attachment'].create({
-            'name': 'planner_unknown.xml',
-            'datas': self._xml_file('unknown.import.wizard@example.com Someone'),
-        })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
-            'attachment_ids': [(6, 0, [attachment.id])],
-        })
-
-        wizard._onchange_attachment_ids()
-
-        self.assertTrue(wizard.blocking_issues_html)
-        self.assertIn('unknown.import.wizard@example.com', wizard.blocking_issues_html)
-        self.assertIn('planner_unknown.xml', wizard.blocking_issues_html)
-        self.assertFalse(wizard.info_html)
-        self.assertFalse(wizard.ready_to_import)
-
-    def test_onchange_attachment_ids_placeholder_code_sets_info_html_not_blocking(self):
-        attachment = self.env['ir.attachment'].create({
-            'name': 'planner_pending.xml',
-            'datas': self._xml_file('X3'),
-        })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
-            'attachment_ids': [(6, 0, [attachment.id])],
-        })
-
-        wizard._onchange_attachment_ids()
-
-        self.assertFalse(wizard.blocking_issues_html)
-        self.assertTrue(wizard.info_html)
-        self.assertIn('X3', wizard.info_html)
-        self.assertTrue(wizard.ready_to_import)
-
-    def test_onchange_attachment_ids_placeholder_full_name_kept_whole_in_info_html(self):
-        # Same bug as test_import_placeholder_full_name_kept_whole, checked at the onchange-preview
-        # level: the blue banner must list the teacher's full name, not just its first word.
-        attachment = self.env['ir.attachment'].create({
-            'name': 'planner_pending_name.xml',
-            'datas': self._xml_file('Fulanito Menganito'),
-        })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
-            'attachment_ids': [(6, 0, [attachment.id])],
-        })
-
-        wizard._onchange_attachment_ids()
-
-        self.assertTrue(wizard.info_html)
-        self.assertIn('Fulanito Menganito', wizard.info_html)
-        self.assertTrue(wizard.ready_to_import)
-
-    def test_onchange_attachment_ids_placeholder_code_unresolved_group_sets_blocking_error(self):
-        # Reported 2026-08-01: a not-yet-identified (pending-code) teacher's schedule content was
-        # never actually parsed at onchange-preview time (only its code was noted as "pending"), so
-        # an unresolvable group acronym in that same row silently passed the preview and only blew up
-        # as an uncaught ValidationError when actually clicking Import (create()) - a generic error
-        # popup instead of the wizard's own red "blocking issues" banner. The onchange must now catch
-        # this here too, just like it already does for a known teacher's unresolved group.
+    def test_continue_from_intro_placeholder_code_unresolved_group_raises(self):
+        # Reported 2026-08-01, still relevant after the 2026-08-05 multi-step redesign: a
+        # not-yet-identified (pending-code) teacher's schedule content must still be parsed (not
+        # skipped just because its own identity isn't resolved yet) - an unresolvable group acronym
+        # in that row has no later step that could resolve it either, so it must still raise clearly
+        # when leaving the intro screen, not silently pass through only to blow up unworded later.
         attachment = self.env['ir.attachment'].create({
             'name': 'planner_pending_bad_group.xml',
             'datas': self._xml_file_with_hour_node(
@@ -466,50 +427,28 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
                 '<Students name="NOPE Group"/>',
             ),
         })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': [(6, 0, [attachment.id])],
         })
 
-        wizard._onchange_attachment_ids()
+        with self.assertRaises(ValidationError) as capture:
+            wizard.action_continue()
 
-        self.assertTrue(wizard.blocking_issues_html)
-        self.assertIn("Group with acronym 'NOPE Group' not found", wizard.blocking_issues_html)
-        self.assertIn('X4', wizard.info_html)
+        self.assertIn("Group with acronym 'NOPE Group' not found", str(capture.exception))
+        self.assertEqual(wizard.state, 'intro')
+
+    def test_ready_to_import_reflects_attachment_ids(self):
+        # 'ready_to_import' is now a plain computed field (2026-08-05: no more content validation
+        # gates the intro screen at all - see 'ems.working_schedules_import_wizard.ready_to_import's
+        # own docstring) - just whether any file is attached.
+        wizard = self.env['ems.working_schedules_import_wizard'].new({})
         self.assertFalse(wizard.ready_to_import)
 
-    def test_onchange_attachment_ids_known_email_no_blocking_error(self):
         attachment = self.env['ir.attachment'].create({
             'name': 'planner_known.xml',
             'datas': self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
         })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
-            'attachment_ids': [(6, 0, [attachment.id])],
-        })
-
-        wizard._onchange_attachment_ids()
-
-        self.assertFalse(wizard.blocking_issues_html)
-        self.assertTrue(wizard.ready_to_import)
-
-    def test_ready_to_import_false_before_onchange_attachment_ids_runs(self):
-        # Regression guard for the race the developer found manually: attaching a file makes
-        # 'attachment_ids' truthy immediately, but the onchange that actually validates the content is
-        # a separate RPC that finishes slightly later - if the Import button were gated on the ABSENCE
-        # of a blocking field (the old design), it would render enabled during that whole gap, since
-        # those fields simply hadn't been computed yet. Gating on this field instead (only ever set
-        # True by a successful onchange) closes the gap: before the onchange runs, it must still read
-        # as its Python default (False), same as a brand new record.
-        attachment = self.env['ir.attachment'].create({
-            'name': 'planner_known.xml',
-            'datas': self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
-        })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
-            'attachment_ids': [(6, 0, [attachment.id])],
-        })
-
-        self.assertFalse(wizard.ready_to_import)
-
-        wizard._onchange_attachment_ids()
+        wizard.attachment_ids = [(6, 0, [attachment.id])]
 
         self.assertTrue(wizard.ready_to_import)
 
@@ -542,7 +481,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
                 'test.wizard.teacher3.import.wizard@example.com Someone Else', '17:00', self.other_subject, self.group, '18:00',
             )
         ) + '</root>'
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': [(6, 0, [self.env['ir.attachment'].create({
                 'name': 'planner_shared_room.xml', 'datas': base64.b64encode(xml.encode()),
             }).id])],
@@ -556,7 +495,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
                 'test.wizard.teacher3.import.wizard@example.com Someone Else', '09:00', self.other_subject, self.group, '10:00',
             )
         ) + '</root>'
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': [(6, 0, [self.env['ir.attachment'].create({
                 'name': 'planner_shared_room_swapped.xml', 'datas': base64.b64encode(xml_swapped.encode()),
             }).id])],
@@ -577,7 +516,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # subject/group - a genuine double-booking, not co-teaching. Per the simplified batch importer
         # (2026-08-01 redesign): a fresh import never writes on top of already-populated data for its
         # own scope, so this is always a real problem to fix, never something to silently archive.
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -593,7 +532,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # 'self.teacher' is NOT part of this second import — only 'second_teacher' is, teaching a
         # DIFFERENT subject in the SAME group/room/time.
         with self.assertRaises(ValidationError):
-            self.env['ems.working_schedules_import_wizard'].create({
+            self._import({
                 'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                     'test.wizard.teacher4.import.wizard@example.com Someone Else',
                     f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
@@ -604,7 +543,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
     def test_import_raises_on_space_conflict_when_new_teacher_is_pending_code(self):
         # Same shape as the test above, but the NEW side is a pending-identification teacher (no
         # e-mail, no pre-existing hr.employee) instead of an already-existing one.
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -613,82 +552,13 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
 
         with self.assertRaises(ValidationError):
-            self.env['ems.working_schedules_import_wizard'].create({
+            self._import({
                 'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                     'PENDINGCONFLICT',
                     f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
                     f'<Students name="{self.group.name} Group"/>',
                 )),
             })
-
-    def test_onchange_attachment_ids_space_conflict_sets_blocking_error(self):
-        # Same scenario as the create()-level test above, checked at the onchange-preview level, so
-        # the admin sees the room conflict named in the wizard before ever clicking Import.
-        self.env['ems.working_schedules_import_wizard'].create({
-            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
-                'test.wizard.teacher.import.wizard@example.com Someone',
-                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
-                f'<Students name="{self.group.name} Group"/>',
-            )),
-        })
-        second_teacher = self.env['hr.employee'].create({
-            'name': 'Test Wizard Teacher 5 (Import Wizard)',
-            'employee_type': 'teacher',
-            'work_email': 'test.wizard.teacher5.import.wizard@example.com',
-        })
-
-        attachment = self.env['ir.attachment'].create({
-            'name': 'planner_space_conflict.xml',
-            'datas': self._xml_file_with_hour_node(
-                'test.wizard.teacher5.import.wizard@example.com Someone Else',
-                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
-                f'<Students name="{self.group.name} Group"/>',
-            ),
-        })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
-            'attachment_ids': [(6, 0, [attachment.id])],
-        })
-        wizard._onchange_attachment_ids()
-
-        self.assertTrue(wizard.blocking_issues_html)
-        self.assertIn(self.teacher.display_name, wizard.blocking_issues_html)
-        self.assertFalse(wizard.ready_to_import)
-        del second_teacher  # only needed to own the conflicting session created above
-
-    def test_onchange_attachment_ids_co_teaching_sets_non_blocking_banner(self):
-        # Same subject+group as an existing external teacher's schedule — legitimate co-teaching, must
-        # NOT block the import, just surface a confirmation banner.
-        self.env['ems.working_schedules_import_wizard'].create({
-            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
-                'test.wizard.teacher.import.wizard@example.com Someone',
-                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
-                f'<Students name="{self.group.name} Group"/>',
-            )),
-        })
-        second_teacher = self.env['hr.employee'].create({
-            'name': 'Test Wizard Teacher 6 (Import Wizard)',
-            'employee_type': 'teacher',
-            'work_email': 'test.wizard.teacher6.import.wizard@example.com',
-        })
-
-        attachment = self.env['ir.attachment'].create({
-            'name': 'planner_co_teaching.xml',
-            'datas': self._xml_file_with_hour_node(
-                'test.wizard.teacher6.import.wizard@example.com Someone Else',
-                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
-                f'<Students name="{self.group.name} Group"/>',
-            ),
-        })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
-            'attachment_ids': [(6, 0, [attachment.id])],
-        })
-        wizard._onchange_attachment_ids()
-
-        self.assertFalse(wizard.blocking_issues_html)
-        self.assertTrue(wizard.co_teaching_html)
-        self.assertIn(self.teacher.display_name, wizard.co_teaching_html)
-        self.assertTrue(wizard.ready_to_import)
-        del second_teacher  # only needed to own the pre-existing session created above
 
     def test_import_co_teaching_merges_into_one_shared_template(self):
         # Real-world case (two teachers importing the exact same subject+group+time+room): must end
@@ -699,14 +569,14 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'employee_type': 'teacher',
             'work_email': 'test.wizard.teacher7.import.wizard@example.com',
         })
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher7.import.wizard@example.com Someone',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
                 f'<Students name="{self.group.name} Group"/>',
             )),
         })
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -721,32 +591,13 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(len(templates), 1)
         self.assertEqual(set(templates.teacher_ids.ids), {self.teacher.id, second_teacher.id})
 
-    def test_onchange_attachment_ids_overrided_teachers_html_lists_teacher(self):
-        self.env['ems.working_schedules_import_wizard'].create({
-            'attachment_ids': self._attachment_ids(
-                self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
-            ),
-        })
-
-        attachment = self.env['ir.attachment'].create({
-            'name': 'planner_reimport.xml',
-            'datas': self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
-        })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
-            'attachment_ids': [(6, 0, [attachment.id])],
-        })
-        wizard._onchange_attachment_ids()
-
-        self.assertTrue(wizard.overrided_teachers_html)
-        self.assertIn('<li>', wizard.overrided_teachers_html)
-        self.assertIn(self.teacher.display_name, wizard.overrided_teachers_html)
-
     def test_import_group_without_space_raises_clear_error(self):
         # ems.group.space_id is optional, but ems.attendance_template.space_id (taken from the
         # group) is required — without this check, Odoo's generic "mandatory field is not set" error
-        # would surface instead of naming which group is missing a classroom.
+        # would surface instead of naming which group is missing a classroom. Deferred to the final
+        # Import step since 2026-08-05 - not something the intro screen checks any more.
         with self.assertRaises(ValidationError) as capture:
-            self.env['ems.working_schedules_import_wizard'].create({
+            self._import({
                 'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                     'test.wizard.teacher.import.wizard@example.com Someone',
                     f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -756,26 +607,11 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         self.assertIn(self.spaceless_group.name, str(capture.exception))
 
-    def test_onchange_attachment_ids_sets_blocking_error_for_group_without_space(self):
-        attachment = self.env['ir.attachment'].create({
-            'name': 'planner_no_space.xml',
-            'datas': self._xml_file_with_hour_node(
-                'test.wizard.teacher.import.wizard@example.com Someone',
-                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
-                f'<Students name="{self.spaceless_group.name} Group"/>',
-            ),
-        })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
-            'attachment_ids': [(6, 0, [attachment.id])],
-        })
-
-        wizard._onchange_attachment_ids()
-
-        self.assertTrue(wizard.blocking_issues_html)
-        self.assertIn(self.spaceless_group.name, wizard.blocking_issues_html)
-        self.assertFalse(wizard.ready_to_import)
-
-    def test_onchange_attachment_ids_unknown_group_does_not_raise(self):
+    def test_continue_from_intro_unknown_group_raises(self):
+        # An unresolvable group has no later step (yet) that could resolve it interactively, so it
+        # must still raise clearly when leaving the intro screen - unlike an unknown e-mail or a
+        # missing classroom, this one can't be deferred (there's no cache to defer, since
+        # '_parse_schedule_entries' itself never produced any entries for this node).
         attachment = self.env['ir.attachment'].create({
             'name': 'planner_unknown_group.xml',
             'datas': self._xml_file_with_hour_node(
@@ -784,17 +620,17 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
                 '<Students name="TWIWNOTAREALGROUP Group"/>',
             ),
         })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': [(6, 0, [attachment.id])],
         })
 
-        wizard._onchange_attachment_ids()
+        with self.assertRaises(ValidationError) as capture:
+            wizard.action_continue()
 
-        self.assertTrue(wizard.blocking_issues_html)
-        self.assertIn('TWIWNOTAREALGROUP', wizard.blocking_issues_html)
-        self.assertFalse(wizard.ready_to_import)
+        self.assertIn('TWIWNOTAREALGROUP', str(capture.exception))
+        self.assertEqual(wizard.state, 'intro')
 
-    def test_onchange_attachment_ids_unknown_subject_code_does_not_raise(self):
+    def test_continue_from_intro_unknown_subject_code_raises(self):
         attachment = self.env['ir.attachment'].create({
             'name': 'planner_unknown_subject.xml',
             'datas': self._xml_file_with_hour_node(
@@ -803,40 +639,15 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
                 f'<Students name="{self.group.name} Group"/>',
             ),
         })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': [(6, 0, [attachment.id])],
         })
 
-        wizard._onchange_attachment_ids()
+        with self.assertRaises(ValidationError) as capture:
+            wizard.action_continue()
 
-        self.assertTrue(wizard.blocking_issues_html)
-        self.assertIn('ZZZZ', wizard.blocking_issues_html)
-        self.assertFalse(wizard.ready_to_import)
-
-    def test_onchange_attachment_ids_combines_multiple_blocking_issues_into_one_list(self):
-        # Several distinct problems across different files must render as separate bullet points
-        # in the same banner, not get silently dropped/overwritten by whichever ran last.
-        attachment_unknown = self.env['ir.attachment'].create({
-            'name': 'planner_unknown.xml',
-            'datas': self._xml_file('unknown.import.wizard@example.com Someone'),
-        })
-        attachment_no_space = self.env['ir.attachment'].create({
-            'name': 'planner_no_space.xml',
-            'datas': self._xml_file_with_hour_node(
-                'test.wizard.teacher.import.wizard@example.com Someone',
-                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
-                f'<Students name="{self.spaceless_group.name} Group"/>',
-            ),
-        })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
-            'attachment_ids': [(6, 0, [attachment_unknown.id, attachment_no_space.id])],
-        })
-
-        wizard._onchange_attachment_ids()
-
-        self.assertIn('unknown.import.wizard@example.com', wizard.blocking_issues_html)
-        self.assertIn(self.spaceless_group.name, wizard.blocking_issues_html)
-        self.assertEqual(wizard.blocking_issues_html.count('<li>'), 2)
+        self.assertIn('ZZZZ', str(capture.exception))
+        self.assertEqual(wizard.state, 'intro')
 
     def _create_self_conflict_setup(self):
         """A second space + group, unrelated to self.space/self.group, so a same-teacher,
@@ -859,7 +670,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # ever looks for OTHER teachers sharing the same space), so 'create()' must still catch it
         # via 'find_self_conflicts' instead of silently importing an impossible schedule.
         other_group = self._create_self_conflict_setup()
-        self.env['ems.working_schedules_import_wizard'].create({
+        self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/>'
@@ -872,7 +683,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertTrue(first_template.active, "sanity check: department A's import created an active template")
 
         with self.assertRaises(ValidationError):
-            self.env['ems.working_schedules_import_wizard'].create({
+            self._import({
                 'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                     'test.wizard.teacher.import.wizard@example.com Someone',
                     f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
@@ -884,29 +695,60 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         first_template.invalidate_recordset()
         self.assertTrue(first_template.active)
 
-    def test_onchange_attachment_ids_self_conflict_sets_blocking_error(self):
-        other_group = self._create_self_conflict_setup()
-        self.env['ems.working_schedules_import_wizard'].create({
-            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
-                'test.wizard.teacher.import.wizard@example.com Someone',
-                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
-                f'<Students name="{self.group.name} Group"/>',
-            )),
-        })
-        attachment = self.env['ir.attachment'].create({
-            'name': 'planner_self_conflict.xml',
-            'datas': self._xml_file_with_hour_node(
-                'test.wizard.teacher.import.wizard@example.com Someone',
-                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
-                f'<Students name="{other_group.name} Group"/>',
+
+    def test_wizard_starts_at_intro_state(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({})
+        self.assertEqual(wizard.state, 'intro')
+        self.assertFalse(wizard.parsed_entries_json)
+
+    def test_action_continue_from_intro_caches_entries_and_advances_to_groups(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
             ),
         })
-        wizard = self.env['ems.working_schedules_import_wizard'].new({
-            'attachment_ids': [(6, 0, [attachment.id])],
+
+        wizard.action_continue()
+
+        self.assertEqual(wizard.state, 'groups')
+        self.assertTrue(wizard.parsed_entries_json)
+
+    def test_action_continue_from_intro_raises_without_attachments(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({})
+        with self.assertRaises(ValidationError):
+            wizard.action_continue()
+        self.assertEqual(wizard.state, 'intro')
+
+    def test_action_continue_placeholder_steps_advance_one_state_at_a_time(self):
+        # Steps 'groups' through 'pending_info' have no real logic yet (see
+        # plans/working_schedule_import_redesign.md) - 'action_continue' just advances the
+        # statusbar for each of them, one step per call, until reaching the final step.
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+            ),
         })
+        wizard.action_continue()  # intro -> groups (the one real step so far)
 
-        wizard._onchange_attachment_ids()
+        expected_sequence = ['teachers', 'internal_conflicts', 'db_conflicts', 'pending_info', 'override_info']
+        for expected_state in expected_sequence:
+            wizard.action_continue()
+            self.assertEqual(wizard.state, expected_state)
 
-        self.assertTrue(wizard.blocking_issues_html)
-        self.assertIn('Schedule conflict', wizard.blocking_issues_html)
-        self.assertFalse(wizard.ready_to_import)
+    def test_import_planner_data_writes_from_the_cache_built_at_intro(self):
+        # The final step reads 'parsed_entries_json' - built once, at intro - rather than
+        # re-parsing 'attachment_ids' from scratch, so this must still work correctly even after
+        # the statusbar has moved well past the intro screen.
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups, caches the parsed entries
+        for _step in range(5):  # groups -> ... -> override_info
+            wizard.action_continue()
+        self.assertEqual(wizard.state, 'override_info')
+
+        wizard.import_planner_data()
+
+        self.assertTrue(self.teacher.resource_calendar_id.attendance_ids)

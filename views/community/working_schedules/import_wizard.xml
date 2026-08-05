@@ -5,35 +5,39 @@
             <field name="model">ems.working_schedules_import_wizard</field>
             <field name="arch" type="xml">
                 <form string="Session" js_class="ems_working_schedules_import_wizard_form">
-                    <field name="ready_to_import" invisible="1"/>
-                    <field name="blocking_issues_html" invisible="1"/>
-                    <field name="info_html" invisible="1"/>
-                    <field name="overrided_teachers_html" invisible="1"/>
-                    <field name="co_teaching_html" invisible="1"/>
-                    <div class="alert alert-danger" role="alert" name="alert-danger-issues" invisible="not blocking_issues_html">
-                        Attention please: the following problems prevent the import from continuing. Please fix them and try again:
-                        <field name="blocking_issues_html" readonly="1"/>
-                    </div>
-                    <div class="alert alert-info" role="alert" name="alert-info" invisible="not info_html">
-                        The following not-yet-identified teachers will be created (please verify their names/codes are correct before continuing):
-                        <field name="info_html" readonly="1"/>
-                    </div>
-                    <div class="alert alert-warning" role="alert" name="alert-warning" invisible="not overrided_teachers_html">
-                        Attention please: the following teachers already have a schedule defined for the current course. If you continue with the process, their working schedules, subject assignations and assistance templates will be updated to match the provided ones (none will be removed):
-                        <field name="overrided_teachers_html" readonly="1"/>
-                    </div>
-                    <div class="alert alert-warning" role="alert" name="alert-warning-co-teaching" invisible="not co_teaching_html">
-                        Attention please: the following existing sessions belong to teachers NOT included in this file, but overlap in classroom, time, subject and group with what you're importing - this looks like co-teaching. If that's not intended, fix the group/subject and try again:
-                        <field name="co_teaching_html" readonly="1"/>
-                    </div>
+                    <header>
+                        <field name="state" widget="statusbar" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <field name="ready_to_import" invisible="1"/>
 
-                    <group>
-                         <field name="attachment_ids" widget="ems_blocking_many2many_binary" options="{'accepted_file_extensions': '.xml'}"/>
-                    </group>
+                        <!-- Welcome: file upload only - no validation/banners here on purpose. Resolving
+                             an unknown e-mail/group, a missing classroom or a schedule conflict is the
+                             job of the later steps (2-6, see plans/working_schedule_import_redesign.md),
+                             not something this screen should show or block on. -->
+                        <div invisible="state != 'intro'">
+                            <p>
+                                Import a working-schedule batch (one or several planner files). Run this during
+                                next-course preparation, once the previous course's schedules have already been
+                                archived by the course transition wizard - running it against a course already in
+                                progress can create conflicts/overlaps that then need manual resolution in the
+                                following steps.
+                            </p>
+                            <group>
+                                <field name="attachment_ids" widget="ems_blocking_many2many_binary" options="{'accepted_file_extensions': '.xml'}"/>
+                            </group>
+                        </div>
 
+                        <div class="alert alert-info" role="alert" invisible="state in ('intro', 'override_info')">
+                            This step is not implemented yet - "Continue" moves on without asking anything here for now.
+                        </div>
+                    </sheet>
                     <footer>
-                        <button name="import_planner_data" string="Import" type="object" class="btn-primary" icon="fa-calendar-plus-o" invisible="not ready_to_import" />
-                        <button name="cancel" string="Cancel" special="cancel"/>
+                        <button name="action_continue" string="Continue" type="object" class="btn-primary"
+                            invisible="state == 'override_info' or (state == 'intro' and not ready_to_import)"/>
+                        <button name="import_planner_data" string="Import" type="object" class="btn-success"
+                            icon="fa-calendar-plus-o" invisible="state != 'override_info'"/>
+                        <button name="cancel" string="Cancel" special="cancel" class="btn-danger"/>
                     </footer>
                 </form>
             </field>

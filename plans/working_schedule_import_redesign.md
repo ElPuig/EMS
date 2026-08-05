@@ -95,6 +95,81 @@ Docs (`attendance_template.md`/`attendance_schedule.md`) and this branch's chang
 **What's still not built:** the multi-step wizard itself (phases 1-7 below) - this piece only
 covers the shared model-level rule steps 4/5 will eventually call into.
 
+**Skeleton + step 1 IMPLEMENTED AND TESTED 2026-08-05** (same day, later): the `state` Selection
+field (statusbar, 7 values from the "Step-by-step" section below), the single "Continue" button
+(`action_continue()`, dispatching to `_continue_from_intro()` for step 1 and a plain
+`_advance_state()` placeholder for steps 2-6), and step 1 itself (parse-without-writing + cache,
+via the new `_classify_attachments()` helper shared with the live onchange preview) are all built
+and working. **`create()` had to become a plain, un-overridden default** - it used to do the
+entire import as a side effect of the wizard's first save, which the multi-step flow's first
+"Continue" click would now trigger prematurely; the real write logic moved into `_apply_import()`,
+called only by the final step's `import_planner_data()` from the cached, already-parsed data (not
+a re-parse of the XML). Found and fixed a real, costly-to-diagnose Odoo gotcha in the process: a
+`type="object"` button returning a falsy value gets silently converted into "close the window" by
+the web client (`action_service.js`'s own `doActionButton`) - for this `target: "new"` dialog, that
+closed the whole wizard on the very first "Continue" click, since `action_continue()` had no
+explicit return. Fixed with `_reopen_self_action()` (re-opens the same wizard record as a fresh
+window action) - **any future step's own button method must return a real action dict too, or it
+will silently close the wizard instead of advancing**. See
+`docs/en/developers/employees/working_schedule.md`'s "Multi-step wizard skeleton" section for the
+full writeup of this trap. Verified: `TestWorkingSchedulesImportWizard` (42 tests, including 5 new
+ones for the state machine itself) and all 3 tours in `TestWorkingSchedulesImportWizardTour` green
+(the pending-teacher tour now clicks all the way through every placeholder step to the final
+Import, proving the skeleton is clickable end-to-end in a real browser, not just in a backend
+test). i18n added for the 7 state labels, the "Continue" button, the intro screen's help text, and
+the placeholder steps' notice - plus one **pre-existing, unrelated gap** found and fixed along the
+way: the wizard's "these teachers already have a schedule" warning banner text had never actually
+been translated at all (confirmed via `psql`, not just the `.po` diff) despite being old, unchanged
+text - fixed now while already in this exact view for other reasons.
+
+**What's still not built:** the actual resolution screens for steps 2-6 (group/teacher correction
+lines, the internal/DB conflict classification UI, the pending-teacher/overridden-teacher info
+screens' own dedicated content) - see the "Step-by-step" section below for each one's full design.
+
+**Corrected the same day, right after the developer actually tried it:** the first cut of step 1
+had ported the old single-screen wizard's four banners (red/blue/yellow) onto the welcome screen
+verbatim, live-updated via `@api.onchange('attachment_ids')` - functionally identical to the old
+wizard's own validation, just relocated. The developer's read: *"al cargar el fichero, no salga
+nada en esta primera ventana, solamente que se active el botón 'Continue'... o que se pueda
+cancelar"* - resolving an unresolved e-mail/group is exactly what steps 2-3 exist for, so showing
+(or blocking on) it at the welcome screen pre-empts their whole purpose. Fixed: removed all four
+banner fields and the onchange entirely; `ready_to_import` is now a plain `bool(attachment_ids)`
+compute, no content validation before Continue is clickable. Every real problem (unresolved
+e-mail, missing classroom, room/schedule conflicts) is deferred to `_apply_import()` at the final
+step - today that means it surfaces at the Import click (as a plain error dialog) instead of
+whichever future screen will eventually own it. The one thing that still can't be deferred: an
+unresolvable subject/group *code* (not e-mail) still blocks leaving the welcome screen, since
+`_parse_schedule_entries()` produces no entries at all for that node - nothing to cache forward.
+Re-verified: `TestWorkingSchedulesImportWizard` back down to 32 tests (10 obsolete onchange/banner
+tests removed, 4 of them adapted to assert the same underlying checks at their new, later point
+instead) and all 3 tours green, including both tours' own banner-checking steps rewritten to match
+- the unknown-teacher tour now clicks all the way through to Import before asserting the error,
+via a real `.o_error_dialog`, not a wizard banner. Also removed while in the area: `_bullet_html()`
+(the now-unused banner-rendering helper - left the `.ems_wizard_bullet_list` CSS rule in `ems.css`
+in place though, including its hard-won `break-inside: avoid` fix, since steps 2-7 will need the
+exact same bullet-list rendering again soon) and 3 now-orphaned `.po` entries for the removed
+banner text (one of which - "already has a schedule" - had ironically just been given its first
+real translation minutes earlier, as part of the very same day's skeleton work, before this
+correction made it dead again).
+
+**Corrected again the same day: Continue/Import/Cancel moved from `<header>` to `<footer>`.** The
+developer tried the wizard again and reported the buttons still looked wrong: *"los botones
+Continue y Cancel deberían estar donde aparecen ahora Save y Discard (y ocultar o eliminar
+estos dos)"*. First attempt misdiagnosed this as `web.FormStatusIndicator` (a small, unrelated
+"unsaved changes" icon pair) and tried hiding it via a `className` override on a custom
+`FormController` + a scoped CSS rule - `./upgrade.sh` was clean and all 3 tours stayed green, but
+the developer reported *"está exactamente igual que antes. No veo cambios"*. Re-diagnosed by
+reading `web.FormView`'s own template: a `target: "new"` dialog with no `<footer>` in its arch
+falls back to Odoo's generic Save/Discard/Remove buttons, portaled straight into the modal's own
+`.modal-footer` - completely independent of whatever's in `<header>`. Real fix: moved the 3 action
+buttons into a real `<footer>`, keeping only the `state` statusbar field in `<header>` - matches
+every other wizard in this codebase (e.g. `ems.grade_import_wizard`). Reverted the incorrect
+`className`/CSS attempt. Tour selectors updated from `.modal .o_form_statusbar button[name='...']`
+to `.modal .modal-footer button[name='...']`. Re-verified: all 3 tours in
+`TestWorkingSchedulesImportWizardTour` green. See
+`docs/en/developers/employees/working_schedule.md`'s new "Action buttons belong in `<footer>`, not
+`<header>`" subsection for the full mechanism writeup.
+
 # Why
 
 The current importer (`ems.working_schedules_import_wizard` + `ems.attendance_template`'s
@@ -223,6 +298,17 @@ it, the existing `attachment_ids` field (same widget, same spinner). Buttons: Ca
 `_parse_schedule_entries`-adjacent logic) — **without writing anything yet**, this whole wizard
 now only writes at the very end (step 7's Import) — cache the parsed structure (see "Data model"
 below), classify unresolved groups, advance to step 2.
+
+**Corrected 2026-08-05, after actually building and using this screen: "classify unresolved
+groups" above does NOT mean showing/blocking on them here.** `ready_to_import` (gating Continue)
+is just `bool(attachment_ids)` - no content validation of any kind runs before Continue is even
+clickable. An unresolved e-mail is deferred all the way to the final Import step (today; to step 3
+once it exists) - the only thing that still blocks leaving this screen is a node whose own
+schedule content fails to parse at all (an unresolved subject/group *code*, which produces no
+entries to defer in the first place). See `docs/en/developers/employees/working_schedule.md`'s
+"intro screen shows no validation output" note for the full reasoning and the developer's own
+framing (*"al cargar el fichero, no salga nada en esta primera ventana, solamente que se active el
+botón Continue... o que se pueda cancelar"*).
 
 ### 2 (their 3) — Resolve unrecognized groups
 One line per **distinct** unresolved `<Students>` name found anywhere in the batch (dedup by raw

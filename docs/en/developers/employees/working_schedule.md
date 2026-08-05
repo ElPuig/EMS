@@ -224,7 +224,116 @@ all at once). So by the time a study's groups are due for a fresh import, there 
 nothing active left to reconcile against for that scope — an active overlap found during import
 is always either legitimate co-teaching or a real problem, never something to silently resolve.
 
-Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_create_schedule()`, then calls `ems.teaching.sync_from_schedule(..., replace=False)`/`ems.attendance_template.sync_from_schedule_batch_fresh_import` — the importer's own entry points, **not** the ones the Schedule tab's grid widget uses to save a live edit (see "Reconciliation" above for why the importer needs its own).
+Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_parse_schedule_entries()`, then calls `ems.teaching.sync_from_schedule(..., replace=False)`/`ems.attendance_template.sync_from_schedule_batch_fresh_import` — the importer's own entry points, **not** the ones the Schedule tab's grid widget uses to save a live edit (see "Reconciliation" above for why the importer needs its own).
+
+### Multi-step wizard skeleton (2026-08-05) — only the intro screen has real logic so far
+
+Being rebuilt into a 7-screen guided flow (statusbar `state` field, one screen per step) per
+`plans/working_schedule_import_redesign.md`'s "Multi-step wizard" design. **As of this pass, only
+step 1 ("Welcome") has real behavior; steps 2-6 are placeholders** that just advance the statusbar
+- each gets its own resolution screen as it's built. The final step ("Existing teachers") already
+has its real "Import" button, since nothing changed about what that step needs to do.
+
+**The most important structural change: `create()` no longer does any real work.** Before this
+pass, the wizard's `create()` override parsed every attached file and wrote everything
+(resource.calendar, ems.teaching, ems.attendance_template) in one shot, since the old single-screen
+wizard only ever had one button ("Import") and clicking it both saved the record and did the
+import. With a multi-step flow, the record gets saved on the **very first** "Continue" click
+(leaving the intro screen) - if `create()` still did the heavy lifting, that first click would
+already perform the entire import, defeating the point of the later resolution steps. So:
+
+- `create()` is back to Odoo's own plain default (no override at all) - it only ever materializes
+  an empty wizard record.
+- **`_continue_from_intro()`** (called by `action_continue()` when `state == 'intro'`) parses every
+  attached file via the new **`_classify_attachments()`** helper, then JSON-serializes the
+  parsed-but-not-yet-written per-teacher-node data (`parsed_entries_json`, a plain `Text` field - a
+  `TransientModel` record survives its own several `write()` calls across steps, so a stored field
+  is enough, no cleverer caching needed) and advances `state`.
+- **`import_planner_data()`** (the final step's button, name kept for JS-controller/tour
+  continuity) deserializes `parsed_entries_json` and calls the new **`_apply_import()`** - the
+  actual writing logic, a straight port of the old `create()` body, just reading from the cache
+  instead of re-parsing XML (re-parsing at this point would also re-resolve teachers/pending-codes
+  against data this same call is about to change).
+- **`action_continue()`** is the single "Continue" button's handler for every non-final step -
+  dispatches to `_continue_from_intro()` for `state == 'intro'`, and to a plain `_advance_state()`
+  (`self.state = self._STATE_SEQUENCE[index + 1]`) for every placeholder step.
+
+**The intro screen shows no validation output at all (changed 2026-08-05, developer feedback right
+after actually using it):** the very first version of this screen ported over the old single-screen
+wizard's four banners (red "blocking issues" - unknown e-mail, unresolved group/subject, missing
+classroom, room conflict; blue "pending teachers"; yellow "already has a schedule"/"co-teaching")
+verbatim, gated behind an `@api.onchange('attachment_ids')` that re-ran the full classification live
+as files were attached. The developer's read, after trying it: *"al cargar el fichero, no salga
+nada en esta primera ventana, solamente que se active el botón 'Continue'... o que se pueda
+cancelar"* - resolving an unresolved e-mail/group **is** what steps 2-3 exist for, so showing (or
+blocking on) that problem at the welcome screen pre-empts what those screens are for. Confirmed
+explicitly: `ready_to_import` (gating `action_continue`) should activate the moment *any* file is
+attached, full stop - every real problem (unresolved e-mail, missing classroom, room/schedule
+conflicts) is deferred all the way to `_apply_import()` at the final step; today, since steps 2-6
+are still placeholders, that means the problem surfaces at the final "Import" click instead of
+whichever screen will eventually own it. Concretely, this removed:
+
+- The four banner `Html` fields (`blocking_issues_html`, `info_html`, `overrided_teachers_html`,
+  `co_teaching_html`) and the `_onchange_attachment_ids` method entirely - `ready_to_import` is now
+  a plain `compute="_compute_ready_to_import"` field, `@api.depends("attachment_ids")`, just
+  `bool(wizard.attachment_ids)`. No XML parsing happens at all until the real "Continue" click.
+- `_bullet_html()` (the `<ul><li>` banner-rendering helper) - unused now, but deliberately not
+  ported to a different helper file either; it's simple enough to rebuild in a few minutes once
+  steps 2-7 need their own bullet lists again (the `.ems_wizard_bullet_list` CSS rule in `ems.css`
+  - including its hard-won `break-inside: avoid` fix - was left in place for exactly that reason).
+- `classify_external_conflicts`/`find_self_conflicts`/`_groups_without_space` calls out of
+  `_classify_attachments()` - these still run, just only inside `_apply_import()` now, so they're
+  no longer computed twice (once uselessly at every file attach, once for real at Import).
+
+**One thing that still can't be deferred:** `_classify_attachments()` still catches (and blocks
+leaving the intro screen on) a `ValidationError` raised by `_parse_schedule_entries()` itself - an
+unresolved SUBJECT or GROUP *code* (as opposed to an unresolved *e-mail*, which is deferred) has no
+entries to cache in the first place, so there is genuinely nothing to carry forward to a later
+step; letting it through silently would just lose that teacher's schedule data. Collected as
+`unparseable_issues` (folded into `_continue_from_intro`'s `ValidationError` message, same "also
+reachable from a direct ORM call with no banner to look at" reasoning as before). The "no current
+course configured"/"no file attached" checks stay at intro too, for the same reason - no later step
+could ever resolve either one.
+
+**Gotcha worth knowing before touching any of this (found empirically 2026-08-05, cost real
+debugging time):** a `type="object"` button whose Python method returns a falsy value (`None`, the
+implicit return of a method with no explicit `return`) gets converted client-side into
+`{'type': 'ir.actions.act_window_close'}` - see `odoo/addons/web/static/src/webclient/actions/
+action_service.js`'s own `doActionButton`: `action = action && typeof action === "object" ? action
+: {type: "ir.actions.act_window_close"}`. For a wizard opened as `target: "new"` (this one, from
+the cog menu), that silently **closes the dialog** the moment it fires - which happened on the very
+first "Continue" click, since `action_continue()` had no explicit return at all. Chased down
+several wrong leads first (`props.onSave`/`clickParams.closable`, `record.save({reload: true})`'s
+own dialog-wrapping) before finding the real cause in `doActionButton` itself - confirmed with a
+diagnostic tour step logging `document.querySelectorAll(".modal").length` right after the click
+(came back `0`). **Fixed by having `action_continue()` always return an explicit action dict** -
+`_reopen_self_action()` re-opens this exact wizard record (`res_id: self.id`) as a fresh `target:
+"new"` window action, so the same dialog stays open showing whatever state was just written.
+Any future step's own "Continue"/resolution method must do the same (return a real action dict,
+never fall through to an implicit `None`) or it will silently close the wizard instead of advancing
+to the next screen.
+
+**Action buttons belong in `<footer>`, not `<header>`, or Odoo's own generic Save/Discard shows up
+too (found 2026-08-05, developer feedback: "los botones Continue y Cancel deberían estar donde
+aparecen ahora Save y Discard").** The first cut of this arch put `action_continue`/
+`import_planner_data`/`cancel` inside `<header>` alongside the `state` statusbar field - the
+buttons rendered fine there, but for a `target: "new"` dialog, `web.FormView`'s own template
+independently renders a `layout-buttons` slot that gets portaled straight into the modal's
+`.modal-footer` (`web/static/src/core/layout.xml`: `t-portal="'#' + env.dialogId + ' .modal-footer'"`).
+That slot falls back to Odoo's generic `web.FormView.Buttons` template (plain Save/Discard/Remove)
+**whenever the arch has no `<footer>` element** (`footerArchInfo` is falsy) - completely independent
+of whatever buttons `<header>` already has. So the dialog showed both: our own statusbar buttons
+*and* Odoo's generic Save/Discard underneath, which reads as a duplicate control, not a replacement.
+An initial attempt at this same complaint misdiagnosed it as `web.FormStatusIndicator` (a different,
+unrelated small icon-pair shown in the control panel for dirty records) and tried hiding it via a
+`className` override + scoped CSS - reverted once testing showed zero visible change, since that
+component isn't even what was rendering here. **Fix:** move the 3 buttons into a real `<footer>`,
+keep only `<field name="state" widget="statusbar"/>` in `<header>` - matches how every other
+target-new wizard in this codebase already does it (e.g. `ems.grade_import_wizard`'s
+`import_wizard.xml`). Browser-tour selectors for these buttons must therefore target
+`.modal .modal-footer button[name='...']`, not `.modal .o_form_statusbar button[name='...']`
+(the latter is still correct for a field that's genuinely only a statusbar with no header buttons,
+as in other EMS wizards that don't need this dialog-footer distinction).
 
 **Teaching vs. non-teaching is decided by code, not by tag or by the `Students` sibling:** both `<Subject>` and `<NonTeaching>` are accepted as the hour's activity node; whichever one is present, its `name` attribute's leading code is looked up against `ems.non_teaching_type.code` — a hit means the hour is non-teaching (`NonTeaching` is only kept for older exports; some planner apps outside our control send non-teaching hours as a `<Subject>` node too, whose only observable difference from a real subject is the missing `<Students>` sibling). A miss falls through to the `ems.subject` lookup by code. `<Students>` is unrelated to this decision — it's always just a third, independent sibling that attaches `group_ids` when present, regardless of which activity node it sits next to. An unrecognized code (neither a known `ems.non_teaching_type.code` nor an `ems.subject.code`) raises a `ValidationError` — the fix, when the planner introduces a genuinely new non-teaching activity, is adding it once from **Configuration → Teachers → Non-teaching types**, not a code change.
 

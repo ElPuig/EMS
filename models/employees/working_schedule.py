@@ -991,15 +991,15 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			vals["google_ws_manual_email"] = True
 		return self.env["hr.employee"].create(vals)
 
-	def _write_teacher_schedule(self, teacher, course_id, attendance_ids):
-		"""Creates (if missing) or updates 'teacher's resource.calendar for 'course_id', writing
-		'attendance_ids' (already-parsed (0, 0, {...}) commands - see '_parse_schedule_entries')."""
-		name = "%s (%s)" % (teacher.name, course_id.name)
-		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
-		if not schedule:
-			schedule = self.env['resource.calendar'].create({'name': name, 'full_time_required_hours': 24})
-		schedule.write({'attendance_ids': attendance_ids})
-		teacher.write({'resource_calendar_id': schedule})
+	def _write_teacher_schedule(self, teacher, attendance_ids):
+		"""Writes 'attendance_ids' (already-parsed (0, 0, {...}) commands - see
+		'_parse_schedule_entries') onto 'teacher's CURRENT resource.calendar. Never searches by name
+		or creates a calendar itself (2026-08-06, see
+		plans/course_transition_teacher_schedule_archival.md decision 5) - every teacher already has
+		one, auto-created at 'employee.create()' time (see 'ems_employee'), and rolling it onto a
+		fresh one for a new course is the transition wizard's own job now
+		('_apply_calendar_rollover'), not the importer's."""
+		teacher.resource_calendar_id.write({'attendance_ids': attendance_ids})
 
 	def _apply_import(self, node_cache):
 		"""Writes everything (resource.calendar/ems.teaching per teacher, then the
@@ -1008,7 +1008,6 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		Mirrors this model's former create() override, adapted to work from the cache instead of
 		re-parsing the XML from scratch (which would also re-resolve teachers/pending-codes against
 		data this same call is about to change)."""
-		course_id = self.env.company.current_course_id
 		# NOTE: attendance_template sync is deferred and batched across every teacher (see
 		# sync_from_schedule_batch_fresh_import) — syncing one teacher at a time here would let an
 		# early teacher's fresh schedule line falsely collide with a later teacher's still-stale one
@@ -1037,7 +1036,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			else:
 				teacher = self._get_or_create_pending_teacher(identifier)
 
-			self._write_teacher_schedule(teacher, course_id, item['attendance_ids'])
+			self._write_teacher_schedule(teacher, item['attendance_ids'])
 			entries = [e for e in item['entries'] if not e["non_teaching"]]
 			# NOTE: replace=False - this file only ever describes ONE SLICE of the centre's
 			# schedule (e.g. one department), never a teacher's ENTIRE teaching load, so a

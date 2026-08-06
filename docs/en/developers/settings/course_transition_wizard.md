@@ -184,6 +184,47 @@ override itself must be a full replacement command (`[(6, 0, remaining.ids)]`), 
 `default` argument, which populates the brand-new record's `teacher_ids` from `vals` alone rather
 than merging it with the original's.
 
+### A teacher's calendar rolls onto the next course once teaching empties out (`plans/course_transition_teacher_schedule_archival.md`, phases 6-7)
+
+`_apply_calendar_rollover(teachers)` (step 7b, right after `_apply_calendar_archival()` — which
+returns exactly the teacher set this needs, captured *before* their migrating blocks were
+archived) is what actually makes a teacher's `resource_calendar_id` track the current course over
+time, closing the loop `resource.calendar`'s own `employee_id`/`course_id` fields
+(`working_schedule.md`) were added for:
+
+```mermaid
+flowchart TD
+    T["for each teacher _apply_calendar_archival()\njust touched"] --> E{"calendar has zero\nactive TEACHING blocks left?\n(non-teaching doesn't count)"}
+    E -- no, teaching remains --> Z["leave completely untouched -\ne.g. another study hasn't\ntransitioned yet"]
+    E -- yes --> R{"a calendar for\n(teacher, target_course)\nalready exists?"}
+    R -- yes --> U["reactivate it\n(a previous transition cycle\nalready made + archived it)"]
+    R -- no --> N["create a fresh one,\nseeded from the outgoing\ncalendar's own framework"]
+    U --> A["archive the outgoing calendar,\nreassign resource_calendar_id"]
+    N --> A
+```
+
+- **The emptying check** (`calendar.attendance_ids.filtered(lambda a: a.active and not
+  a.non_teaching)`) deliberately ignores non-teaching entries (a guard duty, a coordination
+  meeting…) — a teacher who's done teaching but still has a leftover fixed commitment on their old
+  calendar still rolls over; only *real teaching left* blocks it. This is what lets phases 5 and 6
+  cooperate automatically without a manual trigger: a teacher only spanning studies that all
+  transition together empties out and rolls immediately; one who also teaches a still-pending
+  study keeps their current calendar untouched, exactly as before.
+- **Reactivate before create**: searched with `active_test=False` on `(employee_id, course_id)` —
+  a calendar for that exact pair can already exist, archived, from an *earlier* transition cycle
+  (a teacher who left and came back, or a centre re-running a transition). Reusing it instead of
+  minting a duplicate is what "one-per-(teacher, course), archived, never orphaned" (decision 5)
+  actually requires in practice, not just at first creation.
+- **Seeding**: a freshly *created* (not reactivated) calendar is seeded from the outgoing
+  calendar's own `source_framework_id` — not unconditionally the company's default — so a teacher
+  who's been following e.g. the CFGS framework keeps following it across the transition; the
+  company default is only a fallback for a calendar that was never seeded from one to begin with.
+- **Framework calendars are never touched** — `_migrating_calendar_blocks()` already excludes
+  their attendance rows from ever counting as "migrating" in the first place (see above), but the
+  `is_framework` guard here is kept anyway since this method's own precondition (being in
+  `_apply_calendar_archival()`'s returned teacher set) is the only thing that would otherwise stop
+  it from ever reaching a framework calendar by accident.
+
 ### Archiving the graduates (D4, step 2b)
 
 Graduates are **archived**, not just converted, consistent with issue #357 (withdrawals and alumni are both archived, mirroring how archiving an `hr.employee` asks for a departure reason).

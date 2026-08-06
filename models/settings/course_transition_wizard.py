@@ -707,10 +707,16 @@ class ems_course_transition_wizard(models.TransientModel):
         every one of a template's co-teachers departs in the same run, `remaining` is empty and the
         whole template is simply archived outright, no `_write_or_new_version` call at all.
 
+        Returns the distinct set of teachers whose calendar had at least one migrating block this
+        run - captured *before* archiving them, since `_migrating_calendar_blocks()`'s own search
+        would otherwise silently exclude them once archived - for `_apply_calendar_rollover()` to
+        check afterwards (phases 6-7).
+
         See plans/course_transition_teacher_schedule_archival.md, phase 5c.
         """
         self.ensure_one()
         blocks = self._migrating_calendar_blocks()
+        affected_teachers = blocks.mapped('employee_id')
         line_departures = {}
         for block in blocks:
             teacher = block.employee_id
@@ -754,6 +760,43 @@ class ems_course_transition_wizard(models.TransientModel):
             else:
                 lines.attendance_session_ids.action_archive()
                 template.action_archive()
+        return affected_teachers
+
+    def _apply_calendar_rollover(self, teachers):
+        """Step 7b — phases 6+7 of the plan: for every teacher `_apply_calendar_archival()` just
+        touched, checks whether their CURRENT calendar has zero remaining *active teaching* blocks
+        (a non-teaching commitment - guard duty, a meeting... - doesn't count, and doesn't block the
+        rollover) — if so, rolls them onto a calendar for `target_course_id`, reactivating one
+        already made for that exact (teacher, course) pair if one exists (a previous transition
+        cycle already created and archived it), minting a fresh one otherwise, seeded from whatever
+        framework the outgoing calendar itself followed (falling back to the company's own default
+        framework for a calendar that was never seeded from one). The now-empty calendar is
+        archived — never left orphaned (decision 5) — and `resource_calendar_id` reassigned.
+
+        A calendar that still has real teaching left (e.g. this teacher also teaches a study that
+        hasn't transitioned yet) is left completely untouched here — this is deliberately NOT a
+        blanket per-teacher rollover, only ever triggered by the specific condition decision 5/7
+        describe.
+        """
+        self.ensure_one()
+        for teacher in teachers:
+            calendar = teacher.resource_calendar_id
+            if calendar.is_framework or calendar.attendance_ids.filtered(
+                    lambda attendance: attendance.active and not attendance.non_teaching):
+                continue
+            next_calendar = self.env['resource.calendar'].with_context(active_test=False).search([
+                ('employee_id', '=', teacher.id), ('course_id', '=', self.target_course_id.id),
+            ], limit=1)
+            if next_calendar:
+                next_calendar.action_unarchive()
+            else:
+                next_calendar = self.env['resource.calendar'].create({
+                    'employee_id': teacher.id, 'course_id': self.target_course_id.id,
+                })
+                next_calendar.seed_from_framework(
+                    calendar.source_framework_id or self.env.company.default_schedule_framework_id)
+            calendar.action_archive()
+            teacher.resource_calendar_id = next_calendar
 
     def _teacher_has_active_block(self, teacher, line):
         """Whether 'teacher' still has an active resource.calendar.attendance block overlapping
@@ -785,7 +828,8 @@ class ems_course_transition_wizard(models.TransientModel):
         # here left those lines active=True forever, so a later import could still find them
         # as a genuine "existing schedule conflict" against a study that had already transitioned.
         self._templates_to_archive().action_archive()
-        self._apply_calendar_archival()
+        affected_teachers = self._apply_calendar_archival()
+        self._apply_calendar_rollover(affected_teachers)
         students._ems_clear_operational_records()
         groups = self._scope_groups()
         # Subject enrollments go by group as well, for the same reason grade sessions do

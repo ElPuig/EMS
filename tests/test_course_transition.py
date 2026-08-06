@@ -1138,6 +1138,81 @@ class TestCourseTransition(TransactionCase):
     def test_apply_with_no_migrating_calendar_blocks_is_a_no_op(self):
         self._applied()  # must not raise
 
+    # --- _apply_calendar_rollover (phases 6-7 of the teacher-schedule archival plan) ------
+
+    def test_apply_rolls_a_teacher_over_to_a_fresh_calendar_once_teaching_empties_out(self):
+        old_calendar = self.teacher.resource_calendar_id
+        self._calendar_block(old_calendar, [self.group1])
+
+        self._applied()
+
+        self.teacher.invalidate_recordset()
+        old_calendar.invalidate_recordset()
+        new_calendar = self.teacher.resource_calendar_id
+        self.assertNotEqual(new_calendar, old_calendar)
+        self.assertEqual(new_calendar.employee_id, self.teacher)
+        self.assertEqual(new_calendar.course_id, self.target_course)
+        self.assertFalse(old_calendar.active)
+
+    def test_apply_keeps_the_calendar_when_teaching_remains(self):
+        old_calendar = self.teacher.resource_calendar_id
+        self._calendar_block(old_calendar, [self.group1])
+        self._calendar_block(old_calendar, [self.group_other], weekday='1', hour_from=10.0, hour_to=11.0)
+
+        self._applied()
+
+        self.teacher.invalidate_recordset()
+        old_calendar.invalidate_recordset()
+        self.assertEqual(self.teacher.resource_calendar_id, old_calendar)
+        self.assertTrue(old_calendar.active)
+
+    def test_apply_rolls_over_even_if_only_non_teaching_entries_remain(self):
+        """Phase 7's own rule: a non-teaching commitment (guard duty, a meeting...) never counts as
+        'teaching left' - it must not block the rollover."""
+        old_calendar = self.teacher.resource_calendar_id
+        self._calendar_block(old_calendar, [self.group1])
+        non_teaching = self.env.ref('ems.non_teaching_g')
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': old_calendar.id, 'name': 'Test Guard (Course Transition)',
+            'dayofweek': '1', 'hour_from': 10.0, 'hour_to': 11.0, 'day_period': 'morning',
+            'non_teaching': non_teaching.id,
+        })
+
+        self._applied()
+
+        self.teacher.invalidate_recordset()
+        old_calendar.invalidate_recordset()
+        self.assertNotEqual(self.teacher.resource_calendar_id, old_calendar)
+        self.assertFalse(old_calendar.active)
+
+    def test_apply_reactivates_an_existing_archived_calendar_for_the_target_course(self):
+        old_calendar = self.teacher.resource_calendar_id
+        self._calendar_block(old_calendar, [self.group1])
+        archived_next = self.env['resource.calendar'].create({
+            'employee_id': self.teacher.id, 'course_id': self.target_course.id,
+        })
+        archived_next.action_archive()
+
+        self._applied()
+
+        self.teacher.invalidate_recordset()
+        self.assertEqual(self.teacher.resource_calendar_id, archived_next)
+        self.assertTrue(archived_next.active)
+        self.assertEqual(self.env['resource.calendar'].search([
+            ('employee_id', '=', self.teacher.id), ('course_id', '=', self.target_course.id),
+        ]), archived_next)
+
+    def test_apply_seeds_the_new_calendar_from_the_old_ones_framework(self):
+        old_calendar = self.teacher.resource_calendar_id
+        framework = self.env.company.default_schedule_framework_id
+        self.assertEqual(old_calendar.source_framework_id, framework)
+        self._calendar_block(old_calendar, [self.group1])
+
+        self._applied()
+
+        self.teacher.invalidate_recordset()
+        self.assertEqual(self.teacher.resource_calendar_id.source_framework_id, framework)
+
     def test_apply_deletes_the_grade_sessions_of_the_scope(self):
         session = self._session(self.group1, self.subject_int)
         self._applied()

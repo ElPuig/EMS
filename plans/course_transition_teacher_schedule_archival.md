@@ -1,7 +1,7 @@
 # Course transition: teacher-schedule archival + historical teaching record
 
-**Status: implementation in progress — phases 1-5 of 8 done (5 split into 5a-5d, all done), no open
-questions.** Written 2026-08-06
+**Status: implementation in progress — phases 1-7 of 8 done, no open questions. Only phase 8 (UI)
+left.** Written 2026-08-06
 from a developer discussion about what should happen to teacher-side scheduling data when
 `ems.course_transition_wizard` runs. Revised three times the same day, then implementation started
 the same day too. See "Implementation phases" at the bottom for the agreed breakdown and current
@@ -367,16 +367,38 @@ surface" already came true once during just this investigation):**
   `test_apply_with_no_migrating_calendar_blocks_is_a_no_op`) — re-check before starting phase 6
   whether anything is still missing; if not, 5d needs no separate work.
 
-**Phase 6 — The wizard takes over calendar creation.** For each affected teacher, once phase 5 has
-run, the transition wizard (not the XML importer) creates/reactivates the next course's calendar
-(phase 3's fields) and reassigns `resource_calendar_id`. `_write_teacher_schedule`
-(`working_schedule.py:943-951`) and the live Schedule-tab editor simplify to "just use
-`teacher.resource_calendar_id`" — no more name search/creation logic in either.
+**Phases 6+7 done together (2026-08-06)** — tightly coupled enough (6 is the mechanism, 7 is the
+trigger condition) that splitting them into separate implementation passes would have left phase 6
+untestable on its own, so they landed as one change:
 
-**Phase 7 — The calendar-emptying rule.** Once a teacher's calendar has zero remaining *active
-teaching* blocks (excluding non-teaching entries) after phase 5's archival, phase 6's archive+roll
-actually triggers. The closing piece that makes phases 5 and 6 operate together automatically
-rather than needing a manual trigger.
+- **Investigation first**: grepped for any OTHER name-search calendar-minting logic besides
+  `_write_teacher_schedule` (the live Schedule-tab editor's `apply_schedule_changes` already only
+  ever operates on a calendar record it's *given*, never searches/creates one) — confirmed
+  `_write_teacher_schedule` was the only place needing simplification, contrary to the phase's own
+  original wording ("...and the live Schedule-tab editor simplify to...").
+- `resource.calendar._write_teacher_schedule` (`working_schedule.py`) simplified to
+  `teacher.resource_calendar_id.write({'attendance_ids': attendance_ids})` — no more name-search-
+  or-create. The now-unused `course_id` parameter (and its one caller's local variable) removed
+  entirely. Verified against real data that `full_time_required_hours` (previously hardcoded to 24
+  only on the OLD create-path) doesn't regress: every existing personal calendar already reads 24
+  via the model's own default, confirmed via `psql` — the hardcoded override was redundant all
+  along, not load-bearing.
+- New `ems.course_transition_wizard._apply_calendar_rollover(teachers)` (step 7b, right after
+  `_apply_calendar_archival()`, which now **returns** the affected-teacher set — captured *before*
+  archiving their migrating blocks, since re-querying `_migrating_calendar_blocks()` afterwards
+  would silently exclude them, the exact same active-filtering trap phase 5c already hit once):
+  for each teacher with zero remaining active *teaching* blocks (non-teaching commitments never
+  count, matching phase 7's own wording), reactivates an existing archived `(teacher,
+  target_course)` calendar if one exists (a previous transition cycle), or creates a fresh one
+  seeded from the outgoing calendar's own `source_framework_id` (falling back to the company
+  default) — then archives the outgoing calendar and reassigns `resource_calendar_id`. A calendar
+  that still has real teaching left (e.g. a not-yet-transitioned study) is left completely
+  untouched — not a blanket per-teacher rollover.
+- 5 new tests in `tests/test_course_transition.py` covering: the basic rollover, teaching-remains
+  no-op, non-teaching-only still rolls over, reactivating an already-archived calendar instead of
+  duplicating, and seeding from the outgoing framework. `TestCourseTransition` (109 tests) and
+  `TestWorkingSchedulesImportWizard` (69 tests, blast-radius check for the importer simplification)
+  both green, `./upgrade.sh` clean, pylint clean.
 
 **Phase 8 — UI.** An explicit "show archived" affordance for `ems.attendance_template`/
 `resource.calendar`/`ems.attendance_session_header`; confirm/fix the Schedule-tab grid renders a

@@ -220,6 +220,18 @@ keeps relying on their "this call = the whole schedule" semantics, which is corr
 
 ## Import wizard (`ems.working_schedules_import_wizard`)
 
+**`_write_teacher_schedule` simplified (2026-08-06, phase 6 of
+`plans/course_transition_teacher_schedule_archival.md`)**: it used to search for an existing
+`resource.calendar` by a `"<teacher> (<course>)"` name string, minting a new one if none matched —
+the exact mechanism that silently orphaned a teacher's previous calendar every time the name
+string changed (decision 5 of that plan). It now just writes onto `teacher.resource_calendar_id`
+directly, full stop — every teacher already has one (auto-created at `hr.employee.create()` time,
+see `employee.md`), and rolling it onto a fresh calendar for a new course is the **transition
+wizard's** own job now (`ems.course_transition_wizard._apply_calendar_rollover()`, see
+`course_transition_wizard.md`), not the importer's. The importer (and the live Schedule-tab editor,
+which never had this logic to begin with) simply trust whatever `resource_calendar_id` currently
+is.
+
 **Redesigned 2026-08-01** to remove complexity that only existed to reconcile against an
 already-populated, still-current schedule. The key fact that makes this possible: `ems.group`
 records are **permanent and reused across academic years** — a course transition (see

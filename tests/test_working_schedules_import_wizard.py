@@ -176,16 +176,21 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         self.assertTrue(self.teacher.resource_calendar_id.attendance_ids)
 
-    def test_import_unknown_email_raises(self):
-        # Deferred to the 'teachers' step (2026-08-05): '_import()' never fills in a pick for the
-        # resulting 'teacher_line', so leaving that step still raises, same as a real user leaving
-        # it unresolved would.
-        with self.assertRaises(ValidationError):
-            self._import({
-                'attachment_ids': self._attachment_ids(
-                    self._xml_file('unknown.import.wizard@example.com Someone'),
-                ),
-            })
+    def test_import_unknown_email_defaults_to_create_new_pending_teacher(self):
+        # Deferred to the 'teachers' step (2026-08-05). 'teacher_line.create_new' defaults to True
+        # (changed 2026-08-06: a genuinely never-hired teacher turned out to be the more common
+        # real case), so '_import()`'s blind continue-through - never touching the line - now
+        # succeeds by default, creating a pending-identification teacher for that e-mail, instead
+        # of raising (see test_continue_from_teachers_raises_when_neither_employee_nor_create_new
+        # for the still-raising case, which now requires explicitly unticking 'create_new').
+        self._import({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown.import.wizard@example.com Someone'),
+            ),
+        })
+        teacher = self.env['hr.employee'].search([('schedule_import_code', '=', 'unknown.import.wizard@example.com')])
+        self.assertTrue(teacher)
+        self.assertTrue(teacher.resource_calendar_id.attendance_ids)
 
     def test_import_placeholder_code_creates_pending_teacher(self):
         # A code with no '@' (e.g. "X1") isn't a real e-mail typo: the external planner uses it for a
@@ -895,6 +900,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; force the "neither" case
 
         with self.assertRaises(ValidationError) as capture:
             wizard.action_continue()
@@ -914,6 +920,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; untick it to pick a real teacher
         wizard.teacher_line_ids.employee_id = second_teacher.id
         wizard.action_continue()  # teachers -> internal_conflicts, substitutes the pick
 
@@ -937,6 +944,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; untick it to pick a real teacher
         wizard.teacher_line_ids.employee_id = second_teacher.id
 
         wizard.teacher_line_ids._onchange_create_new()
@@ -954,6 +962,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; force the "neither" case
 
         with self.assertRaises(ValidationError) as capture:
             wizard.action_continue()
@@ -1530,6 +1539,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; force the unresolved case
         self.assertEqual(wizard.state, 'teachers')
         self.assertTrue(wizard.continue_disabled)
 
@@ -1545,6 +1555,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; untick it to pick a real teacher
         wizard.teacher_line_ids.employee_id = second_teacher.id
         self.assertFalse(wizard.continue_disabled)
 

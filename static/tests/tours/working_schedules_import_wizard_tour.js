@@ -79,8 +79,32 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_unknown_te
             content: "The 'teachers' screen lists the unresolved e-mail found in the file",
         },
         {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue shows enabled by default - 'New' defaults to ticked (2026-08-06)",
+        },
+        {
+            // A boolean cell's FIRST click both enters row-edit mode AND toggles the value in one
+            // go - a single click here unticks the default-True 'New'.
+            trigger: ".modal .o_data_row .o_data_cell[name='create_new']",
+            content: "Untick 'New' to leave the row genuinely unresolved, on purpose, for this tour",
+            run: "click",
+        },
+        {
             trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
-            content: "Continue shows disabled - the e-mail is left unresolved, on purpose, by this tour",
+            content: "Continue shows disabled now that neither a teacher nor 'New' is set",
+        },
+        {
+            // Cancel (discard) rather than leaving the tour mid-edit - the row is still in
+            // edition after unticking 'New' (a plain click elsewhere doesn't reliably blur/save
+            // an x2many list row), and ending a tour with an open, unsaved form view fails at
+            // teardown ("Tour finished with an open form view in edition mode").
+            trigger: ".modal .modal-footer button:contains('Cancel')",
+            content: "Cancel - this tour only needs to prove Continue stays blocked, not complete the import",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_list_view",
+            content: "Back to the Working Schedules list, dialog closed cleanly",
         },
     ],
 });
@@ -396,8 +420,20 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_te
             content: "The 'teachers' screen lists the unresolved e-mail found in the file",
         },
         {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue shows enabled by default - 'New' defaults to ticked (2026-08-06)",
+        },
+        {
+            // A boolean cell's FIRST click both enters row-edit mode AND toggles the value in one
+            // go - a single click here unticks the default-True 'New', which is also what unlocks
+            // the 'employee_id' selector (readonly="create_new" in the view).
+            trigger: ".modal .o_data_row .o_data_cell[name='create_new']",
+            content: "Untick 'New' - this is really a typo/mismatch of an existing teacher",
+            run: "click",
+        },
+        {
             trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
-            content: "Continue shows disabled - the teacher hasn't been picked yet",
+            content: "Continue shows disabled again - the teacher hasn't been picked yet",
         },
         {
             trigger: ".modal .o_data_row .o_data_cell[name='employee_id']",
@@ -513,21 +549,12 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_create_new
             content: "The 'teachers' screen lists the unresolved e-mail found in the file",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
-            content: "Continue shows disabled - neither a teacher nor 'New' has been picked yet",
-        },
-        {
-            // A boolean cell's FIRST click both enters row-edit mode AND toggles the value in one
-            // go (see 'ListRenderer.onCellClicked' - it flips the field right when entering edition,
-            // not on a later, separate click on the now-editable checkbox input) - a second click on
-            // the input afterward would toggle it right back off.
-            trigger: ".modal .o_data_row .o_data_cell[name='create_new']",
-            content: "Tick 'New'",
-            run: "click",
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue shows enabled by default - 'New' defaults to ticked (2026-08-06)",
         },
         {
             trigger: ".modal .o_data_row .o_data_cell[name='employee_id'].o_readonly_modifier",
-            content: "The teacher selector is now locked (readonly), matching 'readonly=\"create_new\"' in the view",
+            content: "The teacher selector is already locked (readonly) by default, matching 'readonly=\"create_new\"' in the view - 'New' starts ticked, nothing to click here",
         },
         {
             trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",

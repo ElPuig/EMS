@@ -264,7 +264,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		('intro', "Welcome"),
 		('groups', "Resolve groups"),
 		('teachers', "Resolve teachers"),
-		('internal_conflicts', "Internal conflicts"),
+		('internal_conflicts', "File conflicts"),
 		('db_conflicts', "Existing schedule conflicts"),
 		('pending_info', "Pending teachers"),
 		('override_info', "Existing teachers"),
@@ -287,7 +287,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# NOTE: one line per colliding pair found by '_find_internal_conflicts' - populated once,
 	# leaving 'teachers' (needs both group and teacher picks already applied - group resolution
 	# affects which classroom an entry defaults to; teacher resolution affects the display label).
-	internal_conflict_line_ids = fields.One2many(string="Internal conflicts", comodel_name="ems.working_schedules_import_wizard.internal_conflict_line", inverse_name="wizard_id")
+	internal_conflict_line_ids = fields.One2many(string="File conflicts", comodel_name="ems.working_schedules_import_wizard.internal_conflict_line", inverse_name="wizard_id")
 	# NOTE: one line per colliding pair found by '_build_external_conflict_lines' against
 	# already-active DB schedules - populated once, leaving 'internal_conflicts'.
 	external_conflict_line_ids = fields.One2many(string="Existing schedule conflicts", comodel_name="ems.working_schedules_import_wizard.external_conflict_line", inverse_name="wizard_id")
@@ -1215,8 +1215,11 @@ class ems_working_schedules_import_wizard_teacher_line(models.TransientModel):
 	# disabled) makes no sense for those. Ticking this creates a new pending-identification teacher
 	# at Import instead (see '_get_or_create_pending_teacher') - a row is valid if EITHER
 	# 'employee_id' is set OR this is ticked, never neither (see '_resolution_is_valid'-equivalent
-	# check in '_continue_from_teachers').
-	create_new = fields.Boolean(string="New")
+	# check in '_continue_from_teachers'). Defaults to True (changed 2026-08-06, developer feedback
+	# after using it for real): a genuinely never-hired teacher turned out to be the more common
+	# case in practice, so an admin who actually needs to pick an existing teacher now has to
+	# actively untick this, rather than the other way around.
+	create_new = fields.Boolean(string="New", default=True)
 
 	@api.onchange('create_new')
 	def _onchange_create_new(self):
@@ -1235,7 +1238,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 	# 'group_line.raw_name'/'teacher_line.raw_identifier'.
 	kind = fields.Selection([
 		('co_teaching_eligible', "Co-teaching"),
-		('desdoble_eligible', "Split session (different room needed)"),
+		('desdoble_eligible', "Split session"),
 		('plain_conflict', "Room conflict"),
 	], string="Conflict", required=True, readonly=True)
 	left_label = fields.Char(string="Left", required=True, readonly=True)
@@ -1245,7 +1248,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 	# row's own 'kind' - confirmed with the developer 2026-08-05 as the simpler, equally-valid
 	# option the plan itself offered (plans/working_schedule_import_redesign.md's "Complexity flag").
 	resolution = fields.Selection([
-		('co_teaching', "It's co-teaching (keep both)"),
+		('co_teaching', "Confirm"),
 		('prevail_left', "Left prevails"),
 		('prevail_right', "Right prevails"),
 		('reassign_rooms', "Reassign rooms"),

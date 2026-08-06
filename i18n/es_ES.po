@@ -3501,9 +3501,14 @@ msgid "Field to store the color that will be used for calendar view"
 msgstr "Campo para almacenar el color que se utilizará en la vista de calendarioCampo para almacenar el color del calendarioCampo para almacenar el color que se utilizará para la vista de calendario."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_file model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_file model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "File"
 msgstr "Archivo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Database"
+msgstr "Base de datos"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__document_name model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__file_name model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__file_name
@@ -4191,8 +4196,8 @@ msgstr "Nota del centro (a partir de los RA). Se calcula salvo que el profesor l
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__internal_conflicts model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__internal_conflict_line_ids
-msgid "Internal conflicts"
-msgstr "Conflictos internos"
+msgid "File conflicts"
+msgstr "Conflictos del archivo"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_planning__internal_ponderation
@@ -7869,37 +7874,37 @@ msgid "Right classroom"
 msgstr "Aula derecha"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__co_teaching_eligible
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__co_teaching_eligible model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__co_teaching_eligible
 msgid "Co-teaching"
 msgstr "Co-docencia"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__desdoble_eligible
-msgid "Split session (different room needed)"
-msgstr "Sesión desdoblada (necesita otra aula)"
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__desdoble_eligible model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__desdoble_eligible
+msgid "Split session"
+msgstr "Sesión desdoblada"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__plain_conflict
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__plain_conflict model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__plain_conflict
 msgid "Room conflict"
 msgstr "Conflicto de aula"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__co_teaching
-msgid "It's co-teaching (keep both)"
-msgstr "Es co-docencia (mantener ambos)"
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__co_teaching model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__co_teaching
+msgid "Confirm"
+msgstr "Confirmar"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_left
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_left model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__prevail_left
 msgid "Left prevails"
 msgstr "Prevalece la izquierda"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_right
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_right model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__prevail_right
 msgid "Right prevails"
 msgstr "Prevalece la derecha"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__reassign_rooms
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__reassign_rooms model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__reassign_rooms
 msgid "Reassign rooms"
 msgstr "Reasignar aulas"
 

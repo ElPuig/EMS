@@ -62,12 +62,12 @@
                                 <list editable="bottom" create="False" delete="False"
                                     decoration-warning="kind in ('co_teaching_eligible', 'desdoble_eligible')"
                                     decoration-danger="kind == 'plain_conflict'">
-                                    <field name="left_label"/>
-                                    <field name="right_label"/>
-                                    <field name="kind"/>
-                                    <field name="resolution"/>
-                                    <field name="left_space_id" invisible="resolution != 'reassign_rooms'"/>
-                                    <field name="right_space_id" invisible="resolution != 'reassign_rooms'"/>
+                                    <field name="left_label" string="File" class="ems_conflict_label"/>
+                                    <field name="right_label" string="File" class="ems_conflict_label"/>
+                                    <field name="kind" class="ems_conflict_kind"/>
+                                    <field name="resolution" widget="ems_conflict_resolution" class="ems_conflict_resolution"/>
+                                    <field name="left_space_id" invisible="resolution != 'reassign_rooms'" class="ems_conflict_space"/>
+                                    <field name="right_space_id" invisible="resolution != 'reassign_rooms'" class="ems_conflict_space"/>
                                 </list>
                             </field>
                         </div>
@@ -80,12 +80,12 @@
                                 <list editable="bottom" create="False" delete="False"
                                     decoration-warning="kind in ('co_teaching_eligible', 'desdoble_eligible')"
                                     decoration-danger="kind == 'plain_conflict'">
-                                    <field name="left_label"/>
-                                    <field name="right_label"/>
-                                    <field name="kind"/>
-                                    <field name="resolution"/>
-                                    <field name="left_space_id" invisible="resolution != 'reassign_rooms'"/>
-                                    <field name="right_space_id" invisible="resolution != 'reassign_rooms'"/>
+                                    <field name="left_label" string="File" class="ems_conflict_label"/>
+                                    <field name="right_label" string="Database" class="ems_conflict_label"/>
+                                    <field name="kind" class="ems_conflict_kind"/>
+                                    <field name="resolution" widget="ems_conflict_resolution" class="ems_conflict_resolution"/>
+                                    <field name="left_space_id" invisible="resolution != 'reassign_rooms'" class="ems_conflict_space"/>
+                                    <field name="right_space_id" invisible="resolution != 'reassign_rooms'" class="ems_conflict_space"/>
                                 </list>
                             </field>
                         </div>

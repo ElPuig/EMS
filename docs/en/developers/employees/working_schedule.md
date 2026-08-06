@@ -377,7 +377,7 @@ column in this codebase relies on Odoo's own default alignment, matching field t
 label and the checkbox at Odoo's default left alignment instead - no `class="text-center"` on the
 field, simplest fix with no custom CSS.
 
-### Screen 4 — "Internal conflicts" (2026-08-05) — within-batch room collisions
+### Screen 4 — "File conflicts" (2026-08-05, renamed from "Internal conflicts" 2026-08-06) — within-batch room collisions
 
 **Genuinely new check, unlike screens 2/3** (which mainly relocated existing validation) - no
 prior single-screen wizard equivalent existed. Confirmed the UI/validation shape with the
@@ -421,6 +421,64 @@ per the plan's own "Conflict kind classification" section:
 `kind`'s own `string` was renamed from "Type" to "Conflict" (2026-08-06, developer feedback) - the
 column sits next to `left_label`/`right_label` describing the two colliding sides, so "Conflict"
 reads more naturally as "what kind of conflict is this" than the more generic "Type".
+`desdoble_eligible`'s own option label was shortened from "Split session (different room needed)"
+to just **"Split session"** (2026-08-06) - too long for the column once every column's width was
+tightened (see the "Column width rebalancing" CSS note below).
+
+**State renamed "Internal conflicts" → "File conflicts" (2026-08-06, developer feedback):** clearer
+against screen 5's "Existing schedule conflicts" - both entries colliding here come from the same
+imported *file*, not some internal/external EMS distinction. `internal_conflict_line_ids`'s own
+field `string` was renamed to match (the technical model name `ems.working_schedules_import_wizard.
+internal_conflict_line` and the `state` value `internal_conflicts` were deliberately left
+unchanged - renaming either would be an XML-ID/technical-identifier change needing a migration,
+far more than this ask called for; only the two *display* strings moved).
+
+**`left_label`/`right_label` headers overridden per screen (2026-08-06, developer feedback):**
+both columns show "File" on this screen (both sides are entries from the same imported file); on
+screen 5 below, "File" (left) vs. "Database" (right) - the shared mixin's own field `string`
+("Left"/"Right") stays the generic default, only ever overridden via `string="..."` on the
+`<field>` in this specific view (same `<field string="...">` override pattern already used
+elsewhere in this arch, e.g. `raw_identifier`'s "E-mail found in file") - no model-level split
+needed for a purely view-level label difference.
+
+**`resolution`'s `co_teaching` option renamed "It's co-teaching (keep both)" → "Confirm" (2026-08-06,
+developer feedback: too long for the column) - paired with a genuinely necessary small custom
+widget** (`static/src/js/backend/conflict_resolution_selection_field.js`,
+`ems_conflict_resolution`): "Confirm" only makes sense for a `co_teaching_eligible` line - showing
+it as pickable for e.g. a `plain_conflict` ("Room conflict") line is confusing, even though picking
+it there was already rejected server-side via `_resolution_is_valid`. Odoo's Selection field has no
+declarative, per-record way to vary its own options within the same list (the options list is
+defined once per field, not per row - confirmed by reading `web/static/src/views/fields/selection/
+selection_field.js`), so this is a genuinely necessary widget override, not a shortcut around an
+existing mechanism: `EmsConflictResolutionField extends SelectionField`, overriding only `get
+options()` to filter out `'co_teaching'` whenever `this.props.record.data.kind !== 
+'co_teaching_eligible'` - every other option stays available for every kind, unchanged. `kind` is
+already a plain visible column in the same list, so no extra `relatedFields` plumbing is needed to
+read it (contrast `archived_reason_ribbon_field.js`'s own `color_field` gotcha, which needed exactly
+that because its field *isn't* otherwise rendered).
+
+**Column width rebalancing (2026-08-06, developer feedback):** `left_label`/`right_label` (free
+text) were hogging space at the expense of `kind`/`resolution`/the two room pickers, which kept
+showing an ellipsis. `<field class="...">` only ever lands on the *data* cell, never the header
+(`getColumnClass` in Odoo's `list_renderer.js` never consults a column's own class the way
+`getCellClass` does for `<td>` - confirmed by testing `class="w-25"` first, which had no visible
+effect at all), so `static/src/css/backend/working_schedules_import_wizard.css` sets plain pixel
+`min-width` on `kind`/`resolution`/the room pickers (via `ems_conflict_kind`/
+`ems_conflict_resolution`/`ems_conflict_space` classes on the `<field>`) and a `max-width` on the
+two label columns (`ems_conflict_label`) instead of a Bootstrap width utility - the browser's table
+layout still reconciles the header to match.
+
+**Pre-existing i18n gap fixed while renaming these (2026-08-06):** every `kind`/`resolution` option
+translation had only ever referenced `internal_conflict_line`'s own selection value, never
+`external_conflict_line`'s (the two models share the option VALUES via the `conflict_mixin`, but
+Odoo's translation loader binds by *exact* `#:` reference, not shared value - see CLAUDE.md's own
+"msgid diff alone is not enough" note) - screen 5 ("Existing schedule conflicts") had been
+rendering every `kind`/`resolution` label in English regardless of app language since screen 5 was
+first built, undetected until this rename pass touched the same `.po` blocks and the gap became
+visible by inspection. Fixed by adding `external_conflict_line`'s own reference to all 7 existing
+blocks (3 `kind` options + 4 `resolution` options) rather than just the ones being renamed -
+verified via `ir_model_fields_selection` directly (both models' rows now carry `ca_ES`/`es_ES`
+keys, not just `en_US`).
 
 **Positional references, not content matching:** each `ems.working_schedules_import_wizard.
 internal_conflict_line` stores `left_item_index`/`left_entry_index`/`right_item_index`/

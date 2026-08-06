@@ -42,7 +42,15 @@ class EmsAttendanceTemplate(models.Model):
 	# views/attendance/attendance_template/form.xml) - no bespoke onchange needed for this.
 	space_id = fields.Many2one(string="Session's default space", comodel_name="ems.space", required=True)
 
-	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_schedule", inverse_name="attendance_template_id")
+	# NOTE: 'copy=True' explicit - Odoo's One2many field defaults to 'copy=False' (fields.py:
+	# "o2m are not copied by default"), which is normally the right call, but 'action_new_version'/
+	# '_write_or_new_version' (ems.attendance_mixin) both rely on 'copy()' cascading these lines
+	# onto the fresh clone (see their own docstrings) - without this, a correction on a template
+	# WITH real session history silently produced a clone with NO schedule lines at all, undetected
+	# because the only test exercising this path never asserted the clone actually had one. Each
+	# line's own 'attendance_session_ids' stays 'copy=False' regardless (session history is never
+	# duplicated either way).
+	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_schedule", inverse_name="attendance_template_id", copy=True)
 	student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
 
 	# NOTE: this field is computed when loaded within a form or list
@@ -98,8 +106,11 @@ class EmsAttendanceTemplate(models.Model):
 		# NOTE: 'copy()'s own o2m cascade (inside '_write_or_new_version') copies each schedule
 		# line's CURRENT field values, 'active' included - since the source lines were just
 		# archived by that same call, the freshly created lines would otherwise silently come back
-		# archived too.
-		new_template.attendance_schedule_ids.action_unarchive()
+		# archived too. 'with_context(active_test=False)' is required here: a default read of this
+		# O2M already filters out the (still inactive at this point) copied lines, so a plain
+		# '.attendance_schedule_ids.action_unarchive()' would silently operate on an empty
+		# recordset and never actually flip them back to active.
+		new_template.with_context(active_test=False).attendance_schedule_ids.action_unarchive()
 		return {
 			'type': 'ir.actions.act_window',
 			'res_model': 'ems.attendance_template',

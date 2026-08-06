@@ -1016,6 +1016,128 @@ class TestCourseTransition(TransactionCase):
 
         self.assertEqual(wizard.calendar_block_count, 1)
 
+    # --- _apply_calendar_archival (phase 5c of the teacher-schedule archival plan) --------
+
+    def test_apply_archives_the_migrating_calendar_block(self):
+        block = self._calendar_block(self.teacher.resource_calendar_id, [self.group1])
+
+        self._applied()
+
+        block.invalidate_recordset()
+        self.assertFalse(block.active)
+
+    def test_apply_leaves_an_out_of_scope_calendar_block_active(self):
+        block = self._calendar_block(self.teacher.resource_calendar_id, [self.group_other])
+
+        self._applied()
+
+        block.invalidate_recordset()
+        self.assertTrue(block.active)
+
+    def test_apply_archives_the_matching_schedule_line_and_its_sessions(self):
+        template = self._template([self.group1])
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
+        })
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': date(2098, 9, 15),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        self._calendar_block(
+            self.teacher.resource_calendar_id, [self.group1], weekday='0', hour_from=9.0, hour_to=10.0)
+
+        self._applied()
+
+        schedule.invalidate_recordset()
+        session.invalidate_recordset()
+        self.assertFalse(schedule.active)
+        self.assertFalse(session.active)
+
+    def test_apply_archives_the_template_once_its_only_line_is_archived(self):
+        template = self._template([self.group1])
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
+        })
+        self._calendar_block(
+            self.teacher.resource_calendar_id, [self.group1], weekday='0', hour_from=9.0, hour_to=10.0)
+
+        self._applied()
+
+        template.invalidate_recordset()
+        self.assertFalse(template.active)
+
+    def test_apply_removes_only_the_departing_teacher_when_another_still_has_an_active_block(self):
+        """Defensive fallback (decision 3/4 of the plan): the template itself covers group_other
+        (OUT of scope, so _templates_to_archive() never touches it) - but self.teacher's own
+        calendar block drifted to reference group1 (IN scope), so self.teacher still counts as
+        'migrating' via the calendar side alone. teacher_other's own calendar correctly still shows
+        group_other and is never touched. The line must survive for teacher_other; only the
+        departing self.teacher is dropped from teacher_ids."""
+        teacher_other = self.env['hr.employee'].create({
+            'name': 'CTW Teacher Other', 'employee_type': 'teacher'})
+        template = self._template([self.group_other])
+        template.teacher_ids = [(4, teacher_other.id)]
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
+        })
+        self._calendar_block(
+            self.teacher.resource_calendar_id, [self.group1], weekday='0', hour_from=9.0, hour_to=10.0)
+        self._calendar_block(
+            teacher_other.resource_calendar_id, [self.group_other], weekday='0', hour_from=9.0, hour_to=10.0)
+
+        self._applied()
+
+        schedule.invalidate_recordset()
+        template.invalidate_recordset()
+        self.assertTrue(schedule.active)
+        self.assertEqual(template.teacher_ids, teacher_other)
+
+    def test_apply_creates_a_new_template_version_when_the_departing_teacher_has_sessions(self):
+        """teacher_ids is a locked identity field once real attendance history exists - a raw write
+        would retroactively rewrite the already-taken session's own template_teacher_ids (related),
+        corrupting who ACTUALLY co-taught it. The departing teacher must be dropped via a fresh
+        template version (_write_or_new_version), leaving the archived original - and its session -
+        historically untouched."""
+        teacher_other = self.env['hr.employee'].create({
+            'name': 'CTW Teacher Other', 'employee_type': 'teacher'})
+        template = self._template([self.group_other])
+        template.teacher_ids = [(4, teacher_other.id)]
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
+        })
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': date(2098, 9, 15),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        self._calendar_block(
+            self.teacher.resource_calendar_id, [self.group1], weekday='0', hour_from=9.0, hour_to=10.0)
+        self._calendar_block(
+            teacher_other.resource_calendar_id, [self.group_other], weekday='0', hour_from=9.0, hour_to=10.0)
+
+        self._applied()
+
+        template.invalidate_recordset()
+        session.invalidate_recordset()
+        self.assertFalse(template.active)
+        # The historical record is untouched: the already-taken session still points at the
+        # ARCHIVED original, whose teacher_ids still lists both teachers exactly as it did at the
+        # time the session was actually taken.
+        self.assertEqual(session.attendance_schedule_id.attendance_template_id, template)
+        self.assertEqual(template.teacher_ids, self.teacher | teacher_other)
+        new_template = self.env['ems.attendance_template'].search([
+            ('subject_id', '=', template.subject_id.id), ('active', '=', True),
+        ])
+        self.assertEqual(len(new_template), 1)
+        self.assertEqual(new_template.teacher_ids, teacher_other)
+        self.assertTrue(new_template.attendance_schedule_ids.active)
+
+    def test_apply_with_no_migrating_calendar_blocks_is_a_no_op(self):
+        self._applied()  # must not raise
+
     def test_apply_deletes_the_grade_sessions_of_the_scope(self):
         session = self._session(self.group1, self.subject_int)
         self._applied()

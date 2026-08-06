@@ -299,6 +299,12 @@ class TestAttendanceTemplate(TransactionCase):
         self.assertTrue(new_template)
         self.assertNotEqual(new_template, template)
         self.assertEqual(new_template.group_ids, template.group_ids)
+        # Regression guard: 'attendance_schedule_ids' must actually carry over onto the clone -
+        # Odoo's One2many fields default to copy=False, so this silently produced a clone with NO
+        # schedule lines at all until the field was given an explicit copy=True.
+        self.assertEqual(len(new_template.attendance_schedule_ids), 1)
+        self.assertTrue(new_template.attendance_schedule_ids.active)
+        self.assertEqual(new_template.attendance_schedule_ids.weekday, schedule.weekday)
         self.assertFalse(new_template.attendance_schedule_ids.attendance_session_ids)
         self.assertFalse(new_template.has_sessions)
         # The already-taken session stays linked to the archived original template's schedule.

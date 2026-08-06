@@ -677,6 +677,96 @@ class ems_course_transition_wizard(models.TransientModel):
         stranded.write({'main_group_id': False})
         return len(stranded)
 
+    def _apply_calendar_archival(self):
+        """Step 7a — archives every migrating teacher calendar block found by
+        `_migrating_calendar_blocks()`, then decides the fate of whichever `ems.attendance_schedule`
+        line(s) it maps to (via `ems.attendance_mixin.find_schedule_lines_for_slot`, the
+        calendar->schedule slot-matching lookup):
+        - A line that's ALREADY archived (the common case — `_templates_to_archive()`, called just
+          before this, already cascaded to it) only needs its `attendance_session_ids` archived
+          explicitly: that cascade never reaches sessions on its own (see
+          `docs/en/developers/attendance/attendance_schedule.md`), and `_templates_to_archive()`
+          already made the archival call unconditionally by study scope — no per-teacher check
+          applies here.
+        - A still-active line (`_templates_to_archive()` never touched its template — the
+          decision-3/4 drift case: a calendar block can reference an in-scope group even when its
+          own template doesn't) is decided at the TEMPLATE level, once per template, with the full
+          set of departing teachers found across all of that template's migrating lines: if no
+          other teacher still has an active block for any of them, the whole template is archived
+          (cascading to its lines and their sessions); otherwise the departing teacher(s) are
+          dropped via `_write_or_new_version()` (`ems.attendance_mixin`) — the SAME shared
+          mechanism `action_new_version()`'s "Edit" button already uses, never a raw write. This
+          matters because `teacher_ids` is a locked identity field once real attendance history
+          exists (`has_sessions`): a raw write would retroactively change every already-taken
+          session's own `template_teacher_ids` (related), rewriting who *actually* co-taught each
+          past session. `_write_or_new_version` writes in place only when there's no history yet;
+          otherwise it archives the original (leaving its own `teacher_ids` — and its sessions'
+          `template_teacher_ids` — historically untouched) and clones a fresh, corrected version.
+
+        Deciding per template rather than per line also avoids ever creating a needless clone: if
+        every one of a template's co-teachers departs in the same run, `remaining` is empty and the
+        whole template is simply archived outright, no `_write_or_new_version` call at all.
+
+        See plans/course_transition_teacher_schedule_archival.md, phase 5c.
+        """
+        self.ensure_one()
+        blocks = self._migrating_calendar_blocks()
+        line_departures = {}
+        for block in blocks:
+            teacher = block.employee_id
+            if not teacher:
+                continue
+            # active_test=False: a matching line may already be archived by the EARLIER
+            # _templates_to_archive().action_archive() call (its own cascade only reaches the line,
+            # never its sessions, per decision 6) - that case still needs handling below (catching
+            # up the sessions), so it must not be silently excluded from this search.
+            lines = self.env['ems.attendance_schedule'].with_context(active_test=False).find_schedule_lines_for_slot(
+                teacher, block.dayofweek, block.hour_from, block.hour_to, space=block.space_id)
+            for line in lines:
+                line_departures[line] = line_departures.get(line, self.env['hr.employee']) | teacher
+        blocks.action_archive()
+
+        departures_by_template = {}
+        for line, departing in line_departures.items():
+            if not line.active:
+                # Already archived by _templates_to_archive() - that mechanism already decided,
+                # unconditionally by study scope, that this class is ending; no per-teacher check
+                # applies here. Only catch up the one piece its own cascade deliberately skips.
+                line.attendance_session_ids.action_archive()
+                continue
+            template = line.attendance_template_id
+            departures_by_template[template] = departures_by_template.get(template, self.env['hr.employee']) | departing
+
+        for template, departing in departures_by_template.items():
+            lines = template.attendance_schedule_ids
+            remaining = template.teacher_ids - departing
+            still_needed = remaining.filtered(
+                lambda teacher: any(self._teacher_has_active_block(teacher, line) for line in lines))
+            if still_needed:
+                # A full replacement command, not a (3, id) "unlink" one: _write_or_new_version's
+                # archive+clone branch applies 'vals' via copy()'s own 'default' argument, which
+                # populates the brand-new record's teacher_ids from 'vals' alone rather than
+                # merging it with the original's - a (3, id) command there has nothing to unlink
+                # from and silently leaves teacher_ids empty, tripping _check_teacher_ids.
+                new_template = template._write_or_new_version({'teacher_ids': [(6, 0, remaining.ids)]})
+                if new_template != template:
+                    new_template.attendance_schedule_ids.action_unarchive()
+            else:
+                lines.attendance_session_ids.action_archive()
+                template.action_archive()
+
+    def _teacher_has_active_block(self, teacher, line):
+        """Whether 'teacher' still has an active resource.calendar.attendance block overlapping
+        'line's own (weekday, start_time, end_time) - the defensive check behind
+        '_apply_calendar_archival''s per-teacher fallback, see its own docstring."""
+        blocks = self.env['resource.calendar.attendance'].search([
+            ('employee_id', '=', teacher.id), ('dayofweek', '=', line.weekday),
+        ])
+        return any(
+            line.ranges_overlap(line.start_time, line.end_time, block.hour_from, block.hour_to)
+            for block in blocks
+        )
+
     def _apply_cleanup(self, students):
         """Steps 7 and 8 — archive the attendance templates and delete the operational
         records of the year that has just ended.
@@ -695,6 +785,7 @@ class ems_course_transition_wizard(models.TransientModel):
         # here left those lines active=True forever, so a later import could still find them
         # as a genuine "existing schedule conflict" against a study that had already transitioned.
         self._templates_to_archive().action_archive()
+        self._apply_calendar_archival()
         students._ems_clear_operational_records()
         groups = self._scope_groups()
         # Subject enrollments go by group as well, for the same reason grade sessions do

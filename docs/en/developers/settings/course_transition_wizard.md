@@ -115,7 +115,7 @@ own docstring assumption that a transitioned study has nothing active left to re
 template tests never caught it because their own `_template()` fixture creates a template with no
 schedule lines at all.
 
-### Teacher calendar blocks in scope, counted at preview (`plans/course_transition_teacher_schedule_archival.md`, phase 5b)
+### Teacher calendar blocks: found at preview, archived at apply (`plans/course_transition_teacher_schedule_archival.md`, phases 5b-5c)
 
 `_migrating_calendar_blocks()` finds every active `resource.calendar.attendance` row, on any
 teacher's real (non-framework) personal calendar, whose own `group_ids` belongs to a study in
@@ -125,14 +125,64 @@ This is deliberately **independent** of `_templates_to_archive()`: a teacher can
 schedule bypassing the normal template/calendar sync, so a calendar block genuinely in scope isn't
 guaranteed to have a perfectly-matching template/schedule line — `resource.calendar` is meant to be
 the authoritative source for "what does this teacher's calendar say they're teaching," independent
-of whether the template side agrees (see the plan's own decisions 3/4).
+of whether the template side agrees (see the plan's own decisions 3/4). `action_preview()` counts
+these blocks (`calendar_block_count`, shown alongside `template_count`) — read-only, same as every
+other preview counter.
 
-As of this phase, `action_preview()` only **counts** these blocks
-(`calendar_block_count`, shown in the preview alongside `template_count`) — nothing is archived
-yet. The actual archival cascade (using `ems.attendance_mixin.find_schedule_lines_for_slot` to
-find and archive the matching schedule line, or just drop a departing co-teacher from
-`teacher_ids` when another teacher's block for the same slot survives) is a later phase of the
-same plan.
+`_apply_calendar_archival()` (step 7a, called right after `_templates_to_archive().action_archive()`
+in `_apply_cleanup`) is where they actually get archived. For every migrating block it finds the
+matching `ems.attendance_schedule` line(s) via `ems.attendance_mixin.find_schedule_lines_for_slot`
+(the calendar→schedule slot-matching lookup — searched with `active_test=False`, since the line may
+already be archived by the template-cascade that just ran), then:
+
+```mermaid
+flowchart TD
+    B["migrating calendar block\narchived unconditionally"] --> L{"matching schedule\nline already\narchived?"}
+    L -- yes --> S1["archive its sessions too\n(the one piece the template\ncascade deliberately skips)"]
+    L -- no --> G["group by TEMPLATE, with the\nFULL set of departing teachers\nacross all its migrating lines"]
+    G --> O{"does another teacher\nstill have an active block\nfor any of this template's lines?"}
+    O -- yes --> T["_write_or_new_version({'teacher_ids': remaining})\n- write in place, or archive+clone\nif has_sessions (never a raw write)"]
+    O -- no --> S2["archive the whole template\n(cascades to its lines + their sessions)"]
+```
+
+The "already archived" branch is the expected path on well-synced data: every co-teacher of the
+same class shares the same `group_ids`, so they migrate together in the same run and
+`_templates_to_archive()` (unconditional by study scope) already archived the line — this call just
+catches up the one piece that cascade deliberately skips (`attendance_session_ids`, since archiving
+a schedule line never cascades to sessions on its own — see
+[`attendance_schedule.md`](../attendance/attendance_schedule.md)). The "does another teacher still
+need it" branch only matters for the decision-3/4 drift case: a calendar block can reference an
+in-scope group even when its own template's `group_ids` don't, so `_templates_to_archive()` never
+reaches that template at all — `_apply_calendar_archival()` is what still catches it, independently,
+from the calendar side.
+
+**The decision is made once per TEMPLATE, with every departing teacher found across all of that
+template's migrating lines, never once per line/teacher.** Two reasons, found while implementing
+this exact branch:
+- **Correctness**: `teacher_ids` lives on the template, shared by every one of its lines — deciding
+  per line and writing it directly the first time a departure is found would be wrong the moment a
+  template has more than one line, and would corrupt already-taken sessions' own
+  `template_teacher_ids` (a `related` field) the moment the template `has_sessions` — see
+  [`attendance_template.md`](../attendance/attendance_template.md)'s "Identity fields, locking, and
+  the 'Edit' button". The fix: never write `teacher_ids` directly here — always go through
+  `_write_or_new_version()` (`ems.attendance_mixin`), the exact same mechanism the "Edit" button
+  uses, which writes in place only when there's no session history yet, or archives the original
+  (leaving its own `teacher_ids`, and its sessions' `template_teacher_ids`, historically untouched)
+  and clones a corrected version otherwise.
+- **No needless clones**: deciding with the *full* departing set (not one teacher at a time) means
+  a template every one of whose co-teachers departs in the same run is simply archived outright —
+  `remaining` comes out empty, so `_write_or_new_version()` is never even called for it. Only a
+  template that genuinely keeps at least one active co-teacher goes through the write-or-clone path.
+
+Building the `_write_or_new_version({'teacher_ids': ...})` call itself surfaced two further, more
+general bugs in that shared mechanism (not specific to this wizard) — see
+[`attendance_template.md`](../attendance/attendance_template.md)'s own note on the two 2026-08-06
+fixes (`attendance_schedule_ids` needed `copy=True`; the follow-up `.action_unarchive()` needed
+`active_test=False`) — both had to land before this branch could work at all. The `teacher_ids`
+override itself must be a full replacement command (`[(6, 0, remaining.ids)]`), not a `(3, id)`
+"unlink" one: `_write_or_new_version`'s archive+clone branch applies `vals` via `copy()`'s own
+`default` argument, which populates the brand-new record's `teacher_ids` from `vals` alone rather
+than merging it with the original's.
 
 ### Archiving the graduates (D4, step 2b)
 

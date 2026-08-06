@@ -93,6 +93,32 @@ as a double-booking. The already-taken sessions stay linked to the archived orig
 permanently accurate; the clone starts with no session history (`attendance_session_ids` is
 `copy=False`), so every identity field is freely editable again.
 
+**Two real bugs found and fixed 2026-08-06 (while building the course-transition archival
+plan's own phase 5c, which needed this same mechanism) — the flowchart above now reflects the
+fix, but for years actually produced a clone with zero schedule lines:**
+1. **`attendance_schedule_ids` needed an explicit `copy=True`.** Odoo's `One2many` field defaults
+   to `copy=False` ("o2m are not copied by default", `odoo/fields.py`) — without overriding it,
+   step D's `copy()` never cascaded the template's schedule lines onto the clone at all, silently
+   producing a template with **no lines whatsoever**. `attendance_session_ids` (line-level) stays
+   `copy=False` regardless — session history must never be duplicated either way.
+2. **Step E's `.action_unarchive()` needed `with_context(active_test=False)`.** Even after fix 1,
+   the freshly-copied lines carry over their *current* `active=False` (the source lines were just
+   archived by step C) — a plain `new_template.attendance_schedule_ids` read at that point already
+   excludes them (default active filtering on the O2M), so `.action_unarchive()` silently operated
+   on an empty recordset and never actually flipped them back to active.
+   `new_template.with_context(active_test=False).attendance_schedule_ids.action_unarchive()` is
+   what's actually needed.
+
+Undetected for so long because `test_action_new_version_template_archives_and_clones_whole_template`
+(`tests/test_attendance_template.py`) never asserted the clone's own `attendance_schedule_ids` was
+non-empty/active — only that its *sessions* were empty (true either way, bug or not). Also
+disabled the generic Odoo "Duplicate" action on this model's views (`duplicate="0"`,
+`views/attendance/attendance_template/{form,list}.xml`): now that `attendance_schedule_ids` is
+genuinely `copy=True`, a plain Duplicate (which — unlike `action_new_version()` — never archives
+the original first) would immediately self-collide via `check_overlap` (same
+teacher/room/time as the still-active original) — a duplicate of a template doesn't make sense
+as a concept anyway, given its identity fields would collide with themselves.
+
 ## CRUD flow
 
 The entry points are `sync_from_schedule()` (single teacher, e.g. the employee "Schedule" tab's live editor) and `sync_from_schedule_batch()` (several teachers at once, e.g. the XML planner importer) — both funnel through the same three-stage pipeline, so a solo live edit and a multi-teacher import share identical co-teaching/conflict logic:

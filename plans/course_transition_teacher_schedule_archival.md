@@ -1,6 +1,7 @@
 # Course transition: teacher-schedule archival + historical teaching record
 
-**Status: implementation in progress — phases 1-4 of 8 done, no open questions.** Written 2026-08-06
+**Status: implementation in progress — phases 1-5 of 8 done (5 split into 5a-5d, all done), no open
+questions.** Written 2026-08-06
 from a developer discussion about what should happen to teacher-side scheduling data when
 `ems.course_transition_wizard` runs. Revised three times the same day, then implementation started
 the same day too. See "Implementation phases" at the bottom for the agreed breakdown and current
@@ -308,14 +309,63 @@ surface" already came true once during just this investigation):**
   calendar blocks in scope, counted at preview" section. i18n for the new field
   label/warning string deferred to this plan's eventual Close (all 8 phases) — not added yet,
   matching how phases 1-4's more internal changes were handled.
-- **5c — the actual archival cascade, not started.** `_apply_calendar_archival()`: archives each
-  in-scope calendar block, uses phase 4's lookup, archives the schedule line (+ its
-  `attendance_session_ids` explicitly, per decision 6/round 5) or removes the departing teacher
-  from `teacher_ids` for the drift-fallback case (confirmed in 5a), archives the template too if it
-  ends up with zero active lines (reusing phases 1-2's existing cascade). Wired into
-  `_apply_cleanup`, after the existing `_templates_to_archive().action_archive()` call.
-- **5d — regression coverage for the full cascade, not started.** The co-teaching/drift-fallback
-  split case and the "nothing to migrate" no-op case.
+- **5c done (2026-08-06)** — `_apply_calendar_archival()` (step 7a, wired into `_apply_cleanup`
+  right after `_templates_to_archive().action_archive()`). For every migrating block: finds the
+  matching schedule line(s) via phase 4's lookup (searched with `active_test=False`, see the real
+  bug found below), then either (already-archived line, the common case) archives just its
+  sessions, or (still-active line, the drift case) checks whether another teacher's calendar still
+  has an active block for the same slot before archiving the line+sessions (+template if now
+  empty) outright or just dropping the departing teacher from `teacher_ids`.
+
+  **Real bug found while testing against fixtures, not just by reasoning**: the first version
+  searched only *active* lines. Since `_apply_calendar_archival()` runs right after
+  `_templates_to_archive().action_archive()` (which, for a fully in-scope template, already
+  cascades to archive its schedule lines — just never their sessions, per decision 6), the common
+  case is a line that's *already inactive* by the time this method runs — an active-only search
+  silently excluded it, so its sessions never got the explicit archival this whole phase exists to
+  add. Fixed by searching with `active_test=False` and branching on the line's own current `active`
+  state (already archived → just catch up sessions; still active → the per-teacher drift check).
+  This also exposed that the original drift-fallback test was itself incoherent: a template fully
+  covering an in-scope group is *always* unconditionally archived by `_templates_to_archive()`
+  regardless of calendar-side nuance, so that branch can only be exercised by a template that is
+  itself genuinely out of `_templates_to_archive()`'s own scope while one teacher's calendar
+  drifted to reference an in-scope group anyway — the test fixture was corrected to reflect that.
+
+  6 new tests, `TestCourseTransition` (103 tests) green, `./upgrade.sh` clean, pylint clean.
+  Documented in `docs/en/developers/settings/course_transition_wizard.md` (mermaid flowchart of the
+  branch logic).
+
+  **Corrected the same day, developer-caught in review**: the "drop the departing teacher" branch
+  originally wrote `line.attendance_template_id.teacher_ids -= departing` directly — `teacher_ids`
+  is a locked identity field once `has_sessions` (see `attendance_template.md`'s "Identity fields,
+  locking, and the 'Edit' button"), so this would have retroactively rewritten every already-taken
+  session's own `template_teacher_ids` (related), corrupting who *actually* co-taught each past
+  session — exactly the class of bug decision 6 already exists to prevent, just missed for this
+  specific write. Fixed by deciding once per TEMPLATE (not once per line/teacher) with the full set
+  of departing teachers across all its migrating lines, then routing through
+  `_write_or_new_version()` — the same mechanism `action_new_version()`'s "Edit" button already
+  uses. This also eliminates any needless clone: if every co-teacher departs together, `remaining`
+  is empty and the template is simply archived outright.
+
+  **This surfaced two further, genuinely pre-existing bugs in the shared mechanism itself** (not
+  specific to this plan — `action_new_version()`/the "Edit" button were already affected):
+  (1) `attendance_schedule_ids` was missing an explicit `copy=True` (Odoo's `One2many` defaults to
+  `copy=False`), so `action_new_version()`'s clone silently got **zero schedule lines**, for any
+  template with real session history, since the feature was first built; (2) even after fixing
+  that, the clone's own follow-up `.action_unarchive()` needed `with_context(active_test=False)` —
+  a plain O2M read excludes the freshly-copied (still-inactive) lines, so the unarchive was
+  silently a no-op. Both fixed in `models/attendance/attendance_template.py`; also disabled the
+  generic Odoo "Duplicate" action on the model's views (`duplicate="0"`) since a genuine copy would
+  now immediately self-collide via `check_overlap` (never archives the original first, unlike
+  `action_new_version()`). New regression assertions on the pre-existing
+  `test_action_new_version_template_archives_and_clones_whole_template` (it never checked the
+  clone's lines existed at all — how this stayed hidden). `TestAttendanceTemplate` (25 tests) and
+  `TestCourseTransition` (104 tests, +1 for the has-sessions clone case) both green.
+- **5d — regression coverage, mostly folded into 5c's own tests already.** The co-teaching/drift
+  split case and the no-op case are both already covered
+  (`test_apply_removes_only_the_departing_teacher_when_another_still_has_an_active_block`,
+  `test_apply_with_no_migrating_calendar_blocks_is_a_no_op`) — re-check before starting phase 6
+  whether anything is still missing; if not, 5d needs no separate work.
 
 **Phase 6 — The wizard takes over calendar creation.** For each affected teacher, once phase 5 has
 run, the transition wizard (not the XML importer) creates/reactivates the next course's calendar

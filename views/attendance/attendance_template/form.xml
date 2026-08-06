@@ -4,7 +4,7 @@
             <field name="name">ima.attendance_template.form</field>
             <field name="model">ems.attendance_template</field>
             <field name="arch" type="xml">
-                <form string="Template">
+                <form string="Template" duplicate="0">
                     <header>
                         <button string="Reload students"
                             name="reload_students"

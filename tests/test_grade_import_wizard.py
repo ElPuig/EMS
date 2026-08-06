@@ -112,10 +112,24 @@ class TestGradeImportWizard(TransactionCase):
         wb.save(buf)
         return base64.b64encode(buf.getvalue())
 
-    def _run(self, file_b64, round="1"):
-        wizard = self.env['ems.grade_import_wizard'].create({'round': round, 'file': file_b64, 'file_name': 'x.xlsx'})
+    def _run(self, file_b64, round="1", **extra):
+        vals = {'round': round, 'file': file_b64, 'file_name': 'x.xlsx'}
+        vals.update(extra)
+        wizard = self.env['ems.grade_import_wizard'].create(vals)
         wizard.action_import()
         return wizard
+
+    def _unenrolled_student(self, student_id='9990002'):
+        # A student of the group with no enrollment at all: the sessions have no lines for them.
+        return self.env['res.partner'].create({
+            'name': 'GI Unenrolled', 'contact_type': 'student',
+            'student_id': student_id, 'main_group_id': self.group.id,
+        })
+
+    def _enrollment_count(self, student, subject):
+        return self.env['ems.enrollment'].search_count([
+            ('student_id', '=', student.id), ('subject_id', '=', subject.id),
+        ])
 
     # --- Tests ---
 
@@ -252,6 +266,169 @@ class TestGradeImportWizard(TransactionCase):
         self.assertEqual((line.score, line.is_scored), (8, True))
         self.assertTrue(s_opt.grade_subject_line_ids.is_overridden)
         self.assertEqual(s_opt.grade_subject_line_ids.internal_score, 8)
+
+    def test_missing_enrollment_created_for_numeric_grade(self):
+        # The session exists (another student is enrolled) but this one is not: with the option on,
+        # the enrollment is created and the grade lands instead of being discarded.
+        student = self._unenrolled_student()
+        s_no = self._session(self.subj_no_em)
+        file = self._flat_xlsx([
+            ('9990002', 'GI01_CYC', 'GI01_CYC_01RA', 'RA', '01', 8),
+            ('9990002', 'GI01_CYC', 'GI01_CYC_02RA', 'RA', '02', 6),
+        ])
+        wizard = self._run(file, create_missing_enrollments=True)
+        self.assertEqual(self._enrollment_count(student, self.subj_no_em), 1)
+        self.assertIn('Missing enrollments created', wizard.result_html)
+        self.assertNotIn('No grade line', wizard.result_html)
+        line = s_no.grade_outcome_line_ids.filtered(
+            lambda l: l.student_id == student and l.outcome_id == self.o1)
+        self.assertEqual((line.score, line.is_scored), (8, True))
+
+    def test_missing_enrollment_created_for_textual_grades(self):
+        # A textual grade is a grade too: PDT/NP say the module is not passed and CV says it is,
+        # but all of them state the module belongs to the student's record.
+        student = self._unenrolled_student()
+        s_no = self._session(self.subj_no_em)
+        file = self._flat_xlsx([
+            ('9990002', 'GI01', 'GI01_01RA', 'RA', '01', 'CV'),
+            ('9990002', 'GI01', 'GI01_02RA', 'RA', '02', 'PDT'),
+        ])
+        wizard = self._run(file, create_missing_enrollments=True)
+        self.assertEqual(self._enrollment_count(student, self.subj_no_em), 1)
+        self.assertIn('Missing enrollments created', wizard.result_html)
+        # The line exists and is left unscored, as any textual grade is.
+        line = s_no.grade_outcome_line_ids.filtered(
+            lambda l: l.student_id == student and l.outcome_id == self.o1)
+        self.assertTrue(line)
+        self.assertFalse(line.is_scored)
+
+    def test_missing_enrollment_not_created_for_blank_module(self):
+        # A module left entirely blank is how Esfera lists what a student does not take.
+        student = self._unenrolled_student()
+        self._session(self.subj_no_em)
+        file = self._flat_xlsx([
+            ('9990002', 'GI01', 'GI01_01RA', 'RA', '01', ''),
+            ('9990002', 'GI01', 'GI01_02RA', 'RA', '02', None),
+        ])
+        wizard = self._run(file, create_missing_enrollments=True)
+        self.assertEqual(self._enrollment_count(student, self.subj_no_em), 0)
+        self.assertIn('No grade line', wizard.result_html)
+
+    def test_missing_enrollment_left_alone_when_option_disabled(self):
+        # Default behaviour: the grade is reported as having nowhere to go.
+        student = self._unenrolled_student()
+        self._session(self.subj_no_em)
+        file = self._flat_xlsx([('9990002', 'GI01', 'GI01_01RA', 'RA', '01', 8)])
+        wizard = self._run(file)
+        self.assertEqual(self._enrollment_count(student, self.subj_no_em), 0)
+        self.assertIn('No grade line', wizard.result_html)
+        self.assertNotIn('Missing enrollments created', wizard.result_html)
+
+    def test_existing_enrollment_not_duplicated(self):
+        s_no = self._session(self.subj_no_em)
+        file = self._flat_xlsx([('9990001', 'GI01', 'GI01_01RA', 'RA', '01', 8)])
+        wizard = self._run(file, create_missing_enrollments=True)
+        self.assertEqual(self._enrollment_count(self.student, self.subj_no_em), 1)
+        self.assertNotIn('Missing enrollments created', wizard.result_html)
+        self.assertEqual(s_no.grade_outcome_line_ids.filtered(
+            lambda l: l.outcome_id == self.o1).score, 8)
+
+    def test_enrollment_in_another_group_warns_instead_of_enrolling(self):
+        # Enrolled for this module in a different group: an anomaly to review by hand, not one to
+        # fix by adding a second enrollment.
+        student = self._unenrolled_student()
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'B', 'level_id': self.level.id, 'study_id': self.study.id,
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': other_group.id, 'subject_id': self.subj_no_em.id,
+        })
+        self._session(self.subj_no_em)
+        file = self._flat_xlsx([('9990002', 'GI01', 'GI01_01RA', 'RA', '01', 8)])
+        wizard = self._run(file, create_missing_enrollments=True)
+        self.assertEqual(self._enrollment_count(student, self.subj_no_em), 1)
+        self.assertIn('enrollment left untouched', wizard.result_html)
+
+    def test_missing_enrollment_created_for_the_single_optional(self):
+        # Esfera's optional code (OPT2) never matches the EMS one (OPT9), and the enrollment that
+        # normally resolves it is the one missing — but with a single optional in the group there
+        # is nothing to be ambiguous about.
+        student = self._unenrolled_student()
+        s_opt = self._session(self.subj_opt)
+        file = self._flat_xlsx([('9990002', 'OPT2_CYC', 'OPT2_CYC_01RA', 'RA', '01', 8)])
+        wizard = self._run(file, create_missing_enrollments=True)
+        self.assertEqual(self._enrollment_count(student, self.subj_opt), 1)
+        line = s_opt.grade_outcome_line_ids.filtered(
+            lambda l: l.student_id == student and l.outcome_id == self.opt1)
+        self.assertEqual((line.score, line.is_scored), (8, True))
+
+    def test_ambiguous_optional_warns_instead_of_enrolling(self):
+        # Two optionals graded in the group: the file cannot say which one, so nothing is created.
+        student = self._unenrolled_student()
+        subj_opt2 = self.env['ems.subject'].create({
+            'code': 'OPT8', 'acronym': 'OPT8', 'name': 'GI Second Optional',
+            'study_ids': [(4, self.study.id)],
+        })
+        opt2_outcome = self.env['ems.outcome'].create({
+            'code': 'OPT8_01RA', 'acronym': 'RA1', 'name': 'OPT2 O1', 'subject_id': subj_opt2.id,
+        })
+        self.env['ems.planning'].create({
+            'study_id': self.study.id, 'subject_id': subj_opt2.id,
+            'internal_ponderation': 100.0, 'external_ponderation': 0.0,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': opt2_outcome.id, 'ponderation': 100.0})],
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': self.student.id, 'group_id': self.group.id, 'subject_id': subj_opt2.id,
+        })
+        self._session(self.subj_opt)
+        self._session(subj_opt2)
+        file = self._flat_xlsx([('9990002', 'OPT2_CYC', 'OPT2_CYC_01RA', 'RA', '01', 8)])
+        wizard = self._run(file, create_missing_enrollments=True)
+        self.assertEqual(self._enrollment_count(student, self.subj_opt), 0)
+        self.assertEqual(self._enrollment_count(student, subj_opt2), 0)
+        self.assertIn('optional subjects', wizard.result_html)
+
+    def _other_group_session(self, subject, acronym='B', round="1"):
+        """A session of 'subject' in another group, with the student enrolled there.
+
+        Models both real cases: a split group, and a repeater taking a lower-year module with
+        that year's group. The student keeps their main group; only the enrollment moves.
+        """
+        other = self.env['ems.group'].create({
+            'course': 1, 'acronym': acronym, 'level_id': self.level.id, 'study_id': self.study.id,
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': self.student.id, 'group_id': other.id, 'subject_id': subject.id,
+        })
+        session = self.env['ems.grade_session'].create({
+            'group_id': other.id, 'subject_id': subject.id, 'round': round,
+            'teacher_id': self.teacher_employee.id,
+        })
+        session.fill_students()
+        return session
+
+    def test_grade_written_to_the_session_of_the_enrolled_group(self):
+        # The module is taught in another group, so the grade line lives in THAT group's session.
+        # Looking sessions up by the main group alone would miss it and drop every grade.
+        self.env['ems.enrollment'].search([
+            ('student_id', '=', self.student.id), ('subject_id', '=', self.subj_no_em.id),
+        ]).unlink()
+        session = self._other_group_session(self.subj_no_em)
+        file = self._flat_xlsx([('9990001', 'GI01', 'GI01_01RA', 'RA', '01', 7)])
+        wizard = self._run(file)
+        line = session.grade_outcome_line_ids.filtered(
+            lambda l: l.student_id == self.student and l.outcome_id == self.o1)
+        self.assertEqual((line.score, line.is_scored), (7, True))
+        self.assertNotIn('ERROR', wizard.result_html)
+
+    def test_same_module_in_two_groups_warns(self):
+        # Enrolled in the same module twice: the grade has two possible destinations and the line
+        # index keeps only one, so the ambiguity has to surface instead of being resolved at random.
+        self._session(self.subj_no_em)
+        self._other_group_session(self.subj_no_em)
+        file = self._flat_xlsx([('9990001', 'GI01', 'GI01_01RA', 'RA', '01', 7)])
+        wizard = self._run(file)
+        self.assertIn('several groups', wizard.result_html)
 
     def test_access_restricted_to_admin(self):
         s_no = self._session(self.subj_no_em)

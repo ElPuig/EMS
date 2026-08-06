@@ -82,6 +82,7 @@ from . import test_data_main_cat_prefix
 from . import test_security_group_references
 from . import test_grade_session_tour
 from . import test_grade_session_state_wizard_tour
+from . import test_grade_import_wizard_tour
 from . import test_employee_google_workspace
 from . import test_employee_google_workspace_tour
 from . import test_employee_ems_user
@@ -121,7 +122,6 @@ from . import test_applicant_tour
 from . import test_no_destination_tour
 from . import test_year_record_tour
 from . import test_planning_tour
-from . import test_grade_import_wizard_tour
 from . import test_em_grading_wizard_tour
 from . import test_provider_tour
 from . import test_enrollment_config_tour

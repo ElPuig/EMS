@@ -184,3 +184,15 @@ recreating *every* schedule line of a persisting template to a per-line match (u
 untouched, changed-without-sessions lines updated in place, changed-with-sessions lines
 archived+recreated) - this is model-level behavior, not wizard-specific, so it applies to the
 live Schedule tab's own edits too, not only a not-yet-built import path.
+
+## Search view: "Archived" filter added (2026-08-06, phase 8 of `plans/course_transition_teacher_schedule_archival.md`)
+
+`views/attendance/attendance_template/search.xml` had no `<filter name="inactive">` at all — an
+archived template (e.g. one the course transition wizard archives, or one corrected via
+`action_new_version()` above) was simply unreachable from the list view's own search bar. Odoo
+does **not** auto-add this filter for models with an `active` field just because the field
+exists — it has to be declared explicitly, confirmed empirically by checking the web client's own
+`search` JS (no reference to auto-injecting an "Archived" menu item anywhere in
+`@web/search/*`) and by reproducing the gap live (the filter genuinely didn't appear until
+added). Native Odoo models (e.g. `resource.calendar`, see `working_schedule.md`) ship this filter
+in their own core search view for the same reason — it's a per-view opt-in, not a per-model one.

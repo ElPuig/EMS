@@ -77,7 +77,7 @@ Què passa, i en quin ordre:
 
 1. Es congela **l'historial acadèmic** de tots els alumnes. Si això falla, no s'executa res més.
 2. Els graduats **que marxen** passen a exalumnes, se'ls revoca l'accés al portal i **s'arxiven**. Els que continuen amb matrícula confirmada segueixen actius com a alumnes. Els que tenen matrícula sense confirmar passen a **sol·licitants i conserven el portal**: sense ell no podrien confirmar la matrícula, perquè un exalumne arxivat no hi té accés.
-3. S'arxiven les plantilles d'assistència del curs sortint.
+3. S'arxiven les plantilles d'assistència del curs sortint, junt amb els blocs de calendari propis dels docents afectats. Quan el calendari d'un docent es queda sense docència del curs que finalitza (un compromís fix que quedi, com una guàrdia, no compta), passa automàticament a un calendari nou per al curs següent — no cal configurar res a mà, i el calendari anterior es conserva, arxivat, no s'esborra.
 4. **S'esborren els registres operatius**: inscripcions a mòduls, notes, assistència i sessions d'avaluació. S'esborren els dels grups del curs sortint, encara que l'alumne ja hagi estat col·locat al seu grup nou per una execució anterior. Aquesta és la part irreversible — l'historial acadèmic desat al pas 1 és el que els substitueix.
 5. Els alumnes es col·loquen al **grup destí** i s'hi inscriuen a les assignatures.
 6. Es marquen els estudis com a transicionats i, si no en queda cap de pendent, **canvia el curs actual**.
@@ -94,6 +94,8 @@ Tres serrells per resoldre els dies següents:
 - **Alumnes sense destí.** Revisa la llista i registra la baixa dels que han marxat de debò. Pots fer-ho d'un en un des de la fitxa de l'alumne, o **de diversos alhora**: selecciona'ls a la llista de *Proposta de matrícula de grup* i fes clic a **Baixa**. El botó només el veuen administració acadèmica i secretaria, perquè registrar una baixa cancel·la matrícules i revoca el portal. Els que es matriculin tard no necessiten res: en confirmar-se la matrícula, se'ls col·loca al grup automàticament.
 - **Alumnes matriculats sense grup** que apareguin després (per exemple, una matrícula confirmada al setembre sense grup): només cal **assignar-los el grup destí a la matrícula**. En fer-ho es col·loquen sols, amb els seus mòduls inclosos.
 - **Matrícules del curs entrant sense confirmar.** No es cancel·len ni es toquen. Qui confirmi al setembre es col·loca sol al seu grup, sense que hagis de tornar a executar res — **sempre que la matrícula tingui grup destí assignat**. Sense grup, confirmar no col·loca ningú.
+
+**Consultar més endavant les plantilles d'assistència o els calendaris dels docents d'un curs anterior**: s'arxiven, no s'esborren, així que no es perd res — obre **Configuració → Docents → Plantilles** (o **Horaris laborals**), obre el menú **Filtres** de la barra de cerca i marca **Arxivat** per tornar-los a veure. A **Horaris laborals** també pots agrupar la llista per **Curs** per veure el calendari de cada docent al llarg dels anys.
 
 ---
 

@@ -61,5 +61,19 @@ registry.category("web_tour.tours").add("ems_employee_archived_reason_indicator"
             trigger: ".o_form_view .ribbon span[style*='#2E6C8E']",
             content: "The form ribbon's color is also correct",
         },
+        // Phase 8 of plans/course_transition_teacher_schedule_archival.md: "confirm/fix the
+        // Schedule-tab grid renders a read-only view of an archived calendar" - the only real path
+        // to that is an archived EMPLOYEE whose calendar was never rolled over (a course
+        // transition is what rolls a calendar, not an employee leaving mid-course), since the
+        // widget only ever shows the CURRENT resource_calendar_id.
+        {
+            trigger: ".o_notebook .nav-link:contains('Schedule')",
+            content: "Open the Schedule tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_schedule_grid_entry",
+            content: "The grid widget renders the archived calendar's own entry without crashing",
+        },
     ],
 });

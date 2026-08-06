@@ -133,6 +133,7 @@
             'views/community/employmenttypes/menu.xml',        
             
             'views/community/working_schedules/list.xml',
+            'views/community/working_schedules/search.xml',
             'views/community/working_schedules/form.xml',
             'views/community/working_schedules/attendance_form.xml',
             'views/community/working_schedules/import_wizard.xml',

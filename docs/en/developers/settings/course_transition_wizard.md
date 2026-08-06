@@ -225,6 +225,15 @@ flowchart TD
   `_apply_calendar_archival()`'s returned teacher set) is the only thing that would otherwise stop
   it from ever reaching a framework calendar by accident.
 
+### Browsing archived templates/sessions/calendars afterwards (phase 8 of the same plan)
+
+All three models this section's own steps archive can be found again afterwards via the search
+bar's **Filters → Archived** toggle: `ems.attendance_template`/`ems.attendance_session_header`
+needed the filter added by hand (see their own dev docs — Odoo does not auto-add it), while
+`resource.calendar` already had it natively. A new **Course** group-by option on the "Working
+Schedules" list (`working_schedule.md`) is what actually exposes the "who taught, in which
+course" historical query the plan's phase 3-7 fields were built for.
+
 ### Archiving the graduates (D4, step 2b)
 
 Graduates are **archived**, not just converted, consistent with issue #357 (withdrawals and alumni are both archived, mirroring how archiving an `hr.employee` asks for a departure reason).

@@ -161,3 +161,14 @@ on `ems.attendance_template`. `group_ids`/`subject_id`/`space_id`/`template_teac
 converted from `sudo()`-laden compute methods to genuine `related=` fields (see
 [`attendance_template.md`](attendance_template.md) for the full identity-field-locking
 context this is part of).
+
+## Search view: "Archived" filter added, `session_teacher_id` made searchable (2026-08-06, phase 8 of `plans/course_transition_teacher_schedule_archival.md`)
+
+`views/attendance/attendance_session/search.xml` had no `<filter name="inactive">` at all — an
+archived session (e.g. one belonging to a schedule line archived by the course transition
+wizard, see `course_transition_wizard.md`) was simply unreachable from the "History" list's own
+search bar, since Odoo does **not** auto-add this filter for models with an `active` field (it
+has to be declared explicitly — confirmed empirically, see the sibling note in
+`attendance_template.md`). Also added a plain `<field name="session_teacher_id" string="Teacher">`
+so free-text search can find a session by teacher name at all, not just via the (already
+existing) "Show only mine" filter.

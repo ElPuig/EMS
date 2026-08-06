@@ -128,6 +128,32 @@ sequenceDiagram
 - **`write()`** — renaming an employee calls the calendar's own `_refresh_personal_name()`, which rebuilds `name` from its `employee_id`/`course_id` (or the reverse-search fallback for a legacy calendar) and no-ops for a framework calendar.
 - **`unlink()`** — deletes the employee's personal calendar (cascading its attendance rows), unless it's a framework, still referenced by another employee, or is the company's own base calendar.
 
+## The "Working Schedules" list: history browsing (2026-08-06, phase 8 of `plans/course_transition_teacher_schedule_archival.md`)
+
+Personal calendars (`is_framework=False`) are listed under **Configuration → Teachers → Working
+schedules** (`action_working_schedules_tree`). Since this action never overrides
+`search_view_id`, it resolves `resource.calendar`'s own default search view — Odoo core's
+`resource.view_resource_calendar_search`, which already ships an `<filter name="inactive"
+string="Archived">` — so browsing an *archived* calendar (a past course's, rolled over by
+`_apply_calendar_rollover()`) already worked with no EMS code at all, unlike
+`ems.attendance_template`/`ems.attendance_session_header` (see their own docs) which needed the
+filter added by hand.
+
+What genuinely didn't exist: a way to search/group by the historical fields phases 3+ added.
+`views/community/working_schedules/search.xml` (new) inherits the native search view, adding
+`employee_id`/`course_id` as searchable fields and a **"Course"** group-by option — this is what
+actually exposes the "who taught, in which course" query (see decision 4 of the plan) from the
+UI. `views/community/working_schedules/list.xml` also gained the same two fields as
+`optional="hide"` columns (`name` already encodes both for a quick glance).
+
+**The Schedule tab's grid widget rendering an archived calendar was verified, not (as it turned
+out) broken**: the widget is only ever bound to `hr.employee.schedule_attendance_ids` (the
+employee's *current* calendar) — the only realistic way to see it render an archived one is an
+archived *employee* whose calendar was never rolled over (a course transition rolls calendars,
+leaving mid-course doesn't). `employee_archived_reason_tour.js`/`test_employee_archived_reason_tour.py`
+extended to seed a real attendance row and open the Schedule tab — passed on the first try, no
+fix needed.
+
 ## Schedule frameworks & the default-framework setting
 
 A **framework** is just a `resource.calendar` with `is_framework=True` and an optional `level_id` — reusing the model rather than inventing a parallel one. Frameworks are managed like any other working schedule (**Configuration → Teachers → Schedule frameworks**, `views/community/working_schedules/menu.xml`), editing their `attendance_ids` with the same base Odoo list Odoo already ships for `resource.calendar`.

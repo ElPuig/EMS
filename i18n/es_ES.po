@@ -3511,6 +3511,36 @@ msgid "Database"
 msgstr "Base de datos"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "File (left)"
+msgstr "Archivo (izquierda)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "File (right)"
+msgstr "Archivo (derecha)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Classroom (left)"
+msgstr "Aula (izquierda)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Classroom (right)"
+msgstr "Aula (derecha)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Classroom (file)"
+msgstr "Aula (archivo)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Classroom (DB)"
+msgstr "Aula (BBDD)"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__document_name model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__file_name model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__file_name
 msgid "File Name"
 msgstr "Nombre de archivo"

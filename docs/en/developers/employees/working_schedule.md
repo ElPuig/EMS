@@ -433,13 +433,17 @@ internal_conflict_line` and the `state` value `internal_conflicts` were delibera
 unchanged - renaming either would be an XML-ID/technical-identifier change needing a migration,
 far more than this ask called for; only the two *display* strings moved).
 
-**`left_label`/`right_label` headers overridden per screen (2026-08-06, developer feedback):**
-both columns show "File" on this screen (both sides are entries from the same imported file); on
-screen 5 below, "File" (left) vs. "Database" (right) - the shared mixin's own field `string`
-("Left"/"Right") stays the generic default, only ever overridden via `string="..."` on the
-`<field>` in this specific view (same `<field string="...">` override pattern already used
-elsewhere in this arch, e.g. `raw_identifier`'s "E-mail found in file") - no model-level split
-needed for a purely view-level label difference.
+**`left_label`/`right_label`/`left_space_id`/`right_space_id` headers overridden per screen
+(2026-08-06, developer feedback, refined same day after the first wording read ambiguously since
+both label columns said just "File"):** on this screen, **"File (left)"/"File (right)"** (both
+sides are entries from the same imported file, disambiguated by side) and **"Classroom
+(left)"/"Classroom (right)"**; on screen 5 below, **"File"/"Database"** (no "(left)"/"(right)"
+needed there - the two sides are never ambiguous, one's always the file and the other's always the
+existing DB record) and **"Classroom (file)"/"Classroom (DB)"**. The shared mixin's own field
+`string`s ("Left"/"Right"/"Left classroom"/"Right classroom") stay the generic default, only ever
+overridden via `string="..."` on the `<field>` in this specific view (same `<field string="...">`
+override pattern already used elsewhere in this arch, e.g. `raw_identifier`'s "E-mail found in
+file") - no model-level split needed for a purely view-level label difference.
 
 **`resolution`'s `co_teaching` option renamed "It's co-teaching (keep both)" → "Confirm" (2026-08-06,
 developer feedback: too long for the column) - paired with a genuinely necessary small custom
@@ -462,11 +466,14 @@ text) were hogging space at the expense of `kind`/`resolution`/the two room pick
 showing an ellipsis. `<field class="...">` only ever lands on the *data* cell, never the header
 (`getColumnClass` in Odoo's `list_renderer.js` never consults a column's own class the way
 `getCellClass` does for `<td>` - confirmed by testing `class="w-25"` first, which had no visible
-effect at all), so `static/src/css/backend/working_schedules_import_wizard.css` sets plain pixel
-`min-width` on `kind`/`resolution`/the room pickers (via `ems_conflict_kind`/
-`ems_conflict_resolution`/`ems_conflict_space` classes on the `<field>`) and a `max-width` on the
-two label columns (`ems_conflict_label`) instead of a Bootstrap width utility - the browser's table
-layout still reconciles the header to match.
+effect at all), so `static/src/css/backend/working_schedules_import_wizard.css` sets a plain pixel
+`max-width` on the two label columns (`ems_conflict_label` class on the `<field>`) instead of a
+Bootstrap width utility - the browser's table layout gives the freed-up space to the other columns.
+An initial version of this also set an explicit `min-width` on `kind`/`resolution`/the room
+pickers - removed the same day once the header-shortening above made it actively counter-productive
+once combined with a real classroom's long `display_name` (developer-reported "columns look
+misaligned"); a `max-width` on just the two wide free-text columns turned out to be enough on its
+own.
 
 **Pre-existing i18n gap fixed while renaming these (2026-08-06):** every `kind`/`resolution` option
 translation had only ever referenced `internal_conflict_line`'s own selection value, never

@@ -3511,6 +3511,36 @@ msgid "Database"
 msgstr "Base de dades"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "File (left)"
+msgstr "Fitxer (esquerra)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "File (right)"
+msgstr "Fitxer (dreta)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Classroom (left)"
+msgstr "Aula (esquerra)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Classroom (right)"
+msgstr "Aula (dreta)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Classroom (file)"
+msgstr "Aula (fitxer)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Classroom (DB)"
+msgstr "Aula (BD)"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__document_name model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__file_name model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__file_name
 msgid "File Name"
 msgstr "Nom de fitxer"

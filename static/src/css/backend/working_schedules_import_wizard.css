@@ -22,23 +22,13 @@
    only ever lands on the *data* cell, never the header (Odoo's list renderer never consults a
    column's own class for its <th> - see 'getColumnClass' in list_renderer.js, unlike 'getCellClass'
    for <td> - confirmed by testing 'class="w-25"' here first, which had no visible effect at all),
-   so these are plain pixel min/max-widths on the data cells rather than a Bootstrap width utility -
-   the browser's own table layout algorithm still reconciles the header to match. */
-.o_field_widget[name="internal_conflict_line_ids"] .o_data_cell.ems_conflict_kind,
-.o_field_widget[name="external_conflict_line_ids"] .o_data_cell.ems_conflict_kind {
-    min-width: 95px;
-}
-
-.o_field_widget[name="internal_conflict_line_ids"] .o_data_cell.ems_conflict_resolution,
-.o_field_widget[name="external_conflict_line_ids"] .o_data_cell.ems_conflict_resolution {
-    min-width: 130px;
-}
-
-.o_field_widget[name="internal_conflict_line_ids"] .o_data_cell.ems_conflict_space,
-.o_field_widget[name="external_conflict_line_ids"] .o_data_cell.ems_conflict_space {
-    min-width: 140px;
-}
-
+   so this is a plain pixel max-width on the two label cells rather than a Bootstrap width utility -
+   the browser's own table layout algorithm gives the freed-up space to the other columns.
+   'kind'/'resolution'/the room pickers are deliberately given no explicit width here (an earlier
+   version set a 'min-width' on each - removed 2026-08-06 after the header/column shortening below
+   made it actively misalign columns instead of helping, once combined with a real classroom's long
+   'display_name' - a plain 'max-width' on the two wide free-text columns is enough on its own to
+   give the others breathing room). */
 .o_field_widget[name="internal_conflict_line_ids"] .o_data_cell.ems_conflict_label,
 .o_field_widget[name="external_conflict_line_ids"] .o_data_cell.ems_conflict_label {
     max-width: 220px;

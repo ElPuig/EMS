@@ -43,6 +43,45 @@ class ems_working_schedule(models.Model):
 	# the 'Schedule' tab's grid widget keep showing the framework's blank slots (and its own patio/
 	# meeting periods) as editable/inherited on every future "Edit", without persisting them.
 	source_framework_id = fields.Many2one(string="Source framework", comodel_name="resource.calendar", domain="[('is_framework', '=', True)]")
+	# NOTE: added 2026-08-06 (see plans/course_transition_teacher_schedule_archival.md) - a personal
+	# calendar's own 'employee_id'/'course_id' make it queryable as a historical "who taught what,
+	# which course" record on its own terms, without going through 'ems.attendance_template' (which
+	# a teacher can create directly, bypassing the calendar entirely, so it can't be trusted as a
+	# complete record). 'employee_id' is set once at creation and never reassigned - unlike
+	# 'hr.employee.resource_calendar_id' (which moves on to a new calendar every course, once a later
+	# phase of that same plan wires it up), this is the calendar's own permanent back-reference, so
+	# 'get_employee()' below keeps working even for a calendar no longer any employee's *current* one.
+	# Both stay empty for a framework calendar (reusable template, never tied to one teacher/course).
+	employee_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
+	course_id = fields.Many2one(string="Course", comodel_name="ems.course")
+
+	@api.model_create_multi
+	def create(self, vals_list):
+		"""Auto-derives 'name' ("<teacher> (<course>)", matching the long-standing convention) from
+		'employee_id'/'course_id' when the caller sets those but not an explicit 'name' - a single
+		source of truth for the naming convention, instead of every caller having to remember to
+		build the string by hand (see plans/course_transition_teacher_schedule_archival.md)."""
+		for vals in vals_list:
+			if not vals.get('name') and vals.get('employee_id'):
+				employee = self.env['hr.employee'].browse(vals['employee_id'])
+				course = self.env['ems.course'].browse(vals['course_id']) if vals.get('course_id') else False
+				vals['name'] = "%s (%s)" % (employee.name, course.name) if course else employee.name
+		return super().create(vals_list)
+
+	def _refresh_personal_name(self):
+		"""Rebuilds 'name' from this calendar's own 'employee_id'/'course_id' - called after either
+		changes, or after the linked employee's own name does (see 'ems_employee.write()'). No-op
+		for a framework calendar (its name is set by hand, never derived). Falls back to
+		'get_employee()' (the reverse search) for a legacy calendar predating 'employee_id' - not yet
+		backfilled by a migration, but its name must still keep tracking a rename in the meantime."""
+		for calendar in self:
+			if calendar.is_framework:
+				continue
+			employee = calendar.employee_id or calendar.get_employee()
+			if not employee:
+				continue
+			course = calendar.course_id
+			calendar.name = "%s (%s)" % (employee.name, course.name) if course else employee.name
 
 	def seed_from_framework(self, framework):
 		"""Point this calendar at 'framework' as its reference bell schedule and clear any existing
@@ -74,9 +113,14 @@ class ems_working_schedule(models.Model):
 
 	def get_employee(self):
 		"""The teacher this calendar belongs to (a documented 1:1 assumption: one personal calendar
-		per teacher). Also matches a 'framework'/other non-personal calendar with an empty recordset."""
+		per teacher). Also matches a 'framework'/other non-personal calendar with an empty recordset.
+		Prefers the stored 'employee_id' (added 2026-08-06) - unlike the reverse search below, it
+		keeps working once this calendar is no longer any employee's *current* one (see
+		plans/course_transition_teacher_schedule_archival.md), which is exactly the point of storing
+		it. Falls back to the reverse search for a calendar predating that field (not yet backfilled
+		by a migration) - never breaks a calendar that simply hasn't been touched yet."""
 		self.ensure_one()
-		return self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
+		return self.employee_id or self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
 
 	def get_schedule_report_lines(self):
 		"""Weekly schedule rows (one per distinct Mon-Fri period, one column per weekday) for the

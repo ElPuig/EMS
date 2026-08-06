@@ -480,11 +480,6 @@ class ems_employee(models.AbstractModel):
         for employee in self:
             employee.pending_identification = bool(employee.schedule_import_code)
 
-    def _personal_calendar_name(self):
-        self.ensure_one()
-        course = self.company_id.current_course_id
-        return "%s (%s)" % (self.name, course.name) if course else self.name
-
     @api.model_create_multi
     def create(self, vals_list):
         employees = super().create(vals_list)
@@ -495,7 +490,13 @@ class ems_employee(models.AbstractModel):
             # already pre-filled by resource.mixin's client-side default (the company's shared
             # calendar), so it can never be used to detect "nothing was set yet". Sharing a calendar
             # between teachers would break the 1:1 assumption 'apply_schedule_changes' relies on.
-            schedule = self.env['resource.calendar'].create({'name': employee._personal_calendar_name()})
+            # 'employee_id'/'course_id' (added 2026-08-06) make this calendar a permanent, queryable
+            # historical record on its own terms - see plans/course_transition_teacher_schedule_archival.md.
+            # 'name' is auto-derived from them by resource.calendar's own create() override.
+            schedule = self.env['resource.calendar'].create({
+                'employee_id': employee.id,
+                'course_id': employee.company_id.current_course_id.id,
+            })
             schedule.seed_from_framework(employee.company_id.default_schedule_framework_id)
             employee.resource_calendar_id = schedule
         return employees
@@ -520,8 +521,7 @@ class ems_employee(models.AbstractModel):
 
         if 'name' in vals:
             for employee in self:
-                if employee.resource_calendar_id and not employee.resource_calendar_id.is_framework:
-                    employee.resource_calendar_id.name = employee._personal_calendar_name()
+                employee.resource_calendar_id._refresh_personal_name()
 
         if photo is not _UNSET:
             for employee in self:

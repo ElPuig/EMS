@@ -275,6 +275,38 @@ def _backfill_attendance_template_study_ids(cr):
         template_rows, header_rows, line_rows)
 
 
+def _backfill_calendar_employee_and_course(env):
+    """employee_id/course_id (added 18.0.0.22.0, see
+    plans/course_transition_teacher_schedule_archival.md) are blank on every resource.calendar
+    created before this migration - backfilled here from the same signal get_employee()'s
+    reverse-search fallback already relies on: an employee whose *current* resource_calendar_id
+    still points at this calendar. A calendar already orphaned by the pre-existing (teacher,
+    course-name) re-minting cardinality bug (same plan) has no employee currently pointing at it
+    and is left blank - unreachable via this signal, not a data-loss risk since nothing reads these
+    fields yet (phase 4/5 of the same plan). course_id is set to the company's current course for
+    every employee found this way, since a still-current calendar is by definition that course's
+    own schedule.
+    """
+    calendars = env['resource.calendar'].search([
+        ('employee_id', '=', False),
+        ('is_framework', '=', False),
+    ])
+    updated = 0
+    for calendar in calendars:
+        employee = env['hr.employee'].search([('resource_calendar_id', '=', calendar.id)], limit=1)
+        if not employee:
+            continue
+        calendar.write({
+            'employee_id': employee.id,
+            'course_id': employee.company_id.current_course_id.id,
+        })
+        updated += 1
+    if updated:
+        _logger.info(
+            "Migration 18.0.0.22.0: backfilled employee_id/course_id on %d pre-existing "
+            "resource.calendar record(s).", updated)
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _enable_unaccent(cr)
@@ -286,3 +318,4 @@ def migrate(cr, _version):
     _backfill_null_course_enrollment_default(cr)
     _recompute_authorization_flags(env)
     _backfill_attendance_template_study_ids(cr)
+    _backfill_calendar_employee_and_course(env)

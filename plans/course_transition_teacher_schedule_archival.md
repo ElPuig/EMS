@@ -1,6 +1,6 @@
 # Course transition: teacher-schedule archival + historical teaching record
 
-**Status: implementation in progress — phases 1-2 of 8 done, no open questions.** Written 2026-08-06
+**Status: implementation in progress — phases 1-3 of 8 done, one open question (migration timing for phase 3's backfill).** Written 2026-08-06
 from a developer discussion about what should happen to teacher-side scheduling data when
 `ems.course_transition_wizard` runs. Revised three times the same day, then implementation started
 the same day too. See "Implementation phases" at the bottom for the agreed breakdown and current
@@ -207,9 +207,37 @@ behavior, verified via `psql` — no explicit migration script needed).
 `TestCourseTransition` all green. Nothing calls any of this with real archiving data yet, as
 intended for this phase — pure additive capability, no existing behavior changed.
 
-**Phase 3 — `resource.calendar`'s historical fields.** Add `course_id` and `employee_id`
-(confirmed), computed `name`, migration to backfill both on existing calendars. Still isolated —
-nothing reads or depends on these fields yet.
+**Phase 3 done** — `course_id`/`employee_id` added to `resource.calendar`
+(`models/employees/working_schedule.py`, class `ems_working_schedule`), both blank/optional (never
+set for a framework calendar). `name` stayed a plain stored `Char` rather than becoming a genuine
+computed field — derived instead at the two real write sites: a new `create()` override (derives
+from `employee_id`/`course_id` only when the caller doesn't pass an explicit `name`) and a new
+`_refresh_personal_name()` instance method (rebuilds `name` in place, called by `ems_employee.
+write()`'s rename hook). `get_employee()` now prefers the stored `employee_id`, falling back to the
+pre-existing reverse search for a calendar predating this field — same fallback `_refresh_personal_
+name()` uses. `ems_employee.create()` updated to pass `employee_id`/`course_id` instead of a
+pre-built name string; its own `_personal_calendar_name()` helper is gone (fully superseded).
+Deliberately NOT touched this phase: the XML batch importer's own calendar-minting logic
+(`_write_teacher_schedule`) — still creates calendars the old way, per phase 6's own scope ("the
+wizard takes over calendar creation"), so calendars created via that path won't get these two
+fields until phase 6 lands. `TestEmployeeScheduleLifecycle` (9 tests) and `TestWorkingSchedule` (39
+tests) green; no other test file asserts on calendar name text (checked via grep), so no wider
+blast-radius run was needed beyond these two classes.
+
+**Backfill migration added the same day, resolving the open question above** — developer's answer:
+migrate now, but reuse the current manifest version (no bump). Added
+`_backfill_calendar_employee_and_course` to the already-existing
+`migrations/18.0.0.22.0/post-migrate.py` (same version this branch's other 18.0.0.22.0 work already
+uses) rather than a new version folder. Same signal `get_employee()`'s reverse-search fallback
+already relies on: an employee whose *current* `resource_calendar_id` still points at that
+calendar; `course_id` set to that employee's company's current course. Verified against this dev
+DB's real pre-upgrade state (temporarily rolled back `ir_module_module.latest_version` to force
+Odoo to actually re-run the 18.0.0.22.0 migration scripts, since the DB was already at that stored
+version from earlier phases this same session — confirmed restored to `18.0.0.22.0` afterward by
+Odoo's own upgrade process): 55 of 56 eligible calendars backfilled; the 1 left blank is the
+pre-existing orphaned-calendar cardinality bug this same plan already documents — no employee
+currently points at it, unreachable via this signal, harmless since nothing reads these fields yet
+(phase 4/5's job).
 
 **Phase 4 — The calendar↔schedule lookup.** New method on `ems.attendance_mixin`: given a teacher +
 weekday + start_time + end_time (+ space), find the matching `ems.attendance_schedule` line(s).

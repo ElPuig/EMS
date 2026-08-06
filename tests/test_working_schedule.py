@@ -128,6 +128,42 @@ class TestWorkingSchedule(TransactionCase):
         attendance.action_archive()
         self.assertFalse(attendance.active)
 
+    def _bare_employee(self, name):
+        # A non-teacher employee (default 'employee_type') never gets an auto-created personal
+        # calendar (see 'ems_employee.create()') - a clean fixture to attach a test calendar to
+        # without an auto-created sibling that could collide with it on the 'unique_name' constraint.
+        return self.env['hr.employee'].create({'name': name})
+
+    def test_create_derives_name_from_employee_and_course(self):
+        # 'employee_id'/'course_id' added 2026-08-06 - see
+        # plans/course_transition_teacher_schedule_archival.md. 'name' is auto-derived from them
+        # ("<teacher> (<course>)") when the caller doesn't pass an explicit one, matching the
+        # long-standing naming convention without every caller having to build the string by hand.
+        employee = self._bare_employee('Test Derive Name With Course (Working Schedule)')
+        course = self.env['ems.course'].create({'start': 2097, 'end': 2098})
+
+        calendar = self.env['resource.calendar'].create({
+            'employee_id': employee.id, 'course_id': course.id,
+        })
+
+        self.assertEqual(calendar.name, "%s (%s)" % (employee.name, course.name))
+
+    def test_create_derives_name_from_employee_alone_without_a_course(self):
+        employee = self._bare_employee('Test Derive Name No Course (Working Schedule)')
+
+        calendar = self.env['resource.calendar'].create({'employee_id': employee.id})
+
+        self.assertEqual(calendar.name, employee.name)
+
+    def test_create_respects_an_explicit_name_over_the_derived_one(self):
+        employee = self._bare_employee('Test Derive Name Explicit Override (Working Schedule)')
+
+        calendar = self.env['resource.calendar'].create({
+            'employee_id': employee.id, 'name': 'Test Explicit Name (Working Schedule)',
+        })
+
+        self.assertEqual(calendar.name, 'Test Explicit Name (Working Schedule)')
+
     def test_apply_schedule_changes_defaults_space_from_group(self):
         # 'space_id' stopped being a compute (2026-08-01, room-granularity change) - a cell that
         # doesn't specify one must still default to the group's own room, matching the old

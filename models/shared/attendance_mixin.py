@@ -30,3 +30,28 @@ class EmsAttendanceMixin(models.AbstractModel):
             return self
         self.action_archive()
         return self.copy({'active': True, **vals})
+
+    def find_schedule_lines_for_slot(self, teacher, weekday, start_time, end_time, space=None):
+        """Given a teacher + weekday + start_time/end_time (+ optional space), finds every
+        currently active 'ems.attendance_schedule' line for that teacher overlapping that slot -
+        the reverse of the (weekday, start_time, end_time) matching this module already does at
+        sync time (see e.g. 'ems.attendance_template.classify_external_conflicts'/
+        'find_self_conflicts'). Extracted as a shared, standalone lookup rather than yet another
+        narrowly-scoped inline copy: a full audit (see
+        plans/course_transition_teacher_schedule_archival.md) found every existing occurrence too
+        tied to its own caller to reuse directly. Meant to be called on the model itself
+        (self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(...)) rather than a
+        specific record - there is no natural 'self' for a lookup like this. Used by the
+        course-transition wizard to find which schedule line(s) back a given
+        'resource.calendar.attendance' row, since the two models have no direct FK between them -
+        only this same slot-matching convention links them."""
+        domain = [
+            ('weekday', '=', weekday),
+            ('attendance_template_id.teacher_ids', 'in', teacher.id),
+        ]
+        if space:
+            domain.append(('space_id', '=', space.id))
+        candidates = self.env['ems.attendance_schedule'].search(domain)
+        return candidates.filtered(
+            lambda candidate: candidate.ranges_overlap(candidate.start_time, candidate.end_time, start_time, end_time)
+        )

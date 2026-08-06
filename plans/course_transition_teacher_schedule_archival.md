@@ -1,6 +1,6 @@
 # Course transition: teacher-schedule archival + historical teaching record
 
-**Status: implementation in progress — phases 1-3 of 8 done, one open question (migration timing for phase 3's backfill).** Written 2026-08-06
+**Status: implementation in progress — phases 1-4 of 8 done, no open questions.** Written 2026-08-06
 from a developer discussion about what should happen to teacher-side scheduling data when
 `ems.course_transition_wizard` runs. Revised three times the same day, then implementation started
 the same day too. See "Implementation phases" at the bottom for the agreed breakdown and current
@@ -239,12 +239,23 @@ pre-existing orphaned-calendar cardinality bug this same plan already documents 
 currently points at it, unreachable via this signal, harmless since nothing reads these fields yet
 (phase 4/5's job).
 
-**Phase 4 — The calendar↔schedule lookup.** New method on `ems.attendance_mixin`: given a teacher +
-weekday + start_time + end_time (+ space), find the matching `ems.attendance_schedule` line(s).
-Tested standalone against fixtures; no caller wired in yet. Finding "the sessions for a given
-`resource.calendar.attendance`" (needed by phase 5) is this same lookup plus a direct
-`.attendance_session_ids` read on the line(s) it returns - not a separate method, since
-`ems.attendance_schedule` already exposes that O2M directly.
+**Phase 4 done (2026-08-06)** — `ems.attendance_mixin.find_schedule_lines_for_slot(teacher, weekday,
+start_time, end_time, space=None)` (`models/shared/attendance_mixin.py`), called on the model itself
+(`self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(...)`, no natural `self` for a
+lookup like this). Searches active `ems.attendance_schedule` lines for that teacher matching
+`weekday` (+ optionally `space`), then filters by `ranges_overlap` for the time part - same shape as
+the existing `classify_external_conflicts`/`find_self_conflicts` searches, confirmed via the earlier
+audit that neither (nor any of the other 5 occurrences) could be reused directly since each hardcodes
+its own extra filters. 4 new tests in `TestAttendanceScheduleLogic`
+(`tests/test_attendance_schedule.py`) - finds the matching line, filters by teacher, requires actual
+time overlap, optional `space` excludes a different room. `./upgrade.sh` clean, `TestAttendance
+ScheduleLogic` (12 tests) green. Purely additive, as planned - nothing calls this yet. Documented in
+`docs/en/developers/attendance/attendance_schedule.md` under a new "`find_schedule_lines_for_slot`:
+reverse lookup from a raw slot to a schedule line" section.
+
+Finding "the sessions for a given `resource.calendar.attendance`" (needed by phase 5) is this same
+lookup plus a direct `.attendance_session_ids` read on the line(s) it returns - not a separate
+method, since `ems.attendance_schedule` already exposes that O2M directly.
 
 **Phase 5 — Wire the real archival cascade.** The transition wizard's migrating-block handling
 switches from `unlink()` to archive (phase 2), uses phase 4's lookup to find the matching schedule

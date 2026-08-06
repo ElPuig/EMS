@@ -110,6 +110,30 @@ by `ems.attendance_template.find_external_conflicts()` (see
 [`attendance_template.md`](attendance_template.md)) against a not-yet-created entry dict,
 since one side isn't a real record yet there.
 
+## `find_schedule_lines_for_slot`: reverse lookup from a raw slot to a schedule line
+
+`ems.attendance_mixin.find_schedule_lines_for_slot(teacher, weekday, start_time, end_time,
+space=None)` (`models/shared/attendance_mixin.py`) — given a teacher + weekday + start/end time
+(+ optionally a room), returns every currently active line for that teacher whose own
+`(weekday, start_time, end_time)` overlaps the given slot. The reverse of the matching this module
+already does at sync time (`classify_external_conflicts`/`find_self_conflicts` in
+[`attendance_template.md`](attendance_template.md)) — but a full audit found every existing
+occurrence too tied to its own caller to reuse directly (each hardcodes its own extra filters:
+excluding the submitting teachers, matching a specific subject/group...), so this is a new, minimal,
+standalone lookup rather than another inline copy.
+
+Called on the model itself, not a specific record — there is no natural `self` for a lookup like
+this: `self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(...)`.
+
+**Why it exists:** `resource.calendar.attendance` (a teacher's weekly calendar block) and
+`ems.attendance_schedule` (the recurring class-session line) have no direct FK between them — the
+link has always been purely inferred by matching `(weekday, hour_from/start_time,
+hour_to/end_time)`. `plans/course_transition_teacher_schedule_archival.md`'s course-transition
+archival cascade needs exactly this reverse lookup: given a calendar block being archived at
+transition, find which schedule line(s) it backs, so the wizard can decide whether to archive that
+line (and its sessions) outright or just drop this one teacher from a shared co-taught line. Added
+standalone, with no caller wired in yet — that's a later phase of the same plan.
+
 ## `unlink()`: history guard
 
 A schedule that already has `attendance_session_ids` (a real roll-call was taken against it)

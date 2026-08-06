@@ -190,6 +190,56 @@ class TestAttendanceScheduleLogic(TransactionCase):
         self.assertIn(template.display_name, schedule.name)
         self.assertEqual(schedule.time_range, '09:30 - 11:00')
 
+    # --- find_schedule_lines_for_slot ---------------------------------------------------
+
+    def test_find_schedule_lines_for_slot_finds_the_matching_line(self):
+        template = self._template(self.teacher1)
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+
+        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(
+            self.teacher1, '1', 8.0, 9.0)
+
+        self.assertEqual(found, schedule)
+
+    def test_find_schedule_lines_for_slot_filters_by_teacher(self):
+        template = self._template(self.teacher1)
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+
+        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(
+            self.teacher2, '1', 8.0, 9.0)
+
+        self.assertFalse(found)
+
+    def test_find_schedule_lines_for_slot_requires_time_overlap(self):
+        template = self._template(self.teacher1)
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+
+        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(
+            self.teacher1, '1', 9.0, 10.0)
+
+        self.assertFalse(found)
+
+    def test_find_schedule_lines_for_slot_optional_space_filter_excludes_a_different_room(self):
+        template = self._template(self.teacher1)
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+
+        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(
+            self.teacher1, '1', 8.0, 9.0, space=self.other_space)
+
+        self.assertFalse(found)
+
     def test_start_end_date_derived_from_template_dates_and_times(self):
         template = self._template(self.teacher1)
         schedule = self.env['ems.attendance_schedule'].create({

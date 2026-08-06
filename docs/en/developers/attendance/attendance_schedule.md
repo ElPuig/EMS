@@ -62,10 +62,15 @@ place if it has no sessions, or archived-and-replaced if it does, exactly like t
 
 A same-day attempt added an `action_archive()` override here that cascaded to
 `attendance_session_ids` - reverted the same day on developer feedback: a schedule line can be
-archived for reasons that have nothing to do with a session's own relevance (a mid-course room
-correction via `action_new_version()`/`_write_or_new_version()` above is the clearest example -
-its sessions are still perfectly valid, current-course history, just recorded under a room that
-got corrected afterwards). `ems.attendance_session_header` ([`attendance_session.md`](attendance_session.md))
+archived for reasons that have nothing to do with a session's own relevance. Concretely, once a
+line `has_sessions`, its logistics fields (`weekday`/`space_id`/`start_time`/`end_time`) are
+readonly - so a routine correction (fixing a room, say) doesn't edit the line at all, it
+**silently** archives the old one and creates a new version via `action_new_version()`/
+`_write_or_new_version()` above, entirely as a side effect of what the admin experiences as a
+normal in-place edit. If that archive cascaded to sessions, every such routine correction would
+make the line's whole attendance history disappear from a teacher's default view - exactly the
+opposite of the intent (the sessions are still perfectly valid, current-course history; only the
+room/time bookkeeping changed). `ems.attendance_session_header` ([`attendance_session.md`](attendance_session.md))
 carries its own `active` (via the `ems.base` mixin, not something this model needs to populate)
 but nothing in this codebase ever flips it automatically as a side effect of the schedule/template
 that originally scheduled it being archived - `test_action_archive_does_not_cascade_to_sessions`/

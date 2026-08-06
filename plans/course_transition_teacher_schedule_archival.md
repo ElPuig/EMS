@@ -44,16 +44,31 @@ progress.
    point (`ems.attendance_session_header` already has `active` via the `ems.base` mixin - the
    earlier investigation's claim that it had none was simply wrong, never verified against the
    actual schema) but wrong on the mechanism: **archiving a schedule line must never cascade to
-   its sessions, in either direction.** A schedule line can be archived for reasons unrelated to a
-   session's own relevance - `action_new_version()`'s archive-before-clone step (a *mid-course*
-   room correction) is the clearest example: the old line's sessions are still perfectly valid,
-   current-course history, just recorded under a room that got corrected afterwards. Cascading
-   archive there would have hidden them by accident. **No mechanism currently exists in this plan
-   for "teachers see only the current course's sessions"** - if that's still wanted, it needs a
-   different approach (e.g. filtering the session view by date/course directly, never by `active`)
-   and is not decided yet. `test_action_archive_does_not_cascade_to_sessions`/
+   its sessions, in either direction.** The developer's own reasoning: once a schedule line
+   `has_sessions`, its own logistics fields become readonly, so a routine correction (e.g. fixing
+   its room) doesn't edit the line in place at all - it **silently** archives the old line and
+   creates a new version (`action_new_version()`/`_write_or_new_version()`) purely as a side effect
+   of what looks, to whoever's editing it, like a normal in-place change. If that archive cascaded
+   to sessions, *every* such routine correction would make the line's whole attendance history
+   disappear from a teacher's default view ("el histórico") - exactly the opposite of the intent:
+   the sessions are still perfectly valid, current-course history, only the room/time bookkeeping
+   changed.
+   `test_action_archive_does_not_cascade_to_sessions`/
    `test_action_archive_on_template_does_not_cascade_to_sessions`
-   (`tests/test_attendance_template.py`) pin down the "never cascades" rule going forward.
+   (`tests/test_attendance_template.py`) pin down the "never cascades via `action_archive()`" rule.
+
+   **Round 5, resolved the same day: session archival still happens, just not via a blanket
+   `action_archive()` override — it's wired explicitly into phase 5's own cascade instead.** The
+   key realization: phase 5 already only archives a schedule line when it has confirmed *no other
+   teacher* still needs it (the co-teaching check). That is exactly the same condition under which
+   archiving its sessions is safe — nobody still relies on them staying visible. So: at that
+   specific point in phase 5 (not as a model-wide `action_archive()` behavior), explicitly archive
+   `schedule.attendance_session_ids` too. This gets co-teaching handled *for free* - no separate
+   "what if two teachers" logic is needed for sessions specifically, since the schedule-line-level
+   decision it piggybacks on already resolved that. A small helper for symmetry with phase 4's own
+   calendar→schedule lookup ("given a `resource.calendar.attendance`, find its sessions") is really
+   just phase 4's lookup plus a direct `.attendance_session_ids` read - see phase 4 below for the
+   exact shape.
 7. **The archival cascade**: calendar block archived → check whether any *other* teacher's
    calendar still has a block for that same slot → if none, archive the schedule line (and the
    template if it's left with zero active lines - pre-existing behavior, unaffected by decision 6's
@@ -79,9 +94,16 @@ precisely, it says the opposite:
 ```
 Point 2 is the general principle this whole plan already follows: **archive, don't delete**. Point
 3 only forbids *removing* sessions via cascade (i.e. don't auto-`unlink()` a session just because
-its parent got deleted) — it says nothing against *archiving* them. This plan's step 6 is exactly
-what this TODO already called for, just never implemented: sessions get archived (hidden from
-default views, fully recoverable), never deleted.
+its parent got deleted) — it says nothing against *archiving* them either.
+
+**Correction (round 4): this TODO does not, on its own, call for an automatic archive-cascade
+between schedule and session.** An earlier revision of this section read it that way and proposed
+exactly that cascade - reverted the same day (decision 6) once it became clear a schedule line can
+be archived for reasons unrelated to its sessions' own relevance (a mid-course room correction,
+not just a course transition). The TODO's actual scope is narrower: "never delete via cascade,"
+not "always archive via cascade." Both readings are consistent with "archive, don't delete" as a
+general philosophy - they just disagree on whether it's automatic or an independent decision, and
+decision 6 settles on independent.
 
 ## Investigation: `resource.calendar` as the historical source — what it actually requires
 
@@ -191,14 +213,20 @@ nothing reads or depends on these fields yet.
 
 **Phase 4 — The calendar↔schedule lookup.** New method on `ems.attendance_mixin`: given a teacher +
 weekday + start_time + end_time (+ space), find the matching `ems.attendance_schedule` line(s).
-Tested standalone against fixtures; no caller wired in yet.
+Tested standalone against fixtures; no caller wired in yet. Finding "the sessions for a given
+`resource.calendar.attendance`" (needed by phase 5) is this same lookup plus a direct
+`.attendance_session_ids` read on the line(s) it returns - not a separate method, since
+`ems.attendance_schedule` already exposes that O2M directly.
 
 **Phase 5 — Wire the real archival cascade.** The transition wizard's migrating-block handling
 switches from `unlink()` to archive (phase 2), uses phase 4's lookup to find the matching schedule
 line, checks whether any *other* teacher's calendar still has an active block for that slot, and
-either archives the schedule line (cascading to sessions and, if the template empties out, to the
-template — phases 1-2) or just removes the departing teacher from `teacher_ids`. The first phase
-that integrates several previous ones at once — most likely place for new details to surface.
+either (a) archives the schedule line **and its `attendance_session_ids` explicitly, right here**
+(safe specifically because this branch already confirmed no other teacher needs them - see
+decision 6's round 5; if the template empties out, archives the template too, phases 1-2) or (b)
+just removes the departing teacher from `teacher_ids`, leaving the line/sessions untouched for
+whoever's left. The first phase that integrates several previous ones at once — most likely place
+for new details to surface.
 
 **Phase 6 — The wizard takes over calendar creation.** For each affected teacher, once phase 5 has
 run, the transition wizard (not the XML importer) creates/reactivates the next course's calendar

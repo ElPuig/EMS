@@ -333,6 +333,38 @@ class TestAttendanceTemplate(TransactionCase):
         self.assertEqual(result.space_id, self.space_b)
         self.assertEqual(session.attendance_schedule_id.id, schedule_id)
 
+    def test_action_archive_does_not_cascade_to_sessions(self):
+        # Developer feedback 2026-08-06, reversing an earlier same-day decision: archiving a
+        # schedule line (directly, via '_write_or_new_version''s archive-before-clone step above,
+        # or via the template's own cascade below) must NOT archive its sessions, in either
+        # direction. A schedule line can be archived for reasons that have nothing to do with a
+        # session's own relevance (e.g. a mid-course room correction via 'action_new_version()') -
+        # sessions are an independent historical record, never touched as a side effect of
+        # whatever happens to the schedule/template that originally scheduled them. See
+        # plans/course_transition_teacher_schedule_archival.md.
+        template = self._create_template(self.teacher_a, self.space_a)
+        schedule = self._create_schedule(template, self.space_a)
+        session = self._create_session(schedule, self.teacher_a)
+
+        schedule.action_archive()
+
+        self.assertFalse(schedule.active)
+        self.assertTrue(session.active)
+
+    def test_action_archive_on_template_does_not_cascade_to_sessions(self):
+        # Same rule, one level up: template.action_archive() already archives
+        # attendance_schedule_ids (pre-existing behavior, unaffected) - but that must not reach
+        # sessions either.
+        template = self._create_template(self.teacher_a, self.space_a)
+        schedule = self._create_schedule(template, self.space_a)
+        session = self._create_session(schedule, self.teacher_a)
+
+        template.action_archive()
+
+        self.assertFalse(template.active)
+        self.assertFalse(schedule.active)
+        self.assertTrue(session.active)
+
     def test_read_only_user_false_for_either_co_teacher(self):
         template = self._create_template(self.teacher_a, self.space_a)
         template.teacher_ids = [(4, self.teacher_b.id)]

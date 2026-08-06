@@ -180,8 +180,15 @@ class ems_working_schedule(models.Model):
 
 class ems_working_schedule_assignation(models.Model):
 	_inherit = 'resource.calendar.attendance'
-	# NOTE: no need to constraint, the main model avoids overlapping. 
+	# NOTE: no need to constraint, the main model avoids overlapping.
 
+	# NOTE: core 'resource.calendar.attendance' has no 'active' field at all - added 2026-08-06 so a
+	# course transition can archive a teacher's migrating blocks instead of unlink()-ing them (which
+	# would destroy the exact history a later "who taught what, which course" query needs - see
+	# plans/course_transition_teacher_schedule_archival.md). Odoo's own generic action_archive()/
+	# action_unarchive() (models.py) already work for any model with this field - no override needed
+	# here yet; nothing writes 'active=False' on this model until a later phase of that same plan.
+	active = fields.Boolean(default=True)
 	non_teaching = fields.Many2one(string="Non-teaching", comodel_name="ems.non_teaching_type")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")

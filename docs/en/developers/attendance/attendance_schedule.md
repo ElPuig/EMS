@@ -58,6 +58,27 @@ place if it has no sessions, or archived-and-replaced if it does, exactly like t
 
 ---
 
+## Archiving never cascades to sessions, in either direction (settled 2026-08-06)
+
+A same-day attempt added an `action_archive()` override here that cascaded to
+`attendance_session_ids` - reverted the same day on developer feedback: a schedule line can be
+archived for reasons that have nothing to do with a session's own relevance (a mid-course room
+correction via `action_new_version()`/`_write_or_new_version()` above is the clearest example -
+its sessions are still perfectly valid, current-course history, just recorded under a room that
+got corrected afterwards). `ems.attendance_session_header` ([`attendance_session.md`](attendance_session.md))
+carries its own `active` (via the `ems.base` mixin, not something this model needs to populate)
+but nothing in this codebase ever flips it automatically as a side effect of the schedule/template
+that originally scheduled it being archived - `test_action_archive_does_not_cascade_to_sessions`/
+`test_action_archive_on_template_does_not_cascade_to_sessions`
+(`tests/test_attendance_template.py`) pin this down going forward. Sessions are never `unlink()`'d
+either (see `unlink()` below) - they're an independent historical record, managed on their own
+terms, not a dependent of either model. See
+[`plans/course_transition_teacher_schedule_archival.md`](../../../../plans/course_transition_teacher_schedule_archival.md)
+for the still-open question of how a teacher's session views should end up showing only the
+current course's sessions, if that's still wanted - not via this cascade.
+
+---
+
 ## `check_overlap`: double-booking guard with a co-teaching exception
 
 ```mermaid

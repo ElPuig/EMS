@@ -670,7 +670,11 @@ class ems_course_transition_wizard(models.TransientModel):
         steps 3-4 would delete the very enrollments the transition had just created.
         """
         self.ensure_one()
-        self._templates_to_archive().write({'active': False})
+        # action_archive() (not a plain write()) is what cascades to the template's own
+        # attendance_schedule_ids (see EmsAttendanceTemplate.action_archive) - a bare write()
+        # here left those lines active=True forever, so a later import could still find them
+        # as a genuine "existing schedule conflict" against a study that had already transitioned.
+        self._templates_to_archive().action_archive()
         students._ems_clear_operational_records()
         groups = self._scope_groups()
         # Subject enrollments go by group as well, for the same reason grade sessions do

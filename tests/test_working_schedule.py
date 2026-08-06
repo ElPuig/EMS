@@ -112,6 +112,22 @@ class TestWorkingSchedule(TransactionCase):
         self.assertEqual(len(calendar.attendance_ids), 1)
         self.assertEqual(calendar.source_framework_id, self.framework)
 
+    def test_attendance_row_active_defaults_true_and_can_be_archived(self):
+        # 'active' added 2026-08-06 (core resource.calendar.attendance has none) so a course
+        # transition can archive a teacher's migrating blocks instead of unlink()-ing them - see
+        # plans/course_transition_teacher_schedule_archival.md. Odoo's own generic action_archive()
+        # already works for any model with this field, no override needed here.
+        calendar = self.env['resource.calendar'].create({'name': 'Test Active (Working Schedule)'})
+        calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'Test: Group',
+        }])
+        attendance = calendar.attendance_ids
+
+        self.assertTrue(attendance.active)
+        attendance.action_archive()
+        self.assertFalse(attendance.active)
+
     def test_apply_schedule_changes_defaults_space_from_group(self):
         # 'space_id' stopped being a compute (2026-08-01, room-granularity change) - a cell that
         # doesn't specify one must still default to the group's own room, matching the old

@@ -958,6 +958,24 @@ class TestCourseTransition(TransactionCase):
         self._applied()
         self.assertTrue(template.active)
 
+    def test_apply_archives_the_schedule_lines_of_an_archived_template(self):
+        """Regression test for a real bug: '_apply_cleanup' used to archive templates via a bare
+        write({'active': False}), which never triggers EmsAttendanceTemplate.action_archive()'s own
+        cascade to attendance_schedule_ids - the template went inactive but its lines stayed
+        active=True forever, so a later import could still find them as a genuine "existing
+        schedule conflict" against a study that had already transitioned. The two tests above never
+        caught this because their own '_template()' fixture creates a template with zero schedule
+        lines."""
+        template = self._template([self.group1])
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '0', 'start_time': 9.0, 'end_time': 10.0,
+            'space_id': self.space.id,
+        })
+        self._applied()
+        schedule.invalidate_recordset()
+        self.assertFalse(schedule.active)
+
     def test_apply_deletes_the_grade_sessions_of_the_scope(self):
         session = self._session(self.group1, self.subject_int)
         self._applied()

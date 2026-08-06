@@ -100,6 +100,21 @@ The steps are numbered by the phase they belong to, not by the order they execut
 
 `tests/test_course_transition.py::test_apply_keeps_the_new_enrollments_after_the_cleanup` pins this down: swapping the two blocks makes it fail, together with the two placement tests.
 
+### Archiving attendance templates cascades to their schedule lines (step 7)
+
+`_templates_to_archive()` (the scope minus any template whose `group_ids` span a study still out
+of scope) is archived via `action_archive()`, not a bare `write({'active': False})` — the
+distinction matters: `EmsAttendanceTemplate.action_archive()` is overridden to also archive
+`attendance_schedule_ids`, while a plain `write()` bypasses that override entirely. An earlier
+version of this method used `write()` directly, which left every archived template's schedule
+lines `active=True` forever - invisible in the template's own (now-archived) form, but still
+matched by `classify_external_conflicts`/`find_self_conflicts` (`ems.attendance_template`, used by
+the working-schedule import wizard's own conflict screens), silently contradicting those methods'
+own docstring assumption that a transitioned study has nothing active left to reconcile against.
+`test_apply_archives_the_schedule_lines_of_an_archived_template` pins this down - the two older
+template tests never caught it because their own `_template()` fixture creates a template with no
+schedule lines at all.
+
 ### Archiving the graduates (D4, step 2b)
 
 Graduates are **archived**, not just converted, consistent with issue #357 (withdrawals and alumni are both archived, mirroring how archiving an `hr.employee` asks for a departure reason).

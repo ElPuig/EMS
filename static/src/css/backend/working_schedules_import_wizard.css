@@ -1,0 +1,17 @@
+/* Soft background tint for conflict-resolution rows (screens 4/5 of the working-schedules import
+   wizard), on top of Odoo's own decoration-warning/decoration-danger text-color classes: a plain
+   text color alone reads as low-contrast/easy-to-miss against six columns of already-dense text
+   (developer feedback 2026-08-06) - a subtle background makes the alert level ("needs a quick
+   confirmation" vs "needs an actual decision") visible at a glance, without the fully-saturated
+   look ".text-bg-warning"/".text-bg-danger" utilities would give a whole table row. Scoped to
+   these two specific one2many fields (unique to this wizard) rather than applied globally, so it
+   never affects any other list in EMS that happens to use the same decoration attributes. */
+.o_field_widget[name="internal_conflict_line_ids"] .o_data_row.text-warning > td,
+.o_field_widget[name="external_conflict_line_ids"] .o_data_row.text-warning > td {
+    background-color: rgba(255, 193, 7, 0.15) !important;
+}
+
+.o_field_widget[name="internal_conflict_line_ids"] .o_data_row.text-danger > td,
+.o_field_widget[name="external_conflict_line_ids"] .o_data_row.text-danger > td {
+    background-color: rgba(220, 53, 69, 0.15) !important;
+}

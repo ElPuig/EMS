@@ -59,7 +59,9 @@
                                 No room conflicts were found within this batch.
                             </div>
                             <field name="internal_conflict_line_ids" invisible="not internal_conflict_line_ids">
-                                <list editable="bottom" create="False" delete="False">
+                                <list editable="bottom" create="False" delete="False"
+                                    decoration-warning="kind in ('co_teaching_eligible', 'desdoble_eligible')"
+                                    decoration-danger="kind == 'plain_conflict'">
                                     <field name="left_label"/>
                                     <field name="right_label"/>
                                     <field name="kind"/>
@@ -75,7 +77,9 @@
                                 No conflicts were found against already-active schedules.
                             </div>
                             <field name="external_conflict_line_ids" invisible="not external_conflict_line_ids">
-                                <list editable="bottom" create="False" delete="False">
+                                <list editable="bottom" create="False" delete="False"
+                                    decoration-warning="kind in ('co_teaching_eligible', 'desdoble_eligible')"
+                                    decoration-danger="kind == 'plain_conflict'">
                                     <field name="left_label"/>
                                     <field name="right_label"/>
                                     <field name="kind"/>

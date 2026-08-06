@@ -76,6 +76,8 @@ After any change, run `upgrade.sh` and check for WARNING / ERROR / CRITICAL outp
 
 **The full test suite is slow — don't run it more than necessary.** `./test.sh` (no argument) runs every test class and takes several minutes; running it after every small change wastes time without adding useful signal. Prefer `./test.sh TestClassName`, scoped to whatever model(s) you're actually touching, as the normal gate during iterative work (Red/Green/Refactor cycles, DTON phases, bug fixes). Run the full, unscoped `./test.sh` only once — as the final check before considering a piece of work done — not after every intermediate step. If a change plausibly affects other models (e.g. a shared mixin, a migration, a widget used in several views), scope down to the smallest set of `TestClassName` runs that actually covers the blast radius instead of reaching for the full suite by default.
 
+**Optimize for quota, not just wall-clock time (2026-08-06) — the project is only getting bigger, so this compounds.** Before running anything (an upgrade, a test, a screenshot-capture loop), think about whether batching verification to the end of a chunk of work costs less than verifying after every small step, or the other way around — it genuinely depends on the situation (e.g. a single risky change with an uncertain outcome is worth checking immediately, so a mistake doesn't get compounded by several more edits on top of it; several small, independent, low-risk edits are usually cheaper to verify once at the end). Don't default to "run the gate after every edit" out of habit — decide deliberately per task. This is a general planning habit across every kind of tool use (edits, greps, screenshots, test runs), not just about `./test.sh`.
+
 **Ask before launching the full, unscoped `./test.sh` at all — even for that single final-gate run.** There is no downside to asking first: CI already runs the full suite unconditionally before anything merges, so a local full run is pure convenience/early-signal, never the actual safety net. Push it as late as possible and check with whoever's driving (the developer, or an AI agent's user) instead of launching it unprompted once work seems done.
 
 **If a test run seems to hang with no output, refresh any browser tab you have open on the Odoo backend.** `--test-enable` spins up a real HTTP server for the duration of any `HttpCase`/tour test (e.g. `test_grade_session_tour`, `test_level_tour`, `test_strike_tour` — pulled in by the full, unscoped `./test.sh`, or by name if you target one directly). Odoo's teardown (`_wait_remaining_requests` in `odoo/tests/common.py`) waits for every open HTTP request against that server to finish before the process can exit — including a stray long-polling (bus) connection from an already-open browser tab pointed at the same host/port, which is designed to never close on its own. Refreshing (no need to close) that tab severs the stale connection and lets the run finish. Scoped runs of test classes with no tour/`HttpCase` tests don't hit this specific hang, but closing/refreshing before *any* `./test.sh` run is the standing habit regardless (see the notification trigger below, which fires for every run, not just tour ones).
@@ -164,6 +166,22 @@ docs/
 Folder names are always in English regardless of the language tree (`teachers/`, not `professors/`; `secretary/`, not `secretaria/`), so paths stay consistent across `en/`, `ca/` and `es/` — only the file contents and index labels are translated.
 
 Image references in markdown use relative paths: `../../assets/<section>/filename.png`
+
+**Screenshots must never expose real personal data (2026-08-06).** A real-instance screenshot
+(list views especially) very easily includes other visible rows/records in the background —
+student/teacher names, e-mails, etc. — not just the one thing the screenshot is meant to
+illustrate. Before saving any screenshot into `docs/assets/`:
+- Crop to the specific dialog/region the manual step actually needs (e.g. just the modal, not the
+  full-window screenshot behind it) — this is usually enough on its own to exclude any background
+  list content, and improves the screenshot's focus as a side effect.
+- If personal data still can't be fully excluded by cropping alone (it's inside the region that
+  actually needs to be shown), blur/pixelate it before saving.
+- If you cannot verify a screenshot is clean (e.g. you generated it via an automated flow and
+  didn't actually look at the result), do not save/reference it — either inspect it yourself first
+  (read the image back before treating the task as done), or tell the developer exactly which file
+  and region needs redaction and let them decide, rather than publishing it as-is.
+This applies regardless of source: a tour-driven capture, a manual `Read` of a screenshot file, or
+anything the developer hands you directly.
 
 ## Design plans (`plans/`)
 

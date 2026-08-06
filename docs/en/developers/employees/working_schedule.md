@@ -366,6 +366,17 @@ previously-inline placeholder-code branch, so both paths (a placeholder code, an
 create-new-ticked e-mail) share the exact same get-or-create-by-`schedule_import_code` mechanism -
 `manual_email` is the only behavioral difference between the two callers.
 
+**Label shortened to "New" (2026-08-06, developer feedback):** the field's own `string` was
+originally "Create new teacher" - too wide for a narrow checkbox column, crowding the row. Odoo's
+list renderer has no arch-level hook to center a column *header*'s text - `getColumnClass`
+(`list_renderer.js`) never consults the field's own `class` attribute the way `getCellClass` does
+for data cells, only the cell content can be aligned that way - so centering just the checkbox
+while leaving "New" left-aligned above it would look mismatched, and centering the header instead
+would need bespoke CSS targeting this specific column by name (not the "Odoo way": every other
+column in this codebase relies on Odoo's own default alignment, matching field type). Left both the
+label and the checkbox at Odoo's default left alignment instead - no `class="text-center"` on the
+field, simplest fix with no custom CSS.
+
 ### Screen 4 — "Internal conflicts" (2026-08-05) — within-batch room collisions
 
 **Genuinely new check, unlike screens 2/3** (which mainly relocated existing validation) - no
@@ -407,6 +418,10 @@ per the plan's own "Conflict kind classification" section:
   was never in the source file, so both groups still carry their shared original one).
 - different `subject_id` → `plain_conflict` (pick one side, no other option makes sense).
 
+`kind`'s own `string` was renamed from "Type" to "Conflict" (2026-08-06, developer feedback) - the
+column sits next to `left_label`/`right_label` describing the two colliding sides, so "Conflict"
+reads more naturally as "what kind of conflict is this" than the more generic "Type".
+
 **Positional references, not content matching:** each `ems.working_schedules_import_wizard.
 internal_conflict_line` stores `left_item_index`/`left_entry_index`/`right_item_index`/
 `right_entry_index` (plain integers into `node_cache`'s own list structure) rather than trying to
@@ -417,12 +432,16 @@ formatting conventions from `_conflict_lines`) are what the view actually shows 
 re-derive them from the raw entry at resolution time.
 
 **`resolution`** (Selection: `co_teaching`/`prevail_left`/`prevail_right`/`reassign_rooms`),
-defaulted per `kind` at line-creation time (`co_teaching` for co-teaching-eligible,
-`reassign_rooms` for desdoble-eligible, `prevail_left` for plain conflicts - the plan's own
-"left default" call). `left_space_id`/`right_space_id` (Many2one `ems.space`) are pre-filled with
-the colliding room for every desdoble-eligible line regardless of its current resolution, so
-they're ready the moment "reasignar aulas" is picked (`reassign_rooms` already being the default
-for that kind).
+defaulted per `kind` at line-creation time: `co_teaching` for co-teaching-eligible,
+`reassign_rooms` for desdoble-eligible **and** for `plain_conflict` (changed 2026-08-06, developer
+feedback: every `plain_conflict` pair found *here* is, by construction, a genuine same-room clash -
+`_find_internal_conflicts` only ever pairs entries that already matched on `space_id` - so picking
+a different room is the actual fix, not an afterthought behind `prevail_left`/`prevail_right`; the
+plan's original "left default" call for this kind is superseded by this change). `left_space_id`/
+`right_space_id` (Many2one `ems.space`) are pre-filled with the colliding room - the group's own
+currently-assigned classroom, the same value on both sides since that's exactly why they collided
+in the first place - for every desdoble-eligible **or** plain-conflict line regardless of its
+current resolution, so they're ready the moment "reasignar aulas" is picked.
 
 **`_continue_from_internal_conflicts()`**: raises (naming every offending line's labels) if any
 line's `resolution` isn't valid for its own `kind`, or if `reassign_rooms` has a blank or
@@ -451,6 +470,27 @@ implemented yet" alert's `invisible` grew a fourth excluded state (`'internal_co
 `continue_disabled` grew its own `internal_conflicts` branch (any line whose resolution isn't
 currently valid for its kind) - same enabled/disabled "Continue" mechanism as before.
 
+**Row color by alert level (2026-08-06, developer feedback):** not every conflict kind deserves the
+same visual weight - `co_teaching_eligible`/`desdoble_eligible` are only asking for a quick
+confirmation (the plan's own defaults already handle them sensibly), while `plain_conflict` is a
+genuine decision the admin must actively make. `decoration-warning="kind in
+('co_teaching_eligible', 'desdoble_eligible')"`/`decoration-danger="kind == 'plain_conflict'"` on
+the `<list>` (standard Odoo row-decoration attributes, same pattern as e.g. `account.move`'s own
+`payment_state` coloring) drive this - but decorations only ever produce a `text-<color>` class
+(`getClassNameFromDecoration` in Odoo's own `list_renderer.js`/`utils.js`), i.e. colored *text*,
+not a background - too subtle across six columns of already-dense text. `static/src/css/backend/
+working_schedules_import_wizard.css` adds a soft background tint on top, keyed off those same
+`.text-warning`/`.text-danger` classes Odoo already applies (`.o_data_row.text-warning > td`
+etc.), scoped to `.o_field_widget[name="internal_conflict_line_ids"]`/`[name=
+"external_conflict_line_ids"]` specifically (these two field names are unique to this wizard) so
+it can never affect any other decorated list elsewhere in EMS. Tried the built-in Bootstrap 5.3
+`.text-bg-warning`/`.text-bg-danger` utility classes first (via `decoration-bg-warning`/
+`decoration-bg-danger`, which `getClassNameFromDecoration` happily turns into those exact class
+names) - visually confirmed via a real browser screenshot that they render with **no visible
+effect at all** in this Odoo install (bundled/trimmed Bootstrap build likely doesn't ship those
+specific utilities), which is why the small custom CSS file exists instead of a zero-CSS
+declarative-only fix.
+
 ### Screen 5 — "Existing schedule conflicts" (2026-08-05) — within-batch entries vs. already-active DB schedules
 
 Same classification/resolution shape as screen 4 (`_classify_conflict_kind`, the flat `resolution`
@@ -459,30 +499,46 @@ Selection, the enabled/disabled "Continue"), but **left** = a new entry from thi
 the plan had already fully speced this screen (including the `has_sessions` interaction, found and
 resolved in an earlier same-day session) before this pass began.
 
-**Reuses the existing classification engine rather than reimplementing it** -
-`ems.attendance_template.classify_external_conflicts`/`find_self_conflicts` (already used as
-`_apply_import`'s pre-existing safety net) are called as-is to get the three aggregate
-recordsets (`co_teaching`, `space_conflicts`, `self_conflicts`), all `ems.attendance_schedule`).
-Those methods only ever return *which DB records* collide, not *which new entry* triggered each
-one (they don't need to, for their original blocking-check purpose) - so a second, thin pass
-(`_match_entry_for_conflict`) re-derives the (item_index, entry_index) pairing per candidate,
-matching on the same `(space, weekday, time-overlap)` key the classification itself used. **Known
-simplification, same spirit as screen 4's pairwise-only detection:** if two different new entries
-would both collide with the exact same existing DB record (rare), only the first match found is
-turned into a line - not engineered further for a scenario this unlikely.
+**Deliberately reimplements its own detection rather than reusing `ems.attendance_template.
+classify_external_conflicts`/`find_self_conflicts` as black boxes** (those two methods remain in
+place, unchanged, as `_apply_import`'s own pre-existing safety net - see its `teacher_entries`
+pass) - found while first building this screen, not planned upfront: those methods only ever
+return the *aggregate* colliding recordset (all they need for their original yes/no blocking-check
+purpose), and `find_self_conflicts` in particular matches purely on weekday/time overlap with
+**no room restriction at all** (the same teacher physically can't be in two rooms at once,
+regardless of which rooms) - so trying to re-derive the (item, entry) pairing afterward by
+matching on room, the way screen 4 safely can (every one of *its* candidates was already
+room-matched by construction), would silently miss every genuine self-conflict whose colliding
+room differs from the new entry's own. `_find_external_conflicts` tracks the (item_index,
+entry_index, candidate) pairing itself instead, via its own two ORM searches:
+- `external_candidates`: same classroom + weekday + time-overlap, held by a teacher **not** in
+  this batch at all - a genuine room clash.
+- `self_candidates`: the entry's own resolved teacher (via `_resolve_teacher_for_classification` -
+  mirrors `_apply_import`'s per-item teacher resolution, but deliberately **read-only**, never
+  creating a pending teacher here) already has an active session overlapping in weekday/time, for
+  a different `(subject, group-set)` combo, **no room restriction** - a genuine double-booking in
+  *time*, independent of whichever rooms are involved.
 
-- **`_teacher_entries_for_classification(node_cache)`**: mirrors `_apply_import`'s own per-item
-  teacher resolution (`employee_id` if screen 3 already resolved it, else a **read-only** search by
-  `work_email`/`schedule_import_code` - deliberately never creates a pending teacher here, unlike
-  `_apply_import` itself). An item whose teacher doesn't exist yet contributes an empty recordset -
-  harmless for `classify_external_conflicts`'s own exclusion set, and self-conflicts are simply
-  skipped for it (nothing can conflict against a not-yet-created teacher's own schedule).
-- **`_build_external_conflict_lines`**: for every distinct candidate across all three recordsets,
-  `_match_entry_for_conflict` finds its colliding entry, `_classify_conflict_kind` classifies the
-  pair (identical rules to screen 4), and one `ems.working_schedules_import_wizard.
-  external_conflict_line` is created - `right_schedule_id` (Many2one to the actual
-  `ems.attendance_schedule` record) instead of screen 4's positional right-side indices, since the
-  right side here is a real, already-persisted record, not a node_cache position.
+**Known simplification, same spirit as screen 4's pairwise-only detection:** if the same existing
+DB record would collide with more than one new entry, only the first one found becomes a line -
+not engineered further for a scenario this unlikely.
+
+- **`_build_external_conflict_lines`**: for every triple from `_find_external_conflicts`,
+  `_classify_conflict_kind` classifies the pair (identical rules to screen 4), and one
+  `ems.working_schedules_import_wizard.external_conflict_line` is created - `right_schedule_id`
+  (Many2one to the actual `ems.attendance_schedule` record) instead of screen 4's positional
+  right-side indices, since the right side here is a real, already-persisted record, not a
+  node_cache position. **A `plain_conflict` triple can come from either search above, and only one
+  of them is actually a room problem** - `same_room_conflict = kind == 'plain_conflict' and
+  candidate.space_id.id == space_id` (the new entry's own default room) distinguishes them: true
+  for an `external_candidates` hit (room-matched by construction), sometimes true/sometimes false
+  for a `self_candidates` hit (matched on time alone, so the candidate's room may or may not
+  happen to also match). Only when `same_room_conflict` is true does the line default to
+  `reassign_rooms` with both `left_space_id`/`right_space_id` pre-filled with that shared room
+  (changed 2026-08-06, same reasoning as screen 4's own plain-conflict default change above) - a
+  genuine self-time-conflict with differing rooms keeps the older `prevail_left` default and no
+  room pre-fill, since reassigning rooms fixes nothing when the actual problem is the same teacher
+  needed in two places at the same time, not a shared room.
 - **`_continue_from_db_conflicts()`**, per resolution:
   - `co_teaching`: no-op, same as screen 4 - `_reconcile_fresh_import`'s own merge already folds an
     external teacher's exact-match slot into the shared group correctly on its own.
@@ -512,6 +568,16 @@ turned into a line - not engineered further for a scenario this unlikely.
 
 View/`continue_disabled`: same shape as screen 4, `internal_conflicts` excluded state on the
 placeholder alert becomes `db_conflicts`, `right_space_id`/column visibility identical.
+
+**Dialog widened to `extra-large` (2026-08-06, developer feedback):** these two conflict screens'
+6-column lists (left/right label, conflict, resolution, two room pickers) crowded badly at Odoo's
+default dialog width. Odoo has no per-step dialog sizing - the wizard is one single `target: "new"`
+dialog reused across every statusbar step (content swapped via `invisible`, not separate dialogs),
+so the size is set once, for the whole flow, via `context: {dialog_size: "extra-large"}` on the
+`doAction()` call in `import_planner_cog_menu.js` (`DIALOG_SIZES` mapping in Odoo's own
+`action_service.js`) - the same mechanism `base.document.layout`'s own wizard already uses in this
+database. The earlier, narrower steps (2/3, a two-column list) simply get some extra breathing room
+as a side effect, not a problem.
 
 ### Multi-step wizard skeleton (2026-08-05) — only the intro screen has real logic so far
 

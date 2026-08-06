@@ -652,31 +652,41 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					pairs.append((item_index_a, entry_index_a, item_index_b, entry_index_b))
 		return pairs
 
+	# NOTE: 'plain_conflict' defaults to 'prevail_left' here - only correct for a genuine
+	# self-time-only conflict (different rooms, same teacher double-booked in time - reassigning
+	# rooms fixes nothing there). A genuine same-room clash overrides this to 'reassign_rooms'
+	# explicitly at the call site instead (see '_build_internal_conflict_lines'/
+	# '_build_external_conflict_lines' - internal conflicts are ALWAYS a same-room clash by
+	# construction, so they always override; external ones only override when the candidate's own
+	# room actually matches).
 	_RESOLUTION_DEFAULTS = {
 		'co_teaching_eligible': 'co_teaching',
 		'desdoble_eligible': 'reassign_rooms',
-		'plain_conflict': 'reassign_rooms',
+		'plain_conflict': 'prevail_left',
 	}
 
 	def _build_internal_conflict_lines(self, node_cache):
 		"""(0, 0, {...}) create-commands for 'internal_conflict_line_ids', one per pair found by
 		'_find_internal_conflicts'. Positional references (item/entry indices), not content
 		matching - built once here, from the very 'node_cache' '_continue_from_internal_conflicts'
-		re-reads unchanged, so they stay valid. 'left_space_id'/'right_space_id' are pre-filled with
-		the colliding room (the group's own currently-assigned classroom - the same value on both
-		sides, since that's exactly why they collided in the first place) for every desdoble-eligible
-		OR plain-conflict pair, regardless of its (possibly different) current resolution, so they're
-		ready the moment 'reassign_rooms' is picked - a genuine room conflict defaults to
-		'reassign_rooms' too (developer feedback 2026-08-05: picking a room is the actual fix, not an
-		afterthought behind 'prevail_left'/'prevail_right')."""
+		re-reads unchanged, so they stay valid. Unlike screen 5's own external conflicts, EVERY
+		'plain_conflict' pair found here is a genuine same-room clash - '_find_internal_conflicts'
+		only ever pairs entries that already matched on 'space_id' - so it always overrides
+		'_RESOLUTION_DEFAULTS' to 'reassign_rooms' (developer feedback 2026-08-05: picking a room is
+		the actual fix for a real room conflict, not an afterthought behind
+		'prevail_left'/'prevail_right'), with 'left_space_id'/'right_space_id' pre-filled with the
+		colliding room (the group's own currently-assigned classroom - the same value on both sides,
+		since that's exactly why they collided in the first place) so they're ready the moment
+		'reassign_rooms' is picked."""
 		commands = []
 		for item_index_a, entry_index_a, item_index_b, entry_index_b in self._find_internal_conflicts(node_cache):
 			entry_a = node_cache[item_index_a]['entries'][entry_index_a]
 			entry_b = node_cache[item_index_b]['entries'][entry_index_b]
 			kind = self._classify_conflict_kind(entry_a, entry_b)
+			same_room_conflict = kind in ('desdoble_eligible', 'plain_conflict')
 			vals = {
 				'kind': kind,
-				'resolution': self._RESOLUTION_DEFAULTS[kind],
+				'resolution': 'reassign_rooms' if same_room_conflict else self._RESOLUTION_DEFAULTS[kind],
 				'left_item_index': item_index_a,
 				'left_entry_index': entry_index_a,
 				'left_label': self._entry_label(node_cache[item_index_a], entry_a),
@@ -684,7 +694,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'right_entry_index': entry_index_b,
 				'right_label': self._entry_label(node_cache[item_index_b], entry_b),
 			}
-			if kind in ('desdoble_eligible', 'plain_conflict'):
+			if same_room_conflict:
 				space_id = self._entry_default_space_id(entry_a)
 				vals['left_space_id'] = space_id
 				vals['right_space_id'] = space_id
@@ -822,7 +832,14 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	def _build_external_conflict_lines(self, node_cache):
 		"""(0, 0, {...}) create-commands for 'external_conflict_line_ids', one per triple found by
-		'_find_external_conflicts'."""
+		'_find_external_conflicts'. A 'plain_conflict' triple here can come from either of that
+		method's two searches: a genuine same-room clash ('external_candidates', room-matched by
+		construction) - defaults to 'reassign_rooms' like screen 4's own plain conflicts, same
+		reasoning; or a SELF conflict ('self_candidates', matched purely on the teacher's own
+		weekday/time overlap, no room involved at all) - reassigning rooms fixes nothing there (the
+		same teacher still can't be in two places at once regardless of which rooms are picked), so
+		that sub-case keeps the older 'prevail_left' default and no room pre-fill, exactly as before
+		this default changed for the genuine-room-clash case."""
 		commands = []
 		for item_index, entry_index, candidate in self._find_external_conflicts(node_cache):
 			entry = node_cache[item_index]['entries'][entry_index]
@@ -831,17 +848,18 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'group_ids': candidate.attendance_template_id.group_ids.ids,
 			}
 			kind = self._classify_conflict_kind(entry, candidate_entry)
+			space_id = self._entry_default_space_id(entry)
+			same_room_conflict = kind == 'plain_conflict' and candidate.space_id.id == space_id
 			vals = {
 				'kind': kind,
-				'resolution': self._RESOLUTION_DEFAULTS[kind],
+				'resolution': 'reassign_rooms' if same_room_conflict else self._RESOLUTION_DEFAULTS[kind],
 				'left_item_index': item_index,
 				'left_entry_index': entry_index,
 				'left_label': self._entry_label(node_cache[item_index], entry),
 				'right_schedule_id': candidate.id,
 				'right_label': self._external_conflict_label(candidate),
 			}
-			if kind in ('desdoble_eligible', 'plain_conflict'):
-				space_id = self._entry_default_space_id(entry)
+			if kind == 'desdoble_eligible' or same_room_conflict:
 				vals['left_space_id'] = space_id
 				vals['right_space_id'] = space_id
 			commands.append((0, 0, vals))

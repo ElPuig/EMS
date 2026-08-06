@@ -537,11 +537,12 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # A teacher simply absent from the file being (re)imported can still hold an active schedule
         # line in a room the new import now also wants at an overlapping time, for a DIFFERENT
         # subject/group - a genuine double-booking, not co-teaching. Updated 2026-08-05: this no
-        # longer raises unconditionally - it's now a 'db_conflicts' screen 'plain_conflict' line,
-        # defaulting to "left prevails" (the plan's own "left default" call for this kind), which
-        # '_import()' accepts as-is (never touches the line) - archiving the conflicting existing
-        # session and keeping the new import's own data, exactly as a real admin clicking through
-        # the defaults would.
+        # longer raises unconditionally - it's now a 'db_conflicts' screen 'plain_conflict' line
+        # (both sides genuinely share the SAME room here, since they both use 'self.group'). Updated
+        # again 2026-08-06 (developer feedback): a genuine same-room 'plain_conflict' now defaults to
+        # 'reassign_rooms' instead of "left prevails" - picking a room is the actual fix for a real
+        # room conflict - so this test explicitly picks 'prevail_left' by hand instead of relying on
+        # '_import()`'s blind continue-through, to keep testing the archiving behavior itself.
         self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
@@ -562,13 +563,19 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         # 'self.teacher' is NOT part of this second import — only 'second_teacher' is, teaching a
         # DIFFERENT subject in the SAME group/room/time.
-        self._import({
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher4.import.wizard@example.com Someone Else',
                 f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
                 f'<Students name="{self.group.name} Group"/>',
             )),
         })
+        while wizard.state != 'db_conflicts':
+            wizard.action_continue()
+        wizard.external_conflict_line_ids.resolution = 'prevail_left'
+        while wizard.state != 'override_info':
+            wizard.action_continue()
+        wizard.import_planner_data()
 
         first_schedule.invalidate_recordset()
         self.assertFalse(first_schedule.active)
@@ -589,13 +596,19 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ('attendance_template_id.subject_id', '=', self.subject.id),
         ])
 
-        self._import({
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'PENDINGCONFLICT',
                 f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
                 f'<Students name="{self.group.name} Group"/>',
             )),
         })
+        while wizard.state != 'db_conflicts':
+            wizard.action_continue()
+        wizard.external_conflict_line_ids.resolution = 'prevail_left'
+        while wizard.state != 'override_info':
+            wizard.action_continue()
+        wizard.import_planner_data()
 
         first_schedule.invalidate_recordset()
         self.assertFalse(first_schedule.active)
@@ -1085,9 +1098,13 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         line = wizard.internal_conflict_line_ids
         self.assertEqual(len(line), 1)
         self.assertEqual(line.kind, 'plain_conflict')
-        self.assertEqual(line.resolution, 'prevail_left')
-        self.assertFalse(line.left_space_id)
-        self.assertFalse(wizard.continue_disabled)
+        # Both entries share 'self.group', so this is a genuine same-room clash - defaults to
+        # 'reassign_rooms' (developer feedback 2026-08-06), pre-filled with the group's own room on
+        # both sides (not yet resolved, since both sides are still identical).
+        self.assertEqual(line.resolution, 'reassign_rooms')
+        self.assertEqual(line.left_space_id, self.space)
+        self.assertEqual(line.right_space_id, self.space)
+        self.assertTrue(wizard.continue_disabled)
 
     def test_find_internal_conflicts_excludes_non_teaching_entries(self):
         second_teacher = self._second_teacher()
@@ -1156,7 +1173,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts (default resolution: prevail_left)
+        wizard.action_continue()  # teachers -> internal_conflicts (default resolution: reassign_rooms)
+        wizard.internal_conflict_line_ids.resolution = 'prevail_left'
 
         while wizard.state != 'override_info':
             wizard.action_continue()
@@ -1299,7 +1317,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         wizard.action_continue()  # groups -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
-        wizard.external_conflict_line_ids.resolution = 'reassign_rooms'  # invalid for a plain_conflict
+        wizard.external_conflict_line_ids.resolution = 'co_teaching'  # invalid for a plain_conflict
 
         with self.assertRaises(ValidationError):
             wizard.action_continue()

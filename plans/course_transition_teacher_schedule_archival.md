@@ -257,15 +257,65 @@ Finding "the sessions for a given `resource.calendar.attendance`" (needed by pha
 lookup plus a direct `.attendance_session_ids` read on the line(s) it returns - not a separate
 method, since `ems.attendance_schedule` already exposes that O2M directly.
 
-**Phase 5 — Wire the real archival cascade.** The transition wizard's migrating-block handling
-switches from `unlink()` to archive (phase 2), uses phase 4's lookup to find the matching schedule
-line, checks whether any *other* teacher's calendar still has an active block for that slot, and
-either (a) archives the schedule line **and its `attendance_session_ids` explicitly, right here**
-(safe specifically because this branch already confirmed no other teacher needs them - see
-decision 6's round 5; if the template empties out, archives the template too, phases 1-2) or (b)
-just removes the departing teacher from `teacher_ids`, leaving the line/sessions untouched for
-whoever's left. The first phase that integrates several previous ones at once — most likely place
-for new details to surface.
+**Phase 5 — Wire the real archival cascade. Investigation done 2026-08-06, one open question before
+coding (see below); split into subphases 5a-5d given the risk flagged below.**
+
+**Investigation: "the transition wizard's migrating-block handling switches from unlink() to
+archive" does not refer to existing code.** Grepped `course_transition_wizard.py` for
+`calendar`/`teacher`/`employee` — zero matches. The only `unlink()` on Mon-Fri
+`resource.calendar.attendance` rows anywhere in the codebase is in
+`ems_working_schedule.seed_from_framework()`/`apply_schedule_changes()` (`working_schedule.py:92,
+103`) — the live Schedule-tab editor's own save mechanism, never called by the transition wizard.
+Phase 2's own "so a later phase can archive... instead of unlink()-ing them" was written
+prospectively, warning against the naive approach for code phase 5 has yet to write — not
+describing a call site being switched. Phase 5 is net-new code in the wizard, not a retrofit.
+
+**Investigation: what actually drives the loop.** Two candidate designs, both consistent with
+decision 7's wording but structurally different:
+- **(A) Schedule-primary**: loop over the schedule lines `_templates_to_archive()` already
+  archived (phase 1) — for each line, for each of its `teacher_ids`, find and archive that
+  teacher's own calendar row for the same slot (the *reverse* of phase 4's lookup — phase 4 goes
+  calendar→schedule, this direction is schedule→calendar and would need a new, simple filter, not
+  reuse phase 4 as-is).
+- **(B) Calendar-primary**: loop over `resource.calendar.attendance` rows themselves, scoped by
+  `group_ids.study_id in self.study_ids` (the calendar-side mirror of `_scope_groups()`/
+  `_scope_templates()`'s own domain) across every teacher — for each row, use phase 4's lookup
+  (calendar→schedule, as actually built) to find the matching line(s). This is the one phase 4's
+  own signature was built for, and matches decision 7's literal wording ("calendar block archived
+  → checks... → archive the schedule line").
+
+**Design (B) is the one phase 4 was actually built to support and decision 7's wording literally
+describes** — going with it. **Open question, confirmed by the developer 2026-08-06**: yes, the
+"does another teacher still have an active block for this slot" check is a **defensive fallback**
+for the decision-3/4 drift case (a teacher's calendar diverged from the template it's meant to
+back), not the primary mechanism — on well-synced data, `_templates_to_archive()`'s own
+unconditional per-study archival already means every co-teacher of an in-scope line loses it
+together, so this branch is not expected to fire in the normal path. Code it, but don't expect
+test fixtures built on well-synced data to exercise the "someone else remains" branch except via a
+deliberately-contrived drift scenario.
+
+**Subphases (this session's own choice, given the risk flagged in the plan's own phase-5
+description — "integrates several previous ones at once, most likely place for new details to
+surface" already came true once during just this investigation):**
+- **5a done (2026-08-06)** — investigation + the open question above, resolved: the per-teacher
+  "does someone else still need it" check is a defensive fallback for drifted data, not the
+  primary mechanism on well-synced data. No code this subphase.
+- **5b done (2026-08-06)** — `_migrating_calendar_blocks()` (design B's domain above), wired into
+  the wizard's existing preview step (`action_preview()`) as a new `calendar_block_count` field +
+  matching warning line, purely a *count* — no archival yet. 4 new tests in
+  `tests/test_course_transition.py`. `TestCourseTransition` (97 tests) green, `./upgrade.sh` clean.
+  Documented in `docs/en/developers/settings/course_transition_wizard.md` under a new "Teacher
+  calendar blocks in scope, counted at preview" section. i18n for the new field
+  label/warning string deferred to this plan's eventual Close (all 8 phases) — not added yet,
+  matching how phases 1-4's more internal changes were handled.
+- **5c — the actual archival cascade, not started.** `_apply_calendar_archival()`: archives each
+  in-scope calendar block, uses phase 4's lookup, archives the schedule line (+ its
+  `attendance_session_ids` explicitly, per decision 6/round 5) or removes the departing teacher
+  from `teacher_ids` for the drift-fallback case (confirmed in 5a), archives the template too if it
+  ends up with zero active lines (reusing phases 1-2's existing cascade). Wired into
+  `_apply_cleanup`, after the existing `_templates_to_archive().action_archive()` call.
+- **5d — regression coverage for the full cascade, not started.** The co-teaching/drift-fallback
+  split case and the "nothing to migrate" no-op case.
 
 **Phase 6 — The wizard takes over calendar creation.** For each affected teacher, once phase 5 has
 run, the transition wizard (not the XML importer) creates/reactivates the next course's calendar

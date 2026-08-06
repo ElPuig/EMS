@@ -90,6 +90,13 @@ class TestCourseTransition(TransactionCase):
             'start_date': date(2020, 1, 1), 'end_date': date(2098, 12, 31),
         })
 
+    def _calendar_block(self, calendar, groups, weekday='0', hour_from=9.0, hour_to=10.0):
+        return self.env['resource.calendar.attendance'].create({
+            'calendar_id': calendar.id, 'name': 'Test Block (Course Transition)',
+            'dayofweek': weekday, 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning',
+            'group_ids': [group.id for group in groups],
+        })
+
     def _attendance_issue(self, student):
         tutor_issue = self.env['ems.attendance_issue_tutor'].create({
             'tutor_id': self.teacher.id, 'issue_date': date(2026, 5, 1)})
@@ -975,6 +982,39 @@ class TestCourseTransition(TransactionCase):
         self._applied()
         schedule.invalidate_recordset()
         self.assertFalse(schedule.active)
+
+    # --- _migrating_calendar_blocks (phase 5b of the teacher-schedule archival plan) ------
+
+    def test_migrating_calendar_blocks_finds_a_block_for_a_group_in_scope(self):
+        block = self._calendar_block(self.teacher.resource_calendar_id, [self.group1])
+
+        found = self._wizard()._migrating_calendar_blocks()
+
+        self.assertIn(block, found)
+
+    def test_migrating_calendar_blocks_excludes_a_group_out_of_scope(self):
+        block = self._calendar_block(self.teacher.resource_calendar_id, [self.group_other])
+
+        found = self._wizard()._migrating_calendar_blocks()
+
+        self.assertNotIn(block, found)
+
+    def test_migrating_calendar_blocks_excludes_framework_calendars(self):
+        framework = self.env['resource.calendar'].create({
+            'name': 'Test Framework (Course Transition)', 'is_framework': True})
+        block = self._calendar_block(framework, [self.group1])
+
+        found = self._wizard()._migrating_calendar_blocks()
+
+        self.assertNotIn(block, found)
+
+    def test_preview_sets_calendar_block_count(self):
+        self._calendar_block(self.teacher.resource_calendar_id, [self.group1])
+        wizard = self._wizard()
+
+        wizard.action_preview()
+
+        self.assertEqual(wizard.calendar_block_count, 1)
 
     def test_apply_deletes_the_grade_sessions_of_the_scope(self):
         session = self._session(self.group1, self.subject_int)

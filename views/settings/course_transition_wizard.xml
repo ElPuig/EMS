@@ -58,6 +58,7 @@
                                 <group>
                                     <field name="incomplete_evaluation_count"/>
                                     <field name="template_count"/>
+                                    <field name="calendar_block_count"/>
                                     <field name="delete_count"/>
                                 </group>
                             </group>

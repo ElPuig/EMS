@@ -115,6 +115,25 @@ own docstring assumption that a transitioned study has nothing active left to re
 template tests never caught it because their own `_template()` fixture creates a template with no
 schedule lines at all.
 
+### Teacher calendar blocks in scope, counted at preview (`plans/course_transition_teacher_schedule_archival.md`, phase 5b)
+
+`_migrating_calendar_blocks()` finds every active `resource.calendar.attendance` row, on any
+teacher's real (non-framework) personal calendar, whose own `group_ids` belongs to a study in
+scope — the calendar-side mirror of `_scope_templates()`'s domain, but read directly from the
+calendar block itself rather than trusted purely via the attendance template it happens to back.
+This is deliberately **independent** of `_templates_to_archive()`: a teacher can build their own
+schedule bypassing the normal template/calendar sync, so a calendar block genuinely in scope isn't
+guaranteed to have a perfectly-matching template/schedule line — `resource.calendar` is meant to be
+the authoritative source for "what does this teacher's calendar say they're teaching," independent
+of whether the template side agrees (see the plan's own decisions 3/4).
+
+As of this phase, `action_preview()` only **counts** these blocks
+(`calendar_block_count`, shown in the preview alongside `template_count`) — nothing is archived
+yet. The actual archival cascade (using `ems.attendance_mixin.find_schedule_lines_for_slot` to
+find and archive the matching schedule line, or just drop a departing co-teacher from
+`teacher_ids` when another teacher's block for the same slot survives) is a later phase of the
+same plan.
+
 ### Archiving the graduates (D4, step 2b)
 
 Graduates are **archived**, not just converted, consistent with issue #357 (withdrawals and alumni are both archived, mirroring how archiving an `hr.employee` asks for a departure reason).

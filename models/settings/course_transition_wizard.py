@@ -56,6 +56,7 @@ class ems_course_transition_wizard(models.TransientModel):
     missing_count = fields.Integer(string="Without an enrollment", readonly=True)
     incomplete_evaluation_count = fields.Integer(string="Incomplete evaluations", readonly=True)
     template_count = fields.Integer(string="Attendance templates to archive", readonly=True)
+    calendar_block_count = fields.Integer(string="Teacher calendar blocks to archive", readonly=True)
     delete_count = fields.Integer(string="Records to delete", readonly=True)
 
     audit_file = fields.Binary(string="Transition log (CSV)", readonly=True)
@@ -294,6 +295,22 @@ class ems_course_transition_wizard(models.TransientModel):
         self.ensure_one()
         return self._scope_templates() - self._mixed_templates()
 
+    def _migrating_calendar_blocks(self):
+        """Every active resource.calendar.attendance row, on any teacher's real (non-framework)
+        personal calendar, whose own group_ids belongs to a study in scope - the calendar-side
+        mirror of _scope_templates()'s domain, read directly from the calendar block itself rather
+        than trusted purely via the template it happens to back. Deliberately independent of
+        _templates_to_archive(): a teacher can build their own schedule bypassing the normal sync
+        (see plans/course_transition_teacher_schedule_archival.md, decision 3), so a calendar block
+        genuinely in scope is not guaranteed to have a perfectly-matching template/schedule line -
+        this is what makes resource.calendar the authoritative source for "what does this teacher's
+        calendar say they're teaching," independent of whether the template side agrees."""
+        self.ensure_one()
+        return self.env['resource.calendar.attendance'].search([
+            ('group_ids.study_id', 'in', self.study_ids.ids),
+            ('calendar_id.is_framework', '=', False),
+        ])
+
     def _delete_count(self):
         """How many operational records step 8 would delete, for the scope."""
         self.ensure_one()
@@ -455,6 +472,8 @@ class ems_course_transition_wizard(models.TransientModel):
                             % (len(mixed), ", ".join(mixed.mapped('display_name')[:10])))
         if self.template_count:
             warnings.append(_("%s attendance template(s) will be archived.") % self.template_count)
+        if self.calendar_block_count:
+            warnings.append(_("%s teacher calendar block(s) will be archived.") % self.calendar_block_count)
         if self.delete_count:
             warnings.append(_("%s operational record(s) will be deleted. This cannot be undone.")
                             % self.delete_count)
@@ -493,6 +512,7 @@ class ems_course_transition_wizard(models.TransientModel):
             'missing_count': actions.count('missing'),
             'incomplete_evaluation_count': len(self._incomplete_evaluation_lines()),
             'template_count': len(self._templates_to_archive()),
+            'calendar_block_count': len(self._migrating_calendar_blocks()),
             'delete_count': self._delete_count(),
             'pending_study_ids': [(6, 0, pending.ids)],
             'will_flip': not pending,

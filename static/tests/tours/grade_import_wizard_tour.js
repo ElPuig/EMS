@@ -49,8 +49,8 @@ registry.category("web_tour.tours").add("ems_grade_import_wizard_missing_sheet",
             run: "click",
         },
         {
-            trigger: ".o_error_dialog:contains('no gradeable rows')",
-            content: "The missing-sheet validation surfaces as a real error dialog",
+            trigger: ".o_error_dialog",
+            content: "The missing-sheet validation surfaces as a real error dialog (matched on the dialog, not its text: the message is translated)",
         },
     ],
 });

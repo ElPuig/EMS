@@ -5,7 +5,7 @@
             <field name="name">ems.grade_import_wizard.form</field>
             <field name="model">ems.grade_import_wizard</field>
             <field name="arch" type="xml">
-                <form string="Import grades from Esfera">
+                <form string="Import grades from Esfera" js_class="ems_grade_import_wizard_form">
                     <sheet>
                         <group invisible="result_html">
                             <p colspan="2" style="color: #666; font-size: 13px; margin-bottom: 15px;">

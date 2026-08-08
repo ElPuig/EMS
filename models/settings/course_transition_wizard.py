@@ -15,6 +15,7 @@ TRANSITION_ACTIONS = [
     ('graduate_continue', 'Graduates and continues'),
     ('graduate_pending', 'Graduates, pending confirmation'),
     ('place', 'Joins its group for the next course'),
+    ('place_later', 'Joins when its own study transitions'),
     ('pending', 'Enrollment pending confirmation'),
     ('unplaced', 'Enrollment with no destination group'),
     ('missing', 'No enrollment for the next course'),
@@ -51,9 +52,11 @@ class ems_course_transition_wizard(models.TransientModel):
     graduate_continue_count = fields.Integer(string="Graduates continuing at the centre", readonly=True)
     graduate_pending_count = fields.Integer(string="Graduates pending confirmation", readonly=True)
     place_count = fields.Integer(string="Joining their group", readonly=True)
+    place_later_count = fields.Integer(string="Joining when their study transitions", readonly=True)
     pending_count = fields.Integer(string="Enrollments pending confirmation", readonly=True)
     unplaced_count = fields.Integer(string="Enrollments with no destination group", readonly=True)
     missing_count = fields.Integer(string="Without an enrollment", readonly=True)
+    orphan_count = fields.Integer(string="Students with no group at all", readonly=True)
     incomplete_evaluation_count = fields.Integer(string="Incomplete evaluations", readonly=True)
     template_count = fields.Integer(string="Attendance templates to archive", readonly=True)
     calendar_block_count = fields.Integer(string="Teacher calendar blocks to archive", readonly=True)
@@ -97,6 +100,25 @@ class ems_course_transition_wizard(models.TransientModel):
     def _scope_groups(self):
         self.ensure_one()
         return self.env['ems.group'].search([('study_id', 'in', self.study_ids.ids)])
+
+    def _orphan_students(self):
+        """Active students that belong to no run at all, whatever studies are picked.
+
+        The scope is captured through main_group_id, so a student without one is invisible
+        to every step: no year record is frozen for them and their operational records are
+        never cleaned. It is pre-existing data quality — an Esfer@ import that found no
+        group, a manual edit — but the transition is where it stops being recoverable,
+        because afterwards they are indistinguishable from the hundreds of students a run
+        legitimately leaves without a group.
+
+        'study_id' is what tells the two apart: _apply_detach_unplaced keeps it on purpose
+        when it detaches somebody, so a student with neither is one nobody ever placed.
+        """
+        self.ensure_one()
+        return self.env['res.partner'].search([
+            ('contact_type', '=', 'student'),
+            ('main_group_id', '=', False),
+            ('study_id', '=', False)])
 
     def _scope_graduates(self):
         """Students the graduation wizard already marked for THIS outgoing course.
@@ -356,10 +378,17 @@ class ems_course_transition_wizard(models.TransientModel):
                 # offer, lose the group like everybody unplaced, and place themselves
                 # through _ems_admit_student() the day they confirm.
                 action, group = 'pending', self.env['ems.group']
-            elif order.ems_group_id:
-                action, group = 'place', self._destination_of(order)
-            else:
+            elif not order.ems_group_id:
                 action, group = 'unplaced', self.env['ems.group']
+            elif destination := self._destination_of(order):
+                action, group = 'place', destination
+            else:
+                # Confirmed, with a group, but heading to a study this run is not
+                # transitioning: _apply_placement only executes its own studies, so this
+                # one is detached now and placed by its own study's run. Calling it
+                # 'place' promised a move that never happened, in the preview and in the
+                # audit CSV that is the reference for undoing a case by hand.
+                action, group = 'place_later', self.env['ems.group']
             seen |= student
             vals_list.append({
                 'student_id': student.id,
@@ -425,15 +454,24 @@ class ems_course_transition_wizard(models.TransientModel):
                               "become applicants and keep their portal access, so they can still "
                               "confirm it. They are not archived: %s.")
                             % (self.graduate_pending_count, ", ".join(names)))
+        # 'graduate_continue' keeps its own label (they do graduate; only the placement is
+        # deferred), so it is still recognised here by its missing destination group.
         elsewhere = self.line_ids.filtered(
-            lambda line: line.action in ('place', 'graduate_continue')
-            and not line.destination_group_id)
+            lambda line: line.action == 'place_later'
+            or (line.action == 'graduate_continue' and not line.destination_group_id))
         if elsewhere:
             warnings.append(_("%s student(s) are heading to a study this run is not transitioning, "
                               "so they are not placed here: they keep their enrollment and join "
                               "their group when that study transitions. Meanwhile they are left "
                               "with no group: %s.")
                             % (len(elsewhere), ", ".join(elsewhere.mapped('student_id.display_name')[:10])))
+        orphans = self._orphan_students()
+        if orphans:
+            warnings.append(_("%s active student(s) have no group at all, so no run can see "
+                              "them: their academic history is not frozen and their records "
+                              "are not cleaned. Give them a group or register their "
+                              "withdrawal before applying: %s.")
+                            % (len(orphans), ", ".join(orphans.mapped('display_name')[:10])))
         # The ones whose study DOES use the flow are a blocker, not a warning.
         expected = self.line_ids.filtered(
             lambda line: line.action == 'missing' and not line.study_id.uses_enrollment_flow)
@@ -507,9 +545,11 @@ class ems_course_transition_wizard(models.TransientModel):
             'graduate_continue_count': actions.count('graduate_continue'),
             'graduate_pending_count': actions.count('graduate_pending'),
             'place_count': actions.count('place'),
+            'place_later_count': actions.count('place_later'),
             'pending_count': actions.count('pending'),
             'unplaced_count': actions.count('unplaced'),
             'missing_count': actions.count('missing'),
+            'orphan_count': len(self._orphan_students()),
             'incomplete_evaluation_count': len(self._incomplete_evaluation_lines()),
             'template_count': len(self._templates_to_archive()),
             'calendar_block_count': len(self._migrating_calendar_blocks()),
@@ -862,8 +902,10 @@ class ems_course_transition_wizard(models.TransientModel):
         if self._pending_studies():
             return False
         self.env.company.current_course_id = self.target_course_id
-        # The incoming course is the running one now, so it is nobody's "next course".
-        self.target_course_id.is_enrollment_default = False
+        # 'is_enrollment_default' is deliberately left alone (D16): enrollments keep
+        # being processed in September for the course that has just started, and the
+        # flag is what every "which course do new enrollments belong to" lookup reads.
+        # Clearing it left none flagged and broke all of them at once.
         # A fresh year: every study is pending again for the next transition.
         self.env['ems.study'].search([]).write({'transition_state': 'active'})
         return True

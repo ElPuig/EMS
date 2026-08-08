@@ -2,21 +2,36 @@
 
 ## Overview
 
-`ems.course` represents an academic year window (e.g. `2025-2026`). It has no menu, list, or form view of its own — the only UI surface is the **Current course** selector on the Settings page (`res.config.settings`), which points at `res.company.current_course_id`.
+`ems.course` represents an academic year window (e.g. `2025-2026`). Its two flags are driven from the Settings page, each by its own selector on `res.company`: **Current course** (`current_course_id` → `is_current`) and **Enrollment course** (`enrollment_course_id` → `is_enrollment_default`).
 
 **Module file:** `models/settings/course.py`
 
 ---
 
-## ⚠️ Known limitation: no course-management UI
+## Course management UI
 
-There is no way, today, to create a new `ems.course` record, or to change which course is the "Enrollment Default", from the application UI. In practice:
+Both flags are managed from **Settings → EMS Management → Course Management Settings**, each
+through its own selector: **Current course** (`res.company.current_course_id`) and **Enrollment
+course** (`res.company.enrollment_course_id`). Selecting a course there is what moves the flag,
+via `_sync_current_course_flag()` / `_sync_enrollment_course_flag()` — the clear-then-set order
+those methods own is also what makes moving a unipersonal mark a single action instead of an
+untick-then-tick dance against the `@api.constrains`.
 
-- All existing course records (`2025-2026` through `2028-2029`) come from a single seed file, `data/custom/ems.course.xml`, pre-created years ahead of time.
-- `is_current` (see below) can be changed via the Settings page indirectly, through `current_course_id`.
-- `is_enrollment_default` has **no UI path at all** — it can only be set via a data file or direct database/shell access.
+There is deliberately **no list action or menu** for `ems.course`: a second screen would be a
+second way in, and an editable flag on a list bypasses the sync (writing `is_current` straight
+from a list left it out of step with `current_course_id`). The list and form views exist only to
+serve the selectors — "Search more…" and "Create and edit…", the latter being the only way to
+create a new academic year from the UI.
 
-`views/settings/form.xml` (lines ~14–27) has an explicit, still-unimplemented TODO for a **"Setup next course"** wizard: select/generate the next course, move expirable data (enrolments, schedules, grades) to a read-only history, and clear it for the new year. This DTON pass intentionally did **not** build that wizard — it is a real, separate feature request, not a retroactive cleanup of existing behaviour. Treat it as a known gap; implementing it needs its own scoped design (in particular the data-migration/history side, which this doc doesn't attempt to spec).
+The seed file `data/custom/ems.course.csv` still pre-creates the courses (`2025-2026` through
+`2028-2029`), but it only carries `start` and `end`. **Neither flag is a column of it**, and
+that is deliberate: both are live application state the instance moves on its own, so a synced
+column would revert an admin's change on the next upgrade — see "Why the flags are not in the
+CSV" below.
+
+Until this issue there was no UI at all: `is_current` could only be reached indirectly through
+`current_course_id` in Settings, and `is_enrollment_default` had no path whatsoever, which made
+it unrecoverable when the transition cleared it.
 
 ---
 
@@ -48,7 +63,7 @@ flowchart TD
 
 `is_current` is what the rest of the codebase actually queries (`ems.contact`, `ems.enrollment`, `ems.enrollment_proposal_wizard`, `ems.graduation_wizard`) — `current_course_id` is only the admin-facing pointer that drives it.
 
-`is_enrollment_default` has no equivalent sync mechanism today (see the limitation above) — it is read by the same kind of business logic (`ems.enrollment`, `ems.contact`, `ems.year_record`, `ems.graduation_wizard`, `ems.enrollment_proposal_wizard`) but nothing in the UI ever writes it.
+`is_enrollment_default` works the same way through `_sync_enrollment_course_flag()` and `res.company.enrollment_course_id`. It is read by the same kind of business logic (`ems.enrollment`, `ems.contact`, `ems.year_record`, `ems.graduation_wizard`, `ems.enrollment_proposal_wizard`), and until 18.0.0.22.0 nothing in the UI could write it at all.
 
 ---
 
@@ -63,7 +78,7 @@ Defined in `security/ir.model.access.csv` (lines 169–171, 227).
 | Secretary | — | ✓ | — | — | `ems.group_secretary` |
 | Portal | — | ✓ | — | — | `base.group_portal` |
 
-No record-level rules exist for this model. Create/write/delete access exists for administrators even though no UI currently exercises it (beyond the indirect `is_current` sync) — consistent with the model being manageable today only via data files or `odoo shell`.
+No record-level rules exist for this model. Administrators exercise create through the selectors' "Create and edit…", and write through the two settings selectors; the flags are readonly on the views themselves.
 
 ---
 
@@ -86,4 +101,19 @@ No record-level rules exist for this model. Create/write/delete access exists fo
 
 | View | File | Notes |
 |------|------|-------|
-| Settings selector only | `views/settings/form.xml` | `current_course_id` under "Course Management Settings"; no dedicated list/form/menu exists for `ems.course` itself |
+| List | `views/settings/course.xml` | Used by the selectors' "Search more…"; both flags readonly |
+| Form | `views/settings/course.xml` | Used by "Create and edit…"; both flags readonly |
+| Settings selectors | `views/settings/form.xml` | `current_course_id` and `enrollment_course_id`, the only write paths |
+
+### Why the flags are not in the CSV
+
+`is_current` and `is_enrollment_default` are **live application state**, not configuration:
+`res.company._sync_current_course_flag()` moves the first whenever the "Current course" setting
+changes, and the centre moves the second by hand when it opens the following year's enrollment
+campaign. A synced CSV column would reapply the file's value on every upgrade and silently undo
+either move — with new enrollments then landing on the wrong course.
+
+`is_current` was already out of the file. `is_enrollment_default` was a column until 18.0.0.22.0;
+it was removed, and its initial value is seeded once by `ems.course._ems_seed_enrollment_default()`
+from `post_init_hook` (fresh installs) and the 18.0.0.22.0 post-migrate (existing ones). The
+helper only acts when no course carries the flag, so it can never override a deliberate move.

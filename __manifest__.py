@@ -69,6 +69,7 @@
         'views/menu.xml',
 
         # Before form.xml: the settings button references this action by XML ID.
+        'views/settings/course.xml',
         'views/settings/course_transition_wizard.xml',
         'views/settings/form.xml',
         'views/settings/hr_attendance_form.xml',

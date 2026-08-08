@@ -23,9 +23,28 @@ Navega a: **Ajustes → Gestión EMS → Ajustes de gestión de cursos**
 
 ---
 
-## Limitaciones (a día de hoy)
+## Gestionar los cursos
 
-Actualmente no existe ninguna pantalla para crear un nuevo año académico, ni para cambiar a qué año se asignan por defecto las nuevas matrículas. Ambas cosas se gestionan internamente (configuración de datos, no una acción administrativa del día a día) — si el año que necesitas no está en la lista de **Curso actual**, contacta con quien mantiene la instalación de EMS en lugar de buscar un botón "Nuevo", ya que actualmente no existe.
+Cada marca se cambia con **su propio desplegable** en esta misma pantalla:
+
+| Marca | Qué significa |
+|---|---|
+| **Curso actual** | El año del día a día: asistencia, calificaciones e incidencias |
+| **Matriculación por defecto** | El año al que se crean las matrículas nuevas |
+
+Las dos son únicas: solo un curso puede llevar cada una.
+
+### Cuándo mover la marca de matriculación
+
+Durante el curso apunta al año siguiente, que es donde se van registrando las matrículas. **Después de la transición de curso sigue apuntando al año que acaba de empezar**, porque en septiembre se siguen tramitando matrículas de ese año.
+
+Muévela al siguiente solo cuando abras la campaña de matriculación del año que viene. Basta con elegir el curso en el desplegable: la marca se quita del anterior automáticamente.
+
+### Crear un curso nuevo
+
+Si el año que necesitas no está en la lista, escríbelo en cualquiera de los dos desplegables y usa **Crear y editar…**: se abre un formulario donde solo hay que indicar el año de inicio y el de fin. El nombre (`2029-2030`) se compone solo.
+
+> Si mueves esta marca sin querer, las matrículas nuevas se crearán en el año equivocado y no hay ningún aviso. Vale la pena comprobarla si notas matrículas apareciendo donde no tocan.
 
 ---
 

@@ -18,6 +18,9 @@
                                             groups="ems.group_academic_admin"/>
                                 </div>
                             </setting>
+                            <setting string="Enrollment course" help="The course new enrollments are created for. During the year it points at the next one; after the course transition it stays on the year that has just started, because enrollments keep being processed in September. Move it on only when you open the following year's campaign." id="enrollment_course_id">
+                                <field name="enrollment_course_id"/>
+                            </setting>
                         </block>
 
                          <block title="Center Data" name="ems_email_settings">

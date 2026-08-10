@@ -3537,44 +3537,9 @@ msgid "Field to store the color that will be used for calendar view"
 msgstr "Campo para almacenar el color que se utilizará en la vista de calendarioCampo para almacenar el color del calendarioCampo para almacenar el color que se utilizará para la vista de calendario."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_file model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+#: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_file model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "File"
 msgstr "Archivo"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "Database"
-msgstr "Base de datos"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "File (left)"
-msgstr "Archivo (izquierda)"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "File (right)"
-msgstr "Archivo (derecha)"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "Classroom (left)"
-msgstr "Aula (izquierda)"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "Classroom (right)"
-msgstr "Aula (derecha)"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "Classroom (file)"
-msgstr "Aula (archivo)"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "Classroom (DB)"
-msgstr "Aula (BBDD)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_benefit__document_name model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__file_name model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__file_name
@@ -4195,18 +4160,13 @@ msgstr "El EMS comprueba cada nombre de grupo del archivo contra los grupos que 
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "EMS checks every teacher e-mail in the file against the teachers already in EMS. Any e-mail it couldn't match is listed below: pick the real teacher if it's a typo, or tick New if this is a genuinely new hire."
-msgstr "El EMS comprueba cada correo de docente del archivo contra los docentes que ya hay en el EMS. Cualquier correo que no haya podido emparejar se lista abajo: elige el docente real si es un error, o marca Nuevo si se trata de una contratación genuinamente nueva."
+msgid "EMS checks every teacher e-mail or placeholder code in the file against the teachers already in EMS. Any identifier it couldn't match is listed below: pick the real teacher if it's a typo or an already-known pending hire, or leave New ticked to create it as a brand-new, pending-identification employee (resolved later from the teacher's own form, once their real e-mail is known)."
+msgstr "El EMS comprueba cada correo o código de docente del archivo contra los docentes que ya hay en el EMS. Cualquier identificador que no haya podido emparejar se lista abajo: elige el docente real si es un error o una contratación pendiente ya conocida, o deja Nuevo marcado para crearlo como un empleado nuevo, pendiente de identificación (se resolverá más adelante desde su propia ficha, cuando se sepa su correo real)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "Nothing to resolve here - this is a preview of every teacher this import is about to create as a brand-new, pending-identification employee."
-msgstr "Aquí no hay nada que resolver - es una vista previa de cada docente que esta importación está a punto de crear como empleado nuevo, pendiente de identificar."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "EMS checks whether two different teachers in this same file end up scheduled in the same classroom at the same time. Each colliding pair is listed below for you to resolve."
-msgstr "El EMS comprueba si dos docentes distintos de este mismo archivo acaban programados en la misma aula y la misma hora. Cada pareja en conflicto se lista abajo para que la resuelvas."
+msgid "EMS checks whether two different teachers in this same file end up scheduled in the same classroom at the same time, or whether the same real teacher (e.g. two identifiers you resolved to the same person) ends up double-booked at the same time in two different rooms. Each colliding pair is listed below for you to resolve."
+msgstr "El EMS comprueba si dos docentes distintos de este mismo archivo acaban programados en la misma aula y la misma hora, o si el mismo docente real (por ejemplo, dos identificadores que has resuelto hacia la misma persona) acaba con una doble reserva a la misma hora en dos aulas distintas. Cada pareja en conflicto se lista abajo para que la resuelvas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
@@ -7218,8 +7178,16 @@ msgstr "La nota debe estar en el rango [0, 10]."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_template.py:0
-msgid "The subject must be available in every one of the selected studies."
-msgstr "La asignatura debe estar disponible en todos los estudios seleccionados."
+msgid ""
+"The subject '%(subject)s' is not available in the following selected "
+"studies: %(studies)s (template for group(s) %(groups)s, teacher(s) "
+"%(teachers)s). Either remove those studies from this template or pick a "
+"subject taught in all of them."
+msgstr ""
+"La asignatura '%(subject)s' no está disponible en los siguientes estudios "
+"seleccionados: %(studies)s (plantilla del grupo(s) %(groups)s, docente(s) "
+"%(teachers)s). Elimine esos estudios de esta plantilla o elija una "
+"asignatura que se imparta en todos ellos."
 
 #. module: ems
 #. odoo-python
@@ -7910,8 +7878,8 @@ msgstr "Docentes no resueltos"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__raw_identifier model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "E-mail found in file"
-msgstr "Correo encontrado en el fichero"
+msgid "Identifier found in file"
+msgstr "Identificador encontrado en el fichero"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
@@ -7920,14 +7888,14 @@ msgstr "Nuevo"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "Every teacher e-mail mentioned in the file was recognized."
-msgstr "Se han reconocido todos los correos de docentes mencionados en el fichero."
+msgid "Every teacher mentioned in the file was recognized."
+msgstr "Se han reconocido todos los docentes mencionados en el fichero."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/working_schedule.py:0
-msgid "Please select a teacher for every unresolved e-mail before continuing:\n%s"
-msgstr "Seleccione un docente para cada correo no resuelto antes de continuar:\n%s"
+msgid "Please select a teacher for every unresolved identifier before continuing:\n%s"
+msgstr "Seleccione un docente para cada identificador no resuelto antes de continuar:\n%s"
 
 #. module: ems
 #. odoo-python
@@ -7940,11 +7908,6 @@ msgstr "Profesor pendiente (%s) - el correo se precargará como intento, no se g
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "%(teacher)s (file identifier: %(identifier)s)"
 msgstr "%(teacher)s (identificador en el archivo: %(identifier)s)"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "No new teacher will be created - every teacher in this batch already exists."
-msgstr "No se creará ningún profesor nuevo - todos los profesores de este lote ya existen."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
@@ -7997,6 +7960,11 @@ msgid "Room conflict"
 msgstr "Conflicto de aula"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__self_conflict model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__self_conflict
+msgid "Same teacher, different room"
+msgstr "Mismo docente, aula diferente"
+
+#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__co_teaching model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__co_teaching
 msgid "Confirm"
 msgstr "Confirmar"
@@ -8018,8 +7986,8 @@ msgstr "Reasignar aulas"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "No room conflicts were found within this batch."
-msgstr "No se han encontrado conflictos de aula dentro de este lote."
+msgid "No conflicts were found within this batch."
+msgstr "No se han encontrado conflictos dentro de este lote."
 
 #. module: ems
 #. odoo-python
@@ -11985,6 +11953,76 @@ msgstr "Leyendo y validando el fichero de horario, por favor espere..."
 #, python-format
 msgid "Importing the schedule, please wait..."
 msgstr "Importando el horario, por favor espere..."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "Co-teaching"
+msgstr "Co-docencia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "Split session"
+msgstr "Sesión desdoblada"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "Room conflict"
+msgstr "Conflicto de aula"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "Same teacher, different room"
+msgstr "Mismo docente, aula diferente"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "Confirm"
+msgstr "Confirmar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "Left prevails"
+msgstr "Prevalece la izquierda"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "Right prevails"
+msgstr "Prevalece la derecha"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "Reassign rooms"
+msgstr "Reasignar aulas"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "— apply to all —"
+msgstr "— aplicar a todos —"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "Classroom…"
+msgstr "Aula…"
 
 #. module: ems
 #. odoo-python

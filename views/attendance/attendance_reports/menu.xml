@@ -53,6 +53,15 @@
             <field name="res_model">ems.attendance_session_line</field>
             <field name="view_mode">pivot,graph</field>
             <field name="context">{}</field>
+            <!-- Current course only (2026-08-10, developer feedback: "debe mostrar la
+                 información del curso actual. Una vez transicionamos de curso, debería estar en
+                 blanco") - ems.attendance_session_line has no 'active' field of its own
+                 (deliberately - see the model's own docstring, "statistical data... should be
+                 unaltered"), but its session ALWAYS does, and the course transition wizard
+                 archives every outgoing session (see course_transition_wizard.md) - so filtering
+                 on the session's own active state is exactly "this course's sessions only,"
+                 without needing a new field on the line itself. -->
+            <field name="domain">[('attendance_session_id.active', '=', True)]</field>
         </record>
 
         <!-- Head of Studies/Director/Administrator and Secretariat see the whole centre by
@@ -66,8 +75,15 @@
             <field name="code">
 action = env.ref('ems.action_attendance_report_analysis').sudo().read()[0]
 action['context'] = {'pivot_measures': ['absence_rate', 'strike_count', '__count'], 'graph_measure': 'absence_rate'}
+# NOTE: 'action['domain']' from .read() above is the base action's domain as a STRING (how
+# ir.actions.act_window.domain is actually stored), not a parsed list - concatenating a list onto
+# it would raise a TypeError, so the current-course filter is set here directly as a real list
+# instead of trying to extend the string. Kept as a literal matching the base action's own XML
+# domain (not read from it) - this action is only ever reached through this server action, never
+# opened directly, so there's no risk of the two silently drifting apart unnoticed.
+action['domain'] = [('attendance_session_id.active', '=', True)]
 if not (env.user.has_group('ems.group_head_of_studies') or env.user.has_group('ems.group_secretary') or env.user.has_group('ems.group_secretary_admin')):
-    action['domain'] = [('template_teacher_ids.user_id', '=', env.uid)]
+    action['domain'] += [('template_teacher_ids.user_id', '=', env.uid)]
             </field>
         </record>
 

@@ -1,4 +1,5 @@
 import base64
+import json
 from datetime import date
 
 from odoo import fields
@@ -881,9 +882,29 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             wizard.teacher_line_ids.mapped('raw_identifier'), ['unknown.import.wizard@example.com']
         )
 
-    def test_continue_from_groups_does_not_list_a_pending_identification_code(self):
-        # A code with no '@' isn't a problem for THIS screen - it's expected input, handled
-        # automatically at the final Import step (creates a pending-identification teacher).
+    def test_continue_from_groups_lists_a_brand_new_pending_identification_code(self):
+        # A code with no '@' and no existing employee behind it is a genuinely new placeholder -
+        # since the 2026-08-10 merge (see '_pending_teacher_identifiers'), it gets its own
+        # correction row right here, exactly like an unresolved e-mail, 'create_new' defaulting
+        # to True - it's no longer resolved silently at Import with nothing to correct by hand.
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file('X1')),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+
+        self.assertEqual(wizard.teacher_line_ids.mapped('raw_identifier'), ['X1'])
+        self.assertTrue(wizard.teacher_line_ids.create_new)
+
+    def test_continue_from_groups_does_not_list_a_code_already_matching_a_pending_teacher(self):
+        # Unlike a brand-new code, one that already reuses an EXISTING employee's
+        # 'schedule_import_code' (a re-import of the same batch, or a previously-created pending
+        # teacher) resolves silently - nothing to correct, same as an already-known e-mail.
+        self.env['hr.employee'].create({
+            'name': 'Test Wizard Already Pending Teacher (Import Wizard)',
+            'employee_type': 'teacher',
+            'schedule_import_code': 'X1',
+        })
         wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(self._xml_file('X1')),
         })
@@ -922,8 +943,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         wizard.action_continue()  # groups -> teachers
         wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; untick it to pick a real teacher
         wizard.teacher_line_ids.employee_id = second_teacher.id
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts, substitutes the pick
+        wizard.action_continue()  # teachers -> internal_conflicts, substitutes the pick
 
         self.assertEqual(wizard.state, 'internal_conflicts')
 
@@ -982,8 +1002,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         wizard.teacher_line_ids.create_new = True
 
         self.assertFalse(wizard.continue_disabled)
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts, no raise
+        wizard.action_continue()  # teachers -> internal_conflicts, no raise
         self.assertEqual(wizard.state, 'internal_conflicts')
 
     def test_continue_from_teachers_create_new_creates_pending_teacher_with_manual_email(self):
@@ -1059,8 +1078,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts, builds the conflict line
+        wizard.action_continue()  # teachers -> internal_conflicts, builds the conflict line
 
         self.assertEqual(wizard.state, 'internal_conflicts')
         self.assertEqual(len(wizard.internal_conflict_line_ids), 1)
@@ -1081,8 +1099,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
 
         line = wizard.internal_conflict_line_ids
         self.assertEqual(len(line), 1)
@@ -1106,8 +1123,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
 
         line = wizard.internal_conflict_line_ids
         self.assertEqual(len(line), 1)
@@ -1119,6 +1135,136 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(line.left_space_id, self.space)
         self.assertEqual(line.right_space_id, self.space)
         self.assertTrue(wizard.continue_disabled)
+
+    def test_continue_from_teachers_builds_self_conflict_line_when_two_identifiers_resolve_to_same_employee(self):
+        # Developer feedback (2026-08-10, hit against a real import): manually assigning two
+        # DIFFERENT raw identifiers to the SAME existing employee (the "same person as" merge
+        # confirmed earlier this session) can leave that one real teacher double-booked - and
+        # neither '_find_internal_conflicts' (room-based only) nor 'ems.attendance_template.
+        # find_self_conflicts' (DB-only, see its own docstring: "does not catch two overlapping
+        # entries for the same teacher within the single batch") ever caught it - it surfaced as a
+        # raw, unworded check_overlap ValidationError at the final Import click instead of a
+        # resolvable line here.
+        other_group = self._create_self_conflict_setup()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
+                'SELFX1',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                'SELFX2',
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/><Students name="{other_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+
+        self.assertEqual(sorted(wizard.teacher_line_ids.mapped('raw_identifier')), ['SELFX1', 'SELFX2'])
+        wizard.teacher_line_ids.write({'create_new': False, 'employee_id': self.teacher.id})
+        wizard.action_continue()  # teachers -> internal_conflicts
+
+        self.assertEqual(wizard.state, 'internal_conflicts')
+        self.assertEqual(len(wizard.internal_conflict_line_ids), 1)
+        line = wizard.internal_conflict_line_ids
+        self.assertEqual(line.kind, 'self_conflict')
+        self.assertEqual(line.resolution, 'prevail_left')
+        self.assertFalse(line.left_space_id)
+        self.assertFalse(line.right_space_id)
+        self.assertFalse(wizard.continue_disabled)
+
+    def test_continue_from_teachers_no_self_conflict_line_for_two_different_employees(self):
+        # Regression guard: the exact same overlapping-time/different-room shape, but the two
+        # identifiers resolve to two DIFFERENT real employees (the ordinary co-teaching-across-
+        # different-groups-and-subjects case, i.e. a genuine 'plain_conflict' room clash is NOT
+        # what's being tested here - these two entries don't even share a room) - no self_conflict
+        # line should ever appear since they are not the same physical teacher.
+        second_teacher = self._second_teacher()
+        other_group = self._create_self_conflict_setup()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                second_teacher.work_email,
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/><Students name="{other_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # teachers -> internal_conflicts
+
+        self.assertFalse(wizard.internal_conflict_line_ids)
+
+    def test_continue_from_internal_conflicts_self_conflict_prevail_left_keeps_left_only(self):
+        other_group = self._create_self_conflict_setup()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
+                'SELFX1',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                'SELFX2',
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/><Students name="{other_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.write({'create_new': False, 'employee_id': self.teacher.id})
+        wizard.action_continue()  # teachers -> internal_conflicts (self_conflict, defaults to prevail_left)
+
+        while wizard.state != 'summary':
+            wizard.action_continue()
+        wizard.import_planner_data()
+
+        templates = self.env['ems.attendance_template'].search([('teacher_ids', '=', self.teacher.id)])
+        self.assertEqual(templates.mapped('subject_id'), self.subject)
+        self.assertEqual(templates.group_ids, self.group)
+
+    def test_continue_from_internal_conflicts_self_conflict_prevail_right_keeps_right_only(self):
+        other_group = self._create_self_conflict_setup()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
+                'SELFX1',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                'SELFX2',
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/><Students name="{other_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.write({'create_new': False, 'employee_id': self.teacher.id})
+        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.internal_conflict_line_ids.resolution = 'prevail_right'
+
+        while wizard.state != 'summary':
+            wizard.action_continue()
+        wizard.import_planner_data()
+
+        templates = self.env['ems.attendance_template'].search([('teacher_ids', '=', self.teacher.id)])
+        self.assertEqual(templates.mapped('subject_id'), self.other_subject)
+        self.assertEqual(templates.group_ids, other_group)
+
+    def test_continue_from_internal_conflicts_self_conflict_reassign_rooms_invalid(self):
+        # 'self_conflict' never supports 'reassign_rooms' - the two rooms already genuinely differ
+        # by construction; reassigning either fixes nothing since the real problem is one teacher
+        # needed in two places at once, not a shared room (same reasoning already documented for
+        # the DB-side self-conflict case).
+        other_group = self._create_self_conflict_setup()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
+                'SELFX1',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                'SELFX2',
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/><Students name="{other_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        wizard.teacher_line_ids.write({'create_new': False, 'employee_id': self.teacher.id})
+        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.internal_conflict_line_ids.write({
+            'resolution': 'reassign_rooms',
+            'left_space_id': self.space.id,
+            'right_space_id': other_group.space_id.id,
+        })
+
+        with self.assertRaises(ValidationError):
+            wizard.action_continue()
 
     def test_find_internal_conflicts_excludes_non_teaching_entries(self):
         second_teacher = self._second_teacher()
@@ -1132,8 +1278,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
 
         self.assertFalse(wizard.internal_conflict_line_ids)
         self.assertFalse(wizard.continue_disabled)
@@ -1150,8 +1295,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
         wizard.internal_conflict_line_ids.resolution = 'co_teaching'  # invalid for a plain_conflict
 
         with self.assertRaises(ValidationError) as capture:
@@ -1172,8 +1316,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts, defaults left/right to the SAME room
+        wizard.action_continue()  # teachers -> internal_conflicts, defaults left/right to the SAME room
 
         with self.assertRaises(ValidationError):
             wizard.action_continue()
@@ -1190,8 +1333,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts (default resolution: reassign_rooms)
+        wizard.action_continue()  # teachers -> internal_conflicts (default resolution: reassign_rooms)
         wizard.internal_conflict_line_ids.resolution = 'prevail_left'
 
         while wizard.state != 'summary':
@@ -1218,8 +1360,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
         wizard.internal_conflict_line_ids.right_space_id = other_space.id
         self.assertFalse(wizard.continue_disabled)
 
@@ -1248,8 +1389,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts (default resolution: co_teaching)
+        wizard.action_continue()  # teachers -> internal_conflicts (default resolution: co_teaching)
 
         while wizard.state != 'summary':
             wizard.action_continue()
@@ -1281,8 +1421,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts (nothing, only one teacher in this batch)
+        wizard.action_continue()  # teachers -> internal_conflicts (nothing, only one teacher in this batch)
         wizard.action_continue()  # internal_conflicts -> db_conflicts, builds the external conflict line
 
         self.assertEqual(wizard.state, 'db_conflicts')
@@ -1309,8 +1448,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
 
         line = wizard.external_conflict_line_ids
@@ -1337,8 +1475,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.resolution = 'co_teaching'  # invalid for a plain_conflict
 
@@ -1365,8 +1502,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.resolution = 'prevail_right'
 
@@ -1403,8 +1539,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.right_space_id = other_space.id
 
@@ -1448,8 +1583,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.right_space_id = other_space.id
 
@@ -1468,46 +1602,47 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(new_schedule.space_id, other_space)
         self.assertTrue(existing_schedule.attendance_session_ids, "the original session history is preserved on the archived line")
 
-    # --- Screen 6 ("Pending teachers") -----------------------------------------------------
+    # --- "Resolve teachers" also lists placeholder codes (2026-08-10 merge) -------------------
 
-    def test_pending_info_lists_placeholder_code_teacher(self):
+    def test_teachers_step_lists_placeholder_code_teacher(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'X1',
                 f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
             )),
         })
-        while wizard.state != 'pending_info':
+        while wizard.state != 'teachers':
             wizard.action_continue()
 
-        self.assertIn('X1', wizard.pending_teachers_html)
+        self.assertIn('X1', wizard.teacher_line_ids.mapped('raw_identifier'))
 
-    def test_pending_info_lists_create_new_ticked_email(self):
+    def test_teachers_step_lists_create_new_ticked_email(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(
                 self._xml_file('unknown.import.wizard@example.com Someone'),
             ),
         })
-        while wizard.state != 'pending_info':
-            wizard.action_continue()  # 'create_new' defaults to True, never touched by hand
+        while wizard.state != 'teachers':
+            wizard.action_continue()
 
-        self.assertIn('unknown.import.wizard@example.com', wizard.pending_teachers_html)
+        self.assertIn('unknown.import.wizard@example.com', wizard.teacher_line_ids.mapped('raw_identifier'))
+        self.assertTrue(wizard.teacher_line_ids.create_new)  # defaults to True, never touched by hand
 
-    def test_pending_info_empty_when_every_teacher_already_exists(self):
+    def test_teachers_step_empty_when_every_teacher_already_exists(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(
                 self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
             ),
         })
-        while wizard.state != 'pending_info':
+        while wizard.state != 'teachers':
             wizard.action_continue()
 
-        self.assertFalse(wizard.pending_teachers_html)
+        self.assertFalse(wizard.teacher_line_ids)
 
-    def test_pending_info_dedups_the_same_teacher_across_two_files(self):
+    def test_teachers_step_dedups_the_same_teacher_across_two_files(self):
         # Different weekday on the second file - deliberately avoids a genuine same-time
         # double-booking, which would raise its own (unrelated) internal-conflict resolution
-        # requirement at screen 4, not what this dedup test is about.
+        # requirement at the next screen, not what this dedup test is about.
         second_file = base64.b64encode((
             '<root><T name="X2"><D name="2 Tuesday"><H name="1 09:00">'
             f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
@@ -1523,10 +1658,57 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
                 second_file,
             ),
         })
-        while wizard.state != 'pending_info':
+        while wizard.state != 'teachers':
             wizard.action_continue()
 
-        self.assertEqual(wizard.pending_teachers_html.count('X2'), 1)
+        self.assertEqual(wizard.teacher_line_ids.mapped('raw_identifier').count('X2'), 1)
+
+    def test_continue_from_teachers_same_employee_assigned_to_two_different_identifiers(self):
+        """Developer question (2026-08-10): 'me han puesto al mismo profe de forma diferente...
+        si desmarco New a los dos y les pongo el mismo profesor que ya existe, ¿eso funcionaría?'
+        - yes: 'identifier_to_employee' in '_continue_from_teachers' is a plain dict with no
+        uniqueness constraint on the employee side, so two different raw identifiers (two
+        placeholder codes here) both resolving to the SAME existing employee both correctly end
+        up with that one employee's id on their own node_cache item, with nothing duplicated."""
+        real_teacher = self.env['hr.employee'].create({
+            'name': 'Test Wizard Teacher Same Person (Import Wizard)',
+            'employee_type': 'teacher',
+        })
+        second_file = base64.b64encode((
+            '<root><T name="X4"><D name="2 Tuesday"><H name="1 09:00">'
+            f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
+            f'<Students name="{self.single_group.name} Group"/>'
+            '</H></D></T></root>'
+        ).encode())
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file_with_hour_node(
+                    'X3',
+                    f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                ),
+                second_file,
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+
+        self.assertEqual(sorted(wizard.teacher_line_ids.mapped('raw_identifier')), ['X3', 'X4'])
+        wizard.teacher_line_ids.write({'create_new': False, 'employee_id': real_teacher.id})
+        wizard.action_continue()  # teachers -> internal_conflicts, both identifiers resolve to real_teacher
+
+        node_cache = json.loads(wizard.parsed_entries_json)
+        resolved_employee_ids = {item['employee_id'] for item in node_cache}
+        self.assertEqual(resolved_employee_ids, {real_teacher.id})
+
+        while wizard.state != 'summary':
+            wizard.action_continue()
+        wizard.import_planner_data()
+
+        self.assertEqual(
+            self.env['hr.employee'].search([('name', '=', real_teacher.name)]), real_teacher,
+            "no duplicate employee was created for the second identifier",
+        )
+        self.assertTrue(real_teacher.resource_calendar_id.attendance_ids)
 
     # --- "Overall summary" -----------------------------------------------------
 
@@ -1614,8 +1796,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
         wizard.internal_conflict_line_ids.right_space_id = other_space.id
         while wizard.state != 'summary':
             wizard.action_continue()
@@ -1748,10 +1929,9 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers (known e-mail, nothing to resolve either)
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts (single teacher, no collision possible)
+        wizard.action_continue()  # teachers -> internal_conflicts (single teacher, no collision possible)
         wizard.action_continue()  # internal_conflicts -> db_conflicts (no existing session to collide with)
-        wizard.action_continue()  # db_conflicts -> pending_info (still a placeholder)
+        wizard.action_continue()  # db_conflicts -> summary
         self.assertFalse(wizard.continue_disabled)
 
     def test_continue_disabled_true_at_db_conflicts_with_unresolved_line(self):
@@ -1770,8 +1950,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> pending_info
-        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         self.assertEqual(wizard.state, 'db_conflicts')
         self.assertTrue(wizard.continue_disabled)
@@ -1805,7 +1984,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertFalse(wizard.continue_disabled)
 
     def test_action_continue_walks_every_state_in_order_with_nothing_to_resolve(self):
-        # All 7 steps have real logic now (screens 6-7 were the last placeholders, closed
+        # All 6 steps have real logic now ("Pending teachers" was merged into "Resolve teachers"
         # 2026-08-10) - this just confirms the full STATE_SEQUENCE order end to end for a batch
         # with nothing to resolve at any step (a single, already-known teacher, no '<Students>' at
         # all, so 'groups' has nothing, and no collision is possible at either conflicts screen -
@@ -1816,7 +1995,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
                 self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
             ),
         })
-        expected_sequence = ['groups', 'teachers', 'pending_info', 'internal_conflicts', 'db_conflicts', 'summary']
+        expected_sequence = ['groups', 'teachers', 'internal_conflicts', 'db_conflicts', 'summary']
         for expected_state in expected_sequence:
             wizard.action_continue()
             self.assertEqual(wizard.state, expected_state)
@@ -1831,7 +2010,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups, caches the parsed entries
-        for _step in range(5):  # groups -> ... -> summary
+        for _step in range(4):  # groups -> ... -> summary
             wizard.action_continue()
         self.assertEqual(wizard.state, 'summary')
 

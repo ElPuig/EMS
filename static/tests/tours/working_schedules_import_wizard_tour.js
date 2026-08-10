@@ -116,8 +116,11 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_unknown_te
 // browser - a TransactionCase proves the model/importer logic works, but not that the view
 // (badge column, ribbon) doesn't crash or silently fail to show. Since 2026-08-05, the intro
 // screen no longer shows a banner for this at all (see the unknown-teacher tour above for the
-// full rationale) - the two placeholder-code teachers below are simply cached silently and only
-// actually get created once the flow reaches the real Import click.
+// full rationale). Since 2026-08-10 (the "Pending teachers" screen merged into "Resolve
+// teachers" - see docs/en/developers/employees/working_schedule.md), a bare placeholder code is
+// no longer cached silently: it surfaces right on the 'teachers' screen as its own correction
+// row, exactly like an unresolved e-mail, with 'create_new' already ticked by default - nothing
+// to click there, but the row must be visible.
 registry.category("web_tour.tours").add("ems_working_schedules_import_pending_teacher", {
     test: true,
     url: "/odoo/action-ems.action_working_schedules_tree",
@@ -165,9 +168,8 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             run: "click",
         },
         // 'groups', 'teachers', 'internal_conflicts' and 'db_conflicts' (just below) are the other
-        // real steps built so far - neither placeholder code here is e-mail-shaped, so 'teachers'
-        // has nothing to resolve; both teachers' entries are NonTeaching (no classroom to collide
-        // over), so neither conflicts screen has anything to resolve either - all show their own
+        // real steps built so far - both teachers' entries are NonTeaching (no classroom to
+        // collide over), so neither conflicts screen has anything to resolve - both show their own
         // success message. See the tours dedicated to each, 'ems_working_schedules_import_
         // resolve_group'/'ems_working_schedules_import_resolve_teacher_email'/
         // 'ems_working_schedules_import_resolve_internal_conflict'/'ems_working_schedules_import_
@@ -182,35 +184,25 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             run: "click",
         },
         {
-            trigger: ".modal .alert-success:contains('Every teacher e-mail mentioned in the file was recognized')",
-            content: "The 'teachers' screen shows its own success message - neither placeholder code is e-mail-shaped",
+            // Both placeholder codes are listed here as their own correction row (merged from the
+            // former, separate "Pending teachers" preview screen, 2026-08-10 - see docs/en/
+            // developers/employees/working_schedule.md). A short code renders whole ("TOURX1"); a
+            // not-yet-hired teacher's own real, multi-word name must too (the same truncation bug
+            // this fixture already exercises for a real e-mail elsewhere in this file).
+            trigger: ".modal .o_data_cell:contains('TOURX1')",
+            content: "The short placeholder code is listed as its own unresolved row",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'teachers' step (nothing to resolve here)",
-            run: "click",
-        },
-        {
-            // Screen 6 ("Pending teachers", 2026-08-10, moved right after 'teachers' the same day -
-            // see docs/en/developers/employees/working_schedule.md's own section) - both teachers
-            // here are placeholder codes/never-e-mail-shaped, so both must be listed as about to
-            // become new pending-identification employees. A short code renders whole ("TOURX1"); a
-            // not-yet-hired teacher's own real, multi-word name must too (see the earlier bug this
-            // same fixture already exercises for the 'teachers' screen).
-            trigger: ".modal .o_field_widget[name='pending_teachers_html'] li:contains('TOURX1')",
-            content: "The short placeholder code is listed as a pending teacher to be created",
-        },
-        {
-            trigger: ".modal .o_field_widget[name='pending_teachers_html'] li:contains('Tour Fulano Pending')",
+            trigger: ".modal .o_data_cell:contains('Tour Fulano Pending')",
             content: "The multi-word placeholder name is listed whole, not truncated",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' step",
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue through the 'teachers' step - 'create_new' already defaults to True for both rows, nothing to click",
             run: "click",
         },
         {
-            trigger: ".modal .alert-success:contains('No room conflicts were found within this batch')",
+            trigger: ".modal .alert-success:contains('No conflicts were found within this batch')",
             content: "The 'internal_conflicts' screen shows its own success message - both teachers' entries here are NonTeaching, which carries no classroom to collide over",
         },
         {
@@ -333,21 +325,16 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_gr
             run: "click",
         },
         {
-            trigger: ".modal .alert-success:contains('Every teacher e-mail mentioned in the file was recognized')",
-            content: "The 'teachers' screen shows its own success message - the teacher here is a placeholder code, not an e-mail",
+            trigger: ".modal .o_data_cell:contains('TOURGROUPTEACHER')",
+            content: "The 'teachers' screen lists the placeholder code as its own unresolved row too (2026-08-10 merge)",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'teachers' step (nothing to resolve here)",
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue through the 'teachers' step - 'create_new' already defaults to True, nothing to click",
             run: "click",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' step",
-            run: "click",
-        },
-        {
-            trigger: ".modal .alert-success:contains('No room conflicts were found within this batch')",
+            trigger: ".modal .alert-success:contains('No conflicts were found within this batch')",
             content: "The 'internal_conflicts' screen shows its own success message - only one teacher is in this batch, so no collision is possible",
         },
         {
@@ -378,8 +365,10 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_gr
 
 // Screen 3 ("Resolve teachers", 2026-08-05, see plans/working_schedule_import_redesign.md's step
 // 3) - an unresolved e-mail no longer reaches Import at all: it surfaces here as an editable list
-// row (raw e-mail + a Many2one to pick the real teacher, create disabled - a brand-new teacher is
-// screen 6's job, not this one's). Mirrors 'ems_working_schedules_import_resolve_group' exactly.
+// row (raw e-mail + a Many2one to pick the real teacher, create disabled - ticking 'create_new'
+// on this SAME row, not a separate screen, is what creates a brand-new pending teacher since the
+// 2026-08-10 merge - see 'ems_working_schedules_import_create_new_teacher' below). Mirrors
+// 'ems_working_schedules_import_resolve_group' exactly.
 // The real teacher ("Tour Resolve Teacher Email") is seeded by the Python test method; the XML
 // deliberately uses a different, unknown e-mail so a 'teacher_line' is actually created.
 registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_teacher_email", {
@@ -470,16 +459,7 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_te
             run: "click",
         },
         {
-            trigger: ".modal .alert-success:contains('No new teacher will be created')",
-            content: "The 'pending_info' screen shows its own success message - the one teacher here already exists",
-        },
-        {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' step",
-            run: "click",
-        },
-        {
-            trigger: ".modal .alert-success:contains('No room conflicts were found within this batch')",
+            trigger: ".modal .alert-success:contains('No conflicts were found within this batch')",
             content: "The 'internal_conflicts' screen shows its own success message - only one teacher is in this batch, so no collision is possible",
         },
         {
@@ -586,12 +566,7 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_create_new
             run: "click",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' step",
-            run: "click",
-        },
-        {
-            trigger: ".modal .alert-success:contains('No room conflicts were found within this batch')",
+            trigger: ".modal .alert-success:contains('No conflicts were found within this batch')",
             content: "The 'internal_conflicts' screen shows its own success message - only one teacher is in this batch, so no collision is possible",
         },
         {
@@ -682,7 +657,7 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_in
             run: "click",
         },
         {
-            trigger: ".modal .alert-success:contains('Every teacher e-mail mentioned in the file was recognized')",
+            trigger: ".modal .alert-success:contains('Every teacher mentioned in the file was recognized')",
             content: "Both seeded teachers are recognized by e-mail",
         },
         {
@@ -691,26 +666,20 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_in
             run: "click",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' step",
-            run: "click",
+            trigger: ".modal .card:contains('Split session')",
+            content: "The 'internal_conflicts' screen groups the colliding pair under its own 'Split session' card",
         },
         {
-            trigger: ".modal .o_data_cell:contains('Tour Resolve Conflict Group A')",
-            content: "The 'internal_conflicts' screen lists the colliding pair (same subject, different groups sharing a room)",
+            trigger: ".modal .ems_conflict_row:contains('Tour Resolve Conflict Group B')",
+            content: "The collision itself is listed as a row under the 'Tour Resolve Conflict Teacher A' sub-group",
         },
         {
             trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
             content: "Continue shows disabled - both rooms still default to the same colliding classroom",
         },
         {
-            trigger: ".modal .o_data_row .o_data_cell[name='right_space_id']",
-            content: "Click the row's right classroom cell to edit it",
-            run: "click",
-        },
-        {
-            trigger: ".modal .o_selected_row .o_field_widget[name='right_space_id'] input",
-            content: "Search for the seeded second classroom",
+            trigger: ".modal .ems_conflict_row:contains('Tour Resolve Conflict Group B') .ems_conflict_space_right input",
+            content: "Search for the seeded second classroom in the row's own right room picker",
             run: "edit Tour Resolve Conflict Space B",
         },
         {
@@ -740,6 +709,268 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_in
         {
             trigger: "body:not(:has(.modal)) .o_list_view",
             content: "Back to the Working Schedules list, confirming the resolved-conflict import completed",
+        },
+    ],
+});
+
+// Screen 4's own 'self_conflict' kind (2026-08-10, developer feedback against a real import) -
+// two DIFFERENT placeholder codes, both manually assigned (on the 'teachers' screen) to the SAME
+// already-existing employee, whose own two sessions collide in weekday/time but NOT in room -
+// exactly the shape no room-based check can ever catch. This tour proves the row actually renders
+// (with its own "Same teacher, different room" label and only Left/Right prevails offered, no
+// "Confirm"/"Reassign rooms") and resolves in a real browser.
+registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_self_conflict", {
+    test: true,
+    url: "/odoo/action-ems.action_working_schedules_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view",
+            content: "Working Schedules list loaded",
+        },
+        {
+            trigger: ".o_cp_action_menus button",
+            content: "Open the list's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-item:contains('Import planner data')",
+            content: "Click 'Import planner data (XML)'",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids']",
+            content: "Import wizard dialog opened",
+            run: async () => {
+                const xml = '<root>'
+                    + '<T name="TOURSELFX1"><D name="1 Monday"><H name="1 09:00">'
+                    + '<Subject name="TOURSELFCONFLICT Tour Self Conflict Subject"/>'
+                    + '<Students name="Tour Self Conflict Group A"/>'
+                    + '</H></D></T>'
+                    + '<T name="TOURSELFX2"><D name="1 Monday"><H name="1 09:00">'
+                    + '<Subject name="TOURSELFCONFLICT Tour Self Conflict Subject"/>'
+                    + '<Students name="Tour Self Conflict Group B"/>'
+                    + '</H></D></T>'
+                    + '</root>';
+                const file = new File([xml], "planner_resolve_self_conflict.xml", { type: "text/xml" });
+                await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", [file]);
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attachment",
+            content: "File attached",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled purely because a file is attached",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('Every group mentioned in the file was recognized')",
+            content: "Both seeded groups are recognized by exact name",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'groups' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_cell:contains('TOURSELFX1')",
+            content: "The 'teachers' screen lists both unresolved placeholder codes",
+        },
+        {
+            // A boolean cell's FIRST click both enters row-edit mode AND toggles the value in one
+            // go - a single click here unticks the default-True 'New' on the first row.
+            trigger: ".modal .o_data_row:has(.o_data_cell:contains('TOURSELFX1')) .o_data_cell[name='create_new']",
+            content: "Untick 'New' on the first row - this is the already-existing teacher",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_row:has(.o_data_cell:contains('TOURSELFX1')) .o_data_cell[name='employee_id']",
+            content: "Click the row's teacher cell to edit it",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_selected_row .o_field_widget[name='employee_id'] input",
+            content: "Search for the seeded teacher",
+            run: "edit Tour Self Conflict Teacher",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Tour Self Conflict Teacher')",
+            content: "Select it for the first identifier",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_row:has(.o_data_cell:contains('TOURSELFX2')) .o_data_cell[name='create_new']",
+            content: "Untick 'New' on the second row too - the SAME real person, sent under a different code",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_row:has(.o_data_cell:contains('TOURSELFX2')) .o_data_cell[name='employee_id']",
+            content: "Click the row's teacher cell to edit it",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_selected_row .o_field_widget[name='employee_id'] input",
+            content: "Search for the same seeded teacher",
+            run: "edit Tour Self Conflict Teacher",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Tour Self Conflict Teacher')",
+            content: "Select it for the second identifier too - both now resolve to the same employee",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled now that both rows have a teacher picked",
+            run: "click",
+        },
+        {
+            trigger: ".modal .card-header:contains('Same teacher, different room')",
+            content: "The 'internal_conflicts' screen lists the self-conflict, correctly classified even though the two rooms genuinely differ",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is already enabled - 'Left prevails' is a valid default for this kind",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('No conflicts were found against already-active schedules')",
+            content: "The 'db_conflicts' screen shows its own success message - no pre-existing session collides here",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'db_conflicts' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
+            content: "Click 'Import' - only the left (Group A) session survives for this teacher",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_list_view",
+            content: "Back to the Working Schedules list, confirming the resolved self-conflict import completed",
+        },
+    ],
+});
+
+// The grouped-cards widget's own bulk-resolution dropdown (2026-08-10, developer feedback after
+// resolving a large real batch by hand: "me iría bien que estuvieran agrupadas por tipo... y por
+// 'left', y que cada grupo me permitiera escoger el resolution que se aplica al grupo entero").
+// Three groups sharing the SAME classroom: the anchor's own entry collides (desdoble) with BOTH
+// other entries at the exact same slot, forming a sub-group with TWO rows under it, plus a second,
+// one-row sub-group for the remaining pair between those other two. This tour proves picking a
+// value in a sub-group's own bulk selector actually resolves every row under it at once - "Continue"
+// only ever enables once every row's own resolution is valid, so this is proven functionally
+// (the same idiom every other tour in this file already uses), not by inspecting each row's
+// dropdown value directly.
+registry.category("web_tour.tours").add("ems_working_schedules_import_bulk_apply_resolution", {
+    test: true,
+    url: "/odoo/action-ems.action_working_schedules_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view",
+            content: "Working Schedules list loaded",
+        },
+        {
+            trigger: ".o_cp_action_menus button",
+            content: "Open the list's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-item:contains('Import planner data')",
+            content: "Click 'Import planner data (XML)'",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids']",
+            content: "Import wizard dialog opened",
+            run: async () => {
+                const xml = '<root>'
+                    + '<T name="TOURBULKX1"><D name="1 Monday"><H name="1 09:00">'
+                    + '<Subject name="TOURBULKAPPLY Tour Bulk Apply Subject"/>'
+                    + '<Students name="Tour Bulk Apply Group A"/>'
+                    + '</H></D></T>'
+                    + '<T name="TOURBULKX2"><D name="1 Monday"><H name="1 09:00">'
+                    + '<Subject name="TOURBULKAPPLY Tour Bulk Apply Subject"/>'
+                    + '<Students name="Tour Bulk Apply Group B"/>'
+                    + '</H></D></T>'
+                    + '<T name="TOURBULKX3"><D name="1 Monday"><H name="1 09:00">'
+                    + '<Subject name="TOURBULKAPPLY Tour Bulk Apply Subject"/>'
+                    + '<Students name="Tour Bulk Apply Group C"/>'
+                    + '</H></D></T>'
+                    + '</root>';
+                const file = new File([xml], "planner_bulk_apply.xml", { type: "text/xml" });
+                await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", [file]);
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attachment",
+            content: "File attached",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled purely because a file is attached",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('Every group mentioned in the file was recognized')",
+            content: "All three seeded groups are recognized by exact name",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'groups' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_cell:contains('TOURBULKX1')",
+            content: "The 'teachers' screen lists all three unresolved placeholder codes",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue through the 'teachers' step - 'create_new' already defaults to True for every row",
+            run: "click",
+        },
+        {
+            trigger: ".modal .ems_conflict_subgroup:has(strong:contains('Tour Bulk Apply Group A')) .ems_conflict_row",
+            content: "The sub-group for the anchor entry (Group A) lists both of its own colliding pairs as rows",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
+            content: "Continue shows disabled - every row still defaults to 'Reassign rooms' with both sides identical",
+        },
+        {
+            trigger: ".modal .ems_conflict_subgroup:has(strong:contains('Tour Bulk Apply Group A')) .ems_conflict_bulk_select",
+            content: "Bulk-apply 'Left prevails' to BOTH rows under the Group A sub-group at once",
+            run: "select prevail_left",
+        },
+        {
+            trigger: ".modal .ems_conflict_subgroup:has(strong:contains('Tour Bulk Apply Group B')) .ems_conflict_bulk_select",
+            content: "Bulk-apply 'Left prevails' to the remaining sub-group's own single row too",
+            run: "select prevail_left",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled now that every row (both bulk-applied at once) has a valid resolution",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('No conflicts were found against already-active schedules')",
+            content: "The 'db_conflicts' screen shows its own success message - no pre-existing session collides here",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'db_conflicts' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
+            content: "Click 'Import' - only the anchor's (Group A) session survives for this slot/room",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_list_view",
+            content: "Back to the Working Schedules list, confirming the bulk-resolved import completed",
         },
     ],
 });
@@ -802,7 +1033,7 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_db
             run: "click",
         },
         {
-            trigger: ".modal .alert-success:contains('Every teacher e-mail mentioned in the file was recognized')",
+            trigger: ".modal .alert-success:contains('Every teacher mentioned in the file was recognized')",
             content: "The seeded teacher is recognized by e-mail",
         },
         {
@@ -811,12 +1042,7 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_db
             run: "click",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' step",
-            run: "click",
-        },
-        {
-            trigger: ".modal .alert-success:contains('No room conflicts were found within this batch')",
+            trigger: ".modal .alert-success:contains('No conflicts were found within this batch')",
             content: "Only one teacher is in THIS batch, so no within-batch collision is possible",
         },
         {
@@ -825,21 +1051,16 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_db
             run: "click",
         },
         {
-            trigger: ".modal .o_data_cell:contains('Tour Resolve DB Conflict Group B')",
-            content: "The 'db_conflicts' screen lists the collision against the already-active DB session",
+            trigger: ".modal .ems_conflict_row:contains('Tour Resolve DB Conflict Group A')",
+            content: "The 'db_conflicts' screen lists the collision against the already-active DB session (Group A, the existing session, is the row under Group B's own file entry)",
         },
         {
             trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
             content: "Continue shows disabled - both rooms still default to the same colliding classroom",
         },
         {
-            trigger: ".modal .o_data_row .o_data_cell[name='right_space_id']",
-            content: "Click the row's right classroom cell to edit it",
-            run: "click",
-        },
-        {
-            trigger: ".modal .o_selected_row .o_field_widget[name='right_space_id'] input",
-            content: "Search for the seeded second classroom",
+            trigger: ".modal .ems_conflict_row:contains('Tour Resolve DB Conflict Group A') .ems_conflict_space_right input",
+            content: "Search for the seeded second classroom in the row's own right (existing DB session) room picker",
             run: "edit Tour Resolve DB Conflict Space B",
         },
         {

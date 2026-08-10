@@ -366,48 +366,82 @@ step. Verified in a real browser, not just by reasoning about the source: the re
 asserts `button[name='action_continue_disabled'][disabled]` is actually present before a group is
 picked, and `button[name='action_continue']:not([disabled])` right after.
 
-### Screen 3 — "Resolve teachers" (2026-08-05) — deferred e-mail resolution
+### Screen 3 — "Resolve teachers" (2026-08-05) — deferred e-mail resolution, merged with "Pending teachers" (2026-08-10)
 
 Unlike screen 2, this one needed no developer check-in first: the plan already fully specified an
 unresolved e-mail as this screen's job, distinct from a pending-identification *code* (no `@`,
-still handled automatically at Import, per screen 4 ("Pending teachers", below) - see
-`_is_email_like`). Building it does
-change what "an unknown e-mail" means for tests/tours written before this screen existed - it now
-surfaces as a resolvable line here instead of always reaching an error dialog at the final Import
-- adapted the same way screen 2's pre-existing tests were, since this is an unambiguous, intended
-consequence of the screen actually existing now, not a design question to re-litigate.
+see `_is_email_like`) - originally handled silently, with only a separate, later preview screen
+("Pending teachers") showing what would happen. Building it does change what "an unknown e-mail"
+means for tests/tours written before this screen existed - it now surfaces as a resolvable line
+here instead of always reaching an error dialog at the final Import - adapted the same way screen
+2's pre-existing tests were, since this is an unambiguous, intended consequence of the screen
+actually existing now, not a design question to re-litigate.
+
+**"Pending teachers" merged into this screen (2026-08-10, developer feedback): *"¿Ves factible
+fusionar los pasos 'Resolve teachers' y 'Pending teachers' en 'Resolve teachers'? Todo funcionaría
+como en 'Resolve teachers': marcado el new por defecto, para crearlo como pending, pero que me
+deje asignarlo a mano."*** Until this change, a bare placeholder code (no `@`) never got a
+correction row at all - it fell straight through to `_get_or_create_pending_teacher()` at Import,
+with no way to tell the wizard "actually, this code is the same real person as that other code/
+e-mail" before the fact. The developer ran into exactly this: the same real teacher sent under two
+different raw identifiers (two different placeholder codes, or a code and a mistyped e-mail
+attempt), each independently minting its own new pending employee. Rather than add a dedicated
+"same person as" cross-reference field (analyzed and offered, but declined for now - *"creo que de
+momento esto que pido es más sencillo y cubre el 99% de los casos"*), the fix folds the old
+"Pending teachers" preview screen's own identifiers into this screen's correction rows: **both**
+e-mail-shaped identifiers and bare codes now get a `teacher_line` here, `create_new` defaulting to
+`True` either way, so a genuinely new hire needs no action while an admin who recognizes a code or
+e-mail as an already-known person can assign the SAME existing employee to two (or more) different
+rows by hand, right here - `_continue_from_teachers()`'s own `identifier → employee` map (below) has
+no uniqueness constraint on the employee side, so this already resolves correctly with no further
+code change (confirmed by a dedicated regression test,
+`test_continue_from_teachers_same_employee_assigned_to_two_different_identifiers`, not just by
+reading the code). The old, separate `pending_info` state, its `pending_teachers_html` preview
+field, and the now-unused `_teacher_preview_html`/`_bullet_html` helpers were all removed outright
+- see "Screen 4" below (now folded in) for what this preview used to show, and the "Overall
+summary" section for where its underlying classification logic (`_classify_teacher_item`,
+`_teacher_preview_items`, `_teacher_preview_line`) still lives on, unchanged, now only feeding that
+final screen.
 
 **Mechanism**, deliberately mirroring screen 2's shape:
 
-- **`_pending_teacher_identifiers(node_cache)`**: every distinct e-mail-shaped identifier
-  (`_is_email_like`) with no matching `hr.employee.work_email` - a pending-identification *code*
-  is never included, it isn't a problem for this screen to resolve. Computed **after** group picks
-  are applied, inside `_continue_from_groups()` (not `_continue_from_intro()` - unlike screen 2's
-  own lines, which are built leaving `intro`), materializing one `ems.working_schedules_import_
+- **`_pending_teacher_identifiers(node_cache)`**: every distinct identifier with no matching
+  existing employee - an e-mail-shaped one (`_is_email_like`) checked against
+  `hr.employee.work_email`, a bare code checked against `hr.employee.schedule_import_code` (the
+  same field a re-import already reuses for idempotency, see "Pending-identification teachers"
+  above) - both kinds get a line since the 2026-08-10 merge. Computed **after** group picks are
+  applied, inside `_continue_from_groups()` (not `_continue_from_intro()` - unlike screen 2's own
+  lines, which are built leaving `intro`), materializing one `ems.working_schedules_import_
   wizard.teacher_line` (`raw_identifier` readonly, `employee_id` Many2one to `hr.employee` domain
   `employee_type = 'teacher'`) per name, before advancing to `teachers` - matches the flow diagram's
   own `groups --> teachers: Continue (apply group picks, reclassify)` transition.
-- **`_continue_from_teachers()`**: raises if any line still has no `employee_id` picked (same
-  convention as screen 2); otherwise builds an `identifier → employee` map and writes an
-  `employee_id` key straight onto every matching `node_cache` item (not into `entries`/
-  `attendance_ids` like screen 2's group substitution - a *teacher* isn't part of those dicts at
-  all, it's the item's own top-level `identifier`), re-serializes the cache, advances to
-  `internal_conflicts`.
-- **`_apply_import()`** now checks `item.get('employee_id')` **first**, before falling back to the
-  original `work_email` lookup (still the correct path for an identifier that resolved on its own,
-  with no line ever created) or the placeholder-code branch (fully unaffected). The original
-  `raise ValidationError(_("Teacher with email '%s' not found."))` stays as a safety net for a
-  direct ORM/API caller bypassing the wizard's own step-by-step UI - by the time a real user
-  reaches Import through the wizard, every e-mail that could need this line already got one.
+- **`_continue_from_teachers()`**: raises if any line still has neither `employee_id` picked nor
+  `create_new` ticked (same convention as screen 2); otherwise builds an `identifier → employee`
+  map (from every line with an `employee_id`, regardless of whether that employee already appears
+  under a different identifier - the "assign the same person twice" case above) and a
+  `identifiers_to_create` set (from every line with `create_new` ticked), then writes an
+  `employee_id` or `create_pending` key straight onto every matching `node_cache` item (not into
+  `entries`/`attendance_ids` like screen 2's group substitution - a *teacher* isn't part of those
+  dicts at all, it's the item's own top-level `identifier`), re-serializes the cache, builds
+  `internal_conflict_line_ids` (screen 4's own content, below - this used to be the separate
+  "Pending teachers" screen's job, now folded into this same handler since neither conflict screen
+  depends on anything this classification writes), and advances to `internal_conflicts`.
+- **`_apply_import()`** checks `item.get('employee_id')` **first**, before falling back to the
+  original `work_email`/`schedule_import_code` lookups (still the correct path for an identifier
+  that resolved on its own, with no line ever created) or `_get_or_create_pending_teacher()` for a
+  `create_pending`/bare-code item. The original `raise ValidationError(_("Teacher with email '%s'
+  not found."))` stays as a safety net for a direct ORM/API caller bypassing the wizard's own
+  step-by-step UI - by the time a real user reaches Import through the wizard, every identifier
+  that could need a line already got one.
 - **Many2one create explicitly disabled** (`context="{'no_create': True, 'no_create_edit': True}"`,
-  the developer's own call from the plan): a brand-new teacher record is screen 4's job
-  ("Pending teachers", below - pending-identification, automatic at Import) - this screen only
-  ever *attaches* the schedule to an already-existing employee, never creates one.
+  the developer's own call from the plan): a brand-new teacher record is created by ticking
+  `create_new` on this SAME row (pending-identification, automatic at Import), not by creating one
+  through this selector - it only ever *attaches* the schedule to an already-existing employee.
 - View: a new `state == 'teachers'` screen, same "editable list, or a success alert" shape as
-  `groups`; the placeholder "not implemented yet" alert's `invisible` grew a third excluded state
-  (`'teachers'`) to match. `continue_disabled` grew its own `teachers` branch (any `teacher_line_ids`
-  row still missing an `employee_id`) - same enabled/disabled "Continue" mechanism as screen 2, no
-  new UI concept needed.
+  `groups` (success message reworded from "Every teacher e-mail mentioned..." to "Every teacher
+  mentioned..." with the 2026-08-10 merge, since it now also covers bare codes). `continue_disabled`
+  has its own `teachers` branch (any `teacher_line_ids` row still missing an `employee_id` AND not
+  `create_new`) - same enabled/disabled "Continue" mechanism as screen 2, no new UI concept needed.
 
 **"Create new" checkbox for a genuinely never-hired teacher (2026-08-05, developer feedback after
 using it for real):** the original design above assumed every unresolved e-mail was a typo/mismatch
@@ -447,53 +481,40 @@ column in this codebase relies on Odoo's own default alignment, matching field t
 label and the checkbox at Odoo's default left alignment instead - no `class="text-center"` on the
 field, simplest fix with no custom CSS.
 
-### Screen 4 — "Pending teachers" (2026-08-10; moved from right after "Existing schedule conflicts" to right after "Resolve teachers" on 2026-08-10, per developer feedback - see below) — pure preview, no resolution
+### Former Screen 4, "Pending teachers" — merged into Screen 3 (removed 2026-08-10)
 
-Purely informational: unlike screens 2/3/5/6, there is nothing to resolve here - by the time the
-flow reaches `pending_info`, every identifier in the batch is already fully resolved (screens 2-3
-already forced that). All this screen does is show the admin, before dealing with any room
-conflicts, **which teachers Import is about to create** (as opposed to attach the schedule to an
-already-existing employee).
+This used to be its own screen, moved right after "Resolve teachers" earlier the same day (2026-
+08-10, developer feedback: *"El paso 6, no puede hacerse tras 'resolve teachers' o fusionarse con
+este?"*) before being merged into it outright, later that same day - see Screen 3's own section
+above for the merge itself and why it made resolving a duplicate-teacher mention finally possible.
+It was purely informational (nothing to resolve, no line model of its own - a plain `Html` field,
+`pending_teachers_html`, since deleted along with the now-unused `_teacher_preview_html`/
+`_bullet_html()` helpers and the `pending_info` state) - all it ever did was preview, before
+dealing with any room conflicts, which teachers Import was about to create.
 
-**`_classify_teacher_item(item)` is the single source of truth both this preview (and the
-"Overall summary" screen's own existing-teacher preview, below) and `_apply_import` (the real write
-path) branch on** - extracted from what used to be `_apply_import`'s own inline `if/elif` chain, so
-neither preview can ever silently drift out of sync with what Import actually does later. Returns
-one of four fates per `node_cache` item:
+**The underlying classification this screen previewed is still very much alive - it just lost its
+own dedicated screen.** `_classify_teacher_item(item)` remains the single source of truth both the
+"Overall summary" screen's own existing/pending-teacher blocks (below) and `_apply_import` (the
+real write path) branch on - unchanged in spirit, only fixed to keep telling a `create_pending`
+e-mail apart from a `create_new`-ticked bare code (both now reachable from the exact same "New"
+checkbox on Screen 3, where before only an e-mail could reach `create_pending` at all). Returns one
+of four fates per `node_cache` item:
 - `resolved`: an existing `hr.employee` picked on the "teachers" step (screen 3).
-- `create_pending`: "New" ticked on that same step - a genuinely never-hired teacher.
+- `create_pending`: "New" ticked on that same step for an **e-mail-shaped** identifier - a
+  genuinely never-hired teacher worth pre-filling the attempted e-mail for.
 - `email_match`: an e-mail that already matched an existing `hr.employee.work_email` on its own,
   never even needing a screen-3 correction line.
-- `placeholder`: a bare code/name, never an e-mail - resolves to a pending-identification teacher
-  at Import, same outcome as `create_pending` but with no manually-attempted e-mail to pre-fill.
+- `placeholder`: a bare code, never an e-mail - resolves to a pending-identification teacher at
+  Import, same outcome as `create_pending` but with no e-mail to pre-fill. Reached either because
+  the code already matched an existing `schedule_import_code` (nothing to resolve) or because "New"
+  was left ticked (the default) for a genuinely new one.
 
-`_teacher_preview_items(node_cache, fates)` collects the **distinct** identifiers (same "one
-correction/line per occurrence, not per mention" dedup convention every earlier screen already
-uses) whose fate is in the given set; `_teacher_preview_html(node_cache, fates)` wraps that same
-list into a bullet list via the generic `_bullet_html()` helper (below), reusing `ems_wizard_
-bullet_list`'s own CSS (the same class the pre-redesign single-screen wizard's now-removed banners
-used) for the up-to-3-column layout. This screen previews the `create_pending`/`placeholder` fates
-- `pending_teachers_html`, built by `_continue_from_teachers()` right before advancing (the same
-point that already builds every other cached-batch derivation for the step it's leaving). Each line
-reads `"Pending teacher (<identifier>)"`, matching `_get_or_create_pending_teacher()`'s own naming
-convention exactly - a `create_pending` line adds a note that the e-mail will be pre-filled as an
-attempt, not auto-generated (see `teacher_line.create_new`'s own docs above).
+`_teacher_preview_items(node_cache, fates)` (same "one correction/line per occurrence, not per
+mention" dedup convention every earlier screen already uses) and `_teacher_preview_line(item)` (one
+human-readable label per item, worded per its own fate) both survive unchanged, now used only by
+the "Overall summary" screen's own blocks, below.
 
-This `Html` field is a plain field, not a dedicated line model - unlike every resolution screen
-before it, there is nothing here to edit, so a full O2M + security entry would be unused ceremony
-for content that only ever gets displayed once and thrown away with the rest of the wizard.
-
-**Why moved ahead of the two conflict screens (2026-08-10, developer feedback): *"El paso 6, no
-puede hacerse tras 'resolve teachers' o fusionarse con este?"*** Traced the actual data dependency
-before moving anything, per this repo's "full-scenario exploration before implementing" rule:
-`_classify_teacher_item` only reads data that's already fixed by the end of screen 3 (`employee_id`/
-`create_pending`, both written by `_continue_from_teachers()`) - neither conflict-resolution screen
-(file conflicts, existing schedule conflicts) writes anything this classification depends on, so
-there was no hidden coupling forcing "Pending teachers" to run after them. Moving it right after
-"Resolve teachers" also reads better narratively: the admin sees which teachers are brand new
-*before* being asked to resolve conflicts those same new teachers' schedules might be part of.
-
-### Screen 5 — "File conflicts" (2026-08-05, renamed from "Internal conflicts" 2026-08-06; renumbered from Screen 4 to Screen 5 on 2026-08-10 when "Pending teachers" moved ahead of it, see below) — within-batch room collisions
+### Screen 4 — "File conflicts" (2026-08-05, renamed from "Internal conflicts" 2026-08-06; renumbered to Screen 4 on 2026-08-10 once "Pending teachers" merged into "Resolve teachers", see above) — within-batch room collisions
 
 **Genuinely new check, unlike screens 2/3** (which mainly relocated existing validation) - no
 prior single-screen wizard equivalent existed. Confirmed the UI/validation shape with the
@@ -507,7 +528,7 @@ state machine.
 **What does NOT need building:** two different teachers in this batch submitting the exact same
 `(subject, group-set, slot)` already merge into one shared co-teaching template automatically,
 today, via `_reconcile_fresh_import`'s own `by_slot`/`by_teacher_set` grouping (keyed on
-`(subject_id, tuple(group_ids))`) - nothing about that merge mechanism changes. What screen 5 adds
+`(subject_id, tuple(group_ids))`) - nothing about that merge mechanism changes. What screen 4 adds
 is *visibility*: the developer's explicit 2026-08-01 call was that this auto-merge should still be
 **shown and confirmed**, not silently assumed, since a same-subject/same-group collision can
 equally be a genuine typo in the source file coincidentally producing the same shape.
@@ -526,7 +547,7 @@ n-way line; not expected to matter in practice (a genuine 3-way room collision w
 batch would be a very unusual planning error), documented here as a known simplification rather
 than engineered for speculatively.
 
-**Classification (`_classify_conflict_kind`)**, shared conceptually with screen 6 (not yet built)
+**Classification (`_classify_conflict_kind`)**, shared conceptually with screen 5 (not yet built)
 per the plan's own "Conflict kind classification" section:
 - same `subject_id` **and** a shared `group_id` → `co_teaching_eligible`.
 - same `subject_id`, **no** shared `group_id` → `desdoble_eligible` (a genuine split/"desdoble"
@@ -542,7 +563,7 @@ to just **"Split session"** (2026-08-06) - too long for the column once every co
 tightened (see the "Column width rebalancing" CSS note below).
 
 **State renamed "Internal conflicts" → "File conflicts" (2026-08-06, developer feedback):** clearer
-against screen 6's "Existing schedule conflicts" - both entries colliding here come from the same
+against screen 5's "Existing schedule conflicts" - both entries colliding here come from the same
 imported *file*, not some internal/external EMS distinction. `internal_conflict_line_ids`'s own
 field `string` was renamed to match (the technical model name `ems.working_schedules_import_wizard.
 internal_conflict_line` and the `state` value `internal_conflicts` were deliberately left
@@ -553,7 +574,7 @@ far more than this ask called for; only the two *display* strings moved).
 (2026-08-06, developer feedback, refined same day after the first wording read ambiguously since
 both label columns said just "File"):** on this screen, **"File (left)"/"File (right)"** (both
 sides are entries from the same imported file, disambiguated by side) and **"Classroom
-(left)"/"Classroom (right)"**; on screen 6 below, **"File"/"Database"** (no "(left)"/"(right)"
+(left)"/"Classroom (right)"**; on screen 5 below, **"File"/"Database"** (no "(left)"/"(right)"
 needed there - the two sides are never ambiguous, one's always the file and the other's always the
 existing DB record) and **"Classroom (file)"/"Classroom (DB)"**. The shared mixin's own field
 `string`s ("Left"/"Right"/"Left classroom"/"Right classroom") stay the generic default, only ever
@@ -595,8 +616,8 @@ own.
 translation had only ever referenced `internal_conflict_line`'s own selection value, never
 `external_conflict_line`'s (the two models share the option VALUES via the `conflict_mixin`, but
 Odoo's translation loader binds by *exact* `#:` reference, not shared value - see CLAUDE.md's own
-"msgid diff alone is not enough" note) - screen 6 ("Existing schedule conflicts") had been
-rendering every `kind`/`resolution` label in English regardless of app language since screen 6 was
+"msgid diff alone is not enough" note) - screen 5 ("Existing schedule conflicts") had been
+rendering every `kind`/`resolution` label in English regardless of app language since screen 5 was
 first built, undetected until this rename pass touched the same `.po` blocks and the gap became
 visible by inspection. Fixed by adding `external_conflict_line`'s own reference to all 7 existing
 blocks (3 `kind` options + 4 `resolution` options) rather than just the ones being renamed -
@@ -672,9 +693,137 @@ effect at all** in this Odoo install (bundled/trimmed Bootstrap build likely doe
 specific utilities), which is why the small custom CSS file exists instead of a zero-CSS
 declarative-only fix.
 
-### Screen 6 — "Existing schedule conflicts" (2026-08-05; renumbered from Screen 5 to Screen 6 on 2026-08-10, see below) — within-batch entries vs. already-active DB schedules
+**SUPERSEDED 2026-08-10 — the flat editable `<list>` described in every paragraph above (row-color
+decorations, the dedicated `working_schedules_import_wizard.css`, the `ems_conflict_resolution`
+selection-field widget) was replaced outright by a grouped-cards widget, `ems_grouped_conflict_
+lines` (`static/src/js/backend/grouped_conflict_lines_field.js` + `static/src/xml/backend/
+grouped_conflict_lines_field.xml`), on both this screen and Screen 5 below.** Developer feedback,
+resolving a large real batch by hand: *"me iría bien que estuvieran agrupadas por tipo (co-
+teaching, etc) y por 'left', y que cada grupo me permitiera escoger el resolution que se aplica al
+grupo entero. Si escojo ese resolution, se aplica a todos los desplegables (aunque luego yo cambie
+uno a mano). Para agrupar, quizás el formato tarjetas que hemos usado en el resumen final nos pueda
+venir bien."* Everything the old paragraphs above describe about the underlying DATA (positional
+`left_item_index`/`right_item_index` references, `resolution`'s per-kind defaults, `_continue_from_
+internal_conflicts()`'s own apply logic) is unchanged and still accurate - only the VIEW changed.
 
-Same classification/resolution shape as screen 5 (`_classify_conflict_kind`, the flat `resolution`
+**Same real gap that motivated the merge, from the SAME actual import** (the "same person as"
+merge from earlier this session, see Screen 3 above): resolving dozens of conflicts one row at a
+time in a flat list, each needing its own click, was the developer's own stated bottleneck
+("tardo mucho en corregirlos todos a mano") - directly prompted by hitting the new `self_conflict`
+kind (below) on a real, large planner file. Two related, developer-approved asks:
+1. **Detect same-teacher-different-room double-booking within the batch** (new `self_conflict`
+   kind, this screen only - see below).
+2. **Group + bulk-resolve** (this widget, both screens).
+
+**Grouping (two levels, exactly matching the developer's own words):** the widget reads
+`this.props.record.data[this.props.name].records` (the o2m's already-loaded sub-records - no new
+RPC) and groups **client-side**, in JS:
+- **Outer: by `kind`** - one Bootstrap `card` per kind actually present, in a fixed order
+  (`co_teaching_eligible`, `desdoble_eligible`, `plain_conflict`, `self_conflict`), reusing the
+  exact card/`card-header`/`card-body` classes the "Overall summary" screen's own cards already
+  use (`_summary_block_html()`) - "quizás el formato tarjetas... nos pueda venir bien."
+- **Inner: by `left_label`** - within a kind's card, one bordered sub-section per DISTINCT
+  `left_label` value (in the order it first appears), holding every row that shares it. This is
+  what "por 'left'" means: several colliding pairs sharing the same LEFT-side entry (e.g. one
+  teacher's own entry colliding with several other teachers' entries at the same slot) are grouped
+  together, since they are almost always resolved the same way in practice.
+
+**Bulk-apply, per sub-section:** a small `<select>` next to the sub-section's own `left_label`
+header, filtered to the resolutions valid for that KIND (same `allowedResolutionsByKind` mapping
+kept in sync by hand with `_resolution_is_valid`'s own `allowed_by_kind`, server-side) - picking a
+value calls `record.update({resolution: value})` on **every** record in that sub-section at once,
+then resets itself back to the placeholder (`"— apply to all —"`) so it never looks like a bound
+field, matching "cada grupo me permitiera escoger el resolution que se aplica al grupo entero."
+Every row keeps its OWN, independently-editable `resolution` `<select>` right below - "aunque luego
+yo cambie uno a mano" - a bulk pick is a starting point, never a lock. Verified with a dedicated
+tour (`ems_working_schedules_import_bulk_apply_resolution`) seeding 3 groups sharing one classroom
+so the anchor's own entry collides with both others, forming a 2-row sub-section - proven
+functionally via "Continue" only enabling once every row (both bulk-applied at once) has a valid
+resolution, the same idiom every other tour in this file already uses, rather than inspecting each
+row's own `<select>` value directly (fragile, since Owl sets the DOM `.value` PROPERTY on a
+`<select>`, not a `value=` HTML attribute a tour selector could match).
+
+**Room pickers (`left_space_id`/`right_space_id`, only shown once a row's own `resolution` is
+`'reassign_rooms'`) use Odoo's generic `AutoComplete` component directly** (`@web/core/
+autocomplete/autocomplete` - the same one the standard Many2one field widget itself is built on),
+driven by a plain `ems.space` `name_search` RPC, rather than the generic per-record `Field`
+component (`@web/views/fields/field`, used e.g. by Odoo's own calendar event popover to render an
+arbitrary field of an arbitrary record outside of a list/form root). **Confirmed empirically, not
+assumed:** `Field`'s Many2one only renders as genuinely editable once `record.isInEdition` is
+true, which requires the record's own `config.mode === 'edit'` (`Record.isInEdition`,
+`web/static/src/model/relational_model/record.js`) - a plain o2m load leaves every row's mode at
+its default (`'readonly'`), unlike the flat list this replaces, which only ever put ONE row at a
+time into edition via its own `editable="bottom"` mechanism. Explicitly calling `record.
+switchMode("edit")` for every row on mount was tried first and visually confirmed (real screenshot)
+to render the Many2one as inert text regardless - not worth chasing further given `AutoComplete`
+has no such dependency at all: it is a fully self-contained input, and `onSelect` writes
+`record.update({ [fieldName]: [id, label] })` - the exact `[id, display_name]` tuple shape
+`Many2OneField`'s own `updateRecord()` writes internally, confirmed by reading that file directly
+rather than guessing the payload shape.
+
+**`ems_conflict_resolution` (the old per-kind option-filtering Selection widget) and its own
+`working_schedules_import_wizard.css` (row-color decorations, column `max-width`) are both deleted
+outright**, superseded respectively by `resolutionOptions(kind)` (the same filtering logic, now
+inline in the new widget) and by which CARD a row appears under (which kind it is is now conveyed
+by the grouping itself, not a per-row background tint). The `<list>` sub-arch inside each `<field
+widget="ems_grouped_conflict_lines">` in `import_wizard.xml` is kept, stripped down to bare `<field
+name="...">` declarations with no `string=`/`class=`/`widget=` attributes - it is never rendered
+directly any more (confirmed the exact same "keep a `<list>` purely for sub-field declaration"
+convention `em_matrix_field.js`/`em_wizard.xml` already established elsewhere in this codebase),
+so any view-level attribute on it would be silently ineffective, misleading to a future reader.
+Six now-fully-orphaned `.po` blocks (`"File (left)"`/`"File (right)"`/`"Classroom (left)"`/
+`"Classroom (right)"`/`"Classroom (file)"`/`"Classroom (DB)"`, plus a `view_working_schedules_
+import_wizard`-only `"Database"` block) were removed from both `ca_ES.po`/`es_ES.po` rather than
+left dangling; a shared `"File"` block (still needed by `ems.student_document.doc_file`/
+`view_contact_form`) had just this view's own now-stale `#:` reference trimmed off, not the whole
+block. Every new JS-side label (`_t()` calls in the new widget: the 4 kind names, the 4 resolution
+names, the bulk placeholder, the room-picker placeholder) got its own `#. odoo-javascript`-tagged
+`.po` block in both languages - reusing the exact already-proven translated text from the
+pre-existing Python/view-arch entries for the 8 labels that already existed elsewhere (JS-sourced
+`_t()` and Python/view-sourced `_()`/arch strings are looked up from separate, source-type-tagged
+catalog entries even for byte-identical text - see CLAUDE.md's own i18n note on this).
+
+### `self_conflict` — a teacher double-booked across two rooms, within the SAME batch (2026-08-10)
+
+**The actual gap, found against a real import:** the developer manually merged two DIFFERENT raw
+identifiers (two placeholder codes) to the SAME existing employee (Screen 3's "same person as"
+merge, confirmed working with no code change needed) - that one real teacher turned out to be
+double-booked at the same time in two DIFFERENT rooms. Neither this screen's own room-based
+`_find_internal_conflicts` (which only ever pairs entries sharing a `space_id`) nor `ems.
+attendance_template.find_self_conflicts` (the pre-existing DB-side self-conflict check, whose own
+docstring already says *"it does not catch two overlapping entries for the same teacher within
+the single batch being submitted right now"*) could ever catch this - it surfaced as a raw,
+unworded `check_overlap` `ValidationError` at the final Import click instead of a resolvable line.
+
+**New `_find_self_conflicts_in_batch(node_cache, excluded_pairs)`:** pairs every two TEACHING
+entries from DIFFERENT `node_cache` items both explicitly resolved to the SAME `employee_id`
+(the only way two distinct identifiers can be confirmed as one physical teacher - a bare code left
+on "New"/a genuinely new e-mail always mints its own DISTINCT pending employee, never collides with
+another identifier this way) whose weekday/time overlap, **regardless of room**. `excluded_pairs`
+(built from `_find_internal_conflicts`'s own room-based pairs first) skips anything already
+surfaced as a room-based conflict of another kind, so the same collision is never listed twice.
+Called from `_build_internal_conflict_lines()` (Screen 3's own `_continue_from_teachers()` handler
+- by that point every item already has `employee_id`/`create_pending` resolved) right after the
+room-based pairs, appending `kind='self_conflict'` lines with no room pre-fill.
+
+**New `kind` option, `self_conflict` ("Same teacher, different room"), allows only `prevail_left`/
+`prevail_right`** (`_resolution_is_valid`'s `allowed_by_kind`, and `_RESOLUTION_DEFAULTS['self_
+conflict'] = 'prevail_left'`) - never `co_teaching` (there is no shared room to co-teach in) or
+`reassign_rooms` (a room swap fixes nothing when the real problem is one teacher needed in two
+places at once - the exact same reasoning already applied to the DB-side self-conflict case, now
+finally also applied here). The JS widget's own `allowedResolutionsByKind` mirrors this by hand.
+
+5 new backend tests (`test_continue_from_teachers_builds_self_conflict_line_when_two_identifiers_
+resolve_to_same_employee`, a same-shape regression guard for two DIFFERENT employees, both
+`prevail_left`/`prevail_right` completing the import correctly, and `reassign_rooms` correctly
+rejected) plus a dedicated tour (`ems_working_schedules_import_resolve_self_conflict`, two
+placeholder codes merged into one seeded employee with entries in two different rooms).
+`TestWorkingSchedulesImportWizard` (94/94) and `TestWorkingSchedulesImportWizardTour` (10/10, incl.
+the bulk-apply tour above) both green.
+
+### Screen 5 — "Existing schedule conflicts" (2026-08-05; renumbered to Screen 5 on 2026-08-10 once "Pending teachers" merged into "Resolve teachers", see above) — within-batch entries vs. already-active DB schedules
+
+Same classification/resolution shape as screen 4 (`_classify_conflict_kind`, the flat `resolution`
 Selection, the enabled/disabled "Continue"), but **left** = a new entry from this import,
 **right** = an already-active `ems.attendance_schedule` DB record - no fresh check-in needed here,
 the plan had already fully speced this screen (including the `has_sessions` interaction, found and
@@ -688,7 +837,7 @@ return the *aggregate* colliding recordset (all they need for their original yes
 purpose), and `find_self_conflicts` in particular matches purely on weekday/time overlap with
 **no room restriction at all** (the same teacher physically can't be in two rooms at once,
 regardless of which rooms) - so trying to re-derive the (item, entry) pairing afterward by
-matching on room, the way screen 5 safely can (every one of *its* candidates was already
+matching on room, the way screen 4 safely can (every one of *its* candidates was already
 room-matched by construction), would silently miss every genuine self-conflict whose colliding
 room differs from the new entry's own. `_find_external_conflicts` tracks the (item_index,
 entry_index, candidate) pairing itself instead, via its own two ORM searches:
@@ -700,14 +849,14 @@ entry_index, candidate) pairing itself instead, via its own two ORM searches:
   a different `(subject, group-set)` combo, **no room restriction** - a genuine double-booking in
   *time*, independent of whichever rooms are involved.
 
-**Known simplification, same spirit as screen 5's pairwise-only detection:** if the same existing
+**Known simplification, same spirit as screen 4's pairwise-only detection:** if the same existing
 DB record would collide with more than one new entry, only the first one found becomes a line -
 not engineered further for a scenario this unlikely.
 
 - **`_build_external_conflict_lines`**: for every triple from `_find_external_conflicts`,
-  `_classify_conflict_kind` classifies the pair (identical rules to screen 5), and one
+  `_classify_conflict_kind` classifies the pair (identical rules to screen 4), and one
   `ems.working_schedules_import_wizard.external_conflict_line` is created - `right_schedule_id`
-  (Many2one to the actual `ems.attendance_schedule` record) instead of screen 5's positional
+  (Many2one to the actual `ems.attendance_schedule` record) instead of screen 4's positional
   right-side indices, since the right side here is a real, already-persisted record, not a
   node_cache position. **A `plain_conflict` triple can come from either search above, and only one
   of them is actually a room problem** - `same_room_conflict = kind == 'plain_conflict' and
@@ -716,12 +865,12 @@ not engineered further for a scenario this unlikely.
   for a `self_candidates` hit (matched on time alone, so the candidate's room may or may not
   happen to also match). Only when `same_room_conflict` is true does the line default to
   `reassign_rooms` with both `left_space_id`/`right_space_id` pre-filled with that shared room
-  (changed 2026-08-06, same reasoning as screen 5's own plain-conflict default change above) - a
+  (changed 2026-08-06, same reasoning as screen 4's own plain-conflict default change above) - a
   genuine self-time-conflict with differing rooms keeps the older `prevail_left` default and no
   room pre-fill, since reassigning rooms fixes nothing when the actual problem is the same teacher
   needed in two places at the same time, not a shared room.
 - **`_continue_from_db_conflicts()`**, per resolution:
-  - `co_teaching`: no-op, same as screen 5 - `_reconcile_fresh_import`'s own merge already folds an
+  - `co_teaching`: no-op, same as screen 4 - `_reconcile_fresh_import`'s own merge already folds an
     external teacher's exact-match slot into the shared group correctly on its own.
   - `prevail_left` (the new entry wins): `right_schedule_id.action_archive()` - archiving a single
     schedule line is always allowed regardless of `has_sessions` (only in-place field edits on a
@@ -733,11 +882,11 @@ not engineered further for a scenario this unlikely.
     unless the context says otherwise) rather than left behind as an orphaned, lineless record -
     found empirically while testing the self-conflict scenario below, where the first version of
     this code only archived the line and left the (now pointless) parent template active.
-  - `prevail_right` (the existing session wins): deletes the new entry, exactly like screen 5's own
+  - `prevail_right` (the existing session wins): deletes the new entry, exactly like screen 4's own
     `prevail_left`/`prevail_right` (same index-collection-then-reverse-delete mechanism, shared
     with `_continue_from_internal_conflicts`).
   - `reassign_rooms`: the **left** (new entry) side writes `space_id` into `node_cache` exactly like
-    screen 5. The **right** (existing DB record) side calls
+    screen 4. The **right** (existing DB record) side calls
     `right_schedule_id._write_or_new_version({'space_id': ...})` directly - **not** its
     `action_new_version()` button wrapper (that one is hardcoded to no field changes, since it only
     ever exists for the manual "make this locked line editable again" action) - the shared mixin
@@ -747,7 +896,7 @@ not engineered further for a scenario this unlikely.
     with the `has_sessions` lock" note) that made this screen's own Green phase noticeably
     smaller than it would otherwise have been.
 
-View/`continue_disabled`: same shape as screen 5, `internal_conflicts` excluded state on the
+View/`continue_disabled`: same shape as screen 4, `internal_conflicts` excluded state on the
 placeholder alert becomes `db_conflicts`, `right_space_id`/column visibility identical.
 
 **Dialog widened to `extra-large` (2026-08-06, developer feedback):** these two conflict screens'
@@ -760,7 +909,7 @@ so the size is set once, for the whole flow, via `context: {dialog_size: "extra-
 database. The earlier, narrower steps (2/3, a two-column list) simply get some extra breathing room
 as a side effect, not a problem.
 
-### Screen 7 — "Overall summary" (2026-08-10; renamed from "Existing teachers"/`override_info`, expanded with a counts recap, per developer feedback - see below) — final preview + confirmation before Import
+### Screen 6 — "Overall summary" (2026-08-10; renamed from "Existing teachers"/`override_info`, expanded with a counts recap, per developer feedback - see below; renumbered from Screen 7 to Screen 6 later the same day once "Pending teachers" merged into "Resolve teachers", see above) — final preview + confirmation before Import
 
 The last step, purely informational, immediately before the real "Import" click. One field,
 `overall_summary_html`, built by `_continue_from_db_conflicts()` right before advancing (the same
@@ -783,9 +932,9 @@ flat list:
   - Groups: `"%(raw)s resolved to %(group)s"` per `group_line_ids` row.
   - Teachers: `"%(raw)s resolved to %(teacher)s"`, or `"%(raw)s will be created as a new pending
     teacher"` for a `create_new`-ticked row, per `teacher_line_ids` row.
-  - Pending teachers: reuses `_teacher_preview_line()` (see screen 4, above) for the
-    `create_pending`/`placeholder` fates - the exact same wording screen 4's own preview already
-    shows, intentionally duplicated here as part of the final recap. Also gets its own `note`
+  - Pending teachers: reuses `_teacher_preview_line()` (see "Former Screen 4", above) for the
+    `create_pending`/`placeholder` fates - the exact same wording that screen used to preview on
+    its own, intentionally duplicated here as part of the final recap. Also gets its own `note`
     (added 2026-08-10, developer feedback: *"que quede claro que significa que son 'pending' y que
     después se les podrá cambiar el nombre, crear su cuenta, etc."*) - explains once that these are
     placeholder employees whose real name/personal e-mail/Google account get filled in afterwards
@@ -869,14 +1018,16 @@ the same day, once actually seeing it rendered showed the first row's 4 cards to
 comfortably at the dialog's real width; switched to one full-width card per row (`flex-column`)
 instead.
 
-### Multi-step wizard skeleton (2026-08-05) — all 7 screens now have real logic
+### Multi-step wizard skeleton (2026-08-05) — all 6 screens now have real logic
 
-Rebuilt into a 7-screen guided flow (statusbar `state` field, one screen per step) per
-`plans/working_schedule_import_redesign.md`'s "Multi-step wizard" design. **As of the 2026-08-10
-pass, every step has real behavior** - what were then the last two still-placeholder steps
-("Pending teachers"/"Existing teachers") have since also been reordered and the final one expanded
-into "Overall summary" (see screens 4 and 7, above) - `_STATE_SEQUENCE` is currently `['intro',
-'groups', 'teachers', 'pending_info', 'internal_conflicts', 'db_conflicts', 'summary']`.
+Rebuilt into a guided flow (statusbar `state` field, one screen per step) per `plans/
+working_schedule_import_redesign.md`'s "Multi-step wizard" design - originally 7 screens, then 6
+once "Pending teachers" merged into "Resolve teachers" (2026-08-10, see above). **As of the
+2026-08-10 pass, every step has real behavior** - what were then the last two still-placeholder
+steps ("Pending teachers"/"Existing teachers") have since also been reordered, one merged into
+"Resolve teachers" and the other expanded into "Overall summary" (see "Former Screen 4" and Screen
+6, above) - `_STATE_SEQUENCE` is currently `['intro', 'groups', 'teachers', 'internal_conflicts',
+'db_conflicts', 'summary']`.
 
 **The most important structural change: `create()` no longer does any real work.** Before this
 pass, the wizard's `create()` override parsed every attached file and wrote everything
@@ -1040,6 +1191,28 @@ triggers (`_onchange_attachment_ids`) parses the whole XML server-side and was s
 zero visual feedback otherwise, to look hung (reported 2026-08-01). No bespoke spinner: `ui.block()`
 is the same reference-counted overlay Odoo already uses for long button actions, just wired to the
 file input instead.
+
+**The "Continue"/"Import" buttons share this wizard's own `js_class`
+(`ems_working_schedules_import_wizard_form`, `static/src/js/backend/working_schedules_import_wizard_form_controller.js`) — rewritten 2026-08-10** (developer feedback: *"durante la
+importación... debería aparecer el loading modal que bloquea toda la ventana, el mismo que usamos
+durante la migración"*) to reuse `blockingActionFormView()`
+(`static/src/js/backend/blocking_action_form.js` — the exact same factory `ems_course_transition_form`
+already uses for the course transition wizard) instead of a bespoke implementation. The earlier
+version blocked in `beforeExecuteActionButton` and unblocked immediately in a `finally` right after
+- covering only the record *save* that precedes the button's own server-side RPC call, on the
+assumption that "the button's own server method runs after the save and is comparatively cheap."
+True for "Continue" leaving the intro screen (the slow XML parsing happens *during* that save, via
+`_continue_from_intro`) — **false for "Import"**: `import_planner_data()` (`_apply_import()`) IS the
+slow part, and it runs entirely *after* the save, so the overlay was disappearing right as the real
+write was about to start. `blockingActionFormView` avoids this by construction: it only unblocks in
+`afterExecuteActionButton`, which the framework calls after the button's ENTIRE click (save + its
+own RPC + whatever action it returns) — covering whichever phase turns out to be slow, rather than
+assuming which one. No new browser-tour assertion added for the overlay's own visual appearance —
+this codebase has no established, reliably non-flaky pattern for asserting a transient full-window
+overlay's timing in a tour (not even the course transition's own tour tries this), and the actual
+import completes near-instantly against the small fixtures every existing tour already uses; the
+existing 8 tours re-confirm the Continue/Import click path itself still works end to end after the
+refactor.
 
 ### Pending-identification teachers (a code with no `@`)
 

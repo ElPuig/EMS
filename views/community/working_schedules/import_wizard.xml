@@ -43,42 +43,34 @@
                         </div>
 
                         <div invisible="state != 'teachers'">
-                            <p>EMS checks every teacher e-mail in the file against the teachers already in EMS. Any e-mail it couldn't match is listed below: pick the real teacher if it's a typo, or tick New if this is a genuinely new hire.</p>
+                            <p>EMS checks every teacher e-mail or placeholder code in the file against the teachers already in EMS. Any identifier it couldn't match is listed below: pick the real teacher if it's a typo or an already-known pending hire, or leave New ticked to create it as a brand-new, pending-identification employee (resolved later from the teacher's own form, once their real e-mail is known).</p>
                             <div class="alert alert-success" role="alert" invisible="teacher_line_ids">
-                                Every teacher e-mail mentioned in the file was recognized.
+                                Every teacher mentioned in the file was recognized.
                             </div>
                             <field name="teacher_line_ids" invisible="not teacher_line_ids">
                                 <list editable="bottom" create="False" delete="False">
-                                    <field name="raw_identifier" string="E-mail found in file"/>
+                                    <field name="raw_identifier" string="Identifier found in file"/>
                                     <field name="create_new"/>
                                     <field name="employee_id" readonly="create_new" context="{'no_create': True, 'no_create_edit': True}"/>
                                 </list>
                             </field>
                         </div>
 
-                        <div invisible="state != 'pending_info'">
-                            <p>Nothing to resolve here - this is a preview of every teacher this import is about to create as a brand-new, pending-identification employee.</p>
-                            <div class="alert alert-success" role="alert" invisible="pending_teachers_html">
-                                No new teacher will be created - every teacher in this batch already exists.
-                            </div>
-                            <field name="pending_teachers_html" invisible="not pending_teachers_html" nolabel="1"/>
-                        </div>
-
                         <div invisible="state != 'internal_conflicts'">
-                            <p>EMS checks whether two different teachers in this same file end up scheduled in the same classroom at the same time. Each colliding pair is listed below for you to resolve.</p>
+                            <p>EMS checks whether two different teachers in this same file end up scheduled in the same classroom at the same time, or whether the same real teacher (e.g. two identifiers you resolved to the same person) ends up double-booked at the same time in two different rooms. Each colliding pair is listed below for you to resolve.</p>
                             <div class="alert alert-success" role="alert" invisible="internal_conflict_line_ids">
-                                No room conflicts were found within this batch.
+                                No conflicts were found within this batch.
                             </div>
-                            <field name="internal_conflict_line_ids" invisible="not internal_conflict_line_ids">
-                                <list editable="bottom" create="False" delete="False"
-                                    decoration-warning="kind in ('co_teaching_eligible', 'desdoble_eligible')"
-                                    decoration-danger="kind == 'plain_conflict'">
-                                    <field name="left_label" string="File (left)" class="ems_conflict_label"/>
-                                    <field name="right_label" string="File (right)" class="ems_conflict_label"/>
-                                    <field name="kind" class="ems_conflict_kind"/>
-                                    <field name="resolution" widget="ems_conflict_resolution" class="ems_conflict_resolution"/>
-                                    <field name="left_space_id" string="Classroom (left)" invisible="resolution != 'reassign_rooms'" class="ems_conflict_space"/>
-                                    <field name="right_space_id" string="Classroom (right)" invisible="resolution != 'reassign_rooms'" class="ems_conflict_space"/>
+                            <field name="internal_conflict_line_ids" invisible="not internal_conflict_line_ids" widget="ems_grouped_conflict_lines">
+                                <!-- Never rendered directly (see the widget's own template) - only declares
+                                     which sub-fields to load. -->
+                                <list editable="bottom" create="False" delete="False">
+                                    <field name="left_label"/>
+                                    <field name="right_label"/>
+                                    <field name="kind"/>
+                                    <field name="resolution"/>
+                                    <field name="left_space_id"/>
+                                    <field name="right_space_id"/>
                                 </list>
                             </field>
                         </div>
@@ -88,16 +80,16 @@
                             <div class="alert alert-success" role="alert" invisible="external_conflict_line_ids">
                                 No conflicts were found against already-active schedules.
                             </div>
-                            <field name="external_conflict_line_ids" invisible="not external_conflict_line_ids">
-                                <list editable="bottom" create="False" delete="False"
-                                    decoration-warning="kind in ('co_teaching_eligible', 'desdoble_eligible')"
-                                    decoration-danger="kind == 'plain_conflict'">
-                                    <field name="left_label" string="File" class="ems_conflict_label"/>
-                                    <field name="right_label" string="Database" class="ems_conflict_label"/>
-                                    <field name="kind" class="ems_conflict_kind"/>
-                                    <field name="resolution" widget="ems_conflict_resolution" class="ems_conflict_resolution"/>
-                                    <field name="left_space_id" string="Classroom (file)" invisible="resolution != 'reassign_rooms'" class="ems_conflict_space"/>
-                                    <field name="right_space_id" string="Classroom (DB)" invisible="resolution != 'reassign_rooms'" class="ems_conflict_space"/>
+                            <field name="external_conflict_line_ids" invisible="not external_conflict_line_ids" widget="ems_grouped_conflict_lines">
+                                <!-- Never rendered directly (see the widget's own template) - only declares
+                                     which sub-fields to load. -->
+                                <list editable="bottom" create="False" delete="False">
+                                    <field name="left_label"/>
+                                    <field name="right_label"/>
+                                    <field name="kind"/>
+                                    <field name="resolution"/>
+                                    <field name="left_space_id"/>
+                                    <field name="right_space_id"/>
                                 </list>
                             </field>
                         </div>

@@ -52,28 +52,3 @@ th[data-name="deprecated"]{
     background-color: #D9B44A !important;
 }
 
-/* Working-schedule import wizard's warning/info banners (blocking_issues_html, info_html,
-   overrided_teachers_html, external_conflicts_html - all built via _bullet_html): these lists are
-   plain short items (a teacher name, a placeholder code, one conflict line), so a long one leaves
-   most of the dialog's width empty when stacked in a single column. CSS multi-column layout
-   balances them into 3 columns automatically - no JS, and it degrades gracefully (fewer real
-   columns than 3) when there are only one or two items. Falls back to a single column on a narrow
-   screen so long conflict lines don't get cramped. */
-.ems_wizard_bullet_list {
-    columns: 3;
-    column-gap: 24px;
-}
-
-/* Without this, a single <li> whose wrapped text is taller than one column gets its own lines
-   split across columns (reported 2026-08-01: one long conflict/e-mail line visually broke into 3
-   pieces, one per column, instead of staying together in the first one). break-inside keeps each
-   item whole, even if that means a later column starts mid-list. */
-.ems_wizard_bullet_list li {
-    break-inside: avoid;
-}
-
-@media (max-width: 640px) {
-    .ems_wizard_bullet_list {
-        columns: 1;
-    }
-}

@@ -307,16 +307,16 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		for wizard in self:
 			wizard.ready_to_import = bool(wizard.attachment_ids)
 
-	# NOTE: the 7-screen guided flow (see plans/working_schedule_import_redesign.md's "Multi-step
+	# NOTE: the 6-screen guided flow (see plans/working_schedule_import_redesign.md's "Multi-step
 	# wizard" section) - a statusbar Selection, non-clickable (no jumping steps by clicking the
-	# bar itself; Cancel is the only way back, discarding the whole in-progress wizard). Only
-	# 'intro' and 'groups' (this pass) have real per-step logic; the rest are placeholders that
-	# just advance the statusbar until each one gets its own screen built (see 'action_continue').
+	# bar itself; Cancel is the only way back, discarding the whole in-progress wizard). A former
+	# 7th screen, "Pending teachers", was folded into "Resolve teachers" (2026-08-10, developer
+	# feedback) - see 'teacher_line's own docs for why a single screen now covers both e-mails and
+	# placeholder codes.
 	state = fields.Selection([
 		('intro', "Welcome"),
 		('groups', "Resolve groups"),
 		('teachers', "Resolve teachers"),
-		('pending_info', "Pending teachers"),
 		('internal_conflicts', "File conflicts"),
 		('db_conflicts', "Existing schedule conflicts"),
 		('summary', "Overall summary"),
@@ -332,9 +332,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# of whether it ends up empty (the 'groups' screen shows a success message instead of the list
 	# in that case).
 	group_line_ids = fields.One2many(string="Unresolved groups", comodel_name="ems.working_schedules_import_wizard.group_line", inverse_name="wizard_id")
-	# NOTE: one line per distinct unresolved e-mail (see '_pending_teacher_identifiers') - populated
-	# once, leaving 'groups' (not 'intro' - unlike 'group_line_ids', this needs the group picks
-	# already applied first, per the flow's own 'groups --> teachers' transition).
+	# NOTE: one line per distinct unresolved identifier - e-mail or bare placeholder code alike,
+	# since 2026-08-10 (see '_pending_teacher_identifiers') - populated once, leaving 'groups' (not
+	# 'intro' - unlike 'group_line_ids', this needs the group picks already applied first, per the
+	# flow's own 'groups --> teachers' transition).
 	teacher_line_ids = fields.One2many(string="Unresolved teachers", comodel_name="ems.working_schedules_import_wizard.teacher_line", inverse_name="wizard_id")
 	# NOTE: one line per colliding pair found by '_find_internal_conflicts' - populated once,
 	# leaving 'teachers' (needs both group and teacher picks already applied - group resolution
@@ -343,13 +344,6 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# NOTE: one line per colliding pair found by '_build_external_conflict_lines' against
 	# already-active DB schedules - populated once, leaving 'internal_conflicts'.
 	external_conflict_line_ids = fields.One2many(string="Existing schedule conflicts", comodel_name="ems.working_schedules_import_wizard.external_conflict_line", inverse_name="wizard_id")
-	# NOTE: both are pure informational previews/recaps of what Import will actually do (screen 4
-	# and "Overall summary" - see 'action_continue' - purely read-only, no resolution needed unlike
-	# every other screen's own line model) - a plain Html field is enough, no dedicated line
-	# model/security entry needed for content that's never edited. Built leaving 'teachers'
-	# ('pending_teachers_html', screen 4) and 'db_conflicts' ('overall_summary_html', "Overall
-	# summary") respectively - see '_teacher_preview_html'/'_summary_blocks_html'.
-	pending_teachers_html = fields.Html(readonly=True)
 	# NOTE: 'overall_summary_html' is one field holding every category's own block (unresolved
 	# groups/teachers, pending teachers, both conflict kinds, existing teachers affected) - there
 	# used to be a separate 'existing_teachers_html' field just for the last category, but folding
@@ -387,7 +381,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			else:
 				wizard.continue_disabled = False
 
-	_STATE_SEQUENCE = ['intro', 'groups', 'teachers', 'pending_info', 'internal_conflicts', 'db_conflicts', 'summary']
+	_STATE_SEQUENCE = ['intro', 'groups', 'teachers', 'internal_conflicts', 'db_conflicts', 'summary']
 
 	@staticmethod
 	def _is_email_like(value):
@@ -540,8 +534,6 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			self._continue_from_internal_conflicts()
 		elif self.state == 'db_conflicts':
 			self._continue_from_db_conflicts()
-		elif self.state == 'pending_info':
-			self._continue_from_pending_info()
 		else:
 			self._advance_state()
 		return self._reopen_self_action()
@@ -601,38 +593,59 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		self._advance_state()
 
 	def _pending_teacher_identifiers(self, node_cache):
-		"""Every distinct e-mail-shaped identifier (see '_is_email_like') in 'node_cache' with no
-		matching 'hr.employee.work_email' - a pending-identification CODE (no '@') is never included
-		here, it isn't a problem for this screen to resolve (see screen 6, automatic at Import)."""
+		"""Every distinct identifier in 'node_cache' that doesn't already resolve to an existing
+		employee on its own - an e-mail-shaped one (see '_is_email_like') via 'work_email', a bare
+		placeholder code the same way a re-import already reuses it: via 'schedule_import_code'.
+		Both kinds get a correction line on this same "Resolve teachers" screen (2026-08-10,
+		developer feedback: folded in what used to be a separate, pure-preview "Pending teachers"
+		screen - "todo funcionaría como en 'Resolve teachers': marcado el New por defecto... pero
+		que me deje asignarlo a mano") - 'teacher_line.create_new' defaults to True either way, so
+		a genuinely new hire needs no action, while an admin who recognizes a code or e-mail as an
+		already-known teacher can assign them by hand right here, instead of only being able to
+		preview the outcome on a later, read-only screen. Also directly fixes a real duplicate-
+		teacher risk the developer ran into: the SAME real person mentioned under two different
+		raw identifiers (two different placeholder codes, or a code and an e-mail attempt) used to
+		only ever be resolvable for the e-mail side - a bare code always fell straight through to
+		'_get_or_create_pending_teacher()', which mints a NEW pending employee per distinct code,
+		with nothing to stop two different codes for one real person becoming two different
+		employees. Now both get a line, and assigning the SAME existing employee to both resolves
+		them to one person - see 'teacher_line''s own docs for the (deliberately deferred) case
+		where neither side exists yet."""
 		identifiers = set()
 		for item in node_cache:
 			identifier = item['identifier']
-			if self._is_email_like(identifier) and not self.env['hr.employee'].search([('work_email', '=', identifier)]):
+			match_field = 'work_email' if self._is_email_like(identifier) else 'schedule_import_code'
+			if not self.env['hr.employee'].search([(match_field, '=', identifier)]):
 				identifiers.add(identifier)
 		return sorted(identifiers)
 
 	def _classify_teacher_item(self, item):
 		"""Classifies a 'node_cache' item's eventual Import-time fate - the single source of truth
-		both '_apply_import' (the real write path) and screens 6/7 (pure previews of what Import
-		will do) branch on, so the previews can never diverge from what actually happens:
+		both '_apply_import' (the real write path) and the "Overall summary" screen's own previews
+		branch on, so the previews can never diverge from what actually happens:
 		- 'resolved': an existing 'hr.employee' picked on the 'teachers' step.
-		- 'create_pending': 'New' ticked on that same step - a genuinely never-hired teacher.
+		- 'create_pending': 'New' ticked on that same step for an e-mail-shaped identifier - a
+		  genuinely never-hired teacher, worth pre-filling the attempted e-mail for.
 		- 'email_match': an e-mail that already matched an existing 'hr.employee.work_email' on
 		  its own, needing no correction at all.
-		- 'placeholder': a bare code/name, never an e-mail - resolved to a pending-identification
-		  teacher at Import, same as 'create_pending' but with no manually-attempted e-mail."""
+		- 'placeholder': a bare code, never an e-mail - resolved to a pending-identification
+		  teacher at Import, same as 'create_pending' but with no e-mail to pre-fill. Reached
+		  either because the code already matched an existing 'schedule_import_code' with nothing
+		  to resolve, or because 'New' was left ticked (the default) on this same screen for a
+		  genuinely new one - the '_is_email_like' check below is what keeps a ticked *code* out
+		  of the 'create_pending' bucket, since there is no attempted e-mail to pre-fill for it."""
 		if item.get('employee_id'):
 			return 'resolved'
 		elif item.get('create_pending'):
-			return 'create_pending'
+			return 'create_pending' if self._is_email_like(item['identifier']) else 'placeholder'
 		elif self._is_email_like(item['identifier']):
 			return 'email_match'
 		else:
 			return 'placeholder'
 
 	def _teacher_preview_line(self, item):
-		"""One label for 'item', worded per its own '_classify_teacher_item' fate - shared by
-		screens 6 ('create_pending'/'placeholder') and 7 ('resolved'/'email_match')."""
+		"""One label for 'item', worded per its own '_classify_teacher_item' fate - shared by the
+		"Overall summary" screen's own pending-teachers and existing-teachers blocks."""
 		identifier = item['identifier']
 		fate = self._classify_teacher_item(item)
 		if fate == 'create_pending':
@@ -648,9 +661,9 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	def _teacher_preview_items(self, node_cache, fates):
 		"""Every 'node_cache' item whose fate is in 'fates', deduped by identifier - the same
 		dedup every other resolution screen in this wizard already applies (the same teacher
-		mentioned in several files/hour-nodes is one line, not one per occurrence). Shared by
-		'_teacher_preview_html' (screens 6-7's own bullet lists) and the "Overall summary" screen's
-		own counts, so a count and its matching list can never disagree."""
+		mentioned in several files/hour-nodes is one line, not one per occurrence). Shared by the
+		"Overall summary" screen's own blocks and their matching counts, so a count and its list
+		can never disagree."""
 		seen = set()
 		items = []
 		for item in node_cache:
@@ -660,22 +673,6 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			seen.add(identifier)
 			items.append(item)
 		return items
-
-	def _teacher_preview_html(self, node_cache, fates):
-		lines = [self._teacher_preview_line(item) for item in self._teacher_preview_items(node_cache, fates)]
-		return self._bullet_html(lines)
-
-	def _bullet_html(self, lines):
-		"""Wraps 'lines' (already-translated strings) into the same up-to-3-column bullet list
-		('ems_wizard_bullet_list') every informational screen in this wizard uses - 'Markup.format'
-		auto-escapes each line, same safety property as 'ems.base.build_html_list' (not inherited
-		here - this is a TransientModel wizard, pulling in mail.thread/mail.activity.mixin just for
-		this one helper would be a heavier dependency than the helper itself)."""
-		if not lines:
-			return Markup("")
-		return Markup('<ul class="ems_wizard_bullet_list">{}</ul>').format(
-			Markup("").join(Markup("<li>{}</li>").format(line) for line in lines)
-		)
 
 	def _selection_label(self, record, field_name):
 		"""Translated label for one Selection field value on 'record' (a single-record recordset) -
@@ -751,15 +748,17 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		item's own top-level field, not part of 'entries'/'attendance_ids' like a group reference -
 		no '_finalize_pending_groups'-style dict-shape juggling needed). Every teacher's eventual
 		fate is fully determined right here - conflict resolution (the next two screens) only ever
-		touches 'entries'/'attendance_ids'/'space_id', never 'employee_id'/'create_pending' - which
-		is exactly why 'pending_info' (screen 6) moved to sit immediately after this step (2026-08-10,
-		developer feedback) rather than after conflict resolution: nothing about it depends on
-		conflicts being resolved first."""
+		touches 'entries'/'attendance_ids'/'space_id', never 'employee_id'/'create_pending'.
+
+		Also builds 'internal_conflict_line_ids' (screen 4's own content) before advancing - this
+		used to be the former "Pending teachers" screen's own job, folded into this same handler
+		once that screen merged into this one (2026-08-10, developer feedback: see 'teacher_line's
+		own docs for why one screen can now cover both e-mails and placeholder codes)."""
 		self.ensure_one()
 		unresolved_lines = self.teacher_line_ids.filtered(lambda line: not line.employee_id and not line.create_new)
 		if unresolved_lines:
 			raise ValidationError(_(
-				"Please select a teacher for every unresolved e-mail before continuing:\n%s"
+				"Please select a teacher for every unresolved identifier before continuing:\n%s"
 			) % "\n".join(unresolved_lines.mapped('raw_identifier')))
 
 		identifier_to_employee = {line.raw_identifier: line.employee_id for line in self.teacher_line_ids if line.employee_id}
@@ -773,7 +772,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				if employee:
 					item['employee_id'] = employee.id
 		self.parsed_entries_json = json.dumps(node_cache)
-		self.pending_teachers_html = self._teacher_preview_html(node_cache, ('create_pending', 'placeholder'))
+		self.internal_conflict_line_ids = [(5, 0, 0)] + self._build_internal_conflict_lines(node_cache)
 		self._advance_state()
 
 	@staticmethod
@@ -866,23 +865,76 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		'co_teaching_eligible': 'co_teaching',
 		'desdoble_eligible': 'reassign_rooms',
 		'plain_conflict': 'prevail_left',
+		'self_conflict': 'prevail_left',
 	}
+
+	def _find_self_conflicts_in_batch(self, node_cache, excluded_pairs):
+		"""Every pair of TEACHING entries from DIFFERENT node_cache items BOTH explicitly resolved
+		to the SAME real 'hr.employee' (the only way two distinct raw identifiers - e.g. two
+		placeholder codes, or a code and an e-mail - can be confirmed as the same physical teacher,
+		see 'teacher_line's own docs on assigning the same person twice) whose weekday/time overlap,
+		regardless of room. '_find_internal_conflicts' can never catch this on its own - it only
+		ever pairs entries sharing the same classroom, but a genuinely double-booked teacher's two
+		sessions are typically in two DIFFERENT rooms (found the hard way, 2026-08-10, against a
+		real import: it surfaced as a raw, unworded 'check_overlap' ValidationError at the final
+		Import click instead of a resolvable line here - 'ems.attendance_template.
+		find_self_conflicts's own docstring already documents this exact gap for the DB-side
+		equivalent: "it does not catch two overlapping entries for the same teacher within the
+		single batch being submitted right now"). 'excluded_pairs' skips any pair already found by
+		'_find_internal_conflicts' (same room too - already a room-based conflict of another kind,
+		not a self-conflict) to avoid a duplicate line for the same collision. Returns the same
+		(item_index_a, entry_index_a, item_index_b, entry_index_b) tuple shape."""
+		by_employee = {}
+		for item_index, item in enumerate(node_cache):
+			employee_id = item.get('employee_id')
+			if not employee_id:
+				continue
+			for entry_index, entry in enumerate(item['entries']):
+				if entry.get('non_teaching'):
+					continue
+				by_employee.setdefault(employee_id, []).append((item_index, entry_index))
+
+		pairs = []
+		for refs in by_employee.values():
+			for i in range(len(refs)):
+				for j in range(i + 1, len(refs)):
+					item_index_a, entry_index_a = refs[i]
+					item_index_b, entry_index_b = refs[j]
+					if item_index_a == item_index_b:
+						continue
+					pair_key = frozenset([(item_index_a, entry_index_a), (item_index_b, entry_index_b)])
+					if pair_key in excluded_pairs:
+						continue
+					entry_a = node_cache[item_index_a]['entries'][entry_index_a]
+					entry_b = node_cache[item_index_b]['entries'][entry_index_b]
+					if entry_a['dayofweek'] != entry_b['dayofweek']:
+						continue
+					if not self.ranges_overlap(entry_a['hour_from'], entry_a['hour_to'], entry_b['hour_from'], entry_b['hour_to']):
+						continue
+					pairs.append((item_index_a, entry_index_a, item_index_b, entry_index_b))
+		return pairs
 
 	def _build_internal_conflict_lines(self, node_cache):
 		"""(0, 0, {...}) create-commands for 'internal_conflict_line_ids', one per pair found by
-		'_find_internal_conflicts'. Positional references (item/entry indices), not content
-		matching - built once here, from the very 'node_cache' '_continue_from_internal_conflicts'
-		re-reads unchanged, so they stay valid. Unlike screen 5's own external conflicts, EVERY
-		'plain_conflict' pair found here is a genuine same-room clash - '_find_internal_conflicts'
-		only ever pairs entries that already matched on 'space_id' - so it always overrides
-		'_RESOLUTION_DEFAULTS' to 'reassign_rooms' (developer feedback 2026-08-05: picking a room is
-		the actual fix for a real room conflict, not an afterthought behind
-		'prevail_left'/'prevail_right'), with 'left_space_id'/'right_space_id' pre-filled with the
-		colliding room (the group's own currently-assigned classroom - the same value on both sides,
-		since that's exactly why they collided in the first place) so they're ready the moment
-		'reassign_rooms' is picked."""
+		'_find_internal_conflicts' (room-based) plus one per pair found by
+		'_find_self_conflicts_in_batch' (2026-08-10, same-teacher-different-room). Positional
+		references (item/entry indices), not content matching - built once here, from the very
+		'node_cache' '_continue_from_internal_conflicts' re-reads unchanged, so they stay valid.
+		Unlike screen 5's own external conflicts, EVERY 'plain_conflict'/'desdoble_eligible' pair
+		found by '_find_internal_conflicts' is a genuine same-room clash - it only ever pairs
+		entries that already matched on 'space_id' - so it always overrides '_RESOLUTION_DEFAULTS'
+		to 'reassign_rooms' (developer feedback 2026-08-05: picking a room is the actual fix for a
+		real room conflict, not an afterthought behind 'prevail_left'/'prevail_right'), with
+		'left_space_id'/'right_space_id' pre-filled with the colliding room (the group's own
+		currently-assigned classroom - the same value on both sides, since that's exactly why they
+		collided in the first place) so they're ready the moment 'reassign_rooms' is picked. A
+		'self_conflict' pair never gets a room pre-fill - reassigning a room fixes nothing when the
+		real problem is one teacher needed in two places at once, not a shared room (see
+		'_resolution_is_valid's own 'allowed_by_kind', which excludes 'reassign_rooms' for this
+		kind entirely)."""
 		commands = []
-		for item_index_a, entry_index_a, item_index_b, entry_index_b in self._find_internal_conflicts(node_cache):
+		room_pairs = self._find_internal_conflicts(node_cache)
+		for item_index_a, entry_index_a, item_index_b, entry_index_b in room_pairs:
 			entry_a = node_cache[item_index_a]['entries'][entry_index_a]
 			entry_b = node_cache[item_index_b]['entries'][entry_index_b]
 			kind = self._classify_conflict_kind(entry_a, entry_b)
@@ -902,6 +954,23 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				vals['left_space_id'] = space_id
 				vals['right_space_id'] = space_id
 			commands.append((0, 0, vals))
+
+		excluded_pairs = {
+			frozenset([(a, ae), (b, be)]) for a, ae, b, be in room_pairs
+		}
+		for item_index_a, entry_index_a, item_index_b, entry_index_b in self._find_self_conflicts_in_batch(node_cache, excluded_pairs):
+			entry_a = node_cache[item_index_a]['entries'][entry_index_a]
+			entry_b = node_cache[item_index_b]['entries'][entry_index_b]
+			commands.append((0, 0, {
+				'kind': 'self_conflict',
+				'resolution': self._RESOLUTION_DEFAULTS['self_conflict'],
+				'left_item_index': item_index_a,
+				'left_entry_index': entry_index_a,
+				'left_label': self._entry_label(node_cache[item_index_a], entry_a),
+				'right_item_index': item_index_b,
+				'right_entry_index': entry_index_b,
+				'right_label': self._entry_label(node_cache[item_index_b], entry_b),
+			}))
 		return commands
 
 	def _continue_from_internal_conflicts(self):
@@ -1159,16 +1228,6 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					"history is never lost."
 				)),
 		])
-		self._advance_state()
-
-	def _continue_from_pending_info(self):
-		"""The 'pending_info' step's own 'Continue' handler - purely informational (see screen 6's
-		own docstring above), nothing to validate or write back to 'node_cache', just builds the
-		next screen's own data ('internal_conflict_line_ids', screen 4) before advancing - same
-		"build the next screen's content here" convention every other step in this wizard follows."""
-		self.ensure_one()
-		node_cache = json.loads(self.parsed_entries_json or '[]')
-		self.internal_conflict_line_ids = [(5, 0, 0)] + self._build_internal_conflict_lines(node_cache)
 		self._advance_state()
 
 	def _get_or_create_pending_teacher(self, identifier, manual_email=False):
@@ -1458,25 +1517,31 @@ class ems_working_schedules_import_wizard_group_line(models.TransientModel):
 
 class ems_working_schedules_import_wizard_teacher_line(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard.teacher_line"
-	_description = "Working schedules import wizard: unresolved teacher e-mail correction line."
+	_description = "Working schedules import wizard: unresolved teacher (e-mail or placeholder code) correction line."
 
 	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
-	raw_identifier = fields.Char(string="E-mail found in file", required=True, readonly=True)
+	# NOTE: an e-mail-shaped identifier OR a bare placeholder code (e.g. 'X1') - both kinds share
+	# this one line model since 2026-08-10 (see '_pending_teacher_identifiers'), so the label stays
+	# generic rather than assuming "e-mail" the way it did before that merge.
+	raw_identifier = fields.Char(string="Identifier found in file", required=True, readonly=True)
 	# NOTE: create explicitly disabled in the view (context="{'no_create': True, 'no_create_edit':
 	# True}") - the developer's own original call, see plans/working_schedule_import_redesign.md's
-	# step 3: a brand-new teacher record is normally screen 6's job (pending-identification,
-	# automatic at Import), this screen only ever attaches the schedule to an already-existing
-	# employee - EXCEPT when 'create_new' is ticked below, for the genuinely-never-hired case.
+	# step 3: a brand-new teacher record is created via 'create_new' below (get-or-create by
+	# 'schedule_import_code', see '_get_or_create_pending_teacher'), never through this Many2one -
+	# this field only ever attaches the schedule to an already-existing employee.
 	employee_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
-	# NOTE: added 2026-08-05 (developer feedback): some unresolved e-mails are a genuinely new hire,
-	# not a typo/mismatch of an already-existing teacher - forcing a pick from 'employee_id' (create
-	# disabled) makes no sense for those. Ticking this creates a new pending-identification teacher
-	# at Import instead (see '_get_or_create_pending_teacher') - a row is valid if EITHER
+	# NOTE: added 2026-08-05 (developer feedback): some unresolved identifiers are a genuinely new
+	# hire, not a typo/mismatch of an already-existing teacher - forcing a pick from 'employee_id'
+	# (create disabled) makes no sense for those. Ticking this creates a new pending-identification
+	# teacher at Import instead (see '_get_or_create_pending_teacher') - a row is valid if EITHER
 	# 'employee_id' is set OR this is ticked, never neither (see '_resolution_is_valid'-equivalent
 	# check in '_continue_from_teachers'). Defaults to True (changed 2026-08-06, developer feedback
 	# after using it for real): a genuinely never-hired teacher turned out to be the more common
 	# case in practice, so an admin who actually needs to pick an existing teacher now has to
-	# actively untick this, rather than the other way around.
+	# actively untick this, rather than the other way around. Works identically for a bare
+	# placeholder code, extended to those too 2026-08-10 - '_classify_teacher_item' is what tells a
+	# ticked e-mail apart from a ticked code afterward (only the former gets its attempted address
+	# pre-filled, see that method's own docs), not anything on this line itself.
 	create_new = fields.Boolean(string="New", default=True)
 
 	@api.onchange('create_new')
@@ -1498,6 +1563,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 		('co_teaching_eligible', "Co-teaching"),
 		('desdoble_eligible', "Split session"),
 		('plain_conflict', "Room conflict"),
+		('self_conflict', "Same teacher, different room"),
 	], string="Conflict", required=True, readonly=True)
 	left_label = fields.Char(string="Left", required=True, readonly=True)
 	right_label = fields.Char(string="Right", required=True, readonly=True)
@@ -1523,6 +1589,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 			'co_teaching_eligible': {'co_teaching', 'prevail_left', 'prevail_right'},
 			'desdoble_eligible': {'reassign_rooms', 'prevail_left', 'prevail_right'},
 			'plain_conflict': {'reassign_rooms', 'prevail_left', 'prevail_right'},
+			'self_conflict': {'prevail_left', 'prevail_right'},
 		}
 		if self.resolution not in allowed_by_kind[self.kind]:
 			return False

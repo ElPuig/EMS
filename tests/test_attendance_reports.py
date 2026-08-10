@@ -344,16 +344,34 @@ class TestAttendanceReportWizards(TransactionCase):
     def test_reports_action_scoped_to_own_teaching_for_plain_teacher(self):
         server_action = self.env.ref('ems.action_attendance_reports_open')
         result = server_action.with_user(self.owner_user).run()
-        self.assertEqual(result.get('domain'), [('template_teacher_ids.user_id', '=', self.owner_user.id)])
+        self.assertEqual(result.get('domain'), [
+            ('attendance_session_id.active', '=', True),
+            ('template_teacher_ids.user_id', '=', self.owner_user.id),
+        ])
         self.assertEqual(result.get('context', {}).get('pivot_measures'), ['absence_rate', 'strike_count', '__count'])
 
     def test_reports_action_unscoped_for_academic_admin(self):
         # group_academic_admin implies group_head_of_studies (security/groups.xml), which is one
-        # of the roles the server action's code checks to skip the default domain.
+        # of the roles the server action's code checks to skip the teacher-scoping domain - the
+        # base action's own current-course-only domain (below) still applies to everyone,
+        # admin included.
         server_action = self.env.ref('ems.action_attendance_reports_open')
         result = server_action.with_user(self.admin_user).run()
-        self.assertFalse(result.get('domain'))
+        self.assertEqual(result.get('domain'), [('attendance_session_id.active', '=', True)])
         self.assertIn(self.group1, self.line_recent.group_ids)
+
+    def test_reports_action_domain_excludes_a_line_of_an_archived_session(self):
+        """Developer feedback (2026-08-10): "debe mostrar la información del curso actual. Una
+        vez transicionamos de curso, debería estar en blanco" - once the course transition wizard
+        archives the outgoing course's sessions (see course_transition_wizard.md), this report
+        must stop showing their lines, for every role, not just the teacher-scoped one."""
+        self.session_old.action_archive()
+        server_action = self.env.ref('ems.action_attendance_reports_open')
+
+        admin_result = server_action.with_user(self.admin_user).run()
+        found = self.env['ems.attendance_session_line'].search(admin_result['domain'])
+        self.assertIn(self.line_recent, found)
+        self.assertNotIn(self.line_old, found)
 
     # --- opt-in per-dimension 'Details'/'Strikes' (detail_status_ids/include_strikes) ---
     # The per-dimension 'Details' table used to list every session unconditionally, which is what

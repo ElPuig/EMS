@@ -138,8 +138,19 @@ class EmsAttendanceTemplate(models.Model):
 		# invalid subject in practice - this is the real, server-side guarantee behind it.
 		for template in self:
 			if template.study_ids and template.subject_id not in template.allowed_subject_ids:
+				missing_studies = template.study_ids.filtered(
+					lambda study: template.subject_id not in study.subject_ids)
 				raise ValidationError(_(
-					"The subject must be available in every one of the selected studies."))
+					"The subject '%(subject)s' is not available in the following selected "
+					"studies: %(studies)s (template for group(s) %(groups)s, teacher(s) "
+					"%(teachers)s). Either remove those studies from this template or pick a "
+					"subject taught in all of them."
+				) % {
+					'subject': template.subject_id.display_name,
+					'studies': ", ".join(missing_studies.mapped('display_name')),
+					'groups': ", ".join(template.group_ids.mapped('display_name')) or _("(none)"),
+					'teachers': ", ".join(template.teacher_ids.mapped('display_name')) or _("(none)"),
+				})
 
 	@api.constrains('teacher_ids')
 	def _check_teacher_ids(self):

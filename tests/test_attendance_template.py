@@ -109,6 +109,45 @@ class TestAttendanceTemplate(TransactionCase):
         self.assertNotIn(self.subject, template.allowed_subject_ids._origin)
         self.assertIn(shared_subject, template.allowed_subject_ids._origin)
 
+    def test_invalid_subject_for_study_error_identifies_subject_study_group_and_teacher(self):
+        # The error must be actionable: which subject, which study it's missing from, and which
+        # template (group/teacher) raised it all need to be readable from the message alone -
+        # reported by the developer after hitting this in practice with no way to tell which
+        # template/study was actually responsible (2026-08-10).
+        unrelated_subject = self.env['ems.subject'].create({
+            'code': 'TSAT004', 'acronym': 'TSAT4', 'name': 'Test Unrelated Subject (Attendance Template)',
+        })
+        with self.assertRaises(ValidationError) as capture:
+            self.env['ems.attendance_template'].create({
+                'teacher_ids': [(6, 0, [self.teacher_a.id])],
+                'study_ids': [(6, 0, [self.study.id])],
+                'subject_id': unrelated_subject.id,
+                'group_ids': [(6, 0, [self.group.id])],
+                'space_id': self.space_a.id,
+                'start_date': date(2026, 1, 1),
+                'end_date': date(2026, 6, 30),
+            })
+        message = str(capture.exception)
+        self.assertIn(unrelated_subject.name, message)
+        self.assertIn(self.study.display_name, message)
+        self.assertIn(self.group.display_name, message)
+        self.assertIn(self.teacher_a.display_name, message)
+
+        # Real Catalan translation, verified functionally under a real lang context - this
+        # Odoo version reads Python _() code-string translations straight from the module's
+        # own checked-in .po file at runtime, with no database column to psql-verify against.
+        with self.assertRaises(ValidationError) as ca_capture:
+            self.env['ems.attendance_template'].with_context(lang='ca_ES').create({
+                'teacher_ids': [(6, 0, [self.teacher_a.id])],
+                'study_ids': [(6, 0, [self.study.id])],
+                'subject_id': unrelated_subject.id,
+                'group_ids': [(6, 0, [self.group.id])],
+                'space_id': self.space_a.id,
+                'start_date': date(2026, 1, 1),
+                'end_date': date(2026, 6, 30),
+            })
+        self.assertIn("no està disponible", str(ca_capture.exception))
+
     def test_create_default_color(self):
         template = self._create_template(self.teacher_a, self.space_a)
         self.assertEqual(template.color, '#3A8DDE')

@@ -369,6 +369,21 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   teacher can't broaden it from this screen's search bar. `ir.rule` still grants every teacher unrestricted
   read underneath, so the data remains reachable through any other path that doesn't carry this domain
   (e.g. a different view/export) — this menu entry just never offers one.
+- **Current-course-only by default (2026-08-10, developer feedback: "debe mostrar la información del curso
+  actual. Una vez transicionamos de curso, debería estar en blanco")**: before this, the screen had no
+  course/active scoping at all — it showed every `ems.attendance_session_line` ever recorded, across every
+  past course, since the model deliberately has no `active` field of its own ("statistical data... should be
+  unaltered", per its own docstring). Fixed with `[('attendance_session_id.active', '=', True)]` — the
+  *session* (the line's own parent) always has a real `active` field, and the course transition wizard
+  already archives every outgoing course's sessions (see `course_transition_wizard.md`), so filtering on the
+  session's own state is exactly "this course only," without adding a field to the line itself. Set on
+  `action_attendance_report_analysis`'s own XML `domain` (so the base action stays self-describing), but the
+  server action's code sets it again as a literal Python list rather than reading and extending the base
+  one — `.read()` returns `ir.actions.act_window.domain` as its raw stored **string**, not a parsed list,
+  and concatenating a list onto a string raises `TypeError`. The two are duplicated rather than one deriving
+  from the other, but since this action is only ever reached through the server action (confirmed by grep -
+  nothing else references `action_attendance_report_analysis`), there's no real path for them to silently
+  drift apart unnoticed.
 - **3 PDF wizards, reachable from the ⚙ Actions (cog) menu**: `static/src/js/backend/
   attendance_report_analysis_cog_menu.js` registers 3 `cogMenu` registry entries (same building blocks as
   `import_gedac_cog_menu.js` — a small `Component` per entry). `isDisplayed` matches on

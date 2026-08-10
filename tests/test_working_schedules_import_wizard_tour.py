@@ -105,6 +105,72 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         })
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_internal_conflict", login="admin")
 
+    def test_working_schedules_import_resolve_self_conflict_tour(self):
+        # Two placeholder codes in the SAME file, both manually assigned to the SAME real teacher
+        # (the "same person as" merge confirmed 2026-08-10) - their own entries collide in time but
+        # NOT in room, proving the 'self_conflict' kind actually renders and resolves in a real
+        # browser (see TestWorkingSchedulesImportWizard.
+        # test_continue_from_teachers_builds_self_conflict_line_when_two_identifiers_resolve_to_same_employee).
+        space_a = self.env['ems.space'].create({
+            'code': 'TOURSELFCONFLICT-A',
+            'name': 'Tour Self Conflict Space A',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        space_b = self.env['ems.space'].create({
+            'code': 'TOURSELFCONFLICT-B',
+            'name': 'Tour Self Conflict Space B',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        self.env['ems.subject'].create({
+            'code': 'TOURSELFCONFLICT',
+            'acronym': 'TRSVSC',
+            'name': 'Tour Self Conflict Subject',
+        })
+        self.env['ems.group'].create({
+            'group_type': 'reinforcement',
+            'name': 'Tour Self Conflict Group A',
+            'space_id': space_a.id,
+        })
+        self.env['ems.group'].create({
+            'group_type': 'reinforcement',
+            'name': 'Tour Self Conflict Group B',
+            'space_id': space_b.id,
+        })
+        self.env['hr.employee'].create({
+            'name': 'Tour Self Conflict Teacher',
+            'employee_type': 'teacher',
+        })
+        self.start_tour("/odoo", "ems_working_schedules_import_resolve_self_conflict", login="admin")
+
+    def test_working_schedules_import_bulk_apply_resolution_tour(self):
+        # Developer feedback (2026-08-10, hit resolving a large real batch by hand): "me iría bien
+        # que estuvieran agrupadas por tipo... y por 'left', y que cada grupo me permitiera escoger
+        # el resolution que se aplica al grupo entero." Three groups sharing the SAME classroom -
+        # the anchor teacher's own entry collides (desdoble) with BOTH other teachers' entries at
+        # the exact same slot, forming one sub-group (same left_label: the anchor's own entry) with
+        # TWO rows underneath it - proves the sub-group's own bulk-resolution dropdown actually
+        # writes onto every row in that sub-group at once, not just one.
+        space = self.env['ems.space'].create({
+            'code': 'TOURBULKAPPLY',
+            'name': 'Tour Bulk Apply Space',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        self.env['ems.subject'].create({
+            'code': 'TOURBULKAPPLY',
+            'acronym': 'TRBLKA',
+            'name': 'Tour Bulk Apply Subject',
+        })
+        for letter in 'ABC':
+            self.env['ems.group'].create({
+                'group_type': 'reinforcement',
+                'name': f'Tour Bulk Apply Group {letter}',
+                'space_id': space.id,
+            })
+        self.start_tour("/odoo", "ems_working_schedules_import_bulk_apply_resolution", login="admin")
+
     def test_working_schedules_import_resolve_db_conflict_tour(self):
         # Seeds a REAL, already-active 'ems.attendance_schedule' directly via the ORM (teacher A,
         # sharing 'Tour Resolve DB Conflict Space A' with a sibling reinforcement group B) - the

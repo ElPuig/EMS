@@ -1357,7 +1357,11 @@ class TestCourseTransition(TransactionCase):
         self.assertTrue(recreated.exists())
 
     def test_apply_deletes_the_attendance_issues(self):
-        """D6: the year record already froze attendance_issue_count."""
+        """D6: the year record already froze attendance_issue_count. Also pins down the
+        2026-08-10 reordering fix: _apply_attendance_records_archival() (which would otherwise
+        archive this same empty issue first, making it invisible to the search below) now runs
+        AFTER this deletion, not before - if that ordering ever regresses, this issue would
+        survive archived instead of gone, and this assertion would catch it."""
         student = self._student('CTW Issues')
         issue = self._attendance_issue(student)
         tutor_issue = issue.attendance_issue_tutor_id
@@ -1466,6 +1470,62 @@ class TestCourseTransition(TransactionCase):
 
         justification.invalidate_recordset()
         self.assertFalse(justification.active)
+
+    def test_apply_archives_a_past_justification_with_no_session_at_all(self):
+        """Developer feedback (2026-08-10), found re-running a real transition after the fix
+        above: 'attendance_session_line_ids' is a form-editing M2M, not the real link - a real,
+        dated-in-the-past justification can genuinely have ZERO entries there (the real link,
+        'ems.attendance_session_line.attendance_justification_id'/'attendance_prevision_id', is
+        set by session auto-creation, never synced back onto the justification's own M2M). Once
+        its own end_date is in the past, it should be archived regardless - there's no session
+        left to ever populate it now that the course it covered is over."""
+        student = self._student('CTW Past No Session Justification', group=self.group1)
+        justification = self.env['ems.attendance_justification'].create({
+            'teacher_id': self.teacher.id, 'student_id': student.id,
+            'start_date': datetime(2020, 9, 15, 8, 0), 'end_date': datetime(2020, 9, 15, 11, 0),
+        })
+
+        self._applied()
+
+        justification.invalidate_recordset()
+        self.assertFalse(justification.active)
+
+    def test_apply_leaves_a_future_justification_with_no_session_active(self):
+        """Negative case: a genuine future 'prevision' (submitted ahead of an expected absence
+        that hasn't happened yet) must not be swept up just because no session has been created
+        for it yet - only a PAST end_date makes zero-lines archivable."""
+        student = self._student('CTW Future No Session Justification', group=self.group1)
+        future = datetime.now().replace(year=datetime.now().year + 5)
+        justification = self.env['ems.attendance_justification'].create({
+            'teacher_id': self.teacher.id, 'student_id': student.id,
+            'start_date': future, 'end_date': future.replace(hour=23, minute=0),
+        })
+
+        self._applied()
+
+        justification.invalidate_recordset()
+        self.assertTrue(justification.active)
+
+    def test_apply_archives_an_attendance_issue_student_with_no_children_at_all(self):
+        """Developer feedback (2026-08-10), found re-running a real transition after the fix
+        above: an issue_student/_tutor with ZERO status children from the start never appears in
+        the 'just archived' set the first version of this method derived its cleanup from, so it
+        was never re-checked. Must be caught for a STRANDED student (outside '_scope_students()',
+        so '_ems_clear_operational_records()' would never delete it either) - the negative case
+        right below confirms a scoped student's own empty issue is left for that deletion instead."""
+        student = self._student('CTW Stranded Empty Issue', group=self.group1)
+        student.main_group_id = False
+        tutor_issue = self.env['ems.attendance_issue_tutor'].create({
+            'tutor_id': self.teacher.id, 'issue_date': date(2020, 9, 15)})
+        student_issue = self.env['ems.attendance_issue_student'].create({
+            'attendance_issue_tutor_id': tutor_issue.id, 'student_id': student.id})
+
+        self._applied()
+
+        student_issue.invalidate_recordset()
+        tutor_issue.invalidate_recordset()
+        self.assertFalse(student_issue.active)
+        self.assertFalse(tutor_issue.active)
 
     def test_apply_keeps_the_new_enrollments_after_the_cleanup(self):
         """The cleanup deletes EVERY ems.enrollment of the student with no group

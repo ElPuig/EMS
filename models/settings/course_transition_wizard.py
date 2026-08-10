@@ -935,31 +935,63 @@ class ems_course_transition_wizard(models.TransientModel):
         keyed on the session's own archived state instead, which both catches that gap and stays
         correct regardless of which specific transition run originally archived the session.
 
-        Called from `_apply_cleanup()` right after `_apply_calendar_archival()`, so both this
-        run's own newly-archived sessions and any pre-existing stray leftovers are caught in the
-        same sweep. Archives (never deletes) - unlike `_ems_clear_operational_records()`'s
-        deletion, which is specifically justified there for a student who has actually left and
-        whose stats are already frozen in the year record; these records have no such freezing
-        step, so archiving (keeping them findable via the "Archived" filter) is the safer default,
-        matching every other attendance model in this system."""
+Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_records()`
+        (moved there 2026-08-10, found the hard way: calling it earlier archived an issue_student/
+        _tutor with zero children *before* `_ems_clear_operational_records()` got a chance to
+        search for and DELETE that same record for a student genuinely leaving in this run - that
+        method's own search only ever sees `active=True` rows by default, so the already-archived
+        record became invisible to it and survived archived instead of deleted). Running last
+        means this only ever catches what that deletion step was never going to touch anyway -
+        this run's own newly-archived sessions, and any pre-existing stray leftover from an
+        earlier run (e.g. a student already stranded before this run even started). Archives
+        (never deletes) - unlike `_ems_clear_operational_records()`'s deletion, which is
+        specifically justified there for a student who has actually left and whose stats are
+        already frozen in the year record; these records have no such freezing step, so archiving
+        (keeping them findable via the "Archived" filter) is the safer default, matching every
+        other attendance model in this system.
+
+        **Justifications: `attendance_session_line_ids` is NOT the real link** (found 2026-08-10,
+        re-running a real transition after the first version of this method - 2 justifications
+        still survived it with zero lines on that M2M). That field is a form-editing convenience
+        ("Many2many needed in order to update values" per its own code comment) kept in sync with
+        the real link only when a justification is created/edited *through the UI*. The real,
+        authoritative link is `ems.attendance_session_line.attendance_justification_id`/
+        `attendance_prevision_id` (a Many2one FROM the line TO the justification) - set
+        automatically by `_auto_populate_lines()` whenever a session gets created for a date a
+        justification already covers (`EmsAttendanceJustification.get_current_justifications()`),
+        *without* ever syncing that back onto the justification's own M2M. So a real, dated-in-
+        the-past justification can legitimately show zero entries on `attendance_session_line_ids`
+        while still being linked from the line side, or - the actual case found - never having any
+        session at all for its covered dates once the course it belongs to has fully ended. Checks
+        both relations (`|`, unioned) per justification, and treats zero lines *of either kind* as
+        just as archivable as "all archived", but only once its own `end_date` has already passed
+        - protects a genuine future "prevision" (a justification submitted ahead of an expected
+        absence that hasn't happened yet) from being swept up just because no session has been
+        created for it yet.
+
+        **Issue student/tutor: check every record's current children directly, not just the ones
+        this call's own status-archival just emptied** (same finding, same day - 2 issue_student
+        and 2 issue_tutor rows had ZERO status children from the start, so they never appeared in
+        the "just archived" set at all and were never re-checked). Reads the model's own default
+        active-filtered relation directly instead."""
         self.ensure_one()
-        justifications = self.env['ems.attendance_justification'].sudo().search([])
-        justifications.filtered(
-            lambda justification: justification.attendance_session_line_ids
-            and not any(justification.attendance_session_line_ids.mapped('attendance_session_id.active'))
-        ).action_archive()
+        today = fields.Datetime.now()
+        for justification in self.env['ems.attendance_justification'].sudo().search([('end_date', '<', today)]):
+            lines = justification.attendance_session_line_ids | self.env['ems.attendance_session_line'].sudo().search([
+                '|', ('attendance_justification_id', '=', justification.id),
+                ('attendance_prevision_id', '=', justification.id),
+            ])
+            if not any(lines.mapped('attendance_session_id.active')):
+                justification.action_archive()
 
         issue_statuses = self.env['ems.attendance_issue_status'].sudo().search([
             ('attendance_session_line_id.attendance_session_id.active', '=', False),
         ])
-        issue_students = issue_statuses.attendance_issue_student_id
         issue_statuses.action_archive()
-        # Default active-filtered reads: once every child status is archived, re-reading the
-        # parent's own O2M naturally comes back empty - "no active children left" and "fully
-        # archived" are the same observable state here, no extra bookkeeping needed.
-        now_empty_students = issue_students.filtered(lambda student: not student.attendance_issue_status_ids)
-        now_empty_students.action_archive()
-        now_empty_students.attendance_issue_tutor_id.filtered(
+        self.env['ems.attendance_issue_student'].sudo().search([]).filtered(
+            lambda student: not student.attendance_issue_status_ids
+        ).action_archive()
+        self.env['ems.attendance_issue_tutor'].sudo().search([]).filtered(
             lambda tutor: not tutor.attendance_issue_student_ids
         ).action_archive()
 
@@ -982,7 +1014,6 @@ class ems_course_transition_wizard(models.TransientModel):
         # as a genuine "existing schedule conflict" against a study that had already transitioned.
         self._templates_to_archive().action_archive()
         affected_teachers = self._apply_calendar_archival()
-        self._apply_attendance_records_archival()
         self._apply_calendar_rollover(affected_teachers)
         students._ems_clear_operational_records()
         groups = self._scope_groups()
@@ -1000,6 +1031,15 @@ class ems_course_transition_wizard(models.TransientModel):
         # clears it through the student's own main_group_id, which a graduate no longer
         # has at this point — step 1 detached it.
         groups.sudo().write({'delegate_id': False})
+        # Runs LAST, after _ems_clear_operational_records() (2026-08-10, found the hard way): this
+        # archives any attendance_issue_student/_tutor with zero active children, which would
+        # otherwise silently swallow the very records _ems_clear_operational_records() still
+        # needs to find and DELETE for a student actually leaving in THIS run (its own search
+        # only looks at active=True records by default - an already-archived one becomes
+        # invisible to it, surviving archived instead of deleted). Running last means it only
+        # ever catches genuine leftovers _ems_clear_operational_records() was never going to
+        # touch anyway (e.g. a student already stranded by an earlier run).
+        self._apply_attendance_records_archival()
 
     def _apply_transition_flip(self):
         """Step 5 — mark the scope as transitioned and, when nothing is left pending,

@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component } from "@odoo/owl";
+import { Component, onWillStart } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
@@ -57,6 +57,26 @@ export class EmsGroupedConflictLinesField extends Component {
 
     setup() {
         this.orm = useService("orm");
+        // A plain x2many o2m only materializes its FIRST page of records client-side
+        // ('StaticList.records' is 'data.slice(offset, limit)' - see 'relational_model.js'/
+        // 'static_list.js') even though 'list.count' already reflects the TRUE total. This widget
+        // renders no pager of its own to reach anything past that first page (unlike the native
+        // Odoo list it replaces), so it must load every record itself before ever showing "you're
+        // done" - developer feedback (2026-08-10) after a fixed 'limit="1000"' on the arch just
+        // moved the same silent-Continue-stuck bug to whatever number was picked: "si tuviéramos
+        // más de 1000 conflictos estaríamos en las mismas... ¿no se puede paginar, o de alguna
+        // otra forma?" Fixed properly instead: no arch-level limit at all - 'list.load({ limit:
+        // list.count })' (the exact same public API Odoo's own pager calls on "next page", see
+        // 'x2many_field.js's 'pagerProps.onUpdate') asks for however many records actually exist,
+        // whatever that number is, so there is no cap left to outgrow.
+        onWillStart(() => this._ensureAllRecordsLoaded());
+    }
+
+    async _ensureAllRecordsLoaded() {
+        const list = this.props.record.data[this.props.name];
+        if (list.records.length < list.count) {
+            await list.load({ limit: list.count, offset: 0 });
+        }
     }
 
     async searchSpaces(request) {
@@ -100,7 +120,7 @@ export class EmsGroupedConflictLinesField extends Component {
 
     rowText(record) {
         if (this.isExternal) {
-            return `${this.labels.filePrefix}: ${record.data.left_label}   —   ${this.labels.databasePrefix}: ${record.data.right_label}`;
+            return `${this.labels.filePrefix}: ${record.data.left_label}   -   ${this.labels.databasePrefix}: ${record.data.right_label}`;
         }
         return `${record.data.left_label}   vs.   ${record.data.right_label}`;
     }

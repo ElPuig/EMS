@@ -171,6 +171,37 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
             })
         self.start_tour("/odoo", "ems_working_schedules_import_bulk_apply_resolution", login="admin")
 
+    def test_working_schedules_import_conflicts_beyond_default_page_size_tour(self):
+        # Developer feedback (2026-08-10, right after the fixed 'limit="1000"' fix landed): "si
+        # tuviéramos más de 1000 conflictos estaríamos en las mismas... ¿no se puede paginar, o de
+        # alguna otra forma?" - correct: a hardcoded arch 'limit' just moves the same silent-
+        # Continue-stuck bug to a different threshold. Real fix: the widget itself now loads every
+        # record via 'list.load({ limit: list.count })' before first render, with no arch-level cap
+        # at all. This fixture creates 85 colliding pairs (safely past Odoo's own x2many
+        # 'DEFAULT_LIMIT' of 80, the actual number that silently truncated 'records' before this
+        # fix) sharing ONE classroom - one anchor teacher/group against 85 others, all same subject
+        # so every pair lands in the SAME 'desdoble_eligible' sub-group (anchor is always "left") -
+        # proving both that every one of the 85 rows actually renders (not just the first 80) and
+        # that the sub-group's own bulk-resolution dropdown still resolves all of them at once.
+        space = self.env['ems.space'].create({
+            'code': 'TOURPAGINATION',
+            'name': 'Tour Pagination Space',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        self.env['ems.subject'].create({
+            'code': 'TOURPAGINATION',
+            'acronym': 'TRPAG',
+            'name': 'Tour Pagination Subject',
+        })
+        for index in range(86):
+            self.env['ems.group'].create({
+                'group_type': 'reinforcement',
+                'name': f'Tour Pagination Group {index}',
+                'space_id': space.id,
+            })
+        self.start_tour("/odoo", "ems_working_schedules_import_conflicts_beyond_default_page_size", login="admin")
+
     def test_working_schedules_import_resolve_db_conflict_tour(self):
         # Seeds a REAL, already-active 'ems.attendance_schedule' directly via the ORM (teacher A,
         # sharing 'Tour Resolve DB Conflict Space A' with a sibling reinforcement group B) - the

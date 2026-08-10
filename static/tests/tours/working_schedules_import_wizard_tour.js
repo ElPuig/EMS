@@ -975,6 +975,106 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_bulk_apply
     ],
 });
 
+// Proves the grouped-cards widget has no hidden record cap at all (developer feedback 2026-08-10,
+// right after a hardcoded arch 'limit="1000"' fix: "si tuviéramos más de 1000 conflictos
+// estaríamos en las mismas... ¿no se puede paginar, o de alguna otra forma?") - 85 colliding pairs
+// (past Odoo's own x2many 'DEFAULT_LIMIT' of 80, the actual number silently truncating 'records'
+// before the widget's 'setup()' started force-loading everything via 'list.load({ limit:
+// list.count })') all land in ONE sub-group (same anchor teacher+subject), then a single bulk-
+// apply resolves every one of them at once.
+registry.category("web_tour.tours").add("ems_working_schedules_import_conflicts_beyond_default_page_size", {
+    test: true,
+    url: "/odoo/action-ems.action_working_schedules_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view",
+            content: "Working Schedules list loaded",
+        },
+        {
+            trigger: ".o_cp_action_menus button",
+            content: "Open the list's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-item:contains('Import planner data')",
+            content: "Click 'Import planner data (XML)'",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids']",
+            content: "Import wizard dialog opened",
+            run: async () => {
+                const nodes = [];
+                for (let index = 0; index < 86; index++) {
+                    nodes.push(
+                        `<T name="TOURPAGEX${index}"><D name="1 Monday"><H name="1 09:00">`
+                        + '<Subject name="TOURPAGINATION Tour Pagination Subject"/>'
+                        + `<Students name="Tour Pagination Group ${index}"/>`
+                        + '</H></D></T>'
+                    );
+                }
+                const xml = `<root>${nodes.join("")}</root>`;
+                const file = new File([xml], "planner_pagination.xml", { type: "text/xml" });
+                await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", [file]);
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attachment",
+            content: "File attached",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled purely because a file is attached",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('Every group mentioned in the file was recognized')",
+            content: "All 86 seeded groups are recognized by exact name",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'groups' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_cell:contains('TOURPAGEX85')",
+            content: "The 'teachers' screen lists every one of the 86 unresolved placeholder codes, including the last one",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue through the 'teachers' step - 'create_new' already defaults to True for every row",
+            run: "click",
+        },
+        {
+            trigger: ".modal .ems_conflict_subgroup:has(strong:contains('TOURPAGEX0')) .ems_conflict_row:contains('TOURPAGEX85')",
+            content: "The single sub-group (anchor teacher+subject) actually renders its 85th colliding row, not just the first 80 - proves the widget's own full-count load, not a raised-but-still-finite arch limit",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
+            content: "Continue shows disabled - none of the 85 rows has a resolution yet",
+        },
+        {
+            trigger: ".modal .ems_conflict_subgroup:has(strong:contains('TOURPAGEX0')) .ems_conflict_bulk_select",
+            content: "Bulk-apply 'Left prevails' to all 85 rows in the single sub-group at once",
+            run: "select prevail_left",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled now that all 85 rows were resolved by the single bulk-apply action",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button:contains('Cancel')",
+            content: "Cancel - this tour only needs to prove every row loaded and resolved, not complete the import",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_list_view",
+            content: "Back to the Working Schedules list, dialog closed cleanly",
+        },
+    ],
+});
+
 // Screen 5 ("Existing schedule conflicts", 2026-08-05, see plans/working_schedule_import_
 // redesign.md's step 5) - same classification/resolution shape as screen 4, but the right side is
 // a real, already-active 'ems.attendance_schedule' DB record instead of another entry from this

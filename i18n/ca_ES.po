@@ -8001,6 +8001,24 @@ msgid "Please choose a valid resolution for every conflict before continuing:\n%
 msgstr "Trieu una resolució vàlida per a cada conflicte abans de continuar:\n%s"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%(teacher)s - %(subject)s (%(weekday)s %(time)s)"
+msgstr "%(teacher)s - %(subject)s (%(weekday)s %(time)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%(teacher)s - %(subject)s (%(groups)s, %(weekday)s %(time)s)"
+msgstr "%(teacher)s - %(subject)s (%(groups)s, %(weekday)s %(time)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%(teacher)s - %(subject)s"
+msgstr "%(teacher)s - %(subject)s"
+
+#. module: ems
 #: model:ir.model,name:ems.model_ems_working_schedules_import_wizard_conflict_mixin
 msgid "Working schedules import wizard: shared kind/resolution fields for a conflict line (internal or against an existing DB schedule)."
 msgstr "Assistent d'importació d'horaris: camps compartits de tipus/resolució per a una línia de conflicte (intern o contra un horari existent a la BD)."

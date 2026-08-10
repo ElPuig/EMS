@@ -35,7 +35,14 @@
                                 Every group mentioned in the file was recognized.
                             </div>
                             <field name="group_line_ids" invisible="not group_line_ids">
-                                <list editable="bottom" create="False" delete="False">
+                                <!-- 'limit' set explicitly high - see the same-shaped comment on
+                                     'internal_conflict_line_ids' below for why Odoo's own x2many
+                                     default (80) would otherwise silently hide rows past #80. This
+                                     list does have Odoo's native pager, so it wouldn't have hidden
+                                     rows invisibly like the custom widget did - but a batch of more
+                                     than 80 unresolved groups would still have kept some unresolved
+                                     lines on a second page the operator could easily miss. -->
+                                <list editable="bottom" create="False" delete="False" limit="1000">
                                     <field name="raw_name" string="Name found in file"/>
                                     <field name="group_id"/>
                                 </list>
@@ -48,7 +55,14 @@
                                 Every teacher mentioned in the file was recognized.
                             </div>
                             <field name="teacher_line_ids" invisible="not teacher_line_ids">
-                                <list editable="bottom" create="False" delete="False">
+                                <!-- 'limit' set explicitly high - see the same-shaped comment on
+                                     'internal_conflict_line_ids' below for why Odoo's own x2many
+                                     default (80) would otherwise silently hide rows past #80. This
+                                     list does have Odoo's native pager, so it wouldn't have hidden
+                                     rows invisibly like the custom widget did - but a batch of more
+                                     than 80 unresolved teachers would still have kept some unresolved
+                                     lines on a second page the operator could easily miss. -->
+                                <list editable="bottom" create="False" delete="False" limit="1000">
                                     <field name="raw_identifier" string="Identifier found in file"/>
                                     <field name="create_new"/>
                                     <field name="employee_id" readonly="create_new" context="{'no_create': True, 'no_create_edit': True}"/>
@@ -63,7 +77,11 @@
                             </div>
                             <field name="internal_conflict_line_ids" invisible="not internal_conflict_line_ids" widget="ems_grouped_conflict_lines">
                                 <!-- Never rendered directly (see the widget's own template) - only declares
-                                     which sub-fields to load. -->
+                                     which sub-fields to load. Deliberately NO 'limit' here - the widget's
+                                     own 'setup()' loads every record via 'list.load({ limit: list.count })'
+                                     before first render, so no arch-level cap can ever be outgrown (a
+                                     first attempt hardcoded 'limit="1000"' here, which only moved the same
+                                     silent-Continue-stuck bug to whatever number was picked). -->
                                 <list editable="bottom" create="False" delete="False">
                                     <field name="left_label"/>
                                     <field name="left_group_key"/>
@@ -83,7 +101,11 @@
                             </div>
                             <field name="external_conflict_line_ids" invisible="not external_conflict_line_ids" widget="ems_grouped_conflict_lines">
                                 <!-- Never rendered directly (see the widget's own template) - only declares
-                                     which sub-fields to load. -->
+                                     which sub-fields to load. Deliberately NO 'limit' here - the widget's
+                                     own 'setup()' loads every record via 'list.load({ limit: list.count })'
+                                     before first render, so no arch-level cap can ever be outgrown (a
+                                     first attempt hardcoded 'limit="1000"' here, which only moved the same
+                                     silent-Continue-stuck bug to whatever number was picked). -->
                                 <list editable="bottom" create="False" delete="False">
                                     <field name="left_label"/>
                                     <field name="left_group_key"/>

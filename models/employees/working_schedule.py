@@ -409,7 +409,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		for conflict in conflicts:
 			template = conflict.attendance_template_id
 			weekday = dict(conflict.weekdays_selection).get(conflict.weekday)
-			lines.append(_("%(teacher)s — %(subject)s (%(weekday)s %(time)s)") % {
+			lines.append(_("%(teacher)s - %(subject)s (%(weekday)s %(time)s)") % {
 				'teacher': ", ".join(template.teacher_ids.mapped('display_name')),
 				'subject': template.display_name,
 				'weekday': weekday,
@@ -813,16 +813,48 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				return employee.display_name
 		return identifier
 
+	def _entry_subject_label(self, entry):
+		"""Clean '<acronym>: <name>' subject text for 'entry', resolved fresh from 'ems.subject'
+		rather than reused from the entry's own cached 'name' - that cached value already has a
+		'(<group names>)' suffix baked in once groups are resolved (see '_parse_schedule_entries'),
+		which would otherwise show up TWICE in '_entry_label's own output (developer feedback
+		2026-08-10, seeing a real conflict row: "Xavier Cruz - MP 0440: ... (GA1A) (GA1A, Monday
+		08:00-09:00)" - the group appearing once from this cached name, once again from
+		'_entry_label's own trailing parenthetical) - and would silently break '_entry_group_key's
+		whole point of grouping by teacher+subject WHILE ignoring group, since two entries for the
+		same subject but different groups would otherwise never produce the same key at all."""
+		subject = self.env['ems.subject'].browse(entry.get('subject_id'))
+		return "%s: %s" % (subject.acronym, subject.name) if subject else (entry.get('name') or '')
+
 	def _entry_label(self, item, entry):
 		groups = ", ".join(self.env['ems.group'].browse(entry.get('group_ids') or []).mapped('display_name'))
 		weekday = dict(self.env['ems.attendance_schedule'].weekdays_selection).get(entry['dayofweek'])
 		time_range = "%s-%s" % (self._format_hour(entry['hour_from']), self._format_hour(entry['hour_to']))
-		return _("%(teacher)s — %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
+		return _("%(teacher)s - %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
 			'teacher': self._teacher_label_for_item(item),
-			'subject': entry.get('name') or '',
+			'subject': self._entry_subject_label(entry),
 			'groups': groups,
 			'weekday': weekday,
 			'time': time_range,
+		}
+
+	def _entry_group_key(self, item, entry):
+		"""Coarser identity for a conflict line's own LEFT side, used only to GROUP conflict lines
+		in the wizard's grouped-cards view (see 'ems_grouped_conflict_lines') - teacher + subject
+		only, deliberately ignoring group/weekday/time (unlike '_entry_label', which is the full,
+		specific description shown per row). Developer feedback (2026-08-10, after seeing the
+		full-label grouping produce one card per row in practice, since two conflicts almost never
+		share the exact same group+weekday+time too): "la forma más práctica de agrupar es por
+		docente y materia, ignorando el resto de valores." Every distinct (teacher, subject) pair
+		bundles every one of that teacher's own colliding entries for that subject into one group,
+		regardless of which specific slot/group each individual pair actually collides over -
+		'_entry_subject_label' (not the entry's own cached, group-suffixed 'name') is what actually
+		makes that true: reusing 'name' here would silently vary the key by group after all,
+		defeating the entire point, for any teacher whose own colliding entries span more than one
+		group (exactly the real, common case that originally motivated this grouping)."""
+		return _("%(teacher)s - %(subject)s") % {
+			'teacher': self._teacher_label_for_item(item),
+			'subject': self._entry_subject_label(entry),
 		}
 
 	def _find_internal_conflicts(self, node_cache):
@@ -945,6 +977,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'left_item_index': item_index_a,
 				'left_entry_index': entry_index_a,
 				'left_label': self._entry_label(node_cache[item_index_a], entry_a),
+				'left_group_key': self._entry_group_key(node_cache[item_index_a], entry_a),
 				'right_item_index': item_index_b,
 				'right_entry_index': entry_index_b,
 				'right_label': self._entry_label(node_cache[item_index_b], entry_b),
@@ -967,6 +1000,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'left_item_index': item_index_a,
 				'left_entry_index': entry_index_a,
 				'left_label': self._entry_label(node_cache[item_index_a], entry_a),
+				'left_group_key': self._entry_group_key(node_cache[item_index_a], entry_a),
 				'right_item_index': item_index_b,
 				'right_entry_index': entry_index_b,
 				'right_label': self._entry_label(node_cache[item_index_b], entry_b),
@@ -1033,7 +1067,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	def _external_conflict_label(self, candidate):
 		weekday = dict(candidate.weekdays_selection).get(candidate.weekday)
-		return _("%(teacher)s — %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
+		return _("%(teacher)s - %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
 			'teacher': ", ".join(candidate.attendance_template_id.teacher_ids.mapped('display_name')),
 			'subject': candidate.attendance_template_id.subject_id.display_name,
 			'groups': ", ".join(candidate.attendance_template_id.group_ids.mapped('display_name')),
@@ -1128,6 +1162,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'left_item_index': item_index,
 				'left_entry_index': entry_index,
 				'left_label': self._entry_label(node_cache[item_index], entry),
+				'left_group_key': self._entry_group_key(node_cache[item_index], entry),
 				'right_schedule_id': candidate.id,
 				'right_label': self._external_conflict_label(candidate),
 			}
@@ -1567,6 +1602,11 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 	], string="Conflict", required=True, readonly=True)
 	left_label = fields.Char(string="Left", required=True, readonly=True)
 	right_label = fields.Char(string="Right", required=True, readonly=True)
+	# NOTE: grouping-only key for the wizard's grouped-cards view (see 'ems_grouped_conflict_lines'
+	# and '_entry_group_key') - the left side's teacher + subject, deliberately coarser than
+	# 'left_label' (which also carries group/weekday/time, unique enough per pair that grouping by
+	# it alone produced one card per row in practice - developer feedback 2026-08-10).
+	left_group_key = fields.Char(string="Group key", required=True, readonly=True)
 	# NOTE: a flat Selection with every option always visible/selectable, validated server-side on
 	# Continue (see '_resolution_is_valid') rather than a widget hiding the options invalid for this
 	# row's own 'kind' - confirmed with the developer 2026-08-05 as the simpler, equally-valid

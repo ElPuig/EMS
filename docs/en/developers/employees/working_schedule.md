@@ -722,13 +722,40 @@ RPC) and groups **client-side**, in JS:
   (`co_teaching_eligible`, `desdoble_eligible`, `plain_conflict`, `self_conflict`), reusing the
   exact card/`card-header`/`card-body` classes the "Overall summary" screen's own cards already
   use (`_summary_block_html()`) - "quizás el formato tarjetas... nos pueda venir bien."
-- **Inner: by `left_label`** - within a kind's card, one bordered sub-section per DISTINCT
-  `left_label` value (in the order it first appears), holding every row that shares it. This is
-  what "por 'left'" means: several colliding pairs sharing the same LEFT-side entry (e.g. one
-  teacher's own entry colliding with several other teachers' entries at the same slot) are grouped
-  together, since they are almost always resolved the same way in practice.
+- **Inner: by `left_group_key`** (changed from the originally-shipped `left_label` a few hours
+  later the SAME day, once the developer actually saw it rendered for real: *"veo una targeta por
+  vila [sic, fila], no hay agrupación ninguna... creo que la forma más práctica de agrupar es por
+  docente y materia, ignorando el resto de valores."* Grouping by the FULL `left_label` (teacher +
+  subject + group + weekday + time) turned out too specific in practice - two different conflicts
+  almost never share the exact same group/weekday/time too, only rarely the same teacher+subject,
+  so every sub-section ended up with exactly one row, i.e. no visible grouping benefit at all.
+  New `left_group_key` (Char, `conflict_mixin`, populated by a new shared `_entry_group_key(item,
+  entry)` helper - literally just `"%(teacher)s — %(subject)s"`, no group/weekday/time) is a
+  DELIBERATELY coarser identity used **only** for grouping - `left_label`/`right_label` themselves
+  are unchanged, still the full, specific per-row description (a row's own two sides can genuinely
+  have different teachers/subjects - e.g. a plain room clash between two unrelated classes - so
+  only the GROUPING key was made coarser, never what a row actually displays). Populated at all 3
+  line-creation sites (`_build_internal_conflict_lines`'s two loops, `_build_external_conflict_
+  lines`) alongside the existing `left_label`.
 
-**Bulk-apply, per sub-section:** a small `<select>` next to the sub-section's own `left_label`
+**Left/right wording removed from the UI entirely (same follow-up round, same developer
+feedback session): *"tampoco queda claro quien es left... quien es right. Habría que aclararlo, o
+cambiar left/right por otra cosa."*** The technical field names (`left_label`/`right_label`/
+`left_space_id`/`right_space_id`) are unchanged (renaming them would ripple through every
+`_build_*_conflict_lines`/`_continue_from_*_conflicts` call site and every existing test for no
+real benefit) - only what the WIDGET shows changed. `rowText(record)` branches on `this.props.
+name` (`internal_conflict_line_ids` vs `external_conflict_line_ids`, the only two callers of this
+widget):
+- **"File conflicts" (internal) - no asymmetry worth naming** (both sides are file entries): a row
+  just joins the two full descriptions with a plain `"vs."`, e.g. `"<left_label> vs. <right_label>"`
+  - no "left"/"right" word appears anywhere.
+- **"Existing schedule conflicts" (external) - genuinely asymmetric** (one side is the new file
+  entry, the other an already-active DB session): each side gets an explicit prefix, `"File: ..."` /
+  `"Database: ..."`, reusing the exact words the OLD list's own column headers already used for
+  this - a wording the developer had already found clear, just relocated from a column header
+  (which a grouped-cards layout has no equivalent of) to inline row text.
+
+**Bulk-apply, per sub-section:** a small `<select>` next to the sub-section's own `left_group_key`
 header, filtered to the resolutions valid for that KIND (same `allowedResolutionsByKind` mapping
 kept in sync by hand with `_resolution_is_valid`'s own `allowed_by_kind`, server-side) - picking a
 value calls `record.update({resolution: value})` on **every** record in that sub-section at once,

@@ -8,7 +8,7 @@ import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 
 // Groups a conflict-line o2m (internal_conflict_line_ids/external_conflict_line_ids) into cards
-// by 'kind', then into sub-sections by 'left_label' within each kind - developer feedback
+// by 'kind', then into sub-sections by 'left_group_key' within each kind - developer feedback
 // (2026-08-10) after resolving a large real batch by hand, one row at a time: "me iría bien que
 // estuvieran agrupadas por tipo... y por 'left', y que cada grupo me permitiera escoger el
 // resolution que se aplica al grupo entero." Each sub-section gets its own bulk-resolution
@@ -17,6 +17,25 @@ import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 // picked value is immediately visible without any extra RPC), then resets itself so it never
 // looks like a bound field - every row's OWN resolution dropdown right below it stays fully
 // editable afterward for a one-off override, exactly like the plain list this replaces.
+//
+// 'left_group_key' (teacher + subject, server-side '_entry_group_key') supersedes 'left_label'
+// (teacher + subject + group + weekday + time) as the sub-section KEY, not just its display text -
+// developer feedback the same day, after seeing the first version rendered for real: grouping by
+// the full label produced one sub-section per row in practice, since two different conflicts
+// almost never share the exact same group/weekday/time too, only rarely the same teacher+subject.
+// The row itself keeps showing the FULL 'left_label'/'right_label' (never trimmed down to "just
+// the diff") since the right side's own teacher/subject can genuinely differ from the left's
+// (e.g. a plain room clash between two unrelated classes) - only the grouping key is coarser, not
+// what a row displays.
+//
+// Also developer feedback (2026-08-10, after using the grouped view for real): plain "left"/
+// "right" text with no label read as arbitrary - unlike the OLD list's own two dedicated columns
+// (labeled "File"/"File" or "File"/"Database" as column HEADERS), a row here has no header of its
+// own to carry that meaning. Fixed by never showing the bare words "left"/"right" in the UI at
+// all: on "File conflicts" (internal - both sides are file entries, so there is no asymmetry
+// worth naming) a row just joins the two full descriptions with "vs."; on "Existing schedule
+// conflicts" (external - genuinely asymmetric) each side is explicitly prefixed "File:"/
+// "Database:", reusing the exact words the old column headers already used.
 //
 // The grouping is entirely client-side (kind/left_label are already loaded, ordinary Char/
 // Selection values) - no new server method, no extra round-trip. Left/right room pickers (only
@@ -66,7 +85,24 @@ export class EmsGroupedConflictLinesField extends Component {
         return {
             bulkPlaceholder: _t("— apply to all —"),
             spacePlaceholder: _t("Classroom…"),
+            filePrefix: _t("File"),
+            databasePrefix: _t("Database"),
         };
+    }
+
+    // 'external_conflict_line_ids' is genuinely asymmetric (file entry vs. an already-active DB
+    // session) - 'internal_conflict_line_ids' isn't (both sides are file entries), so only the
+    // former gets explicit "File:"/"Database:" prefixes on each row (see the file's own top
+    // comment for why plain, unlabeled "left"/"right" was dropped from the UI entirely).
+    get isExternal() {
+        return this.props.name === "external_conflict_line_ids";
+    }
+
+    rowText(record) {
+        if (this.isExternal) {
+            return `${this.labels.filePrefix}: ${record.data.left_label}   —   ${this.labels.databasePrefix}: ${record.data.right_label}`;
+        }
+        return `${record.data.left_label}   vs.   ${record.data.right_label}`;
     }
 
     // Same 4 kinds as 'ems.working_schedules_import_wizard.conflict_mixin's own 'kind' Selection,
@@ -114,8 +150,9 @@ export class EmsGroupedConflictLinesField extends Component {
     }
 
     // One card per 'kind' present (fixed order below), each holding one sub-section per distinct
-    // 'left_label' value, in the order that value first appears - matches the developer's own
-    // "agrupadas por tipo... y por left" request exactly.
+    // 'left_group_key' value (teacher + subject, coarser than the full 'left_label' - see the
+    // file's own top comment), in the order that value first appears - matches the developer's
+    // own "agrupadas por tipo... y por left" request.
     get kindGroups() {
         const groups = [];
         for (const kind of Object.keys(this.kindLabels)) {
@@ -124,15 +161,15 @@ export class EmsGroupedConflictLinesField extends Component {
                 continue;
             }
             const subgroups = [];
-            const byLeftLabel = new Map();
+            const byGroupKey = new Map();
             for (const record of kindRecords) {
-                const leftLabel = record.data.left_label;
-                if (!byLeftLabel.has(leftLabel)) {
-                    const subgroup = { leftLabel, records: [] };
-                    byLeftLabel.set(leftLabel, subgroup);
+                const groupKey = record.data.left_group_key;
+                if (!byGroupKey.has(groupKey)) {
+                    const subgroup = { groupKey, records: [] };
+                    byGroupKey.set(groupKey, subgroup);
                     subgroups.push(subgroup);
                 }
-                byLeftLabel.get(leftLabel).records.push(record);
+                byGroupKey.get(groupKey).records.push(record);
             }
             groups.push({ kind, label: this.kindLabels[kind], subgroups });
         }

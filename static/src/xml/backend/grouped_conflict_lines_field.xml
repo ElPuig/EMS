@@ -6,11 +6,11 @@
                 <div class="card">
                     <div class="card-header"><strong t-esc="group.label"/></div>
                     <div class="card-body">
-                        <t t-foreach="group.subgroups" t-as="subgroup" t-key="subgroup.leftLabel">
+                        <t t-foreach="group.subgroups" t-as="subgroup" t-key="subgroup.groupKey">
                             <div class="ems_conflict_subgroup border rounded p-2 mb-2">
-                                <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
-                                    <strong t-esc="subgroup.leftLabel"/>
-                                    <select class="ems_conflict_bulk_select form-select form-select-sm w-auto"
+                                <div class="ems_conflict_grid_row mb-1">
+                                    <strong t-esc="subgroup.groupKey"/>
+                                    <select class="ems_conflict_bulk_select form-select form-select-sm"
                                         t-on-change="(ev) => this.onBulkApply(subgroup, ev)">
                                         <option value="" t-esc="labels.bulkPlaceholder"/>
                                         <t t-foreach="resolutionOptions(group.kind)" t-as="option" t-key="option.value">
@@ -19,9 +19,9 @@
                                     </select>
                                 </div>
                                 <t t-foreach="subgroup.records" t-as="record" t-key="record.id">
-                                    <div class="ems_conflict_row d-flex align-items-center gap-2 py-1 border-top">
-                                        <span class="flex-grow-1" t-esc="record.data.right_label"/>
-                                        <select class="form-select form-select-sm w-auto"
+                                    <div class="ems_conflict_grid_row ems_conflict_row py-1 border-top">
+                                        <span t-esc="rowText(record)"/>
+                                        <select class="form-select form-select-sm"
                                             t-att-value="record.data.resolution"
                                             t-on-change="(ev) => this.onRowResolutionChange(record, ev)">
                                             <t t-foreach="resolutionOptions(group.kind)" t-as="option" t-key="option.value">

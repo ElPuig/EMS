@@ -932,20 +932,20 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_bulk_apply
             run: "click",
         },
         {
-            trigger: ".modal .ems_conflict_subgroup:has(strong:contains('Tour Bulk Apply Group A')) .ems_conflict_row",
-            content: "The sub-group for the anchor entry (Group A) lists both of its own colliding pairs as rows",
+            trigger: ".modal .ems_conflict_subgroup:has(strong:contains('TOURBULKX1')) .ems_conflict_row",
+            content: "The sub-group for the anchor entry (grouped by teacher+subject, TOURBULKX1) lists both of its own colliding pairs as rows",
         },
         {
             trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
             content: "Continue shows disabled - every row still defaults to 'Reassign rooms' with both sides identical",
         },
         {
-            trigger: ".modal .ems_conflict_subgroup:has(strong:contains('Tour Bulk Apply Group A')) .ems_conflict_bulk_select",
-            content: "Bulk-apply 'Left prevails' to BOTH rows under the Group A sub-group at once",
+            trigger: ".modal .ems_conflict_subgroup:has(strong:contains('TOURBULKX1')) .ems_conflict_bulk_select",
+            content: "Bulk-apply 'Left prevails' to BOTH rows under the TOURBULKX1 sub-group at once",
             run: "select prevail_left",
         },
         {
-            trigger: ".modal .ems_conflict_subgroup:has(strong:contains('Tour Bulk Apply Group B')) .ems_conflict_bulk_select",
+            trigger: ".modal .ems_conflict_subgroup:has(strong:contains('TOURBULKX2')) .ems_conflict_bulk_select",
             content: "Bulk-apply 'Left prevails' to the remaining sub-group's own single row too",
             run: "select prevail_left",
         },

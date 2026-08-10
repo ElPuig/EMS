@@ -7925,6 +7925,11 @@ msgid "Left"
 msgstr "Izquierda"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__left_group_key model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__left_group_key
+msgid "Group key"
+msgstr "Clave de agrupación"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__right_label model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__right_label
 msgid "Right"
 msgstr "Derecha"
@@ -12023,6 +12028,20 @@ msgstr "— aplicar a todos —"
 #, python-format
 msgid "Classroom…"
 msgstr "Aula…"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "File"
+msgstr "Archivo"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#, python-format
+msgid "Database"
+msgstr "Base de datos"
 
 #. module: ems
 #. odoo-python

@@ -1087,6 +1087,53 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(line.resolution, 'co_teaching')
         self.assertFalse(wizard.continue_disabled)
 
+    def test_left_group_key_ignores_group_for_the_same_teacher_and_subject(self):
+        # Regression guard for a real bug found the hard way (2026-08-10): 'left_group_key' must
+        # stay IDENTICAL across two pairs sharing the same left teacher+subject, even when the
+        # left side's own GROUP differs between the two pairs - otherwise the grouped-cards view's
+        # whole "group by teacher+subject, ignoring group" premise silently breaks for exactly the
+        # realistic case that motivated it (one teacher double-booked across several different
+        # classes). Deliberately does NOT reuse the exact same left entry across both pairs (see
+        # feedback_vary_the_ignored_dimension_in_fixtures memory) - self.teacher's own two entries
+        # here use two DIFFERENT groups (self.group/self.single_group), on two different days, each
+        # colliding with a different second teacher in the same shared room.
+        second_teacher = self._second_teacher()
+        third_teacher = self.env['hr.employee'].create({
+            'name': 'Test Wizard Teacher 3 (Import Wizard)',
+            'employee_type': 'teacher',
+            'work_email': 'test.wizard.teacher3.import.wizard@example.com',
+        })
+        xml = (
+            '<root>'
+            f'<T name="{self.teacher.work_email} Someone">'
+            f'<D name="1 Monday"><H name="1 09:00"><Subject name="{self.subject.code} {self.subject.name}"/>'
+            f'<Students name="{self.group.name} Group"/></H></D>'
+            f'<D name="2 Tuesday"><H name="1 09:00"><Subject name="{self.subject.code} {self.subject.name}"/>'
+            f'<Students name="{self.single_group.name} Group"/></H></D>'
+            '</T>'
+            f'<T name="{second_teacher.work_email} Someone Else">'
+            f'<D name="1 Monday"><H name="1 09:00"><Subject name="{self.subject.code} {self.subject.name}"/>'
+            f'<Students name="{self.group.name} Group"/></H></D>'
+            '</T>'
+            f'<T name="{third_teacher.work_email} Someone Third">'
+            f'<D name="2 Tuesday"><H name="1 09:00"><Subject name="{self.subject.code} {self.subject.name}"/>'
+            f'<Students name="{self.single_group.name} Group"/></H></D>'
+            '</T>'
+            '</root>'
+        )
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(base64.b64encode(xml.encode())),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # teachers -> internal_conflicts
+
+        self.assertEqual(len(wizard.internal_conflict_line_ids), 2)
+        group_keys = wizard.internal_conflict_line_ids.mapped('left_group_key')
+        self.assertEqual(len(set(group_keys)), 1, "left_group_key must be identical regardless of the left side's own group")
+        left_labels = wizard.internal_conflict_line_ids.mapped('left_label')
+        self.assertEqual(len(set(left_labels)), 2, "left_label itself must still differ (it includes the group)")
+
     def test_continue_from_teachers_builds_desdoble_line_for_same_subject_different_group(self):
         second_teacher = self._second_teacher()
         wizard = self.env['ems.working_schedules_import_wizard'].create({

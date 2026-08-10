@@ -66,6 +66,7 @@
                                      which sub-fields to load. -->
                                 <list editable="bottom" create="False" delete="False">
                                     <field name="left_label"/>
+                                    <field name="left_group_key"/>
                                     <field name="right_label"/>
                                     <field name="kind"/>
                                     <field name="resolution"/>
@@ -85,6 +86,7 @@
                                      which sub-fields to load. -->
                                 <list editable="bottom" create="False" delete="False">
                                     <field name="left_label"/>
+                                    <field name="left_group_key"/>
                                     <field name="right_label"/>
                                     <field name="kind"/>
                                     <field name="resolution"/>

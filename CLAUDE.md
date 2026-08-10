@@ -267,6 +267,70 @@ illustrate. Before saving any screenshot into `docs/assets/`:
 This applies regardless of source: a tour-driven capture, a manual `Read` of a screenshot file, or
 anything the developer hands you directly.
 
+## Optional tooling: qmd for searching `docs/`/`plans/` (2026-08-10)
+
+[qmd](https://github.com/tobi/qmd) is a local, MIT-licensed hybrid search tool (BM25 + vector
++ LLM reranking, all on-device — no data leaves the machine, no API keys) that can index
+`docs/` and `plans/` and expose an MCP server for "where is X documented?" style questions.
+
+**This is opt-in per developer, not a project requirement.** It is not installed, configured,
+or assumed to be present by default — nothing in this repo depends on it. It's mentioned here
+purely so any Claude session opened on this repo knows the option exists and can offer to set
+it up if the developer wants it, without anyone being forced to install anything.
+
+**Where it actually helps, based on a real measurement of this project's own session history
+(2026-08-10):** ~10.6% of all tool-result volume across this project's sessions was
+`docs/`/`plans/` reads or doc-focused subagent dispatches; of that, the genuinely replaceable
+slice (locating a fact across the doc corpus, as opposed to reading a file's current full
+content because you're about to edit it) was estimated at roughly 3-6% of total tool-result
+volume — modest, but real, and concentrated in exactly the "which doc covers this?" lookups
+that recur throughout the Development workflow's D steps (Spec, Close) and DTON-era doc
+audits.
+
+**Where it does *not* help — confirmed, don't reach for it here:** Python/code search (grep/
+Explore already give exact, deterministic matches; semantic similarity is a downgrade for
+finding a symbol), merge conflict resolution (a git-history problem, not retrieval), test
+output logs (ephemeral, want literal grep on a specific run, not a persistent semantic index),
+and `changelog/` (the PR-delivery workflow always reads every file there in full and verbatim
+— there's no "search a subset" step to accelerate, and the files are small already).
+
+**If a developer wants to try it:** local install via Bun/Node (`bun install -g @tobilu/qmd` or
+`npm install -g @tobilu/qmd`, Node ≥22 or Bun ≥1.0), then `qmd collection add ./docs --name
+docs` + `qmd collection add ./plans --name plans` + `qmd embed` (downloads ~2GB of local GGUF
+models on first run), then register it as an MCP server in their own **user-level** Claude Code
+config — not `.mcp.json` in this repo, so it stays each developer's individual choice and never
+prompts a colleague who hasn't opted in. Install note (hit on this box): `bun install -g` can
+produce an ABI mismatch between Bun's own `better-sqlite3` build and qmd's native `sqlite-vec`
+extension — `npm install -g @tobilu/qmd` avoided it. The `qmd` launcher itself still requires a
+real `node` binary on `$PATH` regardless of which package manager installed it (it re-execs into
+`node`/`bun` based on which lockfile shipped in the installed package, and its shebang line is
+`#!/usr/bin/env node`) — Bun alone, without Node also installed, is not enough to run it.
+
+**GPU acceleration matters here — check before writing this off as too slow to use.** The MCP
+server only exposes the hybrid `query` tool (BM25 + vector + LLM reranking) — not the lighter
+CLI-only `search`/`vsearch` modes — so every MCP-driven lookup pays the full reranking cost.
+Measured on this box (an Incus/LXC container on a Ryzen 5000-series laptop): CPU-only, a single
+`query` call took **~2-3 minutes** (reranking 36 chunks on 6 CPU math cores) — impractical for
+interactive use. After passing the host's integrated GPU into the container (`AMD Radeon
+Graphics (RADV RENOIR)` via Vulkan) and rebuilding embeddings on the GPU pipeline
+(`qmd embed --force` — needed once, since vectors computed under CPU vs GPU inference differ
+enough at the bit level that `qmd doctor` flags them as stale), the *same* query with *identical*
+top result and score dropped to **~6 seconds**. If running inside a container without a GPU
+passed through, checking whether one can be added is worth doing before concluding qmd is too
+slow to bother with via MCP.
+
+- **Incus/LXD** (what this box uses): `incus config device add <instance-name> gpu gpu` (or
+  `lxc config device add ...` on plain LXD) from the host, then restart the instance — this must
+  be run by whoever manages the host, not from inside the container. Inside the container,
+  once `/dev/dri/renderD1xx` appears, install `mesa-vulkan-drivers` + `vulkan-tools` (verify with
+  `vulkaninfo --summary`) and re-run `qmd doctor` to confirm `device probe: GPU vulkan`.
+- **Plain LXC:** add `lxc.cgroup2.devices.allow: c 226:* rwm` and
+  `lxc.mount.entry: /dev/dri/renderD128 dev/dri/renderD128 none bind,optional,create=file` to the
+  container's config file, then restart it.
+- Not relevant on bare metal or a VM with GPU passthrough already configured — this step is
+  specifically for containerized dev environments (LXC/LXD/Incus/Docker) where the GPU isn't
+  visible to the container by default.
+
 ## Design plans (`plans/`)
 
 `plans/` (project root) holds **design plans for work that hasn't been implemented yet** —

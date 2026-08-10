@@ -4185,18 +4185,38 @@ msgstr "Importar"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid ""
-"Import a working-schedule batch (one or several planner files). Run this during\n"
-"                                next-course preparation, once the previous course's schedules have already been\n"
-"                                archived by the course transition wizard - running it against a course already in\n"
-"                                progress can create conflicts/overlaps that then need manual resolution in the\n"
-"                                following steps."
-msgstr ""
-"Importa un lote de horarios (uno o varios ficheros del planificador). Ejecuta esto durante\n"
-"                                la preparación del próximo curso, una vez los horarios del curso anterior ya se\n"
-"                                han archivado con el asistente de transición de curso - ejecutarlo contra un curso\n"
-"                                ya en marcha puede crear conflictos/solapes que luego necesitarán resolución manual\n"
-"                                en los siguientes pasos."
+msgid "Import a working-schedule batch (one or several planner files exported from the timetable tool). Run this during next-course preparation, right after the previous course's schedules have been archived by the course transition wizard. Nothing is written to any schedule until you finish every step below and click Import on the last one."
+msgstr "Importa un lote de horarios (uno o varios ficheros del planificador exportados de la herramienta de horarios). Ejecuta esto durante la preparación del próximo curso, justo después de que los horarios del curso anterior se hayan archivado con el asistente de transición de curso. No se escribe nada en ningún horario hasta que termines todos los pasos de abajo y hagas clic en Importar en el último."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "EMS checks every group name in the file against the groups already in EMS. Any name it couldn't match is listed below for you to resolve by hand."
+msgstr "El EMS comprueba cada nombre de grupo del archivo contra los grupos que ya hay en el EMS. Cualquier nombre que no haya podido emparejar se lista abajo para que lo resuelvas a mano."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "EMS checks every teacher e-mail in the file against the teachers already in EMS. Any e-mail it couldn't match is listed below: pick the real teacher if it's a typo, or tick New if this is a genuinely new hire."
+msgstr "El EMS comprueba cada correo de docente del archivo contra los docentes que ya hay en el EMS. Cualquier correo que no haya podido emparejar se lista abajo: elige el docente real si es un error, o marca Nuevo si se trata de una contratación genuinamente nueva."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Nothing to resolve here - this is a preview of every teacher this import is about to create as a brand-new, pending-identification employee."
+msgstr "Aquí no hay nada que resolver - es una vista previa de cada docente que esta importación está a punto de crear como empleado nuevo, pendiente de identificar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "EMS checks whether two different teachers in this same file end up scheduled in the same classroom at the same time. Each colliding pair is listed below for you to resolve."
+msgstr "El EMS comprueba si dos docentes distintos de este mismo archivo acaban programados en la misma aula y la misma hora. Cada pareja en conflicto se lista abajo para que la resuelvas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "EMS also checks the new entries against schedules that are already active in the database - expected if this import runs against a course already in progress rather than right after a course transition. Each colliding pair is listed below for you to resolve."
+msgstr "El EMS también comprueba las entradas nuevas contra horarios que ya están activos en la base de datos - esto es esperable si esta importación se ejecuta contra un curso ya en marcha en lugar de justo después de una transición de curso. Cada pareja en conflicto se lista abajo para que la resuelvas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "This is the last screen before anything gets written, and none of the previous steps can be revisited afterwards. Review the counts and the existing teachers below, then click Import."
+msgstr "Esta es la última pantalla antes de que se escriba nada, y ninguno de los pasos anteriores se podrá volver a visitar después. Revisa los recuentos y los docentes ya existentes abajo, y luego haz clic en Importar."
 
 #. module: ems
 #. odoo-javascript

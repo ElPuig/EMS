@@ -14,22 +14,23 @@
 
                         <!-- Welcome: file upload only - no validation/banners here on purpose. Resolving
                              an unknown e-mail/group, a missing classroom or a schedule conflict is the
-                             job of the later steps (2-6, see plans/working_schedule_import_redesign.md),
-                             not something this screen should show or block on. -->
+                             job of the later steps, not something this screen should show or block on.
+                             Every step below has its own short intro paragraph explaining what that step
+                             checks and what to do with it (developer feedback 2026-08-10: the wizard has
+                             many steps with no way to go back, so each one should be self-explanatory on
+                             its own, not just the first one) - see docs/en/developers/employees/
+                             working_schedule.md's "Import wizard" section for the full rationale,
+                             including why part of this screen's own original text moved to the
+                             "Existing schedule conflicts" screen's intro instead. -->
                         <div invisible="state != 'intro'">
-                            <p>
-                                Import a working-schedule batch (one or several planner files). Run this during
-                                next-course preparation, once the previous course's schedules have already been
-                                archived by the course transition wizard - running it against a course already in
-                                progress can create conflicts/overlaps that then need manual resolution in the
-                                following steps.
-                            </p>
+                            <p>Import a working-schedule batch (one or several planner files exported from the timetable tool). Run this during next-course preparation, right after the previous course's schedules have been archived by the course transition wizard. Nothing is written to any schedule until you finish every step below and click Import on the last one.</p>
                             <group>
                                 <field name="attachment_ids" widget="ems_blocking_many2many_binary" options="{'accepted_file_extensions': '.xml'}"/>
                             </group>
                         </div>
 
                         <div invisible="state != 'groups'">
+                            <p>EMS checks every group name in the file against the groups already in EMS. Any name it couldn't match is listed below for you to resolve by hand.</p>
                             <div class="alert alert-success" role="alert" invisible="group_line_ids">
                                 Every group mentioned in the file was recognized.
                             </div>
@@ -42,6 +43,7 @@
                         </div>
 
                         <div invisible="state != 'teachers'">
+                            <p>EMS checks every teacher e-mail in the file against the teachers already in EMS. Any e-mail it couldn't match is listed below: pick the real teacher if it's a typo, or tick New if this is a genuinely new hire.</p>
                             <div class="alert alert-success" role="alert" invisible="teacher_line_ids">
                                 Every teacher e-mail mentioned in the file was recognized.
                             </div>
@@ -55,6 +57,7 @@
                         </div>
 
                         <div invisible="state != 'pending_info'">
+                            <p>Nothing to resolve here - this is a preview of every teacher this import is about to create as a brand-new, pending-identification employee.</p>
                             <div class="alert alert-success" role="alert" invisible="pending_teachers_html">
                                 No new teacher will be created - every teacher in this batch already exists.
                             </div>
@@ -62,6 +65,7 @@
                         </div>
 
                         <div invisible="state != 'internal_conflicts'">
+                            <p>EMS checks whether two different teachers in this same file end up scheduled in the same classroom at the same time. Each colliding pair is listed below for you to resolve.</p>
                             <div class="alert alert-success" role="alert" invisible="internal_conflict_line_ids">
                                 No room conflicts were found within this batch.
                             </div>
@@ -80,6 +84,7 @@
                         </div>
 
                         <div invisible="state != 'db_conflicts'">
+                            <p>EMS also checks the new entries against schedules that are already active in the database - expected if this import runs against a course already in progress rather than right after a course transition. Each colliding pair is listed below for you to resolve.</p>
                             <div class="alert alert-success" role="alert" invisible="external_conflict_line_ids">
                                 No conflicts were found against already-active schedules.
                             </div>
@@ -98,6 +103,7 @@
                         </div>
 
                         <div invisible="state != 'summary'">
+                            <p>This is the last screen before anything gets written, and none of the previous steps can be revisited afterwards. Review the counts and the existing teachers below, then click Import.</p>
                             <field name="overall_summary_html" nolabel="1"/>
                             <div class="alert alert-success" role="alert" invisible="existing_teachers_html">
                                 No existing teacher's schedule will be recreated by this import.

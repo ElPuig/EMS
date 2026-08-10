@@ -114,6 +114,8 @@ El pati mai es compta a cap de les dues columnes. Una franja que només se solap
 
 Si el teu centre ja exporta horaris des d'una eina externa de planificació (XML), fes servir l'importador general en lloc de construir els horaris a mà — cada fitxer ja pot descriure diversos docents a la vegada (aparellats per correu electrònic), i pots adjuntar més d'un fitxer en una mateixa execució. Ja no hi ha un importador per docent individual: un docent que s'incorpora a mig curs rep el seu horari mitjançant **Nou** a la seva pròpia pestanya **Horari** (vegeu "Començar l'horari d'un docent a partir d'un marc o d'un altre docent" més avall) o a mà, mai amb una pujada de fitxer per a un sol docent.
 
+L'assistent et guia per diverses pantalles, cadascuna amb la seva pròpia explicació breu del que comprova i què fer-hi — els passos numerats de sota són una referència detallada, no l'únic lloc on trobar què està passant.
+
 1. Vés a **Configuració → Professorat → Horaris de treball**.
 2. Obre el menú ⚙️ (engranatge) de sobre la llista i tria **Import: planner data**.
 3. A la pantalla de **Benvinguda**, adjunta un o més fitxers XML i fes clic a **Continua** — encara no s'escriu res en aquest punt, ni tampoc es comprova res del contingut dels fitxers.

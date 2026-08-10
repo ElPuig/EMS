@@ -114,6 +114,8 @@ The break is never counted in either column. A period that only partially overla
 
 If your centre already exports schedules from an external planning tool (XML), use the batch importer instead of building schedules by hand — each file can already describe several teachers at once (matched by e-mail), and you can attach more than one file in the same run. There is no separate per-teacher import any more: a teacher joining mid-year gets their schedule via **New** on their own **Schedule** tab (see "Start a Teacher's Schedule From a Framework or From Another Teacher" below) or by hand, never a single-teacher file upload.
 
+The wizard walks you through several screens, each showing its own short explanation of what it checks and what to do with it — the numbered steps below are a detailed reference, not the only place to find out what's going on.
+
 1. Go to **Configuration → Teachers → Working schedules**.
 2. Open the ⚙️ (cog) menu above the list and choose **Import: planner data**.
 3. On the **Welcome** screen, attach one or more XML files, then click **Continue** — nothing is written yet at this point, and nothing about the files' content is checked here either.

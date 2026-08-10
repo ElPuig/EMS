@@ -114,6 +114,8 @@ El patio nunca se cuenta en ninguna de las dos columnas. Una franja que solo se 
 
 Si tu centro ya exporta horarios desde una herramienta externa de planificación (XML), usa el importador general en lugar de construir los horarios a mano — cada archivo ya puede describir varios docentes a la vez (emparejados por correo electrónico), y puedes adjuntar más de un archivo en una misma ejecución. Ya no existe un importador por docente individual: un docente que se incorpora a mitad de curso recibe su horario mediante **Nuevo** en su propia pestaña **Horario** (ver "Empezar el horario de un docente a partir de un marco o de otro docente" más abajo) o a mano, nunca con una subida de archivo para un solo docente.
 
+El asistente te guía por varias pantallas, cada una con su propia explicación breve de lo que comprueba y qué hacer con ello — los pasos numerados de abajo son una referencia detallada, no el único lugar donde encontrar qué está pasando.
+
 1. Ve a **Configuración → Profesorado → Horarios de trabajo**.
 2. Abre el menú ⚙️ (engranaje) sobre la lista y elige **Import: planner data**.
 3. En la pantalla de **Bienvenida**, adjunta uno o más archivos XML y haz clic en **Continuar** — todavía no se escribe nada en este punto, ni tampoco se comprueba nada del contenido de los archivos.

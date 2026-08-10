@@ -269,6 +269,32 @@ is always either legitimate co-teaching or a real problem, never something to si
 
 Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_parse_schedule_entries()`, then calls `ems.teaching.sync_from_schedule(..., replace=False)`/`ems.attendance_template.sync_from_schedule_batch_fresh_import` — the importer's own entry points, **not** the ones the Schedule tab's grid widget uses to save a live edit (see "Reconciliation" above for why the importer needs its own).
 
+**Every screen gets its own one-sentence intro paragraph (2026-08-10, developer feedback: *"Quiero
+una breve introducción o resumen de lo que sucede en cada paso del asistente... quiero que el
+usuario lo tenga muy claro"*).** Before this, only the Welcome screen had a plain `<p>` explaining
+itself - every later screen jumped straight into either a success alert or a resolution list, with
+nothing telling the admin *why* that screen exists or what to do with it. Since this is a long,
+strictly-linear flow with no way to go back once past a step, each screen now opens with a plain
+`<p>` (same style as Welcome's own, no alert coloring) stating what that screen checks and what to
+do about it - added as a static, hardcoded sentence per `state`, not a computed field, since the
+text is generic per-step guidance, not data-dependent (the actual data still renders below, in the
+existing success-alert-or-list pattern).
+
+**The developer also asked to look at simplifying Welcome itself, moving out whatever content fits
+better elsewhere** (*"la sección wellcome se pueda simplificar... si parte de su contenido se
+reparte entre los otros"*). Welcome's original paragraph did two things at once: explained what the
+wizard does, and warned that running it against a course already in progress (rather than right
+after a course transition) can produce conflicts needing manual resolution "in the following
+steps" - a forward-reference that only actually pays off once the admin reaches the conflict
+screens. Split accordingly: Welcome keeps the general framing (what this import does, when to run
+it, and - new - the reassurance that nothing is written until the final Import click, useful
+context for the whole flow, stated once up front rather than implied); the specific "why a DB
+conflict can happen" explanation moved into the "Existing schedule conflicts" screen's own new
+intro, where it's actually relevant. `views/community/working_schedules/import_wizard.xml`'s
+comment above the Welcome `<div>` updated to reflect this (no longer references the old plan file
+by name or step numbers, which had already drifted from the current `state` order per the
+screen-reordering above).
+
 ### Screen 2 — "Resolve groups" (2026-08-05) — deferred group-name resolution
 
 **Decision confirmed with the developer 2026-08-05, resolving a real conflict found before

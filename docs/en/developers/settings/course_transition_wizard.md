@@ -132,9 +132,10 @@ other preview counter.
 
 `_apply_calendar_archival()` (step 7a, called right after `_templates_to_archive().action_archive()`
 in `_apply_cleanup`) is where they actually get archived. For every migrating block it finds the
-matching `ems.attendance_schedule` line(s) via `ems.attendance_mixin.find_schedule_lines_for_slot`
-(the calendar→schedule slot-matching lookup — searched with `active_test=False`, since the line may
-already be archived by the template-cascade that just ran), then:
+matching `ems.attendance_schedule` line(s) via `ems.attendance_mixin.find_schedule_lines_for_teaching`
+(matched by teacher+subject+group overlap+weekday/time, **deliberately not room** — searched with
+`active_test=False`, since the line may already be archived by the template-cascade that just ran),
+then:
 
 ```mermaid
 flowchart TD
@@ -144,6 +145,8 @@ flowchart TD
     G --> O{"does another teacher\nstill have an active block\nfor any of this template's lines?"}
     O -- yes --> T["_write_or_new_version({'teacher_ids': remaining})\n- write in place, or archive+clone\nif has_sessions (never a raw write)"]
     O -- no --> S2["archive the whole template\n(cascades to its lines + their sessions)"]
+    B2["EVERY migrating teacher's OWN\nstill-active lines (not just the ones\na block directly matched above)"] --> N{"_teacher_has_active_block:\nANY current calendar block\nstill supports it?"}
+    N -- no --> G
 ```
 
 The "already archived" branch is the expected path on well-synced data: every co-teacher of the
@@ -156,6 +159,34 @@ need it" branch only matters for the decision-3/4 drift case: a calendar block c
 in-scope group even when its own template's `group_ids` don't, so `_templates_to_archive()` never
 reaches that template at all — `_apply_calendar_archival()` is what still catches it, independently,
 from the calendar side.
+
+**Second, orphaned-line pass (2026-08-10, developer feedback: "lo que manda es el calendario"),
+right after the direct block-match loop above:** for every migrating teacher, every one of their
+OWN still-active lines — not only the ones a specific calendar block happened to match directly —
+is checked via `_teacher_has_active_block(teacher, line)`: does ANY of that teacher's current
+calendar blocks still support this exact line (same subject, group overlap, weekday/time — again,
+never room)? If not, the line counts as departed too, exactly like one found via a direct match.
+Real scenario this closes: a teacher edits their calendar by hand, bypassing the normal sync, so an
+old line (a different group/time the calendar no longer shows at all) would otherwise never be
+found by the direct block-match loop and would linger active forever. `_teacher_has_active_block()`
+is reused for both directions of this check — a REMAINING co-teacher genuinely still supported (its
+original use, in the `still_needed` branch above) and a DEPARTING teacher's own line with no
+calendar support left (this newer one) — same predicate, same room exclusion, one function.
+
+**Third, fully UNSCOPED catch-up (2026-08-10, same day, found re-running a real transition right
+after the first two fixes above were deployed):** the 4 real stray session headers that originally
+motivated this whole fix (David Delgado, see `find_schedule_lines_for_teaching`'s own docs) turned
+out to need a THIRD fix, not just the first two — both checks above only ever consider a teacher
+who is currently "migrating" *in this specific run* (an active calendar block, or an active line to
+compare one against), but David Delgado's entire calendar had already been fully archived in an
+*earlier* run (already rolled over to his current calendar, zero active blocks left), so he never
+entered `affected_teachers` this time either, and his already-archived stale line was never looked
+at by either check. Fixed with one more, deliberately unconditional query, right before this method
+returns: every already-archived `ems.attendance_schedule` line **anywhere** with still-active
+sessions gets those sessions archived — not scoped to this run's own `affected_teachers` or
+`study_ids` at all. This is a plain data-integrity invariant ("an archived line's sessions are also
+archived"), correct precisely because there is no legitimate scenario where an archived line should
+keep an active session, regardless of which run (or how long ago) archived it.
 
 **The decision is made once per TEMPLATE, with every departing teacher found across all of that
 template's migrating lines, never once per line/teacher.** Two reasons, found while implementing
@@ -184,6 +215,40 @@ override itself must be a full replacement command (`[(6, 0, remaining.ids)]`), 
 "unlink" one: `_write_or_new_version`'s archive+clone branch applies `vals` via `copy()`'s own
 `default` argument, which populates the brand-new record's `teacher_ids` from `vals` alone rather
 than merging it with the original's.
+
+### Attendance justifications and "daily issues" also get caught up (2026-08-10)
+
+Found auditing real dev data before a batch import: `ems.attendance_justification` and
+`ems.attendance_issue_status`/`_student`/`_tutor` ("daily issues") were never wired into this
+wizard at all, in any of its earlier phases — confirmed by grep, zero references in this file
+before this fix. `res.partner._ems_clear_operational_records()` (called later in `_apply_cleanup`,
+see "Why the cleanup runs before the placement" above) already **deletes** issue records, but only
+for a student still in `_scope_students()` at run time — captured by *current* `main_group_id`.
+A student already detached from any group (stranded by an earlier run's `_apply_detach_unplaced()`,
+or a reinforcement-group student never captured by `main_group_id` at all) falls outside that scope
+forever, exactly the gap that left 2 justifications and 27 "daily issue" rows (10 tutor + 17 status)
+sitting active in real data, all referencing sessions that were themselves already correctly
+archived.
+
+`_apply_attendance_records_archival()` (step 7c, called right after `_apply_calendar_archival()` in
+`_apply_cleanup`, so it sees both this run's own newly-archived sessions and any pre-existing
+leftover) fixes this with a condition keyed on the session's own archived state instead of student
+scope — correct regardless of which run originally archived the underlying session:
+
+- `ems.attendance_justification`: archived if it has at least one `attendance_session_line_ids`
+  entry and **all** of them point at an already-archived session.
+- `ems.attendance_issue_status`: archived directly by a domain on
+  `attendance_session_line_id.attendance_session_id.active = False`. Its parent
+  `attendance_issue_student`/`attendance_issue_tutor` are then archived too, once each is left with
+  no active children — read via the model's own default active-filtered relation (no extra
+  bookkeeping needed: "no active children left" and "the field reads empty" are the same
+  observable state once the children are archived).
+
+**Archives, never deletes** — unlike `_ems_clear_operational_records()`'s deletion, which is
+specifically justified there for a student who has actually left the centre and whose stats are
+already frozen in the year record. These records have no such freezing step, so archiving (keeping
+them findable via the "Archived" filter, matching every other attendance model in this system) is
+the safer default.
 
 ### A teacher's calendar rolls onto the next course once teaching empties out (`plans/course_transition_teacher_schedule_archival.md`, phases 6-7)
 

@@ -720,8 +720,9 @@ class ems_course_transition_wizard(models.TransientModel):
     def _apply_calendar_archival(self):
         """Step 7a — archives every migrating teacher calendar block found by
         `_migrating_calendar_blocks()`, then decides the fate of whichever `ems.attendance_schedule`
-        line(s) it maps to (via `ems.attendance_mixin.find_schedule_lines_for_slot`, the
-        calendar->schedule slot-matching lookup):
+        line(s) it maps to (via `ems.attendance_mixin.find_schedule_lines_for_teaching`, matched by
+        teacher+subject+group overlap+weekday/time - deliberately NOT by room, see that method's
+        own docstring for why matching on room silently broke this exact link in real data):
         - A line that's ALREADY archived (the common case — `_templates_to_archive()`, called just
           before this, already cascaded to it) only needs its `attendance_session_ids` archived
           explicitly: that cascade never reaches sessions on its own (see
@@ -743,9 +744,26 @@ class ems_course_transition_wizard(models.TransientModel):
           otherwise it archives the original (leaving its own `teacher_ids` — and its sessions'
           `template_teacher_ids` — historically untouched) and clones a fresh, corrected version.
 
+        Also catches a second, ORPHANED-line case (2026-08-10, developer feedback: "lo que manda es
+        el calendario") right after the direct block-match loop: a migrating teacher's own
+        still-active line whose (subject, group, weekday, time) is no longer backed by ANY of their
+        current calendar blocks at all — not just the one that made them "migrating" — is treated
+        as departed too, via the same `_teacher_has_active_block()` predicate used below for the
+        opposite ("is a REMAINING co-teacher still genuinely supported") check. Real scenario this
+        covers: a teacher edits their calendar by hand, bypassing the normal sync, so an old line
+        (a different group/time the calendar no longer shows at all) would otherwise never be found
+        by the direct match and would linger active forever.
+
         Deciding per template rather than per line also avoids ever creating a needless clone: if
         every one of a template's co-teachers departs in the same run, `remaining` is empty and the
         whole template is simply archived outright, no `_write_or_new_version` call at all.
+
+        Finally, a third, fully UNSCOPED catch-up (2026-08-10, found re-running a real transition):
+        every already-archived line anywhere with still-active sessions gets its sessions archived
+        too - deliberately not limited to this run's own `affected_teachers`/`study_ids`, since a
+        teacher whose calendar was already fully archived in an EARLIER run (zero active blocks
+        left, so they never enter `affected_teachers` this time either) can still have a stale line
+        from back then whose session catch-up was simply never reached by either check above.
 
         Returns the distinct set of teachers whose calendar had at least one migrating block this
         run - captured *before* archiving them, since `_migrating_calendar_blocks()`'s own search
@@ -766,11 +784,34 @@ class ems_course_transition_wizard(models.TransientModel):
             # _templates_to_archive().action_archive() call (its own cascade only reaches the line,
             # never its sessions, per decision 6) - that case still needs handling below (catching
             # up the sessions), so it must not be silently excluded from this search.
-            lines = self.env['ems.attendance_schedule'].with_context(active_test=False).find_schedule_lines_for_slot(
-                teacher, block.dayofweek, block.hour_from, block.hour_to, space=block.space_id)
+            lines = self.env['ems.attendance_schedule'].with_context(active_test=False).find_schedule_lines_for_teaching(
+                teacher, block.subject_id, block.group_ids, block.dayofweek, block.hour_from, block.hour_to)
             for line in lines:
                 line_departures[line] = line_departures.get(line, self.env['hr.employee']) | teacher
         blocks.action_archive()
+
+        # NEW (2026-08-10, developer feedback: "lo que manda es el calendario"): a migrating
+        # teacher's own still-active line whose (subject, group, weekday, time) is no longer
+        # backed by ANY of their current calendar blocks at all - not just the specific block
+        # that made them "migrating" above - counts as departed too. Real example that surfaced
+        # this: a teacher edits their calendar by hand, bypassing the normal sync, so the OLD
+        # line (a different group/time the calendar no longer shows at all) is never found by
+        # the direct block-match loop above and would otherwise linger active forever.
+        for teacher in affected_teachers:
+            # Explicit ('active', '=', True) keeps the search itself scoped to currently-active
+            # lines only (matching the intent - an already-archived line needs no departure
+            # processing here) - but 'with_context(active_test=False)' still propagates through
+            # 'line.attendance_template_id' below, all the way to '_write_or_new_version''s own
+            # 'new_template.attendance_schedule_ids.action_unarchive()' call further down: without
+            # it, that later read would silently exclude the freshly-cloned (still momentarily
+            # inactive) line, so it would never actually get unarchived.
+            own_lines = self.env['ems.attendance_schedule'].with_context(active_test=False).search([
+                ('attendance_template_id.teacher_ids', 'in', teacher.id),
+                ('active', '=', True),
+            ])
+            for line in own_lines:
+                if line not in line_departures and not self._teacher_has_active_block(teacher, line):
+                    line_departures[line] = line_departures.get(line, self.env['hr.employee']) | teacher
 
         departures_by_template = {}
         for line, departing in line_departures.items():
@@ -800,6 +841,22 @@ class ems_course_transition_wizard(models.TransientModel):
             else:
                 lines.attendance_session_ids.action_archive()
                 template.action_archive()
+
+        # Unconditional, unscoped catch-up (2026-08-10, found re-running a real transition after
+        # the fix above): an ALREADY-archived line with still-active sessions is always a bug,
+        # regardless of when or why it was archived - deliberately NOT limited to this run's own
+        # 'affected_teachers'/'study_ids'. The two checks above only ever look at a teacher who is
+        # CURRENTLY migrating (has an active calendar block, or an active line to compare against
+        # one) - a teacher whose entire calendar was already fully archived in an EARLIER run (no
+        # active blocks left at all, so they never even entered 'affected_teachers' this time)
+        # can still have a stale line from back then whose session catch-up was simply never
+        # reached - real example that surfaced this: David Delgado's own template/line had
+        # already been archived by a previous run, his whole 2025-2026 calendar was already
+        # archived too (fully rolled over already), yet 4 of his session headers stayed active
+        # because nothing ever triggered a look at that specific, by-then-inactive line again.
+        self.env['ems.attendance_schedule'].with_context(active_test=False).search([
+            ('active', '=', False), ('attendance_session_ids.active', '=', True),
+        ]).mapped('attendance_session_ids').action_archive()
         return affected_teachers
 
     def _apply_calendar_rollover(self, teachers):
@@ -839,16 +896,72 @@ class ems_course_transition_wizard(models.TransientModel):
             teacher.resource_calendar_id = next_calendar
 
     def _teacher_has_active_block(self, teacher, line):
-        """Whether 'teacher' still has an active resource.calendar.attendance block overlapping
-        'line's own (weekday, start_time, end_time) - the defensive check behind
-        '_apply_calendar_archival''s per-teacher fallback, see its own docstring."""
+        """Whether 'teacher' still has an active resource.calendar.attendance block matching
+        'line's own teaching assignment - same subject, any group overlap, and weekday/time
+        overlap. Deliberately NOT room (2026-08-10, developer feedback: "lo que manda es el
+        calendario... el aula no deberíamos usarla para las búsquedas") - a teacher can freely
+        change the room while taking attendance, so matching on it would break the very link
+        this check exists to find, same reasoning as 'ems.attendance_mixin.find_schedule_lines_
+        for_teaching'. Backs both directions of '_apply_calendar_archival''s per-teacher checks:
+        a REMAINING co-teacher genuinely still supported (its original use), and a DEPARTING
+        teacher's own line with no calendar support left at all (the newer orphaned-line case,
+        see that method's own docstring)."""
+        template = line.attendance_template_id
         blocks = self.env['resource.calendar.attendance'].search([
             ('employee_id', '=', teacher.id), ('dayofweek', '=', line.weekday),
+            ('calendar_id.is_framework', '=', False),
+            ('subject_id', '=', template.subject_id.id),
+            ('group_ids', 'in', template.group_ids.ids),
         ])
         return any(
             line.ranges_overlap(line.start_time, line.end_time, block.hour_from, block.hour_to)
             for block in blocks
         )
+
+    def _apply_attendance_records_archival(self):
+        """Archives every ems.attendance_justification / ems.attendance_issue_status (+ its
+        now-emptied ems.attendance_issue_student/ems.attendance_issue_tutor parents) whose
+        underlying attendance is already archived - found 2026-08-10 auditing real dev data
+        before a batch import: 2 justifications and 27 "daily issue" rows (10 tutor + 17 status)
+        were sitting active, all referencing sessions that were themselves already correctly
+        archived. Neither model has any direct link to the course/study being transitioned - only
+        an indirect one through the ems.attendance_session_header they were generated for - and
+        `_ems_clear_operational_records()` (the other place attendance issues get cleaned up,
+        by DELETING them for a student actually leaving the centre) only runs for students in
+        `_scope_students()`, which is captured by CURRENT group membership - a student already
+        detached from any group (e.g. by an earlier run's `_apply_detach_unplaced()`, or a
+        reinforcement-group student never captured by `main_group_id` at all) falls outside that
+        scope forever, exactly the gap that left the real leftover data behind. This check is
+        keyed on the session's own archived state instead, which both catches that gap and stays
+        correct regardless of which specific transition run originally archived the session.
+
+        Called from `_apply_cleanup()` right after `_apply_calendar_archival()`, so both this
+        run's own newly-archived sessions and any pre-existing stray leftovers are caught in the
+        same sweep. Archives (never deletes) - unlike `_ems_clear_operational_records()`'s
+        deletion, which is specifically justified there for a student who has actually left and
+        whose stats are already frozen in the year record; these records have no such freezing
+        step, so archiving (keeping them findable via the "Archived" filter) is the safer default,
+        matching every other attendance model in this system."""
+        self.ensure_one()
+        justifications = self.env['ems.attendance_justification'].sudo().search([])
+        justifications.filtered(
+            lambda justification: justification.attendance_session_line_ids
+            and not any(justification.attendance_session_line_ids.mapped('attendance_session_id.active'))
+        ).action_archive()
+
+        issue_statuses = self.env['ems.attendance_issue_status'].sudo().search([
+            ('attendance_session_line_id.attendance_session_id.active', '=', False),
+        ])
+        issue_students = issue_statuses.attendance_issue_student_id
+        issue_statuses.action_archive()
+        # Default active-filtered reads: once every child status is archived, re-reading the
+        # parent's own O2M naturally comes back empty - "no active children left" and "fully
+        # archived" are the same observable state here, no extra bookkeeping needed.
+        now_empty_students = issue_students.filtered(lambda student: not student.attendance_issue_status_ids)
+        now_empty_students.action_archive()
+        now_empty_students.attendance_issue_tutor_id.filtered(
+            lambda tutor: not tutor.attendance_issue_student_ids
+        ).action_archive()
 
     def _apply_cleanup(self, students):
         """Steps 7 and 8 — archive the attendance templates and delete the operational
@@ -869,6 +982,7 @@ class ems_course_transition_wizard(models.TransientModel):
         # as a genuine "existing schedule conflict" against a study that had already transitioned.
         self._templates_to_archive().action_archive()
         affected_teachers = self._apply_calendar_archival()
+        self._apply_attendance_records_archival()
         self._apply_calendar_rollover(affected_teachers)
         students._ems_clear_operational_records()
         groups = self._scope_groups()

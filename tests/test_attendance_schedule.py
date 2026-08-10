@@ -190,55 +190,111 @@ class TestAttendanceScheduleLogic(TransactionCase):
         self.assertIn(template.display_name, schedule.name)
         self.assertEqual(schedule.time_range, '09:30 - 11:00')
 
-    # --- find_schedule_lines_for_slot ---------------------------------------------------
+    # --- find_schedule_lines_for_teaching ------------------------------------------------
 
-    def test_find_schedule_lines_for_slot_finds_the_matching_line(self):
+    def test_find_schedule_lines_for_teaching_finds_the_matching_line(self):
         template = self._template(self.teacher1)
         schedule = self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id, 'weekday': '1',
             'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
         })
 
-        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(
-            self.teacher1, '1', 8.0, 9.0)
+        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_teaching(
+            self.teacher1, self.subject, self.group1, '1', 8.0, 9.0)
 
         self.assertEqual(found, schedule)
 
-    def test_find_schedule_lines_for_slot_filters_by_teacher(self):
+    def test_find_schedule_lines_for_teaching_filters_by_teacher(self):
         template = self._template(self.teacher1)
         self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id, 'weekday': '1',
             'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
         })
 
-        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(
-            self.teacher2, '1', 8.0, 9.0)
+        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_teaching(
+            self.teacher2, self.subject, self.group1, '1', 8.0, 9.0)
 
         self.assertFalse(found)
 
-    def test_find_schedule_lines_for_slot_requires_time_overlap(self):
+    def test_find_schedule_lines_for_teaching_filters_by_subject(self):
         template = self._template(self.teacher1)
         self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id, 'weekday': '1',
             'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
         })
 
-        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(
-            self.teacher1, '1', 9.0, 10.0)
+        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_teaching(
+            self.teacher1, self.other_subject, self.group1, '1', 8.0, 9.0)
 
         self.assertFalse(found)
 
-    def test_find_schedule_lines_for_slot_optional_space_filter_excludes_a_different_room(self):
+    def test_find_schedule_lines_for_teaching_requires_time_overlap(self):
         template = self._template(self.teacher1)
         self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id, 'weekday': '1',
             'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
         })
 
-        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(
-            self.teacher1, '1', 8.0, 9.0, space=self.other_space)
+        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_teaching(
+            self.teacher1, self.subject, self.group1, '1', 9.0, 10.0)
 
         self.assertFalse(found)
+
+    def test_find_schedule_lines_for_teaching_matches_on_any_group_overlap(self):
+        template = self._template(self.teacher1, groups=self.group1 | self.group2)
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+
+        # Only ONE of the template's two groups is passed - a real overlap, not an exact match.
+        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_teaching(
+            self.teacher1, self.subject, self.group2, '1', 8.0, 9.0)
+
+        self.assertEqual(found, schedule)
+
+    def test_find_schedule_lines_for_teaching_matches_regardless_of_room(self):
+        # The whole point of this lookup (2026-08-10, developer feedback): a teacher can freely
+        # change the room while taking attendance (e.g. an unplanned workshop), so the calendar
+        # block's own room can legitimately drift from the schedule line's authoritative one -
+        # matching on room, as this lookup originally did, silently broke the very link it
+        # exists to find.
+        template = self._template(self.teacher1, space=self.space)
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.other_space.id,
+        })
+
+        found = self.env['ems.attendance_schedule'].find_schedule_lines_for_teaching(
+            self.teacher1, self.subject, self.group1, '1', 8.0, 9.0)
+
+        self.assertEqual(found, schedule)
+
+    def test_find_schedule_lines_for_teaching_includes_an_inactive_leftover_line_with_active_test_false(self):
+        # Developer feedback (2026-08-10): "si ya no es docente de esa materia, en ese grupo,
+        # para ese dia y hora, ambos schedules deberian archivarse" - a stale leftover line
+        # archived by an earlier edit, alongside a newer active one, can both genuinely match the
+        # same (teacher, subject, group, weekday, time) - check_overlap forbids two ACTIVE lines
+        # like this for the same teacher/time regardless of room, so the leftover must already be
+        # inactive by the time a new one exists; the caller (with 'active_test=False', exactly
+        # like '_apply_calendar_archival' already does) must still see both, not just the active
+        # one, and let the caller decide what to do with each.
+        template = self._template(self.teacher1)
+        old_schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
+        })
+        old_schedule.action_archive()
+        other_template = self._template(self.teacher1)
+        new_schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': other_template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': self.other_space.id,
+        })
+
+        found = self.env['ems.attendance_schedule'].with_context(active_test=False).find_schedule_lines_for_teaching(
+            self.teacher1, self.subject, self.group1, '1', 8.0, 9.0)
+
+        self.assertEqual(found, old_schedule | new_schedule)
 
     def test_start_end_date_derived_from_template_dates_and_times(self):
         template = self._template(self.teacher1)

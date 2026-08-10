@@ -31,27 +31,35 @@ class EmsAttendanceMixin(models.AbstractModel):
         self.action_archive()
         return self.copy({'active': True, **vals})
 
-    def find_schedule_lines_for_slot(self, teacher, weekday, start_time, end_time, space=None):
-        """Given a teacher + weekday + start_time/end_time (+ optional space), finds every
-        currently active 'ems.attendance_schedule' line for that teacher overlapping that slot -
-        the reverse of the (weekday, start_time, end_time) matching this module already does at
-        sync time (see e.g. 'ems.attendance_template.classify_external_conflicts'/
-        'find_self_conflicts'). Extracted as a shared, standalone lookup rather than yet another
-        narrowly-scoped inline copy: a full audit (see
+    def find_schedule_lines_for_teaching(self, teacher, subject, groups, weekday, start_time, end_time):
+        """Given a teacher + subject + a set of groups + weekday + start_time/end_time, finds
+        every currently active 'ems.attendance_schedule' line for that exact teaching slot -
+        subject match, ANY group overlap (not exact set equality, mirroring the same "same
+        teaching assignment" convention 'ems.working_schedules_import_wizard._classify_conflict_
+        kind' already uses), and weekday/time overlap. Deliberately NOT scoped by room
+        (2026-08-10, developer feedback, after finding real stray un-archived sessions caused by
+        exactly this - "lo que manda es el calendario... el aula no es normal que cambie, [pero]
+        no deberíamos usarla para las búsquedas"): a teacher can freely change the room while
+        taking attendance for a session (e.g. an unplanned workshop), so a calendar block's own
+        room can legitimately drift from the schedule line's authoritative one over time -
+        matching on it, as this lookup originally did, silently breaks the very link it exists to
+        find, the moment that drift happens. If more than one line matches (e.g. a stale one left
+        behind by an earlier edit alongside a newer one), every match is returned - the caller
+        decides what to do with each, not this lookup. Extracted as a shared, standalone lookup
+        rather than yet another narrowly-scoped inline copy: a full audit (see
         plans/course_transition_teacher_schedule_archival.md) found every existing occurrence too
         tied to its own caller to reuse directly. Meant to be called on the model itself
-        (self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(...)) rather than a
+        (self.env['ems.attendance_schedule'].find_schedule_lines_for_teaching(...)) rather than a
         specific record - there is no natural 'self' for a lookup like this. Used by the
         course-transition wizard to find which schedule line(s) back a given
         'resource.calendar.attendance' row, since the two models have no direct FK between them -
-        only this same slot-matching convention links them."""
-        domain = [
+        only this same teaching-assignment matching convention links them."""
+        candidates = self.env['ems.attendance_schedule'].search([
             ('weekday', '=', weekday),
             ('attendance_template_id.teacher_ids', 'in', teacher.id),
-        ]
-        if space:
-            domain.append(('space_id', '=', space.id))
-        candidates = self.env['ems.attendance_schedule'].search(domain)
+            ('attendance_template_id.subject_id', '=', subject.id),
+            ('attendance_template_id.group_ids', 'in', groups.ids),
+        ])
         return candidates.filtered(
             lambda candidate: candidate.ranges_overlap(candidate.start_time, candidate.end_time, start_time, end_time)
         )

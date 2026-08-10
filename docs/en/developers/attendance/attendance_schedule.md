@@ -110,29 +110,41 @@ by `ems.attendance_template.find_external_conflicts()` (see
 [`attendance_template.md`](attendance_template.md)) against a not-yet-created entry dict,
 since one side isn't a real record yet there.
 
-## `find_schedule_lines_for_slot`: reverse lookup from a raw slot to a schedule line
+## `find_schedule_lines_for_teaching`: reverse lookup from a calendar block to a schedule line
 
-`ems.attendance_mixin.find_schedule_lines_for_slot(teacher, weekday, start_time, end_time,
-space=None)` (`models/shared/attendance_mixin.py`) — given a teacher + weekday + start/end time
-(+ optionally a room), returns every currently active line for that teacher whose own
-`(weekday, start_time, end_time)` overlaps the given slot. The reverse of the matching this module
-already does at sync time (`classify_external_conflicts`/`find_self_conflicts` in
-[`attendance_template.md`](attendance_template.md)) — but a full audit found every existing
-occurrence too tied to its own caller to reuse directly (each hardcodes its own extra filters:
-excluding the submitting teachers, matching a specific subject/group...), so this is a new, minimal,
-standalone lookup rather than another inline copy.
+`ems.attendance_mixin.find_schedule_lines_for_teaching(teacher, subject, groups, weekday,
+start_time, end_time)` (`models/shared/attendance_mixin.py`) — given a teacher + subject + a set
+of groups + weekday + start/end time, returns every currently active line for that exact teaching
+slot: subject match, ANY group overlap (not exact set equality — mirrors the same "same teaching
+assignment" convention `ems.working_schedules_import_wizard._classify_conflict_kind` already
+uses), and weekday/time overlap. **Deliberately NOT scoped by room** (renamed from
+`find_schedule_lines_for_slot` and reworked 2026-08-10, after a real bug: the original version
+also matched on room, and a real teacher's calendar block had drifted to a different room than
+the schedule line's own — "el aula no es normal que cambie, [pero] no deberíamos usarla para las
+búsquedas", since a teacher can freely change the room while taking attendance for an unplanned
+reason (e.g. an unscheduled workshop) — matching on it silently broke this exact lookup the moment
+that drift happened, leaving 4 real session headers stranded active in this dev DB despite their
+own template/schedule already being correctly archived). If more than one line matches (e.g. a
+stale leftover left behind by an earlier edit, alongside a newer one), every match is returned —
+the caller decides what to do with each, not this lookup.
 
 Called on the model itself, not a specific record — there is no natural `self` for a lookup like
-this: `self.env['ems.attendance_schedule'].find_schedule_lines_for_slot(...)`.
+this: `self.env['ems.attendance_schedule'].find_schedule_lines_for_teaching(...)`.
 
 **Why it exists:** `resource.calendar.attendance` (a teacher's weekly calendar block) and
 `ems.attendance_schedule` (the recurring class-session line) have no direct FK between them — the
-link has always been purely inferred by matching `(weekday, hour_from/start_time,
-hour_to/end_time)`. `plans/course_transition_teacher_schedule_archival.md`'s course-transition
-archival cascade needs exactly this reverse lookup: given a calendar block being archived at
-transition, find which schedule line(s) it backs, so the wizard can decide whether to archive that
-line (and its sessions) outright or just drop this one teacher from a shared co-taught line. Added
-standalone, with no caller wired in yet — that's a later phase of the same plan.
+link has always been purely inferred by matching (subject, group, weekday, time). The
+course-transition archival cascade (`course_transition_wizard._apply_calendar_archival()`, see
+[`course_transition_wizard.md`](../settings/course_transition_wizard.md)) needs exactly this
+reverse lookup: given a calendar block being archived at transition, find which schedule line(s)
+it backs, so the wizard can decide whether to archive that line (and its sessions) outright or
+just drop this one teacher from a shared co-taught line.
+
+**A genuinely bigger structural fix for this same inferred-link problem — replacing it with a real
+FK from `resource.calendar.attendance` straight to `ems.attendance_schedule` — was proposed by the
+developer the same day and written up in `plans/calendar_driven_attendance_templates.md` rather
+than attempted immediately: it also reshuffles where `student_ids` lives and who's allowed to
+create/archive a template directly, a bigger redesign than this fix's own scope.**
 
 ## `unlink()`: history guard
 

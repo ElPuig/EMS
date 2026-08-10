@@ -1,5 +1,5 @@
 import base64
-from datetime import date
+from datetime import date, datetime
 from unittest.mock import patch
 
 from odoo.exceptions import UserError
@@ -90,10 +90,16 @@ class TestCourseTransition(TransactionCase):
             'start_date': date(2020, 1, 1), 'end_date': date(2098, 12, 31),
         })
 
-    def _calendar_block(self, calendar, groups, weekday='0', hour_from=9.0, hour_to=10.0):
+    def _calendar_block(self, calendar, groups, weekday='0', hour_from=9.0, hour_to=10.0, subject=None):
+        # 'subject' defaults to the same subject '_template()' always uses - a real teaching
+        # block always carries both 'subject_id'/'group_ids' together (see
+        # 'ems.attendance_mixin.find_schedule_lines_for_teaching', matched by teacher+subject+
+        # group overlap, no longer by weekday/time/room - a block missing its own subject would
+        # never match any template's schedule line).
         return self.env['resource.calendar.attendance'].create({
             'calendar_id': calendar.id, 'name': 'Test Block (Course Transition)',
             'dayofweek': weekday, 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning',
+            'subject_id': (subject or self.subject_int).id,
             'group_ids': [group.id for group in groups],
         })
 
@@ -1205,6 +1211,55 @@ class TestCourseTransition(TransactionCase):
         self.assertEqual(new_template.teacher_ids, teacher_other)
         self.assertTrue(new_template.attendance_schedule_ids.active)
 
+    def test_apply_archives_an_orphaned_line_with_no_calendar_support_left(self):
+        """Developer feedback (2026-08-10): "lo que manda es el calendario" - a migrating
+        teacher's OWN still-active line whose (subject, group, weekday, time) is no longer backed
+        by ANY of their current calendar blocks at all - not just the one that triggered their
+        departure - must be archived too, even though no single calendar block ever directly
+        matched it (e.g. the teacher edited their calendar by hand, bypassing the normal sync, and
+        this old line/template was simply never cleaned up)."""
+        stale_template = self._template([self.group_other])  # group_other: out of scope
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': stale_template.id,
+            'weekday': '1', 'start_time': 11.0, 'end_time': 12.0, 'space_id': self.space.id,
+        })
+        # self.teacher's calendar has NO block at all for (subject, group_other) anymore - only
+        # this unrelated one, which is what makes self.teacher count as "migrating" in the first
+        # place (group1 IS in scope).
+        self._calendar_block(self.teacher.resource_calendar_id, [self.group1])
+
+        self._applied()
+
+        stale_template.invalidate_recordset()
+        self.assertFalse(stale_template.active)
+
+    def test_apply_archives_orphaned_sessions_of_an_already_archived_line_with_no_migrating_teacher(self):
+        """Developer feedback (2026-08-10), found re-running a real transition: a line already
+        archived by an EARLIER run/edit, whose session catch-up was never reached back then, must
+        still get its sessions archived now - even though nothing about its own teacher is
+        "migrating" in THIS run at all (zero active calendar blocks, so they never enter
+        'affected_teachers'). Real scenario: a teacher already fully rolled over to a new
+        calendar in an earlier run, but one of their old lines' session catch-up was simply
+        missed back then."""
+        template = self._template([self.group1])
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
+        })
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': date(2098, 9, 15),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        # Already archived by something else, BEFORE this transition even starts - simulates the
+        # leftover from an earlier run. No calendar block at all for self.teacher here - they are
+        # not "migrating" in this run by any measure the wizard normally checks.
+        template.action_archive()
+
+        self._applied()
+
+        session.invalidate_recordset()
+        self.assertFalse(session.active)
+
     def test_apply_with_no_migrating_calendar_blocks_is_a_no_op(self):
         self._applied()  # must not raise
 
@@ -1316,6 +1371,101 @@ class TestCourseTransition(TransactionCase):
         issue = self._attendance_issue(student)
         student._ems_clear_operational_records()
         self.assertFalse(issue.exists())
+
+    def _archived_session_line_fixture(self, name):
+        """A template/schedule/session in scope (group1), for a student with NO main_group_id
+        at all - matches the real leftover data found auditing this (2026-08-10): a student
+        already stranded by an earlier process falls outside '_scope_students()' forever, so
+        '_ems_clear_operational_records()' (which deletes by student scope) never runs for them
+        - isolating what '_apply_attendance_records_archival()' (keyed on the SESSION's own
+        archived state, not student scope) needs to catch instead. The calendar block is what
+        actually gets the SESSION itself archived (via '_apply_calendar_archival()''s explicit
+        catch-up step) - '_templates_to_archive()' alone only reaches the template/schedule line,
+        never the session (see 'docs/en/developers/attendance/attendance_schedule.md'). Returns
+        (student, line)."""
+        template = self._template([self.group1])
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
+        })
+        student = self._student(name, group=self.group1)
+        student.main_group_id = False
+        template.student_ids = [(4, student.id)]
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': date(2020, 9, 15),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        self._calendar_block(
+            self.teacher.resource_calendar_id, [self.group1], weekday='0', hour_from=9.0, hour_to=10.0)
+        line = session.attendance_session_line_ids.filtered(lambda line: line.student_id == student)
+        return student, line
+
+    def test_apply_archives_orphaned_attendance_issues_referencing_an_archived_session(self):
+        """Developer feedback (2026-08-10): the transition must also catch up
+        ems.attendance_issue_status/_student/_tutor records left active once their own
+        underlying session gets archived - not just delete them for a student still in
+        '_scope_students()' (the existing, unrelated D6 mechanism above)."""
+        student, line = self._archived_session_line_fixture('CTW Stranded Issue')
+        tutor_issue = self.env['ems.attendance_issue_tutor'].create({
+            'tutor_id': self.teacher.id, 'issue_date': date(2020, 9, 15)})
+        student_issue = self.env['ems.attendance_issue_student'].create({
+            'attendance_issue_tutor_id': tutor_issue.id, 'student_id': student.id})
+        status_issue = self.env['ems.attendance_issue_status'].create({
+            'attendance_issue_student_id': student_issue.id,
+            'attendance_session_line_id': line.id, 'send_to': 'test@example.com',
+        })
+
+        self._applied()
+
+        status_issue.invalidate_recordset()
+        student_issue.invalidate_recordset()
+        tutor_issue.invalidate_recordset()
+        self.assertFalse(status_issue.active)
+        self.assertFalse(student_issue.active)
+        self.assertFalse(tutor_issue.active)
+
+    def test_apply_leaves_an_attendance_issue_active_when_its_session_is_not_archived(self):
+        """Negative case: an issue whose own session is untouched by this run (out-of-scope
+        group) must not be swept up just because it happens to exist."""
+        template = self._template([self.group_other])
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '2', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
+        })
+        student = self._student('CTW Not Stranded Issue', group=self.group_other)
+        student.main_group_id = False
+        template.student_ids = [(4, student.id)]
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': date(2020, 9, 16),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        line = session.attendance_session_line_ids.filtered(lambda line: line.student_id == student)
+        tutor_issue = self.env['ems.attendance_issue_tutor'].create({
+            'tutor_id': self.teacher.id, 'issue_date': date(2020, 9, 16)})
+        student_issue = self.env['ems.attendance_issue_student'].create({
+            'attendance_issue_tutor_id': tutor_issue.id, 'student_id': student.id})
+        status_issue = self.env['ems.attendance_issue_status'].create({
+            'attendance_issue_student_id': student_issue.id,
+            'attendance_session_line_id': line.id, 'send_to': 'test@example.com',
+        })
+
+        self._applied()
+
+        status_issue.invalidate_recordset()
+        self.assertTrue(status_issue.active)
+
+    def test_apply_archives_an_orphaned_justification_referencing_an_archived_session(self):
+        student, line = self._archived_session_line_fixture('CTW Stranded Justification')
+        justification = self.env['ems.attendance_justification'].create({
+            'teacher_id': self.teacher.id, 'student_id': student.id,
+            'start_date': datetime(2020, 9, 15, 8, 0), 'end_date': datetime(2020, 9, 15, 11, 0),
+            'attendance_session_line_ids': [(6, 0, line.ids)],
+        })
+
+        self._applied()
+
+        justification.invalidate_recordset()
+        self.assertFalse(justification.active)
 
     def test_apply_keeps_the_new_enrollments_after_the_cleanup(self):
         """The cleanup deletes EVERY ems.enrollment of the student with no group

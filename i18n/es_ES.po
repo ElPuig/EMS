@@ -4215,8 +4215,8 @@ msgstr "El EMS también comprueba las entradas nuevas contra horarios que ya est
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "This is the last screen before anything gets written, and none of the previous steps can be revisited afterwards. Review the counts and the existing teachers below, then click Import."
-msgstr "Esta es la última pantalla antes de que se escriba nada, y ninguno de los pasos anteriores se podrá volver a visitar después. Revisa los recuentos y los docentes ya existentes abajo, y luego haz clic en Importar."
+msgid "This is the last screen before anything gets written, and none of the previous steps can be revisited afterwards. Review every block below - each one shows exactly how that part of the import was resolved - then click Import."
+msgstr "Esta es la última pantalla antes de que se escriba nada, y ninguno de los pasos anteriores se podrá volver a visitar después. Revisa cada bloque de abajo - cada uno muestra exactamente cómo se ha resuelto esa parte de la importación - y luego haz clic en Importar."
 
 #. module: ems
 #. odoo-javascript
@@ -8052,6 +8052,54 @@ msgstr "No se han encontrado conflictos con horarios ya activos."
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "%(left)s vs. %(right)s"
 msgstr "%(left)s frente a %(right)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%(left)s vs. %(right)s --> %(kind)s: resolved as %(resolution)s"
+msgstr "%(left)s frente a %(right)s --> %(kind)s: resuelto como %(resolution)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid " - rooms: %(left_space)s / %(right_space)s"
+msgstr " - aulas: %(left_space)s / %(right_space)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%(raw)s resolved to %(group)s"
+msgstr "%(raw)s se ha resuelto a %(group)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%(raw)s resolved to %(teacher)s"
+msgstr "%(raw)s se ha resuelto a %(teacher)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%(raw)s will be created as a new pending teacher"
+msgstr "%(raw)s se creará como nuevo profesor pendiente"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Nothing to show here."
+msgstr "Aquí no hay nada que mostrar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Their weekly schedule will be synced with this file's content. Each affected attendance template is updated in place if it has no real attendance history yet, or archived and replaced by a new version if it does - the original's history is never lost."
+msgstr "Su horario semanal se sincronizará con el contenido de este archivo. Cada plantilla de asistencia afectada se actualiza in situ si todavía no tiene historial real de asistencia, o se archiva y se sustituye por una nueva versión si lo tiene - el historial del original nunca se pierde."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "These are placeholder employees, created now so their schedule and subjects are ready immediately. Afterwards, open each one's own record to replace the placeholder name with the real one, fill in their personal e-mail, and click Generate Google account - exactly like any other new teacher."
+msgstr "Son empleados provisionales, creados ahora para que su horario y asignaturas estén listos de inmediato. Después, abre la ficha de cada uno para sustituir el nombre provisional por el real, rellenar su correo personal y hacer clic en Generar cuenta Google - exactamente igual que para cualquier otro docente nuevo."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form

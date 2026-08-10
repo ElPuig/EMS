@@ -762,37 +762,73 @@ as a side effect, not a problem.
 
 ### Screen 7 — "Overall summary" (2026-08-10; renamed from "Existing teachers"/`override_info`, expanded with a counts recap, per developer feedback - see below) — final preview + confirmation before Import
 
-The last step, purely informational, immediately before the real "Import" click. Two parts, both
-built by `_continue_from_db_conflicts()` right before advancing (the same point that already builds
-every other cached-batch derivation):
+The last step, purely informational, immediately before the real "Import" click. One field,
+`overall_summary_html`, built by `_continue_from_db_conflicts()` right before advancing (the same
+point that already builds every other cached-batch derivation) - a category-by-category recap laid
+out as a responsive row of Bootstrap cards (`_summary_blocks_html`/`_summary_block_html`), not a
+flat list:
 
-- **`overall_summary_html`** (new field): a one-line-per-metric recap of everything the whole wizard
-  run resolved, built via the generic `_bullet_html(lines)` helper (extracted from what used to be
-  `_teacher_preview_html`'s own inline bullet-building, now shared by both):
-  ```python
-  self.overall_summary_html = self._bullet_html([
-      _("%s unresolved group name(s) resolved") % len(self.group_line_ids),
-      _("%s unresolved teacher e-mail(s) resolved") % len(self.teacher_line_ids),
-      _("%s pending teacher(s) will be created") % pending_count,
-      _("%s file conflict(s) resolved") % len(self.internal_conflict_line_ids),
-      _("%s existing schedule conflict(s) resolved") % len(self.external_conflict_line_ids),
-      _("%s existing teacher(s) affected") % len(existing_items),
-  ])
-  ```
-  Every count reads straight off the wizard's own already-populated line O2Ms/cached items - no new
-  computation, just tallying what screens 2-6 already produced.
-- **`existing_teachers_html`** (unchanged from the original "Existing teachers" screen): previews
-  the `resolved`/`email_match` fates via `_teacher_preview_html`/`_teacher_preview_items` (see
-  screen 4, above, for the shared `_classify_teacher_item` fate-classification these both branch
-  on) - a heads-up on every teacher this import is about to *override* (attach the new schedule
-  onto an already-existing employee) rather than create. Each line shows the matched employee's
-  `display_name` plus the file's own raw identifier in parentheses, so the admin can cross-reference
-  which planner-file row maps to which real teacher. If none of the file's teachers already exist,
-  a plain success alert shows instead (same "list, or a success message" shape as every earlier
-  screen).
+- **6 blocks, one per category**: unresolved group names resolved, unresolved teacher e-mails
+  resolved, pending teachers to be created, file conflicts resolved, existing schedule conflicts
+  resolved, existing teachers affected. Each block's `<div class="card">` header is the same
+  count-sentence the flat list used to show verbatim (e.g. `"%s unresolved group name(s) resolved"
+  % len(self.group_line_ids)`); its `<div class="card-body">` holds a bulleted list of concrete
+  detail lines for that count, or a muted `_("Nothing to show here.")` when the count is zero.
+  Laid out via `d-flex flex-column gap-3` - one full-width card per row (Bootstrap utilities
+  already bundled - no bespoke CSS). Originally a wrapping horizontal row (several cards per
+  line) - changed the same day, after seeing 6 cards side by side at the dialog's actual width
+  ("La primera fila tiene 4 tarjetas y se ven muy apretadas... vamos a poner una tarjeta por
+  fila").
+- **Detail-line content, per block:**
+  - Groups: `"%(raw)s resolved to %(group)s"` per `group_line_ids` row.
+  - Teachers: `"%(raw)s resolved to %(teacher)s"`, or `"%(raw)s will be created as a new pending
+    teacher"` for a `create_new`-ticked row, per `teacher_line_ids` row.
+  - Pending teachers: reuses `_teacher_preview_line()` (see screen 4, above) for the
+    `create_pending`/`placeholder` fates - the exact same wording screen 4's own preview already
+    shows, intentionally duplicated here as part of the final recap. Also gets its own `note`
+    (added 2026-08-10, developer feedback: *"que quede claro que significa que son 'pending' y que
+    después se les podrá cambiar el nombre, crear su cuenta, etc."*) - explains once that these are
+    placeholder employees whose real name/personal e-mail/Google account get filled in afterwards
+    from each one's own record, via the pre-existing "Generate Google account" button (see "Teachers
+    Not Yet Hired" in the admin manual) - same mechanism as any other new teacher, nothing wizard-
+    specific about resolving a pending identity.
+  - File/db conflicts: `_conflict_detail_line(line)` - `"%(left)s vs. %(right)s --> %(kind)s:
+    resolved as %(resolution)s"`, plus `" - rooms: %(left_space)s / %(right_space)s"` when the
+    resolution was `reassign_rooms`. `kind`/`resolution` labels are resolved via
+    `_selection_label()`, a thin wrapper around the Selection field's own `convert_to_export()` -
+    the ORM's idiomatic, translation-aware way to turn a stored Selection value into its
+    current-language label (NOT the field's raw `.selection` attribute, which is always the
+    untranslated English list from the field's own Python definition). The `-->` before `kind`
+    (changed 2026-08-10, same day, from an initial `(%(kind)s)` in parentheses) makes the conflict
+    *type* stand out from the two colliding labels either side of it, once seeing a real, long
+    left/right pair rendered showed the parenthesised kind blending into the rest of the line
+    ("se veria mejor destacando el co-teaching").
+  - Existing teachers affected: reuses `_teacher_preview_line()` for the `resolved`/`email_match`
+    fates - a heads-up on every teacher this import is about to *override* (attach the new schedule
+    onto an already-existing employee) rather than create. This block also gets `_summary_block_
+    html()`'s optional `note` parameter (added 2026-08-10, developer feedback: "deberíamos aclarar
+    cómo se verán afectados" - the count and the list of names alone didn't say what "affected"
+    actually means): one explanation, shown once above the names (never per-line, since it applies
+    identically to every one of them), of what `_apply_import()` actually does to an existing
+    teacher - `_write_teacher_schedule()` syncs their weekly `resource.calendar` with this file's
+    content, and `sync_from_schedule_batch_fresh_import()`'s own per-line diffing (`_write_schedule_
+    sync`, see "Reconciliation" above) updates an affected attendance template's line in place if it
+    has no real session history yet, or archives it and writes a fresh version otherwise - the
+    original's own history is never lost either way. Deliberately a block-level generality, not a
+    per-teacher specific: which of a given teacher's own lines end up updated-in-place vs.
+    archived-and-recreated is only actually decided by `_write_schedule_sync`'s own diff *at Import
+    time* - computing that ahead of time just for this preview would mean running the same diff
+    logic twice for no benefit, so the note explains the *mechanism* once instead of pretending to
+    predict its per-line outcome.
+- **No more standalone `existing_teachers_html` field.** The original design (see the "Why renamed
+  and expanded" note below) had a separate `Html` field just for the existing-teachers preview,
+  shown below the counts. Once that same preview became one of the 6 blocks above, keeping the
+  standalone field too would have shown the identical content twice on the same screen - removed
+  instead, along with its own dedicated success alert (now the block's own "Nothing to show here."
+  covers that case, consistently with every other block rather than as a one-off).
 
-**Why renamed and expanded (2026-08-10, developer feedback):** the screen was originally just this
-existing-teacher preview, labelled "Existing teachers". Feedback in order:
+**Why renamed and expanded (2026-08-10, developer feedback):** the screen was originally just a
+plain existing-teacher preview, labelled "Existing teachers". Feedback in order:
 1. *"El último paso, 'existing teachers' creo que no es claro. 'Override info' me parece mejor."*
    - the existing-teacher list's actual point is warning about an *override*, not just naming who
    already exists; "Override info" said that more directly.
@@ -814,6 +850,24 @@ existing-teacher preview, labelled "Existing teachers". Feedback in order:
    avoid confusion between the two names during this same conversation - `override_info` (the
    original key, matching the original label) was renamed to `summary` (an abbreviation of "Overall
    summary", as explicitly permitted - "puede estar resumida, eso si").
+
+**Why blocks instead of a flat count list (2026-08-10, same day, next round of feedback after
+actually seeing the counts-only version):** *"Creo que la última pantalla, la del resumen, no se
+entiende demasiado... Si se ha resuelto 1 grupo, quiero saber cómo. Si se han resuelto dos correos,
+quiero saber cómo. Entiendo que los profes que veo son los 26 afectados, pero no queda claro."* The
+first version of this screen showed only 6 plain count sentences (`"1 unresolved group name(s)
+resolved"`, etc.) - accurate, but told the admin nothing about *how* each thing was resolved, and
+the pre-existing existing-teachers list sat disconnected from its own "N existing teacher(s)
+affected" count with nothing visually tying the two together (exactly the "no queda claro" the
+developer flagged). Fixed by making every count sentence a block's own header, with that category's
+concrete detail lines directly underneath it - a count and its "how" can no longer be read as
+unrelated facts. Also explicitly asked for clearly-separated blocks ("bloques horizontales, bien
+diferenciados") rather than one more flat vertical list - Bootstrap's own `card` class gave this for
+free, no custom CSS needed (this repo's "Odoo way first" rule). The very first layout attempt at
+this packed all 6 cards into a wrapping horizontal row (several per line, via `flex-wrap`) - changed
+the same day, once actually seeing it rendered showed the first row's 4 cards too cramped to read
+comfortably at the dialog's real width; switched to one full-width card per row (`flex-column`)
+instead.
 
 ### Multi-step wizard skeleton (2026-08-05) — all 7 screens now have real logic
 

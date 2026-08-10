@@ -343,15 +343,19 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# NOTE: one line per colliding pair found by '_build_external_conflict_lines' against
 	# already-active DB schedules - populated once, leaving 'internal_conflicts'.
 	external_conflict_line_ids = fields.One2many(string="Existing schedule conflicts", comodel_name="ems.working_schedules_import_wizard.external_conflict_line", inverse_name="wizard_id")
-	# NOTE: all three are pure informational previews/recaps of what Import will actually do
-	# (screens 6 and "Overall summary" - see 'action_continue' - purely read-only, no resolution
-	# needed unlike every other screen's own line model) - a plain Html field is enough, no
-	# dedicated line model/security entry needed for content that's never edited. Built leaving
-	# 'teachers' ('pending_teachers_html', screen 6) and 'db_conflicts'
-	# ('existing_teachers_html'/'overall_summary_html', "Overall summary") respectively - see
-	# '_teacher_preview_html'/'_bullet_html'.
+	# NOTE: both are pure informational previews/recaps of what Import will actually do (screen 4
+	# and "Overall summary" - see 'action_continue' - purely read-only, no resolution needed unlike
+	# every other screen's own line model) - a plain Html field is enough, no dedicated line
+	# model/security entry needed for content that's never edited. Built leaving 'teachers'
+	# ('pending_teachers_html', screen 4) and 'db_conflicts' ('overall_summary_html', "Overall
+	# summary") respectively - see '_teacher_preview_html'/'_summary_blocks_html'.
 	pending_teachers_html = fields.Html(readonly=True)
-	existing_teachers_html = fields.Html(readonly=True)
+	# NOTE: 'overall_summary_html' is one field holding every category's own block (unresolved
+	# groups/teachers, pending teachers, both conflict kinds, existing teachers affected) - there
+	# used to be a separate 'existing_teachers_html' field just for the last category, but folding
+	# it into its own block here (2026-08-10, developer feedback: "quiero saber cómo [se resolvió],
+	# no solo cuántos") made a standalone field for that one category alone redundant on this same
+	# screen - removed rather than kept alongside as a duplicate of the same content.
 	overall_summary_html = fields.Html(readonly=True)
 	# NOTE: drives whether "Continue" renders enabled or disabled (developer feedback 2026-08-05:
 	# "que quedará mas claro si los botones de continuar... aparecen como enabled o disabled" rather
@@ -671,6 +675,72 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			return Markup("")
 		return Markup('<ul class="ems_wizard_bullet_list">{}</ul>').format(
 			Markup("").join(Markup("<li>{}</li>").format(line) for line in lines)
+		)
+
+	def _selection_label(self, record, field_name):
+		"""Translated label for one Selection field value on 'record' (a single-record recordset) -
+		'convert_to_export' is the ORM's own idiomatic way to resolve a Selection value to its
+		current-language label (it delegates to '_description_selection', which consults the
+		translated 'ir.model.fields.selection' rows) - NOT the field's raw '.selection' attribute,
+		which is always the untranslated English list passed at field-definition time."""
+		field = record._fields[field_name]
+		return field.convert_to_export(record[field_name], record)
+
+	def _conflict_detail_line(self, line):
+		"""One human-readable line for an already-resolved 'conflict_mixin' line ('internal_
+		conflict_line'/'external_conflict_line' both share this shape) - shown on the "Overall
+		summary" screen's own file/db conflict blocks, so the admin sees not just how many conflicts
+		were resolved but how each one was."""
+		detail = _("%(left)s vs. %(right)s --> %(kind)s: resolved as %(resolution)s") % {
+			'left': line.left_label,
+			'right': line.right_label,
+			'kind': self._selection_label(line, 'kind'),
+			'resolution': self._selection_label(line, 'resolution'),
+		}
+		if line.resolution == 'reassign_rooms':
+			detail += _(" - rooms: %(left_space)s / %(right_space)s") % {
+				'left_space': line.left_space_id.display_name,
+				'right_space': line.right_space_id.display_name,
+			}
+		return detail
+
+	def _summary_block_html(self, title, lines, note=None):
+		"""One card for the "Overall summary" screen: a bold count-sentence header (e.g. "1
+		unresolved group name(s) resolved"), and its own concrete detail lines below it - so a count
+		and its "how" are visually grouped instead of one flat list mixing every category together
+		(developer feedback 2026-08-10: "si se ha resuelto 1 grupo, quiero saber cómo"). Reuses
+		Bootstrap's own 'card' classes (already bundled, no bespoke CSS needed) rather than a custom
+		block style - matches this repo's "Odoo way first" rule. Full-width (no 'flex: 1 1 ...'
+		sizing) - see '_summary_blocks_html' for why one-per-row replaced the original side-by-side
+		layout. 'note' is an optional short explanation shown once above the detail lines (only when
+		there are any - an empty block has nothing to explain) - added for the "existing teacher(s)
+		affected" block, whose own count/names alone didn't say what "affected" actually means for
+		them (developer feedback 2026-08-10: "deberíamos aclarar cómo se verán afectados")."""
+		parts = []
+		if note and lines:
+			parts.append(Markup('<p class="text-muted mb-2">{}</p>').format(note))
+		if lines:
+			parts.append(Markup('<ul class="mb-0 ps-3">{}</ul>').format(
+				Markup("").join(Markup("<li>{}</li>").format(line) for line in lines)
+			))
+		else:
+			parts.append(Markup('<span class="text-muted">{}</span>').format(_("Nothing to show here.")))
+		return Markup(
+			'<div class="card">'
+			'<div class="card-header"><strong>{}</strong></div>'
+			'<div class="card-body">{}</div>'
+			'</div>'
+		).format(title, Markup("").join(parts))
+
+	def _summary_blocks_html(self, blocks):
+		"""Lays every '_summary_block_html' card out as a vertical stack, one full-width card per
+		row (Bootstrap's own 'd-flex flex-column gap-*' utilities - no bespoke CSS needed).
+		Originally a wrapping horizontal row (several cards per line) - changed the same day
+		(developer feedback, after seeing it rendered for real: "La primera fila tiene 4 tarjetas y
+		se ven muy apretadas... vamos a poner una tarjeta por fila") once 6 cards side by side at
+		the dialog's actual width turned out too cramped to read comfortably."""
+		return Markup('<div class="d-flex flex-column gap-3 mb-3">{}</div>').format(
+			Markup("").join(blocks)
 		)
 
 	def _continue_from_teachers(self):
@@ -1008,8 +1078,9 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		clones with the new room if it already has sessions, plain write otherwise) rather than a
 		raw 'write()' - the one piece of forward-planning from an earlier session that made this
 		screen's own Green phase smaller than screen 4's. Also builds the "Overall summary" step's
-		own content before advancing (both the counts recap and the existing-teachers list) - the
-		last screen before Import, so this is the last point anything needs precomputing."""
+		own content before advancing - one block per category, each with its own count header AND
+		concrete detail lines (see '_summary_block_html') - the last screen before Import, so this
+		is the last point anything needs precomputing."""
 		self.ensure_one()
 		invalid_lines = self.external_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid())
 		if invalid_lines:
@@ -1047,15 +1118,46 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 		self.parsed_entries_json = json.dumps(node_cache)
 		existing_items = self._teacher_preview_items(node_cache, ('resolved', 'email_match'))
-		pending_count = len(self._teacher_preview_items(node_cache, ('create_pending', 'placeholder')))
-		self.existing_teachers_html = self._teacher_preview_html(node_cache, ('resolved', 'email_match'))
-		self.overall_summary_html = self._bullet_html([
-			_("%s unresolved group name(s) resolved") % len(self.group_line_ids),
-			_("%s unresolved teacher e-mail(s) resolved") % len(self.teacher_line_ids),
-			_("%s pending teacher(s) will be created") % pending_count,
-			_("%s file conflict(s) resolved") % len(self.internal_conflict_line_ids),
-			_("%s existing schedule conflict(s) resolved") % len(self.external_conflict_line_ids),
-			_("%s existing teacher(s) affected") % len(existing_items),
+		pending_items = self._teacher_preview_items(node_cache, ('create_pending', 'placeholder'))
+		group_lines = [
+			_("%(raw)s resolved to %(group)s") % {'raw': line.raw_name, 'group': line.group_id.display_name}
+			for line in self.group_line_ids
+		]
+		teacher_lines = [
+			_("%(raw)s will be created as a new pending teacher") % {'raw': line.raw_identifier}
+			if line.create_new else
+			_("%(raw)s resolved to %(teacher)s") % {'raw': line.raw_identifier, 'teacher': line.employee_id.display_name}
+			for line in self.teacher_line_ids
+		]
+		self.overall_summary_html = self._summary_blocks_html([
+			self._summary_block_html(
+				_("%s unresolved group name(s) resolved") % len(self.group_line_ids), group_lines),
+			self._summary_block_html(
+				_("%s unresolved teacher e-mail(s) resolved") % len(self.teacher_line_ids), teacher_lines),
+			self._summary_block_html(
+				_("%s pending teacher(s) will be created") % len(pending_items),
+				[self._teacher_preview_line(item) for item in pending_items],
+				note=_(
+					"These are placeholder employees, created now so their schedule and subjects "
+					"are ready immediately. Afterwards, open each one's own record to replace the "
+					"placeholder name with the real one, fill in their personal e-mail, and click "
+					"Generate Google account - exactly like any other new teacher."
+				)),
+			self._summary_block_html(
+				_("%s file conflict(s) resolved") % len(self.internal_conflict_line_ids),
+				[self._conflict_detail_line(line) for line in self.internal_conflict_line_ids]),
+			self._summary_block_html(
+				_("%s existing schedule conflict(s) resolved") % len(self.external_conflict_line_ids),
+				[self._conflict_detail_line(line) for line in self.external_conflict_line_ids]),
+			self._summary_block_html(
+				_("%s existing teacher(s) affected") % len(existing_items),
+				[self._teacher_preview_line(item) for item in existing_items],
+				note=_(
+					"Their weekly schedule will be synced with this file's content. Each affected "
+					"attendance template is updated in place if it has no real attendance history "
+					"yet, or archived and replaced by a new version if it does - the original's "
+					"history is never lost."
+				)),
 		])
 		self._advance_state()
 

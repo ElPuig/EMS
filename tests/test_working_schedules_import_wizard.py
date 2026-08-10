@@ -1539,8 +1539,11 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         while wizard.state != 'summary':
             wizard.action_continue()
 
-        self.assertIn(self.teacher.name, wizard.existing_teachers_html)
-        self.assertIn('test.wizard.teacher.import.wizard@example.com', wizard.existing_teachers_html)
+        self.assertIn(self.teacher.name, wizard.overall_summary_html)
+        self.assertIn('test.wizard.teacher.import.wizard@example.com', wizard.overall_summary_html)
+        # The block's own explanatory note (developer feedback: "deberíamos aclarar cómo se verán
+        # afectados") must actually render alongside the affected teacher, not just the count/name.
+        self.assertIn("Their weekly schedule will be synced with this file's content", wizard.overall_summary_html)
 
     def test_summary_lists_teacher_resolved_on_the_teachers_step(self):
         second_teacher = self._second_teacher()
@@ -1558,7 +1561,72 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         while wizard.state != 'summary':
             wizard.action_continue()
 
-        self.assertIn(second_teacher.name, wizard.existing_teachers_html)
+        self.assertIn(second_teacher.name, wizard.overall_summary_html)
+        # Not just listed somewhere - the "unresolved teacher e-mail(s) resolved" block's own
+        # detail line must say WHICH real teacher the raw e-mail was resolved to.
+        self.assertIn('unknown2.import.wizard@example.com resolved to %s' % second_teacher.name, wizard.overall_summary_html)
+
+    def test_summary_group_block_shows_which_group_a_raw_name_was_resolved_to(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'X4',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="TourOverallSummaryGroup Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.group_line_ids.group_id = self.group.id
+        while wizard.state != 'summary':
+            wizard.action_continue()
+
+        self.assertIn('TourOverallSummaryGroup Group resolved to %s' % self.group.display_name, wizard.overall_summary_html)
+
+    def test_summary_teacher_block_notes_a_create_new_row_as_a_new_pending_teacher(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown3.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers - 'create_new' defaults to True
+        while wizard.state != 'summary':
+            wizard.action_continue()
+
+        self.assertIn('unknown3.import.wizard@example.com will be created as a new pending teacher', wizard.overall_summary_html)
+        # The block's own explanatory note (developer feedback: "que quede claro que significa
+        # que son 'pending' y que después se les podrá cambiar el nombre, crear su cuenta, etc.")
+        # must actually render alongside the pending teacher, not just the count/identifier.
+        self.assertIn('click Generate Google account', wizard.overall_summary_html)
+
+    def test_summary_conflict_block_shows_the_resolution_actually_chosen(self):
+        second_teacher = self._second_teacher()
+        other_space = self.env['ems.space'].create({
+            'code': 'TWIW-SUMMARY-CONFLICT', 'name': 'Test Space Summary Conflict (Import Wizard)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                second_teacher.work_email,
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.single_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
+        wizard.internal_conflict_line_ids.right_space_id = other_space.id
+        while wizard.state != 'summary':
+            wizard.action_continue()
+
+        line = wizard.internal_conflict_line_ids
+        self.assertIn(
+            '%s vs. %s --&gt; Split session: resolved as Reassign rooms - rooms: %s / %s' % (
+                line.left_label, line.right_label, self.space.display_name, other_space.display_name,
+            ),
+            wizard.overall_summary_html,
+        )
 
     def test_summary_empty_when_only_pending_teachers(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({
@@ -1570,7 +1638,29 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         while wizard.state != 'summary':
             wizard.action_continue()
 
-        self.assertFalse(wizard.existing_teachers_html)
+        self.assertIn('0 existing teacher(s) affected', wizard.overall_summary_html)
+        self.assertIn('Nothing to show here.', wizard.overall_summary_html)
+
+    def test_overall_summary_translates_group_resolution_and_empty_block_into_catalan(self):
+        # Code (Python '_()') translations in this Odoo version are read straight from this
+        # module's own checked-in 'i18n/ca_ES.po' at runtime (see 'CodeTranslations.
+        # get_python_translations' - no database round-trip at all, unlike field/view
+        # translations) - a functional check under a real 'lang' context is the only way to
+        # actually prove a new detail-line string translates, since there's no DB column to
+        # verify via psql the way there is for field_description/arch_db.
+        wizard = self.env['ems.working_schedules_import_wizard'].with_context(lang='ca_ES').create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'X6',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="TourCatalanSummaryGroup Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.group_line_ids.group_id = self.group.id
+        while wizard.state != 'summary':
+            wizard.action_continue()
+
+        self.assertIn("TourCatalanSummaryGroup Group s'ha resolt a %s" % self.group.display_name, wizard.overall_summary_html)
+        self.assertIn('Aquí no hi ha res a mostrar.', wizard.overall_summary_html)
 
     def test_overall_summary_shows_zero_counts_when_nothing_to_resolve(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({

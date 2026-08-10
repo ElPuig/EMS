@@ -228,10 +228,10 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             run: "click",
         },
         {
-            // "Overall summary" - neither teacher here already exists, so the existing-teachers
-            // part of this screen shows its own success message instead of a list.
-            trigger: ".modal .alert-success:contains(\"No existing teacher's schedule will be recreated\")",
-            content: "The 'summary' screen shows its own success message - neither teacher here already exists",
+            // "Overall summary" - neither teacher here already exists, so the "existing
+            // teacher(s) affected" block shows its own empty placeholder instead of a list.
+            trigger: ".modal .o_field_widget[name='overall_summary_html']:contains('0 existing teacher(s) affected')",
+            content: "The 'summary' screen's own block confirms neither teacher here already exists",
         },
         {
             trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
@@ -498,8 +498,8 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_te
         },
         {
             // "Overall summary" - the teacher resolved on the 'teachers' step is exactly the
-            // kind of item this screen's existing-teachers list previews.
-            trigger: ".modal .o_field_widget[name='existing_teachers_html'] li:contains('Tour Resolve Teacher Email')",
+            // kind of item the "existing teacher(s) affected" block previews.
+            trigger: ".modal .o_field_widget[name='overall_summary_html'] li:contains('Tour Resolve Teacher Email')",
             content: "The resolved teacher is listed as an existing teacher whose schedule is about to be recreated",
         },
         {

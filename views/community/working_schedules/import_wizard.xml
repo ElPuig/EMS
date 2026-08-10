@@ -103,12 +103,8 @@
                         </div>
 
                         <div invisible="state != 'summary'">
-                            <p>This is the last screen before anything gets written, and none of the previous steps can be revisited afterwards. Review the counts and the existing teachers below, then click Import.</p>
+                            <p>This is the last screen before anything gets written, and none of the previous steps can be revisited afterwards. Review every block below - each one shows exactly how that part of the import was resolved - then click Import.</p>
                             <field name="overall_summary_html" nolabel="1"/>
-                            <div class="alert alert-success" role="alert" invisible="existing_teachers_html">
-                                No existing teacher's schedule will be recreated by this import.
-                            </div>
-                            <field name="existing_teachers_html" invisible="not existing_teachers_html" nolabel="1"/>
                         </div>
                     </sheet>
                     <footer>

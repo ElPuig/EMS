@@ -11939,3 +11939,108 @@ msgid ""
 "%s is graded in optional module '%s', but group %s has %d optional subjects:"
 " cannot tell which one to enroll them in."
 msgstr "%s té nota al mòdul optatiu '%s', però el grup %s té %d assignatures optatives: no es pot saber en quina matricular-lo/la."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Manage courses"
+msgstr "Gestiona els cursos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__enrollment_course_id
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__enrollment_course_id
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Enrollment course"
+msgstr "Curs de matriculació"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__enrollment_course_id
+#: model:ir.model.fields,help:ems.field_res_config_settings__enrollment_course_id
+msgid ""
+"The course new enrollments are created for. Keeps "
+"ems.course.is_enrollment_default in sync, the same way current_course_id "
+"keeps is_current."
+msgstr ""
+"El curs al qual es creen les matrícules noves. Manté ems.course.is_enrollment_default sincronitzat, igual que current_course_id manté is_current."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__place_later_count
+msgid "Joining when their study transitions"
+msgstr "S'incorporen quan es transicioni el seu estudi"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard_line__action__place_later
+msgid "Joins when its own study transitions"
+msgstr "S'incorpora quan es transicioni el seu estudi"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid ""
+"%s active student(s) have no group at all, so no run can see them: their "
+"academic history is not frozen and their records are not cleaned. Give them "
+"a group or register their withdrawal before applying: %s."
+msgstr ""
+"%s alumne(s) actiu(s) no tenen cap grup, de manera que cap execució els pot veure: el "
+"seu historial acadèmic no es congela i els seus registres no es netegen. Assigna'ls un "
+"grup o registra'ls la baixa abans d'aplicar: %s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__orphan_count
+msgid "Students with no group at all"
+msgstr "Alumnes sense cap grup"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/blocking_action_form.js:0
+msgid "A file can take several minutes — do not close this window."
+msgstr "Un fitxer pot trigar uns quants minuts — no tanquis aquesta finestra."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/blocking_action_form.js:0
+msgid "Changing the state of the evaluation sessions…"
+msgstr "S'està canviant l'estat de les sessions d'avaluació…"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/blocking_action_form.js:0
+msgid "Creating the evaluation sessions…"
+msgstr "S'estan creant les sessions d'avaluació…"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/blocking_action_form.js:0
+msgid "Importing the grades…"
+msgstr "S'estan important les notes…"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/blocking_action_form.js:0
+msgid "This can take a while — do not close this window."
+msgstr "Això pot trigar una estona — no tanquis aquesta finestra."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/blocking_action_form.js:0
+msgid "join when their own study transitions"
+msgstr "s'incorporen quan es transicioni el seu estudi"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/blocking_action_form.js:0
+msgid ""
+"Every row of the file is matched against the student's enrollment and "
+"written into its evaluation session."
+msgstr ""
+"Cada fila del fitxer es fa correspondre amb la matrícula de l'alumne i "
+"s'escriu a la seva sessió d'avaluació."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/blocking_action_form.js:0
+msgid ""
+"One session per group and subject of the selected scope, each one filled "
+"with its students and their outcome lines."
+msgstr ""
+"Una sessió per cada grup i assignatura de l'abast seleccionat, cadascuna "
+"omplerta amb els seus alumnes i les seves línies de RA."

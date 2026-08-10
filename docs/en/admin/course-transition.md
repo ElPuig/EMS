@@ -58,6 +58,7 @@ You get a red box if something blocks the run, a blue box with everything worth 
 | **Graduates and continues** | Marked as graduated **and** holding a **confirmed** enrollment: keeps the graduation, is not archived and is placed in the new group |
 | **Graduates, pending confirmation** | Marked as graduated with an **unconfirmed** enrollment: becomes an applicant, **keeps portal access** and is not archived, so it can still confirm in September |
 | **Joins its group for the next course** | **Confirmed** enrollment with a group: moves into it and gets the subject enrollments |
+| **Joins when its own study transitions** | Enrollment confirmed, but into a study you are not transitioning now: it is not placed here. That study's own run will do it |
 | **Enrollment pending confirmation** | The enrollment exists but nobody has confirmed it: it does not move yet, and will do so on its own once confirmed |
 | **Enrollment with no destination group** | Confirmed enrollment with no group: it **blocks the run** |
 | **No enrollment for the next course** | No enrollment at all |
@@ -65,6 +66,7 @@ You get a red box if something blocks the run, a blue box with everything worth 
 Two of these deserve your attention:
 
 - **Enrollment with no destination group** — the enrollment is confirmed but nobody chose the group, so the run is blocked until you assign it: leaving them with no group would have no way back afterwards. Use the *Suggest destination group* action and preview again.
+- **Students with no group at all** — if this warning appears, these are active student records in no group whatsoever, so **no run can see them**: their academic history is not frozen and their records are not cleaned. Give them a group or register their withdrawal before applying; afterwards they sit among the hundreds of students the transition legitimately leaves group-less and can no longer be told apart.
 - **No enrollment for the next course** — the student has not enrolled. They are **not** withdrawn: they simply end up with no group. This is deliberate, because in July there is no way to tell someone moving to another school from someone who enrolls late. Keep this list: it is the one you will review afterwards to decide who really left.
 
 ---

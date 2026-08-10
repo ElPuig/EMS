@@ -24,6 +24,9 @@ def post_init_hook(env):
     """)
     _backfill_default_schedule_framework(env)
     _enable_unaccent_extension(env)
+    # is_enrollment_default is not a CSV column (it is live state the centre moves when it
+    # opens the next campaign), so a fresh install needs it seeded once.
+    env['ems.course']._ems_seed_enrollment_default()
 
 
 def _backfill_default_schedule_framework(env):

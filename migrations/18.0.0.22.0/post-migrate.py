@@ -210,6 +210,20 @@ def _backfill_null_course_enrollment_default(cr):
             "is_enrollment_default to False.", cr.rowcount)
 
 
+def _seed_enrollment_default(env):
+    """is_enrollment_default stopped being a column of data/custom/ems.course.csv in this
+    version: it is live state the centre moves when it opens the next campaign, and a
+    synced column reverted that move on every upgrade. Installations that had none flagged
+    (or whose only flag came from the file and was a legacy NULL, see the backfill above)
+    get one seeded; the helper leaves an already-flagged instance alone.
+    """
+    course = env['ems.course']._ems_seed_enrollment_default()
+    if course:
+        _logger.info(
+            "Migration 18.0.0.22.0: no course was flagged as the enrollment default; "
+            "seeded '%s'.", course.name)
+
+
 def _recompute_authorization_flags(env):
     # auth_image/auth_trip/auth_healt/auth_share are STORED, and until now they read
     # the enrollment of the course flagged as current. Between transitioning a study
@@ -316,6 +330,7 @@ def migrate(cr, _version):
     _backfill_special_type(cr)
     _backfill_iban_trust(env)
     _backfill_null_course_enrollment_default(cr)
+    _seed_enrollment_default(env)
     _recompute_authorization_flags(env)
     _backfill_attendance_template_study_ids(cr)
     _backfill_calendar_employee_and_course(env)

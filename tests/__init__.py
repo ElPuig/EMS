@@ -122,7 +122,6 @@ from . import test_applicant_tour
 from . import test_no_destination_tour
 from . import test_year_record_tour
 from . import test_planning_tour
-from . import test_grade_import_wizard_tour
 from . import test_em_grading_wizard_tour
 from . import test_provider_tour
 from . import test_enrollment_config_tour

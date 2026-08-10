@@ -197,7 +197,10 @@ instead of a real list.
   creation rules above, a module graded in the session of the group the student is enrolled in
   rather than their main one, and the warning when the same module is enrolled in twice.
 - `tests/test_grade_import_wizard_tour.py` + `static/tests/tours/grade_import_wizard_tour.js` —
-  renders the wizard's form in a real browser. The `TransactionCase` suite drives the model
-  directly and never renders the view, so a broken arch or a field missing from it would go
-  unnoticed. A tour cannot upload a file, so it checks the inputs render and the checkbox
-  defaults to off and is editable.
+  two tours render the wizard in a real browser, since the `TransactionCase` suite drives the
+  model directly and never renders the view, so a broken arch or a field missing from it would
+  go unnoticed. `ems_grade_import_wizard_missing_sheet` uploads a structurally real xlsx whose
+  sheet is named neither `Notes Flat` nor `Notes`, proving the `widget="binary"` upload and the
+  import button work end to end and that the validation surfaces as a real error dialog.
+  `ems_grade_import_wizard_smoke` checks the inputs render and that the "Create missing
+  enrollments" checkbox defaults to off and is editable.

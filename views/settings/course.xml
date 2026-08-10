@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- No action or menu on purpose: both marks are moved from their own selector on the
+         settings page, so a second screen would just be a second way in. These views exist
+         for the selectors themselves - "Search more..." uses the list, and "Create and
+         edit..." uses the form, which is the only way to create a new academic year. -->
+    <data>
+        <record id="view_course_list" model="ir.ui.view">
+            <field name="name">ems.course.list</field>
+            <field name="model">ems.course</field>
+            <field name="arch" type="xml">
+                <!-- Readonly flags: each mark has exactly one way in, its own selector on
+                     the settings page. Writing is_current straight from a list bypassed
+                     _sync_current_course_flag and left it out of step with
+                     res.company.current_course_id. -->
+                <list editable="bottom">
+                    <field name="name"/>
+                    <field name="start"/>
+                    <field name="end"/>
+                    <field name="is_current" widget="boolean_toggle" readonly="1"/>
+                    <field name="is_enrollment_default" widget="boolean_toggle" readonly="1"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_course_form" model="ir.ui.view">
+            <field name="name">ems.course.form</field>
+            <field name="model">ems.course</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="start"/>
+                                <field name="end"/>
+                            </group>
+                            <group>
+                                <field name="is_current" readonly="1"/>
+                                <field name="is_enrollment_default" readonly="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

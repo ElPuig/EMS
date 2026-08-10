@@ -57,6 +57,7 @@ Step 5 resets every study back to `active` when the flip happens, so the next co
 | Students with no destination | `transition_status = 'missing'`, **listed one by one** (D8), split by `study.uses_enrollment_flow` |
 | Draft / sent enrollments in the target course | **NOT cancelled** — step 6 only touches the outgoing course. They stay open for a September confirmation |
 | Incomplete evaluation | See the rule below (D9) |
+| Students with no group at all | `_orphan_students()`, **listed one by one** (D18) |
 | Attendance templates to archive | Including templates whose `group_ids` span studies both in and out of scope |
 | Records to delete | Counts per model for step 8, grade sessions included |
 
@@ -431,16 +432,70 @@ The preview showed the destination group anyway. On the first real SMX run all 2
 
 Same defect class as `place_count` announcing 138 and moving 122 (D-pending): the preview is a promise, and every number in it has to be one the apply keeps.
 
+#### Students with no group are reported, not hidden (D18)
+
+`_scope_students()` captures through `main_group_id`, so an active student without one belongs
+to **no run at all**, whatever studies are picked: step 0 freezes no year record for them and
+step 8 cleans nothing. It is pre-existing data quality — an Esfer@ import that found no group, a
+manual edit — but the transition is where it stops being recoverable: afterwards they sit among
+the hundreds of students a run legitimately leaves group-less.
+
+`study_id` is the discriminator. `_apply_detach_unplaced()` keeps it on purpose when detaching,
+so **no group and no study** means nobody ever placed them. Measured on the rehearsal database
+right after the full transition:
+
+| | Students | Attendance lines | Year records |
+|---|---|---|---|
+| No group, with a study (detached by a run) | 646 | 0 | 653 |
+| **No group and no study** | **8** | **197** | **0** |
+
+Warning, not blocker: the run is not unsafe, and fixing the data is the operator's call. Giving
+them a group or registering their withdrawal before applying is what the message asks for.
+
+#### `place_later`, so the label matches the promise too (D17)
+
+Withholding the destination group was only half of it: the line kept the `place` action, whose
+label reads "Joins its group for the next course" — which this run does not do. The audit CSV
+inherits that word, and the CSV is the reference for undoing a case by hand, so it has to be
+literally true.
+
+Confirmed enrollments heading outside `study_ids` are now a distinct action, **`place_later`**
+("Joins when its own study transitions"), with its own counter. `graduate_continue` keeps its
+label — those students *do* graduate, only the placement is deferred — and is still recognised
+by its empty destination group.
+
+Reproduced twice during the first full rehearsal: transitioning ESO/BTX/AO first listed 17
+students as `place`, and all 17 ended the run with no group (their own studies placed them in
+the second run, which is the intended flow).
+
 ### Conditional flip (step 5)
 
 ```mermaid
 flowchart LR
     MARK["Mark study_ids as transitioned"] --> CHECK{"Any study left active?"}
     CHECK -- yes --> PARTIAL["Partial transition:<br/>no flip, list pending studies"]
-    CHECK -- no --> FLIP["source.is_current = False<br/>target.is_current = True<br/>company.current_course_id = target<br/>target.is_enrollment_default = False<br/>every study back to active"]
+    CHECK -- no --> FLIP["source.is_current = False<br/>target.is_current = True<br/>company.current_course_id = target<br/>every study back to active"]
 ```
 
 `ems.course` enforces "only one current" and "only one enrollment default" through Python `@api.constrains`, not SQL, so the outgoing flag must be **cleared before** the incoming one is set.
+
+#### The flip does not touch `is_enrollment_default` (D16)
+
+It used to clear it on the incoming course, on the reasoning that the running course is
+nobody's "next course" any more. That was wrong: enrollments keep being processed all
+through September for the course that has just started, and the field is not only a
+default value — it is how the module answers "which course do new enrollments belong
+to". `enrollment.py`, `enrollment_proposal_wizard`, `graduation_wizard._next_course()`,
+`res.partner._compute_transition_status()` and `year_record._academic_result()` all
+resolve it with the same `search([('is_enrollment_default', '=', True)], limit=1)`.
+
+Clearing it left **no course flagged at all**, so every one of those returned an empty
+recordset and the "students without destination" report stopped working — with no UI to
+put the flag back (`ems.course` had no view until this same issue added one).
+
+So the incoming course now stays both `is_current` and `is_enrollment_default`. Opening
+the following year's campaign is a deliberate act, not a side effect of the transition:
+whoever starts it moves the flag from the course form.
 
 ### Latecomers
 
@@ -466,3 +521,15 @@ The wizard writes through `sudo()` where the reused helpers already do (`_ems_ap
 - **Idempotency** — every step can be re-run if the transition is interrupted, step 8 excepted.
 - **Grade sessions must be deleted** (step 8) because `UNIQUE(group_id, subject_id, round)` carries no course; deleting them also resets `is_locked` naturally.
 - **`has_graduated` is permanent** — never reset, and readonly on the contact form (D2).
+
+### The blocking overlay is shared with the grade wizards
+
+`static/src/js/backend/blocking_action_form.js` exposes `blockingActionFormView(messages)`, a
+form-view factory that blocks the UI on the named buttons and unblocks in
+`afterExecuteActionButton` (which Odoo calls even when the action raised, so a failure cannot
+leave the screen stuck — proven by the import wizard's error-dialog tour). It backs four
+wizards: this one (`action_apply`), grade session creation, grade session state change and the
+Esfer@ grade import.
+
+No live counter anywhere, for the reason above: a single transaction publishes nothing until it
+commits.

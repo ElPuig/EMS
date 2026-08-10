@@ -5,7 +5,7 @@
             <field name="name">ems.grade_session_wizard.form</field>
             <field name="model">ems.grade_session_wizard</field>
             <field name="arch" type="xml">
-                <form string="Create grade sessions">
+                <form string="Create grade sessions" js_class="ems_grade_session_wizard_form">
                     <group>
                         <field name="mode" widget="radio" options="{'horizontal': true}"/>
                         <field name="level_ids" widget="many2many_tags" invisible="mode != 'level'" required="mode == 'level'"/>
@@ -33,7 +33,7 @@
             <field name="name">ems.grade_session_state_wizard.form</field>
             <field name="model">ems.grade_session_state_wizard</field>
             <field name="arch" type="xml">
-                <form string="Change evaluation state">
+                <form string="Change evaluation state" js_class="ems_grade_session_state_wizard_form">
                     <group>
                         <field name="mode" widget="radio" options="{'horizontal': true}"/>
                         <field name="level_ids" widget="many2many_tags" invisible="mode != 'level'" required="mode == 'level'"/>

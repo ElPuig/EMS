@@ -39,6 +39,10 @@ class ems_company(models.Model):
     schedule_import_last_entry_time  = fields.Float(default=21.0)
 
     current_course_id = fields.Many2one(comodel_name="ems.course")
+    enrollment_course_id = fields.Many2one(
+        comodel_name="ems.course", string="Enrollment course",
+        help="The course new enrollments are created for. Keeps ems.course.is_enrollment_default "
+             "in sync, the same way current_course_id keeps is_current.")
     default_schedule_framework_id = fields.Many2one(
         comodel_name="resource.calendar", domain="[('is_framework', '=', True)]", required=True,
         default=lambda self: self.env.ref('ems.schedule_framework_default', raise_if_not_found=False))
@@ -90,10 +94,27 @@ class ems_company(models.Model):
             if course and not course.is_current:
                 course.is_current = True
 
+    def _sync_enrollment_course_flag(self):
+        """Keep ems.course.is_enrollment_default in sync with the configured enrollment
+        course, exactly as _sync_current_course_flag does for is_current.
+
+        The clear-then-set order is mandatory: ems.course guards uniqueness with a Python
+        @api.constrains, so marking the new course while the old one is still marked
+        raises. Doing it here is also what makes moving the mark a single action for the
+        operator instead of an untick-then-tick dance."""
+        Course = self.env['ems.course']
+        for company in self:
+            course = company.enrollment_course_id
+            (Course.search([('is_enrollment_default', '=', True)]) - course).write(
+                {'is_enrollment_default': False})
+            if course and not course.is_enrollment_default:
+                course.is_enrollment_default = True
+
     @api.model_create_multi
     def create(self, vals_list):
         companies = super().create(vals_list)
         companies._sync_current_course_flag()
+        companies._sync_enrollment_course_flag()
         return companies
 
     def write(self, vals):
@@ -101,6 +122,8 @@ class ems_company(models.Model):
         res = super().write(vals)
         if 'current_course_id' in vals:
             self._sync_current_course_flag()
+        if 'enrollment_course_id' in vals:
+            self._sync_enrollment_course_flag()
         if 'director_id' in vals:
             for company in self:
                 old_director = old_directors[company]

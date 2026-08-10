@@ -109,4 +109,9 @@ if ! ./upgrade.sh; then
     exit 1
 fi
 
+# Declares this as a production environment (see CLAUDE.md's "Development vs. production
+# environment declaration") - idempotent, re-declared on every deploy in case install.sh's own
+# initial answer was ever wrong.
+sudo -u odoo psql -d ems -c "INSERT INTO ir_config_parameter (key, value) VALUES ('ems.environment_type', 'production') ON CONFLICT (key) DO UPDATE SET value = 'production';"
+
 echo ">> Deployment completed for $1"

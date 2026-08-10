@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from odoo.tools import config
 from odoo import models, fields, api
 from cryptography.fernet import Fernet
+
+_logger = logging.getLogger(__name__)
 
 class ems_company(models.Model):
     _inherit = 'res.company'
@@ -109,6 +113,26 @@ class ems_company(models.Model):
                 ]).manager_id._compute_parent_id()
                 (old_director | company.director_id).update_director_role()
         return res
+
+    def _register_hook(self):
+        """Warns once per server start if this database has never declared whether it's a
+        development or a production environment (see 'ems.environment_type', set by
+        install.sh/devel.sh/deploy.sh - CLAUDE.md's own 'Development vs. production environment
+        declaration' section has the full picture). Skipped during automated test runs
+        (config['test_enable']) - a throwaway test database never runs any of those scripts and
+        never needs to."""
+        super()._register_hook()
+        if config['test_enable']:
+            return
+        if not self.env['ir.config_parameter'].sudo().get_param('ems.environment_type'):
+            _logger.warning(
+                "EMS: 'ems.environment_type' is not set on this database - neither install.sh, "
+                "devel.sh nor deploy.sh has declared this environment yet. If this is a local "
+                "development box, run devel.sh before interacting with any real data restored "
+                "onto it (it redirects every stored email to your own inbox, avoiding accidental "
+                "sends to real people); if this is a real deployment, run deploy.sh, or set "
+                "ir.config_parameter 'ems.environment_type' to 'production' directly."
+            )
 
     @api.model
     def _get_fernet_key(self):

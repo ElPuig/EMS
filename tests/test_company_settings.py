@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase
+from odoo.tools import config
 
 
 class TestCompanySettings(TransactionCase):
@@ -43,3 +44,32 @@ class TestCompanySettings(TransactionCase):
         # it should degrade to an empty value.
         self.env.company.limesurvey_pwd_encrypted = 'not-a-valid-fernet-token'
         self.assertFalse(self.env.company.limesurvey_pwd)
+
+    def _clear_environment_type(self):
+        self.env['ir.config_parameter'].sudo().search([('key', '=', 'ems.environment_type')]).unlink()
+
+    def test_register_hook_warns_when_environment_type_unset(self):
+        self._clear_environment_type()
+        # test_enable is always True for any real test run - patched False here to exercise the
+        # "not a throwaway test database" branch the hook is actually meant to guard.
+        with patch.dict(config.options, {'test_enable': False}):
+            with self.assertLogs('odoo.addons.ems.models.settings.company', level='WARNING') as captured:
+                self.env.company._register_hook()
+        self.assertIn('ems.environment_type', captured.output[0])
+
+    def test_register_hook_silent_when_environment_type_set(self):
+        self.env['ir.config_parameter'].sudo().set_param('ems.environment_type', 'dev')
+        with patch.dict(config.options, {'test_enable': False}):
+            with self.assertRaises(AssertionError):
+                # assertLogs itself raises AssertionError when nothing was logged - the most
+                # portable way to assert "no warning fired" across Python versions.
+                with self.assertLogs('odoo.addons.ems.models.settings.company', level='WARNING'):
+                    self.env.company._register_hook()
+
+    def test_register_hook_silent_during_a_real_test_run(self):
+        self._clear_environment_type()
+        # No patching here: config['test_enable'] is genuinely True for this test run itself,
+        # exactly the condition that must always suppress the warning.
+        with self.assertRaises(AssertionError):
+            with self.assertLogs('odoo.addons.ems.models.settings.company', level='WARNING'):
+                self.env.company._register_hook()

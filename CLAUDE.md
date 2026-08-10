@@ -32,6 +32,90 @@ memory for the incident this rule comes from, and a second, broader one from 202
 where dev-DB findings were repeatedly mislabeled "production" across an entire session
 before being caught.
 
+## Development vs. production environment declaration (2026-08-10)
+
+Any EMS installation — this box included — declares whether it's a development/testing
+environment or a real production one via a single `ir.config_parameter`:
+**`ems.environment_type`**, value `'dev'` or `'production'`. Three scripts set it, so every
+install ends up with it declared regardless of which path it took:
+
+- **`install.sh`** (the one step every installation goes through, with no alternative) asks
+  interactively — or accepts it as a first CLI argument (`prod`/`dev`) for non-interactive
+  runs — right after the initial `-i ems` install succeeds.
+- **`devel.sh`** always forces it to `'dev'` as its last step (in case `install.sh`'s original
+  answer was wrong, or a box's role changed).
+- **`deploy.sh`** (this repo's own production deploy pipeline, run by the self-hosted GitHub
+  Actions runner) always forces it to `'production'` on every deploy, for the same reason.
+
+`res.company._register_hook()` (`models/settings/company.py`) logs a `WARNING` once per server
+start if the parameter is missing entirely — skipped automatically during any automated test run
+(`config['test_enable']`), so a throwaway CI/`test.sh` database never triggers it; this can never
+fire in this repo's own production either, since `deploy.sh` always sets it. The only way to see
+it is a database that genuinely never went through any of the three scripts above (e.g. an
+existing installation that predates this mechanism, or a hand-rolled restore that skipped
+`install.sh` entirely).
+
+**Why this exists, and how to apply it (the incident this is a direct response to):** a
+colleague (Juan) asked a different Claude session to prepare a real production backup for
+restoring on his own dev box. That session had no way to know `devel.sh` (below) already
+neutralizes the real-recipient email risk, so — lacking that context — it recommended disabling
+the configured outgoing mail servers (`ir.mail_server`) as a safety measure instead. That's
+unnecessary once `devel.sh` has actually run (see below), and actively counter-productive: it
+removes the ability to verify a real email delivery reaches the developer's own inbox during
+interactive testing, without adding any protection `devel.sh`'s own address-rewriting doesn't
+already provide.
+
+**How a future Claude session (yours, or a colleague's) should actually apply this — don't rely
+on spotting the log warning:** a log line only helps whoever is watching that specific log at
+that specific moment; if a colleague restores a database in their own session, you have no
+visibility into their terminal or their Odoo log. This is a **one-off check, not a standing
+habit** — there is no need to re-check on every message or every tool call within the same
+session once it's been done. The whole point of this entire mechanism is to stop a real email
+ever reaching a real production address, so the actual trigger to check is narrower and more
+concrete than "any real data": **does whatever is about to be tested or touched have anything to
+do with outgoing email** — sending a notification, a reminder, a Google account credential email,
+a schedule-import confirmation, anything that could plausibly call `mail.mail.send()`/
+`message_post()`/similar. If it doesn't touch outgoing email at all, this never needs checking,
+regardless of how real or sensitive the underlying data otherwise looks. It's also worth checking
+before considering a mail-server-disabling "safety" step for the same reason. Outside those
+moments, most work on this repo (writing/reviewing code, running the automated test suite) never
+needs this check at all. When one of those moments comes up, check directly instead of guessing
+or relying on having seen a warning:
+```
+sudo -u odoo psql -d ems -c "SELECT value FROM ir_config_parameter WHERE key='ems.environment_type';"
+```
+If it's `'dev'`, `devel.sh` has already run and neutralized the real-email risk (see below) — no
+further action needed, and disabling mail servers would only get in the way. If it's empty on a
+database that clearly has real-looking data (the same smell described in the section above), stop
+and ask the developer whether `devel.sh` needs to run before continuing.
+
+### `devel.sh`: what it actually does, and why disabling mail servers on top is unnecessary
+
+`devel.sh` (interactive, or non-interactive via `./devel.sh <google_account> [domain]`) is the
+script that turns a freshly-restored real backup into a safe local dev environment: among other
+things (enabling the debugger, cancelling stuck queue jobs), it rewrites **every** stored email
+address (`res_partner.email`/`email_normalized`/`student_email`, plus the dependent
+`hr_employee.work_email`) to `<google_account>+<original_email, '@' encoded as '_at_'>@<domain>`
+— e.g. `kandilhamza@gmail.com` becomes `porrino.fernando+kandilhamza_at_gmail.com@elpuig.xeill.net`.
+`<domain>` always gets overwritten (never kept from the original address, regardless of what it
+was) — defaults to `res.company.google_ws_domain` (the same setting the Google Workspace
+integration itself uses), offered as the default for the interactive prompt and also acceptable
+as a second CLI argument. Overwriting the domain, rather than keeping the original one, is what
+actually guarantees delivery to a domain the developer provably controls — keeping a family's
+own `gmail.com`/`hotmail.com`/etc. domain would only "accidentally" reach the developer if their
+own account happens to exist on that exact same external domain too, which isn't something to
+rely on.
+
+Given this, once `devel.sh` has run (check the `ems.environment_type` parameter above, don't
+guess), **no real person can ever receive an email from this environment** — every stored address
+already points at the developer's own inbox. Disabling `ir.mail_server` on top would not close
+any remaining gap; it would only prevent verifying that a real email genuinely gets delivered and
+correctly formatted during manual/interactive testing, which is precisely the scenario `devel.sh`
+is designed to make safe to do. The **only** place a mail-server-level (transport) safety net is
+actually needed is **automated tests**, a different mechanism for a different scenario — see
+"Email safety in tests" below, which mocks `IrMailServer.send_email` directly, since a test run
+never goes through `devel.sh`'s database rewrite at all.
+
 ## Module structure
 
 ```

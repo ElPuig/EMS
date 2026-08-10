@@ -58,6 +58,7 @@ Obtendrás un recuadro rojo si algo bloquea la ejecución, uno azul con todo lo 
 | **Se gradúa y continúa** | Marcado como graduado **y** con matrícula **confirmada**: conserva la graduación, no se archiva y se coloca en el grupo nuevo |
 | **Se gradúa, pendiente de confirmar** | Marcado como graduado y con matrícula **sin confirmar**: pasa a solicitante, **conserva el acceso al portal** y no se archiva, para que pueda confirmarla en septiembre |
 | **Se incorpora a su grupo del curso siguiente** | Matrícula **confirmada** con grupo: entra en ese grupo y se le crean las inscripciones a sus asignaturas |
+| **Se incorpora cuando se transicione su estudio** | Matrícula confirmada, pero hacia un estudio que no estás transicionando ahora: aquí no se coloca. Lo hará la ejecución de ese estudio |
 | **Matrícula pendiente de confirmar** | La matrícula existe pero nadie la ha confirmado: no se incorpora todavía. Lo hará solo el día que se confirme |
 | **Matrícula sin grupo destino** | Matrícula confirmada sin grupo: **bloquea la ejecución** |
 | **Sin matrícula para el curso siguiente** | No tiene ninguna matrícula |
@@ -65,6 +66,7 @@ Obtendrás un recuadro rojo si algo bloquea la ejecución, uno azul con todo lo 
 Dos de ellas merecen tu atención:
 
 - **Matrícula sin grupo destino** — la matrícula está confirmada pero nadie eligió el grupo, así que la ejecución queda bloqueada hasta que lo asignes: dejarlo sin grupo no tendría arreglo después. Usa la acción *Sugerir grupo destino* y vuelve a previsualizar.
+- **Alumnos sin ningún grupo** — si aparece este aviso, son fichas de alumno activas que no están en ningún grupo, así que **ninguna ejecución las ve**: no se les congela el expediente ni se les limpian los datos. Asígnales grupo o regístrales la baja antes de aplicar; después quedarán mezcladas con los cientos de alumnos que la transición deja sin grupo legítimamente y ya no se distinguen.
 - **Sin matrícula para el curso siguiente** — el alumno no se ha matriculado. **No** se le da de baja: simplemente se queda sin grupo. Es deliberado, porque en julio no hay forma de distinguir a quien se va a otro instituto de quien se matricula tarde. Guarda esta lista: es la que revisarás después para decidir quién se ha ido de verdad.
 
 ---

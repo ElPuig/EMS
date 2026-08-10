@@ -2,11 +2,11 @@
 
 import { registry } from "@web/core/registry";
 
-// ems.course has no menu/list/form of its own — the only real UI surface is the "Current
-// course" selector on the Settings page (res.config.settings → current_course_id on
-// res.company). This tour is the only browser coverage this model gets; it also covers the
-// company._sync_current_course_flag() integration indirectly (selecting a course here is
-// exactly what flips ems.course.is_current).
+// Browser coverage for the two UI surfaces of ems.course, both on the Settings page:
+// the "Current course" selector (res.config.settings → current_course_id on res.company,
+// which is what flips is_current through _sync_current_course_flag) and the "Manage
+// courses" dialog, the only way to move is_enrollment_default without a data file or a
+// shell.
 registry.category("web_tour.tours").add("ems_course_settings", {
     test: true,
     url: "/odoo/action-ems.action_settings",
@@ -38,8 +38,22 @@ registry.category("web_tour.tours").add("ems_course_settings", {
             },
         },
         {
+            // The twin selector: same mechanism, for the mark that says which course new
+            // enrollments are created for. Moving it here is a single action even though
+            // the flag is unipersonal, because _sync_enrollment_course_flag clears the
+            // previous one before setting this one.
+            trigger: ".o_field_widget[name='enrollment_course_id'] input",
+            content: "Search the same course in the Enrollment course selector",
+            run: "edit 2099-2100",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-menu li:contains('2099-2100')",
+            content: "Select it",
+            run: "click",
+        },
+        {
             trigger: ".o_form_button_save, .settings .o_form_button_save",
-            content: "Save the setting",
+            content: "Save the settings",
             run: "click",
         },
         {

@@ -337,6 +337,64 @@ class TestCourseTransition(TransactionCase):
         self.assertEqual(confirmed.main_group_id, self.group2)
         self.assertFalse(unconfirmed.main_group_id)
 
+    def test_a_confirmed_enrollment_elsewhere_is_not_labelled_as_placed(self):
+        """A confirmed enrollment into a study this run is not transitioning is not
+        executed here (_apply_placement filters by study_ids), so calling it 'place'
+        promised a move that never happened — in the preview and, worse, in the audit
+        CSV that is the reference for undoing a case by hand. Reproduced twice during
+        the first full rehearsal: 17 students shown as placed came out with no group."""
+        student = self._student('CTW Elsewhere')
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study_other.id,
+            'ems_course_id': self.target_course.id, 'ems_group_id': self.group_other.id,
+            'shift': 'morning'})
+        order.order_line = [(0, 0, {'product_id': self.subject_int.product_id.id})]
+        order.action_confirm()
+        wizard = self._wizard(studies=self.study)
+        wizard.action_preview()
+        line = wizard.line_ids.filtered(lambda line: line.student_id == student)
+        self.assertEqual(line.action, 'place_later')
+        self.assertFalse(line.destination_group_id)
+        self.assertEqual(wizard.place_count, 0)
+        self.assertEqual(wizard.place_later_count, 1)
+        self.assertIn(student.display_name, wizard.warning_html)
+        wizard.backup_done = True
+        wizard.action_apply()
+        self.assertFalse(student.main_group_id)
+
+    def test_preview_warns_about_students_with_no_group_at_all(self):
+        """The scope is captured through main_group_id, so an active student with no group
+        belongs to no run whatever studies are picked: no year record is frozen for them and
+        their operational records are never cleaned. The wizard used to hide that instead of
+        surfacing it — the first full rehearsal ended with 8 such students holding 197
+        attendance lines and no academic record for the year."""
+        # Relative to a baseline: the working database legitimately carries its own
+        # orphans (the rehearsal found 8), and this test is about detecting one more.
+        baseline = self._wizard()
+        baseline.action_preview()
+        before = baseline.orphan_count
+        orphan = self.env['res.partner'].create(
+            {'name': 'CTW No Group At All', 'contact_type': 'student'})
+        wizard = self._wizard()
+        wizard.action_preview()
+        self.assertFalse(wizard.line_ids.filtered(lambda line: line.student_id == orphan))
+        self.assertEqual(wizard.orphan_count, before + 1)
+
+    def test_preview_does_not_warn_about_students_detached_by_an_earlier_run(self):
+        """They keep study_id on purpose (_apply_detach_unplaced), which is exactly what
+        tells them apart: after transitioning ESO/BTX/AO first there are hundreds of
+        group-less students whose history IS frozen, and warning about those would bury the
+        handful that are really unaccounted for."""
+        baseline = self._wizard()
+        baseline.action_preview()
+        before = baseline.orphan_count
+        detached = self._student('CTW Detached', group=self.group1)
+        detached.write({'main_group_id': False, 'study_id': self.study.id})
+        wizard = self._wizard()
+        wizard.action_preview()
+        self.assertEqual(wizard.orphan_count, before)
+        self.assertNotIn(detached.display_name, wizard.warning_html)
+
     def test_incomplete_evaluation_ignores_the_missing_em_before_the_last_course(self):
         """D9: the work placement only exists in the last course, so a first-course
         subject with an external weight but no EM grade is NOT incomplete — its
@@ -915,11 +973,23 @@ class TestCourseTransition(TransactionCase):
         self.assertTrue(self.target_course.is_current)
         self.assertFalse(self.source_course.is_current)
 
-    def test_flip_clears_the_enrollment_default_of_the_incoming_course(self):
-        """Once it is the running course it is nobody's 'next course' any more."""
+    def test_flip_keeps_the_enrollment_default_on_the_incoming_course(self):
+        """Enrollments keep being processed in September for the course that has just
+        started, so the incoming one stays the enrollment default. Clearing it left no
+        course flagged, and everything that resolves "the enrollment course" through
+        is_enrollment_default (enrollment.py, the proposal wizard, _next_course,
+        transition_status, academic_result) got an empty recordset instead."""
         self._transition_everything_else()
         self._applied()
-        self.assertFalse(self.target_course.is_enrollment_default)
+        self.assertTrue(self.target_course.is_enrollment_default)
+
+    def test_flip_leaves_exactly_one_enrollment_default(self):
+        """The guard against the opposite mistake: keeping the flag must not end up
+        with the outgoing course marked too, which @api.constrains would reject."""
+        self._transition_everything_else()
+        self._applied()
+        defaults = self.env['ems.course'].search([('is_enrollment_default', '=', True)])
+        self.assertEqual(defaults, self.target_course)
 
     def test_flip_puts_every_study_back_to_active(self):
         """A fresh year: they are all pending again for the next transition."""

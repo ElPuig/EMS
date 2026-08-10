@@ -17,7 +17,10 @@ registry.category("web_tour.tours").add("ems_grade_session_state_wizard_apply", 
             content: "Wizard loaded, 'By study' selected by default",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='mode'] label:contains('By level')",
+            // Selected by value, not by label: the labels are translated (this centre runs
+            // in Catalan, where it reads "Per nivell"), so a :contains() on the English
+            // string only passes until the .po files catch up.
+            trigger: ".o_form_view .o_field_widget[name='mode'] input[type='radio'][data-value='level']",
             content: "Switch to 'By level' mode",
             run: "click",
         },

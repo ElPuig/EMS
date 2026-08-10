@@ -108,3 +108,37 @@ class TestCourse(TransactionCase):
     def test_secretary_cannot_unlink(self):
         with self.assertRaises(AccessError):
             self.test_course.with_user(self.secretary_user).unlink()
+
+    # --- seeding the enrollment default -------------------------------------
+    # is_enrollment_default is not a column of data/custom/ems.course.csv (it is live
+    # state the centre moves when it opens the next campaign, and a synced column would
+    # revert that move on every upgrade), so post_init_hook and the 18.0.0.22.0
+    # post-migrate seed it through this helper instead.
+
+    def test_seed_marks_the_course_after_the_current_one(self):
+        self.test_course.is_current = True
+        following = self.env['ems.course'].create({'start': 1901, 'end': 1902})
+        seeded = self.env['ems.course']._ems_seed_enrollment_default()
+        self.assertEqual(seeded, following)
+        self.assertTrue(following.is_enrollment_default)
+
+    def test_seed_leaves_an_already_flagged_course_alone(self):
+        """The guard that makes it safe to re-run: whoever moved the flag on to the next
+        campaign must not have it moved back by an upgrade."""
+        chosen = self.env['ems.course'].create({'start': 1950, 'end': 1951,
+                                                'is_enrollment_default': True})
+        self.test_course.is_current = True
+        self.env['ems.course'].create({'start': 1901, 'end': 1902})
+        self.assertFalse(self.env['ems.course']._ems_seed_enrollment_default())
+        self.assertTrue(chosen.is_enrollment_default)
+
+    def test_seed_falls_back_to_the_earliest_course_without_a_current_one(self):
+        earliest = self.env['ems.course'].search([], order='start asc', limit=1)
+        self.assertEqual(self.env['ems.course']._ems_seed_enrollment_default(), earliest)
+
+    def test_seed_leaves_exactly_one_course_flagged(self):
+        self.test_course.is_current = True
+        self.env['ems.course'].create({'start': 1901, 'end': 1902})
+        self.env['ems.course']._ems_seed_enrollment_default()
+        self.assertEqual(
+            self.env['ems.course'].search_count([('is_enrollment_default', '=', True)]), 1)

@@ -82,6 +82,7 @@ from . import test_data_main_cat_prefix
 from . import test_security_group_references
 from . import test_grade_session_tour
 from . import test_grade_session_state_wizard_tour
+from . import test_grade_import_wizard_tour
 from . import test_employee_google_workspace
 from . import test_employee_google_workspace_tour
 from . import test_employee_ems_user

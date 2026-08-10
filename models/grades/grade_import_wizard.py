@@ -37,6 +37,13 @@ class EmsGradeImportWizard(models.TransientModel):
     round = fields.Selection(string="Evaluation", selection=grade_round_selection, required=True)
     file = fields.Binary(string="Esfera xlsx file", required=True)
     file_name = fields.Char()
+    create_missing_enrollments = fields.Boolean(
+        string="Create missing enrollments", default=False,
+        help="Enroll students that are graded in a module they are not enrolled in, so the grade can "
+             "be imported instead of being discarded. Any informed grade counts, numeric or textual "
+             "(PDT, NP, CV...); a module left entirely blank and modules without an evaluation "
+             "session are never enrolled, and an optional module only when the group has a single "
+             "optional subject, since otherwise there is no way to tell which.")
     result_html = fields.Html(string="Import result", readonly=True)
     log_file = fields.Binary(string="Import log (CSV)", readonly=True)
     log_file_name = fields.Char()
@@ -56,7 +63,7 @@ class EmsGradeImportWizard(models.TransientModel):
             raise UserError(_("The file has no gradeable rows. Expected a 'Notes Flat' or 'Notes' sheet."))
 
         stats = {
-            "ra": 0, "em": 0, "mp": 0, "locked": 0,
+            "ra": 0, "em": 0, "mp": 0, "locked": 0, "enrollments": 0,
             "warnings": [], "errors": [], "log": [],
         }
 
@@ -176,9 +183,24 @@ class EmsGradeImportWizard(models.TransientModel):
             ("group_id", "in", groups.ids),
             ("round", "=", self.round),
         ])
-        # Candidate subjects for module matching, and O(1) line indexes.
+        # Candidate subjects for module matching, and the session each (group, subject) is graded in.
         subject_by_code = {}
         outcome_by_code = {}
+        session_by_subject = {}
+        for session in sessions:
+            subject = session.subject_id
+            subject_by_code.setdefault(subject.code, subject)
+            session_by_subject.setdefault((session.group_id.id, subject.id), session)
+            for outcome in subject.outcome_ids:
+                outcome_by_code[outcome.code] = outcome
+
+        # Enrolling adds the student's grade lines, so it must happen before the line indexes below
+        # are built for those lines to be picked up by this same import.
+        if self.create_missing_enrollments:
+            self._create_missing_enrollments(rows, student_by_idalu, subject_by_code, session_by_subject, stats)
+            sessions.invalidate_recordset(["grade_outcome_line_ids", "grade_subject_line_ids"])
+
+        # O(1) line indexes.
         outcome_line = {}
         subject_line = {}
         # Optional modules ("MP OPTx") are named/coded differently in each centre, so their Esfera code
@@ -187,10 +209,7 @@ class EmsGradeImportWizard(models.TransientModel):
         optional_by_student = {}
         for session in sessions:
             subject = session.subject_id
-            subject_by_code.setdefault(subject.code, subject)
             is_optional = subject.code.upper().startswith("OPT")
-            for outcome in subject.outcome_ids:
-                outcome_by_code[outcome.code] = outcome
             for line in session.grade_outcome_line_ids:
                 outcome_line[(line.student_id.id, line.outcome_id.id)] = line
             for line in session.grade_subject_line_ids:
@@ -205,6 +224,112 @@ class EmsGradeImportWizard(models.TransientModel):
             "subject_line": subject_line,
             "optional_by_student": optional_by_student,
         }
+
+    def _create_missing_enrollments(self, rows, student_by_idalu, subject_by_code, session_by_subject, stats):
+        """Enroll students that are graded in a module they are not enrolled in.
+
+        Any informed grade counts, numeric or textual: a textual one is a grade too, not the absence
+        of one. "PDT"/"NP" say the module is not passed and "CV" (convalidated) says it is, but all
+        of them state that the module is part of the student's record. What does not count is a
+        module left entirely blank, which is how Esfera lists the cycle's modules a student does not
+        take. Modules with no session for the student's group are skipped too (nothing to grade into).
+
+        Optional modules cannot be matched by code (Esfera's "OPT2" against this centre's own code),
+        and what normally resolves them - the student's enrollment - is precisely what is missing
+        here. They are therefore resolved by elimination: if the group has exactly one optional
+        subject being graded this round, that is unambiguously the one; with two or more there is no
+        way to tell which, so nothing is created and the case is reported.
+        """
+        # Which (student, module) pairs of the file carry at least one informed grade, in file order.
+        pairs = []
+        seen = set()
+        graded_pairs = set()
+        for idalu, codi_modul, _tipus, _subtipus, nota in rows:
+            pair = (idalu, codi_modul)
+            if pair not in seen:
+                seen.add(pair)
+                pairs.append(pair)
+            if nota is not None and str(nota).strip():
+                graded_pairs.add(pair)
+
+        # The optional subjects being graded this round, per group, for the resolution by elimination.
+        optional_sessions = {}
+        for (group_id, _subject_id), session in session_by_subject.items():
+            if session.subject_id.code.upper().startswith("OPT"):
+                optional_sessions.setdefault(group_id, []).append(session)
+
+        candidates = []
+        for idalu, codi_modul in pairs:
+            if (idalu, codi_modul) not in graded_pairs:
+                continue
+            if codi_modul.upper() in _SKIP_MODULE_CODES:
+                continue
+            student = student_by_idalu.get(idalu)
+            if not student:
+                continue  # already reported as an unknown student by _apply_rows
+            if codi_modul.upper().startswith("OPT"):
+                group_optionals = optional_sessions.get(student.main_group_id.id, [])
+                if len(group_optionals) != 1:
+                    if len(group_optionals) > 1:
+                        stats["warnings"].append(
+                            _("%s is graded in optional module '%s', but group %s has %d optional subjects: "
+                              "cannot tell which one to enroll them in.")
+                            % (student.display_name, codi_modul, student.main_group_id.display_name,
+                               len(group_optionals)))
+                    continue
+                session = group_optionals[0]
+                subject = session.subject_id
+            else:
+                # The optional mapping is irrelevant here: optional modules are handled above.
+                subject = self._resolve_subject(codi_modul, student, {
+                    "subject_by_code": subject_by_code, "optional_by_student": {},
+                })
+                session = session_by_subject.get((student.main_group_id.id, subject.id)) if subject else None
+            if not session:
+                continue  # reported as a missing session by _apply_rows
+            candidates.append((student, subject, session))
+        if not candidates:
+            return
+
+        # One search for every candidate: an enrollment in another group means the student is placed
+        # elsewhere for this module, which is an anomaly to review rather than one to fix by adding
+        # a second enrollment.
+        enrollment_model = self.env["ems.enrollment"]
+        existing = enrollment_model.search([
+            ("student_id", "in", [student.id for student, _subject, _session in candidates]),
+            ("subject_id", "in", [subject.id for _student, subject, _session in candidates]),
+        ])
+        enrolled = {(enrollment.student_id.id, enrollment.subject_id.id): enrollment for enrollment in existing}
+
+        to_create = []
+        for student, subject, session in candidates:
+            enrollment = enrolled.get((student.id, subject.id))
+            if enrollment:
+                if enrollment.group_id != session.group_id:
+                    stats["warnings"].append(
+                        _("%s is graded in '%s' with group %s but is enrolled in group %s: enrollment left untouched.")
+                        % (student.display_name, subject.code, session.group_id.display_name,
+                           enrollment.group_id.display_name))
+                continue
+            enrolled[(student.id, subject.id)] = True  # guard against duplicates within this run
+            to_create.append((student, subject, session))
+
+        if not to_create:
+            return
+        enrollment_model.create([{
+            "student_id": student.id, "group_id": session.group_id.id, "subject_id": subject.id,
+        } for student, subject, session in to_create])
+        for student, subject, session in to_create:
+            # ems.enrollment.create() already fills the open sessions, but this import may target a
+            # session in the board/final state (an administrator can still write to it), so the lines
+            # are added explicitly. _ems_add_student_lines is idempotent.
+            session._ems_add_student_lines(student)
+            stats["enrollments"] += 1
+            stats["log"].append({
+                "tipus": "ENROLLMENT", "accio": "CREATED", "idalu": student.student_id,
+                "alumne": student.display_name, "modul": subject.code, "codi": session.group_id.display_name,
+                "nota": "",
+            })
 
     def _resolve_subject(self, codi_modul, student, ctx):
         # Optional modules: the Esfera and EMS codes differ by design, so map straight to the optional
@@ -363,16 +488,20 @@ class EmsGradeImportWizard(models.TransientModel):
         if stats["errors"]:
             errors_html = Markup("<p><strong>{} ({}):</strong></p>{}").format(
                 _("Errors"), len(stats["errors"]), self.env['ems.base'].build_html_list(stats["errors"]))
+        enrollments_html = Markup("")
+        if stats["enrollments"]:
+            enrollments_html = Markup("<p>📝 <strong>{}:</strong> {}</p>").format(
+                _("Missing enrollments created"), stats["enrollments"])
         return Markup(
             "<p>✅ <strong>{}:</strong> {}</p>"
             "<p>🏢 <strong>{}:</strong> {}</p>"
             "<p>📊 <strong>{}:</strong> {}</p>"
             "<p>🔓 <strong>{}:</strong> {}</p>"
-            "{}{}"
+            "{}{}{}"
         ).format(
             _("Learning outcome grades applied"), stats["ra"],
             _("Work placement grades applied"), stats["em"],
             _("Module final grades overridden"), stats["mp"],
             _("Locked outcomes overwritten"), stats["locked"],
-            warnings_html, errors_html,
+            enrollments_html, warnings_html, errors_html,
         )

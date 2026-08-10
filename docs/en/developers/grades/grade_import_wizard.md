@@ -33,7 +33,7 @@ rather than reported as errors (`_SKIP_MODULE_CODES`).
 ```mermaid
 flowchart TD
     F[xlsx file] --> R[_read_rows<br/>Notes Flat or pivoted Notes]
-    R --> C[_build_context<br/>students by idAlumne, sessions of the round]
+    R --> C[_build_context<br/>students by idAlumne, sessions of the round<br/>in every group they are enrolled in]
     C --> E{create_missing_enrollments?}
     E -->|yes| N[_create_missing_enrollments<br/>only modules with a numeric grade]
     N --> I[line indexes: outcome_line / subject_line]
@@ -45,10 +45,45 @@ flowchart TD
 ```
 
 `_build_context()` resolves the students by `res.partner.student_id` (Esfera's *idAlumne*),
-derives the groups from their `main_group_id`, loads the grade sessions of the chosen round and
+derives the groups they are taught in, loads the grade sessions of the chosen round and
 builds O(1) indexes of the existing lines. `_apply_rows()` then writes in two passes — RA and EM
 first, MP last — so the module's final is read after the outcomes it derives from have been
 recomputed.
+
+### Which groups the sessions are looked up in
+
+A module is not always taught in the student's own group. Two ordinary cases break that
+assumption:
+
+- **Split groups** — a group is divided for some modules, and the second half has its own
+  `ems.group` (`AIF1B` next to `AIF1A`), where the session and therefore the grade line live.
+- **Repeaters** — a second-year student retaking a first-year module attends it with the
+  first-year group, and is graded in that group's session.
+
+The `ems.enrollment` records where the student actually attends each module, so the groups are
+the union of both sources:
+
+```python
+groups = main_groups | enrollments.mapped("group_id")
+```
+
+Resolving by `main_group_id` alone did not merely lose those grades — it lost them
+**depending on who else was in the file**. The session of the other group was loaded anyway if
+some *other* student in the file happened to have that group as their main one, and their line
+came along with it. Importing a study whole appeared to work; importing the second-year group on
+its own silently dropped every grade of the modules taken elsewhere.
+
+### Enrolled in the same module twice
+
+Widening the lookup has one consequence worth naming. The line indexes are keyed by
+`(student, outcome)` with no group in the key, so a student enrolled in the same module in two
+groups has a line in two sessions and only one of them would be written to — at random, by
+dictionary order.
+
+That is a data problem: a module is attended in one group. `_warn_on_split_enrollments()` groups
+the enrollments by `(student, subject)` and reports every pair with more than one group as a
+warning, naming the student, the module and the groups. Nothing is guessed and nothing is
+blocked: the import proceeds, and the secretary is told which enrollment to remove.
 
 ### Code matching
 
@@ -158,8 +193,9 @@ instead of a real list.
 ## Tests
 
 - `tests/test_grade_import_wizard.py` — `TransactionCase`: both sheet shapes, code matching,
-  optional modules, locked outcomes, MP with and without work placement, and the enrollment
-  creation rules above.
+  optional modules, locked outcomes, MP with and without work placement, the enrollment
+  creation rules above, a module graded in the session of the group the student is enrolled in
+  rather than their main one, and the warning when the same module is enrolled in twice.
 - `tests/test_grade_import_wizard_tour.py` + `static/tests/tours/grade_import_wizard_tour.js` —
   renders the wizard's form in a real browser. The `TransactionCase` suite drives the model
   directly and never renders the view, so a broken arch or a field missing from it would go

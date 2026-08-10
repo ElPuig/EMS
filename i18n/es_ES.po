@@ -8831,6 +8831,17 @@ msgstr "Se activa cuando la importación oficial de notas sobrescribe esta líne
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/grade_import_wizard.py:0
+msgid ""
+"%s is enrolled in module '%s' in several groups (%s): the grade may be "
+"written to any of their sessions. Leave a single enrollment per module."
+msgstr ""
+"%s está matriculado/a del módulo '%s' en varios grupos (%s): la nota puede "
+"escribirse en cualquiera de sus sesiones. Deja una sola matrícula por "
+"módulo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_import_wizard.py:0
 msgid "Student not found (idAlumne %s)."
 msgstr "Alumno no encontrado (idAlumne %s)."
 

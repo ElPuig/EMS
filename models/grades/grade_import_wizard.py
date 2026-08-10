@@ -175,14 +175,24 @@ class EmsGradeImportWizard(models.TransientModel):
         ])
         student_by_idalu = {p.student_id: p for p in partners}
 
-        groups = partners.mapped("main_group_id")
-        if len(groups) > 1:
-            stats["warnings"].append(_("The file spans several groups: %s.") % ", ".join(groups.mapped("name")))
+        main_groups = partners.mapped("main_group_id")
+        if len(main_groups) > 1:
+            stats["warnings"].append(_("The file spans several groups: %s.") % ", ".join(main_groups.mapped("name")))
+
+        # A module is not always taught in the student's own group: split groups have their own
+        # ems.group, and a repeater takes a lower-year module with that year's group. The enrollment
+        # carries the group where the student actually attends, and that is where their grade line
+        # lives, so the sessions are looked up through the enrollments and not only through the main
+        # group. Relying on the main group alone made the result depend on who else was in the file:
+        # the session showed up only if some other student happened to have it as their main group.
+        enrollments = self.env["ems.enrollment"].search([("student_id", "in", partners.ids)])
+        groups = main_groups | enrollments.mapped("group_id")
 
         sessions = self.env["ems.grade_session"].search([
             ("group_id", "in", groups.ids),
             ("round", "=", self.round),
         ])
+        self._warn_on_split_enrollments(enrollments, stats)
         # Candidate subjects for module matching, and the session each (group, subject) is graded in.
         subject_by_code = {}
         outcome_by_code = {}
@@ -224,6 +234,26 @@ class EmsGradeImportWizard(models.TransientModel):
             "subject_line": subject_line,
             "optional_by_student": optional_by_student,
         }
+
+    def _warn_on_split_enrollments(self, enrollments, stats):
+        """Report students enrolled in the same module in more than one group.
+
+        Widening the session lookup to every group the student is enrolled in makes such a student
+        have a grade line in two sessions at once, and the line indexes below are keyed by student
+        and outcome, with no group: one of the two lines would silently win. It is a data problem
+        (a module is attended in one group), so it is reported instead of guessed.
+        """
+        groups_by_pair = {}
+        for enrollment in enrollments:
+            pair = (enrollment.student_id, enrollment.subject_id)
+            groups_by_pair.setdefault(pair, self.env["ems.group"])
+            groups_by_pair[pair] |= enrollment.group_id
+        for (student, subject), groups in groups_by_pair.items():
+            if len(groups) > 1:
+                stats["warnings"].append(
+                    _("%s is enrolled in module '%s' in several groups (%s): the grade may be written "
+                      "to any of their sessions. Leave a single enrollment per module.")
+                    % (student.display_name, subject.code, ", ".join(groups.mapped("name"))))
 
     def _create_missing_enrollments(self, rows, student_by_idalu, subject_by_code, session_by_subject, stats):
         """Enroll students that are graded in a module they are not enrolled in.

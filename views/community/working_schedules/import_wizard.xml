@@ -54,6 +54,13 @@
                             </field>
                         </div>
 
+                        <div invisible="state != 'pending_info'">
+                            <div class="alert alert-success" role="alert" invisible="pending_teachers_html">
+                                No new teacher will be created - every teacher in this batch already exists.
+                            </div>
+                            <field name="pending_teachers_html" invisible="not pending_teachers_html" nolabel="1"/>
+                        </div>
+
                         <div invisible="state != 'internal_conflicts'">
                             <div class="alert alert-success" role="alert" invisible="internal_conflict_line_ids">
                                 No room conflicts were found within this batch.
@@ -90,23 +97,27 @@
                             </field>
                         </div>
 
-                        <div class="alert alert-info" role="alert" invisible="state in ('intro', 'groups', 'teachers', 'internal_conflicts', 'db_conflicts', 'override_info')">
-                            This step is not implemented yet - "Continue" moves on without asking anything here for now.
+                        <div invisible="state != 'summary'">
+                            <field name="overall_summary_html" nolabel="1"/>
+                            <div class="alert alert-success" role="alert" invisible="existing_teachers_html">
+                                No existing teacher's schedule will be recreated by this import.
+                            </div>
+                            <field name="existing_teachers_html" invisible="not existing_teachers_html" nolabel="1"/>
                         </div>
                     </sheet>
                     <footer>
-                        <!-- "Continue" always occupies the same spot while state != 'override_info' -
+                        <!-- "Continue" always occupies the same spot while state != 'summary' -
                              it renders enabled or disabled depending on 'continue_disabled', rather than
                              appearing/disappearing (developer feedback 2026-08-05). The second button is
                              a purely cosmetic, non-actionable twin (no 'name', type="button", static
                              disabled="disabled") shown only when the real one is hidden, so the label
                              never disappears from view - just its clickable state changes. -->
                         <button name="action_continue" string="Continue" type="object" class="btn-primary"
-                            invisible="state == 'override_info' or continue_disabled"/>
+                            invisible="state == 'summary' or continue_disabled"/>
                         <button name="action_continue_disabled" string="Continue" type="button" class="btn-primary" disabled="disabled"
-                            invisible="state == 'override_info' or not continue_disabled"/>
+                            invisible="state == 'summary' or not continue_disabled"/>
                         <button name="import_planner_data" string="Import" type="object" class="btn-success"
-                            icon="fa-calendar-plus-o" invisible="state != 'override_info'"/>
+                            icon="fa-calendar-plus-o" invisible="state != 'summary'"/>
                         <button name="cancel" string="Cancel" special="cancel" class="btn-danger"/>
                     </footer>
                 </form>

@@ -69,6 +69,42 @@ msgstr "%s omès/omesos (ja en l'estat desitjat)"
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s existing schedule conflict(s) resolved"
+msgstr "%s conflicte(s) amb horaris existents resolt(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s existing teacher(s) affected"
+msgstr "%s professor(s) ja existent(s) afectat(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s file conflict(s) resolved"
+msgstr "%s conflicte(s) del fitxer resolt(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s pending teacher(s) will be created"
+msgstr "%s professor(s) pendent(s) es crearà(n)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s unresolved group name(s) resolved"
+msgstr "%s nom(s) de grup no reconegut(s) ja resolt(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s unresolved teacher e-mail(s) resolved"
+msgstr "%s correu(s) de docent no reconegut(s) ja resolt(s)"
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0
 msgid "%s: adult student without main email"
 msgstr "%s: alumne adult sense correu electrònic principal"
@@ -3386,9 +3422,9 @@ msgid "Existing schedule conflicts"
 msgstr "Conflictes amb horaris existents"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__override_info
-msgid "Existing teachers"
-msgstr "Professors ja existents"
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__summary
+msgid "Overall summary"
+msgstr "Resum general"
 
 #. module: ems
 #: model:ir.model,name:ems.model_product_template
@@ -7872,6 +7908,28 @@ msgstr "S'han reconegut tots els correus de docents esmentats al fitxer."
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Please select a teacher for every unresolved e-mail before continuing:\n%s"
 msgstr "Seleccioneu un docent per a cada correu no resolt abans de continuar:\n%s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Pending teacher (%s) - the e-mail will be pre-filled as an attempt, not auto-generated"
+msgstr "Docent pendent (%s) - el correu es precarregarà com a intent, no es generarà automàticament"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%(teacher)s (file identifier: %(identifier)s)"
+msgstr "%(teacher)s (identificador al fitxer: %(identifier)s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "No new teacher will be created - every teacher in this batch already exists."
+msgstr "No es crearà cap docent nou - tots els docents d'aquest lot ja existeixen."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "No existing teacher's schedule will be recreated by this import."
+msgstr "Aquesta importació no recrearà l'horari de cap docent existent."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_working_schedules_import_wizard_internal_conflict_line

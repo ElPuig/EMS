@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+from markupsafe import Markup
 import xml.etree.ElementTree as ET
 import base64
 import json
@@ -315,10 +316,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		('intro', "Welcome"),
 		('groups', "Resolve groups"),
 		('teachers', "Resolve teachers"),
+		('pending_info', "Pending teachers"),
 		('internal_conflicts', "File conflicts"),
 		('db_conflicts', "Existing schedule conflicts"),
-		('pending_info', "Pending teachers"),
-		('override_info', "Existing teachers"),
+		('summary', "Overall summary"),
 	], default='intro', required=True)
 	# NOTE: JSON cache of the raw per-teacher-node parse result (see '_classify_attachments'),
 	# populated once by 'action_continue' leaving 'intro' - nothing is written to any real model
@@ -342,12 +343,22 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# NOTE: one line per colliding pair found by '_build_external_conflict_lines' against
 	# already-active DB schedules - populated once, leaving 'internal_conflicts'.
 	external_conflict_line_ids = fields.One2many(string="Existing schedule conflicts", comodel_name="ems.working_schedules_import_wizard.external_conflict_line", inverse_name="wizard_id")
+	# NOTE: all three are pure informational previews/recaps of what Import will actually do
+	# (screens 6 and "Overall summary" - see 'action_continue' - purely read-only, no resolution
+	# needed unlike every other screen's own line model) - a plain Html field is enough, no
+	# dedicated line model/security entry needed for content that's never edited. Built leaving
+	# 'teachers' ('pending_teachers_html', screen 6) and 'db_conflicts'
+	# ('existing_teachers_html'/'overall_summary_html', "Overall summary") respectively - see
+	# '_teacher_preview_html'/'_bullet_html'.
+	pending_teachers_html = fields.Html(readonly=True)
+	existing_teachers_html = fields.Html(readonly=True)
+	overall_summary_html = fields.Html(readonly=True)
 	# NOTE: drives whether "Continue" renders enabled or disabled (developer feedback 2026-08-05:
 	# "que quedará mas claro si los botones de continuar... aparecen como enabled o disabled" rather
 	# than appearing/disappearing) - the view keeps the button in the SAME place either way (two
 	# stacked buttons, only one visible at a time: the real actionable one, or a cosmetic
 	# 'disabled="disabled"' twin with no 'name' - see import_wizard.xml), instead of hiding it
-	# outright the way 'override_info' still does for a wholly different screen's button.
+	# outright the way 'summary' still does for a wholly different screen's button.
 	continue_disabled = fields.Boolean(compute="_compute_continue_disabled")
 
 	@api.depends(
@@ -372,7 +383,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			else:
 				wizard.continue_disabled = False
 
-	_STATE_SEQUENCE = ['intro', 'groups', 'teachers', 'internal_conflicts', 'db_conflicts', 'pending_info', 'override_info']
+	_STATE_SEQUENCE = ['intro', 'groups', 'teachers', 'pending_info', 'internal_conflicts', 'db_conflicts', 'summary']
 
 	@staticmethod
 	def _is_email_like(value):
@@ -512,10 +523,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	def action_continue(self):
 		"""The single 'Continue' button's handler for every non-final step - dispatches to each
-		step's own logic. Only 'intro', 'groups', 'teachers', 'internal_conflicts' and
-		'db_conflicts' have real logic built so far (see plans/working_schedule_import_redesign.md);
-		every other step is still a placeholder that just advances the statusbar, so the skeleton is
-		clickable end-to-end already and each step gets filled in here as it's built."""
+		step's own logic. 'summary' (the final, non-Continue step) is the only one still a
+		placeholder that just advances the statusbar - every other step now has real logic."""
 		self.ensure_one()
 		if self.state == 'intro':
 			self._continue_from_intro()
@@ -527,6 +536,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			self._continue_from_internal_conflicts()
 		elif self.state == 'db_conflicts':
 			self._continue_from_db_conflicts()
+		elif self.state == 'pending_info':
+			self._continue_from_pending_info()
 		else:
 			self._advance_state()
 		return self._reopen_self_action()
@@ -596,13 +607,84 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				identifiers.add(identifier)
 		return sorted(identifiers)
 
+	def _classify_teacher_item(self, item):
+		"""Classifies a 'node_cache' item's eventual Import-time fate - the single source of truth
+		both '_apply_import' (the real write path) and screens 6/7 (pure previews of what Import
+		will do) branch on, so the previews can never diverge from what actually happens:
+		- 'resolved': an existing 'hr.employee' picked on the 'teachers' step.
+		- 'create_pending': 'New' ticked on that same step - a genuinely never-hired teacher.
+		- 'email_match': an e-mail that already matched an existing 'hr.employee.work_email' on
+		  its own, needing no correction at all.
+		- 'placeholder': a bare code/name, never an e-mail - resolved to a pending-identification
+		  teacher at Import, same as 'create_pending' but with no manually-attempted e-mail."""
+		if item.get('employee_id'):
+			return 'resolved'
+		elif item.get('create_pending'):
+			return 'create_pending'
+		elif self._is_email_like(item['identifier']):
+			return 'email_match'
+		else:
+			return 'placeholder'
+
+	def _teacher_preview_line(self, item):
+		"""One label for 'item', worded per its own '_classify_teacher_item' fate - shared by
+		screens 6 ('create_pending'/'placeholder') and 7 ('resolved'/'email_match')."""
+		identifier = item['identifier']
+		fate = self._classify_teacher_item(item)
+		if fate == 'create_pending':
+			return _("Pending teacher (%s) - the e-mail will be pre-filled as an attempt, not auto-generated") % identifier
+		elif fate == 'placeholder':
+			return _("Pending teacher (%s)") % identifier
+		teacher = (
+			self.env['hr.employee'].browse(item['employee_id']) if fate == 'resolved'
+			else self.env['hr.employee'].search([('work_email', '=', identifier)], limit=1)
+		)
+		return _("%(teacher)s (file identifier: %(identifier)s)") % {'teacher': teacher.display_name, 'identifier': identifier}
+
+	def _teacher_preview_items(self, node_cache, fates):
+		"""Every 'node_cache' item whose fate is in 'fates', deduped by identifier - the same
+		dedup every other resolution screen in this wizard already applies (the same teacher
+		mentioned in several files/hour-nodes is one line, not one per occurrence). Shared by
+		'_teacher_preview_html' (screens 6-7's own bullet lists) and the "Overall summary" screen's
+		own counts, so a count and its matching list can never disagree."""
+		seen = set()
+		items = []
+		for item in node_cache:
+			identifier = item['identifier']
+			if identifier in seen or self._classify_teacher_item(item) not in fates:
+				continue
+			seen.add(identifier)
+			items.append(item)
+		return items
+
+	def _teacher_preview_html(self, node_cache, fates):
+		lines = [self._teacher_preview_line(item) for item in self._teacher_preview_items(node_cache, fates)]
+		return self._bullet_html(lines)
+
+	def _bullet_html(self, lines):
+		"""Wraps 'lines' (already-translated strings) into the same up-to-3-column bullet list
+		('ems_wizard_bullet_list') every informational screen in this wizard uses - 'Markup.format'
+		auto-escapes each line, same safety property as 'ems.base.build_html_list' (not inherited
+		here - this is a TransientModel wizard, pulling in mail.thread/mail.activity.mixin just for
+		this one helper would be a heavier dependency than the helper itself)."""
+		if not lines:
+			return Markup("")
+		return Markup('<ul class="ems_wizard_bullet_list">{}</ul>').format(
+			Markup("").join(Markup("<li>{}</li>").format(line) for line in lines)
+		)
+
 	def _continue_from_teachers(self):
 		"""The 'teachers' step's own 'Continue' handler, mirroring '_continue_from_groups': every
 		'teacher_line_ids' row must have EITHER a teacher picked OR 'create_new' ticked (raised
 		otherwise), then every 'node_cache' item sharing that row's raw identifier gets an
 		'employee_id' or 'create_pending' key written onto it directly (the identifier is the
 		item's own top-level field, not part of 'entries'/'attendance_ids' like a group reference -
-		no '_finalize_pending_groups'-style dict-shape juggling needed)."""
+		no '_finalize_pending_groups'-style dict-shape juggling needed). Every teacher's eventual
+		fate is fully determined right here - conflict resolution (the next two screens) only ever
+		touches 'entries'/'attendance_ids'/'space_id', never 'employee_id'/'create_pending' - which
+		is exactly why 'pending_info' (screen 6) moved to sit immediately after this step (2026-08-10,
+		developer feedback) rather than after conflict resolution: nothing about it depends on
+		conflicts being resolved first."""
 		self.ensure_one()
 		unresolved_lines = self.teacher_line_ids.filtered(lambda line: not line.employee_id and not line.create_new)
 		if unresolved_lines:
@@ -621,7 +703,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				if employee:
 					item['employee_id'] = employee.id
 		self.parsed_entries_json = json.dumps(node_cache)
-		self.internal_conflict_line_ids = [(5, 0, 0)] + self._build_internal_conflict_lines(node_cache)
+		self.pending_teachers_html = self._teacher_preview_html(node_cache, ('create_pending', 'placeholder'))
 		self._advance_state()
 
 	@staticmethod
@@ -925,7 +1007,9 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		new room through the shared 'ems.attendance_mixin._write_or_new_version()' (archives and
 		clones with the new room if it already has sessions, plain write otherwise) rather than a
 		raw 'write()' - the one piece of forward-planning from an earlier session that made this
-		screen's own Green phase smaller than screen 4's."""
+		screen's own Green phase smaller than screen 4's. Also builds the "Overall summary" step's
+		own content before advancing (both the counts recap and the existing-teachers list) - the
+		last screen before Import, so this is the last point anything needs precomputing."""
 		self.ensure_one()
 		invalid_lines = self.external_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid())
 		if invalid_lines:
@@ -962,6 +1046,27 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				del node_cache[item_index]['attendance_ids'][entry_index + 1]
 
 		self.parsed_entries_json = json.dumps(node_cache)
+		existing_items = self._teacher_preview_items(node_cache, ('resolved', 'email_match'))
+		pending_count = len(self._teacher_preview_items(node_cache, ('create_pending', 'placeholder')))
+		self.existing_teachers_html = self._teacher_preview_html(node_cache, ('resolved', 'email_match'))
+		self.overall_summary_html = self._bullet_html([
+			_("%s unresolved group name(s) resolved") % len(self.group_line_ids),
+			_("%s unresolved teacher e-mail(s) resolved") % len(self.teacher_line_ids),
+			_("%s pending teacher(s) will be created") % pending_count,
+			_("%s file conflict(s) resolved") % len(self.internal_conflict_line_ids),
+			_("%s existing schedule conflict(s) resolved") % len(self.external_conflict_line_ids),
+			_("%s existing teacher(s) affected") % len(existing_items),
+		])
+		self._advance_state()
+
+	def _continue_from_pending_info(self):
+		"""The 'pending_info' step's own 'Continue' handler - purely informational (see screen 6's
+		own docstring above), nothing to validate or write back to 'node_cache', just builds the
+		next screen's own data ('internal_conflict_line_ids', screen 4) before advancing - same
+		"build the next screen's content here" convention every other step in this wizard follows."""
+		self.ensure_one()
+		node_cache = json.loads(self.parsed_entries_json or '[]')
+		self.internal_conflict_line_ids = [(5, 0, 0)] + self._build_internal_conflict_lines(node_cache)
 		self._advance_state()
 
 	def _get_or_create_pending_teacher(self, identifier, manual_email=False):
@@ -1015,18 +1120,19 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		teacher_entries = []
 		for item in node_cache:
 			identifier = item['identifier']
-			if item.get('employee_id'):
+			fate = self._classify_teacher_item(item)
+			if fate == 'resolved':
 				# NOTE: resolved on the 'teachers' step (see '_continue_from_teachers') - an
 				# identifier that never needed a correction line (already matched 'work_email' on
-				# its own) falls through to the plain lookup branch below instead, unaffected.
+				# its own) falls through to the 'email_match' branch below instead, unaffected.
 				teacher = self.env["hr.employee"].browse(item['employee_id'])
-			elif item.get('create_pending'):
+			elif fate == 'create_pending':
 				# NOTE: 'create_new' ticked on the 'teachers' step (see '_continue_from_teachers') -
 				# a genuinely never-hired teacher, not a typo/mismatch of an existing one. Reuses the
 				# exact same get-or-create mechanism as a placeholder code, only adding
 				# 'manual_email=True' - see '_get_or_create_pending_teacher's own docstring.
 				teacher = self._get_or_create_pending_teacher(identifier, manual_email=True)
-			elif self._is_email_like(identifier):
+			elif fate == 'email_match':
 				teacher = self.env["hr.employee"].search([("work_email", "=", identifier)])
 				if not teacher.id:
 					# NOTE: safety net for a direct ORM/API caller bypassing the wizard's own

@@ -100,7 +100,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         'group_line_ids.group_id' - a test that needs to actually resolve one should drive the
         wizard by hand instead of using this helper."""
         wizard = self.env['ems.working_schedules_import_wizard'].create(vals)
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
         return wizard
@@ -578,7 +578,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         while wizard.state != 'db_conflicts':
             wizard.action_continue()
         wizard.external_conflict_line_ids.resolution = 'prevail_left'
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
 
@@ -611,7 +611,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         while wizard.state != 'db_conflicts':
             wizard.action_continue()
         wizard.external_conflict_line_ids.resolution = 'prevail_left'
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
 
@@ -838,7 +838,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(wizard.state, 'teachers')
         self.assertNotIn('pending_group_names', wizard.parsed_entries_json)
 
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
 
@@ -922,11 +922,12 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         wizard.action_continue()  # groups -> teachers
         wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; untick it to pick a real teacher
         wizard.teacher_line_ids.employee_id = second_teacher.id
-        wizard.action_continue()  # teachers -> internal_conflicts, substitutes the pick
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts, substitutes the pick
 
         self.assertEqual(wizard.state, 'internal_conflicts')
 
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
 
@@ -981,7 +982,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         wizard.teacher_line_ids.create_new = True
 
         self.assertFalse(wizard.continue_disabled)
-        wizard.action_continue()  # teachers -> internal_conflicts, no raise
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts, no raise
         self.assertEqual(wizard.state, 'internal_conflicts')
 
     def test_continue_from_teachers_create_new_creates_pending_teacher_with_manual_email(self):
@@ -994,7 +996,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         wizard.action_continue()  # groups -> teachers
         wizard.teacher_line_ids.create_new = True
 
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
 
@@ -1015,7 +1017,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         first_wizard.action_continue()  # intro -> groups
         first_wizard.action_continue()  # groups -> teachers
         first_wizard.teacher_line_ids.create_new = True
-        while first_wizard.state != 'override_info':
+        while first_wizard.state != 'summary':
             first_wizard.action_continue()
         first_wizard.import_planner_data()
 
@@ -1057,7 +1059,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts, builds the conflict line
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts, builds the conflict line
 
         self.assertEqual(wizard.state, 'internal_conflicts')
         self.assertEqual(len(wizard.internal_conflict_line_ids), 1)
@@ -1078,7 +1081,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
 
         line = wizard.internal_conflict_line_ids
         self.assertEqual(len(line), 1)
@@ -1102,7 +1106,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
 
         line = wizard.internal_conflict_line_ids
         self.assertEqual(len(line), 1)
@@ -1127,7 +1132,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
 
         self.assertFalse(wizard.internal_conflict_line_ids)
         self.assertFalse(wizard.continue_disabled)
@@ -1144,7 +1150,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
         wizard.internal_conflict_line_ids.resolution = 'co_teaching'  # invalid for a plain_conflict
 
         with self.assertRaises(ValidationError) as capture:
@@ -1165,7 +1172,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts, defaults left/right to the SAME room
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts, defaults left/right to the SAME room
 
         with self.assertRaises(ValidationError):
             wizard.action_continue()
@@ -1182,10 +1190,11 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts (default resolution: reassign_rooms)
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts (default resolution: reassign_rooms)
         wizard.internal_conflict_line_ids.resolution = 'prevail_left'
 
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
 
@@ -1209,11 +1218,12 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
         wizard.internal_conflict_line_ids.right_space_id = other_space.id
         self.assertFalse(wizard.continue_disabled)
 
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
 
@@ -1238,9 +1248,10 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts (default resolution: co_teaching)
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts (default resolution: co_teaching)
 
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
 
@@ -1270,7 +1281,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts (nothing, only one teacher in this batch)
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts (nothing, only one teacher in this batch)
         wizard.action_continue()  # internal_conflicts -> db_conflicts, builds the external conflict line
 
         self.assertEqual(wizard.state, 'db_conflicts')
@@ -1297,7 +1309,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
 
         line = wizard.external_conflict_line_ids
@@ -1324,7 +1337,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.resolution = 'co_teaching'  # invalid for a plain_conflict
 
@@ -1351,11 +1365,12 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.resolution = 'prevail_right'
 
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
 
@@ -1388,11 +1403,12 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.right_space_id = other_space.id
 
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
 
@@ -1432,11 +1448,12 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.right_space_id = other_space.id
 
-        while wizard.state != 'override_info':
+        while wizard.state != 'summary':
             wizard.action_continue()
         wizard.import_planner_data()
 
@@ -1450,6 +1467,142 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertNotEqual(new_schedule, existing_schedule)
         self.assertEqual(new_schedule.space_id, other_space)
         self.assertTrue(existing_schedule.attendance_session_ids, "the original session history is preserved on the archived line")
+
+    # --- Screen 6 ("Pending teachers") -----------------------------------------------------
+
+    def test_pending_info_lists_placeholder_code_teacher(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'X1',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+            )),
+        })
+        while wizard.state != 'pending_info':
+            wizard.action_continue()
+
+        self.assertIn('X1', wizard.pending_teachers_html)
+
+    def test_pending_info_lists_create_new_ticked_email(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown.import.wizard@example.com Someone'),
+            ),
+        })
+        while wizard.state != 'pending_info':
+            wizard.action_continue()  # 'create_new' defaults to True, never touched by hand
+
+        self.assertIn('unknown.import.wizard@example.com', wizard.pending_teachers_html)
+
+    def test_pending_info_empty_when_every_teacher_already_exists(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+            ),
+        })
+        while wizard.state != 'pending_info':
+            wizard.action_continue()
+
+        self.assertFalse(wizard.pending_teachers_html)
+
+    def test_pending_info_dedups_the_same_teacher_across_two_files(self):
+        # Different weekday on the second file - deliberately avoids a genuine same-time
+        # double-booking, which would raise its own (unrelated) internal-conflict resolution
+        # requirement at screen 4, not what this dedup test is about.
+        second_file = base64.b64encode((
+            '<root><T name="X2"><D name="2 Tuesday"><H name="1 09:00">'
+            f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
+            f'<Students name="{self.single_group.name} Group"/>'
+            '</H></D></T></root>'
+        ).encode())
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file_with_hour_node(
+                    'X2',
+                    f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                ),
+                second_file,
+            ),
+        })
+        while wizard.state != 'pending_info':
+            wizard.action_continue()
+
+        self.assertEqual(wizard.pending_teachers_html.count('X2'), 1)
+
+    # --- "Overall summary" -----------------------------------------------------
+
+    def test_summary_lists_teacher_matched_by_email(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+            ),
+        })
+        while wizard.state != 'summary':
+            wizard.action_continue()
+
+        self.assertIn(self.teacher.name, wizard.existing_teachers_html)
+        self.assertIn('test.wizard.teacher.import.wizard@example.com', wizard.existing_teachers_html)
+
+    def test_summary_lists_teacher_resolved_on_the_teachers_step(self):
+        second_teacher = self._second_teacher()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('unknown2.import.wizard@example.com Someone'),
+            ),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> teachers
+        # 'create_new' defaults to True - picking an existing teacher instead means unticking it,
+        # same as the view's own @api.onchange would do when a real value gets picked.
+        wizard.teacher_line_ids.create_new = False
+        wizard.teacher_line_ids.employee_id = second_teacher.id
+        while wizard.state != 'summary':
+            wizard.action_continue()
+
+        self.assertIn(second_teacher.name, wizard.existing_teachers_html)
+
+    def test_summary_empty_when_only_pending_teachers(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'X3',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+            )),
+        })
+        while wizard.state != 'summary':
+            wizard.action_continue()
+
+        self.assertFalse(wizard.existing_teachers_html)
+
+    def test_overall_summary_shows_zero_counts_when_nothing_to_resolve(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+            ),
+        })
+        while wizard.state != 'summary':
+            wizard.action_continue()
+
+        self.assertIn('0 unresolved group name(s) resolved', wizard.overall_summary_html)
+        self.assertIn('0 pending teacher(s) will be created', wizard.overall_summary_html)
+        self.assertIn('0 file conflict(s) resolved', wizard.overall_summary_html)
+        self.assertIn('0 existing schedule conflict(s) resolved', wizard.overall_summary_html)
+        self.assertIn('1 existing teacher(s) affected', wizard.overall_summary_html)
+
+    def test_overall_summary_reflects_pending_and_resolved_group_counts(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'X4',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="TourOverallSummaryGroup Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.group_line_ids.group_id = self.group.id
+        wizard.action_continue()  # groups -> teachers (resolves the unresolved group name)
+        while wizard.state != 'summary':
+            wizard.action_continue()
+
+        self.assertIn('1 unresolved group name(s) resolved', wizard.overall_summary_html)
+        self.assertIn('1 pending teacher(s) will be created', wizard.overall_summary_html)
+        self.assertIn('0 existing teacher(s) affected', wizard.overall_summary_html)
 
     def test_continue_disabled_true_at_intro_without_attachment(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({})
@@ -1505,7 +1658,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers (known e-mail, nothing to resolve either)
-        wizard.action_continue()  # teachers -> internal_conflicts (single teacher, no collision possible)
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts (single teacher, no collision possible)
         wizard.action_continue()  # internal_conflicts -> db_conflicts (no existing session to collide with)
         wizard.action_continue()  # db_conflicts -> pending_info (still a placeholder)
         self.assertFalse(wizard.continue_disabled)
@@ -1526,7 +1680,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.action_continue()  # groups -> teachers
-        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # teachers -> pending_info
+        wizard.action_continue()  # pending_info -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         self.assertEqual(wizard.state, 'db_conflicts')
         self.assertTrue(wizard.continue_disabled)
@@ -1559,26 +1714,19 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         wizard.teacher_line_ids.employee_id = second_teacher.id
         self.assertFalse(wizard.continue_disabled)
 
-    def test_action_continue_placeholder_steps_advance_one_state_at_a_time(self):
-        # Steps 'pending_info' and 'override_info'... wait, 'override_info' has real Import logic
-        # too (see 'import_planner_data') - only 'pending_info' has no real logic yet (see
-        # plans/working_schedule_import_redesign.md) - 'action_continue' just advances the
-        # statusbar for it. 'intro', 'groups', 'teachers', 'internal_conflicts' and 'db_conflicts'
-        # are the five real steps built so far (this file's XML has a single, already-known
-        # teacher with no '<Students>' at all, so there's nothing to resolve at 'groups' and no
-        # possible collision at either conflicts screen - a collision needs at least two different
-        # teachers in the batch, or an existing DB session, neither of which exists here).
+    def test_action_continue_walks_every_state_in_order_with_nothing_to_resolve(self):
+        # All 7 steps have real logic now (screens 6-7 were the last placeholders, closed
+        # 2026-08-10) - this just confirms the full STATE_SEQUENCE order end to end for a batch
+        # with nothing to resolve at any step (a single, already-known teacher, no '<Students>' at
+        # all, so 'groups' has nothing, and no collision is possible at either conflicts screen -
+        # that needs at least two different teachers in the batch, or an existing DB session,
+        # neither of which exists here).
         wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(
                 self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
             ),
         })
-        wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers (nothing to resolve)
-        wizard.action_continue()  # teachers -> internal_conflicts (nothing to resolve)
-        wizard.action_continue()  # internal_conflicts -> db_conflicts (nothing to resolve)
-
-        expected_sequence = ['pending_info', 'override_info']
+        expected_sequence = ['groups', 'teachers', 'pending_info', 'internal_conflicts', 'db_conflicts', 'summary']
         for expected_state in expected_sequence:
             wizard.action_continue()
             self.assertEqual(wizard.state, expected_state)
@@ -1593,9 +1741,9 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups, caches the parsed entries
-        for _step in range(5):  # groups -> ... -> override_info
+        for _step in range(5):  # groups -> ... -> summary
             wizard.action_continue()
-        self.assertEqual(wizard.state, 'override_info')
+        self.assertEqual(wizard.state, 'summary')
 
         wizard.import_planner_data()
 

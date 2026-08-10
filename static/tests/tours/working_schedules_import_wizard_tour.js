@@ -164,12 +164,6 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             content: "Continue is enabled purely because a file is attached - leaving the intro screen parses and caches both placeholder-code teachers (nothing written yet)",
             run: "click",
         },
-        // 'pending_info' has no screen of its own yet (see plans/working_schedule_import_redesign.md)
-        // - it's a placeholder "Continue" click that just advances the statusbar. Not asserting on
-        // the statusbar's own DOM here (its items can fold into a "more" dropdown under narrow
-        // viewports, purely width-driven - see web.StatusBarField's adjustVisibleItems - which would
-        // make a `data-value=...` selector flaky); the "Import" button only appearing once it has
-        // been clicked through is itself the proof the skeleton advances correctly end-to-end.
         // 'groups', 'teachers', 'internal_conflicts' and 'db_conflicts' (just below) are the other
         // real steps built so far - neither placeholder code here is e-mail-shaped, so 'teachers'
         // has nothing to resolve; both teachers' entries are NonTeaching (no classroom to collide
@@ -197,6 +191,25 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             run: "click",
         },
         {
+            // Screen 6 ("Pending teachers", 2026-08-10, moved right after 'teachers' the same day -
+            // see docs/en/developers/employees/working_schedule.md's own section) - both teachers
+            // here are placeholder codes/never-e-mail-shaped, so both must be listed as about to
+            // become new pending-identification employees. A short code renders whole ("TOURX1"); a
+            // not-yet-hired teacher's own real, multi-word name must too (see the earlier bug this
+            // same fixture already exercises for the 'teachers' screen).
+            trigger: ".modal .o_field_widget[name='pending_teachers_html'] li:contains('TOURX1')",
+            content: "The short placeholder code is listed as a pending teacher to be created",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='pending_teachers_html'] li:contains('Tour Fulano Pending')",
+            content: "The multi-word placeholder name is listed whole, not truncated",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'pending_info' step",
+            run: "click",
+        },
+        {
             trigger: ".modal .alert-success:contains('No room conflicts were found within this batch')",
             content: "The 'internal_conflicts' screen shows its own success message - both teachers' entries here are NonTeaching, which carries no classroom to collide over",
         },
@@ -215,9 +228,10 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_pending_te
             run: "click",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' placeholder step",
-            run: "click",
+            // "Overall summary" - neither teacher here already exists, so the existing-teachers
+            // part of this screen shows its own success message instead of a list.
+            trigger: ".modal .alert-success:contains(\"No existing teacher's schedule will be recreated\")",
+            content: "The 'summary' screen shows its own success message - neither teacher here already exists",
         },
         {
             trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
@@ -328,6 +342,11 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_gr
             run: "click",
         },
         {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'pending_info' step",
+            run: "click",
+        },
+        {
             trigger: ".modal .alert-success:contains('No room conflicts were found within this batch')",
             content: "The 'internal_conflicts' screen shows its own success message - only one teacher is in this batch, so no collision is possible",
         },
@@ -343,11 +362,6 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_gr
         {
             trigger: ".modal .modal-footer button[name='action_continue']",
             content: "Continue through the 'db_conflicts' step (nothing to resolve here)",
-            run: "click",
-        },
-        {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' placeholder step",
             run: "click",
         },
         {
@@ -456,6 +470,15 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_te
             run: "click",
         },
         {
+            trigger: ".modal .alert-success:contains('No new teacher will be created')",
+            content: "The 'pending_info' screen shows its own success message - the one teacher here already exists",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'pending_info' step",
+            run: "click",
+        },
+        {
             trigger: ".modal .alert-success:contains('No room conflicts were found within this batch')",
             content: "The 'internal_conflicts' screen shows its own success message - only one teacher is in this batch, so no collision is possible",
         },
@@ -474,9 +497,10 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_te
             run: "click",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' placeholder step",
-            run: "click",
+            // "Overall summary" - the teacher resolved on the 'teachers' step is exactly the
+            // kind of item this screen's existing-teachers list previews.
+            trigger: ".modal .o_field_widget[name='existing_teachers_html'] li:contains('Tour Resolve Teacher Email')",
+            content: "The resolved teacher is listed as an existing teacher whose schedule is about to be recreated",
         },
         {
             trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
@@ -562,6 +586,11 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_create_new
             run: "click",
         },
         {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'pending_info' step",
+            run: "click",
+        },
+        {
             trigger: ".modal .alert-success:contains('No room conflicts were found within this batch')",
             content: "The 'internal_conflicts' screen shows its own success message - only one teacher is in this batch, so no collision is possible",
         },
@@ -577,11 +606,6 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_create_new
         {
             trigger: ".modal .modal-footer button[name='action_continue']",
             content: "Continue through the 'db_conflicts' step (nothing to resolve here)",
-            run: "click",
-        },
-        {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' placeholder step",
             run: "click",
         },
         {
@@ -667,6 +691,11 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_in
             run: "click",
         },
         {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'pending_info' step",
+            run: "click",
+        },
+        {
             trigger: ".modal .o_data_cell:contains('Tour Resolve Conflict Group A')",
             content: "The 'internal_conflicts' screen lists the colliding pair (same subject, different groups sharing a room)",
         },
@@ -701,11 +730,6 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_in
         {
             trigger: ".modal .modal-footer button[name='action_continue']",
             content: "Continue through the 'db_conflicts' step (nothing to resolve here)",
-            run: "click",
-        },
-        {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' placeholder step",
             run: "click",
         },
         {
@@ -787,6 +811,11 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_db
             run: "click",
         },
         {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'pending_info' step",
+            run: "click",
+        },
+        {
             trigger: ".modal .alert-success:contains('No room conflicts were found within this batch')",
             content: "Only one teacher is in THIS batch, so no within-batch collision is possible",
         },
@@ -821,11 +850,6 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_db
         {
             trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
             content: "Continue is enabled now that the two rooms differ",
-            run: "click",
-        },
-        {
-            trigger: ".modal .modal-footer button[name='action_continue']",
-            content: "Continue through the 'pending_info' placeholder step",
             run: "click",
         },
         {

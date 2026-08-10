@@ -69,6 +69,42 @@ msgstr "%s omitido(s) (ya en el estado deseado)"
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s existing schedule conflict(s) resolved"
+msgstr "%s conflicto(s) con horarios existentes resuelto(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s existing teacher(s) affected"
+msgstr "%s profesor(es) ya existente(s) afectado(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s file conflict(s) resolved"
+msgstr "%s conflicto(s) del archivo resuelto(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s pending teacher(s) will be created"
+msgstr "%s profesor(es) pendiente(s) se creará(n)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s unresolved group name(s) resolved"
+msgstr "%s nombre(s) de grupo no reconocido(s) ya resuelto(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%s unresolved teacher e-mail(s) resolved"
+msgstr "%s correo(s) de docente no reconocido(s) ya resuelto(s)"
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0
 msgid "%s: adult student without main email"
 msgstr "%s: alumno adulto sin correo electrónico principal"
@@ -3386,9 +3422,9 @@ msgid "Existing schedule conflicts"
 msgstr "Conflictos con horarios existentes"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__override_info
-msgid "Existing teachers"
-msgstr "Profesores ya existentes"
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__summary
+msgid "Overall summary"
+msgstr "Resumen general"
 
 #. module: ems
 #: model:ir.model,name:ems.model_product_template
@@ -7872,6 +7908,28 @@ msgstr "Se han reconocido todos los correos de docentes mencionados en el ficher
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Please select a teacher for every unresolved e-mail before continuing:\n%s"
 msgstr "Seleccione un docente para cada correo no resuelto antes de continuar:\n%s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Pending teacher (%s) - the e-mail will be pre-filled as an attempt, not auto-generated"
+msgstr "Profesor pendiente (%s) - el correo se precargará como intento, no se generará automáticamente"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "%(teacher)s (file identifier: %(identifier)s)"
+msgstr "%(teacher)s (identificador en el archivo: %(identifier)s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "No new teacher will be created - every teacher in this batch already exists."
+msgstr "No se creará ningún profesor nuevo - todos los profesores de este lote ya existen."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "No existing teacher's schedule will be recreated by this import."
+msgstr "Esta importación no recreará el horario de ningún profesor existente."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_working_schedules_import_wizard_internal_conflict_line

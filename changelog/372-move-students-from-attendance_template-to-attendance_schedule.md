@@ -61,6 +61,10 @@
 - Now scoped to the level(s) the teacher actually teaches (`teaching_ids.group_id.level_id`, kept in sync with the real calendar) - falls back to searching every framework only when the teacher has no identifiable level at all. A teacher spanning several levels whose frameworks share the same break (ESO/Batxillerat) still sees it once; one genuinely spanning different configurations (ESO + CCFF) sees only their own relevant breaks.
 - Verified empirically against the reporting teacher's real calendar and two others checked earlier in this same investigation.
 
+## `TestCourseTransition.test_apply_leaves_a_future_justification_with_no_session_active` was flaky in the last hour of any day:
+- `future.replace(hour=23, minute=0)` produced an `end_date` earlier than `start_date` whenever the real wall-clock time the test happened to run at was already past 23:00 with a nonzero minute (`start_date` kept that same minute, `end_date` didn't) - tripped `ems.attendance_justification`'s own "completion date must be later than start date" constraint. Found by chance running the full class at 23:16.
+- Fixed by fixing the fixture's hour/minute/second explicitly (8:00/23:00) instead of inheriting the current wall-clock time - the test only needs the date itself to be years in the future, never depended on "now"'s own time of day.
+
 # Internal changes:
 
 ## `resource.calendar.attendance` now carries a real FK to the `ems.attendance_schedule` line it represents:

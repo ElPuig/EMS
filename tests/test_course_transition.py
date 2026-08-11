@@ -1501,7 +1501,12 @@ class TestCourseTransition(TransactionCase):
         that hasn't happened yet) must not be swept up just because no session has been created
         for it yet - only a PAST end_date makes zero-lines archivable."""
         student = self._student('CTW Future No Session Justification', group=self.group1)
-        future = datetime.now().replace(year=datetime.now().year + 5)
+        # Hour/minute/second fixed explicitly, not inherited from 'now' - only the date itself
+        # needs to be "5 years out"; keeping the current wall-clock time on 'start_date' made this
+        # test flaky in the last hour of any day (e.g. run at 23:16, 'end_date.replace(hour=23,
+        # minute=0)' produced 23:00, earlier than 'start_date's own 23:16, tripping the "completion
+        # date must be later than start date" constraint below).
+        future = datetime.now().replace(year=datetime.now().year + 5, hour=8, minute=0, second=0, microsecond=0)
         justification = self.env['ems.attendance_justification'].create({
             'teacher_id': self.teacher.id, 'student_id': student.id,
             'start_date': future, 'end_date': future.replace(hour=23, minute=0),

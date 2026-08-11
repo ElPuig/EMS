@@ -22,16 +22,30 @@
                             </group>
                             <group colspan="4">
                                 <field name="teacher_ids" widget="many2many_avatar_employee" readonly="1"/>
-                            </group>
+                            </group>                           
 
-                            <!-- Row 2: Studies, Start date, End date - all locked (2026-08-11, see
-                                 plans/calendar_driven_attendance_templates.md's calendar-lock refinement):
-                                 a template's identity/logistics fields only ever change as a consequence
-                                 of editing the teacher's working schedule, never by hand, regardless of
-                                 role or has_sessions - update the schedule instead. -->
+                            <!-- Row 2: Studies, Subject (must be accessible to every selected study) -
+                                 study_ids, subject_id, group_ids, start_date and end_date are all
+                                 locked (2026-08-11, see plans/calendar_driven_attendance_templates.md's
+                                 calendar-lock refinement): a template's identity/logistics fields only
+                                 ever change as a consequence of editing the teacher's working schedule,
+                                 never by hand, regardless of role or has_sessions - update the schedule
+                                 instead. -->
                             <group colspan="2">
                                 <field name="study_ids" widget="many2many_tags" readonly="1"/>
                             </group>
+                            <group colspan="4">
+                                <field name="subject_id" readonly="1"/>
+                            </group>
+
+                            <!-- Row 3: Groups, Start date, End date - 'space_id' removed entirely
+                                 (2026-08-11): it only ever existed as a default-value source for
+                                 manually adding a new schedule line, which is no longer possible either
+                                 (see the Sessions tab below). -->
+                            <group colspan="2">
+                                <field name="group_ids" widget="many2many_tags" readonly="1" domain="[('study_id', 'in', study_ids)]"/>
+                            </group>
+
                             <group colspan="2">
                                 <!-- TODO: not working, check how its solven at justification form. -->
                                 <field name="start_date" widget="daterange" class="oe_inline" options="{'related_end_date': 'end_date'}" readonly="1"/>
@@ -39,17 +53,7 @@
                             <group colspan="2">
                                 <field name="end_date" widget="daterange" class="oe_inline" options="{'related_start_date': 'start_date'}" readonly="1"/>
                             </group>
-
-                            <!-- Row 3: Groups, Subject (must be accessible to every selected study) -
-                                 'space_id' removed entirely (2026-08-11): it only ever existed as a
-                                 default-value source for manually adding a new schedule line, which is
-                                 no longer possible either (see the Sessions tab below). -->
-                            <group colspan="3">
-                                <field name="group_ids" widget="many2many_tags" readonly="1" domain="[('study_id', 'in', study_ids)]"/>
-                            </group>
-                            <group colspan="3">
-                                <field name="subject_id" readonly="1"/>
-                            </group>
+                           
                         </group>
                                             
                         <notebook>

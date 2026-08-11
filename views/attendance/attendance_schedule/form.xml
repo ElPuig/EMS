@@ -35,12 +35,6 @@
                             <group colspan="2">
                                 <field name="space_id" readonly="True"/>
                             </group>
-                            <group>
-                                <field name="start_time" readonly="True"/>
-                            </group>
-                            <group>
-                                <field name="end_time" readonly="True"/>
-                            </group>
                         </group>
 
                         <notebook>

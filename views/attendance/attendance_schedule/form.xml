@@ -19,9 +19,13 @@
                         <field name="active" invisible="1"/>
                         <field name="read_only_user" invisible="1"/>
                         <group string="Main data" col="6">
-                            <group colspan="2">
+                            <group colspan="4">
                                 <field name="attendance_template_id" readonly="True"/>
                             </group>
+                            <group colspan="2">
+                                <field name="space_id" readonly="True"/>
+                            </group>
+
                             <group colspan="2">
                                 <field name="start_date" readonly="True"/>
                             </group>
@@ -32,9 +36,7 @@
                             <group colspan="2">
                                 <field name="weekday" readonly="True"/>
                             </group>
-                            <group colspan="2">
-                                <field name="space_id" readonly="True"/>
-                            </group>
+                           
                         </group>
 
                         <notebook>
@@ -52,7 +54,7 @@
                                 </field>
                             </page>
 
-                            <page string="Sessions">
+                            <page string="Sessions" invisible="1">
                                 <field name="attendance_session_ids" string="" readonly="True"/>
                             </page>
                         </notebook>

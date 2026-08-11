@@ -626,6 +626,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				mismatches.add(key)
 		return [
 			(0, 0, {
+				'raw_group_ids': [(6, 0, list(group_ids))],
 				'group_ids': [(6, 0, list(group_ids))],
 				'raw_subject_id': subject_id,
 				'subject_id': subject_id,
@@ -635,9 +636,12 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	def _continue_from_subjects(self):
 		"""The 'subjects' step's own 'Continue' handler, mirroring '_continue_from_groups': every
-		'subject_line_ids' row must have a subject actually valid for its own groups' study before
-		continuing, then every occurrence of each corrected (group set, original subject) pair
-		across the whole cached batch is substituted in place (see '_finalize_subject_correction')."""
+		'subject_line_ids' row must have a subject actually valid for its own (possibly corrected)
+		groups' study before continuing, then every occurrence of each mismatch's original (group
+		set, subject) pair across the whole cached batch is substituted with whatever the admin
+		actually picked - either side, since either can be the real mistake (developer feedback
+		2026-08-11, after using the group-ids-readonly first version for real: "el error era el (o
+		los) grupo, o el error era la asignatura") - see '_finalize_subject_correction'."""
 		self.ensure_one()
 		unresolved_lines = self.subject_line_ids.filtered(
 			lambda line: line.subject_id.id not in line.allowed_subject_ids.ids
@@ -651,7 +655,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			))
 
 		corrections = {
-			(tuple(sorted(line.group_ids.ids)), line.raw_subject_id.id): line.subject_id
+			(tuple(sorted(line.raw_group_ids.ids)), line.raw_subject_id.id): (line.group_ids, line.subject_id)
 			for line in self.subject_line_ids
 		}
 		node_cache = json.loads(self.parsed_entries_json or '[]')
@@ -1519,28 +1523,38 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		entry['name'] += " (%s)" % ", ".join(groups.mapped('name'))
 
 	def _finalize_subject_correction(self, entry, corrections):
-		"""Substitutes 'entry's own 'subject_id' with the pick made on the 'subjects' step, if this
-		entry's (group set, original subject) pair matched one of the mismatches found there -
-		'corrections' is a plain dict keyed exactly like '_build_subject_lines' groups by. Called on
-		both shapes 'entry' can take once loaded back from the JSON cache, same as
+		"""Substitutes 'entry's own 'group_ids'/'subject_id' with whatever was actually picked on
+		the 'subjects' step, if this entry's ORIGINAL (group set, subject) pair matched one of the
+		mismatches found there - either side can be the real correction (developer feedback
+		2026-08-11: a mismatch can mean the group was wrong, the subject was wrong, or both), so
+		both get written, not just the subject. 'corrections' is a plain dict keyed by the file's
+		ORIGINAL pair (mirroring '_build_subject_lines'' own dedup key, and 'subject_line.raw_
+		group_ids'/'raw_subject_id' - never the edited 'group_ids'/'subject_id', which is the VALUE,
+		not the key), mapping to a '(corrected_groups, corrected_subject)' tuple. Called on both
+		shapes 'entry' can take once loaded back from the JSON cache, same as
 		'_finalize_pending_groups' - an 'entries' list item (flat 'group_ids') or an 'attendance_ids'
 		command's own inner dict ('group_ids' still in '[(6, 0, ids)]' form). No-op if there's
 		nothing to correct (most entries, any non-teaching one, and any already-valid mismatch left
-		unchanged by the admin's own pick). Rebuilds 'name' from the groups' own current records
-		rather than string-splitting the old cached value - robust regardless of what characters a
-		subject/group name happens to contain."""
+		unchanged by the admin's own pick). Rebuilds 'name' from the CORRECTED groups/subject's own
+		current records rather than string-splitting the old cached value - robust regardless of
+		what characters a subject/group name happens to contain."""
 		subject_id = entry.get('subject_id')
 		if not subject_id:
 			return
 		group_ids_field = entry.get('group_ids') or []
 		is_command_form = bool(group_ids_field) and isinstance(group_ids_field[0], (list, tuple))
 		flat_group_ids = group_ids_field[0][2] if is_command_form else group_ids_field
-		corrected = corrections.get((tuple(sorted(flat_group_ids)), subject_id))
-		if not corrected or corrected.id == subject_id:
+		correction = corrections.get((tuple(sorted(flat_group_ids)), subject_id))
+		if not correction:
 			return
-		entry['subject_id'] = corrected.id
-		groups = self.env['ems.group'].browse(flat_group_ids)
-		entry['name'] = "%s: %s (%s)" % (corrected.acronym, corrected.name, ", ".join(groups.mapped('name')))
+		corrected_groups, corrected_subject = correction
+		if set(corrected_groups.ids) == set(flat_group_ids) and corrected_subject.id == subject_id:
+			return
+		entry['subject_id'] = corrected_subject.id
+		entry['group_ids'] = [(6, 0, corrected_groups.ids)] if is_command_form else corrected_groups.ids
+		entry['name'] = "%s: %s (%s)" % (
+			corrected_subject.acronym, corrected_subject.name, ", ".join(corrected_groups.mapped('name'))
+		)
 
 	def _parse_schedule_entries(self, xml_node):
 		"""Parse a <Teacher> XML node into (entries, attendance_ids) — the flattened list of real
@@ -1654,21 +1668,35 @@ class ems_working_schedules_import_wizard_subject_line(models.TransientModel):
 	_description = "Working schedules import wizard: subject/study mismatch correction line."
 
 	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
-	# NOTE: read-only context, not the thing being corrected - the developer's own explicit design
-	# (2026-08-10, real error hit: "The subject '...' is not available in the following selected
-	# studies: AD (2024)..."): the file's group name(s) already resolved correctly on the previous
-	# 'groups' step, the mismatch is specifically about the SUBJECT not being taught in the group's
-	# own study - so only 'subject_id' below is ever editable here, never these groups themselves.
-	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", readonly=True)
+	# NOTE: EITHER side of a mismatch can be the actual mistake (developer feedback 2026-08-11,
+	# after using the first version - group-ids-readonly-only - for real: "Resolve subject debería
+	# dejarme cambiar también los grupos. Me he encontrado las dos variantes durante las pruebas: el
+	# error era el (o los) grupo, o el error era la asignatura.") - both 'group_ids' and 'subject_id'
+	# below are editable, defaulting to the file's own (possibly wrong) values. 'raw_group_ids' is
+	# kept purely as the correction's own matching key (which node_cache entries this line's pick
+	# applies to, see '_finalize_subject_correction') - never edited itself, always the file's
+	# original groups, distinct from the corrected 'group_ids'.
+	raw_group_ids = fields.Many2many(
+		string="Group(s) found in file", comodel_name="ems.group",
+		relation="ems_wsiw_subject_line_raw_group_rel", readonly=True,
+	)
+	# NOTE: create explicitly disabled (context in the view) - unlike "Resolve groups"' own
+	# 'group_id' (an UNRESOLVED name that may genuinely need a brand-new group), a mismatch here
+	# means the group was already resolved to a REAL, existing record and simply happens to be the
+	# wrong one - the fix is picking a different existing group, never creating one.
+	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", relation="ems_wsiw_subject_line_group_rel")
 	raw_subject_id = fields.Many2one(string="Subject found in file", comodel_name="ems.subject", required=True, readonly=True)
 	# NOTE: computed, not stored - purely drives 'subject_id's own domain below, same convention as
 	# 'ems.attendance_template.allowed_subject_ids' (see 'ems.study._subjects_common_to_all', shared
-	# by both). Deliberately does NOT filter 'raw_subject_id' out of what CAN be redisplayed: a
-	# Many2one 'domain' only restricts what's searchable/selectable when the field is reopened to
-	# change it, it never hides an already-set value outside that domain - confirmed before
-	# building this, per the developer's own explicit question ("Si esto impide que el default sea
-	# el del fichero, dímelo") - so 'subject_id' below can safely default to the file's own (wrong)
-	# value while still only ever offering VALID alternatives once the admin opens the dropdown.
+	# by both). Depends on the EDITABLE 'group_ids' (not 'raw_group_ids'), so correcting the group
+	# alone - leaving 'subject_id' untouched - can make an already-correct file subject valid again
+	# on its own, with nothing else to do. Deliberately does NOT filter 'raw_subject_id' out of what
+	# CAN be redisplayed: a Many2one 'domain' only restricts what's searchable/selectable when the
+	# field is reopened to change it, it never hides an already-set value outside that domain -
+	# confirmed before building this, per the developer's own explicit question ("Si esto impide que
+	# el default sea el del fichero, dímelo") - so 'subject_id' below can safely default to the
+	# file's own (possibly wrong) value while still only ever offering VALID alternatives once the
+	# admin opens the dropdown.
 	allowed_subject_ids = fields.Many2many(string="Allowed subjects", comodel_name="ems.subject", compute="_compute_allowed_subject_ids", store=False)
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", required=True, domain="[('id', 'in', allowed_subject_ids)]")
 

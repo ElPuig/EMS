@@ -7873,8 +7873,13 @@ msgstr "Resolver asignaturas"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "EMS also checks that the subject found in the file is actually taught in the group's own study - a wrong subject code in the file would otherwise only surface as a confusing error at the very end. Any mismatch is listed below for you to pick the right subject; the groups themselves are shown for context only, since they were already resolved on the previous step."
-msgstr "El EMS también comprueba que la asignatura encontrada en el archivo se imparta realmente en los estudios del grupo - un código de asignatura incorrecto en el archivo, si no, solo aparecería como un error confuso al final de todo. Cualquier discrepancia se lista abajo para que elijas la asignatura correcta; los grupos se muestran solo como contexto, ya que se resolvieron en el paso anterior."
+msgid "EMS also checks that the subject found in the file is actually taught in the group's own study - a wrong subject code, or a group assigned to the wrong subject, would otherwise only surface as a confusing error at the very end. Any mismatch is listed below: correct whichever side was actually wrong - the group(s), the subject, or both."
+msgstr "El EMS también comprueba que la asignatura encontrada en el archivo se imparta realmente en los estudios del grupo - un código de asignatura incorrecto, o un grupo asignado a la asignatura equivocada, si no, solo aparecería como un error confuso al final de todo. Cualquier discrepancia se lista abajo: corrige el lado que realmente esté mal - el/los grupo/s, la asignatura, o ambos."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__raw_group_ids model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Group(s) found in file"
+msgstr "Grupo(s) encontrado(s) en el archivo"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard

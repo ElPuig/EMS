@@ -45,18 +45,37 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
     def test_working_schedules_import_resolve_subject_mismatch_tour(self):
         # Real error this screen was built for (2026-08-10): a file subject code that resolves to
         # a real 'ems.subject', but one that isn't taught in the group's own study - 'wrong_subject'
-        # below has no 'study_ids' at all, so it can never satisfy ANY group's study. The tour picks
-        # the correct one via the 'subjects' step's own domain-restricted Many2one to prove that
-        # new screen actually renders and resolves in a real browser (see
-        # TestWorkingSchedulesImportWizard.test_continue_from_subjects_applies_correction_and_completes_import).
+        # below has no 'study_ids' at all, so it can never satisfy ANY group's study. The SECOND
+        # teacher below covers the OTHER real variant (developer feedback 2026-08-11, after using
+        # the first, group-ids-readonly version for real: "el error era el (o los) grupo, o el
+        # error era la asignatura"): a genuinely correct subject assigned to the WRONG group - fixed
+        # by correcting the group tags instead, leaving the subject untouched. The tour resolves
+        # both, one via the Many2one dropdown, one via the many2many_tags widget, to prove both
+        # correction paths actually render and resolve in a real browser (see
+        # TestWorkingSchedulesImportWizard.test_continue_from_subjects_applies_correction_and_completes_import
+        # and test_continue_from_subjects_correcting_the_group_alone_can_resolve_the_mismatch).
         level = self.env['ems.level'].create({'acronym': 'TOURSUBJ', 'name': 'Tour Subject Mismatch Level'})
         study = self.env['ems.study'].create({
             'code': 'TOURSUBJ', 'acronym': 'TSUBJ', 'name': 'Tour Subject Mismatch Study',
             'date': '2026-01-01', 'deprecated': False, 'level_id': level.id,
         })
+        wrong_study = self.env['ems.study'].create({
+            'code': 'TOURSUBJWRONGSTUDY', 'acronym': 'TSUBJW', 'name': 'Tour Subject Mismatch Wrong Study',
+            'date': '2026-01-01', 'deprecated': False, 'level_id': level.id,
+        })
         space = self.env['ems.space'].create({
             'code': 'TOURSUBJMISMATCH',
             'name': 'Tour Subject Mismatch Space',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        # A SEPARATE room for the second teacher's groups - both scenarios share the same weekday/
+        # time (Monday 09:00), so without a distinct room the two different teachers below would
+        # trigger an unrelated "File conflicts" room clash instead of the subject/study mismatches
+        # this tour is actually about.
+        space_2 = self.env['ems.space'].create({
+            'code': 'TOURSUBJMISMATCH2',
+            'name': 'Tour Subject Mismatch Space 2',
             'space_type_id': self.env.ref('ems.space_type_classroom').id,
             'work_location_id': self.env.ref('ems.work_location_main').id,
         })
@@ -74,10 +93,24 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         self.env['ems.group'].create({
             'course': 1, 'acronym': 'A', 'level_id': level.id, 'study_id': study.id, 'space_id': space.id,
         })
+        # The CORRECT destination group for the "wrong group" scenario below.
+        self.env['ems.group'].create({
+            'course': 2, 'acronym': 'A', 'level_id': level.id, 'study_id': study.id, 'space_id': space_2.id,
+        })
+        # The file's own (wrong) group for that scenario - a real group, just teaching neither
+        # 'TOURSUBJCORRECT' nor anything else, since 'wrong_study' has no subjects at all.
+        self.env['ems.group'].create({
+            'course': 1, 'acronym': 'A', 'level_id': level.id, 'study_id': wrong_study.id, 'space_id': space_2.id,
+        })
         self.env['hr.employee'].create({
             'name': 'Tour Subject Mismatch Teacher',
             'employee_type': 'teacher',
             'work_email': 'tour.subject.mismatch@example.com',
+        })
+        self.env['hr.employee'].create({
+            'name': 'Tour Subject Mismatch Teacher 2',
+            'employee_type': 'teacher',
+            'work_email': 'tour.subject.mismatch.2@example.com',
         })
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_subject_mismatch", login="admin")
 

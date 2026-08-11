@@ -7873,8 +7873,13 @@ msgstr "Resoldre assignatures"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-msgid "EMS also checks that the subject found in the file is actually taught in the group's own study - a wrong subject code in the file would otherwise only surface as a confusing error at the very end. Any mismatch is listed below for you to pick the right subject; the groups themselves are shown for context only, since they were already resolved on the previous step."
-msgstr "L'EMS també comprova que l'assignatura trobada al fitxer s'imparteixi realment als estudis del grup - un codi d'assignatura incorrecte al fitxer, altrament, només apareixeria com un error confús al final de tot. Qualsevol discrepància es llista a sota perquè triïs l'assignatura correcta; els grups es mostren només com a context, ja que s'han resolt al pas anterior."
+msgid "EMS also checks that the subject found in the file is actually taught in the group's own study - a wrong subject code, or a group assigned to the wrong subject, would otherwise only surface as a confusing error at the very end. Any mismatch is listed below: correct whichever side was actually wrong - the group(s), the subject, or both."
+msgstr "L'EMS també comprova que l'assignatura trobada al fitxer s'imparteixi realment als estudis del grup - un codi d'assignatura incorrecte, o un grup assignat a l'assignatura equivocada, altrament només apareixeria com un error confús al final de tot. Qualsevol discrepància es llista a sota: corregeix el costat que realment estigui malament - el(s) grup(s), l'assignatura, o tots dos."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__raw_group_ids model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Group(s) found in file"
+msgstr "Grup(s) trobat(s) al fitxer"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard

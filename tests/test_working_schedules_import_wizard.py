@@ -68,6 +68,18 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'acronym': 'TWIW3',
             'name': 'Test Wrong Subject (Import Wizard)',
         })
+        # A group belonging to a study that teaches NEITHER 'cls.subject' nor 'cls.other_subject' -
+        # the "wrong group for the file's own (otherwise valid) subject" fixture, the other real
+        # variant of this same mismatch (developer feedback 2026-08-11: "el error era el (o los)
+        # grupo, o el error era la asignatura" - either side can be the actual mistake).
+        cls.wrong_study = cls.env['ems.study'].create({
+            'code': 'TWIW004', 'acronym': 'TWIW4', 'name': 'Test Wrong Study (Import Wizard)',
+            'date': fields.Date.today(), 'deprecated': False, 'level_id': cls.level.id,
+        })
+        cls.wrong_group = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'WRONGGRP', 'level_id': cls.level.id, 'study_id': cls.wrong_study.id,
+            'space_id': cls.space.id,
+        })
         # No 'space_id' — ems.group.space_id is optional, but ems.attendance_template.space_id (taken
         # from the group) is required; see test_import_group_without_space_raises_clear_error.
         cls.spaceless_group = cls.env['ems.group'].create({
@@ -873,12 +885,47 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(wizard.state, 'subjects')
         self.assertEqual(len(wizard.subject_line_ids), 1)
         line = wizard.subject_line_ids
+        self.assertEqual(line.raw_group_ids, self.group)
+        # 'group_ids' (the editable, corrected pick) also defaults to the file's own group.
         self.assertEqual(line.group_ids, self.group)
         self.assertEqual(line.raw_subject_id, self.wrong_subject)
         # Defaults to the file's own (wrong) subject - a Many2one 'domain' only restricts what's
         # searchable when the field is reopened, it never hides an already-set out-of-domain value.
         self.assertEqual(line.subject_id, self.wrong_subject)
         self.assertEqual(line.allowed_subject_ids, self.subject | self.other_subject)
+
+    def test_continue_from_subjects_correcting_the_group_alone_can_resolve_the_mismatch(self):
+        # The other real variant of this same mismatch (developer feedback 2026-08-11): the FILE's
+        # subject ('self.subject') is genuinely fine, it's 'self.wrong_group' (a different study,
+        # teaching neither 'self.subject' nor 'self.other_subject') that's actually the mistake.
+        # Correcting 'group_ids' alone, leaving 'subject_id' untouched, must resolve it on its own.
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.wrong_group.name}"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects
+
+        line = wizard.subject_line_ids
+        self.assertEqual(line.raw_group_ids, self.wrong_group)
+        self.assertEqual(line.group_ids, self.wrong_group)
+        self.assertEqual(line.raw_subject_id, self.subject)
+        self.assertFalse(line.allowed_subject_ids)
+        self.assertEqual(wizard.state, 'subjects')
+
+        line.group_ids = [(6, 0, [self.group.id])]
+        self.assertEqual(line.allowed_subject_ids, self.subject | self.other_subject)
+        self.assertIn(line.subject_id.id, line.allowed_subject_ids.ids)
+
+        wizard.action_continue()  # subjects -> teachers, the group correction alone resolved it
+        self.assertEqual(wizard.state, 'teachers')
+        node_cache = json.loads(wizard.parsed_entries_json)
+        self.assertEqual(node_cache[0]['entries'][0]['group_ids'], [self.group.id])
+        self.assertEqual(node_cache[0]['entries'][0]['subject_id'], self.subject.id)
+        self.assertIn(self.group.name, node_cache[0]['entries'][0]['name'])
 
     def test_continue_from_groups_no_subject_line_when_subject_is_valid(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({

@@ -393,9 +393,13 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_gr
 // "Resolve subjects" screen (2026-08-11, developer feedback after hitting a real error: "The
 // subject '...' is not available in the following selected studies: ..."): a file subject code
 // that resolves to a real 'ems.subject', but one not taught in the group's own study, now surfaces
-// here instead of only as a confusing error at Import. 'subject_id's own domain restricts the
-// dropdown to subjects actually valid for the row's own group(s) - the tour searches for the
-// CORRECT subject to prove that domain genuinely offers it, not just that the field is editable.
+// here instead of only as a confusing error at Import. Covers BOTH real variants (developer
+// feedback the same day, after using the first version - group(s) shown read-only - for real:
+// "Resolve subject debería dejarme cambiar también los grupos. Me he encontrado las dos variantes
+// durante las pruebas: el error era el (o los) grupo, o el error era la asignatura"): teacher 1's
+// row is fixed via the 'subject_id' Many2one dropdown (subject was wrong), teacher 2's row is
+// fixed via the 'group_ids' many2many_tags widget (group was wrong, subject was fine all along) -
+// proving both correction paths actually render and resolve in a real browser.
 registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_subject_mismatch", {
     test: true,
     url: "/odoo/action-ems.action_working_schedules_tree",
@@ -423,6 +427,11 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_su
                     + '<D name="1 Monday"><H name="1 09:00">'
                     + '<Subject name="TOURSUBJWRONG Tour Subject Wrong"/>'
                     + '<Students name="TSUBJ1A"/>'
+                    + '</H></D></T>'
+                    + '<T name="tour.subject.mismatch.2@example.com Someone Else">'
+                    + '<D name="1 Monday"><H name="1 09:00">'
+                    + '<Subject name="TOURSUBJCORRECT Tour Subject Correct"/>'
+                    + '<Students name="TSUBJW1A"/>'
                     + '</H></D></T></root>';
                 const file = new File([xml], "planner_subject_mismatch.xml", { type: "text/xml" });
                 await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", [file]);
@@ -439,7 +448,7 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_su
         },
         {
             trigger: ".modal .alert-success:contains('Every group mentioned in the file was recognized')",
-            content: "The group name (TSUBJ1A) is recognized by exact name",
+            content: "Both group names (TSUBJ1A, TSUBJW1A) are recognized by exact name",
         },
         {
             trigger: ".modal .modal-footer button[name='action_continue']",
@@ -448,15 +457,19 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_su
         },
         {
             trigger: ".modal .o_data_cell:contains('Tour Subject Wrong')",
-            content: "The 'subjects' screen lists the mismatch: the file's own (wrong) subject, shown as the row's current value",
+            content: "The 'subjects' screen lists the first mismatch: the file's own (wrong) subject, shown as the row's current value",
+        },
+        {
+            trigger: ".modal .o_data_row:has(td:contains('TSUBJW1A'))",
+            content: "The second mismatch also renders - a correct subject assigned to the wrong group",
         },
         {
             trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
-            content: "Continue shows disabled - the wrong subject is still picked",
+            content: "Continue shows disabled - both mismatches are still unresolved",
         },
         {
-            trigger: ".modal .o_data_row .o_data_cell[name='subject_id']",
-            content: "Click the row's subject cell to edit it",
+            trigger: ".modal .o_data_row:has(td:contains('TSUBJ1A')) .o_data_cell[name='subject_id']",
+            content: "Click the first row's subject cell to edit it",
             run: "click",
         },
         {
@@ -470,13 +483,33 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_su
             run: "click",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
-            content: "Continue is enabled now that a valid subject is picked",
+            trigger: ".modal .o_data_row:has(td:contains('TSUBJW1A')) .o_data_cell[name='group_ids']",
+            content: "Click the second row's group cell to edit it",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_selected_row .o_field_widget[name='group_ids'] .o_tag:has(.o_tag_badge_text:contains('TSUBJW1A')) .o_delete",
+            content: "Remove the wrong group tag",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_selected_row .o_field_widget[name='group_ids'] input",
+            content: "Search for the correct group",
+            run: "edit TSUBJ2A",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('TSUBJ2A')",
+            content: "Select it - the group correction alone resolves this row, since the subject was already valid for it",
             run: "click",
         },
         {
             trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
-            content: "Continue through the 'teachers' step - the seeded teacher already matches by e-mail, nothing to resolve",
+            content: "Continue is enabled now that both mismatches are resolved",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue through the 'teachers' step - both seeded teachers already match by e-mail, nothing to resolve",
             run: "click",
         },
         {

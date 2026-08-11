@@ -381,28 +381,39 @@ screen sitting right after "Resolve groups", not before it).
 
 **Design, confirmed with the developer via two explicit questions before writing any code:**
 1. **Row granularity for a multi-group entry** (the real example above has TWO groups, AD1A and
-   AD1B, sharing one class): one row per mismatched **entry** (not one per group) — the affected
-   group(s) are shown as read-only, plain-text context (`group_ids`, `widget="many2many_tags"`),
-   and only the SUBJECT is ever editable. The groups themselves were already resolved on the
-   previous screen; reassigning a group here would mean re-litigating a decision this screen isn't
-   meant to touch.
+   AD1B, sharing one class): one row per mismatched **entry** (not one per group).
 2. **Which entries appear:** only genuine mismatches, matching the "only show what's actually
    wrong" convention already established by "Resolve groups"/"Resolve teachers" (a batch with
    nothing to resolve shows a plain success message, not an empty list to scroll through).
-3. **Does the dropdown's domain hide the file's own (wrong) default?** No — confirmed by how Odoo's
-   Many2one `domain` actually works before writing any code, not assumed: a `domain` only restricts
-   what's *searchable/selectable* when the field is reopened to change it, it never hides an
-   already-set value that happens to fall outside it. `subject_id` therefore safely defaults to the
-   file's own subject (even though it's the wrong one) while `allowed_subject_ids` (computed,
-   `store=False`, mirroring `ems.attendance_template.allowed_subject_ids` exactly) still only ever
-   *offers* a valid alternative once the admin opens the dropdown to correct it.
 
-**`ems.working_schedules_import_wizard.subject_line`** (new TransientModel): `group_ids`
-(Many2many `ems.group`, readonly, context only), `raw_subject_id` (Many2one `ems.subject`,
-readonly — the file's own value, kept around as the correction's own matching key), `subject_id`
-(Many2one `ems.subject`, `domain="[('id', 'in', allowed_subject_ids)]"`, editable — defaults to
-`raw_subject_id`), `allowed_subject_ids` (computed Many2many, `@api.depends('group_ids.study_id.
-subject_ids')`, delegates to the new shared `ems.study._subjects_common_to_all()`).
+The first version built from this made `group_ids` read-only (plain-text context, `widget=
+"many2many_tags"`) with only `subject_id` editable, reasoning the groups were "already resolved on
+the previous screen." **Corrected the same day, after the developer actually used it on a real
+batch** (*"Resolve subject debería dejarme cambiar también los grupos. Me he encontrado las dos
+variantes durante las pruebas: el error era el (o los) grupo, o el error era la asignatura."*):
+either side of the pair can be the genuine mistake — a real "resolved" group can still be the WRONG
+one, distinct from "unresolved" (the previous screen's own problem). `group_ids` is editable too
+now, same widget, defaulting to the file's own value like `subject_id` already did.
+
+**Does either dropdown's domain hide the file's own (wrong) default?** No — confirmed by how Odoo's
+Many2one/Many2many `domain` actually works before writing any code, not assumed: a `domain` only
+restricts what's *searchable/selectable* when the field is reopened to change it, it never hides an
+already-set value that happens to fall outside it (confirmed for `subject_id` per the developer's
+own explicit question, *"Si esto impide que el default sea el del fichero, dímelo"* — `group_ids`
+has no domain of its own at all, so the question doesn't even apply there).
+
+**`ems.working_schedules_import_wizard.subject_line`** (new TransientModel): `raw_group_ids`
+(Many2many `ems.group`, readonly — the file's own groups, kept as the correction's own matching
+key, never edited itself), `group_ids` (Many2many `ems.group`, editable, `no_create`/
+`no_create_edit` in the view — a mismatch means an already-resolved group was simply the WRONG
+one, unlike "Resolve groups"' own `group_id`, which genuinely may need creating a brand-new record
+— defaults to `raw_group_ids`), `raw_subject_id` (Many2one `ems.subject`, readonly — the file's own
+value, the other half of the matching key), `subject_id` (Many2one `ems.subject`,
+`domain="[('id', 'in', allowed_subject_ids)]"`, editable — defaults to `raw_subject_id`),
+`allowed_subject_ids` (computed Many2many, `@api.depends('group_ids.study_id.subject_ids')` — note
+depends on the EDITABLE `group_ids`, not `raw_group_ids`, so correcting the group alone can make an
+already-correct file subject valid again with nothing else to touch — delegates to the new shared
+`ems.study._subjects_common_to_all()`).
 
 **`ems.study._subjects_common_to_all()`** (new shared method, `models/curriculum/study.py`):
 the subject intersection across every study in a recordset — extracted out of `ems.attendance_
@@ -420,19 +431,23 @@ simply not included — `mapped()` on a Many2one naturally skips empty values). 
 (every involved group is a reinforcement type) → nothing to validate against, matching
 `_check_subject_valid_for_all_studies`'s own skip-if-no-study rule exactly — no line. Otherwise,
 checks the entry's `subject_id` against `studies._subjects_common_to_all()`; a genuine mismatch
-gets a line, deduped by `(group_ids, subject_id)` so the same real mismatch repeated across several
+gets a line (`raw_group_ids`/`group_ids` both seeded to the same original set, same for the subject
+pair), deduped by `(group_ids, subject_id)` so the same real mismatch repeated across several
 days (a class meeting the same slot every day of the week) produces exactly one correction line,
 not one per occurrence — same convention as `group_line`/`teacher_line`.
 
 **Resolution (`_continue_from_subjects`):** raises if any line's `subject_id` is still outside its
-own `allowed_subject_ids` (the admin hasn't corrected it yet); otherwise substitutes every matching
-`(group_ids, subject_id)` pair across the whole cached batch (`_finalize_subject_correction`,
-mirroring `_finalize_pending_groups`'s own dual-shape handling for `entries` list items vs.
-`attendance_ids` command dicts) and rebuilds the cached `name` string from the groups' own current
-records rather than string-splitting the old cached value — robust regardless of what characters a
-subject/group name happens to contain. Then builds `teacher_line_ids` exactly as `_continue_from_
-groups` used to (unchanged logic, just relocated one step later in the flow) and advances to
-"Resolve teachers".
+own (possibly already-corrected-by-group) `allowed_subject_ids`; otherwise builds a corrections
+dict keyed by each line's ORIGINAL `(raw_group_ids, raw_subject_id)` pair — never the edited
+`group_ids`/`subject_id`, which are the correction's own VALUE, not its matching key — mapping to
+whatever the admin actually picked, and substitutes every matching entry across the whole cached
+batch (`_finalize_subject_correction`, mirroring `_finalize_pending_groups`'s own dual-shape
+handling for `entries` list items vs. `attendance_ids` command dicts) with BOTH the corrected
+groups and corrected subject, rebuilding the cached `name` string from the CORRECTED groups/
+subject's own current records rather than string-splitting the old cached value — robust
+regardless of what characters a subject/group name happens to contain. Then builds
+`teacher_line_ids` exactly as `_continue_from_groups` used to (unchanged logic, just relocated one
+step later in the flow) and advances to "Resolve teachers".
 
 `_STATE_SEQUENCE` is now `intro, groups, subjects, teachers, internal_conflicts, db_conflicts,
 summary` — every downstream screen number in this doc shifted up by one (Resolve teachers: Screen
@@ -446,11 +461,18 @@ merge (see its own entry, further down this doc) — plus one tour (`ems_working
 resolve_group`) whose own differently-worded "Continue" step text didn't match the scripted
 anchor and needed a manual, one-off fix.
 
-New dedicated tour, `ems_working_schedules_import_resolve_subject_mismatch`: seeds a group with a
-REAL study, a subject valid for it, and a deliberately unrelated "wrong" subject with no `study_ids`
-at all; searches the correction dropdown for the correct subject (proving the domain genuinely
-offers it, not just that the field is editable) and completes the import, confirming the resulting
-`ems.attendance_template.subject_id` is the corrected one, not the file's original wrong value.
+New dedicated tour, `ems_working_schedules_import_resolve_subject_mismatch`, covers BOTH real
+variants in one run: teacher 1's row (subject wrong — a deliberately unrelated subject with no
+`study_ids` at all) is fixed via the `subject_id` Many2one dropdown, searching for and selecting
+the correct subject (proving the domain genuinely offers it, not just that the field is editable);
+teacher 2's row (group wrong — a genuinely correct subject assigned to a group belonging to an
+unrelated study) is fixed via the `group_ids` `many2many_tags` widget, removing the wrong group tag
+(`.o_tag:has(.o_tag_badge_text:contains(...)) .o_delete`) and adding the correct one, proving the
+group correction alone (subject left untouched) resolves that row. Completes the import,
+confirming the resulting `ems.attendance_template` records reflect the corrected values, not the
+file's original wrong ones. The two scenarios deliberately use separate classrooms despite sharing
+the same weekday/time — otherwise the two different teachers would collide on "File conflicts"
+instead of exercising the "Resolve subjects" screen this tour is actually about.
 
 ### Screen 4 — "Resolve teachers" (2026-08-05) — deferred e-mail resolution, merged with "Pending teachers" (2026-08-10)
 

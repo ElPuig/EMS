@@ -50,7 +50,7 @@
                         </div>
 
                         <div invisible="state != 'subjects'">
-                            <p>EMS also checks that the subject found in the file is actually taught in the group's own study - a wrong subject code in the file would otherwise only surface as a confusing error at the very end. Any mismatch is listed below for you to pick the right subject; the groups themselves are shown for context only, since they were already resolved on the previous step.</p>
+                            <p>EMS also checks that the subject found in the file is actually taught in the group's own study - a wrong subject code, or a group assigned to the wrong subject, would otherwise only surface as a confusing error at the very end. Any mismatch is listed below: correct whichever side was actually wrong - the group(s), the subject, or both.</p>
                             <div class="alert alert-success" role="alert" invisible="subject_line_ids">
                                 Every subject matches its group's own study.
                             </div>
@@ -63,7 +63,8 @@
                                      than 80 mismatches would still have kept some unresolved lines
                                      on a second page the operator could easily miss. -->
                                 <list editable="bottom" create="False" delete="False" limit="1000">
-                                    <field name="group_ids" widget="many2many_tags" string="Group(s)"/>
+                                    <field name="raw_group_ids" widget="many2many_tags" string="Group(s) found in file"/>
+                                    <field name="group_ids" widget="many2many_tags" string="Group(s)" options="{'no_create': True, 'no_create_edit': True}"/>
                                     <field name="raw_subject_id" string="Subject found in file"/>
                                     <field name="allowed_subject_ids" column_invisible="1"/>
                                     <field name="subject_id"/>

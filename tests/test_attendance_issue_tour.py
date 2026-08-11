@@ -45,7 +45,7 @@ class TestAttendanceIssueTour(HttpCase):
         })
         cls.template = cls.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [cls.teacher.id])], 'study_ids': [(6, 0, [cls.study.id])],
-            'subject_id': cls.subject.id, 'group_ids': [(6, 0, [cls.group.id])], 'space_id': cls.space.id,
+            'subject_id': cls.subject.id, 'group_ids': [(6, 0, [cls.group.id])],
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         cls.schedule = cls.env['ems.attendance_schedule'].create({

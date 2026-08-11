@@ -1,9 +1,13 @@
 Status: ✅ COMPLETE (2026-08-11) - GitHub issue #372, all 4 points implemented and tested (see
-"Point 4: implemented 2026-08-11" and "Points 1-3: implemented 2026-08-11" below). The one
-deliberately deferred follow-up is `regenerate_all_from_calendars()` (see "Production migration
-sequencing" below) - not needed to close #372 itself, kept here as a design reference for the
-eventual production course transition. This file can be deleted once that follow-up either lands
-or is confirmed no longer needed - see CLAUDE.md's own "Design plans" convention.
+"Point 4: implemented 2026-08-11" and "Points 1-3: implemented 2026-08-11" below).
+`regenerate_all_from_calendars()` (see "Production migration sequencing" below) is now also built
+for real and wired into this version's own migration (`migrations/18.0.0.22.0/post-migrate.py`),
+not just a design reference - see "Production migration sequencing: built for real, 2026-08-11"
+below for what changed from the original design. A further lock refinement (point 3 tightened,
+`space_id` removed from the template) shipped the same day - see "Calendar-lock refinement:
+schedule lines and remaining template fields, 2026-08-11" below. This file can be deleted once
+the change is merged and the migration has actually run somewhere real - see CLAUDE.md's own
+"Design plans" convention.
 
 # Origin
 
@@ -193,10 +197,9 @@ write-up (what shipped, every real write path touched). Summary:
   (`_write_or_new_version`) stays, since `course_transition_wizard` and the import wizard's
   own conflict resolution still use it internally.
 
-**Deferred, not blocking:** `regenerate_all_from_calendars()` (see "Production migration
-sequencing" below) - originally considered as a prerequisite for point 2, no longer needed since
-the exact-match constraint turned out to be safe without it. Still valuable for the eventual
-production course transition; kept here as a design reference until built for real.
+**No longer deferred:** `regenerate_all_from_calendars()` (originally considered as a prerequisite
+for point 2, then deferred since the exact-match constraint turned out to be safe without it) is
+now built for real - see "Production migration sequencing: built for real, 2026-08-11" below.
 
 # Production migration sequencing (developer's own plan, 2026-08-11)
 
@@ -252,13 +255,243 @@ this can wait until then) - captured here now so it isn't lost by the time that 
     mechanism, unchanged) - by construction, nothing produced by this regeneration can be a false
     "orphan" under the FK, since it was JUST created by the same sync that sets the FK.
 
-# Recommendation for whoever picks this up
+# Production migration sequencing: built for real, 2026-08-11
 
-This is a genuine, worthwhile simplification (point 4 in particular directly removes the class of
-bug this session just fixed by inference instead of a real relationship) - but it's a
-redistribution of responsibility across three models (calendar, schedule, template), touching
-permissions, the import wizard's write pipeline, and two UI panels on the Schedule tab. Treat it as
-its own Spec/Red/Green cycle (per this repo's Development workflow), not an extension of the
-room-matching fix this session already shipped and tested - confirm answers to the "flecos" above
-with the developer before writing any code, especially #1 (permissions) and #5 (whether the
-locking mechanism's scope actually needs to change or just narrows on its own).
+Confirmed against a real production snapshot (`ems_v18.0.0.21.0_2026-08-06_14-57-15.zip`,
+restored into an isolated `ems_372_migration_test` DB - never the live `ems`/`ems_prod_snapshot`
+databases): 2 real exact-duplicate `ems.attendance_template` pairs existed, which the new
+uniqueness constraint (point 2) would otherwise reject on upgrade. The first approach tried was a
+one-time migration step that detected and MERGED each duplicate pair (survivor = earlier
+`start_date`, loser's non-conflicting schedule lines reparented onto the survivor). It worked
+(after being redesigned to merge per schedule-line, once a real double-booking conflict was found
+on the very first snapshot test - see the git history of `migrations/18.0.0.22.0/post-migrate.py`
+for that abandoned version) but the developer then questioned whether the whole effort was
+worthwhile, given `regenerate_all_from_calendars()` was already going to archive and rebuild
+everything at the eventual course transition anyway: **"¿tiene sentido el esfuerzo de fusionar, si
+se va a proceder a archivar todo y recrearlo en función del calendario del docente?"**
+
+**Decision (developer's own call): drop the merge migration entirely. Instead, run
+`regenerate_all_from_calendars()` itself as part of THIS SAME migration** (not deferred to a
+separate, later course-transition event) - confirmed viable specifically because it runs inside
+`post-migrate.py`, before module data reloads finish and before the Odoo service is reachable by
+any user: the archive+rebuild is never visible as an intermediate broken state, since nobody can
+hit the app until it's already done. This makes step 1 of the original 3-step sequencing above
+(audit/cleanup) happen automatically, immediately, as a side effect of deploying this version -
+not a separate manual step to remember to run later. Steps 2 (course transition) and 3 (re-import)
+are unaffected and still happen at the real, later course-transition event, using the SAME
+`regenerate_all_from_calendars()` method (now with an optional `teachers` recordset parameter,
+added so a test - or a future partial/admin-triggered regeneration - can scope it without touching
+every teacher in the database) if a "re-audit" is ever wanted at that point too, though the
+course-transition wizard's own existing archival flow already covers that case on its own terms.
+
+Why the merge's complexity became unnecessary: `sync_from_schedule_batch` groups entries by
+`(subject, group-set, teacher-set)` - by construction, it can never produce two templates for the
+literal same combination. Archiving everything first and rebuilding from the CURRENT calendar
+state (the same source of truth points 1-4 already make authoritative) naturally yields a
+non-duplicated set with zero special-cased merge logic. An orphaned template with no real calendar
+backing (the actual nature of one side of both dev-DB/production duplicate pairs found during
+testing - a stray, never-synced-to-the-calendar leftover) simply isn't recreated at all; a
+double-booking that genuinely exists in the current calendar data still surfaces via
+`check_overlap`, exactly like any other sync - a real conflict a migration must never silently
+resolve.
+
+**This is a breaking change**, called out explicitly by the developer: a teacher whose working
+schedule was never (re)loaded onto their personal `resource.calendar` ends up with zero active
+templates after this migration, and cannot take attendance until it is - there is no way to route
+around this, since the whole point of points 1-4 is that a template only ever exists as a
+consequence of a real calendar. See `changelog/372-move-students-from-attendance_template-to-attendance_schedule.md`'s
+"Breaking changes" section.
+
+**Real finding while re-testing the simplified migration against the real production snapshot
+(`ems_372_migration_test`, isolated, restored from `ems_v18.0.0.21.0_2026-08-06_14-57-15.zip`,
+2026-08-11):** the migration correctly ABORTED on its first run - `check_overlap` caught a genuine
+room double-booking ('Carlos Casas' teaching "TUT ASIX1: Tutoria" vs 'Priscila Rodríguez' teaching
+"MP 0369: Implantació de sistemes operatius", both Wednesday 18:15-19:10, room "Stallman (0.01)",
+group ASIX1A) - proof the safety design works as intended (a real conflict surfaces loudly instead
+of being silently merged away).
+
+A follow-up read-only SQL scan of this same isolated snapshot (mirroring `check_overlap`'s own
+logic: same room+weekday+overlapping time, excluding the co-teaching exemption - same subject_id
+AND a shared group) found **40 distinct real overlapping teacher-pairs**, not just the one that
+happened to abort the migration first. These are heavily concentrated on a handful of specific
+teachers appearing opposite a *different* primary teacher across MANY different subjects in the
+same room/time slot every day of the week - e.g. 'Priscila Rodríguez' opposite 5 different
+teachers across "MP 0369", "MP 0372", "MP OPT2", "MP 0484", "MP 0483"; 'Inma Martínez' opposite 3
+different teachers across "MP 0438"/"MP 0439"/"MP 0442"; 'Juan Zabay'/'Laura Martín' both opposite
+'Eric Bautista' across several AIF subjects.
+
+**Confirmed with the developer (2026-08-11): this is exactly a support/reinforcement co-teaching
+pattern** ("Priscila és una profesora que ha estado haciendo de refuerzo... Entiendo que el resto
+también"). The developer also confirmed the design goal driving the fix below: **this version
+should be deployable on any live EMS instance directly, without first requiring a course
+transition to blank every calendar** - checked whether the normal course-transition + reimport
+path would sidestep this problem "for free", and it does NOT: the working-schedule import wizard's
+own `_classify_conflict_kind` has the exact same gap (a matching-subject requirement for
+`co_teaching_eligible`), classifies this cross-subject/same-room case as `plain_conflict`, and
+`_resolution_is_valid` only allows `{reassign_rooms, prevail_left, prevail_right}` for that kind -
+no "confirm both as co-teaching" option exists there either. So the normal reimport path would hit
+the identical 40 cases, one by one, with only a fictional room reassignment or dropping one side
+as options - not actually a solved problem, just deferred to a slower, per-conflict manual UI.
+
+**Fix, per the developer's explicit design ("debemos archivar la que corresponde al refuerzo (o la
+que creemos que es de refuerzo, o una de las dos sin más)... diciendole lo que se ha archivado, y
+con que entraba en conflicto, le damos las herramientas para que pueda entrar y tocar calendarios a
+mano"):** deliberately does NOT widen `is_co_teaching_with`/`check_overlap` themselves - both are
+general-purpose, used by every live schedule edit, and loosening them risks masking a genuine
+future double-booking mistake (the far more common real shape of this exact same "different
+subject, same room/slot/group" pattern). Instead, `ems.attendance_template.
+_drop_unresolved_conflicts` runs inside `regenerate_all_from_calendars()`, before the sync: scans
+every teacher's entries pairwise for this exact clash shape and drops ONE side (arbitrary
+iteration-order choice, no attempt to guess which one is "really" reinforcement) so the batch still
+completes. The migration logs every dropped entry by name (teacher, subject, weekday/time, room)
+and what it conflicted with, so whoever runs it knows exactly which pairs need a manual fix via the
+Schedule tab afterward - same "breaking change, needs manual follow-up" contract as a teacher with
+no schedule loaded at all. See `ems.attendance_template.regenerate_all_from_calendars`'s and
+`_drop_unresolved_conflicts`'s own docstrings, and `docs/en/developers/attendance/
+attendance_template.md`, for the implementation.
+
+Separately, and unrelated: the same class of issue was also found incidentally in the *current
+dev DB* (`ems`, not production - see CLAUDE.md's sandbox/prod distinction) while testing
+`regenerate_all_from_calendars()`'s own test coverage - 'Eric Bautista'/'Christian Escobar' both
+currently hold a Friday 16:00-17:00 slot in 'Aula 1.21' for two different subjects. Not
+investigated further.
+
+# Calendar-lock refinement: schedule lines and remaining template fields, 2026-08-11
+
+The developer found two live gaps in point 3's original lock, still open to direct edits through
+the normal UI even after the earlier work:
+
+1. **`ems.attendance_schedule` lines could still be added/removed/edited by hand** - `create`/
+   `unlink` were still `1,1,1,1` in `security/ir.model.access.csv` (never revoked, unlike the
+   template), and every field (`weekday`/`start_time`/`end_time`/`space_id`/
+   `attendance_template_id`/`notes`) was freely writable - only the template's own embedded list
+   view showed them `readonly="has_sessions"` (a view-only hint, not an ORM guard, and only while a
+   line had no real sessions yet).
+2. **`ems.attendance_template`'s own identity fields were still writable** - point 3 only ever
+   locked `active`; `teacher_ids`/`subject_id`/`group_ids`/`study_ids`/`start_date`/`end_date`
+   stayed a plain `write()` for admin/teacher. Developer's own words: *"ni siquiera el admin
+   debería poder cambiar esos datos, para no generar inconsistencias. Los cambios deberían venir
+   siempre desde el calendario."* Also flagged `space_id` on the template as no longer needed.
+
+**Fix, mirroring point 3's own mechanism exactly:**
+- `ems.attendance_schedule` gained its own `write()` guard (`_LOCKED_FIELDS = {'active', 'weekday',
+  'start_time', 'end_time', 'space_id', 'attendance_template_id', 'notes'}`) - only `student_ids`
+  stays freely writable. `security/ir.model.access.csv` revokes `create`/`unlink` for every group,
+  matching the template's own `1,1,0,0`.
+- `ems.attendance_template._LOCKED_FIELDS` extended from just `{'active'}` to also include
+  `teacher_ids`, `subject_id`, `group_ids`, `study_ids`, `start_date`, `end_date` - only `color`
+  stays freely writable.
+- `space_id` removed from `ems.attendance_template` entirely (not just locked) - it only ever
+  existed as a default-value source for manually adding a schedule line, itself no longer possible
+  either. `ems.attendance_schedule.space_id` (the line's own room) is unaffected and unchanged.
+- `ems.attendance_mixin._write_or_new_version`'s in-place branch didn't carry the bypass context at
+  all (only its archive+copy branch did) - fixed to bypass both branches consistently, since it's
+  shared by both models and every legitimate internal caller on either one now needs it.
+- Every legitimate internal write/archive site across `attendance_template.py` (the sync pipeline's
+  own line rewrites/archives, the survivor's nested-line creates) and `working_schedule.py` (the
+  import wizard's room-reassignment resolution) updated to carry the bypass context (and `sudo()`
+  where a nested schedule-line `create()` is now involved, since that's ACL-revoked too).
+- Views updated: the template form's identity fields are unconditionally `readonly="1"` now (not
+  conditional on `has_sessions`/role); the embedded schedule-line list lost its `space_id` column,
+  gained `create="0" delete="0"`, and its remaining columns are unconditionally readonly too.
+
+See `docs/en/developers/attendance/attendance_template.md` and `attendance_schedule.md` for the
+full technical writeup once updated in the same pass as this note.
+
+# Follow-up questions raised alongside this refinement (2026-08-11) - all resolved same day
+
+**1&2. Is `_write_or_new_version` still needed once templates/schedules can't be edited by hand?**
+Yes - it's used by two legitimate INTERNAL processes, never a direct user edit, both indirectly
+triggered by "the calendar" (an import file, or a course transition), consistent with the whole
+design: `working_schedule.py`'s import-wizard room-reassignment resolution
+(`line.right_schedule_id._write_or_new_version({'space_id': ...})`), and `course_transition_
+wizard.py`'s departing-co-teacher correction (`template._write_or_new_version({'teacher_ids':
+[(6, 0, remaining.ids)]})`). Confirmed via a full grep of every call site - no other callers exist.
+Not changed; already correctly bypasses the write-lock via `EMS_BYPASS_TEMPLATE_LOCK_KEY` (both
+branches, since this same refinement fixed the in-place branch not carrying it - see above).
+
+**3. Mid-course subject handoff on the same weekly slot** — **implemented, 2026-08-11.** Developer's
+own proposed approach (simpler than the (a)/(b)/(c) options originally floated): `ems.attendance_
+schedule.check_overlap()` already filters candidates by TEMPLATE date-range overlap - two
+templates with non-overlapping dates for the same slot were already safe, the only real gap was
+that `resource.calendar.attendance` (the actual source of truth) had no date concept at all, so
+the sync pipeline always defaulted every template to the full course year regardless. No cron or
+"staged future edit" needed - the admin just enters both halves of the year upfront, each with its
+own explicit date range, and the existing overlap logic does the rest. See
+`docs/en/developers/employees/working_schedule.md`'s own "Mid-course subject handoff" section for
+the full implementation writeup (reuses core Odoo's own `date_from`/`date_to` fields on
+`resource.calendar.attendance` - NOT new EMS fields, confirmed the hard way after a first draft
+that added parallel EMS-only fields collided with core's own `_check_overlap` constraint, which
+deliberately excludes any row that already has `date_from`/`date_to` set from its "no overlap"
+scan). Interactive coverage: `static/tests/tours/working_schedule_split_period_tour.js` +
+`tests/test_working_schedule_split_period_tour.py`.
+
+**4. Discarded - developer's own call, 2026-08-11:** *"lo descarto porque el PAS no da clase pero
+tendrá calendario, así que creo que es mejor no juntarlo."* (PAS/support staff will have their own
+calendar without ever teaching - merging session/attendance-taking machinery into the calendar
+model would inappropriately couple it to a model that also has to represent non-teaching-only
+calendars.) Consistent with the earlier technical assessment (deliberately incompatible calendar-
+vs-schedule lifecycles, see the git history of this file for the full reasoning) - keep the
+three-layer split (calendar → schedule → session), not something to revisit without a much more
+concrete problem this would solve.
+
+# Further refinements on top of point 3, same day (2026-08-11)
+
+**Weekly hours summary must count a date-split slot once, not twice** - developer's own call:
+*"el conteo cuando se solapan debe funcionar bien. Si hay 2 sesiones en el mismo bloque con fechas
+distintas, hay que contarlo como una sola sesión (la más larga)."* Implemented via
+`resource.calendar._dedupe_date_split_blocks()`, called from `get_schedule_hours_summary()` - see
+`docs/en/developers/employees/working_schedule.md`'s own "Date-split slots count once, not twice"
+note for the implementation.
+
+**Schedule tab edit-mode UI redesign: shared period rows → independent per-day cards** -
+developer's own call, after seeing point 3's first-draft widget: *"no me gusta el widget, porque
+las fechas de inicio/final son para toda la fila y queda raro. Además todo queda demasiado
+apretado."* Full spec given (5 day columns, independent cards each with its own start/end date,
+start/end time, subject-or-non-teaching-reason, groups, room; a "+ Add" button per column; no
+drag-and-drop; the view/calendar mode staying pixel-identical to before) and confirmed feasible
+before implementing. Framework scaffolding kept (option 2 of the two proposed) - developer's own
+call: *"Vamos a partir de la 2, creo que eso hará más fácil mostrar los patios en el modo
+edición"* (a future feature, not yet built). See `docs/en/developers/employees/working_schedule.md`'s
+own "Schedule tab widget's own UI for this" writeup for the full implementation, and
+`static/tests/tours/working_schedule_split_period_tour.js` for the rewritten interactive coverage.
+
+**Real bug found and fixed while reviewing the card redesign: derived breaks (patio) missing on
+days a teacher's real entries didn't happen to span into the break's own hour.** Found by the
+developer testing two real teachers after the redesign - one (Fernando Porrino) whose real
+calendar alternates morning-only some weekdays / afternoon-only others (a dual-shift vocational
+pattern), one (Juan Zabay) who works afternoon-only every day but was still shown a morning break
+that never applied to him, while his own real afternoon break didn't show at all. Root cause: the
+original `hr.employee._get_derived_break_entries()` computed containment against each individual
+DAY's own known span - correct for a teacher with a single, uniform daily pattern, but wrong for
+one whose real classes vary morning/afternoon by weekday. Redesigned (2026-08-11) to compute a
+WHOLE-WEEK morning/afternoon span instead - developer's own spec: *"si el docente trabaja de
+mañana, se muestra siempre el patio de la mañana [...] de tarde [...] de mañana y tarde, se
+muestran ambos [...] aunque ese día el docente no trabaje."* See
+`docs/en/developers/employees/working_schedule.md`'s own "Derived break" section for the full
+writeup, including why classification recomputes morning/afternoon from `hour_from` rather than
+trusting the stored `day_period` field (a real, pre-existing inconsistency between two different
+write paths' own thresholds). Verified empirically against both real teachers' actual calendars
+via `get_derived_break_attendance_data()` (not just backend tests) before considering it fixed.
+
+**A second, separate real bug found while re-testing this fix on more real teachers (Gabriel
+Manrubia): the widget kept showing a PREVIOUSLY viewed teacher's own derived breaks/hours summary
+after paging to a different one.** Root cause: `schedule_grid_field.js` only loaded these two from
+`onWillStart` (mount-only) - Odoo's form view reuses the same widget component instance across a
+pager navigation (no remount), so a mount-only load never refreshed. Fixed with `useRecordObserver`
+- with a real subtlety: the hook's own `record` argument must be used, not `this.props.record`,
+which can still be the previous employee at the exact moment the callback fires (confirmed the
+hard way - a first attempt using `this.props.record` was still broken). Regression-tested by
+`static/tests/tours/working_schedule_stale_breaks_tour.js`.
+
+**A third refinement, the same developer report: candidate breaks were being searched across
+EVERY framework unconditionally, so a teacher genuinely teaching only a CCFF program (CFGS/EFPS)
+was shown their own program's break correctly, but ALSO two unrelated ESO breaks that happened to
+fit by time alone.** Developer's own proposed design, implemented as given: candidates now scope
+to `teaching_ids.group_id.level_id` (the level(s) the teacher actually teaches, kept in sync with
+the real calendar) - falls back to searching every framework only when the teacher has no
+identifiable level at all. A teacher spanning several levels whose frameworks share the same break
+(ESO/Batxillerat, at this centre) needs no special-casing, the existing dedup already collapses it;
+one genuinely spanning different configurations sees only their own relevant breaks. Verified
+empirically against the reporting teacher's real calendar plus two others checked earlier in the
+same investigation - all three now show exactly the expected breaks, nothing more.

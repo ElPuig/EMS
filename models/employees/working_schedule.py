@@ -171,6 +171,40 @@ class ems_working_schedule(models.Model):
 	# Wednesday is dayofweek '2' (dayofweek follows date.weekday(): '0'=Monday).
 	FIXED_HOURS_WEDNESDAY = '2'
 
+	def _dedupe_date_split_blocks(self, attendances):
+		"""A weekday/time slot legitimately split across the year into several date-scoped rows (see
+		plans/calendar_driven_attendance_templates.md's "Mid-course subject handoff" refinement) must
+		only ever count ONCE toward the weekly hours total - not once per date-scoped row sharing it,
+		which would silently inflate the reported hours for that slot even though only one of them is
+		ever actually happening at a given point in the year (developer's own call, 2026-08-11: "si
+		hay 2 sesiones en el mismo bloque con fechas distintas, hay que contarlo como una sola sesión
+		- la más larga").
+
+		Clusters 'attendances' per weekday by TIME OVERLAP (a standard sorted-interval merge, not
+		exact (hour_from, hour_to) equality - the two halves of a split slot don't have to share the
+		exact same time, only genuinely overlap), keeping only the longest entry per cluster. Safe to
+		cluster purely by time overlap, with no date-range check needed here at all: two entries can
+		only ever genuinely overlap in TIME on the SAME calendar if their DATE ranges do NOT overlap -
+		core Odoo's own '_check_overlap' constraint (resource_calendar.py) already forbids two active,
+		date-overlapping rows from coexisting in the first place, so a same-time cluster found here can
+		never accidentally hide a real, still-unresolved double-booking - one could never have been
+		saved to begin with."""
+		kept = self.env['resource.calendar.attendance']
+		for weekday in ('0', '1', '2', '3', '4'):
+			day_entries = attendances.filtered(lambda attendance, weekday=weekday: attendance.dayofweek == weekday).sorted('hour_from')
+			cluster = self.env['resource.calendar.attendance']
+			cluster_end = None
+			for attendance in day_entries:
+				if cluster and attendance.hour_from >= cluster_end:
+					kept |= max(cluster, key=lambda a: a.hour_to - a.hour_from)
+					cluster = self.env['resource.calendar.attendance']
+					cluster_end = None
+				cluster |= attendance
+				cluster_end = attendance.hour_to if cluster_end is None else max(cluster_end, attendance.hour_to)
+			if cluster:
+				kept |= max(cluster, key=lambda a: a.hour_to - a.hour_from)
+		return kept
+
 	def get_schedule_hours_summary(self):
 		"""Weekly hours totals for the Schedule tab's summary table, split into two columns exactly
 		like the real external schedules this data is modelled on:
@@ -186,6 +220,7 @@ class ems_working_schedule(models.Model):
 		later. For a full-time teacher, 'total' should equal 24 (full_time_required_hours)."""
 		self.ensure_one()
 		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
+		weekday_entries = self._dedupe_date_split_blocks(weekday_entries)
 
 		teaching_rows = {}
 		fixed_rows = {}
@@ -256,6 +291,23 @@ class ems_working_schedule_assignation(models.Model):
 	# PERSONAL calendar carries its own row for the same shared class, and all of them point at the
 	# same single schedule line - see ems.attendance_template's own "Co-teaching" docs.
 	attendance_schedule_id = fields.Many2one(string="Attendance schedule", comodel_name="ems.attendance_schedule")
+	# NOTE: 'date_from'/'date_to' are NOT new fields - they already exist on core
+	# 'resource.calendar.attendance' (odoo/addons/resource/models/resource_calendar_attendance.py),
+	# reused here as-is rather than adding EMS-specific duplicates (2026-08-11, see plans/
+	# calendar_driven_attendance_templates.md's "Mid-course subject handoff" refinement - confirmed
+	# the hard way: a first draft added new 'start_date'/'end_date' fields instead, which core's own
+	# '_check_overlap' (resource_calendar.py) silently ignored, since that check's own "no overlap"
+	# scan explicitly EXCLUDES any attendance row that already has 'date_from'/'date_to' set - it's
+	# core's own designed-in way to mark a row as an exception to the recurring-pattern-overlap rule,
+	# exactly what this feature needs). Both blank (the default, unchanged behavior) means "valid all
+	# course year". Setting them lets the SAME weekday/time/room slot legitimately hold two different
+	# subjects across the year (e.g. a regular module until February, the end-of-course project
+	# afterwards) - both entered on the calendar UPFRONT, at the same time, rather than requiring
+	# someone to remember to edit the calendar on the actual handoff day. 'ems.attendance_schedule.
+	# check_overlap()' already filters candidates by TEMPLATE date-range overlap once these flow
+	# through to the derived template's own 'start_date'/'end_date' (see
+	# 'ems.attendance_template._plan_schedule_sync') - two templates derived from non-overlapping-
+	# dated blocks never collide there either, no change needed to that check.
 	# NOTE: stored because it's read in bulk whenever a group's schedule is aggregated across many
 	# different teachers' calendars (see ems.group.get_subject_teachers_summary) — computing it on the
 	# fly for every row would mean one 'hr.employee' search per row instead of a plain read.
@@ -1295,7 +1347,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				# was the template's only active line, the now-empty template is archived outright
 				# too ("archives") rather than left as an orphaned, lineless record.
 				template = line.right_schedule_id.attendance_template_id
-				line.right_schedule_id.action_archive()
+				line.right_schedule_id.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 				if not template.attendance_schedule_ids:
 					template.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 			elif line.resolution == 'prevail_right':
@@ -1438,7 +1490,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			self.env['ems.teaching'].sync_from_schedule(teacher, entries, replace=False)
 			teacher_entries.append((teacher, entries))
 
-		# NOTE: ems.attendance_template.space_id is required, but ems.group.space_id (where it's
+		# NOTE: ems.attendance_schedule.space_id is required, but ems.group.space_id (where it's
 		# taken from) is not — a group missing a classroom would otherwise fail with Odoo's generic
 		# "mandatory field is not set" error instead of naming the actual problem.
 		missing_space = self._groups_without_space(teacher_entries)

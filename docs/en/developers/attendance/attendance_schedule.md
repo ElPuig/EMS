@@ -28,17 +28,25 @@ rewrites these rows from a teacher's live-edited or imported timetable
 | `start_date`/`end_date` | `Datetime`, computed + stored | The template's own `start_date`/`end_date` (a plain date) combined with this schedule's `start_time`/`end_time`, converted local→UTC via `ems.datetime_utils` — stored as full datetimes because timezone-correct comparisons need a real date, not a bare time-of-day float. |
 | `time_range` | `Char`, computed + stored | `"HH:MM - HH:MM"`, derived from `start_date`/`end_date` converted back to local time. |
 | `teacher_ids` | `Many2many`, `related='attendance_template_id.teacher_ids'` | Read-only mirror, used **only** for `ir.rule` permission filtering (`security/rules/attendance.xml`) — not for any business logic in this file. |
-| `has_sessions` | `Boolean`, computed | `True` once this line has a real `attendance_session_ids` entry — locks `weekday`/`space_id`/`start_time`/`end_time` (readonly in the form). `attendance_session_ids` is `copy=False`. |
+| `has_sessions` | `Boolean`, computed | `True` once this line has a real `attendance_session_ids` entry — see "Locking" below for what this used to gate (now superseded by an unconditional lock). |
 
 ---
 
-## Locking (the manual "Edit" button was removed 2026-08-11)
+## Locking (the manual "Edit" button was removed 2026-08-11; extended to an unconditional field lock the same day)
 
-Once a line has real attendance history (`has_sessions`), its own logistics fields —
-`weekday`, `space_id`, `start_time`, `end_time` — become readonly: changing where/when a
-class actually happened after real roll-calls were taken against it would misrepresent that
-history (`ems.attendance_session_header`'s own `space_id`/`weekday`/etc. are `related`+`store=True`
-mirrors of these, see [`attendance_session.md`](attendance_session.md)).
+**As of 2026-08-11, every field on this model except `student_ids` is unconditionally locked** via
+a `write()` guard (`_LOCKED_FIELDS = {'active', 'weekday', 'start_time', 'end_time', 'space_id',
+'attendance_template_id', 'notes'}`) - the same `EMS_BYPASS_TEMPLATE_LOCK_KEY` mechanism
+`ems.attendance_template` uses (see that doc's "Access control" section). `security/
+ir.model.access.csv` also revokes `create`/`unlink` for every group (matching the template's own
+`1,1,0,0`) - a line can now only ever come into existence, change, or go away as a consequence of
+the calendar-sync pipeline, never a direct edit, admin included. This widens what used to be a
+narrower, `has_sessions`-gated lock (below, kept for history): changing where/when a class actually
+happened after real roll-calls were taken against it would misrepresent that history
+(`ems.attendance_session_header`'s own `space_id`/`weekday`/etc. are `related`+`store=True`
+mirrors of these, see [`attendance_session.md`](attendance_session.md)) - the developer's own call
+was that a direct edit is never legitimate regardless of session history, since it risks drifting
+the line out of sync with the calendar even before any attendance was ever taken.
 
 **Until 2026-08-11, a per-row "Edit" button (`action_new_version()`) let an admin/teacher unlock
 one line by hand** - it archived this one line and cloned it under the same template, leaving the
@@ -65,9 +73,9 @@ Only the direct, button-driven entry point on this model and `ems.attendance_tem
 
 A same-day attempt added an `action_archive()` override here that cascaded to
 `attendance_session_ids` - reverted the same day on developer feedback: a schedule line can be
-archived for reasons that have nothing to do with a session's own relevance. Concretely, once a
-line `has_sessions`, its logistics fields (`weekday`/`space_id`/`start_time`/`end_time`) are
-readonly - so a routine correction (fixing a room, say) doesn't edit the line at all, it
+archived for reasons that have nothing to do with a session's own relevance. Concretely, a line's
+logistics fields (`weekday`/`space_id`/`start_time`/`end_time`) are locked (see "Locking" above) -
+so a routine correction (fixing a room, say) doesn't edit the line at all, it
 **silently** archives the old one and creates a new version via `_write_or_new_version()` above
 (now only reachable through the calendar-driven sync pipeline or the import wizard's own conflict
 resolution, not a direct button - see "Locking" above), entirely as a side effect of what looks

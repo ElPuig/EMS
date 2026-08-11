@@ -186,11 +186,17 @@ A **framework** is just a `resource.calendar` with `is_framework=True` and an op
 `static/src/js/backend/schedule_grid_field.js` (OWL field widget, `widget="schedule_grid"`, registered on `schedule_attendance_ids`) + `static/src/xml/backend/schedule_grid_field.xml` + `static/src/css/backend/schedule_grid.css`.
 
 - **Read-only view**: entries positioned absolutely by exact `hour_from`/`hour_to` (not hour-rounded) inside an hourly-tick background grid. Blank/unassigned rows are filtered out of the read view entirely (nothing to show). The grid's own vertical axis (`computeBounds()` in `schedule_grid_geometry.js`, shared with the group widget) fits tightly to the teacher's actual entries — an afternoon-only teacher (e.g. 14h–22h) sees exactly that window, not a wider one padded out to a generic default; `DEFAULT_START`/`DEFAULT_END` (8h–20h) only apply as a fallback canvas when the calendar has no entries yet.
-- **Derived break** (view mode only): a break the teacher's own calendar has no real saved row for yet is filled in from `hr.employee._get_derived_break_entries()`. The algorithm is deliberately **gap-based, not level-based**: for each weekday the teacher has at least one real entry (of any kind), it takes that day's own known span (earliest `hour_from` to latest `hour_to` among the teacher's real entries that day) and checks *every* break defined on *any* level's framework — a candidate is included only if it falls fully inside that span and doesn't overlap any real entry; two frameworks defining the exact same break collapse into one result. This deliberately never tries to guess "the" level a teacher belongs to — a teacher can plausibly teach several levels, even within the same day (e.g. an English teacher covering ESO, Batxillerat and cicles), each with its own break time, and each is evaluated independently against that day's actual gaps. A gap that doesn't line up with any known break simply stays empty.
+- **Derived break** (view mode only): a break the teacher's own calendar has no real saved row for yet is filled in from `hr.employee._get_derived_break_entries()`. The algorithm is deliberately **gap-based, not level-based**: it checks *every* break defined on *any* level's framework — a candidate is included only if it doesn't overlap any of that specific weekday's real entries; two frameworks defining the exact same break collapse into one result. This deliberately never tries to guess "the" level a teacher belongs to — a teacher can plausibly teach several levels, even within the same day (e.g. an English teacher covering ESO, Batxillerat and cicles), each with its own break time.
+
+  **Candidates are scoped to the level(s) the teacher actually teaches (added 2026-08-11).** `teaching_ids.group_id.level_id` (kept in sync with the real calendar by `apply_schedule_changes`/`sync_from_schedule` - it reflects what the teacher genuinely teaches right now, not a UI convenience field like `source_framework_id`) drives which framework(s)' break rows are even considered - `self.env['resource.calendar'].search([('is_framework', '=', True), ('level_id', 'in', levels.ids)])`. Falls back to searching every framework, unscoped, only when the teacher has no identifiable level at all (no active teaching assignment, or their level(s) have no framework configured yet). A teacher spanning several levels whose frameworks happen to define the exact same break (ESO and Batxillerat, at this centre) needs no special-casing - the per-slot dedup below already collapses it to one; a teacher genuinely spanning DIFFERENT break configurations (ESO and a CCFF program) sees every one of their own relevant breaks, still never an unrelated program's. Real-world bug this fixed: a teacher genuinely teaching only a CCFF program (CFGS/EFPS) was shown that program's own break correctly, but ALSO two unrelated ESO breaks that happened to fit by time alone, since candidates were searched across every framework unconditionally before this. Developer's own spec: *"si el docente solo da clase en CCFF, se muestran los patios de CCFF [...] si es de ESO, los patios de la mañana de la ESO [...] si da clase en una mezcla [...] debería verse un hueco sin docencia donde encaja un patio."*
+
+  **Containment is a WHOLE-WEEK span per half of the day, not a per-day one (redesigned 2026-08-11).** A candidate break is classified "morning" or "afternoon" by its own `hour_from` (`DAY_PERIOD_SPLIT_HOUR = 13`, matching the Schedule tab widget's own `card.hourFrom < 13` convention — see below), and checked against the teacher's own aggregate morning/afternoon span (earliest `hour_from` to latest `hour_to` among ALL the teacher's real entries classified into that same half, across ALL 5 weekdays, not just the one being evaluated). A half the teacher never works AT ALL during the week (no real entry falls into that classification on any weekday) contributes no break, ever. Otherwise, every matching candidate is shown on **every** weekday, including a day the teacher happens to be off entirely — only the per-day overlap-with-a-real-entry check still applies per weekday. Real-world bug this replaced (2026-08-11): the original per-day design used each individual DAY's own span, so a teacher whose real classes only ever started in the afternoon on some days (or only in the morning on others — a common dual-shift vocational-program pattern) could see their OWN break missing entirely on the days that didn't happen to literally span into the break's own hour, even though the school genuinely has that break every day the teacher works that half. Developer's own spec: *"si el docente trabaja de mañana, se muestra siempre el patio de la mañana [...] de tarde [...] de mañana y tarde, se muestran ambos [...] aunque ese día el docente no trabaje."* Classification deliberately does **not** trust the stored `day_period` field on the teacher's own real rows — two different write paths populate it with two different, equally arbitrary thresholds of their own (13h here; 15h in the XML planner importer, `working_schedule.py`'s `_parse_schedule_entries`) and have been found disagreeing with each other on a real boundary entry (a 14:25 entry stored as `'morning'` by the importer's own rule while genuinely being that teacher's only afternoon work) — recomputing from `hour_from` with one consistent rule, applied uniformly to both the teacher's real entries and every candidate break, stays immune to that pre-existing inconsistency.
+
+  **Reloads on every record change, not just once on mount (fixed 2026-08-11).** Both `_loadSummary()`/`_loadDerivedBreaks()` were only ever called from `onWillStart` - a mount-only hook. Odoo's form view reuses this exact same widget component instance across a pager/breadcrumb navigation to a DIFFERENT employee (no remount, a deliberate web client optimization), so a mount-only load left the PREVIOUSLY viewed teacher's own hours summary/derived breaks still showing on a newly navigated-to one - found while manually re-checking several real teachers' calendars in a row after the whole-week-span redesign above. Fixed with `useRecordObserver` (`@web/model/relational_model/utils`) instead, which reloads on mount AND whenever `props.record` genuinely changes. **Gotcha that cost a first, silently-broken attempt:** the hook's callback must use the `record` argument IT passes in, not `this.props.record` - at the exact moment the callback fires, OWL may not have reassigned `this.props` to the new record yet, so reading `this.props` there can still return the PREVIOUS employee (confirmed empirically: an initial fix that ignored the callback's own `record` argument still fetched the previous teacher's data on the very first RPC after paging - passing `record` through explicitly as a parameter to both methods, defaulting to `this.props.record` for other callers like `save()` where it's already guaranteed current, is what actually fixed it). Regression-tested by `static/tests/tours/working_schedule_stale_breaks_tour.js` - two fixture teachers (one morning-only, one afternoon-only), opens the first, pages to the second via `.o_pager_next`, and asserts the first's own break is no longer showing.
 
   **Fetched via RPC, not exposed as a form field.** An earlier version returned this from a computed Many2many field (`derived_break_attendance_ids`, hidden with its own embedded `<list>` sub-view) — it computed correctly server-side (proven by the PDF report, which calls the same method directly in Python) but never actually rendered in the widget. The most plausible explanation, after ruling out the data itself (a `web_read`-shaped RPC simulated against real teacher data showed nothing wrong), is that an *invisible* x2many field with its own embedded list doesn't reliably load its sub-fields client-side, unlike a plain `Many2one`/`Boolean` field (`resource_calendar_id`/`can_edit_schedule` are hidden the same way and work fine). The fix: `hr.employee.get_derived_break_attendance_data()` is a plain public method (RPC-callable, no leading underscore) returning `.read()` dicts (Many2one as a `(id, name)` tuple — matches the array shape `entry.data.non_teaching[1]` already expects), fetched explicitly by the widget's `_loadDerivedBreaks()` in `onWillStart` and again after `save()` — the exact same `orm.call`/`useState` pattern this component already uses for `catalog.subjects`/`get_schedule_hours_summary`. `entriesForDay()` merges the fetched list with the real entries client-side, view-mode only, skipping any derived slot a real entry already occupies. Server-side, `get_schedule_report_lines()` does the equivalent merge for the PDF, calling `_get_derived_break_entries()` directly.
 
-  **Float-rounding tolerance.** A framework break's own `hour_to` and the real period that immediately follows it can represent the exact same clock time (e.g. 11:25) as two slightly different floats — `11.416667` (a literal, as typically entered/imported) versus `11 + 25/60 == 11.416666666666666` (computed) — a difference far too small to matter but enough to make a strict `<` overlap check misfire and silently drop a break that should have shown up. `_get_derived_break_entries()`'s day-span and overlap checks both use `HOUR_EPSILON` (1/120 hour, 30 seconds — comfortably bigger than any float noise, comfortably smaller than any real, meaningful gap) instead of an exact comparison.
+  **Float-rounding tolerance.** A framework break's own `hour_to` and the real period that immediately follows it can represent the exact same clock time (e.g. 11:25) as two slightly different floats — `11.416667` (a literal, as typically entered/imported) versus `11 + 25/60 == 11.416666666666666` (computed) — a difference far too small to matter but enough to make a strict `<` overlap check misfire and silently drop a break that should have shown up. `_get_derived_break_entries()`'s weekly-span and overlap checks both use `HOUR_EPSILON` (1/120 hour, 30 seconds — comfortably bigger than any float noise, comfortably smaller than any real, meaningful gap) instead of an exact comparison.
 
   **Visually distinct from every other non-teaching activity.** A break renders with its own CSS class, `o_schedule_grid_entry_break` (a diagonal brown stripe pattern, `schedule_grid.css`) — gated on `non_teaching_is_break` specifically, not on `non_teaching` in general, so a guard duty or coordination meeting keeps getting its own colour instead (see below). Without that distinction a break in the teacher's own grid was visually indistinguishable from a meeting, which read as "wrong" once breaks started reliably appearing. Same compact single-line block either way (time + label together, see above) — there is no other visual difference between an explicitly-saved break and a derived one. The group PDF's own break cell (`reports/contacts/report_group_schedule.xml`, `.gs-break`) uses the same brown/stripe treatment for consistency; the teacher's own PDF (`report_working_schedule.xml`) still colours every cell — including a break — from the same rotating palette as subjects, unchanged for now.
 
@@ -202,6 +208,96 @@ A **framework** is just a `resource.calendar` with `is_framework=True` and an op
   - **"Weekly teaching hours"**: rows grouped by `ems.group.level_id` (teaching periods) — or, for a reinforcement group, one row per group (see "Reinforcement groups" below) — plus any non-teaching activity that isn't fixed or a Wednesday coordination meeting.
   - **"Other fixed-schedule hours"**: activities with `non_teaching.is_fixed` (e.g. guard duties, any day) and coordination meetings (`non_teaching.code == 'CM'`) specifically on Wednesday (`dayofweek == '2'`) — the centre's fixed non-teaching commitments. Activities with `non_teaching.is_break` (e.g. the lunch/patio break) are dropped from both columns entirely.
   Each column ends with its own `Total` row; the block below both shows the combined `Overall total` (should read 24 — `full_time_required_hours` — for a full-time teacher). The widget's `_loadSummary()` calls the method via RPC on initial mount (`onWillStart`) and again after `save()` — it deliberately does **not** recompute from the in-progress edit buffer, so it always reflects the last-saved schedule, not unsaved changes. See "Server methods" below for the aggregation itself.
+
+  **Date-split slots count once, not twice (fixed 2026-08-11, same day as found):** `_dedupe_date_split_blocks()` runs before the bucketing loop, clustering `weekday_entries` per weekday by TIME OVERLAP (a sorted-interval merge, not exact `(hour_from, hour_to)` equality) and keeping only the LONGEST entry per cluster (developer's own call: *"si hay 2 sesiones en el mismo bloque con fechas distintas, hay que contarlo como una sola sesión - la más larga"*) - a weekday/time slot legitimately split across the year into several `date_from`/`date_to`-scoped rows (see "Mid-course subject handoff" below) now counts once toward the weekly total, not once per row. Deliberately does **not** need to check dates itself to be safe: two rows can only ever genuinely overlap in TIME on the same calendar if their DATE ranges don't overlap - core Odoo's own `_check_overlap` constraint already forbids two active, date-overlapping rows from coexisting at all, so a same-time cluster found here can never accidentally hide a real, still-unresolved double-booking.
+
+## Mid-course subject handoff: date-scoped calendar blocks (2026-08-11)
+
+See `plans/calendar_driven_attendance_templates.md`'s own section on this. Real scenario: a
+weekday/time/room slot is a regular module until February, then becomes the end-of-course project
+for the rest of the year - both known and set up on the calendar UPFRONT (in September), rather
+than requiring someone to remember to edit the calendar on the actual handoff day in March.
+
+**Reuses core Odoo's own `date_from`/`date_to` fields on `resource.calendar.attendance`
+(`odoo/addons/resource/models/resource_calendar_attendance.py`) - not new EMS fields.** Found the
+hard way: a first draft added EMS-specific `start_date`/`end_date` fields instead, and hit core's
+own `resource.calendar._check_overlap()` (`_check_attendance`, an `@api.constrains('attendance_ids')`
+that runs BEFORE any EMS-level validation ever gets a chance) raising `"Attendances can't
+overlap."` - that check's own scan explicitly **excludes** any attendance row that already has
+`date_from`/`date_to` set (core's own way of marking a row as an exception to the recurring-pattern
+overlap rule), so a genuinely dated split only avoids the "can't overlap" error when using core's
+real fields, not a parallel EMS-only pair.
+
+**How it flows through to the derived templates:**
+- `resource.calendar.attendance.date_from`/`.date_to` (blank by default - "valid all course year",
+  unchanged behavior) are read by `ems.attendance_template.regenerate_all_from_calendars()` and by
+  the live-edit path (`apply_schedule_changes` → `sync_from_schedule`) into each entry dict under
+  the SAME key names (`date_from`/`date_to` - matching the established convention that an entry
+  dict's keys mirror the underlying calendar field names directly, same as `dayofweek`/`hour_from`/
+  `hour_to`/`space_id`).
+- `ems.attendance_template._plan_schedule_sync` reads `entries[0].get('date_from')`/`.get('date_to')`
+  and uses them (when set) instead of the full-course-year default when creating a new template -
+  same "first entry/group wins" convention already used for `space_id`.
+- `ems.attendance_schedule.check_overlap()` already filters candidates by TEMPLATE date-range
+  overlap (`attendance_template_id.start_date <= template.end_date AND ...end_date >=
+  ...start_date`) - unchanged; two templates derived from non-overlapping-dated calendar blocks
+  simply never appear as candidates for each other, no special-casing needed there.
+- `ems.attendance_template._drop_unresolved_conflicts` (the `regenerate_all_from_calendars()`
+  migration-time conflict-dropper, see `docs/en/developers/attendance/attendance_template.md`) was
+  also made date-aware (`_entry_dates_overlap`) - two entries whose dates genuinely don't overlap
+  were never going to collide once synced, so must not be treated as an unresolved conflict either.
+
+**The "Schedule" tab widget's own UI for this (per-day CARDS, 2026-08-11 redesign):** edit mode is
+5 independent day columns (Monday-Friday), each holding its own list of self-contained CARDS - one
+per real or still-blank slot, each carrying its own start/end time, its own optional `date_from`/
+`date_to` (two `<input type="date">`, blank = whole course year), its own subject-or-non-teaching
+reason, group and room (`space_id`, newly exposed as its own editable field on the card - previously
+only ever inferred server-side, never shown/editable in this widget at all). A day column's own
+"+ Add" button (`addCard()`) appends a blank card to that day; each card has its own remove button
+(`removeCard()`). There is no drag-and-drop between cards/days, deliberately - developer's own call:
+*"creo que hacer drag-n-drop de las tarjetas complica demasiado y solo serviria para moverlas de
+columna, no creo que compense"* (moving a card to a different weekday only ever needs a remove +
+re-add, not a dedicated gesture). This replaces an earlier design (still described by the git
+history around this date) where periods were **shared rows across all 5 weekdays at once** and a
+"Split" button added a second such row at the same time - abandoned after developer feedback that a
+date-scoped block only ever applies to ONE weekday, so forcing it into an all-days-shared row read
+as confusing and cramped in practice: *"no me gusta el widget, porque las fechas de inicio/final son
+para toda la fila y queda raro. Además todo queda demasiado apretado."*
+
+Two cards on the SAME weekday can share the exact same time (that's what actually implements the
+mid-course handoff - no dedicated "split" action anymore, just add a second card and set its start/
+end time to match the first one's) - cards within a day sort by `(hourFrom, hourTo, startDate)`
+(`_sortCards`), matching the developer's own spec: *"se ordenan por hora de inicio y hora de final,
+si dos se hacen a la misma hora, sale una seguida de la otra (el orden es por fecha)"*. One
+consequence worth knowing when writing a tour against this: giving one of two time-tied cards a
+`startDate` while its sibling still has none re-triggers this sort immediately (an empty date sorts
+before any real one), so the two cards can swap DOM position mid-edit - a tour must not assume a
+card's position stays fixed once it starts touching dates (see
+`static/tests/tours/working_schedule_split_period_tour.js`'s own date-setting step, which looks a
+card up by which subject its own select currently holds instead of by position, for exactly this
+reason). `save()`'s cell-building loop iterates each day's cards, carrying each card's own dates
+(`date_from`/`date_to`, only when set) and room (`space_id`, only when explicitly picked - otherwise
+still server-auto-derived from the group, unchanged) into the written vals. Read-only VIEW mode is
+**unchanged** by this redesign: two entries sharing the exact same `(hour_from, hour_to)` still
+render side by side (`entriesForDay()` groups by slot and assigns a column/columnCount, `entryStyle()`
+splits `left`/`width` accordingly) instead of one silently hiding the other underneath it - the
+weekly grid still looks exactly as before, only the edit-mode layout underneath "Edit"/"New" changed.
+
+Framework scaffolding (baseline blank cards from the calendar's `source_framework_id`, including its
+own non-teaching rows like patio/meetings) is still merged in on every "Edit"/"New" session, same as
+before the redesign - kept deliberately rather than starting edit mode from a blank slate, developer's
+own call: *"eso hará más fácil mostrar los patios en el modo edición"* (a future feature, not yet
+built). A baseline slot matched by more than one real entry (a date-split pair sharing the exact same
+`hour_from`/`hour_to`) becomes one card per real entry (`_seedBufferFromEntries`), each keeping its
+own date range.
+
+**Not implemented in this pass:** the XML planner import format has no per-entry date concept at
+all (`_parse_schedule_entries` builds one flat weekly grid, no date attribute in the source
+`<TeacherNode>/<DayNode>/<HourNode>` structure) - a date-scoped slot can currently only be set up
+via the live "Schedule" tab grid, not through a bulk file import. The group schedule widget
+(`group_schedule_grid_field.js`/`.xml`, read-only, aggregates several teachers for one group) does
+not share any of the CSS classes touched here and was not extended to render split slots side by
+side - it would show them overlapping today, same pre-existing behavior as before this feature.
 
 ## PDF report (`ems.report_working_schedule`)
 

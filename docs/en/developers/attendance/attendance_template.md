@@ -18,7 +18,6 @@ erDiagram
     ems_attendance_template }o--o{ hr_employee : "teacher_ids"
     ems_attendance_template }o--|| ems_subject : subject_id
     ems_attendance_template }o--o{ ems_group : group_ids
-    ems_attendance_template }o--|| ems_space : space_id
     ems_attendance_template }o--o{ ems_study : study_ids
 ```
 
@@ -33,13 +32,12 @@ erDiagram
 |-------|------|-------|
 | `start_date` / `end_date` | `Date`, required | The template's active date range |
 | `color` | `Char` (hex) | Free-pick display color, auto-assigned on creation — see [Free-pick color widget](../shared/color_widget.md) |
-| `teacher_ids` | `Many2many → hr.employee` | Required. Domain restricted to `employee_type = 'teacher'`. More than one teacher means co-teaching. Locked (`readonly`) once `has_sessions` unless `user_is_admin` |
-| `subject_id` | `Many2one → ems.subject` | Required. Domain restricted to `allowed_subject_ids`. Locked once `has_sessions` |
-| `study_ids` | `Many2many → ems.study` | Optional (see above). Locked once `has_sessions` |
-| `group_ids` | `Many2many → ems.group` | Required (`_check_group_ids`). Domain restricted to `study_id in study_ids`. Locked once `has_sessions` |
+| `teacher_ids` | `Many2many → hr.employee` | Required. Domain restricted to `employee_type = 'teacher'`. More than one teacher means co-teaching. Unconditionally locked (write() guard, not just view `readonly`) — see "Identity fields and locking" |
+| `subject_id` | `Many2one → ems.subject` | Required. Domain restricted to `allowed_subject_ids`. Unconditionally locked |
+| `study_ids` | `Many2many → ems.study` | Optional (see above). Unconditionally locked |
+| `group_ids` | `Many2many → ems.group` | Required (`_check_group_ids`). Domain restricted to `study_id in study_ids`. Unconditionally locked |
 | `allowed_subject_ids` | `Many2many → ems.subject`, computed, non-stored | Subjects available in **every** one of `study_ids` (intersection, not union) — backs `subject_id`'s domain and `_check_subject_valid_for_all_studies` below. Empty `study_ids` means no restriction (all subjects allowed) |
-| `space_id` | `Many2one → ems.space` | Required. Auto-filled from the first group's own space on `group_ids` change |
-| `attendance_schedule_ids` | `One2many → ems.attendance_schedule` | The actual weekly weekday/start_time/end_time slots |
+| `attendance_schedule_ids` | `One2many → ems.attendance_schedule` | The actual weekly weekday/start_time/end_time slots. No `space_id` on the template itself (removed 2026-08-11) — each line carries its own |
 | `has_sessions` | `Boolean`, computed | `True` once any of this template's schedules has a real `attendance_session_ids` entry — see "Identity fields and locking" below |
 | `read_only_user` | `Boolean`, non-stored | `True` unless: admin, one of `teacher_ids`, or the record's own creator |
 
@@ -49,14 +47,23 @@ erDiagram
 
 ## Identity fields and locking
 
-Once a template has real attendance history (`has_sessions`), its **identity fields** —
-`teacher_ids`, `subject_id`, `study_ids`, `group_ids` (template-level) and each schedule
-line's `weekday`/`space_id`/`start_time`/`end_time` (line-level, see
-[`attendance_schedule.md`](attendance_schedule.md)) — become readonly in the form. Editing
-them in place after real sessions exist would retroactively misrepresent what those already-taken
-sessions were actually about (every `ems.attendance_session_header` field mirroring them is
-`related`+`store=True`, so an in-place edit would silently rewrite history — see
-[`attendance_session.md`](attendance_session.md)).
+**As of 2026-08-11, the template's identity/logistics fields — `teacher_ids`, `subject_id`,
+`study_ids`, `group_ids`, `start_date`, `end_date` (`active` already was) — are UNCONDITIONALLY
+locked** via a `write()` guard, not just once `has_sessions` becomes true (see "Lock extended to
+every identity/logistics field" under "Access control" below for the full mechanism/reasoning). The
+same applies to each schedule line's own `weekday`/`space_id`/`start_time`/`end_time`/
+`attendance_template_id` (line-level, see [`attendance_schedule.md`](attendance_schedule.md)) —
+only `color` (template) and `student_ids` (schedule line) stay freely writable. Before this pass,
+these fields were only locked once real sessions existed (`has_sessions`); the developer's own call
+was that editing them by hand is never legitimate, session history or not, since a template's
+identity should only ever reflect what the calendar itself says — direct edits risked drifting the
+two out of sync even before any attendance was ever taken.
+
+Editing them in place after real sessions exist would additionally retroactively misrepresent what
+those already-taken sessions were actually about (every `ems.attendance_session_header` field
+mirroring them is `related`+`store=True`, so an in-place edit would silently rewrite history — see
+[`attendance_session.md`](attendance_session.md)) — the ORIGINAL reason this lock existed at all,
+before it was widened to cover every case regardless of session history.
 
 **Until 2026-08-11, a per-record "Edit" button (`action_new_version()`) let an admin/teacher
 unlock a locked template by hand** (archive the whole template + clone it fresh, no session
@@ -128,9 +135,53 @@ Key behaviours, each covered by its own docstring in the code:
 - **Co-teaching reconciliation** (`_reconcile_teacher_groups`) works at the exact (weekday, start_time, end_time) slot level, not at the whole-template level — a single teacher's live edit can retroactively **split** another teacher's existing template if they now land on the exact same slot, or leave it alone otherwise.
 - **Archive-then-write, in two full passes across the whole batch** (`_archive_stale_schedule_sync` for every plan, then `_write_schedule_sync` for every plan) — never interleaved per-plan. Interleaving would let one plan's fresh line collide (via `ems.attendance_schedule.check_overlap()`) with another plan's still-active *stale* line that hasn't been re-synced yet, when two groups share a classroom.
 - **Per-line, `has_sessions`-aware matching for a persisting template (added 2026-08-05, replacing a blunter "archive every line, recreate all fresh" behavior):** `_plan_schedule_sync` calls `_match_schedule_lines` once per persisting key, matching the survivor's current `attendance_schedule_ids` against the incoming entries by `(weekday, start_time, end_time)` - a line's own identity within a template. A line with no matching entry is archived outright (genuinely gone); a matched line whose room hasn't changed is left completely untouched; a matched line whose room *has* changed goes through the same decision as `ems.attendance_mixin._write_or_new_version` - updated in place if it has no real sessions yet, or archived-and-replaced-with-a-fresh-line if it does (split across the two passes above for the same cross-plan collision reason, not called as one atomic step - see the code's own comments on `_archive_stale_schedule_sync`/`_write_schedule_sync` for why). This is shared, unconditional model-level behavior - it applies identically whether the caller is the live Schedule tab's own edit or (once built) the working-schedule import wizard, not something either caller opts into separately.
-- **Duplicate consolidation:** more than one active template can share the same (subject, group-set, teacher-set) key, a pre-existing data-quality artifact of repeated past imports. Only `templates[0]` (the "survivor") gets refreshed; every other duplicate sharing that key is archived outright.
+- **Duplicate consolidation:** more than one active template can share the same (subject, group-set, teacher-set) key, a pre-existing data-quality artifact of repeated past imports. Only `templates[0]` (the "survivor") gets refreshed; every other duplicate sharing that key is archived outright. Since `_check_unique_teaching_assignment` (2026-08-11) rejects a literal duplicate `create()`/`write()` outright, this path is now effectively legacy-data-only — a duplicate can no longer be created going forward, only inherited from data older than that constraint (see `tests/test_attendance_template.py::test_resync_consolidates_duplicate_templates_for_same_key`, whose fixture now constructs the duplicate via raw SQL for exactly this reason).
 - **History preservation:** stale data is always **archived**, never unlinked — `unlink()` itself refuses outright once any of a template's schedule lines has an actual `attendance_session_ids` entry (a real roll-call was taken against it).
 - **`find_external_conflicts()`** is a read-only helper (used by the import wizard's preview and by the import itself) that finds active schedule lines belonging to teachers **outside** the current batch that would collide on room+time — a batch only cleans up its own teachers' stale data, so an external teacher's now-conflicting line needs separate handling.
+
+### `regenerate_all_from_calendars(teachers=None)` — full archive-and-rebuild (2026-08-11)
+
+Not part of the normal sync entry points above — a separate, coarser operation: archives every
+active template outright (or just the ones belonging to `teachers`, if given), then rebuilds an
+equivalent set from scratch via `sync_from_schedule_batch()`, reading every teacher's CURRENT
+`resource.calendar.attendance` rows directly as the batch's `teacher_entries`. See
+`plans/calendar_driven_attendance_templates.md`'s "Production migration sequencing" section for
+the full design reasoning — in short, this is what makes a stale/duplicate/orphaned template moot
+without any dedicated merge logic: `_reconcile_teacher_groups` groups by `(subject, group-set,
+teacher-set)`, so a rebuild from the same source of truth can never reproduce a duplicate. Called
+unconditionally (no `teachers` argument) from `migrations/18.0.0.22.0/post-migrate.py`, inside the
+migration itself — before the upgraded service is reachable by any user, so the archive+rebuild
+window is never visible as broken. Also refills every regenerated line's roster via
+`ems.attendance_schedule.fill_students()` (from live enrollment, not preserved from the archived
+line) as the final step, scoped the same way.
+
+**Breaking change:** a teacher with no real teaching rows on their CURRENT calendar ends up with
+zero active templates and cannot take attendance until a real schedule is loaded for them.
+
+**Unresolved room conflicts don't abort the whole batch (2026-08-11):** confirmed against a real
+production snapshot, this centre has a real, recurring pattern where a support/reinforcement
+teacher is recorded under their OWN `subject_id`, physically sharing a room/slot with the group's
+main teacher (e.g. 'Priscila Rodríguez' co-teaching several different subjects, always opposite a
+different primary teacher, same room/time, every day). `is_co_teaching_with` can't recognise this
+as legitimate co-teaching, since it requires a matching `subject_id` — and deliberately isn't
+widened to accept "different subject, same room/slot/group" in general, since that's also the
+shape of the far more common REAL double-booking mistake (two unrelated teachers accidentally
+sharing a room) that `check_overlap` exists to catch. Instead, `_drop_unresolved_conflicts` runs
+BEFORE the sync, pairwise-scanning every teacher's entries for exactly this shape of clash and
+dropping ONE side (arbitrary — whichever is reached second in iteration order, no attempt to guess
+which one is "really" the reinforcement teacher) so the batch can still complete. Returns the list
+of skipped entries (and what each conflicted with) so a caller — the migration, in particular — can
+report it clearly for a human to review and fix by hand via the Schedule tab. A dropped entry's
+underlying `resource.calendar.attendance` row is untouched — only its regenerated
+template/schedule line is skipped.
+
+**Date-aware since the "Mid-course subject handoff" refinement, same day:** `_drop_unresolved_
+conflicts` also checks `_entry_dates_overlap` before treating two same-room/slot entries as a
+conflict — two calendar blocks explicitly scoped to non-overlapping `date_from`/`date_to` ranges
+(see `docs/en/developers/employees/working_schedule.md`) were never going to collide once synced
+into templates either (the same date-range filter `check_overlap` already applies), so they must
+not be dropped. This is a different, narrower case than the reinforcement pattern above — same
+room/slot, but a genuinely different point in the year, not a genuinely simultaneous double-use.
 
 ## Access control
 
@@ -174,11 +225,29 @@ hidden from view the same clean way "New" is.
 sync triggered by an admin saving the Schedule tab or running the import wizard would otherwise
 fail too, not just a genuinely unauthorized direct create.
 
+### Lock extended to every identity/logistics field, and `ems.attendance_schedule` locked the same way (2026-08-11)
+
+The original 2026-08-11 lock above only covered `active`. The developer found admin/teacher could
+still freely rewrite `teacher_ids`/`subject_id`/`group_ids`/`study_ids`/`start_date`/`end_date`
+directly through the form - the exact inconsistency-with-the-calendar risk this whole design exists
+to prevent. `write()`'s guard now checks a `_LOCKED_FIELDS` set covering all of those (plus
+`active`) - only `color` is still freely writable. `space_id` was removed from the model entirely
+(not locked) - it only ever existed as a default-value source for manually adding a schedule line,
+itself locked out the same day (see `docs/en/developers/attendance/attendance_schedule.md`'s own
+section on this). `ems.attendance_mixin._write_or_new_version`'s in-place-write branch didn't carry
+the bypass context at all before this pass (only its archive+copy branch did) - fixed to bypass
+both branches, since `course_transition_wizard`'s departing-co-teacher correction and the import
+wizard's room-reassignment resolution both rely on the in-place branch too. Every internal call
+site inside `_write_schedule_sync`/`_archive_stale_schedule_sync` that writes a persisting
+template's fields or archives a schedule line directly (not through the mixin) was updated to carry
+`EMS_BYPASS_TEMPLATE_LOCK_KEY` (plus `sudo()` where a nested schedule-line `create()` is now
+involved, since `ems.attendance_schedule` create/unlink are ACL-revoked too as of the same pass).
+
 ## Known limitations
 
 - **No default start/end date configuration** (`_plan_schedule_sync`'s `# TODO`): a new template's start date defaults to September 1st of the current year and end date to July 1st of the next, hardcoded — not read from any settings/course record.
 - **Auto-assigned color is cosmetic only** — it exists to visually tell templates apart in the list view, nothing else reads it (no calendar/kanban `highlight_color` currently wired to it). See [Free-pick color widget](../shared/color_widget.md) for the rotation logic and the "all red" issue it replaced.
-- **`study_ids` desync risk (reduced, not eliminated):** `_write_schedule_sync` sets it once from every involved group's own `study_id` at creation/sync time; if a template's `group_ids` is later edited by hand (only possible before `has_sessions`, see above) to groups from different studies, `study_ids` is not automatically recomputed to match — it only reflects the state at the last sync/manual edit. `_check_subject_valid_for_all_studies` still guards `subject_id` against whatever `study_ids` currently holds, so this can't silently produce an invalid subject/study combination, only a stale-but-internally-consistent one.
+- **`study_ids` desync risk: resolved (2026-08-11), left here for history.** `group_ids`/`study_ids` used to be directly editable by hand before `has_sessions` became true, risking a stale-but-consistent `study_ids` if only `group_ids` was edited. Both fields are now unconditionally locked (see "Lock extended..." above) - a template's `group_ids`/`study_ids` can no longer be edited directly at all, only ever recomputed by the sync pipeline itself, so this specific desync path no longer exists.
 
 ## Changed in this pass (2026-08-05)
 

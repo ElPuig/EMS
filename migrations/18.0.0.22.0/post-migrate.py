@@ -378,6 +378,62 @@ def _restore_attendance_schedule_student_rel(cr):
     cr.execute("DROP TABLE IF EXISTS ems_attendance_template_res_partner_rel")
 
 
+def _regenerate_attendance_templates_from_calendars(env):
+    """See plans/calendar_driven_attendance_templates.md's "Production migration sequencing"
+    section, step 1. An earlier version of this migration tried to detect and merge exact-duplicate
+    templates one pair at a time (`ems.attendance_template._check_unique_teaching_assignment`,
+    point 2, would otherwise reject data that predates it) - abandoned (developer's own call,
+    2026-08-11) once it became clear this whole class of stale/orphaned data is moot the instant
+    every active template is archived and rebuilt from each teacher's CURRENT
+    resource.calendar.attendance rows anyway: an exact duplicate can never survive a rebuild that
+    groups by (subject, group-set, teacher-set), by construction. `regenerate_all_from_calendars()`
+    (ems.attendance_template) does the archive+rebuild; called here, inside this same migration, so
+    it finishes before the Odoo service is reachable by any user after this upgrade - nobody ever
+    sees an intermediate state with no active templates.
+
+    This IS a breaking change: a teacher whose working schedule was never (re)loaded onto their
+    personal `resource.calendar` (e.g. one of the 8 pre-2026-07-12 teachers `_backfill_missing_
+    teacher_calendars` above gives a calendar to, but not a schedule) ends up with zero active
+    templates after this migration - they will not be able to take attendance until their schedule
+    is imported/entered for real. There is no way to route around this: the whole point of points
+    1-4 is that a template only ever exists as a consequence of a real calendar.
+
+    A SECOND, narrower case of the same breaking change: `regenerate_all_from_calendars()` itself
+    drops one side of any unresolved room conflict it finds (see that method's own docstring, and
+    `ems.attendance_template._drop_unresolved_conflicts` - a real, recurring pattern confirmed by
+    the developer 2026-08-11: a support/reinforcement teacher recorded under their own subject_id,
+    physically sharing a room/slot with the group's main teacher, which the general-purpose
+    co-teaching detection can't recognise since the subject genuinely differs). Every dropped entry
+    is logged below by name so whoever runs this migration knows exactly which pairs need a manual
+    fix afterward (Employees > Schedule tab) - deliberately not guessed at automatically."""
+    skipped = env['ems.attendance_template'].regenerate_all_from_calendars()
+    _logger.info(
+        "Migration 18.0.0.22.0: archived every pre-existing ems.attendance_template and "
+        "regenerated a fresh, calendar-backed set from each teacher's current working schedule.")
+    if not skipped:
+        return
+
+    weekdays = dict(env['ems.attendance_schedule'].weekdays_selection)
+    for item in skipped:
+        entry, other = item['entry'], item['conflicts_with_entry']
+        _logger.warning(
+            "Migration 18.0.0.22.0: SKIPPED regenerating a template for %s (%s, %s %s-%s, %s) - "
+            "unresolved room conflict with %s (%s, %s %s-%s, %s). This is not corrected "
+            "automatically - review both teachers' real working schedules by hand and re-sync "
+            "the one that's wrong.",
+            item['teacher'].display_name, env['ems.subject'].browse(entry['subject_id']).display_name,
+            weekdays.get(entry['dayofweek']), entry['hour_from'], entry['hour_to'],
+            env['ems.space'].browse(entry['space_id']).display_name,
+            item['conflicts_with_teacher'].display_name,
+            env['ems.subject'].browse(other['subject_id']).display_name,
+            weekdays.get(other['dayofweek']), other['hour_from'], other['hour_to'],
+            env['ems.space'].browse(other['space_id']).display_name,
+        )
+    _logger.warning(
+        "Migration 18.0.0.22.0: %d entrie(s) skipped due to unresolved room conflicts - see the "
+        "warnings above for exactly which ones and what each one conflicted with.", len(skipped))
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _enable_unaccent(cr)
@@ -393,3 +449,4 @@ def migrate(cr, _version):
     _backfill_calendar_employee_and_course(env)
     _backfill_missing_teacher_calendars(env)
     _restore_attendance_schedule_student_rel(cr)
+    _regenerate_attendance_templates_from_calendars(env)

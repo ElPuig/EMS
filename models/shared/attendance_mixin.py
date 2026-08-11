@@ -38,18 +38,22 @@ class EmsAttendanceMixin(models.AbstractModel):
         and rely on its own 'action_archive()'/'copy()' behavior (e.g. cascading to children) -
         this method only supplies the shared decision, not any model-specific mechanics.
 
-        NOTE: the archive+copy branch runs with the template-lock bypass and sudo() (see
-        plans/calendar_driven_attendance_templates.md, point 3) - harmless no-ops for
-        ems.attendance_schedule (never locked this way), but required for ems.attendance_template
-        callers (course_transition_wizard's own departing-co-teacher correction is the one
-        remaining legitimate caller on that model - see its own docstring): create()/unlink() are
-        revoked in security/ir.model.access.csv for every group there, and archiving is separately
-        blocked by that model's own write() override unless this exact flag is set."""
+        NOTE: BOTH branches run with the template-lock bypass and sudo() (see
+        plans/calendar_driven_attendance_templates.md, point 3, and its 2026-08-11 refinement
+        locking most of ems.attendance_template's and ems.attendance_schedule's own fields the same
+        way) - required for every legitimate internal caller of this method (the schedule-sync
+        pipeline, course_transition_wizard's departing-co-teacher correction, the import wizard's
+        room-reassignment resolution) on either model: create()/unlink() are revoked in security/
+        ir.model.access.csv, and a direct field write is separately blocked by each model's own
+        write() override unless this exact flag is set. Found the hard way (2026-08-11): only the
+        archive+copy branch originally carried this bypass - the plain in-place write() branch
+        didn't, since it predated the schedule model's own write-lock and the template's own lock
+        only covering 'active' at the time this method was first written."""
         self.ensure_one()
-        if not self.has_sessions:
-            self.write(vals)
-            return self
         bypassed = self.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).sudo()
+        if not self.has_sessions:
+            bypassed.write(vals)
+            return self
         bypassed.action_archive()
         return bypassed.copy({'active': True, **vals})
 

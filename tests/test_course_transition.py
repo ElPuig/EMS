@@ -86,7 +86,6 @@ class TestCourseTransition(TransactionCase):
             'study_ids': [(6, 0, [self.study.id])],
             'subject_id': self.subject_int.id,
             'group_ids': [(6, 0, [group.id for group in groups])],
-            'space_id': self.space.id,
             'start_date': date(2020, 1, 1), 'end_date': date(2098, 12, 31),
         })
 
@@ -1154,7 +1153,9 @@ class TestCourseTransition(TransactionCase):
         teacher_other = self.env['hr.employee'].create({
             'name': 'CTW Teacher Other', 'employee_type': 'teacher'})
         template = self._template([self.group_other])
-        template.teacher_ids = [(4, teacher_other.id)]
+        # ems_bypass_template_lock: 'teacher_ids' is otherwise locked (2026-08-11 refinement) - this
+        # is legitimate test setup, same bypass the calendar-sync pipeline itself uses internally.
+        template.with_context(ems_bypass_template_lock=True).write({'teacher_ids': [(4, teacher_other.id)]})
         schedule = self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id,
             'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
@@ -1180,7 +1181,10 @@ class TestCourseTransition(TransactionCase):
         teacher_other = self.env['hr.employee'].create({
             'name': 'CTW Teacher Other', 'employee_type': 'teacher'})
         template = self._template([self.group_other])
-        template.teacher_ids = [(4, teacher_other.id)]
+        # ems_bypass_template_lock: 'teacher_ids' is otherwise locked (2026-08-11 refinement) - this
+        # is legitimate test setup (adding a co-teacher before any real session exists), same bypass
+        # the calendar-sync pipeline itself uses internally.
+        template.with_context(ems_bypass_template_lock=True).write({'teacher_ids': [(4, teacher_other.id)]})
         schedule = self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id,
             'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import date, datetime
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
@@ -36,13 +36,6 @@ class EmsAttendanceTemplate(models.Model):
 	# (intersection), not just any one of them. A plain domain can't express an "ALL" condition
 	# directly against a Many2many, so this is computed in Python and the view filters against it.
 	allowed_subject_ids = fields.Many2many(string="Allowed subjects", comodel_name="ems.subject", compute="_compute_allowed_subject_ids", store=False)
-	# NOTE: no longer the authoritative room - each 'ems.attendance_schedule' line carries its own
-	# 'space_id' since 2026-08-01 (a one-off room reassignment can diverge from the group's
-	# default). This field is now only a default/seed value: a schedule line created by hand
-	# through this template's own form already defaults from it via Odoo's own 'default_<field>'
-	# context convention (see the 'default_space_id' context on 'attendance_schedule_ids' in
-	# views/attendance/attendance_template/form.xml) - no bespoke onchange needed for this.
-	space_id = fields.Many2one(string="Session's default space", comodel_name="ems.space", required=True)
 
 	# NOTE: 'copy=True' explicit - Odoo's One2many field defaults to 'copy=False' (fields.py:
 	# "o2m are not copied by default"), which is normally the right call, but
@@ -174,18 +167,21 @@ class EmsAttendanceTemplate(models.Model):
 			groups = ", ".join(template.group_ids.mapped('name'))
 			template.display_name = "%s (%s)" % (template.subject_id.display_name, groups)
 
-	@api.onchange("group_ids")
-	def _onchange_group_ids(self):
-		for template in self:
-			if template.group_ids:
-				template.space_id = template.group_ids[0].space_id
+	# NOTE: every field here except 'color' is an identity/logistics concern that only ever comes
+	# from the teacher's calendar (see plans/calendar_driven_attendance_templates.md, point 3 and
+	# its 2026-08-11 refinement) - 'active' was the original, narrower lock; extended to the rest
+	# of the template's own fields after the developer found admin/teacher could still freely
+	# rewrite 'teacher_ids'/'subject_id'/etc. directly, risking exactly the inconsistency-with-the-
+	# calendar this whole design exists to prevent. 'space_id' was removed from the model entirely
+	# rather than added here - it only ever existed as a default-value source for manually adding a
+	# schedule line, itself no longer possible either (see ems.attendance_schedule's own lock).
+	_LOCKED_FIELDS = {'active', 'teacher_ids', 'subject_id', 'group_ids', 'study_ids', 'start_date', 'end_date'}
 
 	def write(self, vals):
-		if 'active' in vals and not self.env.context.get(EMS_BYPASS_TEMPLATE_LOCK_KEY):
+		if (set(vals) & self._LOCKED_FIELDS) and not self.env.context.get(EMS_BYPASS_TEMPLATE_LOCK_KEY):
 			raise UserError(_(
-				"A template can only be archived (or reactivated) as a consequence of editing "
-				"the teacher's working schedule - update the schedule instead of archiving this "
-				"template directly."
+				"This can only change as a consequence of editing the teacher's working "
+				"schedule - update the schedule instead of editing this template directly."
 			))
 		return super().write(vals)
 
@@ -238,6 +234,175 @@ class EmsAttendanceTemplate(models.Model):
 		vacated.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 		self._run_schedule_sync_plans(merged_groups, start_date=start_date)
 		self._link_calendar_attendance(merged_groups)
+
+	def regenerate_all_from_calendars(self, teachers=None):
+		"""Archive every active template outright, then rebuild an equivalent, fully calendar-backed
+		set from scratch out of every teacher's CURRENT resource.calendar.attendance rows - see
+		plans/calendar_driven_attendance_templates.md's "Production migration sequencing" section,
+		step 1 (developer's own design, 2026-08-11). Deliberately does not try to classify old data
+		as "orphan" vs. "legitimate" first (an earlier draft of this migration attempted exactly
+		that, one exact-duplicate pair at a time, and hit a real double-booking conflict on its
+		first production-snapshot test) - once the calendar is authoritative (points 1-4), archiving
+		everything and resyncing from the same source of truth naturally reconstructs a clean,
+		non-duplicated set, since 'sync_from_schedule_batch' groups by (subject, group-set,
+		teacher-set) and can never produce two templates for the same exact combination by
+		construction. A calendar row with a genuine, unresolved conflict (e.g. two different teachers
+		double-booked in the same room) still raises via 'check_overlap', exactly like any other
+		sync - a real data problem this must surface, never silently resolve (confirmed against this
+		dev DB, 2026-08-11: 'Eric Bautista'/'Christian Escobar' both currently hold a Friday
+		16:00-17:00 slot in the same room - a genuine pre-existing conflict this method would abort
+		on if run unscoped here today).
+
+		'teachers' (optional): scopes both the archive and the rebuild to this recordset only,
+		instead of every teacher in the database - lets a caller (a test, or a future partial/
+		admin-triggered regeneration) regenerate a known subset without touching or depending on
+		every other teacher's real, unrelated schedule data. Defaults to every teacher with a real,
+		non-framework 'resource_calendar_id' when not given - the real migration call site never
+		passes this, since a production rollout genuinely means everyone.
+
+		Safe to archive unconditionally: archiving never touches a template's real attendance-session
+		history (see "Archiving never cascades to sessions" in
+		docs/en/developers/attendance/attendance_schedule.md) - past attendance stays intact and
+		queryable against the archived template, exactly like a normal correction.
+
+		Intended to run once per invocation (e.g. from this version's own migration, right after
+		module data reloads and before the Odoo service becomes reachable by any user) - the
+		archive+rebuild is never actually visible as a service gap when run that way. An employee
+		without a real working schedule loaded onto their calendar ends up with zero active
+		templates, matching the new rule that a template only exists as a consequence of a real
+		working schedule (see plans/calendar_driven_attendance_templates.md, point 3): this IS a
+		breaking change for any teacher whose schedule was never (re)loaded - they will not be able
+		to take attendance until it is.
+
+		Returns a list of dicts describing every entry dropped by '_drop_unresolved_conflicts' (see
+		that method) - callers (the migration, in particular) are expected to report this clearly so
+		a human can review and fix the underlying calendars by hand; nothing here guesses which side
+		was "really" the reinforcement teacher (developer's own call, 2026-08-11 - see
+		plans/calendar_driven_attendance_templates.md)."""
+		if teachers is None:
+			teachers = self.env['hr.employee'].search([
+				('employee_type', '=', 'teacher'),
+				('resource_calendar_id', '!=', False),
+				('resource_calendar_id.is_framework', '=', False),
+			])
+
+		self.search([
+			('active', '=', True), ('teacher_ids', 'in', teachers.ids),
+		]).with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+
+		teacher_entries = []
+		for teacher in teachers:
+			entries = [{
+				'subject_id': attendance.subject_id.id,
+				'group_ids': attendance.group_ids.ids,
+				'dayofweek': attendance.dayofweek,
+				'hour_from': attendance.hour_from,
+				'hour_to': attendance.hour_to,
+				'space_id': attendance.space_id.id,
+				# 'date_from'/'date_to' - core Odoo's own fields on resource.calendar.attendance
+				# (not EMS-specific), see that model's own NOTE for why they're reused as-is.
+				'date_from': attendance.date_from,
+				'date_to': attendance.date_to,
+			} for attendance in teacher.resource_calendar_id.attendance_ids if attendance.subject_id]
+			if entries:
+				teacher_entries.append((teacher, entries))
+
+		teacher_entries, skipped = self._drop_unresolved_conflicts(teacher_entries)
+		if teacher_entries:
+			self.sync_from_schedule_batch(teacher_entries, start_date=fields.Date.today())
+
+		# NOTE: scoped the same way as the archive step above - every currently active line
+		# belonging to one of 'teachers' was, by construction, JUST created by the sync above (this
+		# same set was archived a moment ago). Refilling from live enrollment here (rather than
+		# trying to preserve whatever roster the archived lines happened to have) is deliberate: the
+		# roster is meant to always reflect current enrollment, and this is the same mechanism a
+		# teacher/admin would otherwise trigger by hand via "Reload students" on each line.
+		self.env['ems.attendance_schedule'].search([
+			('active', '=', True), ('attendance_template_id.teacher_ids', 'in', teachers.ids),
+		]).fill_students()
+		return skipped
+
+	def _entry_dates_overlap(self, entry_a, entry_b):
+		"""Mirrors 'ems.attendance_schedule.check_overlap's own template-date-range filter, at the
+		entry-dict level (before any template exists to read dates from) - two entries whose own
+		'date_from'/'date_to' (core Odoo's own field names on resource.calendar.attendance, see that
+		model's own NOTE; plans/calendar_driven_attendance_templates.md's "Mid-course subject
+		handoff" refinement) don't overlap were never going to collide once synced into templates
+		either, so '_drop_unresolved_conflicts' must not treat them as a conflict. Falls back to the
+		same full-course-year default '_plan_schedule_sync' itself uses when an entry carries no
+		explicit dates, so an unset date range still compares consistently against an explicit one."""
+		now = datetime.now()
+		default_start, default_end = date(now.year, 9, 1), date(now.year + 1, 7, 1)
+		start_a = entry_a.get('date_from') or default_start
+		end_a = entry_a.get('date_to') or default_end
+		start_b = entry_b.get('date_from') or default_start
+		end_b = entry_b.get('date_to') or default_end
+		return start_a <= end_b and end_a >= start_b
+
+	def _drop_unresolved_conflicts(self, teacher_entries):
+		"""Finds every pair of teaching entries in 'teacher_entries' (same shape
+		'regenerate_all_from_calendars' builds: [(teacher, entries), ...]) that would collide - same
+		room+weekday+overlapping time, different teacher - and are NOT legitimate co-teaching under
+		'ems.attendance_schedule.is_co_teaching_with's own definition (same subject_id AND a shared
+		group): a real, recurring pattern in this centre's data is a support/reinforcement teacher
+		recorded under their OWN subject_id, physically present in the same room/slot as the group's
+		main teacher (confirmed with the developer, 2026-08-11 - see
+		plans/calendar_driven_attendance_templates.md) - which 'is_co_teaching_with' can't recognise
+		since the subject genuinely differs. Deliberately does NOT widen 'is_co_teaching_with' itself
+		(used by the general-purpose 'check_overlap', not just this one-time regeneration) - that
+		would blunt its ability to catch the far more common REAL double-booking mistake (two
+		unrelated teachers accidentally sharing a room/slot for the same group). Instead, since
+		leaving BOTH sides in would make 'sync_from_schedule_batch' abort the whole batch on
+		'check_overlap', one side of each unresolved pair is dropped here BEFORE the sync ever runs,
+		so the batch completes and every OTHER entry still regenerates cleanly.
+
+		Which side is dropped is arbitrary (whichever is reached second, in 'teachers'/'attendance_
+		ids' iteration order) - deliberately no attempt to guess which one is "really" the
+		reinforcement teacher (developer's own call: "la que creemos que es de refuerzo, o una de las
+		dos sin más"). The dropped entry is not created at all (no template/schedule line, and the
+		underlying resource.calendar.attendance row is untouched either way) - the caller is expected
+		to report every skipped entry clearly (teacher, subject, slot, and what it conflicted with) so
+		a human can review and fix it by hand via the Schedule tab, the same "breaking change, needs
+		manual follow-up" contract already documented on this method for a teacher with no schedule
+		at all.
+
+		Returns (kept_teacher_entries, skipped) - 'skipped' is a list of
+		{'teacher', 'entry', 'conflicts_with_teacher', 'conflicts_with_entry'} dicts."""
+		flat = [
+			(teacher, entry) for teacher, entries in teacher_entries for entry in entries
+			if entry.get('group_ids')
+		]
+
+		dropped_ids = set()
+		skipped = []
+		for index, (teacher_a, entry_a) in enumerate(flat):
+			if id(entry_a) in dropped_ids:
+				continue
+			for teacher_b, entry_b in flat[index + 1:]:
+				if id(entry_b) in dropped_ids or teacher_a == teacher_b:
+					continue
+				if entry_a['space_id'] != entry_b['space_id'] or entry_a['dayofweek'] != entry_b['dayofweek']:
+					continue
+				if not self.env['ems.datetime_utils'].ranges_overlap(
+					entry_a['hour_from'], entry_a['hour_to'], entry_b['hour_from'], entry_b['hour_to']
+				):
+					continue
+				if not self._entry_dates_overlap(entry_a, entry_b):
+					continue  # non-overlapping date ranges - never a conflict, see check_overlap's own filter
+				if entry_a['subject_id'] == entry_b['subject_id'] and set(entry_a['group_ids']) & set(entry_b['group_ids']):
+					continue  # legitimate co-teaching (is_co_teaching_with's own definition) - keep both
+				dropped_ids.add(id(entry_b))
+				skipped.append({
+					'teacher': teacher_b, 'entry': entry_b,
+					'conflicts_with_teacher': teacher_a, 'conflicts_with_entry': entry_a,
+				})
+
+		kept = []
+		for teacher, entries in teacher_entries:
+			remaining = [entry for entry in entries if id(entry) not in dropped_ids]
+			if remaining:
+				kept.append((teacher, remaining))
+		return kept, skipped
 
 	def sync_from_schedule_batch_fresh_import(self, teacher_entries, start_date=None):
 		"""The XML importer's own batch write path - use this, never 'sync_from_schedule_batch', from
@@ -595,10 +760,27 @@ class EmsAttendanceTemplate(models.Model):
 		teacher-set) combination are stale (gone, or persisting with different lines) and what the
 		freshly reconciled entries, grouped by (subject, group-set) key, look like. Consumed by
 		'_archive_stale_schedule_sync'/'_write_schedule_sync' — split out so 'sync_from_schedule_batch'
-		can run the archive phase for every group before the write phase for any of them."""
+		can run the archive phase for every group before the write phase for any of them.
+
+		'entries' is already reconciled for a single (subject, group-set, teacher-set) key at this
+		point (see 'sync_from_schedule_batch*'), so every entry in it shares the same identity - an
+		explicit 'date_from'/'date_to' on the FIRST entry (core Odoo's own field names on
+		'resource.calendar.attendance', see that model's own NOTE; plans/
+		calendar_driven_attendance_templates.md's "Mid-course subject handoff" refinement) wins over
+		the caller-supplied default, same "first entry/group wins" convention already used for
+		'space_id' elsewhere in this file - a calendar block explicitly scoped to part of the year is
+		what lets two different subjects share the exact same weekday/time/room slot without colliding
+		(ems.attendance_schedule.check_overlap already excludes non-overlapping template date ranges
+		from its own candidates). Entry dict key matches the raw cell/DB field name directly, same
+		convention already used for 'dayofweek'/'hour_from'/'hour_to'/'space_id' - not a separate
+		'start_date'/'end_date' naming, so a live-edit entry (built straight from the JS grid's own
+		cell dicts, see 'apply_schedule_changes') and a regenerate_all_from_calendars() entry (read
+        straight off an 'ems.attendance_schedule' ORM record) both carry the SAME key without either
+		needing a translation step."""
 		now = datetime.now()
-		start_date = start_date or datetime(now.year, 9, 1)
-		end_date = datetime(now.year + 1, 7, 1)
+		entry_dates = entries[0] if entries else {}
+		start_date = entry_dates.get('date_from') or start_date or datetime(now.year, 9, 1)
+		end_date = entry_dates.get('date_to') or datetime(now.year + 1, 7, 1)
 
 		# NOTE: maps to a RECORDSET, not a single template — the same (subject, group-set, teacher-set)
 		# combination can have more than one active template (a pre-existing data-quality issue:
@@ -704,13 +886,13 @@ class EmsAttendanceTemplate(models.Model):
 				if duplicates:
 					duplicates.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 				line_sync = plan['line_sync'][key]
-				line_sync['stale_lines'].action_archive()
+				line_sync['stale_lines'].with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 				# NOTE: a changed line only needs archiving here if it has real session history -
 				# 'has_sessions' doesn't depend on 'active', so '_write_schedule_sync' below reads
 				# the same predicate independently without needing to track "was archived" state.
 				for line, _entry in line_sync['lines_to_rewrite']:
 					if line.has_sessions:
-						line.action_archive()
+						line.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 
 	def _write_schedule_sync(self, plan):
 		"""Second pass: refresh persisting templates and create genuinely new ones from 'plan'."""
@@ -743,9 +925,11 @@ class EmsAttendanceTemplate(models.Model):
 						# place, same "no sessions yet" reasoning as
 						# 'ems.attendance_mixin._write_or_new_version'. 'student_ids' is not in
 						# 'vals' at all here, so the line's own roster is naturally untouched too.
-						line.write(vals)
-				survivor.write({
-					'space_id': first_group.space_id.id,
+						line.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).write(vals)
+				# NOTE: sudo() - 'new_lines' contains (0, 0, {...}) create commands, and create() is
+				# revoked for every group on ems.attendance_schedule (see this same lock refinement) -
+				# a schedule line only ever comes into existence as a consequence of this sync.
+				survivor.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).sudo().write({
 					'attendance_schedule_ids': new_lines,
 				})
 				# NOTE: only the genuinely NEW slots ('fresh_entries') need fill_students() - a
@@ -782,7 +966,6 @@ class EmsAttendanceTemplate(models.Model):
 				# NOTE: every involved group's own study, not just the first one's - a template can
 				# cover groups from different studies (co-teaching/"desdoble" across studies).
 				'study_ids': [(6, 0, groups.mapped('study_id').ids)],
-				'space_id': first_group.space_id.id,
 				'attendance_schedule_ids': self._schedule_lines(group_entries, first_group.space_id.id),
 			}
 

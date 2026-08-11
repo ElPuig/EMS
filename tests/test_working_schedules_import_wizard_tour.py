@@ -327,7 +327,6 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
             'teacher_ids': [(6, 0, [teacher_a.id])],
             'subject_id': subject.id,
             'group_ids': [(6, 0, [group_a.id])],
-            'space_id': shared_space.id,
             'start_date': '2026-01-01',
             'end_date': '2026-06-30',
         })

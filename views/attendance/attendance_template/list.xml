@@ -9,7 +9,6 @@
                     <field name="study_ids" widget="many2many_tags"/>
                     <field name="subject_id"/>
                     <field name="group_ids" widget="many2many_tags"/>
-                    <field name="space_id" optional="hide"/>
                     <field name="start_date" optional="hide"/>
                     <field name="end_date" optional="hide"/>
                     <field name="color" widget="color" class="ems_color_swatch"/>

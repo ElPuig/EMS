@@ -18,6 +18,19 @@ WEEKDAYS = ('0', '1', '2', '3', '4')
 # two genuinely distinct, minutes-apart periods as touching.
 HOUR_EPSILON = 1 / 120
 
+# Classifies a real entry or a candidate break into "works mornings"/"works afternoons" for
+# '_get_derived_break_entries' - computed directly from 'hour_from' rather than trusting the
+# stored 'day_period' field, since two different write paths populate that field with two
+# different, equally arbitrary thresholds of their own (13h here, matching the Schedule tab
+# widget's own 'card.hourFrom < 13' convention in schedule_grid_field.js; 15h in the XML planner
+# importer, working_schedule.py's '_parse_schedule_entries') - real data has already been found
+# disagreeing with itself at that boundary (a 14:25 entry stored as 'morning' by the importer's
+# own rule while genuinely being a teacher's only afternoon work) - not reliable as a single
+# source of truth for this classification. Applying ONE consistent rule uniformly to both sides
+# of the comparison (a teacher's own entries AND every candidate break) keeps the two immune to
+# that pre-existing inconsistency, regardless of what either side's own stored 'day_period' says.
+DAY_PERIOD_SPLIT_HOUR = 13
+
 # Marks write_photo()'s own internal write so hr.employee.write() below skips its own
 # guard/push logic for it - otherwise write_photo(employee, ...) writing employee.image_1920
 # would re-enter hr.employee.write() with 'image_1920' in vals again, calling write_photo()
@@ -135,36 +148,66 @@ class ems_employee_base(models.AbstractModel):
             ['dayofweek', 'hour_from', 'hour_to', 'name', 'non_teaching', 'non_teaching_is_break'])
 
     def _get_derived_break_entries(self):
-        """Fills genuine empty gaps in this teacher's own weekly schedule with a break/patio
-        period taken from ANY level's schedule framework — deliberately never tries to guess
-        "the" level a teacher belongs to, since a teacher can plausibly teach several levels
-        (even within the same day), each with its own break time. For each weekday the
-        teacher has at least one real entry (a class, a guard duty, a meeting... anything),
-        every candidate break from every framework is checked against that day's own known
-        span (earliest hour_from to latest hour_to among the teacher's real entries that
-        day) and against every real entry for overlap — a candidate outside that span, or
-        overlapping any real entry, is skipped. A gap that doesn't line up with any known
-        break simply stays empty; there is no fallback guess. A day with no real entries at
-        all has nothing to fill. Two frameworks defining the exact same break (same day and
-        hours) collapse into one result, not a visually-duplicated stack."""
+        """Fills this teacher's own weekly schedule with a break/patio period taken from the
+        schedule framework(s) of the level(s) they ACTUALLY teach (`teaching_ids.group_id.
+        level_id` — kept in sync with the real calendar by `apply_schedule_changes`/
+        `sync_from_schedule`, so it reflects what the teacher genuinely teaches right now, not a
+        UI convenience field like `source_framework_id`). A teacher spanning several levels whose
+        frameworks happen to define the exact same break (e.g. ESO and Batxillerat, at this
+        centre) sees it once, same as before — no special-casing needed, the existing per-slot
+        dedup below already collapses it; a teacher genuinely spanning DIFFERENT break
+        configurations (e.g. ESO and a CCFF program) sees every one of their own relevant
+        breaks, still scoped to what they actually teach, never an unrelated program's. Falls
+        back to searching EVERY framework, unscoped, only when the teacher has no identifiable
+        level at all (no active teaching assignment, or their level(s) have no framework
+        configured yet) — the same "no fallback guess beyond an honest best effort" spirit the
+        gap/overlap checks below already follow. Developer's own spec (2026-08-11, found via a
+        real teacher whose weekly calendar mixed a CCFF program's own break with two unrelated
+        ESO breaks that never applied to them): "si el docente solo da clase en CCFF, se muestran
+        los patios de CCFF [...] si es de ESO, los patios de la mañana de la ESO [...] si da
+        clase en una mezcla [...] debería verse un hueco sin docencia donde encaja un patio."
+
+        Classifies both the teacher's own real entries and every candidate break into "works
+        mornings"/"works afternoons" (see DAY_PERIOD_SPLIT_HOUR) using a WHOLE-WEEK span per
+        half, not a per-day one: for each half the teacher genuinely works AT ALL during the
+        week (on any weekday), every matching break candidate for that half is shown on EVERY
+        weekday — including a day the teacher happens to be off entirely. Developer's own spec
+        (2026-08-11, replacing an earlier per-day-span design after a real case exposed it: a
+        teacher who only ever works afternoons never got their own break shown at all on a day
+        their real entries didn't happen to literally span into the break's own hour): "si el
+        docente trabaja de mañana, se muestra siempre el patio de la mañana [...] de tarde [...]
+        de mañana y tarde, se muestran ambos [...] aunque ese día el docente no trabaje." A break
+        candidate is still skipped on any specific day it would overlap one of that day's own
+        real entries. A half the teacher never works at all (on any weekday) contributes no
+        break. Two frameworks defining the exact same break (same day and hours) collapse into
+        one result, not a visually-duplicated stack."""
         self.ensure_one()
         weekday_entries = self.resource_calendar_id.attendance_ids.filtered(lambda attendance: attendance.dayofweek in WEEKDAYS)
-        candidate_breaks = self.env['resource.calendar.attendance'].search([
-            ('calendar_id.is_framework', '=', True),
-            ('dayofweek', 'in', list(WEEKDAYS)),
-            ('non_teaching.is_break', '=', True),
-        ])
+        levels = self.teaching_ids.group_id.level_id
+        frameworks = self.env['resource.calendar'].search([
+            ('is_framework', '=', True), ('level_id', 'in', levels.ids),
+        ]) if levels else self.env['resource.calendar']
+        candidate_domain = [('dayofweek', 'in', list(WEEKDAYS)), ('non_teaching.is_break', '=', True)]
+        candidate_domain.append(('calendar_id', 'in', frameworks.ids) if frameworks else ('calendar_id.is_framework', '=', True))
+        candidate_breaks = self.env['resource.calendar.attendance'].search(candidate_domain)
+
+        period_spans = {}
+        for is_morning in (True, False):
+            period_entries = weekday_entries.filtered(
+                lambda attendance, is_morning=is_morning: (attendance.hour_from < DAY_PERIOD_SPLIT_HOUR) == is_morning)
+            if period_entries:
+                period_spans[is_morning] = (min(period_entries.mapped('hour_from')), max(period_entries.mapped('hour_to')))
 
         breaks = self.env['resource.calendar.attendance']
         seen_slots = set()
         for day in WEEKDAYS:
             day_entries = weekday_entries.filtered(lambda attendance, day=day: attendance.dayofweek == day)
-            if not day_entries:
-                continue
-            day_start = min(day_entries.mapped('hour_from'))
-            day_end = max(day_entries.mapped('hour_to'))
             for candidate in candidate_breaks.filtered(lambda attendance, day=day: attendance.dayofweek == day):
-                if candidate.hour_from < day_start - HOUR_EPSILON or candidate.hour_to > day_end + HOUR_EPSILON:
+                span = period_spans.get(candidate.hour_from < DAY_PERIOD_SPLIT_HOUR)
+                if not span:
+                    continue
+                period_start, period_end = span
+                if candidate.hour_from < period_start - HOUR_EPSILON or candidate.hour_to > period_end + HOUR_EPSILON:
                     continue
                 overlaps_real_entry = any(
                     min(entry.hour_to, candidate.hour_to) - max(entry.hour_from, candidate.hour_from) > HOUR_EPSILON

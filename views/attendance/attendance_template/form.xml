@@ -10,9 +10,6 @@
                         <group string="Main data" col="6">
                             <!-- This is needed to automatically display the 'archive' option within the cogmenu. -->
                             <field name="active" invisible="1"/>
-                            <!-- Referenced by the 'or has_sessions' locks below - must be declared in the
-                                 arch (even invisible) or readonly='...' expressions can't resolve it. -->
-                            <field name="has_sessions" invisible="1"/>
                             <!-- Referenced by subject_id's own field-level domain (Python side) - must be
                                  declared here or that domain can't resolve it client-side. -->
                             <field name="allowed_subject_ids" invisible="1"/>
@@ -24,30 +21,34 @@
                                 <field name="color" widget="color" class="ems_color_swatch" readonly="read_only_user"/>
                             </group>
                             <group colspan="4">
-                                <field name="teacher_ids" widget="many2many_avatar_employee" readonly="not user_is_admin or has_sessions"/>
+                                <field name="teacher_ids" widget="many2many_avatar_employee" readonly="1"/>
                             </group>
 
-                            <!-- Row 2: Studies, Start date, End date -->
+                            <!-- Row 2: Studies, Start date, End date - all locked (2026-08-11, see
+                                 plans/calendar_driven_attendance_templates.md's calendar-lock refinement):
+                                 a template's identity/logistics fields only ever change as a consequence
+                                 of editing the teacher's working schedule, never by hand, regardless of
+                                 role or has_sessions - update the schedule instead. -->
                             <group colspan="2">
-                                <field name="study_ids" widget="many2many_tags" readonly="read_only_user or has_sessions"/>
+                                <field name="study_ids" widget="many2many_tags" readonly="1"/>
                             </group>
                             <group colspan="2">
                                 <!-- TODO: not working, check how its solven at justification form. -->
-                                <field name="start_date" widget="daterange" class="oe_inline" options="{'related_end_date': 'end_date'}" readonly="read_only_user"/>
+                                <field name="start_date" widget="daterange" class="oe_inline" options="{'related_end_date': 'end_date'}" readonly="1"/>
                             </group>
                             <group colspan="2">
-                                <field name="end_date" widget="daterange" class="oe_inline" options="{'related_start_date': 'start_date'}" readonly="read_only_user"/>
+                                <field name="end_date" widget="daterange" class="oe_inline" options="{'related_start_date': 'start_date'}" readonly="1"/>
                             </group>
 
-                            <!-- Row 3: Groups, Space, Subject (must be accessible to every selected study) -->
-                            <group colspan="2">
-                                <field name="group_ids" widget="many2many_tags" readonly="read_only_user or has_sessions" domain="[('study_id', 'in', study_ids)]"/>
+                            <!-- Row 3: Groups, Subject (must be accessible to every selected study) -
+                                 'space_id' removed entirely (2026-08-11): it only ever existed as a
+                                 default-value source for manually adding a new schedule line, which is
+                                 no longer possible either (see the Sessions tab below). -->
+                            <group colspan="3">
+                                <field name="group_ids" widget="many2many_tags" readonly="1" domain="[('study_id', 'in', study_ids)]"/>
                             </group>
-                            <group colspan="2">
-                                <field name="space_id" readonly="read_only_user"/>
-                            </group>
-                            <group colspan="2">
-                                <field name="subject_id" readonly="read_only_user or has_sessions"/>
+                            <group colspan="3">
+                                <field name="subject_id" readonly="1"/>
                             </group>
                         </group>
                                             
@@ -58,15 +59,16 @@
                                      inline column here - a full class roster (25-30 students) doesn't
                                      fit a list row; open each line's own form (action_open_form) to
                                      manage its 'Students' tab instead. -->
-                                <field name="attendance_schedule_ids" string="" context="{'default_space_id' : space_id, 'default_weekday' : '0'}" readonly="read_only_user">
-                                    <list editable="bottom" default_order="weekday asc, start_time asc">
-                                        <!-- Referenced by the 'or has_sessions' locks below - must be
-                                             declared (even invisible) or readonly='...' can't resolve it. -->
-                                        <field name="has_sessions" column_invisible="True"/>
-                                        <field name="weekday" width="175px" readonly="has_sessions"/>
-                                        <field name="space_id" readonly="has_sessions"/>
-                                        <field name="start_time" widget="float_time" width="120px" readonly="has_sessions"/>
-                                        <field name="end_time" widget="float_time" width="120px" readonly="has_sessions"/>
+                                <!-- No manual add/remove (create="0" delete="0") - a line only ever
+                                     comes into existence, or goes away, as a consequence of syncing the
+                                     teacher's calendar (2026-08-11, same calendar-lock refinement as the
+                                     fields above) - never by hand, admin included. -->
+                                <field name="attendance_schedule_ids" string="" readonly="read_only_user">
+                                    <list editable="bottom" default_order="weekday asc, start_time asc" create="0" delete="0">
+                                        <field name="weekday" width="175px" readonly="1"/>
+                                        <field name="space_id" readonly="1"/>
+                                        <field name="start_time" widget="float_time" width="120px" readonly="1"/>
+                                        <field name="end_time" widget="float_time" width="120px" readonly="1"/>
                                         <!-- The following fields are needed for internal compute. -->
                                         <field name="start_date" widget="timepicker" width="120px" column_invisible="True" />
                                         <field name="end_date" widget="timepicker" width="120px" column_invisible="True" />

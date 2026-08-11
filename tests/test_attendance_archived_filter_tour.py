@@ -27,10 +27,14 @@ class TestAttendanceArchivedFilterTour(HttpCase):
         })
         template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [teacher.id])], 'study_ids': [(6, 0, [study.id])],
-            'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])], 'space_id': space.id,
+            'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])],
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
-        template.action_archive()
+        # Legitimate test fixture setup (need an already-archived template for the tour to filter
+        # on), not testing the archival-lock feature itself - bypass the write() guard that
+        # otherwise blocks archiving a template directly (see plans/
+        # calendar_driven_attendance_templates.md, point 3).
+        template.with_context(ems_bypass_template_lock=True).action_archive()
 
         self.start_tour("/odoo", "ems_attendance_template_archived_filter", login="admin")
 
@@ -50,7 +54,7 @@ class TestAttendanceArchivedFilterTour(HttpCase):
         })
         template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [teacher.id])], 'study_ids': [(6, 0, [study.id])],
-            'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])], 'space_id': space.id,
+            'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])],
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         schedule = self.env['ems.attendance_schedule'].create({

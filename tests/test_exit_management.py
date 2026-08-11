@@ -271,7 +271,7 @@ class TestExitManagement(TransactionCase):
         template = self.env['ems.attendance_template'].create({
             'start_date': date.today(), 'end_date': date.today(),
             'teacher_ids': [(6, 0, [teacher.id])], 'study_ids': [(6, 0, [self.study.id])],
-            'subject_id': subject.id, 'space_id': space.id,
+            'subject_id': subject.id,
             'group_ids': [(6, 0, [self.group.id])]})
         schedule = self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id,

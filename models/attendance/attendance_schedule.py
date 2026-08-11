@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
+
+from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
 
 class EmsAttendanceSchedule(models.Model):
     _name = "ems.attendance_schedule"
@@ -75,13 +77,12 @@ class EmsAttendanceSchedule(models.Model):
         return not (self.id == False or self.get_user_is_admin() or bool(self.teacher_ids.filtered(lambda teacher: teacher.user_id.id == self.env.uid)) or self.create_uid == self.env.uid)
 
     def action_open_form(self):
-        """Opens this line's own full form as a dialog - the parent template's embedded list
-        (views/attendance/attendance_template/form.xml) stays an inline-editable list for its
-        logistics fields (weekday/space/times), too narrow a row for a real class roster (a full
-        group can be 25-30 students) - the 'Students' tab needs this model's own richer form
-        (image/name/email/tutor columns), reached from this button instead of inline. Added
-        2026-08-11 alongside 'student_ids' moving here - see
-        plans/calendar_driven_attendance_templates.md, point 1."""
+        """Opens this line's own full form as a dialog - a full class roster (a full group can be
+        25-30 students) needs this model's own richer form (image/name/email/tutor columns), reached
+        from this button instead of a cramped inline row on the parent template's embedded list
+        (views/attendance/attendance_template/form.xml, itself read-only for logistics fields since
+        the 2026-08-11 calendar-lock refinement). Added 2026-08-11 alongside 'student_ids' moving
+        here - see plans/calendar_driven_attendance_templates.md, point 1."""
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
@@ -200,6 +201,22 @@ class EmsAttendanceSchedule(models.Model):
     def reload_students(self):
         self.student_ids = [(5)]
         self.fill_students()
+
+    # NOTE: every field here except 'student_ids' is an identity/logistics concern that only ever
+    # comes from the teacher's calendar (see plans/calendar_driven_attendance_templates.md, point 3
+    # and its 2026-08-11 refinement) - a line's own weekday/time/room/template must never change by
+    # hand, admin included; only the roster (add/remove students) is a genuine per-line, teacher-
+    # editable concern. 'name' is a compute+store field with no inverse (already not writable via a
+    # plain vals dict), so it isn't listed here.
+    _LOCKED_FIELDS = {'active', 'weekday', 'start_time', 'end_time', 'space_id', 'attendance_template_id', 'notes'}
+
+    def write(self, vals):
+        if (set(vals) & self._LOCKED_FIELDS) and not self.env.context.get(EMS_BYPASS_TEMPLATE_LOCK_KEY):
+            raise UserError(_(
+                "This can only change as a consequence of editing the teacher's working "
+                "schedule - update the schedule instead of editing this session directly."
+            ))
+        return super().write(vals)
 
     def unlink(self):
         if len(self.attendance_session_ids) > 0:

@@ -1765,8 +1765,14 @@ msgstr "Estudios asociados"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_template.py:0
-msgid "A template can only be archived (or reactivated) as a consequence of editing the teacher's working schedule - update the schedule instead of archiving this template directly."
-msgstr "Una plantilla solo se puede archivar (o desarchivar) como consecuencia de editar el horario del docente - actualiza el horario en lugar de archivar esta plantilla directamente."
+msgid "This can only change as a consequence of editing the teacher's working schedule - update the schedule instead of editing this template directly."
+msgstr "Esto solo puede cambiar como consecuencia de editar el horario del docente - actualiza el horario en lugar de editar esta plantilla directamente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_schedule.py:0
+msgid "This can only change as a consequence of editing the teacher's working schedule - update the schedule instead of editing this session directly."
+msgstr "Esto solo puede cambiar como consecuencia de editar el horario del docente - actualiza el horario en lugar de editar esta sesión directamente."
 
 #. module: ems
 #. odoo-python

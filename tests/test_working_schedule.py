@@ -387,14 +387,23 @@ class TestWorkingSchedule(TransactionCase):
             'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
         }])
 
-        self.assertFalse(self.teacher._get_derived_break_entries())
+        # Scoped to Monday, not an exact total count: since this teacher's ONLY real entry all
+        # week is this one Monday block, the weekly-span design (2026-08-11) legitimately shows
+        # OTHER weekdays' own real, seeded framework breaks too (a teacher working ANY morning at
+        # all now sees their morning break every weekday - see the new tests covering that
+        # directly) - what this test actually cares about is that the overlap on Monday itself
+        # still excludes a break there, same as before the redesign.
+        self.assertFalse(self.teacher._get_derived_break_entries().filtered(lambda attendance: attendance.dayofweek == '0'))
 
-    def test_get_derived_break_entries_excludes_break_outside_day_span(self):
+    def test_get_derived_break_entries_excludes_break_outside_weekly_span(self):
         level_framework = self.env['resource.calendar'].create({
             'name': 'Test Level Framework (Outside Span)', 'is_framework': True, 'level_id': self.level.id, 'full_time_required_hours': 24,
         })
-        # Earlier than the teacher's own first entry that day — never shown, per the "the teacher
-        # always enters at 11" case explicitly called out when this algorithm was designed.
+        # Earlier than the teacher's own first entry all week (the containment check is a
+        # whole-week span since 2026-08-11, not a per-day one — with a single real entry across
+        # the whole week, the two coincide, which is what this test actually exercises) — never
+        # shown, per the "the teacher always enters at 11" case explicitly called out when this
+        # algorithm was designed.
         self.env['resource.calendar.attendance'].create({
             'calendar_id': level_framework.id, 'name': 'BR: Break', 'dayofweek': '0',
             'hour_from': 7, 'hour_to': 7.5, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id,
@@ -409,7 +418,25 @@ class TestWorkingSchedule(TransactionCase):
         self.assertFalse(self.teacher._get_derived_break_entries())
 
     def test_get_derived_break_entries_shows_several_levels_same_day(self):
+        # Both real teaching assignments matter now that candidate breaks are scoped to the
+        # levels the teacher actually teaches (teaching_ids.group_id.level_id, 2026-08-11) - a
+        # group genuinely in 'other_level' is what makes its own break candidate discoverable at
+        # all, not just its framework existing.
         other_level = self.env['ems.level'].create({'acronym': 'TWSL3', 'name': 'Test Level 3 (Working Schedule)'})
+        other_study = self.env['ems.study'].create({
+            'code': 'TWSL003', 'acronym': 'TWSL3', 'name': 'Test Study 3 (Working Schedule)',
+            'date': date.today(), 'deprecated': False, 'level_id': other_level.id,
+        })
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TWSL3', 'level_id': other_level.id, 'study_id': other_study.id, 'space_id': self.space.id,
+        })
+        # A subject genuinely taught in 'other_study' - 'self.subject' only lists 'self.study',
+        # and 'ems.attendance_template' validates a subject is actually taught in every study its
+        # groups belong to.
+        other_subject = self.env['ems.subject'].create({
+            'code': 'TWSL004', 'acronym': 'TWSL3', 'name': 'Test Subject 3 (Working Schedule)',
+            'study_ids': [(6, 0, [other_study.id])],
+        })
         morning_framework = self.env['resource.calendar'].create({
             'name': 'Test Morning Framework (Multi-level)', 'is_framework': True, 'level_id': self.level.id, 'full_time_required_hours': 24,
         })
@@ -439,11 +466,11 @@ class TestWorkingSchedule(TransactionCase):
             },
             {
                 'dayofweek': '0', 'hour_from': 16, 'hour_to': 17, 'day_period': 'afternoon',
-                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+                'subject_id': other_subject.id, 'group_ids': [other_group.id], 'name': 'TWSL3: TWSL3',
             },
             {
                 'dayofweek': '0', 'hour_from': 17.5, 'hour_to': 18.5, 'day_period': 'afternoon',
-                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+                'subject_id': other_subject.id, 'group_ids': [other_group.id], 'name': 'TWSL3: TWSL3',
             },
         ])
 
@@ -452,23 +479,110 @@ class TestWorkingSchedule(TransactionCase):
         self.assertIn(10.0, breaks.mapped('hour_from'))
         self.assertIn(17.0, breaks.mapped('hour_from'))
 
-    def test_get_derived_break_entries_skips_day_with_no_real_entries(self):
+    def test_get_derived_break_entries_shows_on_day_with_no_real_entries_within_weekly_span(self):
+        # Developer's own spec (2026-08-11, replacing the earlier per-day design): a break must
+        # still show on a day the teacher has no real entries at all, as long as it fits within
+        # the teacher's own WEEKLY working span for that half of the day — "aunque ese día el
+        # docente no trabaje". The old behavior (skip a day with nothing at all) is exactly what
+        # hid a real teacher's own break on their day off even though it clearly fit their known
+        # weekly pattern.
         level_framework = self.env['resource.calendar'].create({
             'name': 'Test Level Framework (No Entries Day)', 'is_framework': True, 'level_id': self.level.id, 'full_time_required_hours': 24,
         })
         self.env['resource.calendar.attendance'].create({
             'calendar_id': level_framework.id, 'name': 'BR: Break', 'dayofweek': '1',
-            'hour_from': 11, 'hour_to': 11.5, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id,
+            'hour_from': 9.25, 'hour_to': 9.5, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id,
         })
         schedule = self.env['resource.calendar'].create({'name': 'Test No Entries Day (Working Schedule)'})
         self.teacher.resource_calendar_id = schedule
-        # Only Monday has a real entry — the break is on Tuesday, a day with nothing at all.
+        # Only Monday has a real entry — the break candidate is on Tuesday, a day with nothing at
+        # all, but well within Monday's own morning span (9-10).
         schedule.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
             'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
         }])
 
-        self.assertFalse(self.teacher._get_derived_break_entries())
+        breaks = self.teacher._get_derived_break_entries()
+
+        self.assertTrue(breaks.filtered(lambda attendance: attendance.dayofweek == '1' and attendance.hour_from == 9.25))
+
+    def test_get_derived_break_entries_shows_both_halves_every_weekday_across_different_days(self):
+        # Real-world case that prompted this redesign (developer's own report): a teacher whose
+        # calendar alternates between a morning-only shift on some weekdays and an afternoon-only
+        # shift on others (a common dual-shift vocational-program pattern) must see BOTH breaks on
+        # EVERY weekday, not just on the specific days each half happens to occur on — "si el
+        # docente trabaja de mañana y tarde, se muestran ambos [...] toda la semana".
+        level_framework = self.env['resource.calendar'].create({
+            'name': 'Test Level Framework (Both Halves)', 'is_framework': True, 'level_id': self.level.id, 'full_time_required_hours': 24,
+        })
+        for day in ('0', '1', '2', '3', '4'):
+            self.env['resource.calendar.attendance'].create({
+                'calendar_id': level_framework.id, 'name': 'BR: Morning Break', 'dayofweek': day,
+                'hour_from': 11, 'hour_to': 11.5, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id,
+            })
+            self.env['resource.calendar.attendance'].create({
+                'calendar_id': level_framework.id, 'name': 'BR: Afternoon Break', 'dayofweek': day,
+                'hour_from': 18, 'hour_to': 18.5, 'day_period': 'afternoon', 'non_teaching': self.non_teaching_br.id,
+            })
+        schedule = self.env['resource.calendar'].create({'name': 'Test Both Halves (Working Schedule)'})
+        self.teacher.resource_calendar_id = schedule
+        schedule.apply_schedule_changes([
+            cell
+            for day, hour_from, hour_to in (
+                ('0', 9, 11), ('0', 11.5, 13),      # Monday: morning only, gap at the break's own time
+                ('4', 9, 11), ('4', 11.5, 13),      # Friday: morning only, same gap
+                ('1', 16, 18), ('1', 18.5, 19),     # Tuesday: afternoon only, gap at the break's own time
+                ('2', 16, 18), ('2', 18.5, 19),     # Wednesday: afternoon only, same gap
+                ('3', 16, 18), ('3', 18.5, 19),     # Thursday: afternoon only, same gap
+            )
+            for cell in [{
+                'dayofweek': day, 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning' if hour_from < 13 else 'afternoon',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            }]
+        ])
+
+        breaks = self.teacher._get_derived_break_entries()
+
+        morning_days = set(breaks.filtered(lambda attendance: attendance.hour_from == 11.0).mapped('dayofweek'))
+        afternoon_days = set(breaks.filtered(lambda attendance: attendance.hour_from == 18.0).mapped('dayofweek'))
+        self.assertEqual(morning_days, {'0', '1', '2', '3', '4'})
+        self.assertEqual(afternoon_days, {'0', '1', '2', '3', '4'})
+
+    def test_get_derived_break_entries_never_shows_break_for_half_never_worked(self):
+        # The flip side of the redesign: a teacher who never works a given half of the day AT ALL
+        # (any weekday) must never see that half's break, anywhere - there is no weekly span to
+        # contain it, regardless of any single day's own real entries.
+        level_framework = self.env['resource.calendar'].create({
+            'name': 'Test Level Framework (Half Never Worked)', 'is_framework': True, 'level_id': self.level.id, 'full_time_required_hours': 24,
+        })
+        for day in ('0', '1', '2', '3', '4'):
+            self.env['resource.calendar.attendance'].create({
+                'calendar_id': level_framework.id, 'name': 'BR: Morning Break', 'dayofweek': day,
+                'hour_from': 11, 'hour_to': 11.5, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id,
+            })
+            self.env['resource.calendar.attendance'].create({
+                'calendar_id': level_framework.id, 'name': 'BR: Afternoon Break', 'dayofweek': day,
+                'hour_from': 18, 'hour_to': 18.5, 'day_period': 'afternoon', 'non_teaching': self.non_teaching_br.id,
+            })
+        schedule = self.env['resource.calendar'].create({'name': 'Test Half Never Worked (Working Schedule)'})
+        self.teacher.resource_calendar_id = schedule
+        # Every real entry is in the morning, every weekday - the teacher never works any
+        # afternoon at all, with a gap at 11-11.5 matching the morning break exactly.
+        schedule.apply_schedule_changes([
+            cell
+            for day in ('0', '1', '2', '3', '4')
+            for hour_from, hour_to in ((9, 11), (11.5, 13))
+            for cell in [{
+                'dayofweek': day, 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            }]
+        ])
+
+        breaks = self.teacher._get_derived_break_entries()
+
+        self.assertFalse(breaks.filtered(lambda attendance: attendance.hour_from == 18.0))
+        morning_days = set(breaks.filtered(lambda attendance: attendance.hour_from == 11.0).mapped('dayofweek'))
+        self.assertEqual(morning_days, {'0', '1', '2', '3', '4'})
 
     def test_get_derived_break_entries_dedupes_identical_break_across_frameworks(self):
         other_level = self.env['ems.level'].create({'acronym': 'TWSL4', 'name': 'Test Level 4 (Working Schedule)'})
@@ -500,6 +614,73 @@ class TestWorkingSchedule(TransactionCase):
 
         matching = breaks.filtered(lambda attendance: attendance.hour_from == 11.0 and attendance.hour_to == 11.5)
         self.assertEqual(len(matching), 1)
+
+    def test_get_derived_break_entries_scoped_to_teachers_own_level(self):
+        # A break from an UNRELATED level's framework must never show, even if its time would
+        # otherwise fit the teacher's own weekly span and not overlap any real entry - candidates
+        # are scoped to teaching_ids.group_id.level_id (2026-08-11), not searched across every
+        # framework unconditionally. Developer's own report: a real teacher's calendar mixed a
+        # CCFF program's own break with two unrelated ESO breaks that never applied to them.
+        own_framework = self.env['resource.calendar'].create({
+            'name': 'Test Own Framework (Level Scope)', 'is_framework': True, 'level_id': self.level.id, 'full_time_required_hours': 24,
+        })
+        own_break = self.env['resource.calendar.attendance'].create({
+            'calendar_id': own_framework.id, 'name': 'BR: Break', 'dayofweek': '0',
+            'hour_from': 11, 'hour_to': 11.5, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id,
+        })
+        other_level = self.env['ems.level'].create({'acronym': 'TWSL5', 'name': 'Test Level 5 (Working Schedule)'})
+        other_framework = self.env['resource.calendar'].create({
+            'name': 'Test Other Framework (Level Scope)', 'is_framework': True, 'level_id': other_level.id, 'full_time_required_hours': 24,
+        })
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': other_framework.id, 'name': 'BR: Other Break', 'dayofweek': '0',
+            'hour_from': 9.5, 'hour_to': 10, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id,
+        })
+        schedule = self.env['resource.calendar'].create({'name': 'Test Level Scope (Working Schedule)'})
+        self.teacher.resource_calendar_id = schedule
+        # A gap at 9.5-10 (where the OTHER level's own break would fit) and another at 11-11.5
+        # (this teacher's own level's break) - only the teacher's own level, self.level, is ever
+        # taught here (via self.group).
+        schedule.apply_schedule_changes([
+            {
+                'dayofweek': '0', 'hour_from': 9, 'hour_to': 9.5, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            },
+            {
+                'dayofweek': '0', 'hour_from': 11.5, 'hour_to': 13, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+            },
+        ])
+
+        breaks = self.teacher._get_derived_break_entries()
+
+        self.assertIn(own_break, breaks)
+        self.assertFalse(breaks.filtered(lambda attendance: attendance.hour_from == 9.5))
+
+    def test_get_derived_break_entries_falls_back_to_every_framework_with_no_teaching_assignment(self):
+        # A teacher with no real teaching_ids at all (only a non-teaching commitment so far) has
+        # no identifiable level to scope to - falls back to searching every framework, same as
+        # before level-scoping existed.
+        level_framework = self.env['resource.calendar'].create({
+            'name': 'Test Level Framework (No Teaching Fallback)', 'is_framework': True, 'level_id': self.level.id, 'full_time_required_hours': 24,
+        })
+        our_break = self.env['resource.calendar.attendance'].create({
+            'calendar_id': level_framework.id, 'name': 'BR: Break', 'dayofweek': '0',
+            'hour_from': 11, 'hour_to': 11.5, 'day_period': 'morning', 'non_teaching': self.non_teaching_br.id,
+        })
+        schedule = self.env['resource.calendar'].create({'name': 'Test No Teaching Fallback (Working Schedule)'})
+        self.teacher.resource_calendar_id = schedule
+        schedule.apply_schedule_changes([
+            {'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+             'non_teaching': self.non_teaching_g.id, 'name': 'Guard'},
+            {'dayofweek': '0', 'hour_from': 12, 'hour_to': 13, 'day_period': 'morning',
+             'non_teaching': self.non_teaching_g.id, 'name': 'Guard'},
+        ])
+        self.assertFalse(self.teacher.teaching_ids)
+
+        breaks = self.teacher._get_derived_break_entries()
+
+        self.assertIn(our_break, breaks)
 
     def test_get_derived_break_attendance_data_matches_derived_break_entries(self):
         level_framework = self.env['resource.calendar'].create({
@@ -627,6 +808,32 @@ class TestWorkingSchedule(TransactionCase):
         teaching = {row['label']: row['hours'] for row in summary['teaching']['rows']}
         self.assertEqual(teaching[reinforcement_group.display_name], 1)
         self.assertEqual(summary['teaching']['total'], 1)
+
+    def test_get_schedule_hours_summary_counts_a_date_split_slot_only_once(self):
+        # See plans/calendar_driven_attendance_templates.md's "Mid-course subject handoff"
+        # refinement - two rows sharing the same weekday/overlapping time but scoped to different,
+        # non-overlapping date ranges represent the SAME weekly slot, not two separate ones - must
+        # count once (the longer entry), not add both durations together.
+        schedule = self.env['resource.calendar'].create({'name': 'Test Hours Summary Date Split (Working Schedule)'})
+        schedule.apply_schedule_changes([
+            {
+                'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+                'date_from': date(2026, 9, 1), 'date_to': date(2027, 2, 28),
+            },
+            {
+                'dayofweek': '0', 'hour_from': 9, 'hour_to': 10.5, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
+                'date_from': date(2027, 3, 1), 'date_to': date(2027, 7, 1),
+            },
+        ])
+
+        summary = schedule.get_schedule_hours_summary()
+
+        teaching = {row['label']: row['hours'] for row in summary['teaching']['rows']}
+        # ceil(10.5 - 9) = 2 - the LONGER entry wins over the first-encountered 1h one.
+        self.assertEqual(teaching[self.level.display_name], 2)
+        self.assertEqual(summary['teaching']['total'], 2)
 
     def test_get_schedule_hours_summary_excludes_break(self):
         schedule = self.env['resource.calendar'].create({'name': 'Test Hours Summary Break (Working Schedule)'})

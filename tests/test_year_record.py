@@ -306,7 +306,7 @@ class TestYearRecord(TransactionCase):
         template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [self.tutor_employee.id])],
             'study_ids': [(6, 0, [self.study.id])], 'subject_id': self.subject1.id,
-            'group_ids': [(6, 0, [self.group.id])], 'space_id': space.id,
+            'group_ids': [(6, 0, [self.group.id])],
             'start_date': date(2020, 1, 1), 'end_date': date(2098, 12, 31),
         })
         schedule = self.env['ems.attendance_schedule'].create({

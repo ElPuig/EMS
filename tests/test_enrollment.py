@@ -55,7 +55,6 @@ class TestEnrollment(TransactionCase):
             'study_ids': [(6, 0, [self.study.id])],
             'subject_id': self.subject.id,
             'group_ids': [(6, 0, groups)],
-            'space_id': self.space.id,
             'start_date': date(2026, 1, 1),
             'end_date': date(2026, 6, 30),
         })

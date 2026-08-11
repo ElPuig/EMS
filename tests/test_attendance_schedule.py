@@ -75,7 +75,7 @@ class TestAttendanceScheduleAccess(TransactionCase):
 
         cls.template = cls.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [cls.owner_employee.id])], 'study_ids': [(6, 0, [cls.study.id])],
-            'subject_id': cls.subject.id, 'group_ids': [(6, 0, [cls.group_record.id])], 'space_id': cls.space.id,
+            'subject_id': cls.subject.id, 'group_ids': [(6, 0, [cls.group_record.id])],
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         cls.schedule = cls.env['ems.attendance_schedule'].create({
@@ -115,9 +115,13 @@ class TestAttendanceScheduleAccess(TransactionCase):
         self.assertEqual(session.attendance_schedule_id, self.schedule)
 
     def test_substitute_teacher_cannot_write_schedule(self):
+        # 'student_ids', not 'notes': 'notes' is now a locked field (2026-08-11 refinement) that
+        # raises UserError for everyone regardless of record rules, which would no longer exercise
+        # the ir.rule behavior this test is actually about - 'student_ids' stays writable in
+        # principle, so the record rule is still what's on trial here.
         schedule = self.schedule.with_user(self.substitute_user)
         with self.assertRaises(AccessError):
-            schedule.write({'notes': 'Attempted edit.'})
+            schedule.write({'student_ids': [(5, 0, 0)]})
 
     def test_admin_reads_all_schedules(self):
         schedule = self.env['ems.attendance_schedule'].with_user(self.admin_user).search(
@@ -170,11 +174,14 @@ class TestAttendanceScheduleLogic(TransactionCase):
             'name': 'Test Teacher 2 (Attendance Schedule Logic)', 'employee_type': 'teacher'})
 
     def _template(self, teacher, subject=None, groups=None, space=None):
+        # NOTE: 'space' is unused here (ems.attendance_template.space_id was removed 2026-08-11,
+        # see plans/calendar_driven_attendance_templates.md's calendar-lock refinement - only the
+        # schedule line has its own space now) - kept as a keyword parameter anyway so every
+        # existing call site doesn't need touching one by one.
         return self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, teacher.ids)], 'study_ids': [(6, 0, [self.study.id])],
             'subject_id': (subject or self.subject).id,
             'group_ids': [(6, 0, (groups or self.group1).ids)],
-            'space_id': (space or self.space).id,
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
 
@@ -292,7 +299,10 @@ class TestAttendanceScheduleLogic(TransactionCase):
             'attendance_template_id': template.id, 'weekday': '1',
             'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
         })
-        old_schedule.action_archive()
+        # ems_bypass_template_lock: 'active' is otherwise locked (2026-08-11 refinement) - this test
+        # is about find_schedule_lines_for_teaching's own active_test behavior, not the lock, so
+        # bypass it as test setup, same as the calendar-sync pipeline does internally.
+        old_schedule.with_context(ems_bypass_template_lock=True).action_archive()
         new_schedule = self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id, 'weekday': '1',
             'start_time': 8.0, 'end_time': 9.0, 'space_id': self.other_space.id,

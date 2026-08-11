@@ -3,30 +3,49 @@
 import { Component, useState, onWillStart } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { useRecordObserver } from "@web/model/relational_model/utils";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes, buildColorMap } from "./schedule_grid_geometry";
 
-const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids"];
+// 'date_from'/'date_to' are core Odoo fields on resource.calendar.attendance (not EMS-specific) -
+// see working_schedule.py's own NOTE for why they're reused as-is for the "same slot, different
+// subject at a different point in the year" feature, instead of adding new EMS-only fields.
+// 'space_id' - exposed as its own explicit per-card field since the 2026-08-11 card-based edit mode
+// redesign (previously only ever inferred server-side, never shown/editable in this widget at all).
+const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "group_ids", "date_from", "date_to", "space_id"];
 
-// Visual weekly grid (day columns x hourly rows) for a resource.calendar's weekly attendance slots
-// (dayofweek/hour_from/hour_to — a recurring pattern, not real dates, so the native <calendar> view
-// does not apply). Read-only by default; three actions turn it into an editable buffer (mirroring the
-// grade matrix widget: nothing is written until "Save" is pressed, "Cancel" discards):
-//   - "Edit": edit the teacher's current schedule in place (two dropdowns per period: subject+group, or
-//     a non-teaching reason).
+// Two different layouts for two different jobs:
+//   - VIEW mode (read-only): a visual weekly grid (day columns x hourly rows), entries positioned
+//     absolutely by their exact hour_from/hour_to (dayofweek/hour_from/hour_to are a recurring
+//     pattern, not real dates, so the native <calendar> view does not apply). UNCHANGED by the
+//     2026-08-11 card redesign below - only edit mode's own layout changed.
+//   - EDIT mode (entered via "Edit"/"New"): a per-weekday list of independent CARDS (2026-08-11
+//     redesign, replacing an earlier "shared period row across all 5 days" grid) - each card is its
+//     own self-contained block (own time, own optional date range, own subject/group-or-non-teaching
+//     reason, own room), added/removed individually per day via "+ Add"/a card's own "×". Chosen over
+//     the previous shared-row model specifically because a date-scoped block (see "Mid-course subject
+//     handoff" below) only ever applies to ONE weekday at a time, so forcing it into a row shared
+//     across all 5 days read as confusing and cramped in practice (developer feedback, 2026-08-11) -
+//     no drag-and-drop between days either, deliberately (remove + re-add covers it, and the added
+//     complexity wasn't judged worth it). Nothing is written to the server until "Save" is pressed;
+//     "Cancel" discards the whole in-progress buffer (mirrors the grade matrix widget's own pattern).
+// Three actions can start an edit session:
+//   - "Edit": edit the teacher's current schedule in place.
 //   - "Import": opens the XML planner importer already scoped to this teacher (no email lookup needed).
 //   - "New": seed the buffer from either a blank schedule framework (a level's period times, still
 //     unassigned) or another teacher's current schedule (handy for substitutions) — replacing the whole
 //     buffer, but only written to the server on "Save".
 // Unassigned slots are NEVER stored as real attendance rows — only what the teacher actually teaches
-// (or a real non-teaching commitment, e.g. patio/meeting) gets written. So the blank/gap structure the
-// grid shows while editing comes from TWO merged sources: the calendar's reference framework
-// ('source_framework_id', fetched live every time — its periods, including its own patio/meeting rows,
-// seed the buffer as a baseline) and the teacher's own real saved entries (which always win over that
-// baseline for the same day+period, and can add entirely new periods the framework never had). Saving
-// always writes the exact (possibly non-hour-aligned) hour_from/hour_to of each real period, never a
-// rounded one, and records which framework was used so the next "Edit" keeps showing the right gaps.
+// (or a real non-teaching commitment, e.g. patio/meeting) gets written. So the blank/unassigned cards
+// shown while editing come from TWO merged sources, same as before the card redesign: the calendar's
+// reference framework ('source_framework_id', fetched live every time — its periods, including its own
+// patio/meeting rows, seed each day's card list as a baseline - kept deliberately, see
+// '_seedBufferFromEntries', developer's own call: "eso hará más fácil mostrar los patios en el modo
+// edición") and the teacher's own real saved entries (which always win over that baseline for the same
+// day+slot, and can add entirely new cards the framework never had). Saving always writes the exact
+// (possibly non-hour-aligned) hour_from/hour_to of each real card, never a rounded one, and records
+// which framework was used so the next "Edit" keeps showing the right gaps.
 export class ScheduleGridField extends Component {
     static template = "ems.ScheduleGridField";
     static props = { ...standardFieldProps };
@@ -35,37 +54,61 @@ export class ScheduleGridField extends Component {
         this.orm = useService("orm");
         this.actionService = useService("action");
         this.editing = useState({ value: false });
-        this.buffer = useState({});
+        // Keyed by weekday index (see WEEKDAYS) - each value is an array of card objects, sorted by
+        // (hourFrom, hourTo, startDate) - see '_sortCards'. No more shared "period" concept across
+        // days (2026-08-11 card redesign) - each card is independent.
+        this.buffer = useState({ 0: [], 1: [], 2: [], 3: [], 4: [] });
         this.dirty = useState({ value: false });
-        this.periods = useState({ list: [] });
-        this._nextPeriodId = 1;
+        this._nextCardId = 1;
         this._pendingSourceFrameworkId = false;
         this.newPanel = useState({ open: false, value: "", frameworks: [], teachers: [] });
-        this.catalog = useState({ subjects: [], groups: [], nonTeaching: [] });
+        this.catalog = useState({ subjects: [], groups: [], nonTeaching: [], spaces: [] });
         this.summary = useState({ teaching: { rows: [], total: 0 }, fixed: { rows: [], total: 0 }, total: 0 });
         this.derivedBreaks = useState({ list: [] });
+        // Reference catalogs never depend on which employee record is being viewed - loaded once,
+        // not tied to record identity.
         onWillStart(async () => {
-            const [subjects, groups, nonTeachingTypes] = await Promise.all([
+            const [subjects, groups, nonTeachingTypes, spaces] = await Promise.all([
                 this.orm.searchRead("ems.subject", [], ["id", "display_name"]),
                 this.orm.searchRead("ems.group", [], ["id", "display_name"]),
                 this.orm.searchRead("ems.non_teaching_type", [], ["id", "name"]),
-                this._loadSummary(),
-                this._loadDerivedBreaks(),
+                this.orm.searchRead("ems.space", [], ["id", "display_name"]),
             ]);
             this.catalog.subjects = subjects;
             this.catalog.groups = groups;
             this.catalog.nonTeaching = nonTeachingTypes.map((item) => [item.id, item.name]);
+            this.catalog.spaces = spaces;
+        });
+        // Reloads on mount AND whenever the underlying employee record actually changes - not
+        // just once on mount ('onWillStart' alone would not do this). The form view can reuse
+        // this exact same component instance across a pager/breadcrumb navigation to a DIFFERENT
+        // employee (Odoo's own web client optimization, no remount) - a mount-only load left
+        // these two showing the PREVIOUSLY viewed teacher's own hours summary/derived breaks on a
+        // newly navigated-to one, until an actual full page reload (found 2026-08-11: reported as
+        // wrong breaks/hours shown while paging between several real teachers). Passes its own
+        // 'record' argument through explicitly rather than letting the two methods fall back to
+        // reading 'this.props.record' - 'useRecordObserver's callback can fire before OWL has
+        // actually reassigned 'this.props' to the new record, so reading 'this.props' at that
+        // exact moment could still return the PREVIOUS employee (confirmed the hard way: an
+        // earlier version of this fix that ignored the callback's own 'record' argument still
+        // fetched the previous teacher's own data on the very first RPC after paging).
+        useRecordObserver(async (record) => {
+            await Promise.all([this._loadSummary(record), this._loadDerivedBreaks(record)]);
         });
     }
 
     // Weekly hours summary table (below the grid, view mode only) — always reflects the last SAVED
     // schedule, never the in-progress edit buffer (see the class comment on 'apply_schedule_changes'
-    // for why unsaved state shouldn't drive server-computed aggregates).
-    async _loadSummary() {
-        if (!this.calendarId) {
+    // for why unsaved state shouldn't drive server-computed aggregates). 'record' defaults to the
+    // component's own current props for callers outside the record-change hook above (e.g. 'save()'),
+    // where 'this.props.record' is already guaranteed up to date.
+    async _loadSummary(record = this.props.record) {
+        const value = record.data.resource_calendar_id;
+        const calendarId = value ? value[0] : false;
+        if (!calendarId) {
             return;
         }
-        const result = await this.orm.call("resource.calendar", "get_schedule_hours_summary", [[this.calendarId]]);
+        const result = await this.orm.call("resource.calendar", "get_schedule_hours_summary", [[calendarId]]);
         this.summary.teaching = result.teaching;
         this.summary.fixed = result.fixed;
         this.summary.total = result.total;
@@ -81,12 +124,13 @@ export class ScheduleGridField extends Component {
     // field with its own embedded <list> turned out not to reliably load its sub-fields
     // client-side, despite computing correctly server-side (the PDF report proved that). '.read()'
     // returns Many2one fields as a (id, name) array, matching what entryLabel/entryRoom already
-    // expect from a real x2many record's own data.
-    async _loadDerivedBreaks() {
-        if (!this.props.record.resId) {
+    // expect from a real x2many record's own data. See '_loadSummary' above for why 'record' is a
+    // parameter, not read off 'this.props' directly.
+    async _loadDerivedBreaks(record = this.props.record) {
+        if (!record.resId) {
             return;
         }
-        const rows = await this.orm.call("hr.employee", "get_derived_break_attendance_data", [[this.props.record.resId]]);
+        const rows = await this.orm.call("hr.employee", "get_derived_break_attendance_data", [[record.resId]]);
         this.derivedBreaks.list = rows.map((row) => ({ id: row.id, data: row }));
     }
 
@@ -160,7 +204,26 @@ export class ScheduleGridField extends Component {
         const occupied = new Set(real.map((entry) => `${entry.data.hour_from}_${entry.data.hour_to}`));
         const derived = this.derivedBreakEntries.filter((entry) =>
             Number(entry.data.dayofweek) === dayIndex && this._hasValidDuration(entry) && !occupied.has(`${entry.data.hour_from}_${entry.data.hour_to}`));
-        return [...real, ...derived];
+        const combined = [...real, ...derived];
+        // Two entries can legitimately share the exact same hour_from/hour_to now (see plans/
+        // calendar_driven_attendance_templates.md's "Mid-course subject handoff" refinement - e.g. a
+        // regular module until February, the end-of-course project from March, same weekday/time) -
+        // render them side by side instead of one silently hiding the other underneath it.
+        const bySlot = new Map();
+        for (const entry of combined) {
+            const key = `${entry.data.hour_from}_${entry.data.hour_to}`;
+            if (!bySlot.has(key)) {
+                bySlot.set(key, []);
+            }
+            bySlot.get(key).push(entry);
+        }
+        for (const group of bySlot.values()) {
+            group.forEach((entry, index) => {
+                entry.gridColumn = index;
+                entry.gridColumnCount = group.length;
+            });
+        }
+        return combined;
     }
 
     entryStyle(entry) {
@@ -173,7 +236,13 @@ export class ScheduleGridField extends Component {
         // only helps a block that isn't sharing its vertical space with a neighbour).
         const height = entry.data.non_teaching_is_break ? naturalHeight : Math.max(MIN_ENTRY_HEIGHT, naturalHeight);
         const color = this.entryColor(entry);
-        return `top:${top}px;height:${height}px${color ? `;background-color:${color}` : ""}`;
+        // Side-by-side split when this slot has more than one entry (see 'entriesForDay') - a single
+        // entry keeps the CSS default (left/right:2px, full width), overridden inline only when needed.
+        const columnCount = entry.gridColumnCount || 1;
+        const position = columnCount > 1
+            ? `left:calc(${(100 / columnCount) * (entry.gridColumn || 0)}% + 2px);width:calc(${100 / columnCount}% - 4px);right:auto;`
+            : "";
+        return `top:${top}px;height:${height}px;${position}${color ? `background-color:${color}` : ""}`;
     }
 
     entryIsBlank(entry) {
@@ -235,23 +304,7 @@ export class ScheduleGridField extends Component {
         return formatHourMinutes(value);
     }
 
-    // ── Edit mode (two dropdowns per real period, buffered) ──────────────────
-
-    get subjectOptions() {
-        return [
-            { key: "", label: "—" },
-            ...this.catalog.nonTeaching.map(([value, label]) => ({ key: `n_${value}`, label, group: _t("Non-teaching") })),
-            ...this.catalog.subjects.map((subject) => ({ key: `s_${subject.id}`, label: subject.display_name, group: _t("Subjects") })),
-        ];
-    }
-
-    get sortedPeriods() {
-        return [...this.periods.list].sort((a, b) => a.hour_from - b.hour_from);
-    }
-
-    periodLabel(period) {
-        return `${this.formatHourMinutes(period.hour_from)}-${this.formatHourMinutes(period.hour_to)}`;
-    }
+    // ── Edit mode (independent per-day cards, see class comment) ─────────────
 
     _timeToHour(value) {
         const [h, m] = value.split(":").map(Number);
@@ -264,14 +317,8 @@ export class ScheduleGridField extends Component {
         return `${String(hour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
     }
 
-    // Periods are identified by a stable id, never by their (sorted) display position — editing a
-    // period's time, or inserting a new one, must never shift what the buffer's existing cells point to.
-    _cellKey(dayIndex, periodId) {
-        return `${dayIndex}_${periodId}`;
-    }
-
-    _emptyCell() {
-        return { kind: "empty", subjectId: false, groupId: false, nonTeaching: false };
+    cardsForDay(dayIndex) {
+        return this.buffer[dayIndex];
     }
 
     // Normalizes either an Odoo record (has '.data', many2one as [id, label], x2many as a StaticList) or
@@ -287,68 +334,93 @@ export class ScheduleGridField extends Component {
             non_teaching: data.non_teaching ? data.non_teaching[0] : false,
             subjectId: data.subject_id ? data.subject_id[0] : false,
             groupId: groupIds.length ? groupIds[0] : false,
+            spaceId: data.space_id ? data.space_id[0] : false,
+            // "YYYY-MM-DD" string or false - each card's own date range (2026-08-11 card redesign;
+            // previously carried on a shared "period" row). Reads core Odoo's own 'date_from'/
+            // 'date_to' (not EMS-specific fields).
+            startDate: data.date_from || false,
+            endDate: data.date_to || false,
         };
     }
 
-    // A framework/baseline row with no subject/non-teaching is a 'blank' (still-unassigned) period —
-    // shown so the admin can fill it in, but never written on save (see the class comment).
-    _stateFromNormalized(norm) {
-        if (norm.non_teaching) {
-            return { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: norm.non_teaching };
+    // A card with no subject/non-teaching is 'blank' (still-unassigned) — shown so the admin can
+    // fill it in, but never written on save (see the class comment).
+    _kindFromNormalized(n) {
+        if (n.non_teaching) {
+            return { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: n.non_teaching };
         }
-        if (norm.subjectId) {
-            return { kind: "subject", subjectId: norm.subjectId, groupId: norm.groupId, nonTeaching: false };
+        if (n.subjectId) {
+            return { kind: "subject", subjectId: n.subjectId, groupId: n.groupId, nonTeaching: false };
         }
         return { kind: "blank", subjectId: false, groupId: false, nonTeaching: false };
     }
 
-    // Rebuilds the whole buffer by merging a baseline (a reference framework's own periods — some
-    // blank, some real non-teaching commitments like patio/meetings) with the teacher's real saved
-    // entries, which always win for the same day+period and can introduce entirely new periods the
-    // baseline never had (e.g. a custom "Add period" block from a previous save). The edit grid's rows
-    // are the DISTINCT (hour_from, hour_to) pairs found across everything (any weekday) — a school's
-    // bell schedule is one fixed set of periods repeated each day, with some days skipping or adding
-    // one (e.g. a Wednesday-only meeting) — so this naturally reproduces the real timetable instead of
-    // an hour-rounded approximation.
+    _cardFromNormalized(n) {
+        return { id: this._nextCardId++, hourFrom: n.hour_from, hourTo: n.hour_to, startDate: n.startDate, endDate: n.endDate, spaceId: n.spaceId, ...this._kindFromNormalized(n) };
+    }
+
+    _blankCard(hourFrom, hourTo) {
+        return { id: this._nextCardId++, hourFrom, hourTo, startDate: false, endDate: false, spaceId: false, kind: "blank", subjectId: false, groupId: false, nonTeaching: false };
+    }
+
+    // Cards within a day sort by start time, then end time, then start date - the developer's own
+    // spec ("se ordenan por hora de inicio y hora de final, si dos se hacen a la misma hora, sale
+    // una seguida de la otra (el orden es por fecha)").
+    _sortCards(cards) {
+        cards.sort((a, b) => a.hourFrom - b.hourFrom || a.hourTo - b.hourTo || (a.startDate || "").localeCompare(b.startDate || ""));
+    }
+
+    // Rebuilds the whole buffer (independent cards per weekday) by merging a baseline (a reference
+    // framework's own slots — some blank, some real non-teaching commitments like patio/meetings)
+    // with the teacher's real saved entries, which always win for the same day+slot. A baseline slot
+    // matched by MORE THAN ONE real entry (a date-split pair sharing the exact same hour_from/hour_to)
+    // becomes one card PER real entry, each keeping its own date range - that's what lets a single
+    // framework slot expand into two cards mid-course. A real entry at a slot the baseline never had
+    // (e.g. a custom "+ Add" card from a previous save) is appended as its own new card.
     _seedBufferFromEntries(baselineEntries, realEntries = []) {
         const baseline = baselineEntries.map((raw) => this._normalizeEntry(raw)).filter((n) => WEEKDAYS.includes(n.dayofweek));
         const real = realEntries.map((raw) => this._normalizeEntry(raw)).filter((n) => WEEKDAYS.includes(n.dayofweek));
 
-        this._nextPeriodId = 1;
-        const periodKey = (n) => `${n.hour_from}_${n.hour_to}`;
-        const periodIdByKey = new Map();
-        const periods = [];
-        const ensurePeriod = (n) => {
-            const key = periodKey(n);
-            if (!periodIdByKey.has(key)) {
-                const id = this._nextPeriodId++;
-                periodIdByKey.set(key, id);
-                periods.push({ id, hour_from: n.hour_from, hour_to: n.hour_to });
-            }
-            return periodIdByKey.get(key);
-        };
-
-        const buffer = {};
-        for (const n of baseline) {
-            buffer[this._cellKey(n.dayofweek, ensurePeriod(n))] = this._stateFromNormalized(n);
-        }
+        this._nextCardId = 1;
+        const slotKey = (n) => `${n.dayofweek}_${n.hour_from}_${n.hour_to}`;
+        const realBySlot = new Map();
         for (const n of real) {
-            buffer[this._cellKey(n.dayofweek, ensurePeriod(n))] = this._stateFromNormalized(n);
+            const key = slotKey(n);
+            if (!realBySlot.has(key)) {
+                realBySlot.set(key, []);
+            }
+            realBySlot.get(key).push(n);
+        }
+
+        const buffer = { 0: [], 1: [], 2: [], 3: [], 4: [] };
+        const usedSlots = new Set();
+        for (const n of baseline) {
+            const key = slotKey(n);
+            usedSlots.add(key);
+            const matches = realBySlot.get(key);
+            if (matches && matches.length) {
+                for (const match of matches) {
+                    buffer[n.dayofweek].push(this._cardFromNormalized(match));
+                }
+            } else {
+                buffer[n.dayofweek].push(this._blankCard(n.hour_from, n.hour_to));
+            }
+        }
+        for (const [key, matches] of realBySlot.entries()) {
+            if (usedSlots.has(key)) {
+                continue;
+            }
+            for (const match of matches) {
+                buffer[match.dayofweek].push(this._cardFromNormalized(match));
+            }
+        }
+
+        for (const dayIndex of WEEKDAYS) {
+            this._sortCards(buffer[dayIndex]);
         }
         for (const dayIndex of WEEKDAYS) {
-            for (const period of periods) {
-                const key = this._cellKey(dayIndex, period.id);
-                if (!(key in buffer)) {
-                    buffer[key] = this._emptyCell();
-                }
-            }
+            this.buffer[dayIndex] = buffer[dayIndex];
         }
-
-        for (const key of Object.keys(this.buffer)) {
-            delete this.buffer[key];
-        }
-        Object.assign(this.buffer, buffer);
-        this.periods.list = periods;
     }
 
     async _fetchFrameworkAttendances(frameworkId) {
@@ -363,45 +435,98 @@ export class ScheduleGridField extends Component {
         return record.source_framework_id ? record.source_framework_id[0] : false;
     }
 
-    // Lets the admin build a period the loaded source didn't have (e.g. a teacher mixing two levels'
-    // bell schedules by hand) instead of being limited to whatever was already there.
-    addPeriod() {
-        const last = this.sortedPeriods[this.sortedPeriods.length - 1];
-        const hour_from = last ? last.hour_to : DEFAULT_START;
-        const id = this._nextPeriodId++;
-        this.periods.list.push({ id, hour_from, hour_to: hour_from + 1 });
-        for (const dayIndex of WEEKDAYS) {
-            this.buffer[this._cellKey(dayIndex, id)] = this._emptyCell();
-        }
+    // Lets the admin add a card the loaded source didn't have (e.g. mixing two levels' bell
+    // schedules by hand, or the "same time, different point in the year" case - a second card at an
+    // existing card's exact time, scoped to a different, non-overlapping date range - see the class
+    // comment's "Mid-course subject handoff").
+    addCard(dayIndex) {
+        const cards = this.buffer[dayIndex];
+        const last = cards[cards.length - 1];
+        const hourFrom = last ? last.hourTo : DEFAULT_START;
+        cards.push(this._blankCard(hourFrom, hourFrom + 1));
+        this._sortCards(cards);
         this.dirty.value = true;
     }
 
-    removePeriod(periodId) {
-        const index = this.periods.list.findIndex((period) => period.id === periodId);
+    removeCard(dayIndex, cardId) {
+        const cards = this.buffer[dayIndex];
+        const index = cards.findIndex((card) => card.id === cardId);
         if (index !== -1) {
-            this.periods.list.splice(index, 1);
-        }
-        for (const dayIndex of WEEKDAYS) {
-            delete this.buffer[this._cellKey(dayIndex, periodId)];
+            cards.splice(index, 1);
         }
         this.dirty.value = true;
     }
 
-    onPeriodTimeChange(periodId, field, ev) {
-        const period = this.periods.list.find((p) => p.id === periodId);
-        if (!period) {
+    _findCard(dayIndex, cardId) {
+        return this.buffer[dayIndex].find((card) => card.id === cardId);
+    }
+
+    onCardSubjectChange(dayIndex, cardId, ev) {
+        const card = this._findCard(dayIndex, cardId);
+        if (!card) {
+            return;
+        }
+        const value = ev.target.value;
+        if (value.startsWith("n_")) {
+            Object.assign(card, { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: Number(value.slice(2)) });
+        } else if (value.startsWith("s_")) {
+            Object.assign(card, { kind: "subject", subjectId: Number(value.slice(2)), nonTeaching: false });
+        } else {
+            Object.assign(card, { kind: "blank", subjectId: false, groupId: false, nonTeaching: false });
+        }
+        this.dirty.value = true;
+    }
+
+    onCardGroupChange(dayIndex, cardId, ev) {
+        const card = this._findCard(dayIndex, cardId);
+        if (!card) {
+            return;
+        }
+        card.groupId = ev.target.value ? Number(ev.target.value) : false;
+        this.dirty.value = true;
+    }
+
+    onCardSpaceChange(dayIndex, cardId, ev) {
+        const card = this._findCard(dayIndex, cardId);
+        if (!card) {
+            return;
+        }
+        card.spaceId = ev.target.value ? Number(ev.target.value) : false;
+        this.dirty.value = true;
+    }
+
+    // "hourFrom"/"hourTo" as the 'field' argument (matching the card's own property names, unlike
+    // the old shared-period model's raw 'hour_from'/'hour_to').
+    onCardTimeChange(dayIndex, cardId, field, ev) {
+        const card = this._findCard(dayIndex, cardId);
+        if (!card) {
             return;
         }
         const value = this._timeToHour(ev.target.value);
-        if (field === "hour_from") {
-            // Moving the start moves the whole block, keeping its original duration — otherwise
-            // dragging the start later/earlier while the end stays put can silently balloon the block
+        if (field === "hourFrom") {
+            // Moving the start moves the whole card, keeping its original duration — otherwise
+            // dragging the start later/earlier while the end stays put can silently balloon the card
             // into one spanning most of the day.
-            const duration = period.hour_to - period.hour_from;
-            period.hour_from = value;
-            period.hour_to = value + duration;
+            const duration = card.hourTo - card.hourFrom;
+            card.hourFrom = value;
+            card.hourTo = value + duration;
         } else {
-            period.hour_to = value;
+            card.hourTo = value;
+        }
+        this._sortCards(this.buffer[dayIndex]);
+        this.dirty.value = true;
+    }
+
+    // Blank means "valid all course year", unchanged default behavior. ev.target.value is ""
+    // (cleared) or "YYYY-MM-DD" (native <input type="date">).
+    onCardDateChange(dayIndex, cardId, field, ev) {
+        const card = this._findCard(dayIndex, cardId);
+        if (!card) {
+            return;
+        }
+        card[field] = ev.target.value || false;
+        if (field === "startDate") {
+            this._sortCards(this.buffer[dayIndex]);
         }
         this.dirty.value = true;
     }
@@ -421,39 +546,14 @@ export class ScheduleGridField extends Component {
         this.newPanel.open = false;
     }
 
-    cellState(dayIndex, periodId) {
-        return this.buffer[this._cellKey(dayIndex, periodId)] || this._emptyCell();
-    }
-
-    onSubjectChange(dayIndex, periodId, ev) {
-        const key = this._cellKey(dayIndex, periodId);
-        const value = ev.target.value;
-        if (value.startsWith("n_")) {
-            this.buffer[key] = { kind: "non_teaching", subjectId: false, groupId: false, nonTeaching: Number(value.slice(2)) };
-        } else if (value.startsWith("s_")) {
-            const previous = this.cellState(dayIndex, periodId);
-            this.buffer[key] = { kind: "subject", subjectId: Number(value.slice(2)), groupId: previous.groupId, nonTeaching: false };
-        } else {
-            this.buffer[key] = this._emptyCell();
+    subjectSelectValue(card) {
+        if (card.kind === "non_teaching") {
+            return `n_${card.nonTeaching}`;
         }
-        this.dirty.value = true;
-    }
-
-    onGroupChange(dayIndex, periodId, ev) {
-        const key = this._cellKey(dayIndex, periodId);
-        const previous = this.cellState(dayIndex, periodId);
-        this.buffer[key] = { ...previous, groupId: ev.target.value ? Number(ev.target.value) : false };
-        this.dirty.value = true;
-    }
-
-    subjectSelectValue(state) {
-        if (state.kind === "non_teaching") {
-            return `n_${state.nonTeaching}`;
+        if (card.kind === "subject") {
+            return `s_${card.subjectId}`;
         }
-        if (state.kind === "subject") {
-            return `s_${state.subjectId}`;
-        }
-        return ""; // 'empty' and 'blank' both show as "—" until the admin picks something
+        return ""; // 'blank' shows as "—" until the admin picks something
     }
 
     // ── PDF (downloads the printable weekly schedule for this employee) ──────
@@ -528,26 +628,40 @@ export class ScheduleGridField extends Component {
         const nonTeachingById = new Map(this.catalog.nonTeaching);
         const cells = [];
         for (const dayIndex of WEEKDAYS) {
-            for (const period of this.periods.list) {
-                const state = this.buffer[this._cellKey(dayIndex, period.id)];
-                // Blank/unassigned slots are never written — only a real subject or non-teaching
+            for (const card of this.buffer[dayIndex]) {
+                // Blank/unassigned cards are never written — only a real subject or non-teaching
                 // commitment is (see the class comment).
-                if (!state || state.kind === "empty" || state.kind === "blank") {
+                if (card.kind === "blank") {
                     continue;
                 }
                 const cell = {
                     dayofweek: String(dayIndex),
-                    hour_from: period.hour_from,
-                    hour_to: period.hour_to,
-                    day_period: period.hour_from < 13 ? "morning" : "afternoon",
+                    hour_from: card.hourFrom,
+                    hour_to: card.hourTo,
+                    day_period: card.hourFrom < 13 ? "morning" : "afternoon",
                 };
-                if (state.kind === "subject" && state.subjectId && state.groupId) {
-                    cell.subject_id = state.subjectId;
-                    cell.group_ids = [state.groupId];
-                    cell.name = `${subjectById.get(state.subjectId)}: ${groupById.get(state.groupId)}`;
-                } else if (state.kind === "non_teaching") {
-                    cell.non_teaching = state.nonTeaching;
-                    cell.name = nonTeachingById.get(state.nonTeaching) || state.nonTeaching;
+                // Blank (the common case) means "valid all course year" - only send an explicit date
+                // when the admin actually set one. Core Odoo's own 'date_from'/'date_to' field names
+                // (not EMS-specific).
+                if (card.startDate) {
+                    cell.date_from = card.startDate;
+                }
+                if (card.endDate) {
+                    cell.date_to = card.endDate;
+                }
+                // Only sent when the admin explicitly picked a room on this card - otherwise the
+                // server keeps auto-deriving it from the group's own default (see
+                // ems_working_schedule_assignation.create()), unchanged behavior.
+                if (card.spaceId) {
+                    cell.space_id = card.spaceId;
+                }
+                if (card.kind === "subject" && card.subjectId && card.groupId) {
+                    cell.subject_id = card.subjectId;
+                    cell.group_ids = [card.groupId];
+                    cell.name = `${subjectById.get(card.subjectId)}: ${groupById.get(card.groupId)}`;
+                } else if (card.kind === "non_teaching") {
+                    cell.non_teaching = card.nonTeaching;
+                    cell.name = nonTeachingById.get(card.nonTeaching) || card.nonTeaching;
                 } else {
                     continue; // a subject was picked but no group yet: skip until both are set
                 }

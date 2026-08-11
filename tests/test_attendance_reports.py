@@ -117,7 +117,7 @@ class TestAttendanceReportWizards(TransactionCase):
 
         cls.template = cls.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [cls.owner_employee.id])], 'study_ids': [(6, 0, [cls.study1.id])],
-            'subject_id': cls.subject_a.id, 'group_ids': [(6, 0, [cls.group1.id])], 'space_id': cls.space.id,
+            'subject_id': cls.subject_a.id, 'group_ids': [(6, 0, [cls.group1.id])],
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         cls.schedule = cls.env['ems.attendance_schedule'].create({

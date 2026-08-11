@@ -66,6 +66,25 @@ class EmsStudy(models.Model):
         courses = self.env['ems.group'].search([('study_id', '=', self.id)]).mapped('course')
         return max(courses) if courses else 0
 
+    def _subjects_common_to_all(self):
+        """Subjects taught in EVERY study in 'self' - the intersection (an empty recordset if
+        'self' itself is empty, or once any one study in it teaches nothing at all). Shared by
+        'ems.attendance_template.allowed_subject_ids' and the working-schedule import wizard's
+        'subject_line' (both need exactly this same "valid across ALL these studies at once"
+        rule) - extracted here rather than duplicated once the wizard needed the identical check.
+        Uses 'search()' on ids (not a direct '.subject_ids' traversal) to preserve the exact,
+        already-tested behavior 'allowed_subject_ids' had before this extraction, including
+        working correctly against a still-unsaved form's NewId-wrapped study records, whose own
+        '.id' is a placeholder object a search domain can't use directly - '.ids' resolves each
+        one back to its real origin id regardless."""
+        study_ids = self.ids
+        if not study_ids:
+            return self.env['ems.subject']
+        subjects = self.env['ems.subject'].search([('study_ids', 'in', study_ids[0])])
+        for study_id in study_ids[1:]:
+            subjects &= self.env['ems.subject'].search([('study_ids', 'in', study_id)])
+        return subjects
+
     def _compute_uses_enrollment_flow(self):
         Template = self.env['sale.order.template']
         for study in self:

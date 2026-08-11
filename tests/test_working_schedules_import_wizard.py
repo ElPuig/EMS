@@ -59,6 +59,15 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'name': 'Test Subject 2 (Import Wizard)',
             'study_ids': [(6, 0, [cls.study.id])],
         })
+        # Deliberately NOT associated with 'cls.study' (or any study) - the "wrong subject for the
+        # group's own study" fixture for the 'subjects' step's own tests (real error this screen
+        # was built for, 2026-08-10: "The subject '...' is not available in the following selected
+        # studies: ...").
+        cls.wrong_subject = cls.env['ems.subject'].create({
+            'code': 'TWIW003',
+            'acronym': 'TWIW3',
+            'name': 'Test Wrong Subject (Import Wizard)',
+        })
         # No 'space_id' — ems.group.space_id is optional, but ems.attendance_template.space_id (taken
         # from the group) is required; see test_import_group_without_space_raises_clear_error.
         cls.spaceless_group = cls.env['ems.group'].create({
@@ -834,7 +843,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.group_line_ids.group_id = self.group.id
-        wizard.action_continue()  # groups -> teachers, substitutes the pick
+        wizard.action_continue()  # groups -> subjects, substitutes the pick
+        wizard.action_continue()  # subjects -> teachers (no mismatch in this fixture)
 
         self.assertEqual(wizard.state, 'teachers')
         self.assertNotIn('pending_group_names', wizard.parsed_entries_json)
@@ -846,14 +856,156 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         attendance = self.teacher.resource_calendar_id.attendance_ids
         self.assertEqual(attendance.group_ids, self.group)
 
-    def test_continue_from_groups_builds_teacher_line_for_unresolved_email(self):
+    def test_continue_from_groups_builds_subject_line_for_mismatched_subject(self):
+        # Real error this screen was built for (2026-08-10): 'self.wrong_subject' isn't taught in
+        # 'self.group's own study ('self.study'), so the mismatch must surface here instead of
+        # only as a confusing error at the very end of the wizard.
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.wrong_subject.code} {self.wrong_subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects
+
+        self.assertEqual(wizard.state, 'subjects')
+        self.assertEqual(len(wizard.subject_line_ids), 1)
+        line = wizard.subject_line_ids
+        self.assertEqual(line.group_ids, self.group)
+        self.assertEqual(line.raw_subject_id, self.wrong_subject)
+        # Defaults to the file's own (wrong) subject - a Many2one 'domain' only restricts what's
+        # searchable when the field is reopened, it never hides an already-set out-of-domain value.
+        self.assertEqual(line.subject_id, self.wrong_subject)
+        self.assertEqual(line.allowed_subject_ids, self.subject | self.other_subject)
+
+    def test_continue_from_groups_no_subject_line_when_subject_is_valid(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects
+
+        self.assertFalse(wizard.subject_line_ids)
+
+    def test_continue_from_groups_no_subject_line_for_a_group_with_no_study(self):
+        # A reinforcement group has no 'study_id' at all - nothing to validate the subject
+        # against, matching 'ems.attendance_template._check_subject_valid_for_all_studies's own
+        # skip-if-no-study rule.
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.wrong_subject.code} {self.wrong_subject.name}"/>'
+                f'<Students name="{self.reinforcement_group.name}"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects
+
+        self.assertFalse(wizard.subject_line_ids)
+
+    def test_continue_from_groups_dedups_subject_line_across_repeated_entries(self):
+        # The same (group, wrong subject) pair repeated across two different days (a class
+        # meeting the same slot every day of the week) is ONE correction line, not one per entry.
+        xml = (
+            '<root>'
+            '<T name="test.wizard.teacher.import.wizard@example.com Someone">'
+            '<D name="1 Monday"><H name="1 09:00">'
+            f'<Subject name="{self.wrong_subject.code} {self.wrong_subject.name}"/>'
+            f'<Students name="{self.group.name} Group"/>'
+            '</H></D>'
+            '<D name="2 Tuesday"><H name="1 09:00">'
+            f'<Subject name="{self.wrong_subject.code} {self.wrong_subject.name}"/>'
+            f'<Students name="{self.group.name} Group"/>'
+            '</H></D>'
+            '</T></root>'
+        )
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(base64.b64encode(xml.encode())),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects
+
+        self.assertEqual(len(wizard.subject_line_ids), 1)
+
+    def test_continue_from_subjects_raises_when_subject_still_invalid(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.wrong_subject.code} {self.wrong_subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects
+
+        with self.assertRaises(Exception):
+            wizard.action_continue()
+
+    def test_continue_from_subjects_raises_translated_message_in_catalan(self):
+        # Code (Python '_()') translations in this Odoo version are read straight from this
+        # module's own checked-in 'i18n/ca_ES.po' at runtime, with no database round-trip - a
+        # functional check under a real 'lang' context is the only way to actually prove this
+        # message translates, since there's no DB column to verify via psql the way there is for
+        # field_description/arch_db (see test_overall_summary_translates_group_resolution_and_
+        # empty_block_into_catalan for the same pattern, established for this exact reason).
+        wizard = self.env['ems.working_schedules_import_wizard'].with_context(lang='ca_ES').create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.wrong_subject.code} {self.wrong_subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects
+
+        with self.assertRaises(Exception) as cm:
+            wizard.action_continue()
+        self.assertIn('Seleccioneu una assignatura impartida', str(cm.exception))
+
+    def test_continue_from_subjects_applies_correction_and_completes_import(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.wrong_subject.code} {self.wrong_subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects
+        wizard.subject_line_ids.subject_id = self.other_subject.id
+        wizard.action_continue()  # subjects -> teachers, applies the correction
+
+        self.assertEqual(wizard.state, 'teachers')
+        node_cache = json.loads(wizard.parsed_entries_json)
+        self.assertEqual(node_cache[0]['entries'][0]['subject_id'], self.other_subject.id)
+        self.assertIn(self.other_subject.acronym, node_cache[0]['entries'][0]['name'])
+        self.assertIn(self.group.name, node_cache[0]['entries'][0]['name'])
+
+        while wizard.state != 'summary':
+            wizard.action_continue()
+        wizard.import_planner_data()
+
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.other_subject.id),
+        ])
+        self.assertTrue(template)
+        self.assertEqual(template.group_ids, self.group)
+
+    def test_continue_from_subjects_builds_teacher_line_for_unresolved_email(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(
                 self._xml_file('unknown.import.wizard@example.com Someone'),
             ),
         })
         wizard.action_continue()  # intro -> groups (no Students, nothing to resolve there)
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
 
         self.assertEqual(wizard.state, 'teachers')
         self.assertEqual(
@@ -861,7 +1013,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         )
         self.assertFalse(wizard.teacher_line_ids.employee_id)
 
-    def test_continue_from_groups_dedups_same_unresolved_email_across_teachers(self):
+    def test_continue_from_subjects_dedups_same_unresolved_email_across_teachers(self):
         # The same unresolved e-mail appearing in more than one <T> node (e.g. re-listed across
         # files, or a duplicate row) is ONE correction line, not one per occurrence.
         xml = (
@@ -876,13 +1028,14 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'attachment_ids': self._attachment_ids(base64.b64encode(xml.encode())),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
 
         self.assertEqual(
             wizard.teacher_line_ids.mapped('raw_identifier'), ['unknown.import.wizard@example.com']
         )
 
-    def test_continue_from_groups_lists_a_brand_new_pending_identification_code(self):
+    def test_continue_from_subjects_lists_a_brand_new_pending_identification_code(self):
         # A code with no '@' and no existing employee behind it is a genuinely new placeholder -
         # since the 2026-08-10 merge (see '_pending_teacher_identifiers'), it gets its own
         # correction row right here, exactly like an unresolved e-mail, 'create_new' defaulting
@@ -891,12 +1044,13 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'attachment_ids': self._attachment_ids(self._xml_file('X1')),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
 
         self.assertEqual(wizard.teacher_line_ids.mapped('raw_identifier'), ['X1'])
         self.assertTrue(wizard.teacher_line_ids.create_new)
 
-    def test_continue_from_groups_does_not_list_a_code_already_matching_a_pending_teacher(self):
+    def test_continue_from_subjects_does_not_list_a_code_already_matching_a_pending_teacher(self):
         # Unlike a brand-new code, one that already reuses an EXISTING employee's
         # 'schedule_import_code' (a re-import of the same batch, or a previously-created pending
         # teacher) resolves silently - nothing to correct, same as an already-known e-mail.
@@ -909,7 +1063,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'attachment_ids': self._attachment_ids(self._xml_file('X1')),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
 
         self.assertFalse(wizard.teacher_line_ids)
 
@@ -920,7 +1075,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; force the "neither" case
 
         with self.assertRaises(ValidationError) as capture:
@@ -940,7 +1096,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; untick it to pick a real teacher
         wizard.teacher_line_ids.employee_id = second_teacher.id
         wizard.action_continue()  # teachers -> internal_conflicts, substitutes the pick
@@ -964,7 +1121,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; untick it to pick a real teacher
         wizard.teacher_line_ids.employee_id = second_teacher.id
 
@@ -982,7 +1140,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; force the "neither" case
 
         with self.assertRaises(ValidationError) as capture:
@@ -998,7 +1157,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.teacher_line_ids.create_new = True
 
         self.assertFalse(wizard.continue_disabled)
@@ -1012,7 +1172,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.teacher_line_ids.create_new = True
 
         while wizard.state != 'summary':
@@ -1034,7 +1195,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         first_wizard.action_continue()  # intro -> groups
-        first_wizard.action_continue()  # groups -> teachers
+        first_wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        first_wizard.action_continue()  # subjects -> teachers
         first_wizard.teacher_line_ids.create_new = True
         while first_wizard.state != 'summary':
             first_wizard.action_continue()
@@ -1052,7 +1214,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # style resolution) - so this identifier no longer even reaches the 'teachers' step's
         # unresolved-line list; it resolves automatically, exactly like a real already-known teacher.
         self.assertEqual(wizard.state, 'groups')
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         self.assertFalse(wizard.teacher_line_ids)
 
         self.assertEqual(
@@ -1077,7 +1240,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts, builds the conflict line
 
         self.assertEqual(wizard.state, 'internal_conflicts')
@@ -1125,7 +1289,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             'attachment_ids': self._attachment_ids(base64.b64encode(xml.encode())),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
 
         self.assertEqual(len(wizard.internal_conflict_line_ids), 2)
@@ -1145,7 +1310,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
 
         line = wizard.internal_conflict_line_ids
@@ -1169,7 +1335,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
 
         line = wizard.internal_conflict_line_ids
@@ -1202,7 +1369,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
 
         self.assertEqual(sorted(wizard.teacher_line_ids.mapped('raw_identifier')), ['SELFX1', 'SELFX2'])
         wizard.teacher_line_ids.write({'create_new': False, 'employee_id': self.teacher.id})
@@ -1234,7 +1402,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
 
         self.assertFalse(wizard.internal_conflict_line_ids)
@@ -1250,7 +1419,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.teacher_line_ids.write({'create_new': False, 'employee_id': self.teacher.id})
         wizard.action_continue()  # teachers -> internal_conflicts (self_conflict, defaults to prevail_left)
 
@@ -1273,7 +1443,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.teacher_line_ids.write({'create_new': False, 'employee_id': self.teacher.id})
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.internal_conflict_line_ids.resolution = 'prevail_right'
@@ -1301,7 +1472,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.teacher_line_ids.write({'create_new': False, 'employee_id': self.teacher.id})
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.internal_conflict_line_ids.write({
@@ -1324,7 +1496,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
 
         self.assertFalse(wizard.internal_conflict_line_ids)
@@ -1341,7 +1514,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.internal_conflict_line_ids.resolution = 'co_teaching'  # invalid for a plain_conflict
 
@@ -1362,7 +1536,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts, defaults left/right to the SAME room
 
         with self.assertRaises(ValidationError):
@@ -1379,7 +1554,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts (default resolution: reassign_rooms)
         wizard.internal_conflict_line_ids.resolution = 'prevail_left'
 
@@ -1406,7 +1582,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.internal_conflict_line_ids.right_space_id = other_space.id
         self.assertFalse(wizard.continue_disabled)
@@ -1435,7 +1612,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts (default resolution: co_teaching)
 
         while wizard.state != 'summary':
@@ -1467,7 +1645,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts (nothing, only one teacher in this batch)
         wizard.action_continue()  # internal_conflicts -> db_conflicts, builds the external conflict line
 
@@ -1494,7 +1673,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
 
@@ -1521,7 +1701,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.resolution = 'co_teaching'  # invalid for a plain_conflict
@@ -1548,7 +1729,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.resolution = 'prevail_right'
@@ -1585,7 +1767,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.right_space_id = other_space.id
@@ -1629,7 +1812,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         wizard.external_conflict_line_ids.right_space_id = other_space.id
@@ -1737,7 +1921,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
 
         self.assertEqual(sorted(wizard.teacher_line_ids.mapped('raw_identifier')), ['X3', 'X4'])
         wizard.teacher_line_ids.write({'create_new': False, 'employee_id': real_teacher.id})
@@ -1782,7 +1967,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         # 'create_new' defaults to True - picking an existing teacher instead means unticking it,
         # same as the view's own @api.onchange would do when a real value gets picked.
         wizard.teacher_line_ids.create_new = False
@@ -1816,7 +2002,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers - 'create_new' defaults to True
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers - 'create_new' defaults to True
         while wizard.state != 'summary':
             wizard.action_continue()
 
@@ -1842,7 +2029,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.internal_conflict_line_ids.right_space_id = other_space.id
         while wizard.state != 'summary':
@@ -1914,7 +2102,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.group_line_ids.group_id = self.group.id
-        wizard.action_continue()  # groups -> teachers (resolves the unresolved group name)
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers (resolves the unresolved group name)
         while wizard.state != 'summary':
             wizard.action_continue()
 
@@ -1975,7 +2164,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers (known e-mail, nothing to resolve either)
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers (known e-mail, nothing to resolve either)
         wizard.action_continue()  # teachers -> internal_conflicts (single teacher, no collision possible)
         wizard.action_continue()  # internal_conflicts -> db_conflicts (no existing session to collide with)
         wizard.action_continue()  # db_conflicts -> summary
@@ -1996,7 +2186,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             )),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.action_continue()  # teachers -> internal_conflicts
         wizard.action_continue()  # internal_conflicts -> db_conflicts
         self.assertEqual(wizard.state, 'db_conflicts')
@@ -2009,7 +2200,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; force the unresolved case
         self.assertEqual(wizard.state, 'teachers')
         self.assertTrue(wizard.continue_disabled)
@@ -2025,7 +2217,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups
-        wizard.action_continue()  # groups -> teachers
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
         wizard.teacher_line_ids.create_new = False  # 'create_new' defaults True; untick it to pick a real teacher
         wizard.teacher_line_ids.employee_id = second_teacher.id
         self.assertFalse(wizard.continue_disabled)
@@ -2042,7 +2235,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
                 self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
             ),
         })
-        expected_sequence = ['groups', 'teachers', 'internal_conflicts', 'db_conflicts', 'summary']
+        expected_sequence = ['groups', 'subjects', 'teachers', 'internal_conflicts', 'db_conflicts', 'summary']
         for expected_state in expected_sequence:
             wizard.action_continue()
             self.assertEqual(wizard.state, expected_state)
@@ -2057,7 +2250,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ),
         })
         wizard.action_continue()  # intro -> groups, caches the parsed entries
-        for _step in range(4):  # groups -> ... -> summary
+        for _step in range(5):  # groups -> ... -> summary
             wizard.action_continue()
         self.assertEqual(wizard.state, 'summary')
 

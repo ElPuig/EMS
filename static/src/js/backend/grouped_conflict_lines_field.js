@@ -196,14 +196,62 @@ export class EmsGroupedConflictLinesField extends Component {
         return groups;
     }
 
-    onBulkApply(subgroup, ev) {
+    // Found while empirically verifying this scales past a couple of rows (2026-08-10, developer
+    // question: "si tuviéramos más de 1000 conflictos estaríamos en las mismas... ¿de alguna otra
+    // forma?", tested with an 85-row tour fixture - safely past Odoo's own x2many page-size default
+    // of 80): plain 'record.update({ resolution: value })' triggers a genuine server 'onchange' RPC
+    // per call ('resolution' is a dependency of the wizard's own invisible 'continue_disabled'
+    // field present in the same view, so Odoo's arch-level onchange-spec builder marks it needing a
+    // round-trip on every edit, regardless of there being an explicit '@api.onchange') - firing that
+    // sequentially for every record in a large sub-group made bulk-apply itself the new bottleneck
+    // once the widget's own full-record-load fix stopped hiding rows past that count.
+    //
+    // Fix: 'Record._update()' (the private method the public 'update()' wraps) accepts
+    // 'withoutOnchange'/'withoutParentUpdate' directly - the public wrapper only ever sets the
+    // former, and only via a 'save' flag that ALSO force-saves the record early, not something this
+    // deferred-write wizard wants. Both flags are needed, not just 'withoutOnchange' alone: a
+    // nested record's own 'onUpdate' callback (wired up by 'StaticList._createRecordDatapoint', a
+    // SEPARATE mechanism from the line's own field-level onchange) independently notifies the
+    // PARENT (wizard) record's own onchange too unless told not to - confirmed by reading that
+    // callback directly in 'static_list.js'. Skip both for every record but the last (still applies
+    // + re-renders each row's own value locally, and still queues its own write command for the
+    // eventual Continue/Import save - 'StaticList' pushes that command before the parent-
+    // notification check, so nothing here is lost) - the one real RPC, on the final record, already
+    // carries every already-applied sibling change along with it (an x2many sub-record's onchange
+    // payload includes its own parent's current full pending state, not just this one row's own
+    // delta - confirmed by reading 'Record._getOnchangeValues()'), so 'continue_disabled' still ends
+    // up correctly recomputed from the FULL, final state in that single round-trip.
+    //
+    // A more aggressive follow-up (bypassing '_update()' entirely for non-final records via
+    // 'Record._applyChanges()' plus manually replicating its 'dirty'/'_commands' bookkeeping, to
+    // additionally batch the 84 local mutations into a single OWL render instead of 84) was tried
+    // and REVERTED (2026-08-10) - it introduced a new, unexplained regression where the final
+    // record's onchange RPC completed successfully (confirmed in server logs) but the client never
+    // reflected the result, with no thrown error to explain why. Reaching that deep into private,
+    // undocumented reactivity internals for a scenario this extreme (85 rows resolved in a single
+    // click, far past anything a real EMS import is likely to produce) traded a correctness risk
+    // for a speed gain in an edge case - not a good trade. This version is the one confirmed
+    // correct: still real per-row local re-renders (bounded, not free), but no unexplained failures
+    // across repeated runs. Wrapped in the model's own mutex (same serialization the public
+    // 'update()' wrapper provides) since this bypasses it to reach these two options directly.
+    async onBulkApply(subgroup, ev) {
         const value = ev.target.value;
         if (!value) {
             return;
         }
-        for (const record of subgroup.records) {
-            record.update({ resolution: value });
-        }
+        const records = subgroup.records;
+        await this.props.record.model.mutex.exec(async () => {
+            for (const record of records.slice(0, -1)) {
+                await record._update(
+                    { resolution: value },
+                    { withoutOnchange: true, withoutParentUpdate: true }
+                );
+            }
+            const last = records[records.length - 1];
+            if (last) {
+                await last._update({ resolution: value });
+            }
+        });
         ev.target.value = "";
     }
 

@@ -316,6 +316,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	state = fields.Selection([
 		('intro', "Welcome"),
 		('groups', "Resolve groups"),
+		('subjects', "Resolve subjects"),
 		('teachers', "Resolve teachers"),
 		('internal_conflicts', "File conflicts"),
 		('db_conflicts', "Existing schedule conflicts"),
@@ -332,6 +333,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# of whether it ends up empty (the 'groups' screen shows a success message instead of the list
 	# in that case).
 	group_line_ids = fields.One2many(string="Unresolved groups", comodel_name="ems.working_schedules_import_wizard.group_line", inverse_name="wizard_id")
+	# NOTE: one line per distinct (group set, file subject) pair where the subject isn't taught in
+	# that group's own study - populated once, leaving 'groups' (needs the group picks already
+	# applied first, since the check itself reads each entry's now-resolved 'group_ids').
+	subject_line_ids = fields.One2many(string="Subject/study mismatches", comodel_name="ems.working_schedules_import_wizard.subject_line", inverse_name="wizard_id")
 	# NOTE: one line per distinct unresolved identifier - e-mail or bare placeholder code alike,
 	# since 2026-08-10 (see '_pending_teacher_identifiers') - populated once, leaving 'groups' (not
 	# 'intro' - unlike 'group_line_ids', this needs the group picks already applied first, per the
@@ -360,7 +365,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	continue_disabled = fields.Boolean(compute="_compute_continue_disabled")
 
 	@api.depends(
-		"state", "ready_to_import", "group_line_ids.group_id", "teacher_line_ids.employee_id",
+		"state", "ready_to_import", "group_line_ids.group_id", "subject_line_ids.subject_id",
+		"subject_line_ids.allowed_subject_ids", "teacher_line_ids.employee_id",
 		"teacher_line_ids.create_new", "internal_conflict_line_ids.resolution",
 		"internal_conflict_line_ids.left_space_id", "internal_conflict_line_ids.right_space_id",
 		"external_conflict_line_ids.resolution", "external_conflict_line_ids.left_space_id",
@@ -372,6 +378,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				wizard.continue_disabled = not wizard.ready_to_import
 			elif wizard.state == 'groups':
 				wizard.continue_disabled = bool(wizard.group_line_ids.filtered(lambda line: not line.group_id))
+			elif wizard.state == 'subjects':
+				wizard.continue_disabled = bool(wizard.subject_line_ids.filtered(
+					lambda line: line.subject_id.id not in line.allowed_subject_ids.ids
+				))
 			elif wizard.state == 'teachers':
 				wizard.continue_disabled = bool(wizard.teacher_line_ids.filtered(lambda line: not line.employee_id and not line.create_new))
 			elif wizard.state == 'internal_conflicts':
@@ -381,7 +391,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			else:
 				wizard.continue_disabled = False
 
-	_STATE_SEQUENCE = ['intro', 'groups', 'teachers', 'internal_conflicts', 'db_conflicts', 'summary']
+	_STATE_SEQUENCE = ['intro', 'groups', 'subjects', 'teachers', 'internal_conflicts', 'db_conflicts', 'summary']
 
 	@staticmethod
 	def _is_email_like(value):
@@ -528,6 +538,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			self._continue_from_intro()
 		elif self.state == 'groups':
 			self._continue_from_groups()
+		elif self.state == 'subjects':
+			self._continue_from_subjects()
 		elif self.state == 'teachers':
 			self._continue_from_teachers()
 		elif self.state == 'internal_conflicts':
@@ -586,6 +598,69 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			for command in item['attendance_ids']:
 				if command[0] == 0:
 					self._finalize_pending_groups(command[2], name_to_group)
+		self.parsed_entries_json = json.dumps(node_cache)
+		self.subject_line_ids = [(5, 0, 0)] + self._build_subject_lines(node_cache)
+		self._advance_state()
+
+	def _build_subject_lines(self, node_cache):
+		"""One line per distinct (group set, file subject) pair across the whole batch where the
+		subject isn't taught in every one of those groups' own study - dedup by that same pair, so
+		the same real mismatch repeated across several days/entries (a class meeting the same
+		subject/groups combination every day of the week) produces exactly one correction line, not
+		one per occurrence (same convention as 'group_line'/'teacher_line'). A non-teaching entry
+		(no 'subject_id' at all) or an entry whose groups carry no study at all (e.g. a reinforcement
+		group - nothing to validate against, matching 'ems.attendance_template._check_subject_valid_
+		for_all_studies's own skip-if-no-study rule) never produces a line."""
+		mismatches = set()
+		for item in node_cache:
+			for entry in item['entries']:
+				if entry.get('non_teaching') or not entry.get('subject_id'):
+					continue
+				group_ids = tuple(sorted(entry.get('group_ids') or []))
+				key = (group_ids, entry['subject_id'])
+				if not group_ids or key in mismatches:
+					continue
+				studies = self.env['ems.group'].browse(group_ids).mapped('study_id')
+				if not studies or entry['subject_id'] in studies._subjects_common_to_all().ids:
+					continue
+				mismatches.add(key)
+		return [
+			(0, 0, {
+				'group_ids': [(6, 0, list(group_ids))],
+				'raw_subject_id': subject_id,
+				'subject_id': subject_id,
+			})
+			for group_ids, subject_id in mismatches
+		]
+
+	def _continue_from_subjects(self):
+		"""The 'subjects' step's own 'Continue' handler, mirroring '_continue_from_groups': every
+		'subject_line_ids' row must have a subject actually valid for its own groups' study before
+		continuing, then every occurrence of each corrected (group set, original subject) pair
+		across the whole cached batch is substituted in place (see '_finalize_subject_correction')."""
+		self.ensure_one()
+		unresolved_lines = self.subject_line_ids.filtered(
+			lambda line: line.subject_id.id not in line.allowed_subject_ids.ids
+		)
+		if unresolved_lines:
+			raise ValidationError(_(
+				"Please select a subject taught in the group's own study for every mismatch before continuing:\n%s"
+			) % "\n".join(
+				"%s: %s" % (", ".join(line.group_ids.mapped('display_name')), line.raw_subject_id.display_name)
+				for line in unresolved_lines
+			))
+
+		corrections = {
+			(tuple(sorted(line.group_ids.ids)), line.raw_subject_id.id): line.subject_id
+			for line in self.subject_line_ids
+		}
+		node_cache = json.loads(self.parsed_entries_json or '[]')
+		for item in node_cache:
+			for entry in item['entries']:
+				self._finalize_subject_correction(entry, corrections)
+			for command in item['attendance_ids']:
+				if command[0] == 0:
+					self._finalize_subject_correction(command[2], corrections)
 		self.parsed_entries_json = json.dumps(node_cache)
 		self.teacher_line_ids = [(5, 0, 0)] + [
 			(0, 0, {'raw_identifier': identifier}) for identifier in self._pending_teacher_identifiers(node_cache)
@@ -1443,6 +1518,30 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		entry['group_ids'] = [(6, 0, groups.ids)] if is_command_form else groups.ids
 		entry['name'] += " (%s)" % ", ".join(groups.mapped('name'))
 
+	def _finalize_subject_correction(self, entry, corrections):
+		"""Substitutes 'entry's own 'subject_id' with the pick made on the 'subjects' step, if this
+		entry's (group set, original subject) pair matched one of the mismatches found there -
+		'corrections' is a plain dict keyed exactly like '_build_subject_lines' groups by. Called on
+		both shapes 'entry' can take once loaded back from the JSON cache, same as
+		'_finalize_pending_groups' - an 'entries' list item (flat 'group_ids') or an 'attendance_ids'
+		command's own inner dict ('group_ids' still in '[(6, 0, ids)]' form). No-op if there's
+		nothing to correct (most entries, any non-teaching one, and any already-valid mismatch left
+		unchanged by the admin's own pick). Rebuilds 'name' from the groups' own current records
+		rather than string-splitting the old cached value - robust regardless of what characters a
+		subject/group name happens to contain."""
+		subject_id = entry.get('subject_id')
+		if not subject_id:
+			return
+		group_ids_field = entry.get('group_ids') or []
+		is_command_form = bool(group_ids_field) and isinstance(group_ids_field[0], (list, tuple))
+		flat_group_ids = group_ids_field[0][2] if is_command_form else group_ids_field
+		corrected = corrections.get((tuple(sorted(flat_group_ids)), subject_id))
+		if not corrected or corrected.id == subject_id:
+			return
+		entry['subject_id'] = corrected.id
+		groups = self.env['ems.group'].browse(flat_group_ids)
+		entry['name'] = "%s: %s (%s)" % (corrected.acronym, corrected.name, ", ".join(groups.mapped('name')))
+
 	def _parse_schedule_entries(self, xml_node):
 		"""Parse a <Teacher> XML node into (entries, attendance_ids) — the flattened list of real
 		(subject/non-teaching) slots plus the (0,0,{...})-command list ready for a resource.calendar's
@@ -1549,6 +1648,34 @@ class ems_working_schedules_import_wizard_group_line(models.TransientModel):
 	# plain Many2one already gives "pick an existing group, or create one on the spot" for free, no
 	# bespoke code needed (see plans/working_schedule_import_redesign.md's step 2).
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
+
+class ems_working_schedules_import_wizard_subject_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.subject_line"
+	_description = "Working schedules import wizard: subject/study mismatch correction line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	# NOTE: read-only context, not the thing being corrected - the developer's own explicit design
+	# (2026-08-10, real error hit: "The subject '...' is not available in the following selected
+	# studies: AD (2024)..."): the file's group name(s) already resolved correctly on the previous
+	# 'groups' step, the mismatch is specifically about the SUBJECT not being taught in the group's
+	# own study - so only 'subject_id' below is ever editable here, never these groups themselves.
+	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", readonly=True)
+	raw_subject_id = fields.Many2one(string="Subject found in file", comodel_name="ems.subject", required=True, readonly=True)
+	# NOTE: computed, not stored - purely drives 'subject_id's own domain below, same convention as
+	# 'ems.attendance_template.allowed_subject_ids' (see 'ems.study._subjects_common_to_all', shared
+	# by both). Deliberately does NOT filter 'raw_subject_id' out of what CAN be redisplayed: a
+	# Many2one 'domain' only restricts what's searchable/selectable when the field is reopened to
+	# change it, it never hides an already-set value outside that domain - confirmed before
+	# building this, per the developer's own explicit question ("Si esto impide que el default sea
+	# el del fichero, dímelo") - so 'subject_id' below can safely default to the file's own (wrong)
+	# value while still only ever offering VALID alternatives once the admin opens the dropdown.
+	allowed_subject_ids = fields.Many2many(string="Allowed subjects", comodel_name="ems.subject", compute="_compute_allowed_subject_ids", store=False)
+	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", required=True, domain="[('id', 'in', allowed_subject_ids)]")
+
+	@api.depends('group_ids.study_id.subject_ids')
+	def _compute_allowed_subject_ids(self):
+		for line in self:
+			line.allowed_subject_ids = line.group_ids.mapped('study_id')._subjects_common_to_all()
 
 class ems_working_schedules_import_wizard_teacher_line(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard.teacher_line"

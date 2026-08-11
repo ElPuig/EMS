@@ -1578,7 +1578,7 @@ msgid "Allowed Subject"
 msgstr "Assignatures permeses"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__allowed_subject_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__allowed_subject_ids model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__allowed_subject_ids
 msgid "Allowed subjects"
 msgstr "Assignatures permeses"
 
@@ -3906,7 +3906,7 @@ msgid "Group:"
 msgstr "Grup:"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__group_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__group_ids model:ir.model.fields,field_description:ems.field_ems_notice__group_ids model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids model:ir.ui.menu,name:ems.menu_groups model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__group_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__group_ids model:ir.model.fields,field_description:ems.field_ems_notice__group_ids model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids model:ir.ui.menu,name:ems.menu_groups model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__group_ids
 msgid "Groups"
 msgstr "Grups"
 
@@ -6786,7 +6786,7 @@ msgstr "Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universita
 
 #. module: ems
 #. odoo-javascript
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__subject_id model:ir.model.fields,field_description:ems.field_ems_content__subject_id model:ir.model.fields,field_description:ems.field_ems_enrollment__subject_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__subject_ids model:ir.model.fields,field_description:ems.field_ems_grade_session__subject_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__subject_id model:ir.model.fields,field_description:ems.field_ems_notice__subject model:ir.model.fields,field_description:ems.field_ems_outcome__subject_id model:ir.model.fields,field_description:ems.field_ems_planning__subject_id model:ir.model.fields,field_description:ems.field_ems_teaching__subject_id model:ir.model.fields,field_description:ems.field_ems_tracking__subject_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__subject_id model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.view_grade_session_search code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0 model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__subject_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_id model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__subject_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__subject_id model:ir.model.fields,field_description:ems.field_ems_content__subject_id model:ir.model.fields,field_description:ems.field_ems_enrollment__subject_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__subject_ids model:ir.model.fields,field_description:ems.field_ems_grade_session__subject_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__subject_id model:ir.model.fields,field_description:ems.field_ems_notice__subject model:ir.model.fields,field_description:ems.field_ems_outcome__subject_id model:ir.model.fields,field_description:ems.field_ems_planning__subject_id model:ir.model.fields,field_description:ems.field_ems_teaching__subject_id model:ir.model.fields,field_description:ems.field_ems_tracking__subject_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__subject_id model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.view_grade_session_search code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0 model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__subject_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_id model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__subject_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__subject_id
 msgid "Subject"
 msgstr "Assignatura"
 
@@ -7781,7 +7781,7 @@ msgid "Whether there is a final grade (the computed grade is available)."
 msgstr "Indica si hi ha nota final (la nota calculada està disponible)."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_csv_column__wizard_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_csv_column__wizard_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__wizard_id
 msgid "Wizard"
 msgstr "Assistent"
 
@@ -7865,6 +7865,42 @@ msgstr "S'han reconegut tots els grups esmentats al fitxer."
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Please select a group for every unresolved name before continuing:\n%s"
 msgstr "Seleccioneu un grup per a cada nom no resolt abans de continuar:\n%s"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__subjects
+msgid "Resolve subjects"
+msgstr "Resoldre assignatures"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "EMS also checks that the subject found in the file is actually taught in the group's own study - a wrong subject code in the file would otherwise only surface as a confusing error at the very end. Any mismatch is listed below for you to pick the right subject; the groups themselves are shown for context only, since they were already resolved on the previous step."
+msgstr "L'EMS també comprova que l'assignatura trobada al fitxer s'imparteixi realment als estudis del grup - un codi d'assignatura incorrecte al fitxer, altrament, només apareixeria com un error confús al final de tot. Qualsevol discrepància es llista a sota perquè triïs l'assignatura correcta; els grups es mostren només com a context, ja que s'han resolt al pas anterior."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Every subject matches its group's own study."
+msgstr "Totes les assignatures coincideixen amb l'estudi del seu grup."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__raw_subject_id model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Subject found in file"
+msgstr "Assignatura trobada al fitxer"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Group(s)"
+msgstr "Grup(s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Please select a subject taught in the group's own study for every mismatch before continuing:\n%s"
+msgstr "Seleccioneu una assignatura impartida a l'estudi del grup per a cada discrepància abans de continuar:\n%s"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_working_schedules_import_wizard_subject_line
+msgid "Working schedules import wizard: subject/study mismatch correction line."
+msgstr "Assistent d'importació d'horaris: línia de correcció de discrepància assignatura/estudis."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_working_schedules_import_wizard_teacher_line

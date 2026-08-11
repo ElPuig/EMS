@@ -70,20 +70,8 @@ class EmsAttendanceTemplate(models.Model):
 
 	@api.depends('study_ids')
 	def _compute_allowed_subject_ids(self):
-		# NOTE: 'study_ids.ids' (not 'study_ids[0].id' etc.) - inside a still-unsaved form (this
-		# compute must also run live in the form, not just once the template is saved),
-		# 'study_ids' holds NewId-wrapped records; a NewId's own '.id' is a placeholder object,
-		# not the real database id a search() domain needs, but the recordset's own '.ids'
-		# correctly resolves each one back to its real origin id.
 		for template in self:
-			study_ids = template.study_ids.ids
-			if not study_ids:
-				template.allowed_subject_ids = self.env['ems.subject']
-				continue
-			subjects = self.env['ems.subject'].search([('study_ids', 'in', study_ids[0])])
-			for study_id in study_ids[1:]:
-				subjects &= self.env['ems.subject'].search([('study_ids', 'in', study_id)])
-			template.allowed_subject_ids = subjects
+			template.allowed_subject_ids = template.study_ids._subjects_common_to_all()
 
 	def action_new_version(self):
 		"""Corrects a locked template's identity fields (subject_id/group_ids/study_ids/

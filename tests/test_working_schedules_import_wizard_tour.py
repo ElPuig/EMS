@@ -42,6 +42,45 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         })
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_group", login="admin")
 
+    def test_working_schedules_import_resolve_subject_mismatch_tour(self):
+        # Real error this screen was built for (2026-08-10): a file subject code that resolves to
+        # a real 'ems.subject', but one that isn't taught in the group's own study - 'wrong_subject'
+        # below has no 'study_ids' at all, so it can never satisfy ANY group's study. The tour picks
+        # the correct one via the 'subjects' step's own domain-restricted Many2one to prove that
+        # new screen actually renders and resolves in a real browser (see
+        # TestWorkingSchedulesImportWizard.test_continue_from_subjects_applies_correction_and_completes_import).
+        level = self.env['ems.level'].create({'acronym': 'TOURSUBJ', 'name': 'Tour Subject Mismatch Level'})
+        study = self.env['ems.study'].create({
+            'code': 'TOURSUBJ', 'acronym': 'TSUBJ', 'name': 'Tour Subject Mismatch Study',
+            'date': '2026-01-01', 'deprecated': False, 'level_id': level.id,
+        })
+        space = self.env['ems.space'].create({
+            'code': 'TOURSUBJMISMATCH',
+            'name': 'Tour Subject Mismatch Space',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        self.env['ems.subject'].create({
+            'code': 'TOURSUBJCORRECT',
+            'acronym': 'TSC',
+            'name': 'Tour Subject Correct',
+            'study_ids': [(6, 0, [study.id])],
+        })
+        self.env['ems.subject'].create({
+            'code': 'TOURSUBJWRONG',
+            'acronym': 'TSW',
+            'name': 'Tour Subject Wrong',
+        })
+        self.env['ems.group'].create({
+            'course': 1, 'acronym': 'A', 'level_id': level.id, 'study_id': study.id, 'space_id': space.id,
+        })
+        self.env['hr.employee'].create({
+            'name': 'Tour Subject Mismatch Teacher',
+            'employee_type': 'teacher',
+            'work_email': 'tour.subject.mismatch@example.com',
+        })
+        self.start_tour("/odoo", "ems_working_schedules_import_resolve_subject_mismatch", login="admin")
+
     def test_working_schedules_import_resolve_teacher_email_tour(self):
         # Seeds a real teacher the tour's XML deliberately does NOT reference by e-mail - the tour
         # picks it via the 'teachers' step's Many2one to prove that new screen actually renders and
@@ -181,8 +220,11 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         # 'DEFAULT_LIMIT' of 80, the actual number that silently truncated 'records' before this
         # fix) sharing ONE classroom - one anchor teacher/group against 85 others, all same subject
         # so every pair lands in the SAME 'desdoble_eligible' sub-group (anchor is always "left") -
-        # proving both that every one of the 85 rows actually renders (not just the first 80) and
-        # that the sub-group's own bulk-resolution dropdown still resolves all of them at once.
+        # proving every one of the 85 rows actually renders (not just the first 80) and that
+        # 'continue_disabled' correctly considers all of them. The tour deliberately does NOT also
+        # bulk-apply to all 85 rows and complete the import - see the tour file's own comment for
+        # why (a separate, already-covered concern, and Odoo's own tour step schema caps a single
+        # step's wait at 60s, too unreliable for genuinely resolving a sub-group this large).
         space = self.env['ems.space'].create({
             'code': 'TOURPAGINATION',
             'name': 'Tour Pagination Space',

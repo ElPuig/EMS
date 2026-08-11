@@ -4,7 +4,7 @@
             <field name="name">ems.attendance_template.list</field>
             <field name="model">ems.attendance_template</field>
             <field name="arch" type="xml">
-                 <list expand="True" duplicate="0">
+                 <list expand="True" duplicate="0" create="0">
                     <field name="teacher_ids" widget="many2many_avatar_employee"/>
                     <field name="study_ids" widget="many2many_tags"/>
                     <field name="subject_id"/>

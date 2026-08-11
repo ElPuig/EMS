@@ -9,6 +9,8 @@ import json
 import math
 import re
 
+from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
+
 
 def _m2m_command_ids(commands):
 	"""Resolve a Many2many/One2many value (as found in raw create()/write() vals) into a plain list
@@ -1295,7 +1297,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				template = line.right_schedule_id.attendance_template_id
 				line.right_schedule_id.action_archive()
 				if not template.attendance_schedule_ids:
-					template.action_archive()
+					template.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 			elif line.resolution == 'prevail_right':
 				indices_to_remove.setdefault(line.left_item_index, set()).add(line.left_entry_index)
 			elif line.resolution == 'reassign_rooms':

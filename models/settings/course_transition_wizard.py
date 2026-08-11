@@ -8,6 +8,8 @@ from datetime import datetime
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
+from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
+
 # Actions the preview predicts for each student of the scope. They are the wizard's
 # whole vocabulary: every student in scope ends up in exactly one of them.
 TRANSITION_ACTIONS = [
@@ -735,8 +737,7 @@ class ems_course_transition_wizard(models.TransientModel):
           set of departing teachers found across all of that template's migrating lines: if no
           other teacher still has an active block for any of them, the whole template is archived
           (cascading to its lines and their sessions); otherwise the departing teacher(s) are
-          dropped via `_write_or_new_version()` (`ems.attendance_mixin`) — the SAME shared
-          mechanism `action_new_version()`'s "Edit" button already uses, never a raw write. This
+          dropped via `_write_or_new_version()` (`ems.attendance_mixin`) — never a raw write. This
           matters because `teacher_ids` is a locked identity field once real attendance history
           exists (`has_sessions`): a raw write would retroactively change every already-taken
           session's own `template_teacher_ids` (related), rewriting who *actually* co-taught each
@@ -840,7 +841,7 @@ class ems_course_transition_wizard(models.TransientModel):
                     new_template.attendance_schedule_ids.action_unarchive()
             else:
                 lines.attendance_session_ids.action_archive()
-                template.action_archive()
+                template.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 
         # Unconditional, unscoped catch-up (2026-08-10, found re-running a real transition after
         # the fix above): an ALREADY-archived line with still-active sessions is always a bug,
@@ -1012,7 +1013,7 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         # attendance_schedule_ids (see EmsAttendanceTemplate.action_archive) - a bare write()
         # here left those lines active=True forever, so a later import could still find them
         # as a genuine "existing schedule conflict" against a study that had already transitioned.
-        self._templates_to_archive().action_archive()
+        self._templates_to_archive().with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
         affected_teachers = self._apply_calendar_archival()
         self._apply_calendar_rollover(affected_teachers)
         students._ems_clear_operational_records()

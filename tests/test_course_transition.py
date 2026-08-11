@@ -1253,7 +1253,9 @@ class TestCourseTransition(TransactionCase):
         # Already archived by something else, BEFORE this transition even starts - simulates the
         # leftover from an earlier run. No calendar block at all for self.teacher here - they are
         # not "migrating" in this run by any measure the wizard normally checks.
-        template.action_archive()
+        # ems_bypass_template_lock: this test is about the transition wizard's own catch-up
+        # logic, not point 3's archival lock - bypass it as test setup.
+        template.with_context(ems_bypass_template_lock=True).action_archive()
 
         self._applied()
 
@@ -1394,7 +1396,7 @@ class TestCourseTransition(TransactionCase):
         })
         student = self._student(name, group=self.group1)
         student.main_group_id = False
-        template.student_ids = [(4, student.id)]
+        schedule.student_ids = [(4, student.id)]
         session = self.env['ems.attendance_session_header'].create({
             'attendance_schedule_id': schedule.id, 'date': date(2020, 9, 15),
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
@@ -1438,7 +1440,7 @@ class TestCourseTransition(TransactionCase):
         })
         student = self._student('CTW Not Stranded Issue', group=self.group_other)
         student.main_group_id = False
-        template.student_ids = [(4, student.id)]
+        schedule.student_ids = [(4, student.id)]
         session = self.env['ems.attendance_session_header'].create({
             'attendance_schedule_id': schedule.id, 'date': date(2020, 9, 16),
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,

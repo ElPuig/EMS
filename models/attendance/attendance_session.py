@@ -53,8 +53,8 @@ class EmsAttendanceSessionHeader(models.Model):
     )
     # NOTE: plain 'related' fields since 2026-08-05 - safe now that ems.attendance_template's own
     # identity fields (subject_id/group_ids/teacher_ids) are locked once a template has real
-    # sessions (see 'has_sessions'/action_new_version()), so the source can never drift under an
-    # already-taken attendance record. A 'related' field defaults to compute_sudo=True in Odoo
+    # sessions (see 'has_sessions'), so the source can never drift under an already-taken
+    # attendance record. A 'related' field defaults to compute_sudo=True in Odoo
     # (see odoo/fields.py's own Field._setup_attrs), matching the '.sudo()' the old hand-written
     # computes needed to read through ems.attendance_template's own restrictive record rules.
     # NOTE: explicit relation/column names - unlike a compute=, a related= Many2many field doesn't
@@ -301,7 +301,8 @@ class EmsAttendanceSessionHeader(models.Model):
 
     def _auto_populate_lines(self):
         """Populate session lines when created via ORM (onchange doesn't fire outside form view)."""
-        template = self.attendance_schedule_id.attendance_template_id.sudo()
+        schedule = self.attendance_schedule_id.sudo()
+        template = schedule.attendance_template_id
         lines = []
 
         previous = self.env["ems.attendance_session_header"].search([
@@ -323,7 +324,11 @@ class EmsAttendanceSessionHeader(models.Model):
                     line = self._setup_next_session_line_data(prev)
                 lines.append(line)
         else:
-            for student in template.student_ids:
+            # NOTE: 'schedule.student_ids' (moved here from the template 2026-08-11 - see
+            # plans/calendar_driven_attendance_templates.md, point 1), not 'template.student_ids'
+            # (removed) - the roster is this specific weekly slot's own, not shared across every
+            # slot of the template.
+            for student in schedule.student_ids:
                 line = None
                 for p in previssions:
                     if p.student_id == student:

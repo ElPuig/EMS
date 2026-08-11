@@ -28,11 +28,11 @@ rewrites these rows from a teacher's live-edited or imported timetable
 | `start_date`/`end_date` | `Datetime`, computed + stored | The template's own `start_date`/`end_date` (a plain date) combined with this schedule's `start_time`/`end_time`, converted local→UTC via `ems.datetime_utils` — stored as full datetimes because timezone-correct comparisons need a real date, not a bare time-of-day float. |
 | `time_range` | `Char`, computed + stored | `"HH:MM - HH:MM"`, derived from `start_date`/`end_date` converted back to local time. |
 | `teacher_ids` | `Many2many`, `related='attendance_template_id.teacher_ids'` | Read-only mirror, used **only** for `ir.rule` permission filtering (`security/rules/attendance.xml`) — not for any business logic in this file. |
-| `has_sessions` | `Boolean`, computed | `True` once this line has a real `attendance_session_ids` entry — locks `weekday`/`space_id`/`start_time`/`end_time` (readonly in the form) and gates the per-row "Edit" button (labeled "New version" until 2026-08-05 — same underlying `action_new_version()`, relabeled for clarity). `attendance_session_ids` is `copy=False`. |
+| `has_sessions` | `Boolean`, computed | `True` once this line has a real `attendance_session_ids` entry — locks `weekday`/`space_id`/`start_time`/`end_time` (readonly in the form). `attendance_session_ids` is `copy=False`. |
 
 ---
 
-## Locking and `action_new_version()`
+## Locking (the manual "Edit" button was removed 2026-08-11)
 
 Once a line has real attendance history (`has_sessions`), its own logistics fields —
 `weekday`, `space_id`, `start_time`, `end_time` — become readonly: changing where/when a
@@ -40,21 +40,24 @@ class actually happened after real roll-calls were taken against it would misrep
 history (`ems.attendance_session_header`'s own `space_id`/`weekday`/etc. are `related`+`store=True`
 mirrors of these, see [`attendance_session.md`](attendance_session.md)).
 
-`action_new_version()` archives this **one line** and clones it under the same template — the
-template itself and every other line are left untouched, unlike the template-level
-`action_new_version()` (see [`attendance_template.md`](attendance_template.md)), which
-archives/clones the whole template. Same archive-before-copy ordering rule applies here for
-the same reason: copying while the original line is still active would momentarily have two
-identical, active lines sharing the same room/day/time/teacher, which `check_overlap` (below)
-correctly rejects as a double-booking.
+**Until 2026-08-11, a per-row "Edit" button (`action_new_version()`) let an admin/teacher unlock
+one line by hand** - it archived this one line and cloned it under the same template, leaving the
+template itself and every other line untouched (archive-before-copy, same reasoning as the
+template-level version below: copying while the original line is still active would momentarily
+collide with the clone via `check_overlap`). **Removed** as part of
+`plans/calendar_driven_attendance_templates.md`'s point 3 (developer's own call: *"Este mecanismo
+que hicimos para 'editar' templates o schedules ha quedado obsoleto"*) - now that the teacher's
+calendar is the only legitimate source of change for a template's identity, a manual per-line
+"Edit" escape hatch no longer fits; a room/time correction happens by editing the calendar instead
+and letting the sync pipeline reconcile it.
 
-Both models' `action_new_version()` are thin wrappers over `ems.attendance_mixin`'s shared
-`_write_or_new_version(vals)` (`models/shared/attendance_mixin.py`) - called here with `vals={}`,
-since this button only exists to unlock the line for a subsequent manual edit. The schedule-sync
-pipeline (`ems.attendance_template._archive_stale_schedule_sync`/`_write_schedule_sync`, see that
-model's "CRUD flow") shares the exact same `has_sessions` predicate for its own per-line
-decisions when resyncing a persisting template - a matched line whose room changed is updated in
-place if it has no sessions, or archived-and-replaced if it does, exactly like this button would.
+**The underlying shared mechanism, `ems.attendance_mixin._write_or_new_version(vals)`
+(`models/shared/attendance_mixin.py`), was NOT removed** - it's still used internally by the
+schedule-sync pipeline (`ems.attendance_template._archive_stale_schedule_sync`/
+`_write_schedule_sync`, see that model's "CRUD flow", which shares the exact same `has_sessions`
+predicate for its own per-line decisions) and by the import wizard's own room-reassignment
+conflict resolution (`working_schedule.py`, `line.right_schedule_id._write_or_new_version(...)`).
+Only the direct, button-driven entry point on this model and `ems.attendance_template` is gone.
 
 ---
 
@@ -65,9 +68,10 @@ A same-day attempt added an `action_archive()` override here that cascaded to
 archived for reasons that have nothing to do with a session's own relevance. Concretely, once a
 line `has_sessions`, its logistics fields (`weekday`/`space_id`/`start_time`/`end_time`) are
 readonly - so a routine correction (fixing a room, say) doesn't edit the line at all, it
-**silently** archives the old one and creates a new version via `action_new_version()`/
-`_write_or_new_version()` above, entirely as a side effect of what the admin experiences as a
-normal in-place edit. If that archive cascaded to sessions, every such routine correction would
+**silently** archives the old one and creates a new version via `_write_or_new_version()` above
+(now only reachable through the calendar-driven sync pipeline or the import wizard's own conflict
+resolution, not a direct button - see "Locking" above), entirely as a side effect of what looks
+like a normal in-place edit from the calendar side. If that archive cascaded to sessions, every such routine correction would
 make the line's whole attendance history disappear from a teacher's default view - exactly the
 opposite of the intent (the sessions are still perfectly valid, current-course history; only the
 room/time bookkeeping changed). `ems.attendance_session_header` ([`attendance_session.md`](attendance_session.md))
@@ -221,5 +225,5 @@ needed (`_order`/constraints already correct).
 ## Changed in this pass (2026-08-05)
 
 `action_new_version()` refactored to call the new shared `ems.attendance_mixin._write_or_
-new_version()` instead of inlining its own archive+copy - see "Locking and `action_new_version()`"
-above.
+new_version()` instead of inlining its own archive+copy (the button itself was later removed
+2026-08-11 - see "Locking" above).

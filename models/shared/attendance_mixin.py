@@ -2,6 +2,19 @@
 
 from odoo import models
 
+# NOTE: internal marker (see plans/calendar_driven_attendance_templates.md, point 3) - a template
+# is only ever meant to be created/archived as a CONSEQUENCE of syncing a teacher's calendar
+# (ems.attendance_template.sync_from_schedule_batch*) or a course transition
+# (ems.course_transition_wizard), never directly by a user. create()/unlink() are already revoked
+# in security/ir.model.access.csv for every group on ems.attendance_template, but archiving is a
+# plain write() of 'active', which can't be blocked at that same coarse (create/read/write/unlink)
+# granularity without also blocking every other legitimate direct field edit (color, etc.).
+# ems.attendance_template.write() is the actual enforcement point (see that model); defined here,
+# in the shared mixin both models already depend on, so this method's own archive+copy branch
+# (used by both models) and every other legitimate internal caller can import one single constant
+# without either model needing to import from the other.
+EMS_BYPASS_TEMPLATE_LOCK_KEY = 'ems_bypass_template_lock'
+
 
 class EmsAttendanceMixin(models.AbstractModel):
     _name = 'ems.attendance_mixin'
@@ -10,9 +23,9 @@ class EmsAttendanceMixin(models.AbstractModel):
         "(ems.attendance_template, ems.attendance_schedule, ...). Currently holds the "
         "'update in place unless real attendance history exists, else archive and recreate' "
         "rule for a model exposing its own computed 'has_sessions' boolean - backing every "
-        "caller that can change one of those models' locked fields: the manual 'Edit' button "
-        "(action_new_version), the schedule-sync pipeline, and the working-schedule import "
-        "wizard, one shared decision instead of each reimplementing the same has_sessions "
+        "caller that can change one of those models' locked fields: the schedule-sync pipeline "
+        "and the working-schedule import wizard's own room-reassignment resolution, one shared "
+        "decision instead of each reimplementing the same "
         "check. Generic name is deliberate - a home for future shared attendance-model code "
         "too, not just this one rule."
     )
@@ -23,13 +36,22 @@ class EmsAttendanceMixin(models.AbstractModel):
         otherwise. Returns the record that now holds 'vals' - self if updated in place, a new
         record otherwise. The inheriting model must already declare its own 'has_sessions' field
         and rely on its own 'action_archive()'/'copy()' behavior (e.g. cascading to children) -
-        this method only supplies the shared decision, not any model-specific mechanics."""
+        this method only supplies the shared decision, not any model-specific mechanics.
+
+        NOTE: the archive+copy branch runs with the template-lock bypass and sudo() (see
+        plans/calendar_driven_attendance_templates.md, point 3) - harmless no-ops for
+        ems.attendance_schedule (never locked this way), but required for ems.attendance_template
+        callers (course_transition_wizard's own departing-co-teacher correction is the one
+        remaining legitimate caller on that model - see its own docstring): create()/unlink() are
+        revoked in security/ir.model.access.csv for every group there, and archiving is separately
+        blocked by that model's own write() override unless this exact flag is set."""
         self.ensure_one()
         if not self.has_sessions:
             self.write(vals)
             return self
-        self.action_archive()
-        return self.copy({'active': True, **vals})
+        bypassed = self.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).sudo()
+        bypassed.action_archive()
+        return bypassed.copy({'active': True, **vals})
 
     def find_schedule_lines_for_teaching(self, teacher, subject, groups, weekday, start_time, end_time):
         """Given a teacher + subject + a set of groups + weekday + start_time/end_time, finds

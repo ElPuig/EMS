@@ -1765,6 +1765,19 @@ msgstr "Estudis associats"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_template.py:0
+msgid "A template can only be archived (or reactivated) as a consequence of editing the teacher's working schedule - update the schedule instead of archiving this template directly."
+msgstr "Una plantilla només es pot arxivar (o desarxivar) com a conseqüència d'editar l'horari del docent - actualitza l'horari en lloc d'arxivar aquesta plantilla directament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_template.py:0
+#, python-format
+msgid "An active template already exists for this exact teaching assignment (%(subject)s, teacher(s) %(teachers)s, group(s) %(groups)s) - correct it through the teacher's working schedule instead of creating a new one."
+msgstr "Ja existeix una plantilla activa per a aquesta assignació docent exacta (%(subject)s, docent(s) %(teachers)s, grup(s) %(groups)s) - corregeix-ho a través de l'horari del docent en lloc de crear-ne una de nova."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_template.py:0
 msgid "At least one group must be selected."
 msgstr "Cal seleccionar almenys un grup."
 
@@ -5714,7 +5727,7 @@ msgid "Reactivate Google account"
 msgstr "Reactivar compte de Google"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_template__read_only_user model:ir.model.fields,field_description:ems.field_res_partner__read_only_user model:ir.model.fields,field_description:ems.field_res_users__read_only_user
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__read_only_user model:ir.model.fields,field_description:ems.field_ems_attendance_template__read_only_user model:ir.model.fields,field_description:ems.field_res_partner__read_only_user model:ir.model.fields,field_description:ems.field_res_users__read_only_user
 msgid "Read Only User"
 msgstr "Usuari de només lectura"
 
@@ -6738,7 +6751,7 @@ msgid "Student:"
 msgstr "Alumne/a:"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_student_form model:ir.actions.act_window,name:ems.action_student_kanban model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__attendance_issue_student_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__student_ids model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__student_ids model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__students model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__students model:ir.ui.menu,name:ems.menu_community_config_students model:ir.ui.menu,name:ems.menu_students model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_student_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__student_line_ids
+#: model:ir.actions.act_window,name:ems.action_student_form model:ir.actions.act_window,name:ems.action_student_kanban model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__attendance_issue_student_ids model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__student_ids model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__student_ids model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__students model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__students model:ir.ui.menu,name:ems.menu_community_config_students model:ir.ui.menu,name:ems.menu_students model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_student_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__student_line_ids
 msgid "Students"
 msgstr "Estudiants"
 

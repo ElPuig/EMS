@@ -5,42 +5,66 @@
             <field name="model">ems.attendance_schedule</field>
             <field name="arch" type="xml">
                 <form string="Schedule">
+                    <header>
+                        <button string="Reload students"
+                            name="reload_students"
+                            type="object"
+                            icon="fa-refresh"
+                            confirm="This action will remove any manual change to the student list and reassign the students according to their current enrollments. It cannot be undone. Do you wish to continue?"
+                            invisible="not id or read_only_user"
+                        />
+                    </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <field name="active" invisible="1"/>
+                        <field name="read_only_user" invisible="1"/>
                         <group string="Main data" col="6">
-                            <group colspan="2">      
+                            <group colspan="2">
                                 <field name="attendance_template_id" readonly="True"/>
-                            </group> 
-                            <group colspan="2">                                      
+                            </group>
+                            <group colspan="2">
                                 <field name="start_date" readonly="True"/>
-                            </group>    
+                            </group>
                             <group colspan="2">
                                 <field name="end_date" readonly="True"/>
-                            </group>  
+                            </group>
 
                             <group colspan="2">
                                 <field name="weekday" readonly="True"/>
-                            </group>   
+                            </group>
                             <group colspan="2">
                                 <field name="space_id" readonly="True"/>
                             </group>
                             <group>
                                 <field name="start_time" readonly="True"/>
-                            </group>     
+                            </group>
                             <group>
                                 <field name="end_time" readonly="True"/>
-                            </group>                                                                  
+                            </group>
                         </group>
-                        
+
                         <notebook>
+                            <page string="Students">
+                                <field name="student_ids" widget="many2many" readonly="read_only_user">
+                                    <list default_order="name asc">
+                                        <field name="image_1920" widget="image" />
+                                        <field name="name" class="align-middle"/>
+                                        <field name="student_email" class="align-middle"/>
+                                        <field name="main_group_id" class="align-middle"/>
+                                        <field name="tutor_id" class="align-middle"/>
+                                        <!-- Needed to open as fullscreen form -->
+                                        <field name="id" column_invisible="True"/>
+                                    </list>
+                                </field>
+                            </page>
+
                             <page string="Sessions">
                                 <field name="attendance_session_ids" string="" readonly="True"/>
-                            </page>                            
-                        </notebook>                        
-                    </sheet>	
+                            </page>
+                        </notebook>
+                    </sheet>
                 </form>
-            </field>			
+            </field>
         </record> 
     </data>
 </odoo>

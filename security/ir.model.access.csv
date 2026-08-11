@@ -47,8 +47,8 @@ ems.access_ems_study_admin,ems.access_ems_study_admin,ems.model_ems_study,ems.gr
 ems.access_ems_study_teacher,ems.access_ems_study_teacher,ems.model_ems_study,ems.group_teacher,1,0,0,0
 ems.access_ems_study_secretary,ems.access_ems_study_secretary,ems.model_ems_study,ems.group_secretary,1,0,0,0
 
-ems.access_ems_attendance_template_admin,ems.access_ems_attendance_template_admin,ems.model_ems_attendance_template,ems.group_academic_admin,1,1,1,1
-ems.access_ems_attendance_template_teacher,ems.access_ems_attendance_template_teacher,ems.model_ems_attendance_template,ems.group_teacher,1,1,1,1
+ems.access_ems_attendance_template_admin,ems.access_ems_attendance_template_admin,ems.model_ems_attendance_template,ems.group_academic_admin,1,1,0,0
+ems.access_ems_attendance_template_teacher,ems.access_ems_attendance_template_teacher,ems.model_ems_attendance_template,ems.group_teacher,1,1,0,0
 ems.access_ems_attendance_template_secretary,ems.access_ems_attendance_template_secretary,ems.model_ems_attendance_template,ems.group_secretary,1,0,0,0
 
 ems.access_ems_attendance_status_admin,ems.access_ems_attendance_status_admin,ems.model_ems_attendance_status,ems.group_academic_admin,1,1,1,1

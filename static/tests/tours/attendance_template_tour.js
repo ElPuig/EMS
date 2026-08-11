@@ -4,12 +4,16 @@ import { registry } from "@web/core/registry";
 
 // ems.attendance_template (the weekly recurring class schedule setup - Community >
 // Configuration > Teachers > ... ): only ever had a shallow color-widget smoke test
-// (attendance_template_color_tour.js), never a real end-to-end save, including its own
-// embedded "Sessions" tab (ems.attendance_schedule lines) and the widget="daterange"
-// start_date/end_date fields. Without a saved template+schedule, the daily roll-call screen
-// (attendance_passlist_tour.js) has nothing to show at all, so this is foundational, even
-// though it's an admin/setup action rather than a daily one.
-registry.category("web_tour.tours").add("ems_attendance_template_crud", {
+// (attendance_template_color_tour.js) before this, never a real end-to-end view of a real
+// record's own embedded "Sessions" tab (ems.attendance_schedule lines) and its "Students" dialog.
+//
+// Does NOT create a template through the UI - the "New" button was removed 2026-08-11 (see
+// plans/calendar_driven_attendance_templates.md, point 3): a template only ever comes from the
+// calendar-driven sync pipeline now, never a direct admin/teacher create. This tour instead opens
+// a template the Python test's own setUpClass already created (via sudo(), mirroring exactly
+// what that pipeline does internally) - the only way one can exist - and verifies VIEWING it
+// still works end to end, including the schedule line's own "Students" dialog.
+registry.category("web_tour.tours").add("ems_attendance_template_view_tour", {
     test: true,
     url: "/odoo/action-ems.action_attendance_template_tree",
     steps: () => [
@@ -18,122 +22,57 @@ registry.category("web_tour.tours").add("ems_attendance_template_crud", {
             content: "Attendance templates list loaded",
         },
         {
-            trigger: ".o_list_button_add",
-            content: "Create a new template",
-            run: "click",
+            trigger: ".o_list_view:not(:has(.o_list_button_add))",
+            content: "The 'New' button is genuinely absent - creation is calendar-driven only now",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='teacher_ids'] input",
-            content: "Search for the seeded teacher",
+            trigger: ".o_searchview_input",
+            content: "Search for the fixture template by teacher (the search view's default field) "
+                + "- this dev database has hundreds of real templates, so the fixture row isn't "
+                + "necessarily on the list's first page",
             run: "edit Attendance Template Tour Teacher",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item:contains('Attendance Template Tour Teacher')",
-            content: "Select the teacher",
+            trigger: ".o_searchview_input",
+            content: "Confirm the search",
+            run: "press Enter",
+        },
+        {
+            trigger: ".o_data_row td:contains('Test Subject (Attendance Template Tour)')",
+            content: "Open the fixture template created via sudo() (mirrors the sync pipeline)",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='study_ids'] input",
-            content: "Search for the seeded study",
-            run: "edit Test Study (Attendance Template Tour)",
+            trigger: ".o_breadcrumb:contains('Test Subject (Attendance Template Tour)')",
+            content: "The record's own form loaded (breadcrumb reflects its display_name)",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item:contains('Test Study (Attendance Template Tour)')",
-            content: "Select the study",
+            trigger: ".o_field_widget[name='attendance_schedule_ids'] .o_data_row",
+            content: "The fixture's own schedule line renders in the Sessions list",
+        },
+        {
+            trigger: ".o_field_widget[name='attendance_schedule_ids'] .o_data_row button[name='action_open_form']",
+            content: "Open the schedule line's own form (student_ids lives here, not the "
+                + "template - see plans/calendar_driven_attendance_templates.md, point 1)",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='group_ids'] input",
-            content: "Search for the seeded group (domain-filtered by the study just picked)",
-            run: "edit Attendance Template Tour Group",
-        },
-        {
-            trigger: ".o-autocomplete--dropdown-item:contains('Attendance Template Tour Group')",
-            content: "Select the group",
+            trigger: ".modal .o_notebook .nav-link:contains('Students')",
+            content: "Open the Students tab on the schedule line's dialog",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='space_id'] input",
-            content: "Search for the seeded space",
-            run: "edit Test Space (Attendance Template Tour)",
-        },
-        {
-            trigger: ".o-autocomplete--dropdown-item:contains('Test Space (Attendance Template Tour)')",
-            content: "Select the space",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_view .o_field_widget[name='subject_id'] input",
-            content: "Search for the seeded subject",
-            run: "edit Test Subject (Attendance Template Tour)",
-        },
-        {
-            trigger: ".o-autocomplete--dropdown-item:contains('Test Subject (Attendance Template Tour)')",
-            content: "Select the subject",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_view .o_field_widget[name='start_date'] input[data-field='start_date']",
-            content: "Fill in the start date (widget=\"daterange\")",
-            run: "edit 01/01/2020",
-        },
-        {
-            trigger: ".o_form_view .o_field_widget[name='end_date'] input[data-field='end_date']",
-            content: "Fill in the end date",
-            run: "edit 12/31/2030",
-        },
-        {
-            trigger: ".o_notebook .nav-link:contains('Students')",
-            content: "Open the Students tab (student_ids, separate from Sessions, never rendered before)",
-            run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='student_ids']",
+            trigger: ".modal .o_field_widget[name='student_ids']",
             content: "The (empty) students list renders without crashing",
         },
         {
-            trigger: ".o_notebook .nav-link:contains('Sessions')",
-            content: "Open the Sessions tab",
+            trigger: ".modal-header .btn-close",
+            content: "Close the dialog - nothing left to verify",
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='attendance_schedule_ids'] .o_field_x2many_list_row_add a",
-            content: "Add a schedule line",
-            run: "click",
-        },
-        {
-            trigger: ".o_selected_row .o_field_widget[name='weekday'] select",
-            content: "Pick Monday",
-            run: "selectByLabel Monday",
-        },
-        {
-            trigger: ".o_selected_row .o_field_widget[name='space_id'] input",
-            content: "Search for the seeded space on the schedule line",
-            run: "edit Test Space (Attendance Template Tour)",
-        },
-        {
-            trigger: ".o-autocomplete--dropdown-item:contains('Test Space (Attendance Template Tour)')",
-            content: "Select it",
-            run: "click",
-        },
-        {
-            trigger: ".o_selected_row .o_field_widget[name='start_time'] input",
-            content: "Fill in the start time",
-            run: "edit 08:00",
-        },
-        {
-            trigger: ".o_selected_row .o_field_widget[name='end_time'] input",
-            content: "Fill in the end time",
-            run: "edit 09:00",
-        },
-        {
-            trigger: ".o_form_button_save",
-            content: "Save the template",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_button_save:not(:visible)",
-            content: "Save completed",
+            trigger: "body:not(:has(.modal)) .o_form_view",
+            content: "Back on the template form, dialog closed cleanly",
         },
     ],
 });

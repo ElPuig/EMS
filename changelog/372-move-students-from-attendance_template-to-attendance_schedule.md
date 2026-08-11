@@ -1,3 +1,23 @@
+# Breaking changes:
+
+## Attendance templates can no longer be created or archived by hand, admin included:
+- Second half of `plans/calendar_driven_attendance_templates.md`'s point 3 (locking template creation/archival to be calendar-driven only). `security/ir.model.access.csv` revokes `create`/`unlink` on `ems.attendance_template` for every group (previously full CRUD for admin and teacher). The "New" button is hidden entirely on the list/form views (`create="0"`); the generic "Archive" action is additionally hard-blocked with an explanatory error by a new `write()` override, since Odoo has no clean way to hide just that one menu item without also blocking legitimate direct edits (color, etc.).
+- Confirmed safe before making this change: `ems.course_transition_wizard._templates_to_archive()` already archives a template purely by its own study-scoped `group_ids`, independent of how it was created - a manually-created template would still be correctly archived at course transition, no orphan risk either way.
+- Going forward, a template only ever comes into existence (or goes away) as a consequence of `sync_from_schedule_batch()` reconciling a teacher's calendar, or a course transition. Every legitimate internal call site (the sync pipeline, `course_transition_wizard`, the import wizard's own room-reassignment conflict resolution) now runs with an internal bypass context flag plus `sudo()`, so this doesn't block the pipeline itself regardless of which user (even an admin) triggered the schedule edit/import.
+
+## The manual "Edit" button on a locked template/schedule line (`action_new_version`) was removed:
+- Developer's own call, now that a template's identity can only change as a consequence of editing the calendar: *"Este mecanismo que hicimos para 'editar' templates o schedules ha quedado obsoleto."* The underlying shared mechanism (`ems.attendance_mixin._write_or_new_version()`) was NOT removed - it's still used internally by the schedule-sync pipeline, `course_transition_wizard`'s departing-co-teacher correction, and the import wizard's room-reassignment resolution. Only the direct, button-driven entry point is gone.
+
+# What's new:
+
+## Student roster moved from the template to each individual weekly schedule line:
+- Point 1 of `plans/calendar_driven_attendance_templates.md`. `ems.attendance_template.student_ids` moves to `ems.attendance_schedule.student_ids` - a specific day/time slot can now genuinely have a different attendee list (someone absent that day, an extra student sitting in) without needing a whole separate template just for that. `fill_students()`/`reload_students()` move with it; the template form's old "Students" tab is gone, replaced by a "Students" button per schedule line opening that line's own form (a full class roster doesn't fit an inline list row).
+- Every real write path updated: session-line population (`ems.attendance_session_header._auto_populate_lines`, now one hop shorter since sessions already FK directly to the schedule line), the enrollment add/remove sync hooks (`ems.enrollment`), and the student-withdrawal operational-records cleanup (`res.partner._ems_clear_operational_records`).
+- Existing data migrated (`migrations/18.0.0.22.0/{pre,post}-migrate.py`): each template's roster is copied onto every one of its current schedule lines (matching the exact effective roster every line already had, since they used to share one), then the now-orphaned old relation table is dropped (confirmed empirically that Odoo's own schema sync does NOT do this automatically for a removed Many2many, unlike a plain column).
+
+## New uniqueness guard against duplicate teaching assignments:
+- Point 2 of the same plan. No two ACTIVE templates may share the exact same `(subject_id, teacher_ids-as-set, group_ids-as-set)` triple. Deliberately EXACT-match, not "any group overlap": a real, legitimate pattern exists in this centre's own data where the same teacher teaches the same subject to a group alone AND to that group combined with another, in genuinely different templates (a "desdoble" - combined one day, split another) - confirmed with the developer this is not a duplicate to reject.
+
 # Fixes:
 
 ## Teachers created before 2026-07-12 could end up with no personal working-schedule calendar at all:
@@ -12,4 +32,4 @@
 - Deliberately no historical backfill: rows written before this change keep the field empty rather than re-running the same ambiguity-prone inference this FK exists to stop needing. `find_schedule_lines_for_teaching` (the old inference lookup) is unchanged and still the fallback for any pre-existing block - `course_transition_wizard` has not been switched over yet.
 
 # Related with:
-- Partial work on #372 (point 4 of the plan only - moving `student_ids`, locking direct template creation/archival, and the uniqueness constraint are still pending, to be tackled as separate follow-up phases).
+- Closes #372 - all 4 points of `plans/calendar_driven_attendance_templates.md` implemented (the FK, moving `student_ids`, the uniqueness constraint, and locking creation/archival to the calendar-driven pipeline). One follow-up deliberately deferred, not blocking: a general-purpose "archive everything and regenerate from the current calendars" tool (`regenerate_all_from_calendars`), designed in the plan's own "Production migration sequencing" section for the eventual production course transition - no longer needed to unblock this issue itself, since the uniqueness constraint turned out to be safe to add without it (0 real exact-duplicate conflicts found in this dev database).

@@ -273,14 +273,17 @@ class TestExitManagement(TransactionCase):
             'teacher_ids': [(6, 0, [teacher.id])], 'study_ids': [(6, 0, [self.study.id])],
             'subject_id': subject.id, 'space_id': space.id,
             'group_ids': [(6, 0, [self.group.id])]})
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': space.id})
         student = self._student('Att Withdrawal')
-        template.student_ids = [(4, student.id)]
-        self.assertIn(student, template.student_ids)
+        schedule.student_ids = [(4, student.id)]
+        self.assertIn(student, schedule.student_ids)
         wizard = self.env['ems.withdrawal_wizard'].with_user(secretary).with_context(
             active_ids=student.ids).create({})
         wizard.action_apply()
         self.assertEqual(student.contact_type, 'withdrawal')
-        self.assertNotIn(student, template.student_ids)
+        self.assertNotIn(student, schedule.student_ids)
 
     def test_withdrawal_clears_operational_records(self):
         """Once the history is frozen, the withdrawal must leave nothing operational

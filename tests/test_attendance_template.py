@@ -160,7 +160,11 @@ class TestAttendanceTemplate(TransactionCase):
         template1 = self._create_template(self.teacher_a, self.space_a)
         self._create_schedule(template1, self.space_a, weekday='0', start_time=9.0, end_time=10.0)
 
-        template2 = self._create_template(self.teacher_a, self.space_b)
+        # subject=other_subject: two templates for the SAME subject/teacher/group would trip the
+        # new exact-duplicate check (point 2) - this test is about check_overlap's own space/time
+        # logic, which doesn't care about subject identity, so a different subject sidesteps that
+        # unrelated check without changing what's actually being tested here.
+        template2 = self._create_template(self.teacher_a, self.space_b, subject=self.other_subject)
         with self.assertRaises(ValidationError):
             self._create_schedule(template2, self.space_b, weekday='0', start_time=9.5, end_time=10.5)
 
@@ -170,7 +174,8 @@ class TestAttendanceTemplate(TransactionCase):
         template1 = self._create_template(self.teacher_a, self.space_a)
         self._create_schedule(template1, self.space_a, weekday='0', start_time=9.0, end_time=10.0)
 
-        template2 = self._create_template(self.teacher_a, self.space_b)
+        # subject=other_subject: see test_same_teacher_overlapping_time_raises's own comment.
+        template2 = self._create_template(self.teacher_a, self.space_b, subject=self.other_subject)
         with self.assertRaises(ValidationError) as capture:
             self._create_schedule(template2, self.space_b, weekday='0', start_time=9.5, end_time=10.5)
 
@@ -185,7 +190,8 @@ class TestAttendanceTemplate(TransactionCase):
         template1 = self._create_template(self.teacher_a, self.space_a)
         self._create_schedule(template1, self.space_a, weekday='0', start_time=9.0, end_time=10.0)
 
-        template2 = self._create_template(self.teacher_a, self.space_b)
+        # subject=other_subject: see test_same_teacher_overlapping_time_raises's own comment.
+        template2 = self._create_template(self.teacher_a, self.space_b, subject=self.other_subject)
         schedule2 = self._create_schedule(template2, self.space_b, weekday='0', start_time=10.0, end_time=11.0)
         self.assertTrue(schedule2.id)
 
@@ -193,7 +199,12 @@ class TestAttendanceTemplate(TransactionCase):
         template1 = self._create_template(self.teacher_a, self.space_a)
         self._create_schedule(template1, self.space_a, weekday='0', start_time=9.0, end_time=10.0)
 
-        template2 = self._create_template(self.teacher_a, self.space_b)
+        # subject=other_subject: see test_same_teacher_overlapping_time_raises's own comment. A
+        # real same-subject/teacher/group "different weekday" case is instead ONE template with
+        # TWO schedule lines (see docs/en/developers/employees/working_schedule.md's own
+        # "Co-teaching" section) - not two separate templates, which point 2's new constraint now
+        # correctly rejects as a duplicate teaching assignment.
+        template2 = self._create_template(self.teacher_a, self.space_b, subject=self.other_subject)
         schedule2 = self._create_schedule(template2, self.space_b, weekday='3', start_time=9.0, end_time=10.0)
         self.assertTrue(schedule2.id)
 
@@ -229,7 +240,12 @@ class TestAttendanceTemplate(TransactionCase):
         template1 = self._create_template(self.teacher_a, self.space_a, start_date=date(2026, 1, 1), end_date=date(2026, 2, 28))
         self._create_schedule(template1, self.space_a, weekday='0', start_time=9.0, end_time=10.0)
 
-        template2 = self._create_template(self.teacher_a, self.space_b, start_date=date(2026, 3, 1), end_date=date(2026, 6, 30))
+        # subject=other_subject: see test_same_teacher_overlapping_time_raises's own comment -
+        # point 2's new duplicate-assignment constraint is deliberately date-range-agnostic (this
+        # system never represents "same assignment, different period" as two coexisting active
+        # templates - see that constraint's own docstring), so a same-subject/teacher/group pair
+        # here would trip it regardless of the non-overlapping dates being tested.
+        template2 = self._create_template(self.teacher_a, self.space_b, subject=self.other_subject, start_date=date(2026, 3, 1), end_date=date(2026, 6, 30))
         schedule2 = self._create_schedule(template2, self.space_b, weekday='0', start_time=9.0, end_time=10.0)
         self.assertTrue(schedule2.id)
 
@@ -244,6 +260,64 @@ class TestAttendanceTemplate(TransactionCase):
 
         with self.assertRaises(ValidationError):
             template2.write({'teacher_ids': [(6, 0, [self.teacher_a.id])]})
+
+    def test_exact_duplicate_teaching_assignment_raises(self):
+        # See plans/calendar_driven_attendance_templates.md, point 2.
+        self._create_template(self.teacher_a, self.space_a)
+
+        with self.assertRaises(ValidationError):
+            self._create_template(self.teacher_a, self.space_b)
+
+    def test_partial_group_overlap_with_different_exact_set_is_allowed(self):
+        # Deliberately NOT an "any overlap" check - a real, legitimate "desdoble" pattern exists
+        # in production data: the same teacher teaches the same subject to a group alone AND to
+        # that same group combined with another, in separate templates whose 'group_ids' genuinely
+        # differ (not identical) - see the constraint's own docstring for the full reasoning.
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'B', 'level_id': self.level.id, 'study_id': self.study.id,
+        })
+        self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.teacher_a.id])],
+            'study_ids': [(6, 0, [self.study.id])],
+            'subject_id': self.subject.id,
+            'group_ids': [(6, 0, [self.group.id])],
+            'space_id': self.space_a.id,
+            'start_date': date(2026, 1, 1), 'end_date': date(2026, 6, 30),
+        })
+
+        combined = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.teacher_a.id])],
+            'study_ids': [(6, 0, [self.study.id])],
+            'subject_id': self.subject.id,
+            'group_ids': [(6, 0, [self.group.id, other_group.id])],
+            'space_id': self.space_a.id,
+            'start_date': date(2026, 1, 1), 'end_date': date(2026, 6, 30),
+        })
+        self.assertTrue(combined.id)
+
+    def test_archived_duplicate_does_not_block_a_new_active_one(self):
+        existing = self._create_template(self.teacher_a, self.space_a)
+        # ems_bypass_template_lock: manual archival is otherwise blocked (point 3) - this test is
+        # about point 2's own duplicate check, not the archival lock, so bypass it as test setup,
+        # same as the calendar-sync pipeline itself does internally.
+        existing.with_context(ems_bypass_template_lock=True).action_archive()
+
+        new_template = self._create_template(self.teacher_a, self.space_b)
+
+        self.assertTrue(new_template.id)
+
+    def test_different_teacher_set_is_not_a_duplicate(self):
+        self._create_template(self.teacher_a, self.space_a)
+
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.teacher_a.id, self.teacher_b.id])],
+            'study_ids': [(6, 0, [self.study.id])],
+            'subject_id': self.subject.id,
+            'group_ids': [(6, 0, [self.group.id])],
+            'space_id': self.space_b.id,
+            'start_date': date(2026, 1, 1), 'end_date': date(2026, 6, 30),
+        })
+        self.assertTrue(template.id)
 
     def test_create_with_several_teachers(self):
         template = self.env['ems.attendance_template'].create({
@@ -302,59 +376,13 @@ class TestAttendanceTemplate(TransactionCase):
         self.assertTrue(template.has_sessions)
         self.assertTrue(schedule.has_sessions)
 
-    def test_action_new_version_line_archives_and_clones_only_that_line(self):
-        template = self._create_template(self.teacher_a, self.space_a)
-        schedule = self._create_schedule(template, self.space_a)
-        other_schedule = self._create_schedule(template, self.space_a, weekday='2')
-        session = self._create_session(schedule, self.teacher_a)
-
-        schedule.action_new_version()
-
-        self.assertFalse(schedule.active)
-        new_lines = template.attendance_schedule_ids.filtered('active')
-        self.assertEqual(len(new_lines), 2)
-        new_line = new_lines - other_schedule
-        self.assertEqual(new_line.weekday, schedule.weekday)
-        self.assertEqual(new_line.space_id, schedule.space_id)
-        self.assertEqual(new_line.start_time, schedule.start_time)
-        self.assertFalse(new_line.attendance_session_ids)
-        # The other line and the template itself are untouched.
-        self.assertTrue(other_schedule.active)
-        self.assertTrue(template.active)
-        # The already-taken session stays linked to the archived original.
-        self.assertEqual(session.attendance_schedule_id, schedule)
-
-    def test_action_new_version_template_archives_and_clones_whole_template(self):
-        template = self._create_template(self.teacher_a, self.space_a)
-        schedule = self._create_schedule(template, self.space_a)
-        session = self._create_session(schedule, self.teacher_a)
-
-        template.action_new_version()
-
-        self.assertFalse(template.active)
-        new_template = self.env['ems.attendance_template'].search([
-            ('teacher_ids', 'in', self.teacher_a.id), ('subject_id', '=', self.subject.id), ('active', '=', True),
-        ])
-        self.assertTrue(new_template)
-        self.assertNotEqual(new_template, template)
-        self.assertEqual(new_template.group_ids, template.group_ids)
-        # Regression guard: 'attendance_schedule_ids' must actually carry over onto the clone -
-        # Odoo's One2many fields default to copy=False, so this silently produced a clone with NO
-        # schedule lines at all until the field was given an explicit copy=True.
-        self.assertEqual(len(new_template.attendance_schedule_ids), 1)
-        self.assertTrue(new_template.attendance_schedule_ids.active)
-        self.assertEqual(new_template.attendance_schedule_ids.weekday, schedule.weekday)
-        self.assertFalse(new_template.attendance_schedule_ids.attendance_session_ids)
-        self.assertFalse(new_template.has_sessions)
-        # The already-taken session stays linked to the archived original template's schedule.
-        self.assertEqual(session.attendance_schedule_id.attendance_template_id, template)
-
     def test_write_or_new_version_writes_in_place_without_sessions(self):
-        # Direct unit coverage for 'ems.attendance_mixin._write_or_new_version' itself - no
-        # current caller exercises its no-sessions branch (action_new_version's button is only
-        # ever shown once has_sessions is already True), but the schedule-sync pipeline and the
-        # future import wizard both share this exact decision, so it deserves its own test
-        # independent of any specific caller.
+        # Direct unit coverage for 'ems.attendance_mixin._write_or_new_version' itself - the
+        # manual "Edit" button (action_new_version) that used to be its main entry point was
+        # removed 2026-08-11 (see plans/calendar_driven_attendance_templates.md, point 3), but the
+        # shared mechanism itself is still used internally by the schedule-sync pipeline and the
+        # import wizard's room-reassignment resolution, so it deserves its own test independent of
+        # any specific caller.
         template = self._create_template(self.teacher_a, self.space_a)
         schedule = self._create_schedule(template, self.space_a)
         schedule_id = schedule.id
@@ -383,8 +411,8 @@ class TestAttendanceTemplate(TransactionCase):
         # schedule line (directly, via '_write_or_new_version''s archive-before-clone step above,
         # or via the template's own cascade below) must NOT archive its sessions, in either
         # direction. A schedule line can be archived for reasons that have nothing to do with a
-        # session's own relevance (e.g. a mid-course room correction via 'action_new_version()') -
-        # sessions are an independent historical record, never touched as a side effect of
+        # session's own relevance (e.g. a mid-course room correction) - sessions are an
+        # independent historical record, never touched as a side effect of
         # whatever happens to the schedule/template that originally scheduled them. See
         # plans/course_transition_teacher_schedule_archival.md.
         template = self._create_template(self.teacher_a, self.space_a)
@@ -404,7 +432,9 @@ class TestAttendanceTemplate(TransactionCase):
         schedule = self._create_schedule(template, self.space_a)
         session = self._create_session(schedule, self.teacher_a)
 
-        template.action_archive()
+        # ems_bypass_template_lock: this test is about the archive-cascade behavior, not point 3's
+        # own archival lock - bypass it as test setup, same as the calendar-sync pipeline does.
+        template.with_context(ems_bypass_template_lock=True).action_archive()
 
         self.assertFalse(template.active)
         self.assertFalse(schedule.active)
@@ -535,7 +565,7 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         template = self.env['ems.attendance_template'].search([
             ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
         ])
-        self.assertEqual(template.student_ids, student_a | student_b)
+        self.assertEqual(template.attendance_schedule_ids.student_ids, student_a | student_b)
 
     def test_consecutive_syncs_get_different_colors(self):
         # Regression guard: color used to be based on position within the current sync batch,

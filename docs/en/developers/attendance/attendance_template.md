@@ -2,11 +2,11 @@
 
 ## Overview
 
-An `ems.attendance_template` answers "who teaches what, where and for whom": one record groups a teacher-set + subject + set of groups into a weekly schedule (its `attendance_schedule_ids`, the actual weekday/start_time/end_time slots) plus the enrolled students expected to attend. Templates are the backbone that turns a raw weekly schedule (imported from an XML planner file, or edited live from a teacher's own "Schedule" tab) into what the attendance roll-call screens actually check students against.
+An `ems.attendance_template` answers "who teaches what, where and for whom": one record groups a teacher-set + subject + set of groups into a weekly schedule, its `attendance_schedule_ids` — the actual weekday/start_time/end_time slots, each carrying its **own** enrolled-student roster (`student_ids`, moved here from the template 2026-08-11 - see [`attendance_schedule.md`](attendance_schedule.md), and `plans/calendar_driven_attendance_templates.md`, point 1). Templates are the backbone that turns a raw weekly schedule (imported from an XML planner file, or edited live from a teacher's own "Schedule" tab) into what the attendance roll-call screens actually check students against.
 
-Templates are **not created directly by an admin filling in a form** in the normal case — they are derived by `sync_from_schedule_batch()` from schedule entries, reconciling co-teaching and splitting/merging templates as needed (see "CRUD flow" below). The form/list views exist for inspecting and manually correcting the result, not as the primary entry point.
+**Templates are NOT creatable or archivable directly by anyone, admin included** (`plans/calendar_driven_attendance_templates.md`, point 3, 2026-08-11) — they only ever come into existence, or go away, as a consequence of `sync_from_schedule_batch()` reconciling a teacher's calendar (or a course transition archiving one). See "Access control" below for the actual enforcement mechanism. The form/list views exist purely for inspecting the result and correcting non-identity fields (color, etc.) - never for creating or archiving one by hand.
 
-`ems.attendance_template` also carries `mail.thread`/`mail.activity.mixin` (chatter) — every archive/clone via the "Edit" button (see below) and manual identity-field edit is tracked there.
+`ems.attendance_template` also carries `mail.thread`/`mail.activity.mixin` (chatter) — every archive/clone the sync pipeline performs, and any manual non-identity-field edit, is tracked there.
 
 **Module files:** `models/attendance/attendance_template.py`, `views/attendance/attendance_template/`, `models/shared/hex_color_mixin.py` (color), `models/attendance/attendance_schedule.py` (the weekly slots, own fields/logic documented in [`attendance_schedule.md`](attendance_schedule.md)).
 
@@ -19,11 +19,13 @@ erDiagram
     ems_attendance_template }o--|| ems_subject : subject_id
     ems_attendance_template }o--o{ ems_group : group_ids
     ems_attendance_template }o--|| ems_space : space_id
-    ems_attendance_template }o--o{ res_partner : "student_ids (students)"
     ems_attendance_template }o--o{ ems_study : study_ids
 ```
 
-`study_ids` is **not required** — a template built from a *reinforcement* `ems.group` (`group_type == 'reinforcement'`) has no study of its own and leaves it empty (see `_write_schedule_sync`). There is no `level_id` on this model anymore (removed 2026-08-05, see "Identity fields, locking..." below) — a level is always derivable from `group_ids`/`study_ids` when needed (e.g. `ems.attendance_session_header.level_id`, still on the session side, is computed straight from `group_ids[:1].level_id`).
+`student_ids` (the enrolled-student roster) is **not** a direct relation of this model - it lives on
+`ems_attendance_schedule` instead, see [`attendance_schedule.md`](attendance_schedule.md).
+
+`study_ids` is **not required** — a template built from a *reinforcement* `ems.group` (`group_type == 'reinforcement'`) has no study of its own and leaves it empty (see `_write_schedule_sync`). There is no `level_id` on this model anymore (removed 2026-08-05, see "Identity fields and locking" below) — a level is always derivable from `group_ids`/`study_ids` when needed (e.g. `ems.attendance_session_header.level_id`, still on the session side, is computed straight from `group_ids[:1].level_id`).
 
 ## Data model
 
@@ -38,15 +40,14 @@ erDiagram
 | `allowed_subject_ids` | `Many2many → ems.subject`, computed, non-stored | Subjects available in **every** one of `study_ids` (intersection, not union) — backs `subject_id`'s domain and `_check_subject_valid_for_all_studies` below. Empty `study_ids` means no restriction (all subjects allowed) |
 | `space_id` | `Many2one → ems.space` | Required. Auto-filled from the first group's own space on `group_ids` change |
 | `attendance_schedule_ids` | `One2many → ems.attendance_schedule` | The actual weekly weekday/start_time/end_time slots |
-| `student_ids` | `Many2many → res.partner` | Auto-filled (`fill_students()`) from active enrollments matching `subject_id` + `group_ids` |
-| `has_sessions` | `Boolean`, computed | `True` once any of this template's schedules has a real `attendance_session_ids` entry — see "Identity fields, locking..." below |
+| `has_sessions` | `Boolean`, computed | `True` once any of this template's schedules has a real `attendance_session_ids` entry — see "Identity fields and locking" below |
 | `read_only_user` | `Boolean`, non-stored | `True` unless: admin, one of `teacher_ids`, or the record's own creator |
 
 ### `_check_subject_valid_for_all_studies`
 
 `@api.constrains('subject_id', 'study_ids')`: rejects a `subject_id` that isn't in `allowed_subject_ids` whenever `study_ids` is non-empty — i.e. the chosen subject must actually be taught in **every** selected study, not just one of them. A reinforcement template (no `study_ids`) is never subject to this.
 
-## Identity fields, locking, and the "Edit" button
+## Identity fields and locking
 
 Once a template has real attendance history (`has_sessions`), its **identity fields** —
 `teacher_ids`, `subject_id`, `study_ids`, `group_ids` (template-level) and each schedule
@@ -57,67 +58,54 @@ sessions were actually about (every `ems.attendance_session_header` field mirror
 `related`+`store=True`, so an in-place edit would silently rewrite history — see
 [`attendance_session.md`](attendance_session.md)).
 
-Correcting a mistake (or handling a legitimate mid-year change of teacher/subject/group) is done
-via **`action_new_version()`** instead of unlocking the field — surfaced in the UI as an **"Edit"**
-button (`icon="fa-pencil-square-o"`, renamed from "New version" 2026-08-05 per the developer: from
-the user's perspective this *is* editing a locked template, the archive+clone happening
-underneath is an implementation detail the confirm dialog still spells out, not something the
-button label needs to advertise):
+**Until 2026-08-11, a per-record "Edit" button (`action_new_version()`) let an admin/teacher
+unlock a locked template by hand** (archive the whole template + clone it fresh, no session
+history). **Removed** as part of `plans/calendar_driven_attendance_templates.md`'s point 3
+(developer's own call: *"Este mecanismo que hicimos para 'editar' templates o schedules ha
+quedado obsoleto"*) - correcting a mistake or handling a mid-year teacher/subject/group change is
+now done exclusively by editing the teacher's calendar and letting the sync pipeline reconcile
+it (see "CRUD flow" below and "Access control" for why no other path exists any more).
 
-```mermaid
-flowchart TD
-    A["action_new_version() on the template\n(or schedule line - see attendance_schedule.md)"] --> B["_write_or_new_version({})\n(ems.attendance_mixin, shared with the sync pipeline below)"]
-    B --> C["action_archive()\n(cascades to schedule lines too, template-level)"]
-    C --> D["copy({'active': True})"]
-    D --> E["new_template.attendance_schedule_ids.action_unarchive()\n(copy() carries over each line's just-archived 'active')"]
-    E --> F["open the new, fully editable copy\n(view_mode: form)"]
-```
-
-**`ems.attendance_mixin`** (`models/shared/attendance_mixin.py`, in both this model's and
-`ems.attendance_schedule`'s `_inherit`) supplies the one shared decision behind every caller that
-can change a locked field: `_write_or_new_version(vals)` writes `vals` in place if
+**The underlying shared mechanism, `ems.attendance_mixin._write_or_new_version(vals)`
+(`models/shared/attendance_mixin.py`, in both this model's and `ems.attendance_schedule`'s
+`_inherit`), was NOT removed** - `_write_or_new_version(vals)` writes `vals` in place if
 `not self.has_sessions`, or archives `self` and returns `self.copy({'active': True, **vals})`
-otherwise. `action_new_version()` is a thin wrapper calling it with `vals={}` (this button only
-exists to unlock the record for a *subsequent* manual edit, not to apply a value itself) — always
-taking the archive+clone branch in practice, since the view only shows the button once
-`has_sessions` is already `True`. The **schedule-sync pipeline** (`_archive_stale_schedule_sync`/
-`_write_schedule_sync`, see "CRUD flow" below) shares the exact same `has_sessions` predicate for
-its own per-schedule-line decisions, though it can't call this method as a single atomic step —
-see that section for why. Deliberately named generically (not e.g. `ems.has_sessions_lock_mixin`)
-so it can hold other shared attendance-model code later too, not just this one rule.
+otherwise. It's still used internally by:
+- The **schedule-sync pipeline** (`_archive_stale_schedule_sync`/`_write_schedule_sync`, see "CRUD
+  flow" below) for its own per-schedule-line decisions (though it can't call this method as a
+  single atomic step there — see that section for why).
+- `ems.course_transition_wizard._apply_calendar_archival()`, to drop a departing co-teacher from a
+  still-shared template without touching the remaining teachers' own historical
+  `template_teacher_ids`.
+- The working-schedule import wizard's own room-reassignment conflict resolution
+  (`working_schedule.py`).
+
+Every one of these callers on `ems.attendance_template` runs the archive+copy branch with both
+`sudo()` and an internal context flag (`ems_bypass_template_lock`, see "Access control" below) -
+required now that create()/unlink() are revoked and archiving is separately blocked by this
+model's own `write()` override; harmless no-ops for `ems.attendance_schedule`, which was never
+locked that way.
 
 Archiving happens **before** copying, not after — copying first would momentarily leave the
 original and the identical fresh clone both active, sharing the same
 teacher/room/time/subject, which `ems.attendance_schedule.check_overlap()` correctly rejects
 as a double-booking. The already-taken sessions stay linked to the archived original,
 permanently accurate; the clone starts with no session history (`attendance_session_ids` is
-`copy=False`), so every identity field is freely editable again.
+`copy=False`), so every identity field is freely editable again - the schedule-sync pipeline is
+what actually applies the correction, from the calendar's own new data.
 
-**Two real bugs found and fixed 2026-08-06 (while building the course-transition archival
-plan's own phase 5c, which needed this same mechanism) — the flowchart above now reflects the
-fix, but for years actually produced a clone with zero schedule lines:**
-1. **`attendance_schedule_ids` needed an explicit `copy=True`.** Odoo's `One2many` field defaults
-   to `copy=False` ("o2m are not copied by default", `odoo/fields.py`) — without overriding it,
-   step D's `copy()` never cascaded the template's schedule lines onto the clone at all, silently
-   producing a template with **no lines whatsoever**. `attendance_session_ids` (line-level) stays
-   `copy=False` regardless — session history must never be duplicated either way.
-2. **Step E's `.action_unarchive()` needed `with_context(active_test=False)`.** Even after fix 1,
-   the freshly-copied lines carry over their *current* `active=False` (the source lines were just
-   archived by step C) — a plain `new_template.attendance_schedule_ids` read at that point already
-   excludes them (default active filtering on the O2M), so `.action_unarchive()` silently operated
-   on an empty recordset and never actually flipped them back to active.
-   `new_template.with_context(active_test=False).attendance_schedule_ids.action_unarchive()` is
-   what's actually needed.
-
-Undetected for so long because `test_action_new_version_template_archives_and_clones_whole_template`
-(`tests/test_attendance_template.py`) never asserted the clone's own `attendance_schedule_ids` was
-non-empty/active — only that its *sessions* were empty (true either way, bug or not). Also
-disabled the generic Odoo "Duplicate" action on this model's views (`duplicate="0"`,
-`views/attendance/attendance_template/{form,list}.xml`): now that `attendance_schedule_ids` is
-genuinely `copy=True`, a plain Duplicate (which — unlike `action_new_version()` — never archives
-the original first) would immediately self-collide via `check_overlap` (same
-teacher/room/time as the still-active original) — a duplicate of a template doesn't make sense
-as a concept anyway, given its identity fields would collide with themselves.
+**Historical note (two real bugs found and fixed 2026-08-06, back when `action_new_version()`
+still existed):** `attendance_schedule_ids` needed an explicit `copy=True` (Odoo's `One2many`
+defaults to `copy=False`, so `copy()` silently produced a clone with **no lines at all** until
+this was added — `attendance_session_ids`, line-level, stays `copy=False` regardless, since
+session history must never be duplicated), and the freshly-copied lines needed
+`with_context(active_test=False)` before `.action_unarchive()` to actually flip them back active
+(they carried over their just-archived `active=False`, and a plain O2M read at that point already
+excluded them). Both fixes are baked into `_write_or_new_version`'s own behavior today, not
+specific to the now-removed button - still relevant to every remaining caller listed above.
+`duplicate="0"` stays disabled on this model's views (`views/attendance/attendance_template/
+{form,list}.xml`) for the same reason it was added then: a plain Duplicate never archives the
+original first, so it would immediately self-collide via `check_overlap`.
 
 ## CRUD flow
 
@@ -148,11 +136,43 @@ Key behaviours, each covered by its own docstring in the code:
 
 | Group | Access | Restriction |
 |-------|--------|-------------|
-| `ems.group_academic_admin` | Full CRUD | None (`security/rules/attendance.xml`: `rule_attendance_template_admin`, domain `[]`) |
-| `ems.group_teacher` | Full CRUD | Own data only: `create_uid = user` **or** `teacher_ids.user_id = user` (`rule_attendance_template_teacher_own`) |
+| `ems.group_academic_admin` | Read + write, **no create/unlink** | None on read/write (`security/rules/attendance.xml`: `rule_attendance_template_admin`, domain `[]`) |
+| `ems.group_teacher` | Read + write, **no create/unlink** | Own data only: `create_uid = user` **or** `teacher_ids.user_id = user` (`rule_attendance_template_teacher_own`) |
 | `ems.group_secretary` | Read-only | None |
 
 `read_only_user` (computed per-record, non-stored) additionally locks down the **form view** for a teacher looking at a template that passes the record rule via `create_uid` but isn't one of `teacher_ids` themselves (e.g. one co-teacher edited it, another can still see it under the OR domain above) — the ACL/rule layer decides *whether a row is visible/writable at the ORM level at all*, `read_only_user` decides whether *this specific viewer* should see editable widgets once it is.
+
+### Creation/archival locked to the calendar-driven pipeline only (2026-08-11)
+
+`security/ir.model.access.csv`: `create`/`unlink` are `0` for **every** group on this model,
+admin included (`plans/calendar_driven_attendance_templates.md`, point 3 - developer's own
+explicit call after confirming `ems.course_transition_wizard._templates_to_archive()`'s own
+study-scoped search already archives a template correctly regardless of how it was created, so
+there's no orphan risk either way: "Bloquear también al admin, solo aviso no es suficiente").
+`views/attendance/attendance_template/{form,list}.xml` also set `create="0"`, hiding the "New"
+button entirely rather than just failing on click.
+
+**Archival can't be blocked by the CSV alone** - "Archive" is a plain `write()` of `active`, and
+`write` access has to stay granted for legitimate direct edits (`color`, etc.). Blocking it
+specifically needed a code-level guard: `ems.attendance_template.write()` raises `UserError` if
+`active` is in `vals` and the call isn't carrying the internal context flag
+`ems_bypass_template_lock` (`EMS_BYPASS_TEMPLATE_LOCK_KEY`, defined in
+`models/shared/attendance_mixin.py` so both this model and the sync pipeline can import one
+constant without a circular import between them). Every legitimate internal archival call site
+(the sync pipeline's own vacate/consolidate steps, `course_transition_wizard`'s template
+archival, `_write_or_new_version`'s own archive+copy branch) wraps itself with
+`self.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True})` before calling `action_archive()`/
+`write()`. **Known Odoo limitation, not fully solved:** the generic "Archive" menu item itself may
+still be visible in the UI (Odoo shows it for any model with `active` + write access, and there's
+no per-list-view declarative attribute to suppress just that one action the way kanban's
+`archivable="false"` does) - clicking it always raises the explanatory error above, but it isn't
+hidden from view the same clean way "New" is.
+
+`ems.attendance_template.sync_from_schedule_batch*`'s own internal `create()` calls (and
+`_write_or_new_version`'s `copy()`, which is a `create()` under the hood) additionally need
+`.sudo()` - CSV `create=0` blocks the calling **user's** own permission regardless of group, so a
+sync triggered by an admin saving the Schedule tab or running the import wizard would otherwise
+fail too, not just a genuinely unauthorized direct create.
 
 ## Known limitations
 

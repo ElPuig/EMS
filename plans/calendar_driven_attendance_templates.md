@@ -1,8 +1,9 @@
-Status: IN PROGRESS (2026-08-11) - GitHub issue #372. Point 4 (the direct FK) is DONE - see
-"Point 4: implemented 2026-08-11" below. Points 1-3 are still proposed, not implemented, per the
-developer's own explicit choice to do the FK first and defer the rest (asked via AskUserQuestion,
-2026-08-11: "Solo el FK (fase 2)"). Re-verify against the current code before starting the next
-phase, since this plan may go stale between sessions.
+Status: ✅ COMPLETE (2026-08-11) - GitHub issue #372, all 4 points implemented and tested (see
+"Point 4: implemented 2026-08-11" and "Points 1-3: implemented 2026-08-11" below). The one
+deliberately deferred follow-up is `regenerate_all_from_calendars()` (see "Production migration
+sequencing" below) - not needed to close #372 itself, kept here as a design reference for the
+eventual production course transition. This file can be deleted once that follow-up either lands
+or is confirmed no longer needed - see CLAUDE.md's own "Design plans" convention.
 
 # Origin
 
@@ -164,6 +165,38 @@ phase keeps `attendance_schedule_id` empty. This matters directly for the produc
 sequencing below: any "which templates have no calendar backing them" check based purely on this
 FK will show a FALSE POSITIVE for every template whose calendar hasn't been through a fresh sync
 since this phase shipped - not just genuinely orphaned ones. See the caveat under step 1 below.
+
+# Points 1-3: implemented 2026-08-11
+
+See `changelog/372-move-students-from-attendance_template-to-attendance_schedule.md` for the full
+write-up (what shipped, every real write path touched). Summary:
+
+- **Point 1 (`student_ids` moved to the schedule line)**: done, including the data migration
+  (each template's roster copied onto every one of its lines, old relation table dropped) and
+  every real write path (`ems.attendance_session_header._auto_populate_lines`, `ems.enrollment`'s
+  add/remove sync hooks, `res.partner._ems_clear_operational_records`). UI: a "Students" button
+  per schedule-line row opens that line's own form (a full roster doesn't fit an inline list row).
+- **Point 2 (uniqueness)**: implemented as an EXACT-match `@api.constrains` on `ems.attendance_
+  template` (`(subject_id, teacher_ids-as-set, group_ids-as-set)`), not the broader "any group
+  overlap" the plan originally floated - confirmed with the developer that overlap alone would
+  wrongly reject a real, legitimate "desdoble" pattern already present in this centre's own data
+  (same teacher/subject, one template for a group alone, another for that group combined with
+  another, on different days). 0 real exact-duplicate conflicts existed in this dev database, so
+  no data cleanup was needed before turning the constraint on.
+- **Point 3 (calendar-driven only)**: `create`/`unlink` revoked in `security/ir.model.access.csv`
+  for every group, admin included (developer's own final call, after confirming
+  `_templates_to_archive()`'s study-scoped search already handles a manually-created template
+  correctly at course transition - no orphan risk). Manual archival additionally hard-blocked by a
+  new `write()` override (CSV alone can't express "no archiving via `active` but yes to other
+  writes" at that granularity). The manual "Edit" button (`action_new_version`) was removed
+  entirely as obsolete, on the developer's own call - the underlying shared mechanism
+  (`_write_or_new_version`) stays, since `course_transition_wizard` and the import wizard's
+  own conflict resolution still use it internally.
+
+**Deferred, not blocking:** `regenerate_all_from_calendars()` (see "Production migration
+sequencing" below) - originally considered as a prerequisite for point 2, no longer needed since
+the exact-match constraint turned out to be safe without it. Still valuable for the eventual
+production course transition; kept here as a design reference until built for real.
 
 # Production migration sequencing (developer's own plan, 2026-08-11)
 

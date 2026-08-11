@@ -68,11 +68,15 @@ class EmsEnrollment(models.Model):
             self._ems_sync_grade_session_remove(student_id, group_id, subject_id)
         return res
 
-    def _ems_matching_attendance_templates(self, subject_id, group_id):
+    def _ems_matching_attendance_schedules(self, subject_id, group_id):
+        # NOTE: moved from matching ems.attendance_template directly to matching its
+        # attendance_schedule_ids (2026-08-11, see plans/calendar_driven_attendance_templates.md,
+        # point 1) - the roster now lives per schedule line, not per template, so a sync must reach
+        # every one of a matching template's lines, not the template itself.
         return self.env['ems.attendance_template'].search([
             ('subject_id', '=', subject_id),
             ('group_ids', 'in', group_id),
-        ])
+        ]).attendance_schedule_ids
 
     @api.model
     def _ems_still_enrolled(self, student_id, subject_id, group_ids):
@@ -88,16 +92,18 @@ class EmsEnrollment(models.Model):
 
     def _ems_sync_attendance_template_add(self):
         self.ensure_one()
-        for template in self._ems_matching_attendance_templates(self.subject_id.id, self.group_id.id):
-            template.student_ids = [(4, self.student_id.id, 0)]
+        schedules = self._ems_matching_attendance_schedules(self.subject_id.id, self.group_id.id)
+        schedules.student_ids = [(4, self.student_id.id, 0)]
 
     @api.model
     def _ems_sync_attendance_template_remove(self, student_id, group_id, subject_id):
-        for template in self._ems_matching_attendance_templates(subject_id, group_id):
+        schedules = self._ems_matching_attendance_schedules(subject_id, group_id)
+        for schedule in schedules:
+            template = schedule.attendance_template_id
             # A template can cover several 'group_ids' (co-teaching): only drop the student if no
             # other remaining enrollment still keeps them within this same template's scope.
             if not self._ems_still_enrolled(student_id, template.subject_id.id, template.group_ids.ids):
-                template.student_ids = [(3, student_id)]
+                schedule.student_ids = [(3, student_id)]
 
     def _ems_sync_grade_session_add(self):
         self.ensure_one()

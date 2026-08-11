@@ -342,6 +342,42 @@ def _backfill_missing_teacher_calendars(env):
             len(employees))
 
 
+def _restore_attendance_schedule_student_rel(cr):
+    """Reads back '_ems_migration_template_student_backup' (see
+    'pre-migrate.py::_backup_attendance_template_student_rel') now that ems.attendance_schedule's
+    own 'student_ids' relation table exists, and copies each (template, student) pair onto EVERY
+    one of that template's current schedule lines - matching the exact effective roster every line
+    already had under the old, template-wide field (every line shared one roster), so day one after
+    this upgrade looks identical to a teacher/admin; they're then free to customize a line's own
+    roster afterward, which is the whole point of this move (see
+    plans/calendar_driven_attendance_templates.md, point 1). 'ON CONFLICT DO NOTHING' guards
+    against a re-run of this migration, not against any real duplication risk in the join itself
+    (each schedule line belongs to exactly one template)."""
+    cr.execute("""
+        SELECT to_regclass('_ems_migration_template_student_backup')
+    """)
+    if not cr.fetchone()[0]:
+        return
+    cr.execute("""
+        INSERT INTO ems_attendance_schedule_res_partner_rel (ems_attendance_schedule_id, res_partner_id)
+        SELECT DISTINCT schedule.id, backup.student_id
+        FROM _ems_migration_template_student_backup backup
+        JOIN ems_attendance_schedule schedule ON schedule.attendance_template_id = backup.template_id
+        ON CONFLICT DO NOTHING
+    """)
+    _logger.info(
+        "Migration 18.0.0.22.0: restored %d ems.attendance_schedule.student_ids row(s) from the "
+        "pre-migrate backup of ems.attendance_template.student_ids.", cr.rowcount)
+    cr.execute("DROP TABLE _ems_migration_template_student_backup")
+    # NOTE: confirmed empirically (2026-08-11) that Odoo's own schema sync does NOT drop a
+    # Many2many's old relation table on its own just because the field was removed from the model
+    # (unlike a plain column, which IS dropped - see the "Gotcha confirmed while converting
+    # ems.course.xml" style note in CLAUDE.md for that different case) - the old table would
+    # otherwise sit around forever as orphaned, inaccessible garbage now that the restore above
+    # has copied everything it held into the new field.
+    cr.execute("DROP TABLE IF EXISTS ems_attendance_template_res_partner_rel")
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _enable_unaccent(cr)
@@ -356,3 +392,4 @@ def migrate(cr, _version):
     _backfill_attendance_template_study_ids(cr)
     _backfill_calendar_employee_and_course(env)
     _backfill_missing_teacher_calendars(env)
+    _restore_attendance_schedule_student_rel(cr)

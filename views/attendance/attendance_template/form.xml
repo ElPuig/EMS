@@ -4,23 +4,7 @@
             <field name="name">ima.attendance_template.form</field>
             <field name="model">ems.attendance_template</field>
             <field name="arch" type="xml">
-                <form string="Template" duplicate="0">
-                    <header>
-                        <button string="Reload students"
-                            name="reload_students"
-                            type="object"
-                            icon="fa-refresh"
-                            confirm="This action will remove any manual change to the student list and reassign the students according to their current enrollments. It cannot be undone. Do you wish to continue?"
-                            invisible="not id or read_only_user"
-                        />
-                        <button string="Edit"
-                            name="action_new_version"
-                            type="object"
-                            icon="fa-pencil-square-o"
-                            confirm="This will archive this template (and its schedule) and open a fresh, fully editable copy - already-taken attendance stays linked to the archived original. Continue?"
-                            invisible="not has_sessions or read_only_user"
-                        />
-                    </header>
+                <form string="Template" duplicate="0" create="0">
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <group string="Main data" col="6">
@@ -68,21 +52,12 @@
                         </group>
                                             
                         <notebook>
-                            <page string="Students">
-                                <field name="student_ids" widget="many2many" readonly="read_only_user">
-                                    <list default_order="name asc" >
-                                        <field name="image_1920" widget="image" />
-                                        <field name="name" class="align-middle"/>
-                                        <field name="student_email" class="align-middle"/>
-                                        <field name="main_group_id" class="align-middle"/>
-                                        <field name="tutor_id" class="align-middle"/>
-                                        <!-- Needed to open as fullscreen form -->
-                                        <field name="id" column_invisible="True"/>
-                                    </list>
-                                </field>                          
-                            </page>
-
                             <page string="Sessions">
+                                <!-- 'student_ids' (moved here from the template, 2026-08-11 - see
+                                     plans/calendar_driven_attendance_templates.md, point 1) is NOT an
+                                     inline column here - a full class roster (25-30 students) doesn't
+                                     fit a list row; open each line's own form (action_open_form) to
+                                     manage its 'Students' tab instead. -->
                                 <field name="attendance_schedule_ids" string="" context="{'default_space_id' : space_id, 'default_weekday' : '0'}" readonly="read_only_user">
                                     <list editable="bottom" default_order="weekday asc, start_time asc">
                                         <!-- Referenced by the 'or has_sessions' locks below - must be
@@ -95,9 +70,8 @@
                                         <!-- The following fields are needed for internal compute. -->
                                         <field name="start_date" widget="timepicker" width="120px" column_invisible="True" />
                                         <field name="end_date" widget="timepicker" width="120px" column_invisible="True" />
-                                        <button name="action_new_version" type="object" class="oe_stat_button"
-                                            icon="fa-pencil-square-o" title="Edit" invisible="not has_sessions"
-                                            confirm="This will archive this schedule line and create a fresh, editable copy of it - already-taken attendance stays linked to the archived original. Continue?"
+                                        <button name="action_open_form" type="object" class="oe_stat_button"
+                                            icon="fa-users" title="Students"
                                         />
                                     </list>
                                 </field>

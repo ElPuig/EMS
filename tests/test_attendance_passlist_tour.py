@@ -55,7 +55,6 @@ class TestAttendancePasslistTour(HttpCase):
             'study_ids': [(6, 0, [cls.study.id])], 'subject_id': cls.subject.id,
             'group_ids': [(6, 0, [cls.group.id])], 'space_id': cls.space.id,
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
-            'student_ids': [(6, 0, [cls.student1.id, cls.student2.id])],
         })
         # start/end span the whole day so the schedule is "current" no matter what time this
         # test happens to run at (same trick as test_strike_tour.py). Deliberately NOT
@@ -64,6 +63,7 @@ class TestAttendancePasslistTour(HttpCase):
         cls.schedule = cls.env['ems.attendance_schedule'].create({
             'attendance_template_id': cls.template.id, 'weekday': str(date.today().weekday()),
             'start_time': 0.0, 'end_time': 23.0, 'space_id': cls.space.id,
+            'student_ids': [(6, 0, [cls.student1.id, cls.student2.id])],
         })
         # Second status by 'sequence' order (the same order the client's _loadStatuses() and
         # the tour's "2nd status column" click both rely on) - whatever it technically is,

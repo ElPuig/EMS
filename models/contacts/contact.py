@@ -708,11 +708,12 @@ class ResPartner(models.Model):
             # Attendance lines (the attendance rate is copied in the year record).
             self.env['ems.attendance_session_line'].sudo().search(
                 [('student_id', '=', partner.id)]).unlink()
-            # Attendance templates: student_ids is a materialised M2m, never recomputed.
-            templates = self.env['ems.attendance_template'].sudo().search(
+            # Attendance schedule lines: student_ids is a materialised M2m, never recomputed.
+            # Moved from ems.attendance_template.student_ids (removed) 2026-08-11 - see
+            # plans/calendar_driven_attendance_templates.md, point 1.
+            schedules = self.env['ems.attendance_schedule'].sudo().search(
                 [('student_ids', 'in', partner.id)])
-            for template in templates:
-                template.student_ids = [(3, partner.id)]
+            schedules.student_ids = [(3, partner.id)]
             # Attendance issues: the year record already froze attendance_issue_count, so
             # the live notifications have nothing left to say about a student who has gone.
             # Dropping its rows can leave a tutor notification with no student at all;

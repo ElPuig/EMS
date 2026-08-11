@@ -50,7 +50,7 @@ class TestEnrollment(TransactionCase):
         cls.other_student = cls.env['res.partner'].create({'name': 'Test Student B (Enrollment)', 'contact_type': 'student'})
 
     def _create_template(self, groups):
-        return self.env['ems.attendance_template'].create({
+        template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [self.teacher.id])],
             'study_ids': [(6, 0, [self.study.id])],
             'subject_id': self.subject.id,
@@ -59,6 +59,14 @@ class TestEnrollment(TransactionCase):
             'start_date': date(2026, 1, 1),
             'end_date': date(2026, 6, 30),
         })
+        # student_ids lives on the schedule line, not the template (see
+        # plans/calendar_driven_attendance_templates.md, point 1) - the enrollment sync hooks
+        # this test file exercises need a real line to write onto.
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
+        })
+        return template
 
     def _create_session(self, group=None, round_no="1"):
         return self.env['ems.grade_session'].create({
@@ -80,7 +88,7 @@ class TestEnrollment(TransactionCase):
     def test_create_enrollment_adds_student_to_matching_template(self):
         template = self._create_template([self.group.id])
         self._create_enrollment()
-        self.assertIn(self.student, template.student_ids)
+        self.assertIn(self.student, template.attendance_schedule_ids.student_ids)
 
     def test_create_enrollment_without_matching_template_is_noop(self):
         enrollment = self._create_enrollment()
@@ -89,22 +97,22 @@ class TestEnrollment(TransactionCase):
     def test_delete_enrollment_removes_student_from_template(self):
         template = self._create_template([self.group.id])
         enrollment = self._create_enrollment()
-        self.assertIn(self.student, template.student_ids)
+        self.assertIn(self.student, template.attendance_schedule_ids.student_ids)
 
         enrollment.unlink()
 
-        self.assertNotIn(self.student, template.student_ids)
+        self.assertNotIn(self.student, template.attendance_schedule_ids.student_ids)
 
     def test_delete_enrollment_keeps_student_if_still_covered_by_same_template(self):
         # Template covers both groups (co-teaching); the student is enrolled through both.
         template = self._create_template([self.group.id, self.other_group.id])
         enrollment = self._create_enrollment(group=self.group)
         self._create_enrollment(group=self.other_group)
-        self.assertIn(self.student, template.student_ids)
+        self.assertIn(self.student, template.attendance_schedule_ids.student_ids)
 
         enrollment.unlink()
 
-        self.assertIn(self.student, template.student_ids)
+        self.assertIn(self.student, template.attendance_schedule_ids.student_ids)
 
     # -- grade_session sync --
 
@@ -169,7 +177,7 @@ class TestEnrollment(TransactionCase):
         with self.assertRaises(UserError):
             enrollment.unlink()
 
-        self.assertIn(self.student, template.student_ids)
+        self.assertIn(self.student, template.attendance_schedule_ids.student_ids)
 
     def test_delete_enrollment_ignores_board_or_final_session_lines(self):
         session = self._create_session()

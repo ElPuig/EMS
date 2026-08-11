@@ -32,20 +32,25 @@ class TestAttendanceTemplateTour(HttpCase):
         cls.teacher_employee = cls.env['hr.employee'].create({
             'name': 'Attendance Template Tour Teacher', 'employee_type': 'teacher',
         })
+        # create()/unlink() are revoked for every group on ems.attendance_template (see
+        # plans/calendar_driven_attendance_templates.md, point 3) - a template only ever comes
+        # from the calendar-driven sync pipeline now, never a direct UI create, so this tour can
+        # no longer build one through the "New" button (removed). sudo() here mirrors exactly what
+        # that pipeline itself does internally (ems.attendance_template.sync_from_schedule_batch*),
+        # not a workaround - this fixture stands in for "a template the sync pipeline already
+        # produced", which is the only way one can exist.
+        cls.template = cls.env['ems.attendance_template'].sudo().create({
+            'teacher_ids': [(6, 0, [cls.teacher_employee.id])],
+            'study_ids': [(6, 0, [cls.study.id])],
+            'subject_id': cls.subject.id,
+            'group_ids': [(6, 0, [cls.group.id])],
+            'space_id': cls.space.id,
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        cls.schedule = cls.env['ems.attendance_schedule'].create({
+            'attendance_template_id': cls.template.id,
+            'weekday': '0', 'start_time': 8.0, 'end_time': 9.0, 'space_id': cls.space.id,
+        })
 
     def test_attendance_template_crud_tour(self):
-        self.start_tour("/odoo", "ems_attendance_template_crud", login="admin")
-
-        template = self.env['ems.attendance_template'].search([
-            ('teacher_ids', 'in', self.teacher_employee.id),
-            ('study_ids', 'in', self.study.id),
-        ])
-        self.assertEqual(len(template), 1)
-        self.assertEqual(template.subject_id, self.subject)
-        self.assertEqual(template.space_id, self.space)
-        self.assertEqual(len(template.attendance_schedule_ids), 1)
-
-        schedule = template.attendance_schedule_ids
-        self.assertEqual(schedule.weekday, '0')
-        self.assertEqual(schedule.start_time, 8.0)
-        self.assertEqual(schedule.end_time, 9.0)
+        self.start_tour("/odoo", "ems_attendance_template_view_tour", login="admin")

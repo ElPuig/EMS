@@ -34,8 +34,14 @@ class EmsAttendanceSchedule(models.Model):
     space_id = fields.Many2one(string="Space", comodel_name="ems.space", required=True)
     attendance_template_id = fields.Many2one(
         string="Template", comodel_name="ems.attendance_template", ondelete='cascade', required=True)
+    # NOTE: moved here from ems.attendance_template 2026-08-11 (see
+    # plans/calendar_driven_attendance_templates.md, point 1) - the roster is a per-session-slot
+    # concern (a specific day/time can genuinely have a different attendee list, e.g. someone
+    # absent that day or an extra student sitting in), not a template-wide one. Domain/semantics
+    # unchanged from the template's own former field - see 'fill_students'/'reload_students' below.
+    student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
     # NOTE: copy=False - real attendance-taking history must never be duplicated when this line
-    # (or its parent template, which drags its lines along) is cloned by action_new_version().
+    # (or its parent template, which drags its lines along) is cloned via '_write_or_new_version'.
     attendance_session_ids = fields.One2many(
         string="Sessions", comodel_name="ems.attendance_session_header", inverse_name="attendance_schedule_id",
         copy=False)
@@ -44,33 +50,46 @@ class EmsAttendanceSchedule(models.Model):
     teacher_ids = fields.Many2many(string='Teachers', related="attendance_template_id.teacher_ids", store=False)
 
     # NOTE: drives this line's own lock (space_id/weekday/start_time/end_time) - once real
-    # attendance has been taken for this specific line, those fields must never change in place;
-    # use action_new_version() (clone + archive just this line) instead.
+    # attendance has been taken for this specific line, those fields must never change in place.
+    # The manual "Edit" button (action_new_version) that used to let an admin/teacher correct a
+    # locked line by hand was removed 2026-08-11 (see
+    # plans/calendar_driven_attendance_templates.md, point 3) - obsolete now that the calendar is
+    # the only legitimate source of change; a correction happens by editing the teacher's working
+    # schedule, and 'ems.attendance_mixin._write_or_new_version()' (still used internally by the
+    # import wizard's own room-reassignment resolution, see working_schedule.py) applies it.
     has_sessions = fields.Boolean(string="Has sessions", compute="_compute_has_sessions")
+
+    # NOTE: moved here from ems.attendance_template alongside 'student_ids' (2026-08-11, see
+    # plans/calendar_driven_attendance_templates.md, point 1) - the "Students" tab now lives on
+    # this model's own form, so it needs the same permission check the template's version had
+    # (only an admin, one of the template's own teachers, or the record's creator can edit it).
+    # Computed when loaded within a form or list, same as the template's own field.
+    read_only_user = fields.Boolean(default=lambda self: self._get_read_only_user(), store=False)
 
     @api.depends('attendance_session_ids')
     def _compute_has_sessions(self):
         for schedule in self:
             schedule.has_sessions = bool(schedule.attendance_session_ids)
 
-    def action_new_version(self):
-        """Corrects a locked line's room/day/time (see 'has_sessions') without disturbing its
-        already-taken attendance history: archives this exact line and clones it under the same
-        template, so the fresh, freely editable copy replaces it - the template itself and every
-        other line are left untouched. 'attendance_session_ids' is copy=False, so no historical
-        session is ever duplicated. A thin wrapper over 'ems.attendance_mixin's shared
-        '_write_or_new_version()' (called with no field overrides, since this button only exists
-        to unlock the record for a subsequent manual edit, not to apply a value itself) - the same
-        method the schedule-sync pipeline uses to decide between updating a line in place and
-        archiving+recreating it. Always takes the archive+clone branch here in practice, since the
-        view only shows this button once 'has_sessions' is already True. Archiving BEFORE copying
-        (handled inside '_write_or_new_version') matters because copying while the original is
-        still active would momentarily have two identical, active lines sharing the same
-        room/day/time/teacher, which check_overlap correctly rejects; archived-first means the
-        original is no longer a candidate in that search by the time the copy is created."""
+    def _get_read_only_user(self):
+        return not (self.id == False or self.get_user_is_admin() or bool(self.teacher_ids.filtered(lambda teacher: teacher.user_id.id == self.env.uid)) or self.create_uid == self.env.uid)
+
+    def action_open_form(self):
+        """Opens this line's own full form as a dialog - the parent template's embedded list
+        (views/attendance/attendance_template/form.xml) stays an inline-editable list for its
+        logistics fields (weekday/space/times), too narrow a row for a real class roster (a full
+        group can be 25-30 students) - the 'Students' tab needs this model's own richer form
+        (image/name/email/tutor columns), reached from this button instead of inline. Added
+        2026-08-11 alongside 'student_ids' moving here - see
+        plans/calendar_driven_attendance_templates.md, point 1."""
         self.ensure_one()
-        self._write_or_new_version({})
-        return {'type': 'ir.actions.client', 'tag': 'soft_reload'}
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'ems.attendance_schedule',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
     time_range = fields.Char(compute="_compute_time_range", store=True)
     notes = fields.Text(string="Notes")
@@ -162,6 +181,25 @@ class EmsAttendanceSchedule(models.Model):
         return template.subject_id == other_template.subject_id and bool(
             set(template.group_ids.ids) & set(other_template.group_ids.ids)
         )
+
+    def fill_students(self):
+        """Reset 'student_ids' from this line's own template's current (subject_id, group_ids)
+        enrollments - moved here from 'ems.attendance_template' 2026-08-11 (see
+        plans/calendar_driven_attendance_templates.md, point 1). Subject/groups still live on the
+        template (co-teaching/room stay template- and line-level concerns respectively - only the
+        roster itself became per-line), so this reads them via 'attendance_template_id' rather than
+        duplicating them here."""
+        for schedule in self:
+            template = schedule.attendance_template_id
+            students = self.env['ems.enrollment'].search([
+                ('group_id', 'in', template.group_ids.ids),
+                ('subject_id', '=', template.subject_id.id)
+            ]).mapped('student_id')
+            schedule.student_ids = [(6, 0, students.ids)]
+
+    def reload_students(self):
+        self.student_ids = [(5)]
+        self.fill_students()
 
     def unlink(self):
         if len(self.attendance_session_ids) > 0:

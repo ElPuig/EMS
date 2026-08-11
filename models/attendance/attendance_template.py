@@ -3,7 +3,9 @@
 from datetime import datetime
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
+
+from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
 
 TEMPLATE_COLOR_PALETTE = [
 	'#EE2D2D', '#DC8534', '#E8BB1D', '#5794DD', '#9F628F', '#DB8865',
@@ -43,22 +45,24 @@ class EmsAttendanceTemplate(models.Model):
 	space_id = fields.Many2one(string="Session's default space", comodel_name="ems.space", required=True)
 
 	# NOTE: 'copy=True' explicit - Odoo's One2many field defaults to 'copy=False' (fields.py:
-	# "o2m are not copied by default"), which is normally the right call, but 'action_new_version'/
-	# '_write_or_new_version' (ems.attendance_mixin) both rely on 'copy()' cascading these lines
-	# onto the fresh clone (see their own docstrings) - without this, a correction on a template
-	# WITH real session history silently produced a clone with NO schedule lines at all, undetected
-	# because the only test exercising this path never asserted the clone actually had one. Each
-	# line's own 'attendance_session_ids' stays 'copy=False' regardless (session history is never
-	# duplicated either way).
+	# "o2m are not copied by default"), which is normally the right call, but
+	# '_write_or_new_version' (ems.attendance_mixin) relies on 'copy()' cascading these lines onto
+	# the fresh clone (see its own docstring) - without this, a correction on a template WITH real
+	# session history silently produced a clone with NO schedule lines at all, undetected because
+	# the only test exercising this path never asserted the clone actually had one. Each line's own
+	# 'attendance_session_ids' stays 'copy=False' regardless (session history is never duplicated
+	# either way).
 	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_schedule", inverse_name="attendance_template_id", copy=True)
-	student_ids = fields.Many2many(string="Students", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
 
 	# NOTE: this field is computed when loaded within a form or list
 	read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
 
 	# NOTE: drives the 'identity fields' lock (subject_id/group_ids/teacher_ids) - once real
-	# attendance has been taken under this template, those fields must never change in place;
-	# use action_new_version() (clone + archive) instead. Deliberately keyed on real usage, not
+	# attendance has been taken under this template, those fields must never change in place. The
+	# manual "Edit" button (action_new_version) that used to let an admin/teacher correct this by
+	# hand was removed 2026-08-11 (see plans/calendar_driven_attendance_templates.md, point 3) -
+	# obsolete now that the calendar is the only legitimate source of change; a correction happens
+	# by editing the teacher's working schedule instead. Deliberately keyed on real usage, not
 	# on the template merely existing, so a harmless typo can still be fixed by hand before any
 	# attendance was ever taken.
 	has_sessions = fields.Boolean(string="Has sessions", compute="_compute_has_sessions")
@@ -72,40 +76,6 @@ class EmsAttendanceTemplate(models.Model):
 	def _compute_allowed_subject_ids(self):
 		for template in self:
 			template.allowed_subject_ids = template.study_ids._subjects_common_to_all()
-
-	def action_new_version(self):
-		"""Corrects a locked template's identity fields (subject_id/group_ids/study_ids/
-		teacher_ids - see 'has_sessions') without disturbing its already-taken attendance history:
-		archives the whole template (this model's own action_archive() override cascades to every
-		schedule line too) and clones it - the copy starts with no session history, so every field
-		is freely editable again. Already-taken sessions stay linked to the archived original,
-		permanently accurate. A thin wrapper over 'ems.attendance_mixin's shared
-		'_write_or_new_version()' (called with no field overrides, since this button only exists to
-		unlock the record for a subsequent manual edit, not to apply a value itself) - the same
-		method the schedule-sync pipeline uses to decide between updating in place and
-		archiving+recreating. Always takes the archive+clone branch here in practice, since the view
-		only shows this button once 'has_sessions' is already True. Archiving BEFORE copying
-		(handled inside '_write_or_new_version') matters because copying while the original's lines
-		are still active would collide with the clone's own identical lines via check_overlap - see
-		'ems.attendance_schedule.action_new_version's own docstring for the same reasoning at the
-		line level."""
-		self.ensure_one()
-		new_template = self._write_or_new_version({})
-		# NOTE: 'copy()'s own o2m cascade (inside '_write_or_new_version') copies each schedule
-		# line's CURRENT field values, 'active' included - since the source lines were just
-		# archived by that same call, the freshly created lines would otherwise silently come back
-		# archived too. 'with_context(active_test=False)' is required here: a default read of this
-		# O2M already filters out the (still inactive at this point) copied lines, so a plain
-		# '.attendance_schedule_ids.action_unarchive()' would silently operate on an empty
-		# recordset and never actually flip them back to active.
-		new_template.with_context(active_test=False).attendance_schedule_ids.action_unarchive()
-		return {
-			'type': 'ir.actions.act_window',
-			'res_model': 'ems.attendance_template',
-			'res_id': new_template.id,
-			'view_mode': 'form',
-			'target': 'current',
-		}
 
 	def _get_read_only_user(self):
 		return not (self.id == False or self.get_user_is_admin() or bool(self.teacher_ids.filtered(lambda teacher: teacher.user_id.id == self.env.uid)) or self.create_uid == self.env.uid)
@@ -153,6 +123,47 @@ class EmsAttendanceTemplate(models.Model):
 		for template in self:
 			template.attendance_schedule_ids.check_overlap()
 
+	@api.constrains('teacher_ids', 'group_ids', 'subject_id', 'active')
+	def _check_unique_teaching_assignment(self):
+		"""No two ACTIVE templates may share the exact same (subject_id, teacher_ids-as-set,
+		group_ids-as-set) triple - see plans/calendar_driven_attendance_templates.md, point 2.
+		Deliberately EXACT-match, not "any group overlap": verified against this dev DB
+		(2026-08-11) that a real, legitimate pattern already exists where the SAME teacher teaches
+		the SAME subject to a group on its own AND to that group combined with another, in
+		different templates with genuinely different (not identical) 'group_ids' sets - e.g. group
+		A alone Monday, group B alone Tuesday, A+B together Wednesday. That's a real pedagogical
+		"desdoble" pattern this data model can only express as separate templates (group_ids has
+		no per-line override), not a duplicate to reject. A plain SQL UNIQUE can't express this
+		either way since 'teacher_ids'/'group_ids' are Many2many - hence a Python check. The sync
+		pipeline's own reconciliation (_reconcile_teacher_groups/_reconcile_fresh_import,
+		'_plan_schedule_sync's own old_items keying) already normally prevents this exact-match
+		case from happening in practice; this constraint is the explicit guard for the ONE path
+		that bypasses it - a direct manual create()/write() through the UI or API."""
+		for template in self:
+			if not template.active:
+				continue
+			teacher_ids = frozenset(template.teacher_ids.ids)
+			group_ids = frozenset(template.group_ids.ids)
+			candidates = self.search([
+				('id', '!=', template.id),
+				('subject_id', '=', template.subject_id.id),
+				('active', '=', True),
+			])
+			duplicate = candidates.filtered(
+				lambda candidate: frozenset(candidate.teacher_ids.ids) == teacher_ids
+				and frozenset(candidate.group_ids.ids) == group_ids
+			)
+			if duplicate:
+				raise ValidationError(_(
+					"An active template already exists for this exact teaching assignment "
+					"(%(subject)s, teacher(s) %(teachers)s, group(s) %(groups)s) - correct it "
+					"through the teacher's working schedule instead of creating a new one."
+				) % {
+					'subject': template.subject_id.display_name,
+					'teachers': ", ".join(template.teacher_ids.mapped('display_name')),
+					'groups': ", ".join(template.group_ids.mapped('display_name')),
+				})
+
 	@api.constrains("color")
 	def _check_color_format(self):
 		self._check_hex_color('color')
@@ -169,21 +180,14 @@ class EmsAttendanceTemplate(models.Model):
 			if template.group_ids:
 				template.space_id = template.group_ids[0].space_id
 
-	@api.onchange("subject_id", "group_ids")
-	def _fill_students(self):
-		for template in self:
-			template.fill_students()
-
-	def fill_students(self):
-		students = self.env['ems.enrollment'].search([
-			('group_id', 'in', self.group_ids.ids),
-			('subject_id', '=', self.subject_id.id)
-		]).mapped('student_id')
-		self.student_ids = [(6, 0, students.ids)]
-
-	def reload_students(self):
-		self.student_ids = [(5)]
-		self.fill_students()
+	def write(self, vals):
+		if 'active' in vals and not self.env.context.get(EMS_BYPASS_TEMPLATE_LOCK_KEY):
+			raise UserError(_(
+				"A template can only be archived (or reactivated) as a consequence of editing "
+				"the teacher's working schedule - update the schedule instead of archiving this "
+				"template directly."
+			))
+		return super().write(vals)
 
 	def action_archive(self):
 		super().action_archive()
@@ -231,7 +235,7 @@ class EmsAttendanceTemplate(models.Model):
 		be checked against the second group's still-active STALE line, since that second group hasn't
 		been re-synced yet at that point."""
 		merged_groups, vacated = self._reconcile_teacher_groups(teacher_entries)
-		vacated.action_archive()
+		vacated.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 		self._run_schedule_sync_plans(merged_groups, start_date=start_date)
 		self._link_calendar_attendance(merged_groups)
 
@@ -253,7 +257,7 @@ class EmsAttendanceTemplate(models.Model):
 		genuine room conflict (different subject/group, same space/time) is expected to already have
 		been caught by 'classify_external_conflicts' before this is ever called."""
 		merged_groups, vacated = self._reconcile_fresh_import(teacher_entries)
-		vacated.action_archive()
+		vacated.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 		self._run_schedule_sync_plans(merged_groups, start_date=start_date)
 		self._link_calendar_attendance(merged_groups)
 
@@ -691,14 +695,14 @@ class EmsAttendanceTemplate(models.Model):
 			if key not in plan['grouped_entries']:
 				# NOTE: archive (not unlink) so past attendance-taking history is preserved. Archives
 				# every duplicate sharing this key, not just one.
-				templates.action_archive()
+				templates.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 			else:
 				# NOTE: if more than one active template shares this key (duplicates from past
 				# imports), only 'templates[0]' survives (see '_write_schedule_sync') — fully
 				# archive the rest here rather than just their schedule lines.
 				survivor, duplicates = templates[0], templates[1:]
 				if duplicates:
-					duplicates.action_archive()
+					duplicates.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 				line_sync = plan['line_sync'][key]
 				line_sync['stale_lines'].action_archive()
 				# NOTE: a changed line only needs archiving here if it has real session history -
@@ -728,17 +732,32 @@ class EmsAttendanceTemplate(models.Model):
 					vals = self._schedule_line_vals(entry, first_group.space_id.id)
 					if line.has_sessions:
 						# NOTE: already archived in '_archive_stale_schedule_sync' above - create
-						# its replacement here, same shape as any other fresh line.
-						new_lines.append((0, 0, vals))
+						# its replacement here, same shape as any other fresh line. Carries the
+						# archived line's OWN roster forward explicitly - this is a room-only
+						# correction (see 'has_sessions'), not a fresh slot, so the student roster
+						# must survive it untouched rather than starting empty (see
+						# plans/calendar_driven_attendance_templates.md, point 1).
+						new_lines.append((0, 0, {**vals, 'student_ids': [(6, 0, line.student_ids.ids)]}))
 					else:
 						# NOTE: left untouched (not archived) in the pass above - safe to update in
 						# place, same "no sessions yet" reasoning as
-						# 'ems.attendance_mixin._write_or_new_version'.
+						# 'ems.attendance_mixin._write_or_new_version'. 'student_ids' is not in
+						# 'vals' at all here, so the line's own roster is naturally untouched too.
 						line.write(vals)
 				survivor.write({
 					'space_id': first_group.space_id.id,
 					'attendance_schedule_ids': new_lines,
 				})
+				# NOTE: only the genuinely NEW slots ('fresh_entries') need fill_students() - a
+				# rewritten line (has_sessions or not) already carries or keeps its own roster
+				# untouched above, and blindly filling every line here would silently overwrite a
+				# teacher's manual per-line roster customization on every resync, defeating the
+				# whole point of point 1 in plans/calendar_driven_attendance_templates.md.
+				fresh_slots = {(entry["dayofweek"], entry["hour_from"], entry["hour_to"]) for entry in line_sync['fresh_entries']}
+				if fresh_slots:
+					survivor.attendance_schedule_ids.filtered(
+						lambda line, fresh_slots=fresh_slots: (line.weekday, line.start_time, line.end_time) in fresh_slots
+					).fill_students()
 
 		# NOTE: offset by the count of every template ever created (not just this batch), so
 		# consecutive sync calls keep rotating through the palette instead of every batch
@@ -767,6 +786,11 @@ class EmsAttendanceTemplate(models.Model):
 				'attendance_schedule_ids': self._schedule_lines(group_entries, first_group.space_id.id),
 			}
 
-		new_templates = self.env['ems.attendance_template'].create(list(templates.values()))
-		for template in new_templates:
-			template.fill_students()
+		# NOTE: sudo() - create() is revoked for every group on ems.attendance_template (see
+		# plans/calendar_driven_attendance_templates.md, point 3): a template only ever comes into
+		# existence as a consequence of this sync, never directly, regardless of which user (even
+		# an admin) triggered the schedule edit/import that led here.
+		new_templates = self.env['ems.attendance_template'].sudo().create(list(templates.values()))
+		# NOTE: every line of a BRAND NEW template is itself brand new - see
+		# plans/calendar_driven_attendance_templates.md, point 1.
+		new_templates.attendance_schedule_ids.fill_students()

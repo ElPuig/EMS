@@ -279,15 +279,22 @@ class TestAttendanceScheduleLogic(TransactionCase):
         # inactive by the time a new one exists; the caller (with 'active_test=False', exactly
         # like '_apply_calendar_archival' already does) must still see both, not just the active
         # one, and let the caller decide what to do with each.
+        # Both lines live under the SAME template (not two separate templates for the same
+        # assignment - point 2's exact-duplicate-assignment constraint on ems.attendance_template
+        # forbids that now, and the sync pipeline itself never produces that shape either: a
+        # persisting combo is always updated in place on its one surviving template, see
+        # 'ems.attendance_template._write_schedule_sync'). 'old_schedule' being archived first is
+        # what actually matters here - a genuinely new active line for the same slot afterward
+        # doesn't collide with it via check_overlap, since an archived line is excluded from that
+        # search by the implicit active_test default, same as any other query.
         template = self._template(self.teacher1)
         old_schedule = self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id, 'weekday': '1',
             'start_time': 8.0, 'end_time': 9.0, 'space_id': self.space.id,
         })
         old_schedule.action_archive()
-        other_template = self._template(self.teacher1)
         new_schedule = self.env['ems.attendance_schedule'].create({
-            'attendance_template_id': other_template.id, 'weekday': '1',
+            'attendance_template_id': template.id, 'weekday': '1',
             'start_time': 8.0, 'end_time': 9.0, 'space_id': self.other_space.id,
         })
 

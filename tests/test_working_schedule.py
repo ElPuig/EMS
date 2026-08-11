@@ -236,6 +236,53 @@ class TestWorkingSchedule(TransactionCase):
         self.assertTrue(template)
         self.assertIn(self.group, template.group_ids)
 
+    def test_apply_schedule_changes_links_calendar_attendance_to_schedule_line(self):
+        # See plans/calendar_driven_attendance_templates.md, point 4 - the real FK replacing the
+        # inferred (teacher+subject+group+weekday/time) matching find_schedule_lines_for_teaching
+        # otherwise needs.
+        schedule = self.env['resource.calendar'].create({'name': 'Test FK Link (Working Schedule)'})
+        self.teacher.resource_calendar_id = schedule
+        cells = [{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'Test: Group',
+        }]
+
+        schedule.apply_schedule_changes(cells)
+
+        line = self.env['ems.attendance_schedule'].search([
+            ('attendance_template_id.teacher_ids', 'in', self.teacher.id),
+            ('attendance_template_id.subject_id', '=', self.subject.id),
+        ])
+        self.assertTrue(line)
+        self.assertEqual(schedule.attendance_ids.attendance_schedule_id, line)
+
+    def test_apply_schedule_changes_links_co_teaching_calendar_rows_to_same_schedule_line(self):
+        # Co-teaching cardinality: TWO teachers, each with their OWN personal calendar, land on the
+        # exact same class - both calendar rows must point at the SAME single schedule line, not
+        # one each. Also covers the "untouched co-teacher" case: teacher A's row was written and
+        # linked by an EARLIER call, before B ever joined - re-linking it here (when B's own
+        # arrival supersedes A's old solo template with a new shared one) is the whole reason
+        # '_link_calendar_attendance' reads 'merged_groups' instead of the raw submission.
+        other_teacher = self.env['hr.employee'].create({
+            'name': 'Test Co-Teacher (Working Schedule)', 'employee_type': 'teacher',
+        })
+        cell = {
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'Test: Group',
+        }
+        self.teacher.resource_calendar_id.apply_schedule_changes([cell])
+
+        other_teacher.resource_calendar_id.apply_schedule_changes([cell])
+
+        line = self.env['ems.attendance_schedule'].search([
+            ('attendance_template_id.subject_id', '=', self.subject.id),
+            ('attendance_template_id.teacher_ids', 'in', other_teacher.id),
+        ])
+        self.assertEqual(len(line), 1)
+        self.assertEqual(set(line.attendance_template_id.teacher_ids.ids), {self.teacher.id, other_teacher.id})
+        self.assertEqual(self.teacher.resource_calendar_id.attendance_ids.attendance_schedule_id, line)
+        self.assertEqual(other_teacher.resource_calendar_id.attendance_ids.attendance_schedule_id, line)
+
     def test_get_schedule_report_lines_only_covers_real_entries(self):
         schedule = self.env['resource.calendar'].create({'name': 'Test Report Lines (Working Schedule)'})
         schedule.apply_schedule_changes([{

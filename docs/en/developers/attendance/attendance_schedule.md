@@ -142,9 +142,56 @@ just drop this one teacher from a shared co-taught line.
 
 **A genuinely bigger structural fix for this same inferred-link problem — replacing it with a real
 FK from `resource.calendar.attendance` straight to `ems.attendance_schedule` — was proposed by the
-developer the same day and written up in `plans/calendar_driven_attendance_templates.md` rather
-than attempted immediately: it also reshuffles where `student_ids` lives and who's allowed to
-create/archive a template directly, a bigger redesign than this fix's own scope.**
+developer the same day and written up in `plans/calendar_driven_attendance_templates.md`.** That
+plan bundles four changes; only the FK (its point 4) has been built so far — see
+`resource.calendar.attendance.attendance_schedule_id` below. The other three (moving `student_ids`
+down to this model, locking template creation/archival to be calendar-driven only, and a
+`(teacher_ids, group_ids, subject_id)` uniqueness constraint) remain proposed, not implemented —
+this lookup is still the only way to answer "which line does this OLDER calendar block back" for
+any block written before the FK existed, and still the fallback this method's own callers should
+reach for if `attendance_schedule_id` is ever empty on a block that should have one (a bug, not
+the normal case going forward).
+
+## `resource.calendar.attendance.attendance_schedule_id`: the real FK (2026-08-11)
+
+`resource.calendar.attendance` (`ems_working_schedule_assignation`,
+`models/employees/working_schedule.py`) carries `attendance_schedule_id` (Many2one, this model) —
+a genuine, always-correct link, replacing the inferred lookup above for every calendar block
+written **from now on**. Cardinality is many-to-one, not one-to-one: co-teaching means each
+co-teacher's own *personal* calendar gets its own `resource.calendar.attendance` row for the same
+shared class, and all of them point at the same single `ems.attendance_schedule` line — the same
+reason `ems.attendance_template.teacher_ids` is a Many2many rather than one template per teacher
+(see [`attendance_template.md`](attendance_template.md)'s "Co-teaching" section).
+
+**Captured by `ems.attendance_template._link_calendar_attendance(teacher_entries)`**, called at
+the end of both `sync_from_schedule_batch` and `sync_from_schedule_batch_fresh_import` (right
+after `_run_schedule_sync_plans` finishes writing the schedule lines for this same call — see
+`attendance_template.md`'s "CRUD flow"). For every `(teacher, entries)` pair, it matches each
+entry's own `(dayofweek, hour_from, hour_to)` against that teacher's own `resource_calendar_id.
+attendance_ids` (freshly rewritten by the SAME import/edit call, immediately before this runs) to
+find the calendar row, then reuses `find_schedule_lines_for_teaching` (above) to find the schedule
+line it now maps to — writing the FK only when exactly one line matches. Reusing the same
+inference here, rather than avoiding it entirely, is deliberate: at THIS point in the pipeline the
+inference is trustworthy in a way a later, independent call (e.g. from a course transition run
+months afterward) never can be — it runs inside the very same transaction that just archived every
+stale/duplicate line for these exact entries (`_archive_stale_schedule_sync`'s survivor-picking,
+see `attendance_template.md`), so there is no accumulated drift left to be ambiguous about. If a
+match is still ambiguous (`!= 1` line) the FK is simply left unset on that row rather than guessed
+— the same "leave it blank rather than guess" convention `_backfill_calendar_employee_and_course`
+(`migrations/18.0.0.22.0/post-migrate.py`) already established for this same model's `employee_id`/
+`course_id` backfill.
+
+**No historical backfill.** Every `resource.calendar.attendance` row written before this phase
+keeps `attendance_schedule_id` empty — populating it retroactively would mean re-running the exact
+broad, ambiguity-prone inference this FK exists to stop needing, on data that's already had time to
+drift (the same risk `find_schedule_lines_for_teaching`'s own docstring warns about). Any code that
+still needs an older block's schedule line falls back to that lookup, unchanged, until the block
+itself gets rewritten by a live edit or a re-import (which populates the FK from then on).
+`course_transition_wizard._apply_calendar_archival()` (see
+[`course_transition_wizard.md`](../settings/course_transition_wizard.md)) has **not** been switched
+to read the FK yet — it still calls `find_schedule_lines_for_teaching` directly, since a real
+production calendar can easily be full of pre-FK blocks for some time; a follow-up change can teach
+it to prefer `attendance_schedule_id` when set and fall back to the lookup otherwise.
 
 ## `unlink()`: history guard
 

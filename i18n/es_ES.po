@@ -1946,6 +1946,11 @@ msgid "Attendance report: by subject"
 msgstr "Informe de asistencia: por asignatura"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__attendance_schedule_id
+msgid "Attendance schedule"
+msgstr "Calendario de asistencia"
+
+#. module: ems
 #: model:ir.model,name:ems.model_ems_attendance_schedule
 msgid "Attendance schedule: concretes the weekdays data."
 msgstr "Calendario de asistencia: concreta los datos de los días laborables."

@@ -99,6 +99,53 @@ class TestEmployeeScheduleLifecycle(TransactionCase):
 
         self.assertTrue(framework.exists())
 
+    def test_ems_create_personal_calendar_backfills_a_calendar_less_teacher(self):
+        # Simulates a teacher that predates create()'s own auto-calendar override (see
+        # plans/calendar_driven_attendance_templates.md's "Migration requirement" section) - a
+        # real gap found 2026-08-11, since 'write()' has no equivalent logic for a teacher whose
+        # calendar was cleared (or whose employee_type only became 'teacher' later). The backfill
+        # helper (called by post_init_hook and migrations/18.0.0.22.0/post-migrate.py) must be able
+        # to fix this after the fact, mirroring create()'s own logic exactly.
+        employee = self.env['hr.employee'].create({
+            'name': 'Test Backfill (Employee Schedule Lifecycle)',
+            'employee_type': 'teacher',
+        })
+        employee.resource_calendar_id.unlink()
+        self.assertFalse(employee.resource_calendar_id)
+
+        employee._ems_create_personal_calendar()
+
+        self.assertTrue(employee.resource_calendar_id)
+        self.assertEqual(employee.resource_calendar_id.employee_id, employee)
+        self.assertEqual(employee.resource_calendar_id.source_framework_id, self.env.company.default_schedule_framework_id)
+
+    def test_ems_create_personal_calendar_skips_a_teacher_that_already_has_one(self):
+        # Safe to call on a recordset mixing already-covered and genuinely-missing teachers (the
+        # real shape of the backfill's own search) - must never overwrite an existing calendar.
+        employee = self.env['hr.employee'].create({
+            'name': 'Test Backfill Skip (Employee Schedule Lifecycle)',
+            'employee_type': 'teacher',
+        })
+        existing_calendar = employee.resource_calendar_id
+
+        employee._ems_create_personal_calendar()
+
+        self.assertEqual(employee.resource_calendar_id, existing_calendar)
+
+    def test_ems_create_personal_calendar_skips_a_non_teacher(self):
+        # A non-teacher's 'resource_calendar_id' is already truthy right after create() - the
+        # company's own shared calendar, via 'resource.mixin's field-level default, which applies
+        # on every create() regardless of 'employee_type'. Confirms the method still leaves it
+        # completely untouched (same value, not a fresh personal one) rather than mistaking that
+        # default for "already covered".
+        employee = self.env['hr.employee'].create({'name': 'Test Backfill Non Teacher (Employee Schedule Lifecycle)'})
+        company_calendar = employee.resource_calendar_id
+        self.assertTrue(company_calendar)
+
+        employee._ems_create_personal_calendar()
+
+        self.assertEqual(employee.resource_calendar_id, company_calendar)
+
     def test_unlink_one_of_two_employees_sharing_a_calendar_keeps_it(self):
         shared_calendar = self.env['resource.calendar'].create({'name': 'Test Shared Calendar (Employee Schedule Lifecycle)'})
         employee_a = self.env['hr.employee'].create({

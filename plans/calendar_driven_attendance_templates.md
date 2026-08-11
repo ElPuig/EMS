@@ -1,7 +1,8 @@
-Status: not started - proposed by the developer (2026-08-10), analyzed the same day, not yet
-designed in detail. This file exists to not lose the idea and the open questions found while
-sanity-checking it - re-verify against the current code before starting, since this plan may go
-stale.
+Status: IN PROGRESS (2026-08-11) - GitHub issue #372. Point 4 (the direct FK) is DONE - see
+"Point 4: implemented 2026-08-11" below. Points 1-3 are still proposed, not implemented, per the
+developer's own explicit choice to do the FK first and defer the rest (asked via AskUserQuestion,
+2026-08-11: "Solo el FK (fase 2)"). Re-verify against the current code before starting the next
+phase, since this plan may go stale between sessions.
 
 # Origin
 
@@ -148,6 +149,75 @@ runs against them. Point 2 in "Open questions" above (the FK not appearing "for 
 schedule/template write order needing to change) makes this backfill directly relevant to this same
 redesign, not a tangential concern - the redesign's own success depends on every teacher genuinely
 having a calendar to hang the new FK off of, which today's data confirms isn't yet universally true.
+
+# Point 4: implemented 2026-08-11
+
+`resource.calendar.attendance.attendance_schedule_id` (Many2one to `ems.attendance_schedule`)
+exists and is populated automatically at the end of every schedule sync
+(`ems.attendance_template._link_calendar_attendance`, called from both `sync_from_schedule_batch`
+and `sync_from_schedule_batch_fresh_import`) - see `docs/en/developers/attendance/
+attendance_schedule.md`'s own section on this field for the full mechanism, and
+`changelog/372-move-students-from-attendance_template-to-attendance_schedule.md` for what shipped.
+
+**Deliberately no historical backfill** - a `resource.calendar.attendance` row written before this
+phase keeps `attendance_schedule_id` empty. This matters directly for the production-migration
+sequencing below: any "which templates have no calendar backing them" check based purely on this
+FK will show a FALSE POSITIVE for every template whose calendar hasn't been through a fresh sync
+since this phase shipped - not just genuinely orphaned ones. See the caveat under step 1 below.
+
+# Production migration sequencing (developer's own plan, 2026-08-11)
+
+Explained by the developer for when ALL FOUR points above are implemented (they're explicit that
+this can wait until then) - captured here now so it isn't lost by the time that happens:
+
+1. **Audit/cleanup pass**: once the calendar is authoritative, no active `ems.attendance_template`
+   should exist without real calendar backing - any that do ("custom", i.e. created by hand,
+   bypassing the calendar) should be archived.
+2. **Course transition**: every teacher's `resource.calendar` "goes blank" for the new course,
+   which should imply archiving every `ems.attendance_schedule`/`ems.attendance_template` those
+   calendars were backing.
+3. **Re-import**: loading the new course's schedules via the importer creates the new
+   `resource.calendar.attendance` rows, which in turn create the `ems.attendance_template`/
+   `ems.attendance_schedule` records (with the FK already attached, per point 4 above).
+
+**Confirmed/refined with the developer (2026-08-11):**
+
+- **Step 2 is confirmed intentional, not an approximation**: the developer explicitly wanted the
+  OUTGOING calendar to stay queryable for future reference (this is exactly why `employee_id`/
+  `course_id` were added to `resource.calendar` in the first place, see
+  `plans/course_transition_teacher_schedule_archival.md`) - archiving the whole calendar and
+  pointing the teacher at a fresh one is the deliberate design, not something to "fix" into
+  literally blanking the calendar in place. `_apply_calendar_rollover()` already does exactly this
+  and needs no rethink here.
+- **Step 1 simplified: archive everything and regenerate from the CURRENT calendars, rather than
+  trying to detect which templates are genuinely "orphaned"** (developer's own call, sidestepping
+  the FK-backfill-gap false-positive problem entirely - the FK-based orphan detection above is no
+  longer needed for this). Since the calendar is authoritative once points 1-3 land, archiving
+  every active `ems.attendance_template` outright and then re-running the normal sync for every
+  teacher's CURRENT `resource.calendar.attendance` rows reconstructs an equivalent, fully
+  calendar-backed set from scratch - there's no need to first classify old data as "orphan" vs.
+  "legitimate" when the plan is to rebuild all of it from the same source of truth anyway.
+  Concrete design notes for whoever writes this script, so they don't need to re-derive them:
+  - Archiving a template never touches its real attendance-session history (see "Archiving never
+    cascades to sessions" in `attendance_schedule.md`) - a real class's past attendance stays
+    intact and queryable against the archived template/schedule, exactly like a normal
+    `action_new_version()` correction. Safe to archive unconditionally.
+  - Regeneration should read every non-framework calendar's CURRENT `attendance_ids`, convert each
+    teaching row back into an `entry` dict (the same shape `sync_from_schedule_batch*` already
+    expects: `subject_id`, `group_ids`, `dayofweek`, `hour_from`, `hour_to`) **explicitly including
+    each row's own `space_id`** (not left to default from the group) - `resource.calendar.
+    attendance.space_id` is a plain stored field that can already diverge from the group's own
+    default (a prior room reassignment), and `_schedule_line_vals`'s own `entry.get("space_id",
+    space_id)` fallback only preserves that divergence if the entry dict actually carries it.
+  - Feed every teacher's full entry list through `sync_from_schedule_batch` (the LIVE-EDIT variant,
+    "this call = the teacher's whole current schedule" semantics), not
+    `sync_from_schedule_batch_fresh_import` (the importer's own "one slice" semantics) - a
+    regeneration pass genuinely IS each teacher's entire current schedule, all at once, so the
+    stricter live-edit reconciliation is the semantically correct one here, even though nothing
+    strictly depends on it once every template was already archived first.
+  - This naturally re-populates `attendance_schedule_id` on every calendar row too (point 4's own
+    mechanism, unchanged) - by construction, nothing produced by this regeneration can be a false
+    "orphan" under the FK, since it was JUST created by the same sync that sets the FK.
 
 # Recommendation for whoever picks this up
 

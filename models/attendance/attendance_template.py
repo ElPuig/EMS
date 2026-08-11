@@ -233,6 +233,7 @@ class EmsAttendanceTemplate(models.Model):
 		merged_groups, vacated = self._reconcile_teacher_groups(teacher_entries)
 		vacated.action_archive()
 		self._run_schedule_sync_plans(merged_groups, start_date=start_date)
+		self._link_calendar_attendance(merged_groups)
 
 	def sync_from_schedule_batch_fresh_import(self, teacher_entries, start_date=None):
 		"""The XML importer's own batch write path - use this, never 'sync_from_schedule_batch', from
@@ -254,6 +255,7 @@ class EmsAttendanceTemplate(models.Model):
 		merged_groups, vacated = self._reconcile_fresh_import(teacher_entries)
 		vacated.action_archive()
 		self._run_schedule_sync_plans(merged_groups, start_date=start_date)
+		self._link_calendar_attendance(merged_groups)
 
 	def _run_schedule_sync_plans(self, merged_groups, start_date=None):
 		"""Shared archive-then-write pass for both batch sync entry points above - see
@@ -264,6 +266,49 @@ class EmsAttendanceTemplate(models.Model):
 			self._archive_stale_schedule_sync(plan)
 		for plan in plans:
 			self._write_schedule_sync(plan)
+
+	def _link_calendar_attendance(self, merged_groups):
+		"""Points every teacher's resource.calendar.attendance row at the ems.attendance_schedule
+		line it now represents (see plans/calendar_driven_attendance_templates.md, point 4, and
+		docs/en/developers/attendance/attendance_schedule.md's own section on this field) - called
+		right after '_run_schedule_sync_plans' writes the schedule lines for this same sync, using
+		'merged_groups' (not the raw 'teacher_entries' a caller submitted) so an UNTOUCHED
+		co-teacher whose slot survives, merged, still gets their own already-existing calendar row
+		re-pointed at the new/updated line - the same reason '_run_schedule_sync_plans' itself
+		reads 'merged_groups' rather than the raw submission.
+
+		For each (teachers, entries) group, matches each entry's own (dayofweek, hour_from,
+		hour_to) against that teacher's CURRENT resource.calendar.attendance rows (already
+		rewritten by the same import/live-edit call that led here) to find the calendar row, then
+		reuses 'find_schedule_lines_for_teaching' (ems.attendance_mixin) to find the schedule line
+		it now maps to. Reusing that same inference here - rather than avoiding it - is deliberate:
+		at this exact point the inference is trustworthy in a way a later, independent call never
+		can be, since '_run_schedule_sync_plans' just consolidated/archived every stale or
+		duplicate line for these exact entries, so there's nothing left to be ambiguous about. If a
+		match is still ambiguous ('!= 1' line, or no calendar row at all - e.g. a test that calls
+		sync_from_schedule* directly without first writing anything onto the calendar, see
+		tests/test_attendance_template.py) the FK is simply left as-is rather than guessed - same
+		"leave it blank rather than guess" convention '_backfill_calendar_employee_and_course'
+		(migrations/18.0.0.22.0/post-migrate.py) already established for this same model."""
+		for teachers, entries in merged_groups:
+			for teacher in teachers:
+				calendar_attendances = teacher.resource_calendar_id.attendance_ids
+				for entry in entries:
+					calendar_attendance = calendar_attendances.filtered(
+						lambda attendance, entry=entry: (
+							attendance.dayofweek == entry['dayofweek']
+							and attendance.hour_from == entry['hour_from']
+							and attendance.hour_to == entry['hour_to']
+						)
+					)
+					if not calendar_attendance:
+						continue
+					subject = self.env['ems.subject'].browse(entry['subject_id'])
+					groups = self.env['ems.group'].browse(entry['group_ids'])
+					lines = self.env['ems.attendance_schedule'].find_schedule_lines_for_teaching(
+						teacher, subject, groups, entry['dayofweek'], entry['hour_from'], entry['hour_to'])
+					if len(lines) == 1:
+						calendar_attendance.attendance_schedule_id = lines.id
 
 	def _reconcile_teacher_groups(self, teacher_entries):
 		"""teacher_entries: [(teacher, entries), ...] — teachers submitting fresh data RIGHT NOW (just

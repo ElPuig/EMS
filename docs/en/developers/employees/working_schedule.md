@@ -107,7 +107,7 @@ This section only covers the model-level foundation those two features will buil
 - **`seed_from_framework(self, framework)`** — points a calendar's `source_framework_id` at `framework` and clears its own Mon–Fri attendance rows. Writes *nothing* else (per the empty-slot rule) — the framework's periods only become real rows the first time the Schedule tab actually saves something.
 - **`apply_schedule_changes(self, cells, source_framework_id=None)`** — the single write path used by the Schedule tab's "Save": unlinks all Mon–Fri rows and recreates them from `cells` (a list of dicts shaped like `resource.calendar.attendance` create-vals), then re-derives `ems.teaching` and `ems.attendance_template` from the same `cells` (see below) and, if `source_framework_id` was passed (only when `New` picked/inherited a different framework), updates the calendar's own reference.
 - **`ems.teaching.sync_from_schedule(self, teacher, entries)`** (`models/employees/teaching.py`) — diffs `teacher.teaching_ids` against `entries` (subject_id + group_ids pairs) by a `"subject.group"` key: creates what's missing, unlinks what's no longer there, leaves the rest untouched. Shared by both the XML importer and `apply_schedule_changes`.
-- **`ems.attendance_template.sync_from_schedule(self, teacher, entries, start_date=None)`** (`models/attendance/attendance_template.py`) — a single-teacher sync, keyed by `"subject.sorted(group_ids).sorted(teacher_ids)"`, creating/archiving `ems.attendance_template` + their `attendance_schedule_ids`, and calling `fill_students()` on new ones. `start_date` defaults to September 1st (a fresh XML import assumes a brand-new course) but the Schedule tab's grid always passes *today* (a live mid-course edit shouldn't imply retroactive attendance). Internally delegates to `sync_from_schedule_batch()` wrapping its single `(teacher, entries)` pair, so a solo live edit is reconciled for co-teaching exactly like the XML importer's own multi-teacher batch — see "Co-teaching" below.
+- **`ems.attendance_template.sync_from_schedule(self, teacher, entries, start_date=None)`** (`models/attendance/attendance_template.py`) — a single-teacher sync, keyed by `"subject.sorted(group_ids).sorted(teacher_ids)"`, creating/archiving `ems.attendance_template` + their `attendance_schedule_ids`, and calling `fill_students()` on new ones. `start_date` defaults to September 1st (a fresh XML import assumes a brand-new course) but the Schedule tab's grid always passes *today* (a live mid-course edit shouldn't imply retroactive attendance). Internally delegates to `sync_from_schedule_batch()` wrapping its single `(teacher, entries)` pair, so a solo live edit is reconciled for co-teaching exactly like the XML importer's own multi-teacher batch — see "Co-teaching" below. Also links each freshly-written `resource.calendar.attendance` row to the `ems.attendance_schedule` line it now represents (`_link_calendar_attendance`, 2026-08-11) — see [`attendance_schedule.md`](../attendance/attendance_schedule.md)'s own section on `attendance_schedule_id` for the mechanism.
 - **`get_schedule_hours_summary(self)`** — not stored, computed on demand (see "The 'Schedule' tab widget" below for why). Sums each Mon–Fri attendance row's duration (`hour_to - hour_from`, rounded UP with `math.ceil` — a period that only partially overlaps an hour still counts as a full hour), split into `{'teaching': {'rows': [...], 'total': int}, 'fixed': {'rows': [...], 'total': int}, 'total': int}`. `teaching` rows are keyed by `attendance.group_ids[:1].level_id` for subject periods taught to a `'main'` `ems.group` — or, for a `'reinforcement'` group (no single `level_id` of its own, see "Reinforcement groups" below), keyed and labelled by the group itself instead — plus any non-teaching activity not routed to `fixed`; `fixed` rows are activities with `non_teaching.is_fixed` (any day, e.g. guard duties) plus coordination meetings (`non_teaching.code == 'CM'`) specifically on Wednesday (`dayofweek == '2'`) — the centre's fixed non-teaching commitments. Activities with `non_teaching.is_break` are dropped from both. Reuses `get_report_label()` for translated activity names, same as the PDF report.
 
 ```mermaid
@@ -120,6 +120,8 @@ sequenceDiagram
     C->>C: unlink Mon-Fri rows, recreate from cells
     C->>T: sync_from_schedule(teacher, entries)
     C->>AT: sync_from_schedule(teacher, entries, start_date=today)
+    AT->>AT: _link_calendar_attendance(teacher_entries)
+    AT->>C: writes attendance_schedule_id on each freshly-created attendance row
 ```
 
 ## Employee lifecycle hooks (`models/employees/employee.py`, `ems_employee`)
@@ -127,6 +129,21 @@ sequenceDiagram
 - **`create()`** — every new `employee_type='teacher'` gets their **own** `resource.calendar` (never shared, never the company's own calendar — `resource.mixin`'s client-side default pre-fills `resource_calendar_id` with the company's calendar before `create()` even runs server-side, so that value can't be used to detect "nothing was chosen"; it's unconditionally overridden), seeded from `company.default_schedule_framework_id` (required field, see Settings below). Passes `employee_id`/`course_id` (the new employee, `company.current_course_id`) to the calendar's own `create()`, which derives `name` from them (see above) — no name string built here by hand.
 - **`write()`** — renaming an employee calls the calendar's own `_refresh_personal_name()`, which rebuilds `name` from its `employee_id`/`course_id` (or the reverse-search fallback for a legacy calendar) and no-ops for a framework calendar.
 - **`unlink()`** — deletes the employee's personal calendar (cascading its attendance rows), unless it's a framework, still referenced by another employee, or is the company's own base calendar.
+
+**Backfill for employees that predate the `create()` auto-calendar (2026-08-11).** The override
+above only started running with commit `bc29e04b` (`18.0.0.20.0`, 2026-07-12) — any
+`employee_type='teacher'` row already in the database before that (or one whose `employee_type`
+only became `'teacher'` later, which `write()` has no equivalent logic for) can have
+`resource_calendar_id` falsy. `_write_teacher_schedule()` (the import wizard, above) silently
+no-ops on an empty `resource_calendar_id.write(...)` — no exception, `ems.teaching.
+sync_from_schedule()` runs independently right after and correctly creates the teaching rows
+regardless, which is what let this go unnoticed until a real import for a real teacher (Óscar
+Bagan, this dev DB) left an empty Schedule tab despite real `ems.teaching` rows. `post_init_hook`
+(`__init__.py`) and `migrations/18.0.0.22.0/post-migrate.py`'s `_backfill_missing_teacher_
+calendars` both create a personal calendar (mirroring `create()`'s own logic exactly) for every
+`hr.employee` with `employee_type='teacher'` and no calendar, active or archived — the same
+one-time-setup-needs-both-paths rule as every other backfill in this codebase (see the module's
+own `README`/`CLAUDE.md` "Migrations" section for why both are required).
 
 ## The "Working Schedules" list: history browsing (2026-08-06, phase 8 of `plans/course_transition_teacher_schedule_archival.md`)
 

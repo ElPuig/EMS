@@ -27,6 +27,7 @@ def post_init_hook(env):
     # is_enrollment_default is not a CSV column (it is live state the centre moves when it
     # opens the next campaign), so a fresh install needs it seeded once.
     env['ems.course']._ems_seed_enrollment_default()
+    _backfill_missing_teacher_calendars(env)
 
 
 def _backfill_default_schedule_framework(env):
@@ -44,6 +45,22 @@ def _backfill_default_schedule_framework(env):
     env['res.company'].search([('default_schedule_framework_id', '=', False)]).write({
         'default_schedule_framework_id': framework.id,
     })
+
+
+def _backfill_missing_teacher_calendars(env):
+    """'hr.employee.create()`'s auto-calendar override (models/employees/employee.py) only exists
+    since commit bc29e04b (18.0.0.20.0, 2026-07-12) - a teacher already in the database before
+    then (or one whose employee_type only became 'teacher' later, which write() has no equivalent
+    logic for) can still be missing a personal resource.calendar. See
+    plans/calendar_driven_attendance_templates.md's "Migration requirement" section for the real
+    import bug this was found from, and migrations/18.0.0.22.0/post-migrate.py's own counterpart
+    for the same backfill on the upgrade path (this one only ever matters for a fresh install
+    whose own data files created a teacher outside the normal create() path, e.g. a hand-rolled
+    CSV import - not the common case, but cheap to cover here too for the same "every one-time
+    setup action needs both paths" reason as every other backfill in this file)."""
+    env['hr.employee'].with_context(active_test=False).search([
+        ('employee_type', '=', 'teacher'), ('resource_calendar_id', '=', False),
+    ])._ems_create_personal_calendar()
 
 
 def _enable_unaccent_extension(env):

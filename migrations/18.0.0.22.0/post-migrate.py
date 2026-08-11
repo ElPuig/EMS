@@ -321,6 +321,27 @@ def _backfill_calendar_employee_and_course(env):
             "resource.calendar record(s).", updated)
 
 
+def _backfill_missing_teacher_calendars(env):
+    """See plans/calendar_driven_attendance_templates.md's "Migration requirement" section - a
+    teacher already in the database before commit bc29e04b (18.0.0.20.0, 2026-07-12, hr.employee.
+    create()'s own auto-calendar override) - or one whose employee_type only became 'teacher'
+    later, which write() has no equivalent logic for - can be missing a personal resource.calendar
+    entirely. '_write_teacher_schedule()' silently no-ops on an empty resource_calendar_id, which
+    is how this surfaced: a real import left a real teacher (Óscar Bagan, this dev DB) with real
+    ems.teaching rows but an empty Schedule tab. Mirrors hr.employee.create()'s own logic exactly
+    via the shared '_ems_create_personal_calendar' helper (models/employees/employee.py) - active
+    or archived, since an archived teacher's historical schedule should still be attributable to a
+    real calendar, not silently unattributable forever."""
+    employees = env['hr.employee'].with_context(active_test=False).search([
+        ('employee_type', '=', 'teacher'), ('resource_calendar_id', '=', False),
+    ])
+    if employees:
+        employees._ems_create_personal_calendar()
+        _logger.info(
+            "Migration 18.0.0.22.0: created a personal resource.calendar for %d teacher(s) missing one.",
+            len(employees))
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _enable_unaccent(cr)
@@ -334,3 +355,4 @@ def migrate(cr, _version):
     _recompute_authorization_flags(env)
     _backfill_attendance_template_study_ids(cr)
     _backfill_calendar_employee_and_course(env)
+    _backfill_missing_teacher_calendars(env)

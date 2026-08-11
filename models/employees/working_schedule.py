@@ -244,6 +244,16 @@ class ems_working_schedule_assignation(models.Model):
 	# common case where no explicit room is given - same "first selected group wins when several
 	# are assigned" convention already used by 'ems.attendance_template'.
 	space_id = fields.Many2one(string="Classroom", comodel_name="ems.space", store=True)
+	# NOTE: added 2026-08-11 (see plans/calendar_driven_attendance_templates.md, point 4) - a real
+	# FK to the ems.attendance_schedule line this weekly block represents, replacing the inferred
+	# (teacher+subject+group-overlap+weekday/time) matching find_schedule_lines_for_teaching still
+	# has to fall back on for any row written before this field existed - see that method's own
+	# docstring and docs/en/developers/attendance/attendance_schedule.md's own section on this
+	# field for the full reasoning (in particular why it's captured going forward only, with no
+	# historical backfill). Many-to-one, not one-to-one: co-teaching means each co-teacher's own
+	# PERSONAL calendar carries its own row for the same shared class, and all of them point at the
+	# same single schedule line - see ems.attendance_template's own "Co-teaching" docs.
+	attendance_schedule_id = fields.Many2one(string="Attendance schedule", comodel_name="ems.attendance_schedule")
 	# NOTE: stored because it's read in bulk whenever a group's schedule is aggregated across many
 	# different teachers' calendars (see ems.group.get_subject_teachers_summary) — computing it on the
 	# fly for every row would mean one 'hr.employee' search per row instead of a plain read.

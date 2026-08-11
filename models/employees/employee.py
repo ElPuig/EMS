@@ -483,23 +483,47 @@ class ems_employee(models.AbstractModel):
     @api.model_create_multi
     def create(self, vals_list):
         employees = super().create(vals_list)
-        for employee in employees:
-            if employee.employee_type != 'teacher':
-                continue
-            # NOTE: every teacher gets their OWN calendar, always — 'resource_calendar_id' arrives
-            # already pre-filled by resource.mixin's client-side default (the company's shared
-            # calendar), so it can never be used to detect "nothing was set yet". Sharing a calendar
-            # between teachers would break the 1:1 assumption 'apply_schedule_changes' relies on.
-            # 'employee_id'/'course_id' (added 2026-08-06) make this calendar a permanent, queryable
-            # historical record on its own terms - see plans/course_transition_teacher_schedule_archival.md.
-            # 'name' is auto-derived from them by resource.calendar's own create() override.
+        # NOTE: every teacher gets their OWN calendar, always — 'resource_calendar_id' arrives
+        # already pre-filled by resource.mixin's client-side default (the company's shared
+        # calendar), so it can never be used to detect "nothing was set yet". Sharing a calendar
+        # between teachers would break the 1:1 assumption 'apply_schedule_changes' relies on.
+        # See '_ems_create_personal_calendar' for why this is a shared method, not inline here.
+        employees._ems_create_personal_calendar()
+        return employees
+
+    def _ems_create_personal_calendar(self):
+        """Creates and assigns a personal 'resource.calendar' for every teacher in 'self' that
+        doesn't already have their OWN one - shared between create() (every new teacher, above)
+        and the one-time backfill for a teacher that predates create()'s own auto-calendar
+        override (added commit bc29e04b, 18.0.0.20.0, 2026-07-12 - see '__init__.py's
+        'post_init_hook' and 'migrations/18.0.0.22.0/post-migrate.py' for the two backfill call
+        sites this same method feeds, and 'plans/calendar_driven_attendance_templates.md' for the
+        real import bug that surfaced the gap). 'employee_id'/'course_id' (added 2026-08-06) make
+        the new calendar a permanent, queryable historical record on its own terms - see
+        plans/course_transition_teacher_schedule_archival.md. 'name' is auto-derived from them by
+        'resource.calendar's own create() override - no name string built here by hand.
+
+        Deliberately NOT 'not employee.resource_calendar_id' - 'resource.mixin.resource_calendar_id'
+        carries a field-level 'default=lambda self: self.env.company.resource_calendar_id', which
+        applies on EVERY create() (server-side calls included, not just through a view), so a
+        brand-new teacher already arrives with a truthy (but shared, non-personal)
+        'resource_calendar_id' before this method ever runs - a plain truthiness check would
+        silently skip them, leaving them sharing the company's own calendar (found the hard way
+        while testing this method: two teachers created back-to-back ended up on the exact same
+        calendar, tripping 'apply_schedule_changes' co-teaching and getting a
+        'ValueError: Expected singleton' from 'get_employee()'s own reverse-search fallback).
+        Checking 'employee_id != employee' instead correctly tells apart "no calendar at all"
+        (backfill's real scenario) and "the shared company default" (create()'s own scenario) from
+        "a genuine pre-existing PERSONAL calendar" (skipped, matching a personal calendar's own
+        'employee_id' back-reference, set by this same method) - safe to call on any recordset
+        mixing all three cases."""
+        for employee in self.filtered(lambda employee: employee.employee_type == 'teacher' and employee.resource_calendar_id.employee_id != employee):
             schedule = self.env['resource.calendar'].create({
                 'employee_id': employee.id,
                 'course_id': employee.company_id.current_course_id.id,
             })
             schedule.seed_from_framework(employee.company_id.default_schedule_framework_id)
             employee.resource_calendar_id = schedule
-        return employees
 
     def write(self, vals):
         # write_photo() re-enters here to actually store image_1920 (see its own comment) -

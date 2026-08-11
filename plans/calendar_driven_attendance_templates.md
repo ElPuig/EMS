@@ -99,6 +99,56 @@ matching every time something like a course transition needs it.
    `teacher_ids`/`subject_id`/`group_ids`/`study_ids`, same as today, just nothing left to *add*
    to that list - roster and room were never on it to begin with, per the point above).
 
+# Migration requirement found while investigating a real import bug (2026-08-11)
+
+Real scenario: an admin merged two raw file identifiers to the same already-existing teacher on
+the "Resolve teachers" screen, completed the import, and found the teacher had `ems.teaching` rows
+(subject/group assignments - written independently by `ems.teaching.sync_from_schedule`) but an
+EMPTY "Schedule" tab, with the UI showing "No working schedule assigned to this employee yet."
+
+**Root cause, confirmed against this dev DB, unrelated to the two-identifier merge (would happen
+identically for a single identifier) and unrelated to course transition (ruled out - see below):**
+`_write_teacher_schedule()` (`models/employees/working_schedule.py`) does
+`teacher.resource_calendar_id.write({'attendance_ids': attendance_ids})`, documented as assuming
+"every teacher already has one, auto-created at `employee.create()` time." That auto-creation
+(`hr.employee.create()`'s override, `models/employees/employee.py`) was only introduced in commit
+`bc29e04b` (version `18.0.0.20.0`, 2026-07-12) - it never runs for an employee already in the
+database before that date, and `write()` has no equivalent logic for an employee whose
+`employee_type` becomes `'teacher'` later. The one migration written around that same version
+(`migrations/18.0.0.20.0/post-migrate.py`) only backfilled employees whose `resource_calendar_id`
+pointed at the OLD shared company calendar being retired that same migration - it never checked for
+`resource_calendar_id IS NULL` on its own, so an employee who was already NULL (not pointing at the
+old calendar at all - the likely path for anyone created via a backend data import rather than
+through the UI, since the client-side default that would otherwise fill it in doesn't apply there)
+fell through that migration's own detection net too. **Confirmed via `psql` (2026-08-11): 8 active
+`hr.employee` (`employee_type='teacher'`) rows in this dev DB have `resource_calendar_id IS NULL` -
+every one of them `create_date`s well before 2026-07-12, consistent with this exact gap, not a
+one-off.** No `mail_tracking_value` history shows any of them ever having `employee_type` changed
+after creation either, ruling out "created as a different type, converted later" as a contributing
+case for these 8 specifically.
+
+**Course transition explicitly ruled out as a cause**, per the developer's own suspicion, confirmed
+by reading the code: `course_transition_wizard._apply_calendar_archival()` only ever collects
+`affected_teachers` from `_migrating_calendar_blocks()` - teachers who already HAVE calendar
+attendance blocks to migrate. A calendar-less teacher produces zero blocks, so they're never
+included, and `_apply_calendar_rollover()` (which reassigns `resource_calendar_id` for archived-and-
+rolled-over teachers) never runs for them either. If anything, a calendar-less teacher who *did*
+somehow reach `_apply_calendar_rollover()` would come out the other end WITH a fresh calendar (its
+first line reads `calendar = teacher.resource_calendar_id`, then unconditionally creates/reactivates
+`next_calendar` and assigns it) - that code path is self-healing, not a source of this bug.
+
+**What the eventual migration for this redesign (or, if this lands sooner, a dedicated one) must
+include:** a backfill creating a personal `resource.calendar` (mirroring `hr.employee.create()`'s
+own logic - `employee_id`, `course_id`, `seed_from_framework(company.default_schedule_framework_id)`)
+for every `hr.employee` with `employee_type = 'teacher'` and `resource_calendar_id` falsy, active or
+archived. Worth doing as part of whichever migration folder is current when this redesign (or a
+narrower fix) actually ships, so any teacher created before this gap was ever closed - anywhere,
+not just this centre's own dev data - is covered before that install's own batch importer next
+runs against them. Point 2 in "Open questions" above (the FK not appearing "for free," the calendar/
+schedule/template write order needing to change) makes this backfill directly relevant to this same
+redesign, not a tangential concern - the redesign's own success depends on every teacher genuinely
+having a calendar to hang the new FK off of, which today's data confirms isn't yet universally true.
+
 # Recommendation for whoever picks this up
 
 This is a genuine, worthwhile simplification (point 4 in particular directly removes the class of

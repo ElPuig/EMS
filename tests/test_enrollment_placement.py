@@ -14,9 +14,30 @@ class TestEnrollmentPlacement(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        Course = cls.env['ems.course']
-        cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \
-            or Course.create({'start': 2099, 'end': 2100, 'is_enrollment_default': True})
+        # A dedicated, always-in-the-future course, explicitly made the REAL 'is_enrollment_default'
+        # one via the company selector - not a plain field write, and not left to whichever course
+        # the ambient dev DB happens to have it on. Found the hard way (2026-08-11, a full unscoped
+        # './test.sh' run): the original fixture searched for whatever course was ALREADY flagged
+        # 'is_enrollment_default', assuming that course could never also be 'current'
+        # (company.current_course_id) - an assumption 'ems.course' itself never guarantees. Per
+        # '_ems_seed_enrollment_default's own docstring, the two flags legitimately coincide for a
+        # real, expected window: right after a course transition, before the centre manually opens
+        # the FOLLOWING year's own campaign - exactly the dev DB's own current state when this broke
+        # (course '2026-2027' held both). When they coincide, '_ems_placement_is_individual()'
+        # (ems_course_id == company.current_course_id) returns True for this test's own orders,
+        # applying placement immediately instead of deferring it to the transition wizard - breaking
+        # 'test_admit_converts_applicant'/'test_admit_student_keeps_group', which specifically test
+        # the DEFERRED path. But 'is_enrollment_default' itself IS a real, load-bearing dependency
+        # elsewhere in this same file - 'res.partner._compute_transition_status()' independently
+        # searches for whichever course holds that flag (ignoring 'cls.course' entirely) to decide
+        # 'unplaced' vs 'missing' - a first fix that just dropped the flag broke
+        # 'test_action_suggest_fills_enrolled_skips_unenrolled' the same way. Routing the move
+        # through 'company.enrollment_course_id' (not a direct 'is_enrollment_default' write) reuses
+        # the same clear-then-set sync '_sync_enrollment_course_flag' already provides - exactly the
+        # mechanism a real admin moving the flag through Settings would trigger, and the only way to
+        # actually satisfy 'ems.course''s own uniqueness constraint without a separate unset step.
+        cls.course = cls.env['ems.course'].create({'start': 2099, 'end': 2100})
+        cls.env.company.enrollment_course_id = cls.course.id
         cls.level, cls.study = create_level_study(cls, 'PLV', level={'name': 'Placement Level'}, study={
             'code': 'PLC001', 'acronym': 'PLST', 'name': 'Placement Study',
         })

@@ -1479,3 +1479,4 @@ registry.category("web_tour.tours").add("ems_employee_pending_identification_ind
         },
     ],
 });
+

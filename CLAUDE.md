@@ -494,13 +494,73 @@ items under their matching section (`# Fixes`, `# Internal changes`, etc.); a la
 a section already present is appended under that existing heading, not a new one. Plain
 markdown throughout, no code fences — the file is meant to be copied as a whole.
 
-**Deliver in chat only when explicitly asked** — trigger phrases like "dame el texto/los
-detalles para la PR" or similar (ask for clarification if genuinely ambiguous, don't guess).
-When asked: read **every** file currently under `changelog/` (not just the current branch's
-own — after pulling in a colleague's branch there may be several) and paste their combined
-content directly into chat as plain markdown, exactly as stored, ready for the developer to
-copy the whole thing as the PR body in one shot. This can be asked at any point, not only right
-before publishing — always return whatever has accumulated so far.
+**Deliver only when explicitly asked** — trigger phrases like "dame el texto/los detalles para
+la PR" or similar (ask for clarification if genuinely ambiguous, don't guess). When asked: read
+**every** file currently under `changelog/` (not just the current branch's own — after pulling in
+a colleague's branch there may be several). This can be asked at any point, not only right before
+publishing — always return whatever has accumulated so far.
+
+**Reassemble by section, in the PR template's order — never just concatenate the files as-is.**
+Each individual `changelog/<branch>.md` file already groups its own items by section internally,
+but its own top-level section order reflects whatever order that branch happened to add items in
+(e.g. `Fixes` before `Breaking changes`), not `.github/pull_request_template.md`'s mandated order
+(`Breaking changes` → `What's new` → `Changes` → `Fixes` → `Internal changes` → `Related with`).
+Simply concatenating several files' raw content therefore produces a document with the same
+section header repeated out of order several times over - wrong, and the developer will reject it
+(confirmed 2026-08-12: *"No has respetado el orden de secciones que aparece en la plantilla de la
+PR. Ese orden debe respetarse."*). Before delivering, parse every file's own top-level `# Section:`
+blocks and re-group them: emit each of the 6 template sections exactly once, in the template's own
+order, with every source file's items for that section folded in underneath it (preserving each
+file's own item order within the section - a plain regex split on `^# ` headers per file, keyed by
+the normalized section name, is enough; a short throwaway Python script is the fastest reliable
+way to do this for a large combined document, rather than hand-reordering it inline). **Omit
+`Related with` entirely from what gets generated/delivered** - the developer fills that section in
+themselves (confirmed 2026-08-12: *"el 'related with' no lo incluyas... porque me encargo yo de
+esa parte"*), even though the individual `changelog/<branch>.md` files may each still carry their
+own `# Related with:` content (that's fine, it's not what's being suppressed - only the combined
+delivery to the developer drops it).
+
+**Condense at delivery time - titles concise, bullets generic, similar items across different
+models merged into one.** The per-branch working files stay exactly as detailed as they already
+are (developer feedback 2026-08-12: *"Si a ti te va bien que los .md temporales sean tan
+detallados, puedes hacer el resumen en el momento de fusionar los .md"* - the verbose,
+model/field-naming style is fine and wanted for `changelog/<branch>.md` itself, since that's the
+working record of *why* a decision was made, read by nobody but this session and the developer
+mid-branch). It is **only the combined document handed to the developer for the actual PR body**
+that must be condensed, per the same feedback (*"los títulos han de ser claros y concisos, y el
+detalle que se muestra en forma de lista, también debe ser más resumido. No es necesario que se
+nombren todos los modelos o campos, se puede hacer una descripción genérica... si varios títulos
+tienen similitudes o hablan del mismo concepto pero de un modelo distinto, se pueden agrupar y
+explicar de forma genérica"*):
+- Rewrite each `##` title to be short and immediately clear on its own, dropping specific
+  model/method/field names unless the title is meaningless without one.
+- Rewrite each bullet to 1-3 sentences of plain, generic description - what changed and why it
+  matters to whoever reads the PR, not how it was implemented or which exact fields/classes were
+  touched. Drop the developer-quote/date/iteration trail entirely (useful in the working file's own
+  history, noise in a PR body).
+- **Merge titles across different files that describe the same underlying concept applied to
+  different models/screens** into one generic entry - the canonical example found this same day:
+  ~20 separate "`<model X>` now has its first browser tour" items (one per screen) collapse into a
+  single "Browser-tour coverage added across most of the application" entry naming the *categories*
+  of screens covered, not each one by name. The same merging applies to any other repeated pattern
+  (e.g. several distinct course-transition data-integrity fixes found during the same rehearsal
+  can be one bullet, not one heading each).
+- This is a genuine rewrite, not a mechanical trim - read the full detailed content first (already
+  required by the "read every file" step above), then write fresh, short prose that captures what a
+  PR reviewer actually needs to know from it.
+
+**Deliver as a file, not pasted into chat — this developer's client renders no download
+affordance either way** (`SendUserFile` produces no visible card in this VSCode-extension/Claude
+Code environment, confirmed 2026-08-12 - only pasting is the actual regression to avoid). Write
+the reassembled, section-ordered result to a single `.md` in the session scratchpad and tell the
+developer the plain absolute path, with an explicit note to use **Ctrl+O (Open File), not Ctrl+P**
+- a scratchpad path lives outside the open workspace, so Quick Open won't find it. Never copy it
+into the actual project directory (an untracked file sitting in the repo is something the
+developer would have to remember to delete before their next commit - confirmed unwanted,
+2026-08-12). A `vscode://file/<path>` markdown link was tried the same day and did not render as
+clickable in this client - don't bother with it, the plain-path-plus-Ctrl+O handoff is what
+actually works here. Generating the full combined text as a chat response is also simply slow to
+stream for a multi-thousand-word document - a second, independent reason to prefer the file.
 
 **One file per branch, not one shared file** — deliberate, not just tidiness: every developer's
 own Claude session does the same on their own branch, so `changelog/` ends up with multiple

@@ -390,6 +390,132 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_gr
     ],
 });
 
+// "Resolve groups" screen's OWN second block (2026-08-12, developer feedback after hitting a real
+// error on this exact case: "quiero que podamos arreglarlo desde 'Resolve groups'"): a group already
+// matched by name in the file, but still missing a classroom, now surfaces here too - as its own
+// list, alongside (not instead of) the unresolved-name list above - instead of only failing at the
+// very last "Import" click. "Tour Resolve Space Group" resolves directly (a reinforcement group,
+// matched by its literal name - see the sibling 'resolve_group' tour above), so it never appears in
+// the unresolved-name list at all; only in this new one.
+registry.category("web_tour.tours").add("ems_working_schedules_import_resolve_missing_classroom", {
+    test: true,
+    url: "/odoo/action-ems.action_working_schedules_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view",
+            content: "Working Schedules list loaded",
+        },
+        {
+            trigger: ".o_cp_action_menus button",
+            content: "Open the list's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-item:contains('Import planner data')",
+            content: "Click 'Import planner data (XML)'",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids']",
+            content: "Import wizard dialog opened",
+            run: async () => {
+                const xml = '<root><T name="TOURSPACETEACHER"><D name="1 Monday"><H name="1 09:00">'
+                    + '<Subject name="TOURRESOLVESPACE Tour Resolve Space Subject"/>'
+                    + '<Students name="Tour Resolve Space Group"/>'
+                    + '</H></D></T></root>';
+                const file = new File([xml], "planner_resolve_missing_classroom.xml", { type: "text/xml" });
+                await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", [file]);
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attachment",
+            content: "File attached",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled purely because a file is attached",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('Every group mentioned in the file was recognized')",
+            content: "The group's name resolved directly - the unresolved-name list has nothing to show",
+        },
+        {
+            trigger: ".modal .o_data_cell:contains('Tour Resolve Space Group')",
+            content: "But the SECOND list, for groups missing a classroom, lists it",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue_disabled'][disabled]",
+            content: "Continue shows disabled - the classroom hasn't been picked yet",
+        },
+        {
+            trigger: ".modal .o_data_row .o_data_cell[name='space_id']",
+            content: "Click the row's classroom cell to edit it",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_selected_row .o_field_widget[name='space_id'] input",
+            content: "Search for the seeded classroom",
+            run: "edit Tour Resolve Space Classroom",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Tour Resolve Space Classroom')",
+            content: "Select it",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue is enabled now that the classroom is picked - it's written straight onto the real group",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('Every subject matches its group')",
+            content: "The 'subjects' screen shows the success message",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'subjects' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_cell:contains('TOURSPACETEACHER')",
+            content: "The 'teachers' screen lists the placeholder code as its own unresolved row too",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
+            content: "Continue through the 'teachers' step - 'create_new' already defaults to True, nothing to click",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('No conflicts were found within this batch')",
+            content: "The 'internal_conflicts' screen shows its own success message - only one teacher is in this batch, so no collision is possible",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'internal_conflicts' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .alert-success:contains('No conflicts were found against already-active schedules')",
+            content: "The 'db_conflicts' screen shows its own success message - no pre-existing session collides here",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_continue']",
+            content: "Continue through the 'db_conflicts' step (nothing to resolve here)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='import_planner_data']:not([disabled])",
+            content: "Click 'Import' - the group's now-assigned classroom is what actually gets used",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_list_view",
+            content: "Back to the Working Schedules list, confirming the import completed",
+        },
+    ],
+});
+
 // "Resolve subjects" screen (2026-08-11, developer feedback after hitting a real error: "The
 // subject '...' is not available in the following selected studies: ..."): a file subject code
 // that resolves to a real 'ems.subject', but one not taught in the group's own study, now surfaces

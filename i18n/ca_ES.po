@@ -2382,7 +2382,7 @@ msgid "City"
 msgstr "Ciutat"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_group__space_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id
+#: model:ir.model.fields,field_description:ems.field_ems_group__space_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id
 msgid "Classroom"
 msgstr "Aula"
 
@@ -3900,7 +3900,7 @@ msgid "Grant access"
 msgstr "Atorgar accés"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__group_id model:ir.model.fields,field_description:ems.field_ems_grade_session__group_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_teaching__group_id model_terms:ir.ui.view,arch_db:ems.view_grade_session_search model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_group_list model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_id model_terms:ir.ui.view,arch_db:ems.view_year_record_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__group_id model:ir.model.fields,field_description:ems.field_ems_grade_session__group_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_teaching__group_id model_terms:ir.ui.view,arch_db:ems.view_grade_session_search model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_group_list model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_id model_terms:ir.ui.view,arch_db:ems.view_year_record_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__group_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__group_id
 msgid "Group"
 msgstr "Grup"
 
@@ -7875,9 +7875,19 @@ msgid "Working schedules import wizard: unresolved group correction line."
 msgstr "Assistent d'importació d'horaris: línia de correcció de grup no resolt."
 
 #. module: ems
+#: model:ir.model,name:ems.model_ems_working_schedules_import_wizard_space_line
+msgid "Working schedules import wizard: group missing a classroom correction line."
+msgstr "Assistent d'importació d'horaris: línia de correcció de grup sense aula."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__group_line_ids
 msgid "Unresolved groups"
 msgstr "Grups no resolts"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__space_line_ids
+msgid "Groups missing a classroom"
+msgstr "Grups sense aula"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__raw_name model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
@@ -7894,6 +7904,17 @@ msgstr "S'han reconegut tots els grups esmentats al fitxer."
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Please select a group for every unresolved name before continuing:\n%s"
 msgstr "Seleccioneu un grup per a cada nom no resolt abans de continuar:\n%s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "EMS also checks that every group referenced already has a classroom assigned. Any group missing one is listed below: the classroom you pick here is saved on the group itself, for this import and every future one."
+msgstr "L'EMS també comprova que cada grup referenciat ja tingui una aula assignada. Qualsevol grup que no en tingui es llista a sota: l'aula que triïs aquí es desa al mateix grup, per a aquesta importació i per a totes les futures."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Please assign a classroom for every group listed before continuing:\n%s"
+msgstr "Assigneu una aula per a cada grup llistat abans de continuar:\n%s"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__state__subjects

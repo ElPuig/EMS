@@ -47,6 +47,14 @@
                                     <field name="group_id"/>
                                 </list>
                             </field>
+
+                            <p invisible="not space_line_ids">EMS also checks that every group referenced already has a classroom assigned. Any group missing one is listed below: the classroom you pick here is saved on the group itself, for this import and every future one.</p>
+                            <field name="space_line_ids" invisible="not space_line_ids">
+                                <list editable="bottom" create="False" delete="False" limit="1000">
+                                    <field name="group_id"/>
+                                    <field name="space_id"/>
+                                </list>
+                            </field>
                         </div>
 
                         <div invisible="state != 'subjects'">

@@ -400,6 +400,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# of whether it ends up empty (the 'groups' screen shows a success message instead of the list
 	# in that case).
 	group_line_ids = fields.One2many(string="Unresolved groups", comodel_name="ems.working_schedules_import_wizard.group_line", inverse_name="wizard_id")
+	# NOTE: one line per distinct 'ems.group' already matched by name in the file but still missing a
+	# classroom (see '_groups_without_space') - populated once, leaving 'intro', same as 'group_line_
+	# ids' above (developer feedback 2026-08-12, after hitting this exact error only at the very last
+	# "Import" click: "quiero que podamos arreglarlo desde 'Resolve groups'").
+	space_line_ids = fields.One2many(string="Groups missing a classroom", comodel_name="ems.working_schedules_import_wizard.space_line", inverse_name="wizard_id")
 	# NOTE: one line per distinct (group set, file subject) pair where the subject isn't taught in
 	# that group's own study - populated once, leaving 'groups' (needs the group picks already
 	# applied first, since the check itself reads each entry's now-resolved 'group_ids').
@@ -437,19 +442,22 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	continue_disabled = fields.Boolean(compute="_compute_continue_disabled")
 
 	@api.depends(
-		"state", "ready_to_import", "group_line_ids.group_id", "subject_line_ids.subject_id",
-		"subject_line_ids.allowed_subject_ids", "teacher_line_ids.employee_id",
-		"teacher_line_ids.create_new", "internal_conflict_line_ids.resolution",
-		"internal_conflict_line_ids.left_space_id", "internal_conflict_line_ids.right_space_id",
-		"external_conflict_line_ids.resolution", "external_conflict_line_ids.left_space_id",
-		"external_conflict_line_ids.right_space_id",
+		"state", "ready_to_import", "group_line_ids.group_id", "space_line_ids.space_id",
+		"subject_line_ids.subject_id", "subject_line_ids.allowed_subject_ids",
+		"teacher_line_ids.employee_id", "teacher_line_ids.create_new",
+		"internal_conflict_line_ids.resolution", "internal_conflict_line_ids.left_space_id",
+		"internal_conflict_line_ids.right_space_id", "external_conflict_line_ids.resolution",
+		"external_conflict_line_ids.left_space_id", "external_conflict_line_ids.right_space_id",
 	)
 	def _compute_continue_disabled(self):
 		for wizard in self:
 			if wizard.state == 'intro':
 				wizard.continue_disabled = not wizard.ready_to_import
 			elif wizard.state == 'groups':
-				wizard.continue_disabled = bool(wizard.group_line_ids.filtered(lambda line: not line.group_id))
+				wizard.continue_disabled = bool(
+					wizard.group_line_ids.filtered(lambda line: not line.group_id)
+					or wizard.space_line_ids.filtered(lambda line: not line.space_id)
+				)
 			elif wizard.state == 'subjects':
 				wizard.continue_disabled = bool(wizard.subject_line_ids.filtered(
 					lambda line: line.subject_id.id not in line.allowed_subject_ids.ids
@@ -514,14 +522,18 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			for line in self._conflict_lines(conflicts)
 		]
 
-	def _groups_without_space(self, teacher_entries):
+	def _groups_without_space(self, entries_lists):
 		"""Every distinct ems.group referenced by a teaching entry (group_ids present — non-teaching
-		entries carry none) that has no classroom (space_id) assigned. ems.group.space_id is optional,
+		entries carry none) across 'entries_lists' (one 'entries' list per teacher/node, same shape
+		'node_cache' items and 'teacher_entries' pairs both carry - callers pass whichever they
+		already have) that has no classroom (space_id) assigned. ems.group.space_id is optional,
 		but the room on ems.attendance_template it feeds is required — importing a subject taught to
 		such a group fails with Odoo's generic "mandatory field is not set" error instead of naming the
-		actual problem, so this is checked upfront to raise/warn with the group(s) at fault instead."""
+		actual problem, so this is checked both upfront (see '_continue_from_intro'/'_continue_from_
+		groups') and again as a final safety net in '_apply_import', to raise/warn with the group(s)
+		at fault instead."""
 		group_ids = set()
-		for _teacher, entries in teacher_entries:
+		for entries in entries_lists:
 			for entry in entries:
 				group_ids.update(entry.get('group_ids') or [])
 		if not group_ids:
@@ -626,9 +638,16 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		"""Parses every attached file (without writing anything yet - see '_classify_attachments'),
 		caches the result, and advances to the next step. The 'no course configured'/'no file
 		attached' checks stay here (there is no later step that could ever resolve either one), but
-		everything about the file's own CONTENT (unresolved teachers, missing classrooms, schedule
-		conflicts...) is deferred to '_apply_import' - see that method's own docstring - except an
-		unresolved group name, deferred to the 'groups' step instead (see 'group_line_ids' below)."""
+		most of the file's own CONTENT (unresolved teachers, schedule conflicts...) is deferred to
+		'_apply_import' - see that method's own docstring. Two exceptions get their own correction
+		lines here instead, both resolved on the 'groups' step: an unresolved group name
+		('group_line_ids'), and a group already matched by name but still missing a classroom
+		('space_line_ids' - developer feedback 2026-08-12, after hitting this exact error on a real
+		import: "quiero que podamos arreglarlo desde 'Resolve groups'" instead of only finding out at
+		the very last "Import" click). Only catches a group whose name ALREADY resolves directly in
+		the file (the common case) - a group that only becomes known once an unresolved name gets
+		picked/created on the 'groups' step itself is still caught by '_apply_import()`'s own
+		end-of-pipeline check (see 'missing_space' there), just not pre-emptively on this screen."""
 		self.ensure_one()
 		if not self.env.company.current_course_id.id:
 			raise ValidationError(_("No 'current course' has been setup. Please, select or create the current course within the EMS settings section."))
@@ -646,21 +665,34 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		self.group_line_ids = [(5, 0, 0)] + [
 			(0, 0, {'raw_name': name}) for name in result['pending_group_names']
 		]
+		missing_space = self._groups_without_space(item['entries'] for item in result['node_cache'])
+		self.space_line_ids = [(5, 0, 0)] + [(0, 0, {'group_id': group.id}) for group in missing_space]
 		self._advance_state()
 
 	def _continue_from_groups(self):
 		"""The 'groups' step's own 'Continue' handler: every 'group_line_ids' row must have a group
 		picked (raised, same convention as every other validation in this wizard - the developer's
-		own choice, see 'plans/working_schedule_import_redesign.md's step 2), then every occurrence
-		of each resolved raw name across the whole cached batch is substituted in place (see
-		'_finalize_pending_groups') before advancing - nothing reaches '_apply_import()' with a
-		'pending_group_names' marker still attached."""
+		own choice, see 'plans/working_schedule_import_redesign.md's step 2) and every 'space_line_
+		ids' row must have a classroom picked (added 2026-08-12, same convention - see '_continue_
+		from_intro' for why this screen is where a missing classroom gets caught) - each picked
+		classroom is written straight onto the real 'ems.group.space_id' (not wizard-scoped: the room
+		is a property of the group itself, fixed for this import AND every future one). Every
+		occurrence of each resolved raw group name across the whole cached batch is then substituted
+		in place (see '_finalize_pending_groups') before advancing - nothing reaches '_apply_import()'
+		with a 'pending_group_names' marker still attached."""
 		self.ensure_one()
 		unresolved_lines = self.group_line_ids.filtered(lambda line: not line.group_id)
 		if unresolved_lines:
 			raise ValidationError(_(
 				"Please select a group for every unresolved name before continuing:\n%s"
 			) % "\n".join(unresolved_lines.mapped('raw_name')))
+		unresolved_space_lines = self.space_line_ids.filtered(lambda line: not line.space_id)
+		if unresolved_space_lines:
+			raise ValidationError(_(
+				"Please assign a classroom for every group listed before continuing:\n%s"
+			) % "\n".join(unresolved_space_lines.mapped('group_id.name')))
+		for line in self.space_line_ids:
+			line.group_id.space_id = line.space_id
 
 		name_to_group = {line.raw_name: line.group_id for line in self.group_line_ids}
 		node_cache = json.loads(self.parsed_entries_json or '[]')
@@ -1514,8 +1546,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 		# NOTE: ems.attendance_schedule.space_id is required, but ems.group.space_id (where it's
 		# taken from) is not — a group missing a classroom would otherwise fail with Odoo's generic
-		# "mandatory field is not set" error instead of naming the actual problem.
-		missing_space = self._groups_without_space(teacher_entries)
+		# "mandatory field is not set" error instead of naming the actual problem. Normally already
+		# caught and fixed on the 'groups' step (see '_continue_from_intro'/'_continue_from_groups')
+		# - this is the final safety net for a group that only became known-missing-space AFTER that
+		# step (e.g. a brand-new group created on the spot while resolving an unmatched raw name).
+		missing_space = self._groups_without_space(entries for _teacher, entries in teacher_entries)
 		if missing_space:
 			raise ValidationError(_(
 				"These groups have no classroom assigned, so their schedule cannot be imported: %s"
@@ -1748,6 +1783,18 @@ class ems_working_schedules_import_wizard_group_line(models.TransientModel):
 	# plain Many2one already gives "pick an existing group, or create one on the spot" for free, no
 	# bespoke code needed (see plans/working_schedule_import_redesign.md's step 2).
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
+
+class ems_working_schedules_import_wizard_space_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.space_line"
+	_description = "Working schedules import wizard: group missing a classroom correction line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	group_id = fields.Many2one(string="Group", comodel_name="ems.group", required=True, readonly=True)
+	# NOTE: not required=True at field level, same convention as 'group_line.group_id' above - left
+	# empty by design until picked, validated via '_continue_from_groups's own raise instead (a
+	# field-level requirement would surface Odoo's generic error on an editable list row before the
+	# admin has had a chance to fill it in).
+	space_id = fields.Many2one(string="Classroom", comodel_name="ems.space")
 
 class ems_working_schedules_import_wizard_subject_line(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard.subject_line"

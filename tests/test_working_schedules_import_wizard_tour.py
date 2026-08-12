@@ -42,6 +42,32 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         })
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_group", login="admin")
 
+    def test_working_schedules_import_resolve_missing_classroom_tour(self):
+        # A reinforcement group (no level/study/course of its own - matches by its literal name, see
+        # TestWorkingSchedulesImportWizard.test_import_reinforcement_group_resolved_by_exact_name)
+        # deliberately created WITHOUT a 'space_id' - it resolves directly by name (unlike the
+        # sibling 'resolve_group' tour above), so this proves the "already-resolved group, still
+        # missing a classroom" case (developer feedback 2026-08-12, after hitting this exact error on
+        # a real import: "quiero que podamos arreglarlo desde 'Resolve groups'") actually renders and
+        # resolves in a real browser, not just at the TransactionCase level (see
+        # test_continue_from_groups_assigning_a_classroom_writes_it_on_the_real_group_and_continues).
+        self.env['ems.subject'].create({
+            'code': 'TOURRESOLVESPACE',
+            'acronym': 'TRSVS',
+            'name': 'Tour Resolve Space Subject',
+        })
+        self.env['ems.group'].create({
+            'group_type': 'reinforcement',
+            'name': 'Tour Resolve Space Group',
+        })
+        self.env['ems.space'].create({
+            'code': 'TOURRESOLVESPACE-A',
+            'name': 'Tour Resolve Space Classroom',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        self.start_tour("/odoo", "ems_working_schedules_import_resolve_missing_classroom", login="admin")
+
     def test_working_schedules_import_resolve_subject_mismatch_tour(self):
         # Real error this screen was built for (2026-08-10): a file subject code that resolves to
         # a real 'ems.subject', but one that isn't taught in the group's own study - 'wrong_subject'

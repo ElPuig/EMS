@@ -479,6 +479,48 @@ step. Verified in a real browser, not just by reasoning about the source: the re
 asserts `button[name='action_continue_disabled'][disabled]` is actually present before a group is
 picked, and `button[name='action_continue']:not([disabled])` right after.
 
+**A group missing a classroom is caught here too (2026-08-12).** Developer feedback, after hitting
+this exact error on a real import (`SA2A` had no `space_id`): *"These groups have no classroom
+assigned, so their schedule cannot be imported: SA2A ... Quiero que podamos arreglarlo desde
+'Resolve groups'"* - `ems.attendance_schedule.space_id` is required, but `ems.group.space_id` (what
+it's fed from) is optional, so a group missing one used to fail only at the very last "Import"
+click, with a generic-sounding error and no obvious way to fix it in place. Now surfaces as a
+SECOND list on this same screen, right below `group_line_ids`:
+
+- **`_groups_without_space(entries_lists)`** (renamed/generalized from a `teacher_entries`-only
+  helper `_apply_import()` already had): every distinct `ems.group` referenced by a teaching entry
+  across whatever `entries_lists` iterable is passed - accepts either `node_cache` items' own
+  `entries` (this screen) or `teacher_entries` pairs' `entries` (the final safety net, below) -
+  that has no `space_id`.
+- **`_continue_from_intro()`** now also computes this against the freshly-parsed `node_cache` and
+  materializes one `ems.working_schedules_import_wizard.space_line` per group found (`group_id`
+  readonly, `space_id` editable Many2one to `ems.space`) - same "populate before advancing,
+  validate on the next click" transactional shape `group_line_ids` already uses - a server action
+  can't safely write a correction line AND raise to block the SAME call: the raise rolls the whole
+  transaction back, including that write, so the admin would never actually see the line that was
+  supposedly just added. Only catches a group whose name **already** resolves directly
+  in the file (the common case, `SA2A` included) - a group that only becomes known once an
+  unresolved name gets picked/created on THIS screen itself (via `group_line_ids.group_id`) is a
+  narrower case, covered instead by the pre-existing final safety net in `_apply_import()` (now
+  documented as such in its own NOTE comment), not pre-emptively here.
+- **`_continue_from_groups()`** raises (same convention as the `group_line_ids` check right above
+  it) if any `space_line_ids` row still has no `space_id` picked; once every row is filled, each
+  pick is written straight onto the real `line.group_id.space_id` **before** the rest of the
+  method's own group-name substitution runs - permanent, not wizard-scoped: fixed for this import
+  and every future one, matching how a real admin would expect "assign this group's classroom" to
+  behave regardless of which screen prompted it.
+- View: a second `<p>`/`<field name="space_line_ids">` pair, `invisible="not space_line_ids"`,
+  right after the existing `group_line_ids` block - both lists render together when a batch has
+  both kinds of problems (no mutual exclusivity, no extra step).
+- `continue_disabled`'s own `groups`-state branch (see above) now also checks `space_line_ids` for
+  an unset `space_id`, alongside `group_line_ids`' own check - both `@api.depends` on
+  `space_line_ids.space_id` too, so the button's enabled/disabled state stays accurate for either
+  kind of unresolved row.
+- Interactive tour: `ems_working_schedules_import_resolve_missing_classroom` - deliberately uses a
+  REINFORCEMENT group (matches by literal name, no acronym/level ambiguity to route around) so the
+  group resolves directly and only the classroom-list ever shows, proving the two lists are
+  genuinely independent of each other.
+
 ### Screen 3 — "Resolve subjects" (2026-08-11) — subject/study mismatch resolution
 
 Real error the developer hit importing a real batch: `"The subject 'MP C056: Català / Aranès

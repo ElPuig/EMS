@@ -676,8 +676,13 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
     def test_import_group_without_space_raises_clear_error(self):
         # ems.group.space_id is optional, but ems.attendance_template.space_id (taken from the
         # group) is required — without this check, Odoo's generic "mandatory field is not set" error
-        # would surface instead of naming which group is missing a classroom. Deferred to the final
-        # Import step since 2026-08-05 - not something the intro screen checks any more.
+        # would surface instead of naming which group is missing a classroom. Caught on the 'groups'
+        # step since 2026-08-12 (developer feedback, after hitting this exact error only at the very
+        # last Import click: "quiero que podamos arreglarlo desde 'Resolve groups'") - '_import()'
+        # never fills in 'space_line_ids.space_id', so it surfaces there, not at Import. The final
+        # 'import_planner_data()' raise (see 'test_apply_import_raises_final_safety_net_for_a_group_
+        # only_known_missing_space_after_groups_step' below) is now only a safety net for a group that
+        # only becomes known-missing-space AFTER the 'groups' step (e.g. newly created on the spot).
         with self.assertRaises(ValidationError) as capture:
             self._import({
                 'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
@@ -689,12 +694,89 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         self.assertIn(self.spaceless_group.name, str(capture.exception))
 
+    def test_continue_from_intro_lists_group_missing_a_classroom_on_the_groups_step(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.spaceless_group.name} Group"/>',
+            )),
+        })
+
+        wizard.action_continue()
+
+        self.assertEqual(wizard.state, 'groups')
+        self.assertEqual(wizard.space_line_ids.group_id, self.spaceless_group)
+        self.assertFalse(wizard.space_line_ids.space_id)
+
+    def test_continue_from_groups_raises_when_a_classroom_is_still_unassigned(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.spaceless_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+
+        with self.assertRaises(ValidationError) as capture:
+            wizard.action_continue()
+
+        self.assertEqual(wizard.state, 'groups')
+        self.assertIn(self.spaceless_group.name, str(capture.exception))
+
+    def test_continue_from_groups_assigning_a_classroom_writes_it_on_the_real_group_and_continues(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.spaceless_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.space_line_ids.space_id = self.space.id
+
+        wizard.action_continue()  # groups -> subjects
+
+        self.assertEqual(wizard.state, 'subjects')
+        # The fix is permanent, not wizard-scoped - it's written straight onto the real group.
+        self.assertEqual(self.spaceless_group.space_id, self.space)
+
+    def test_apply_import_raises_final_safety_net_for_a_group_only_known_missing_space_after_groups_step(self):
+        """A group only reachable by resolving an UNRESOLVED raw name on the 'groups' step (not
+        matched by name at parse time, so '_continue_from_intro' never saw it in any node_cache
+        'group_ids' and 'space_line_ids' stayed empty) is still caught - just later, by '_apply_
+        import()'s own end-of-pipeline check, not pre-emptively on the 'groups' step itself (see
+        '_groups_without_space's own docstring)."""
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_unknown_group_no_space.xml',
+            'datas': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                '<Students name="TWIWNOTAREALGROUP Group"/>',
+            ),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+        wizard.action_continue()  # intro -> groups
+        self.assertFalse(wizard.space_line_ids)
+        wizard.group_line_ids.group_id = self.spaceless_group.id
+
+        while wizard.state != 'summary':
+            wizard.action_continue()
+
+        with self.assertRaises(ValidationError) as capture:
+            wizard.import_planner_data()
+
+        self.assertIn(self.spaceless_group.name, str(capture.exception))
+
     def test_continue_from_intro_unknown_group_defers_to_groups_step(self):
         # Updated 2026-08-05: an unresolvable group no longer blocks the intro screen - it's
         # deferred to the 'groups' step instead (see 'plans/working_schedule_import_redesign.md's
-        # step 2). Unlike an unknown e-mail (deferred all the way to Import) or a missing classroom,
-        # this one still needed '_parse_schedule_entries' itself to keep producing entries for the
-        # node instead of raising - see 'pending_group_names'.
+        # step 2). Unlike an unknown e-mail (deferred all the way to Import), this one still needed
+        # '_parse_schedule_entries' itself to keep producing entries for the node instead of raising
+        # - see 'pending_group_names'.
         attachment = self.env['ir.attachment'].create({
             'name': 'planner_unknown_group.xml',
             'datas': self._xml_file_with_hour_node(
@@ -2213,6 +2295,30 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         })
         wizard.action_continue()  # intro -> groups
         wizard.group_line_ids.group_id = self.group.id
+        self.assertFalse(wizard.continue_disabled)
+
+    def test_continue_disabled_true_at_groups_with_unassigned_classroom(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.spaceless_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        self.assertEqual(wizard.state, 'groups')
+        self.assertTrue(wizard.continue_disabled)
+
+    def test_continue_disabled_false_at_groups_once_classroom_assigned(self):
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.spaceless_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.space_line_ids.space_id = self.space.id
         self.assertFalse(wizard.continue_disabled)
 
     def test_continue_disabled_false_at_groups_with_nothing_to_resolve(self):

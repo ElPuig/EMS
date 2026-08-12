@@ -2006,6 +2006,24 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         # afectados") must actually render alongside the affected teacher, not just the count/name.
         self.assertIn("Their weekly schedule will be synced with this file's content", wizard.overall_summary_html)
 
+    def test_summary_attaches_a_downloadable_csv(self):
+        """Mirrors 'test_apply_attaches_the_rollback_csv' in test_course_transition.py - the
+        same pattern ('summary_file'/'summary_file_name', auto-downloaded via the
+        'auto_download_binary' widget), applied here to the import wizard's own last step."""
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(
+                self._xml_file('test.wizard.teacher.import.wizard@example.com Someone'),
+            ),
+        })
+        while wizard.state != 'summary':
+            wizard.action_continue()
+
+        self.assertTrue(wizard.summary_file)
+        self.assertTrue(wizard.summary_file_name.endswith('.csv'))
+        content = base64.b64decode(wizard.summary_file).decode('utf-8-sig')
+        self.assertIn(self.teacher.name, content)
+        self.assertIn('test.wizard.teacher.import.wizard@example.com', content)
+
     def test_summary_lists_teacher_resolved_on_the_teachers_step(self):
         second_teacher = self._second_teacher()
         wizard = self.env['ems.working_schedules_import_wizard'].create({
@@ -2124,6 +2142,9 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         self.assertIn("TourCatalanSummaryGroup Group s'ha resolt a %s" % self.group.display_name, wizard.overall_summary_html)
         self.assertIn('Aquí no hi ha res a mostrar.', wizard.overall_summary_html)
+        # The downloadable CSV's own header row must translate too - same mechanism, same file.
+        content = base64.b64decode(wizard.summary_file).decode('utf-8-sig')
+        self.assertIn('Categoria,Detall', content)
 
     def test_overall_summary_shows_zero_counts_when_nothing_to_resolve(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({

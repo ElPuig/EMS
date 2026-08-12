@@ -4203,6 +4203,11 @@ msgid "This is the last screen before anything gets written, and none of the pre
 msgstr "Aquesta és l'última pantalla abans que s'escrigui res, i cap dels passos anteriors es podrà tornar a visitar després. Revisa cada bloc de sota - cadascun mostra exactament com s'ha resolt aquella part de la importació - i després fes clic a Importa."
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Download the import summary (CSV)"
+msgstr "Descarregar el resum de la importació (CSV)"
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/import_student_cog_menu.xml:0 model:ir.actions.act_window,name:ems.action_student_import_wizard
 msgid "Import from Esfera"
@@ -8156,6 +8161,18 @@ msgstr "El seu horari setmanal se sincronitzarà amb el contingut d'aquest fitxe
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "These are placeholder employees, created now so their schedule and subjects are ready immediately. Afterwards, open each one's own record to replace the placeholder name with the real one, fill in their personal e-mail, and click Generate Google account - exactly like any other new teacher."
 msgstr "Són empleats provisionals, creats ara perquè el seu horari i assignatures estiguin llestos immediatament. Després, obre la fitxa de cadascun per substituir el nom provisional pel real, omplir el seu correu personal i fer clic a Generar compte Google - exactament igual que per a qualsevol altre docent nou."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Category"
+msgstr "Categoria"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Detail"
+msgstr "Detall"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form

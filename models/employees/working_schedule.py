@@ -5,9 +5,12 @@ from odoo.exceptions import ValidationError
 from markupsafe import Markup
 import xml.etree.ElementTree as ET
 import base64
+import csv
+import io
 import json
 import math
 import re
+from datetime import datetime
 
 from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
 
@@ -420,6 +423,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# no solo cuántos") made a standalone field for that one category alone redundant on this same
 	# screen - removed rather than kept alongside as a duplicate of the same content.
 	overall_summary_html = fields.Html(readonly=True)
+	# NOTE: same content as 'overall_summary_html', flattened into a downloadable CSV - mirrors
+	# 'course_transition_wizard.audit_file'/'audit_file_name' (same fields, same "auto_download_
+	# binary" widget triggering the download on the summary screen's own first render).
+	summary_file = fields.Binary(string="Import summary (CSV)", readonly=True)
+	summary_file_name = fields.Char()
 	# NOTE: drives whether "Continue" renders enabled or disabled (developer feedback 2026-08-05:
 	# "que quedará mas claro si los botones de continuar... aparecen como enabled o disabled" rather
 	# than appearing/disappearing) - the view keeps the button in the SAME place either way (two
@@ -882,6 +890,22 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		return Markup('<div class="d-flex flex-column gap-3 mb-3">{}</div>').format(
 			Markup("").join(blocks)
 		)
+
+	def _build_summary_csv(self, sections):
+		"""Flat CSV twin of the "Overall summary" screen's own cards, built from the SAME
+		'sections' list '_continue_from_db_conflicts' also feeds to '_summary_blocks_html' -
+		one row per detail line, grouped by the same category header shown on screen, so the
+		downloaded file can never drift out of sync with what the admin sees there. Mirrors
+		'course_transition_wizard._build_audit_csv()' (same io.StringIO()/csv.writer/utf-8-sig
+		shape, downloaded the same way via the 'auto_download_binary' widget)."""
+		self.ensure_one()
+		output = io.StringIO()
+		writer = csv.writer(output)
+		writer.writerow([_("Category"), _("Detail")])
+		for title, lines, _note in sections:
+			for line in lines or [_("Nothing to show here.")]:
+				writer.writerow([title, line])
+		return base64.b64encode(output.getvalue().encode("utf-8-sig")).decode()
 
 	def _continue_from_teachers(self):
 		"""The 'teachers' step's own 'Continue' handler, mirroring '_continue_from_groups': every
@@ -1376,36 +1400,34 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			_("%(raw)s resolved to %(teacher)s") % {'raw': line.raw_identifier, 'teacher': line.employee_id.display_name}
 			for line in self.teacher_line_ids
 		]
-		self.overall_summary_html = self._summary_blocks_html([
-			self._summary_block_html(
-				_("%s unresolved group name(s) resolved") % len(self.group_line_ids), group_lines),
-			self._summary_block_html(
-				_("%s unresolved teacher e-mail(s) resolved") % len(self.teacher_line_ids), teacher_lines),
-			self._summary_block_html(
-				_("%s pending teacher(s) will be created") % len(pending_items),
+		sections = [
+			(_("%s unresolved group name(s) resolved") % len(self.group_line_ids), group_lines, None),
+			(_("%s unresolved teacher e-mail(s) resolved") % len(self.teacher_line_ids), teacher_lines, None),
+			(_("%s pending teacher(s) will be created") % len(pending_items),
 				[self._teacher_preview_line(item) for item in pending_items],
-				note=_(
+				_(
 					"These are placeholder employees, created now so their schedule and subjects "
 					"are ready immediately. Afterwards, open each one's own record to replace the "
 					"placeholder name with the real one, fill in their personal e-mail, and click "
 					"Generate Google account - exactly like any other new teacher."
 				)),
-			self._summary_block_html(
-				_("%s file conflict(s) resolved") % len(self.internal_conflict_line_ids),
-				[self._conflict_detail_line(line) for line in self.internal_conflict_line_ids]),
-			self._summary_block_html(
-				_("%s existing schedule conflict(s) resolved") % len(self.external_conflict_line_ids),
-				[self._conflict_detail_line(line) for line in self.external_conflict_line_ids]),
-			self._summary_block_html(
-				_("%s existing teacher(s) affected") % len(existing_items),
+			(_("%s file conflict(s) resolved") % len(self.internal_conflict_line_ids),
+				[self._conflict_detail_line(line) for line in self.internal_conflict_line_ids], None),
+			(_("%s existing schedule conflict(s) resolved") % len(self.external_conflict_line_ids),
+				[self._conflict_detail_line(line) for line in self.external_conflict_line_ids], None),
+			(_("%s existing teacher(s) affected") % len(existing_items),
 				[self._teacher_preview_line(item) for item in existing_items],
-				note=_(
+				_(
 					"Their weekly schedule will be synced with this file's content. Each affected "
 					"attendance template is updated in place if it has no real attendance history "
 					"yet, or archived and replaced by a new version if it does - the original's "
 					"history is never lost."
 				)),
-		])
+		]
+		self.overall_summary_html = self._summary_blocks_html(
+			[self._summary_block_html(title, lines, note=note) for title, lines, note in sections])
+		self.summary_file = self._build_summary_csv(sections)
+		self.summary_file_name = "working_schedules_import_%s.csv" % datetime.now().strftime("%Y%m%d_%H%M%S")
 		self._advance_state()
 
 	def _get_or_create_pending_teacher(self, identifier, manual_email=False):

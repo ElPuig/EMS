@@ -144,6 +144,9 @@
                         <div invisible="state != 'summary'">
                             <p>This is the last screen before anything gets written, and none of the previous steps can be revisited afterwards. Review every block below - each one shows exactly how that part of the import was resolved - then click Import.</p>
                             <field name="overall_summary_html" nolabel="1"/>
+                            <field name="summary_file" widget="auto_download_binary"
+                                   filename="summary_file_name" string="Download the import summary (CSV)"/>
+                            <field name="summary_file_name" invisible="1"/>
                         </div>
                     </sheet>
                     <footer>

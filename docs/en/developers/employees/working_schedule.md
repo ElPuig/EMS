@@ -1223,6 +1223,36 @@ flat list:
   standalone field too would have shown the identical content twice on the same screen - removed
   instead, along with its own dedicated success alert (now the block's own "Nothing to show here."
   covers that case, consistently with every other block rather than as a one-off).
+- **Auto-downloaded CSV twin (2026-08-12), same pattern as `course_transition_wizard`'s own
+  `audit_file`/`audit_file_name`.** Developer feedback: *"Mi compañero Juan lo ha hecho en la
+  transición y creo que es cómodo: cuando lleguemos al final del asistente (overall), se descarga
+  un fichero con ese resumen"* - Juan's own `course_transition_wizard` already auto-downloads a CSV
+  the moment its own last screen renders, so this wizard's last screen replicates the identical
+  mechanism rather than inventing a new one:
+  - `summary_file` (`Binary`) / `summary_file_name` (`Char`) fields, populated by
+    `_continue_from_db_conflicts()` in the SAME call that builds `overall_summary_html`, from the
+    SAME `sections` list (a `[(title, lines, note), ...]` built once and fed to both renderers - so
+    the on-screen cards and the downloaded file can never drift out of sync with each other).
+    `_build_summary_csv(sections)` flattens it to two columns (`Category`, `Detail`) via
+    `io.StringIO()` + `csv.writer`, one row per detail line (or one `"Nothing to show here."` row
+    for an empty category) - `base64.b64encode(...).decode()`, `utf-8-sig` encoding (Excel-friendly
+    BOM), same shape as `course_transition_wizard._build_audit_csv()`.
+  - View: `<field name="summary_file" widget="auto_download_binary" filename="summary_file_name"
+    string="Download the import summary (CSV)"/>` on the `state == 'summary'` block, next to
+    `overall_summary_html`. `auto_download_binary` (`static/src/js/backend/auto_download_binary_
+    field.js`) is a generic `BinaryField` subclass already used by 4 wizards (`course_transition_
+    wizard`, contact import, grading import, applicant import) - its `onMounted()` hook fires the
+    browser download automatically the first time the field mounts with data already present, no
+    click needed. It fires here specifically because every "Continue" handler in this wizard
+    (`_reopen_self_action()`) returns a fresh `ir.actions.act_window` targeting the same wizard
+    record, forcing a full remount - the `summary` screen's fields (including this one) mount for
+    the first time with `summary_file` already populated, exactly like every other screen
+    transition in this wizard, no wizard-specific plumbing needed.
+  - Test coverage: `test_summary_attaches_a_downloadable_csv` (mirrors `test_course_transition.py`'s
+    own `test_apply_attaches_the_rollback_csv`) decodes the base64 content and asserts the expected
+    teacher/e-mail appear in it. No tour assertion - none of the 4 pre-existing `auto_download_
+    binary` usages in this codebase have one either, since a headless tour can't meaningfully verify
+    a real browser download completed; the backend test is the established coverage for this widget.
 
 **Why renamed and expanded (2026-08-10, developer feedback):** the screen was originally just a
 plain existing-teacher preview, labelled "Existing teachers". Feedback in order:

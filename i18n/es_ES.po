@@ -4203,6 +4203,11 @@ msgid "This is the last screen before anything gets written, and none of the pre
 msgstr "Esta es la última pantalla antes de que se escriba nada, y ninguno de los pasos anteriores se podrá volver a visitar después. Revisa cada bloque de abajo - cada uno muestra exactamente cómo se ha resuelto esa parte de la importación - y luego haz clic en Importar."
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Download the import summary (CSV)"
+msgstr "Descargar el resumen de la importación (CSV)"
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/import_student_cog_menu.xml:0 model:ir.actions.act_window,name:ems.action_student_import_wizard
 msgid "Import from Esfera"
@@ -8156,6 +8161,18 @@ msgstr "Su horario semanal se sincronizará con el contenido de este archivo. Ca
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "These are placeholder employees, created now so their schedule and subjects are ready immediately. Afterwards, open each one's own record to replace the placeholder name with the real one, fill in their personal e-mail, and click Generate Google account - exactly like any other new teacher."
 msgstr "Son empleados provisionales, creados ahora para que su horario y asignaturas estén listos de inmediato. Después, abre la ficha de cada uno para sustituir el nombre provisional por el real, rellenar su correo personal y hacer clic en Generar cuenta Google - exactamente igual que para cualquier otro docente nuevo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Category"
+msgstr "Categoría"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Detail"
+msgstr "Detalle"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form

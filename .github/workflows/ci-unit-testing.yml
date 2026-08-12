@@ -167,7 +167,14 @@ jobs:
       - name: Install EMS module
         run: |
           set -o pipefail
-          sudo /opt/modules/ems/install.sh 2>&1 | tee /tmp/odoo-install.log
+          # 'dev' is required - install.sh interactively prompts for prod/dev when called with
+          # no argument (see CLAUDE.md's "Development vs. production environment declaration"),
+          # and a GitHub Actions runner has no stdin/TTY to answer that prompt with. Without this,
+          # every shard hangs forever on this exact step (confirmed 2026-08-12: every one of 9
+          # parallel shards stuck here for 20+ minutes, and an earlier run had to be manually
+          # cancelled after running 6 hours on 2026-08-11, the day the prompt was introduced) - a
+          # CI database, thrown away at the end of the job, is always 'dev', never 'prod'.
+          sudo /opt/modules/ems/install.sh dev 2>&1 | tee /tmp/odoo-install.log
 
       - name: Update external dependencies
         run: |
